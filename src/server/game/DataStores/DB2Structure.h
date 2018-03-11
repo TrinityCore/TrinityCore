@@ -248,6 +248,26 @@ struct ArtifactQuestXPEntry
     uint32 Exp[10];
 };
 
+struct ArtifactTierEntry
+{
+    uint32 ID;
+    uint32 Unk1;
+    uint32 MinArtifactRank;
+    uint32 MinKnowledgeRank;
+    uint32 Unk2;
+    uint32 Unk3;
+};
+
+struct ArtifactUnlockEntry
+{
+    uint32 ID;
+    uint16 ItemBonusListID;
+    uint8  PowerRank;
+    uint32 PowerID;
+    uint32 PlayerConditionID;
+    uint8  ArtifactID;
+};
+
 struct AuctionHouseEntry
 {
     uint32 ID;

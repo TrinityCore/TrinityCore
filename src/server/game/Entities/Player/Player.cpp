@@ -549,6 +549,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetUInt64Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
+    SetCurrency(CURRENCY_TYPE_ARTIFACT_KNOWLEDGE, sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE));
 
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
@@ -18996,9 +18997,9 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
     //expected to be equipped before offhand items (@todo fixme)
 
-    //                 0     1                       2                   3                 4
-    // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid INNER JOIN character_inventory ci ON ci.item = ap.guid WHERE ci.guid = ?
-    std::unordered_map<ObjectGuid, std::tuple<uint64, uint32, std::vector<ItemDynamicFieldArtifactPowers>>> artifactData;
+    //                 0     1                       2                 3                   4                 5
+    // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid INNER JOIN character_inventory ci ON ci.item = ap.guid WHERE ci.guid = ?
+    std::unordered_map<ObjectGuid, std::tuple<uint64, uint32, uint32, std::vector<ItemDynamicFieldArtifactPowers>>> artifactData;
     if (artifactsResult)
     {
         do
@@ -19007,17 +19008,22 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
             auto& artifactDataEntry = artifactData[ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64())];
             std::get<0>(artifactDataEntry) = fields[1].GetUInt64();
             std::get<1>(artifactDataEntry) = fields[2].GetUInt32();
+            std::get<2>(artifactDataEntry) = fields[3].GetUInt32();
             ItemDynamicFieldArtifactPowers artifactPowerData;
-            artifactPowerData.ArtifactPowerId = fields[3].GetUInt32();
-            artifactPowerData.PurchasedRank = fields[4].GetUInt8();
+            artifactPowerData.ArtifactPowerId = fields[4].GetUInt32();
+            artifactPowerData.PurchasedRank = fields[5].GetUInt8();
             if (ArtifactPowerEntry const* artifactPower = sArtifactPowerStore.LookupEntry(artifactPowerData.ArtifactPowerId))
             {
-                if (artifactPowerData.PurchasedRank > artifactPower->MaxRank)
-                    artifactPowerData.PurchasedRank = artifactPower->MaxRank;
+                uint32 maxRank = artifactPower->MaxRank;
+                if (artifactPower->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER)
+                    maxRank += std::get<2>(artifactDataEntry);
 
-                artifactPowerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) ? 1 : 0;
+                if (artifactPowerData.PurchasedRank > maxRank)
+                    artifactPowerData.PurchasedRank = maxRank;
 
-                std::get<2>(artifactDataEntry).push_back(artifactPowerData);
+                artifactPowerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) == ARTIFACT_POWER_FLAG_FIRST ? 1 : 0;
+
+                std::get<3>(artifactDataEntry).push_back(artifactPowerData);
             }
 
         } while (artifactsResult->NextRow());
@@ -19041,7 +19047,7 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
             {
                 auto artifactDataItr = artifactData.find(item->GetGUID());
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
-                    item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second));
+                    item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second), std::get<3>(artifactDataItr->second));
 
                 ObjectGuid bagGuid = fields[45].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[45].GetUInt64()) : ObjectGuid::Empty;
                 uint8 slot = fields[46].GetUInt8();

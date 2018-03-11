@@ -35,9 +35,11 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifact)
         return;
 
+    uint32 currentArtifactTier = artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
+
     uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
+        xpCost = uint64(currentArtifactTier == 1 ? cost->XP2 : cost->XP);
 
     if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
@@ -53,32 +55,42 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifactPowerEntry)
         return;
 
-    if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
-        artifactAddPower.PowerChoices[0].Rank > artifactPowerEntry->MaxRank)
+    if (artifactPowerEntry->ArtifactTier > currentArtifactTier)
         return;
 
-    if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
+    uint32 maxRank = artifactPowerEntry->MaxRank;
+    if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER)
+        maxRank += currentArtifactTier;
+
+    if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
+        artifactAddPower.PowerChoices[0].Rank > maxRank)
+        return;
+
+    if (!(artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FIRST))
     {
-        bool hasAnyLink = false;
-        for (uint32 artifactPowerLinkId : *artifactPowerLinks)
+        if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
         {
-            ArtifactPowerEntry const* artifactPowerLink = sArtifactPowerStore.LookupEntry(artifactPowerLinkId);
-            if (!artifactPowerLink)
-                continue;
-
-            ItemDynamicFieldArtifactPowers const* artifactPowerLinkLearned = artifact->GetArtifactPower(artifactPowerLinkId);
-            if (!artifactPowerLinkLearned)
-                continue;
-
-            if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxRank)
+            bool hasAnyLink = false;
+            for (uint32 artifactPowerLinkId : *artifactPowerLinks)
             {
-                hasAnyLink = true;
-                break;
-            }
-        }
+                ArtifactPowerEntry const* artifactPowerLink = sArtifactPowerStore.LookupEntry(artifactPowerLinkId);
+                if (!artifactPowerLink)
+                    continue;
 
-        if (!hasAnyLink)
-            return;
+                ItemDynamicFieldArtifactPowers const* artifactPowerLinkLearned = artifact->GetArtifactPower(artifactPowerLinkId);
+                if (!artifactPowerLinkLearned)
+                    continue;
+
+                if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxRank)
+                {
+                    hasAnyLink = true;
+                    break;
+                }
+            }
+
+            if (!hasAnyLink)
+                return;
+        }
     }
 
     ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower->ArtifactPowerId, artifactPower->CurrentRankWithBonus + 1 - 1); // need data for next rank, but -1 because of how db2 data is structured
@@ -115,6 +127,13 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
 
     artifact->SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) - xpCost);
     artifact->SetState(ITEM_CHANGED, _player);
+
+    uint32 totalPurchasedArtifactPower = artifact->GetTotalPurchasedArtifactPowers();
+    for (uint32 i = 0; i < sArtifactTierStore.GetNumRows(); ++i)
+        if (ArtifactTierEntry const* tier = sArtifactTierStore.LookupEntry(i))
+            if (tier->MinArtifactRank <= totalPurchasedArtifactPower)
+                if (artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) < tier->ID)
+                    artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, tier->ID);
 }
 
 void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance)
