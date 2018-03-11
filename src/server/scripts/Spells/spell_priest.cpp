@@ -954,6 +954,32 @@ class spell_pri_power_word_shield : public SpellScriptLoader
     public:
         spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
+        class spell_pri_power_word_shield_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_power_word_shield_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ spellInfo->ExcludeTargetAuraSpell });
+            }
+
+            void WeakenSoul()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, GetSpellInfo()->ExcludeTargetAuraSpell, true);
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_pri_power_word_shield_SpellScript::WeakenSoul);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_power_word_shield_SpellScript();
+        }
+
         class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
