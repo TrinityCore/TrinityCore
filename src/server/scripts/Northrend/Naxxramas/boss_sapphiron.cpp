@@ -294,10 +294,7 @@ class boss_sapphiron : public CreatureScript
                                 events.ScheduleEvent(EVENT_TAIL, randtime(Seconds(7), Seconds(10)), 0, PHASE_GROUND);
                                 return;
                             case EVENT_DRAIN:
-                                if (events.IsInPhase(PHASE_FLIGHT))
-                                    _delayedDrain = true;
-                                else
-                                    CastDrain();
+                                CastDrain();
                                 return;
                             case EVENT_BLIZZARD:
                                 DoCastAOE(SPELL_SUMMON_BLIZZARD);
@@ -399,6 +396,9 @@ class boss_sapphiron : public CreatureScript
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 return;
+                            case EVENT_DRAIN:
+                                _delayedDrain = true;
+                                break;
                         }
                     }
                 }
