@@ -978,6 +978,9 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId, 
 
 void Item::UpdateItemSuffixFactor(Player const* owner/* = nullptr*/)
 {
+    if (!GetTemplate()->GetRandomSuffix())
+        return;
+
     uint32 suffixFactor = GetRandomPropertyPoints(GetItemLevel(owner ? owner : GetOwner()), GetTemplate()->GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
     if (GetItemSuffixFactor() == suffixFactor)
         return;
@@ -2206,11 +2209,11 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 
 uint32 Item::GetItemLevel(Player const* owner) const
 {
-    uint32 minItemLevel = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL);
-    uint32 minItemLevelCutoff = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF);
-    uint32 maxItemLevel = GetTemplate()->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
-    bool pvpBonus = owner->IsUsingPvpItemLevels();
-    return Item::GetItemLevel(GetTemplate(), _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID),
+    uint32 minItemLevel = owner ? owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL) : 0;
+    uint32 minItemLevelCutoff = owner ? owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF) : 0;
+    uint32 maxItemLevel = GetTemplate()->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner ? owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL) : 0;
+    bool pvpBonus = owner ? owner->IsUsingPvpItemLevels() : false;
+    return Item::GetItemLevel(GetTemplate(), _bonusData, owner ? owner->getLevel(): GetTemplate()->GetBaseItemLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID),
         minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus);
 }
 
