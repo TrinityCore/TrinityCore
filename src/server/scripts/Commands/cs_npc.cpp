@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -50,7 +51,7 @@ struct EnumName
 #define CREATE_NAMED_ENUM(VALUE) { VALUE, STRINGIZE(VALUE) }
 
 #define NPCFLAG_COUNT   24
-#define FLAGS_EXTRA_COUNT 20
+#define FLAGS_EXTRA_COUNT 21
 
 EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
 {
@@ -173,7 +174,8 @@ EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_DUNGEON_BOSS),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING),
-    CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
+    CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK),
+    CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK)
 };
 
 bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args)
@@ -200,13 +202,13 @@ bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args)
         else
             groupId = atoi(thisArg.c_str());
 
-        arg = strtok(NULL, " ");
+        arg = strtok(nullptr, " ");
     }
 
     Player* player = handler->GetSession()->GetPlayer();
 
     std::vector <WorldObject*> creatureList;
-    if (!sObjectMgr->SpawnGroupSpawn(groupId, player->GetMap(), ignoreRespawn, force, &creatureList))
+    if (!player->GetMap()->SpawnGroupSpawn(groupId, ignoreRespawn, force, &creatureList))
     {
         handler->PSendSysMessage(LANG_SPAWNGROUP_BADGROUP, groupId);
         handler->SetSentErrorMessage(true);
@@ -214,8 +216,6 @@ bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args)
     }
 
     handler->PSendSysMessage(LANG_SPAWNGROUP_SPAWNCOUNT, creatureList.size());
-    for (WorldObject* obj : creatureList)
-        handler->PSendSysMessage("%s (%s)", obj->GetName(), obj->GetGUID().ToString().c_str());
 
     return true;
 }
@@ -246,12 +246,14 @@ bool HandleNpcDespawnGroup(ChatHandler* handler, char const* args)
 
     Player* player = handler->GetSession()->GetPlayer();
 
-    if (!sObjectMgr->SpawnGroupDespawn(groupId, player->GetMap(), deleteRespawnTimes))
+    size_t n = 0;
+    if (!player->GetMap()->SpawnGroupDespawn(groupId, deleteRespawnTimes, &n))
     {
         handler->PSendSysMessage(LANG_SPAWNGROUP_BADGROUP, groupId);
         handler->SetSentErrorMessage(true);
         return false;
     }
+    handler->PSendSysMessage("Despawned a total of %zu objects.", n);
 
     return true;
 }
@@ -561,6 +563,9 @@ public:
             ObjectGuid::LowType lowguid = atoul(cId);
             if (!lowguid)
                 return false;
+            // force respawn to make sure we find something
+            handler->GetSession()->GetPlayer()->GetMap()->ForceRespawn(SPAWN_TYPE_CREATURE, lowguid);
+            // then try to find it
             creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
         }
         else
@@ -769,26 +774,26 @@ public:
         uint32 mechanicImmuneMask = cInfo->MechanicImmuneMask;
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
-        uint32 Entry = target->GetEntry();
+        uint32 entry = target->GetEntry();
 
-        int64 curRespawnDelay = target->GetRespawnCompatibilityMode() ? target->GetRespawnTimeEx() - time(nullptr) : target->GetMap()->GetCreatureRespawnTime(target->GetSpawnId()) - time(nullptr);
+        int64 curRespawnDelay = target->GetRespawnCompatibilityMode() ? target->GetRespawnTimeEx() - GameTime::GetGameTime() : target->GetMap()->GetCreatureRespawnTime(target->GetSpawnId()) - GameTime::GetGameTime();
 
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
         std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);
         std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
 
-        handler->PSendSysMessage(LANG_NPCINFO_CHAR, target->GetSpawnId(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage(LANG_NPCINFO_CHAR, target->GetName().c_str(), target->GetSpawnId(), target->GetGUID().GetCounter(), entry, faction, npcflags, displayid, nativeid);
         if (target->GetCreatureData() && target->GetCreatureData()->spawnGroupData->groupId)
         {
-            if (SpawnGroupTemplateData const* groupData = target->GetCreatureData()->spawnGroupData)
-                handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, groupData->isActive);
+            SpawnGroupTemplateData const* const groupData = target->GetCreatureData()->spawnGroupData;
+            handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, target->GetMap()->IsSpawnGroupActive(groupData->groupId));
         }
         handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, target->GetRespawnCompatibilityMode());
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
-        handler->PSendSysMessage(LANG_NPCINFO_INHABIT_TYPE, cInfo->InhabitType);
+        handler->PSendSysMessage(LANG_NPCINFO_MOVEMENT_DATA, target->GetMovementTemplate().ToString().c_str());
 
         handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS));
         for (uint8 i = 0; i < MAX_UNIT_FLAGS; ++i)
@@ -802,7 +807,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_PHASEMASK, target->GetPhaseMask());
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
         handler->PSendSysMessage(LANG_NPCINFO_POSITION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-        handler->PSendSysMessage(LANG_NPCINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
+        handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
         handler->PSendSysMessage(LANG_NPCINFO_FLAGS_EXTRA, cInfo->flags_extra);
         for (uint8 i = 0; i < FLAGS_EXTRA_COUNT; ++i)
             if (cInfo->flags_extra & flagsExtra[i].Value)
@@ -1639,7 +1644,7 @@ public:
         ObjectGuid::LowType lowguid = creature->GetSpawnId();
         if (creature->GetFormation())
         {
-            handler->PSendSysMessage("Selected creature is already member of group %u", creature->GetFormation()->GetId());
+            handler->PSendSysMessage("Selected creature is already member of group %u", creature->GetFormation()->GetLeaderSpawnId());
             return false;
         }
 
@@ -1647,24 +1652,19 @@ public:
             return false;
 
         Player* chr = handler->GetSession()->GetPlayer();
-        FormationInfo* group_member;
 
-        group_member                 = new FormationInfo;
-        group_member->follow_angle   = (creature->GetAngle(chr) - chr->GetOrientation()) * 180 / float(M_PI);
-        group_member->follow_dist    = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
-        group_member->leaderGUID     = leaderGUID;
-        group_member->groupAI        = 0;
-
-        sFormationMgr->CreatureGroupMap[lowguid] = group_member;
+        float  followAngle = (creature->GetAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
+        float  followDist  = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
+        uint32 groupAI     = 0;
+        sFormationMgr->AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
         creature->SearchFormation();
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
-
         stmt->setUInt32(0, leaderGUID);
         stmt->setUInt32(1, lowguid);
-        stmt->setFloat(2, group_member->follow_dist);
-        stmt->setFloat(3, group_member->follow_angle);
-        stmt->setUInt32(4, uint32(group_member->groupAI));
+        stmt->setFloat (2, followAngle);
+        stmt->setFloat (3, followDist);
+        stmt->setUInt32(4, groupAI);
 
         WorldDatabase.Execute(stmt);
 

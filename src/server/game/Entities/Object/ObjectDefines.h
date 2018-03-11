@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,6 +62,12 @@ enum NotifyFlags
     NOTIFY_AI_RELOCATION            = 0x01,
     NOTIFY_VISIBILITY_CHANGED       = 0x02,
     NOTIFY_ALL                      = 0xFF
+};
+
+enum GOSummonType
+{
+   GO_SUMMON_TIMED_OR_CORPSE_DESPAWN = 0,    // despawns after a specified time OR when the summoner dies
+   GO_SUMMON_TIMED_DESPAWN = 1     // despawns after a specified time
 };
 
 inline uint64 MAKE_PAIR64(uint32 l, uint32 h)

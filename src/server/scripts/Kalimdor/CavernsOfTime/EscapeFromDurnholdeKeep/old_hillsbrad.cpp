@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -205,6 +205,7 @@ public:
             instance = creature->GetInstanceScript();
             HadMount = false;
             me->setActive(true);
+            me->SetFarVisible(true);
         }
 
         void Initialize()
@@ -411,7 +412,7 @@ public:
             me->Dismount();
             me->SetSpeedRate(MOVE_RUN, SPEED_RUN);
         }
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_TH_RANDOM_AGGRO);
             if (me->IsMounted())
@@ -442,12 +443,12 @@ public:
         {
             Talk(SAY_TH_RANDOM_KILL);
         }
-        void JustDied(Unit* slayer) override
+        void JustDied(Unit* killer) override
         {
             instance->SetData(TYPE_THRALL_EVENT, FAIL);
 
             // Don't do a yell if he kills self (if player goes too far or at the end).
-            if (slayer == me)
+            if (killer == me)
                 return;
 
             Talk(SAY_TH_RANDOM_DIE);
@@ -587,7 +588,7 @@ public:
         }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

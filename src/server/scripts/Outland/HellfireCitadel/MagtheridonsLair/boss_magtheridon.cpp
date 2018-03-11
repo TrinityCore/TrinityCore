@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -220,10 +220,13 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!events.IsInPhase(PHASE_BANISH) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -237,11 +240,11 @@ class boss_magtheridon : public CreatureScript
                             events.Repeat(Seconds(10));
                             break;
                         case EVENT_BLAZE:
-                            me->CastCustomSpell(SPELL_BLAZE_TARGET, SPELLVALUE_MAX_TARGETS, 1);
+                            DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.Repeat(Seconds(20));
                             break;
                         case EVENT_QUAKE:
-                            me->CastCustomSpell(SPELL_QUAKE, SPELLVALUE_MAX_TARGETS, 5);
+                            DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
                             events.Repeat(Seconds(60));
                             break;
                         case EVENT_START_FIGHT:
@@ -250,7 +253,7 @@ class boss_magtheridon : public CreatureScript
                         case EVENT_RELEASED:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
                             events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
@@ -294,9 +297,6 @@ class boss_magtheridon : public CreatureScript
                         return;
                 }
 
-                if (!UpdateVictim())
-                    return;
-
                 DoMeleeAttackIfReady();
             }
 
@@ -330,7 +330,7 @@ class npc_hellfire_channeler : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
 
@@ -354,7 +354,7 @@ class npc_hellfire_channeler : public CreatureScript
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->JustSummoned(summon);
 
-                summon->SetInCombatWithZone();
+                DoZoneInCombat(summon);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override

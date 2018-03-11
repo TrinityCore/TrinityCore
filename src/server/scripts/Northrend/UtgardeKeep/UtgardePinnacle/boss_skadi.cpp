@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -342,7 +342,7 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             me->SetSpeedRate(MOVE_RUN, 2.5f);
         }
 
@@ -365,6 +365,7 @@ public:
             init.Launch();
 
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
@@ -475,9 +476,9 @@ struct npc_skadi_trashAI : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        CreatureAI::EnterCombat(who);
+        CreatureAI::JustEngagedWith(who);
         ScheduleTasks();
     }
 

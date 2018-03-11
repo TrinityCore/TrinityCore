@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,9 +93,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Enraged = false;
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_HATEFUL, Seconds(1));
@@ -127,28 +127,28 @@ public:
                         auto list = mgr.GetModifiableThreatList();
                         auto it = list.begin(), end = list.end();
                         if (it == end)
+                        {
                             EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                            return;
+                        }
 
                         if ((*it)->GetVictim() != currentVictim)
                             secondThreat = *it;
-                        if ((!secondThreat || Is25ManRaid()) && (++it != end))
+                        if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
                         {
                             if ((*it)->GetVictim() != currentVictim)
                                 (secondThreat ? thirdThreat : secondThreat) = *it;
-                            if (!thirdThreat && Is25ManRaid() && (++it != end))
+                            if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
                                 thirdThreat = *it;
                         }
 
                         Unit* pHatefulTarget = nullptr;
-                        if (!thirdThreat)
+                        if (!secondThreat)
+                            pHatefulTarget = currentVictim;
+                        else if (!thirdThreat)
                             pHatefulTarget = secondThreat->GetVictim();
-                        else if (secondThreat)
+                        else
                             pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
-
-                        if (!pHatefulTarget)
-                            pHatefulTarget = me->GetVictim();
-
-                        DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
                         // add threat to highest threat targets
                         AddThreat(currentVictim, HATEFUL_THREAT_AMT);
@@ -156,6 +156,8 @@ public:
                             secondThreat->AddThreat(HATEFUL_THREAT_AMT);
                         if (thirdThreat)
                             thirdThreat->AddThreat(HATEFUL_THREAT_AMT);
+
+                        DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
                         events.Repeat(Seconds(1));
                         break;

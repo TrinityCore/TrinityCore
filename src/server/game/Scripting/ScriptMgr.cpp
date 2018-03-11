@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -421,7 +421,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
         if (creature->IsAlive())
             creature->ClearUnitState(UNIT_STATE_EVADE);
 
-        bool const created = creature->AIM_Initialize();
+        bool const created = creature->AIM_Create();
         ASSERT(created,
                "Creating the AI should never fail here!");
         (void)created;
@@ -432,6 +432,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
         if (!creature->IsAlive())
             return;
 
+        creature->AI_InitializeAndEnable();
         creature->AI()->EnterEvadeMode();
 
         // Cast a dummy visual spell asynchronously here to signal
@@ -955,11 +956,9 @@ private:
 
 // Utility macros for looping over scripts.
 #define FOR_SCRIPTS(T, C, E) \
-    if (SCR_REG_LST(T).empty()) \
-        return; \
-    \
-    for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
-        C != SCR_REG_LST(T).end(); ++C)
+    if (!SCR_REG_LST(T).empty()) \
+        for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
+            C != SCR_REG_LST(T).end(); ++C)
 
 #define FOR_SCRIPTS_RET(T, C, E, R) \
     if (SCR_REG_LST(T).empty()) \
@@ -1564,36 +1563,6 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);
     return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
-}
-
-bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map)
-{
-    ASSERT(map);
-    CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
-    ASSERT(baseTemplate);
-
-    // find out which template we'd be using
-    CreatureTemplate const* actTemplate = baseTemplate;
-    for (uint8 diff = uint8(map->GetSpawnMode()); diff > 0;)
-    {
-        if (uint32 diffEntry = baseTemplate->DifficultyEntry[diff - 1])
-            if (CreatureTemplate const* diffTemplate = sObjectMgr->GetCreatureTemplate(diffEntry))
-            {
-                actTemplate = diffTemplate;
-                break;
-            }
-        if (diff >= RAID_DIFFICULTY_10MAN_HEROIC && map->IsRaid())
-            diff -= 2;
-        else
-            diff -= 1;
-    }
-
-    uint32 scriptId = baseTemplate->ScriptID;
-    if (cData && cData->scriptId)
-        scriptId = cData->scriptId;
-
-    GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
-    return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }
 
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
@@ -2230,6 +2199,21 @@ AreaTriggerScript::AreaTriggerScript(char const* name)
 {
     ScriptRegistry<AreaTriggerScript>::Instance()->AddScript(this);
 }
+
+bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+{
+    uint32 const triggerId = trigger->id;
+    if (InstanceScript* instance = player->GetInstanceScript())
+    {
+        if (instance->IsAreaTriggerDone(triggerId))
+            return true;
+        else
+            instance->MarkAreaTriggerDone(triggerId);
+    }
+    return _OnTrigger(player, trigger);
+}
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(InstanceScript* script, uint32 triggerId) { script->ResetAreaTriggerDone(triggerId); }
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger) { if (InstanceScript* instance = player->GetInstanceScript()) ResetAreaTriggerDone(instance, trigger->id); }
 
 BattlegroundScript::BattlegroundScript(char const* name)
     : ScriptObject(name)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,9 +61,10 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
     {
         _timer.Reset(100);
 
-        float distance = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        // the allowed distance between target and mover before the mover needs to reposition in order to keep attacking
+        float distance = GetMaxDistanceBeforeRepositioning(owner);
         if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == GetTarget()->GetGUID()))
-            distance = 1.f; // pet following owner
+            distance = 1.f + GetTarget()->GetCombatReach(); // pet following owner
 
         G3D::Vector3 destination = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)
@@ -71,10 +72,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
                 transport->CalculatePassengerPosition(destination.x, destination.y, destination.z);
 
         // First check distance
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
-            targetMoved = !GetTarget()->IsWithinDist3d(destination.x, destination.y, destination.z, distance);
-        else
-            targetMoved = !GetTarget()->IsWithinDist2d(destination.x, destination.y, distance);
+        targetMoved = !GetTarget()->IsInDist(destination.x, destination.y, destination.z, distance);
 
         // then, if the target is in range, check also Line of Sight.
         if (!targetMoved)
@@ -127,29 +125,38 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
     float x, y, z;
     if (updateDestination || !_path)
     {
+        float size = owner->GetCombatReach();
+        float hoverDiff = owner->GetHoverOffset() - GetTarget()->GetHoverOffset();
         if (!_offset)
         {
             if (GetTarget()->IsWithinDistInMap(owner, CONTACT_DISTANCE))
                 return;
 
-            GetTarget()->GetContactPoint(owner, x, y, z);
+            if (hoverDiff)
+                size = size > hoverDiff ? std::sqrt(size * size - hoverDiff * hoverDiff) : 0.0f;
+
+            GetTarget()->GetNearPoint(owner, x, y, z, size, CONTACT_DISTANCE, GetTarget()->GetAngle(owner));
         }
         else
         {
             float distance = _offset + 1.0f;
-            float size = owner->GetCombatReach();
 
             if (owner->IsPet() && GetTarget()->GetTypeId() == TYPEID_PLAYER)
             {
                 distance = 1.0f;
                 size = 1.0f;
             }
+            else if (hoverDiff)
+                size = size > hoverDiff ? std::sqrt(size * size - hoverDiff * hoverDiff) : 0.0f;
 
             if (GetTarget()->IsWithinDistInMap(owner, distance))
                 return;
 
             GetTarget()->GetClosePoint(x, y, z, size, _offset, _angle);
         }
+
+        if (owner->IsHovering())
+            owner->UpdateAllowedPositionZ(x, y, z);
     }
     else
     {
@@ -267,6 +274,15 @@ void ChaseMovementGenerator<T>::ReachTarget(T* owner)
 template<class T>
 void ChaseMovementGenerator<T>::MovementInform(T*) { }
 
+template<class T>
+float ChaseMovementGenerator<T>::GetMaxDistanceBeforeRepositioning(T* owner)
+{
+    // the notion of melee range and melee attack is clearly separated from the notion of the movement.
+    // As a seperation of concern refactoring, this value should be passed into parameter by the caller (during creation of ChaseMoveGen) instead of defining it
+    // here (or a callback should be used since this value depends on dynamic fields (combat reach).
+    return owner->GetMeleeRange(TargetedMovementGeneratorBase::GetTarget());
+}
+
 template<>
 void ChaseMovementGenerator<Creature>::MovementInform(Creature* owner)
 {
@@ -350,6 +366,12 @@ bool FollowMovementGenerator<Player>::EnableWalking() const
 template<class T>
 void FollowMovementGenerator<T>::MovementInform(T*) { }
 
+template<class T>
+float FollowMovementGenerator<T>::GetMaxDistanceBeforeRepositioning(T* owner)
+{
+    return owner->GetCombatReach() + TargetedMovementGeneratorBase::GetTarget()->GetCombatReach() + MOVE_FOLLOW_REPOSITIONING_DISTANCE;
+}
+
 template<>
 void FollowMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
@@ -386,6 +408,8 @@ template bool ChaseMovementGenerator<Creature>::HasLostTarget(Creature*) const;
 template void ChaseMovementGenerator<Player>::ReachTarget(Player*);
 template void ChaseMovementGenerator<Creature>::ReachTarget(Creature*);
 template void ChaseMovementGenerator<Player>::MovementInform(Player*);
+template float ChaseMovementGenerator<Player>::GetMaxDistanceBeforeRepositioning(Player*);
+template float ChaseMovementGenerator<Creature>::GetMaxDistanceBeforeRepositioning(Creature*);
 
 template void FollowMovementGenerator<Player>::DoInitialize(Player*);
 template void FollowMovementGenerator<Creature>::DoInitialize(Creature*);
@@ -400,3 +424,5 @@ template void FollowMovementGenerator<Creature>::AddUnitStateMove(Creature*);
 template void FollowMovementGenerator<Player>::ReachTarget(Player*);
 template void FollowMovementGenerator<Creature>::ReachTarget(Creature*);
 template void FollowMovementGenerator<Player>::MovementInform(Player*);
+template float FollowMovementGenerator<Player>::GetMaxDistanceBeforeRepositioning(Player*);
+template float FollowMovementGenerator<Creature>::GetMaxDistanceBeforeRepositioning(Creature*);

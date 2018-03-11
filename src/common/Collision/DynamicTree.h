@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,6 +51,7 @@ public:
                          float pModifyDist) const;
 
     float getHeight(float x, float y, float z, float maxSearchDist, uint32 phasemask) const;
+    float getCeil(float x, float y, float z, float maxSearchDist, uint32 phasemask) const;
 
     void insert(GameObjectModel const&);
     void remove(GameObjectModel const&);

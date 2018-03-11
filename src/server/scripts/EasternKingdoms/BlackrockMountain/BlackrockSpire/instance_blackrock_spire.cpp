@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -110,6 +110,9 @@ public:
                     break;
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
+                    break;
+                case NPC_FINKLE_EINHORN:
+                    creature->AI()->Talk(SAY_FINKLE_GANG);
                     break;
              }
          }
@@ -283,6 +286,7 @@ public:
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
                     }
+                    break;
                 default:
                     break;
             }

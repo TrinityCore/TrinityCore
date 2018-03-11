@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -231,6 +231,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                     cBoss->SetReactState(REACT_PASSIVE);
                     cBoss->AttackStop(); // clear initial target that was set on enter combat
                     cBoss->setActive(true);
+                    cBoss->SetFarVisible(true);
 
                     for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
                     {
@@ -280,7 +281,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             DoCastAOE(SPELL_ENCOUNTER_CREDIT, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance->GetBossState(BOSS_HORSEMEN) == IN_PROGRESS || instance->GetBossState(BOSS_HORSEMEN) == DONE) // another horseman already did it
                 return;
@@ -728,7 +729,11 @@ class spell_four_horsemen_mark : public SpellScriptLoader
                             break;
                     }
                     if (damage)
-                        caster->CastCustomSpell(SPELL_MARK_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget());
+                    {
+                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                        args.AddSpellBP0(damage);
+                        caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, args);
+                    }
                 }
             }
 

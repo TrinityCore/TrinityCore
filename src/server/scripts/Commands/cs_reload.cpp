@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -88,6 +88,7 @@ public:
             { "creature_questender",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER,              true,  &HandleReloadCreatureQuestEnderCommand,         "" },
             { "creature_linked_respawn",       rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN,          true,  &HandleReloadLinkedRespawnCommand,              "" },
             { "creature_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE,           true,  &HandleReloadLootTemplatesCreatureCommand,      "" },
+            { "creature_movement_override",    rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE,       true,  &HandleReloadCreatureMovementOverrideCommand,   "" },
             { "creature_onkill_reputation",    rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_ONKILL_REPUTATION,       true,  &HandleReloadOnKillReputationCommand,           "" },
             { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER,            true,  &HandleReloadCreatureQuestStarterCommand,       "" },
             { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS,           true,  &HandleReloadCreatureSummonGroupsCommand,       "" },
@@ -129,6 +130,8 @@ public:
             { "pickpocketing_loot_template",   rbac::RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE,      true,  &HandleReloadLootTemplatesPickpocketingCommand, "" },
             { "points_of_interest",            rbac::RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST,               true,  &HandleReloadPointsOfInterestCommand,           "" },
             { "prospecting_loot_template",     rbac::RBAC_PERM_COMMAND_RELOAD_PROSPECTING_LOOT_TEMPLATE,        true,  &HandleReloadLootTemplatesProspectingCommand,   "" },
+            { "quest_greeting",                rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING,                   true,  &HandleReloadQuestGreetingCommand,              "" },
+            { "quest_greeting_locale",         rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE,            true,  &HandleReloadLocalesQuestGreetingCommand,       "" },
             { "quest_poi",                     rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_POI,                        true,  &HandleReloadQuestPOICommand,                   "" },
             { "quest_template",                rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE,                   true,  &HandleReloadQuestTemplateCommand,              "" },
             { "rbac",                          rbac::RBAC_PERM_COMMAND_RELOAD_RBAC,                             true,  &HandleReloadRBACCommand,                       "" },
@@ -196,6 +199,7 @@ public:
         HandleReloadTrinityStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
 
+        HandleReloadCreatureMovementOverrideCommand(handler, "");
         HandleReloadCreatureSummonGroupsCommand(handler, "");
 
         HandleReloadVehicleAccessoryCommand(handler, "");
@@ -243,6 +247,7 @@ public:
 
     static bool HandleReloadAllQuestCommand(ChatHandler* handler, char const* /*args*/)
     {
+        HandleReloadQuestGreetingCommand(handler, "");
         HandleReloadQuestAreaTriggersCommand(handler, "a");
         HandleReloadQuestPOICommand(handler, "a");
         HandleReloadQuestTemplateCommand(handler, "a");
@@ -317,6 +322,7 @@ public:
         HandleReloadLocalesPageTextCommand(handler, "a");
         HandleReloadLocalesPointsOfInterestCommand(handler, "a");
         HandleReloadLocalesQuestCommand(handler, "a");
+        HandleReloadLocalesQuestGreetingCommand(handler, "");
         return true;
     }
 
@@ -523,6 +529,22 @@ public:
         return true;
     }
 
+    static bool HandleReloadQuestGreetingCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Quest Greeting ...");
+        sObjectMgr->LoadQuestGreetings();
+        handler->SendGlobalGMSysMessage("DB table `quest_greeting` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLocalesQuestGreetingCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Quest Greeting locales...");
+        sObjectMgr->LoadQuestGreetingsLocales();
+        handler->SendGlobalGMSysMessage("DB table `quest_greeting_locale` reloaded.");
+        return true;
+    }
+
     static bool HandleReloadQuestTemplateCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Quest Templates...");
@@ -544,6 +566,14 @@ public:
         LootTemplates_Creature.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
         sConditionMgr->LoadConditions(true);
+        return true;
+    }
+
+    static bool HandleReloadCreatureMovementOverrideCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Creature movement overrides...");
+        sObjectMgr->LoadCreatureMovementOverrides();
+        handler->SendGlobalGMSysMessage("DB table `creature_movement_override` reloaded.");
         return true;
     }
 
@@ -828,7 +858,7 @@ public:
     static bool HandleReloadSpellBonusesCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Spell Bonus Data...");
-        sSpellMgr->LoadSpellBonusess();
+        sSpellMgr->LoadSpellBonuses();
         handler->SendGlobalGMSysMessage("DB table `spell_bonus_data` (spell damage/healing coefficients) reloaded.");
         return true;
     }

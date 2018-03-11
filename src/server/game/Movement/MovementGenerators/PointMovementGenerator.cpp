@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PointMovementGenerator.h"
 #include "CreatureAI.h"
 #include "Creature.h"
 #include "Player.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "World.h"
-#include "PointMovementGenerator.h"
 
 //----- Point Movement Generator
 
@@ -50,6 +50,10 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     init.MoveTo(_x, _y, _z , _generatePath);
     if (_speed > 0.0f)
         init.SetVelocity(_speed);
+
+    if (_finalOrient)
+        init.SetFacing(*_finalOrient);
+
     init.Launch();
 
     // Call for creature group update

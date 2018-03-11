@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -114,7 +114,9 @@ enum KrickPhase
 
 enum Actions
 {
-    ACTION_OUTRO    = 1
+    ACTION_OUTRO    = 1,
+    ACTION_STORE_OLD_TARGET,
+    ACTION_RESET_THREAT
 };
 
 enum Points
@@ -144,13 +146,15 @@ class boss_ick : public CreatureScript
         {
             boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK)
             {
-                _tempThreat = 0;
+                _tempThreat = 0.0f;
             }
 
             void Reset() override
             {
                 events.Reset();
                 instance->SetBossState(DATA_ICK, NOT_STARTED);
+                _oldTargetGUID.Clear();
+                _tempThreat = 0.0f;
             }
 
             Creature* GetKrick()
@@ -158,9 +162,9 @@ class boss_ick : public CreatureScript
                 return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRICK));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (Creature* krick = GetKrick())
                     krick->AI()->Talk(SAY_KRICK_AGGRO);
@@ -190,15 +194,29 @@ class boss_ick : public CreatureScript
                 instance->SetBossState(DATA_ICK, DONE);
             }
 
-            void SetTempThreat(float threat)
+            void DoAction(int32 actionId) override
             {
-                _tempThreat = threat;
-            }
+                if (actionId == ACTION_STORE_OLD_TARGET)
+                {
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        _oldTargetGUID = victim->GetGUID();
+                        _tempThreat = GetThreat(victim);
+                    }
+                }
+                else if (actionId == ACTION_RESET_THREAT)
+                {
+                    if (Unit* oldTarget = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
+                    {
+                        if (Unit* current = me->GetVictim())
+                            ModifyThreatByPercent(current, -100);
 
-            void _ResetThreat(Unit* target)
-            {
-                ModifyThreatByPercent(target, -100);
-                AddThreat(target, _tempThreat);
+                        AddThreat(oldTarget, _tempThreat);
+                        AttackStart(oldTarget);
+                        _oldTargetGUID.Clear();
+                        _tempThreat = 0.0f;
+                    }
+                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -248,7 +266,7 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_1);
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_2);
                                 krick->CastSpell(krick, SPELL_EXPLOSIVE_BARRAGE_KRICK, true);
-                                DoCast(me, SPELL_EXPLOSIVE_BARRAGE_ICK);
+                                DoCastAOE(SPELL_EXPLOSIVE_BARRAGE_ICK);
                             }
                             events.DelayEvents(20000);
                             break;
@@ -257,12 +275,12 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_POISON_NOVA);
 
                             Talk(SAY_ICK_POISON_NOVA);
-                            DoCast(me, SPELL_POISON_NOVA);
+                            DoCastAOE(SPELL_POISON_NOVA);
                             break;
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
                                 krick->AI()->Talk(SAY_KRICK_CHASE);
-                            DoCast(me, SPELL_PURSUIT);
+                            DoCastSelf(SPELL_PURSUIT, { SPELLVALUE_MAX_TARGETS, 1 });
                             break;
                         default:
                             break;
@@ -277,6 +295,7 @@ class boss_ick : public CreatureScript
 
         private:
             float _tempThreat;
+            ObjectGuid _oldTargetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -631,18 +650,15 @@ class spell_krick_pursuit : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster())
-                    if (Creature* ick = GetCaster()->ToCreature())
-                    {
-                        if (Unit* target = ick->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                        {
-                            ick->AI()->Talk(SAY_ICK_CHASE_1, target);
-                            ick->AddAura(GetSpellInfo()->Id, target);
-                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->GetThreatManager().GetThreat(target));
-                            ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
-                            target->GetThreatManager().AddThreat(ick, float(GetEffectValue()), GetSpellInfo(), true, true);
-                        }
-                    }
+                Unit* target = GetHitUnit();
+                if (Creature* ick = GetCaster()->ToCreature())
+                {
+                    ick->AI()->Talk(SAY_ICK_CHASE_1, target);
+                    ick->AddAura(GetSpellInfo()->Id, target);
+                    ick->AI()->DoAction(ACTION_STORE_OLD_TARGET);
+                    ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
+                    ick->AI()->AttackStart(target);
+                }
             }
 
             void Register() override
@@ -659,7 +675,7 @@ class spell_krick_pursuit : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
-                        ENSURE_AI(boss_ick::boss_ickAI, creCaster->AI())->_ResetThreat(GetTarget());
+                        creCaster->AI()->DoAction(ACTION_RESET_THREAT);
             }
 
             void Register() override

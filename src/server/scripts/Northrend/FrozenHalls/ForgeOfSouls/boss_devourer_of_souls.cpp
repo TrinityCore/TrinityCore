@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -155,9 +155,9 @@ class boss_devourer_of_souls : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_FACE_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
@@ -410,8 +410,9 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
-                int32 damage = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), 45);
-                GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetCaster(), true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 45));
+                GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
             }
 
             void Register() override

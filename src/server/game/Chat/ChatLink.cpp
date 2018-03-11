@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -153,7 +153,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
                     return false;
                 }
             }
-            else if (id < 0)
+            else
             {
                 _suffix = sItemRandomSuffixStore.LookupEntry(-id);
                 if (!_suffix)

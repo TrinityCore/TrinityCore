@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -163,10 +163,10 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_SARTHARION_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             DoZoneInCombat();
 
             FetchDragons();
@@ -326,7 +326,7 @@ public:
 
             if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
-                if (fetchVesp && fetchVesp->IsAlive() && !fetchVesp->GetVictim())
+                if (fetchVesp->IsAlive() && !fetchVesp->GetVictim())
                 {
                     _canUseWill = true;
                     if (!fetchVesp->IsInCombat())

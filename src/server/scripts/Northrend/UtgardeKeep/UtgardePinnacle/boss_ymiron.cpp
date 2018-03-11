@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
 
@@ -137,9 +138,9 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_BANE, urand(18000, 23000), EVENT_GROUP_BASE_SPELLS);
             events.ScheduleEvent(EVENT_FETID_ROT, urand(8000, 13000), EVENT_GROUP_BASE_SPELLS);
@@ -311,6 +312,23 @@ public:
     }
 };
 
+// 48292 - Dark Slash
+class spell_dark_slash : public SpellScript
+{
+    PrepareSpellScript(spell_dark_slash);
+
+    void CalculateDamage()
+    {
+        // Slashes the target with darkness, dealing damage equal to half the target's current health.
+        SetHitDamage(int32(ceil(GetHitUnit()->GetHealth() / 2.f)));
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dark_slash::CalculateDamage);
+    }
+};
+
 class achievement_kings_bane : public AchievementCriteriaScript
 {
     public:
@@ -332,5 +350,6 @@ class achievement_kings_bane : public AchievementCriteriaScript
 void AddSC_boss_ymiron()
 {
     new boss_ymiron();
+    RegisterSpellScript(spell_dark_slash);
     new achievement_kings_bane();
 }

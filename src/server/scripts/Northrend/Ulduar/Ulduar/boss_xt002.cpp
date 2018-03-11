@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,10 +213,10 @@ class boss_xt002 : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
@@ -629,29 +629,6 @@ class npc_pummeller : public CreatureScript
  *        XE-321 BOOMBOT
  *
  *///----------------------------------------------------
-class BoomEvent : public BasicEvent
-{
-    public:
-        BoomEvent(Creature* me) : _me(me)
-        {
-        }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            // This hack is here because we suspect our implementation of spell effect execution on targets
-            // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
-            // then EFFECT_1, etc - instead of applying each effect on target1, then target2, etc.
-            // The above situation causes the visual for this spell to be bugged, so we remove the instakill
-            // effect and implement a script hack for that.
-
-            _me->CastSpell(_me, SPELL_BOOM, false);
-            return true;
-        }
-
-    private:
-        Creature* _me;
-};
-
 class npc_boombot : public CreatureScript
 {
     public:
@@ -699,16 +676,11 @@ class npc_boombot : public CreatureScript
                     data << uint32(SPELL_BOOM);
                     me->SendMessageToSet(&data, false);
 
-                    me->DealDamage(me, me->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->KillSelf();
 
                     damage = 0;
 
-                    // Visual only seems to work if the instant kill event is delayed or the spell itself is delayed
-                    // Casting done from player and caster source has the same targetinfo flags,
-                    // so that can't be the issue
-                    // See BoomEvent class
-                    // Schedule 1s delayed
-                    me->m_Events.AddEvent(new BoomEvent(me), me->m_Events.CalculateTime(1*IN_MILLISECONDS));
+                    DoCastAOE(SPELL_BOOM);
                 }
             }
 
@@ -752,7 +724,7 @@ class npc_life_spark : public CreatureScript
                 _scheduler.CancelAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastSelf(SPELL_STATIC_CHARGED);
                 _scheduler.Schedule(Seconds(12), [this](TaskContext spellShock)
@@ -964,7 +936,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, nullptr, nullptr, instance->GetGuidData(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, instance->GetGuidData(BOSS_XT002));
                             }
                         }
                     }

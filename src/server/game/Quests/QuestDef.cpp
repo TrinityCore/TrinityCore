@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -213,15 +213,12 @@ uint32 Quest::XPValue(Player* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10;
-        if (xp <= 100)
-            xp = 5 * ((xp + 2) / 5);
-        else if (xp <= 500)
-            xp = 10 * ((xp + 5) / 10);
-        else if (xp <= 1000)
-            xp = 25 * ((xp + 12) / 25);
-        else
-            xp = 50 * ((xp + 25) / 50);
+        uint32 xp = RoundXPValue(diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10);
+        if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
+        {
+            uint32 minScaledXP = RoundXPValue(xpentry->Exp[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+            xp = std::max(minScaledXP, xp);
+        }
 
         return xp;
     }
@@ -446,4 +443,16 @@ void Quest::AddQuestLevelToTitle(std::string &title, int32 level)
     std::stringstream questTitlePretty;
     questTitlePretty << "[" << level << "] " << title;
     title = questTitlePretty.str();
+}
+
+uint32 Quest::RoundXPValue(uint32 xp)
+{
+    if (xp <= 100)
+        return 5 * ((xp + 2) / 5);
+    else if (xp <= 500)
+        return 10 * ((xp + 5) / 10);
+    else if (xp <= 1000)
+        return 25 * ((xp + 12) / 25);
+    else
+        return 50 * ((xp + 25) / 50);
 }

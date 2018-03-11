@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,11 +24,12 @@
 #include <iosfwd>
 
 class ByteBuffer;
+struct FactionTemplateEntry;
 
 class TC_GAME_API PlayerTaxi
 {
     public:
-        PlayerTaxi() { m_taximask.fill(0); }
+        PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
@@ -71,11 +72,14 @@ class TC_GAME_API PlayerTaxi
 
         std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
         bool empty() const { return m_TaxiDestinations.empty(); }
+        FactionTemplateEntry const* GetFlightMasterFactionTemplate() const;
+        void SetFlightMasterFactionTemplateId(uint32 factionTemplateId) { m_flightMasterFactionId = factionTemplateId; }
 
         friend std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
         TaxiMask m_taximask;
         std::deque<uint32> m_TaxiDestinations;
+        uint32 m_flightMasterFactionId;
 };
 
 std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi);

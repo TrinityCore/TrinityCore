@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -136,7 +136,7 @@ public:
                     {
                         if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
                         {
-                            RWORG->Kill(Mrfloppy);
+                            Unit::Kill(RWORG, Mrfloppy);
                             Mrfloppy->ExitVehicle();
                             RWORG->SetFaction(FACTION_MONSTER);
                             RWORG->GetMotionMaster()->MovePoint(0, RWORG->GetPositionX()+10, RWORG->GetPositionY()+80, RWORG->GetPositionZ());
@@ -159,11 +159,8 @@ public:
                     }
                     break;
                 case 24:
-                    if (player)
-                    {
-                        player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
-                        Talk(SAY_QUEST_COMPLETE, player);
-                    }
+                    player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
+                    Talk(SAY_QUEST_COMPLETE, player);
                     me->SetWalk(false);
                     break;
                 case 25:
@@ -177,7 +174,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*Who*/) override
+        void JustEngagedWith(Unit* /*Who*/) override
         {
             Talk(SAY_RANDOMAGGRO);
         }
@@ -223,7 +220,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* Who) override
+        void JustEngagedWith(Unit* Who) override
         {
             if (Creature* Emily = GetClosestCreatureWithEntry(me, NPC_EMILY, 50.0f))
             {
@@ -564,6 +561,11 @@ public:
     {
         npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
+    }
+
         void Reset() override
         {
             _playerGUID.Clear();
@@ -602,7 +604,7 @@ public:
                     case EVENT_CHOP:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_CHOP);
-                        _events.ScheduleEvent(EVENT_CHOP, 10000, 12000);
+                        _events.Repeat(Seconds(10), Seconds(12));
                         break;
                     default:
                         break;
@@ -611,7 +613,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
             DoMeleeAttackIfReady();
         }
 

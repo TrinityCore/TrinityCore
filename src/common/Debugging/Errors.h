@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,7 +52,12 @@ namespace Trinity
 #define WPWarning(cond, msg) ASSERT_BEGIN do { if (!(cond)) Trinity::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
 #define WPAbort() ASSERT_BEGIN do { Trinity::Abort(__FILE__, __LINE__, __FUNCTION__); } while(0) ASSERT_END
 
+#ifdef PERFORMANCE_PROFILING
+#define ASSERT(cond, ...) ((void)0)
+#else
 #define ASSERT WPAssert
+#endif
+
 #define ABORT WPAbort
 
 template <typename T> inline T* ASSERT_NOTNULL(T* pointer)

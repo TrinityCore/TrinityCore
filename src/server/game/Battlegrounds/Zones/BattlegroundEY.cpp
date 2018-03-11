@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,7 +22,6 @@
 #include "Creature.h"
 #include "DBCStores.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
@@ -74,11 +73,6 @@ BattlegroundEY::BattlegroundEY()
 
     for (uint8 i = 0; i < 2 * EY_POINTS_MAX; ++i)
         m_CurrentPointPlayersCount[i] = 0;
-
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_EY_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_EY_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_EY_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_EY_HAS_BEGUN;
 }
 
 BattlegroundEY::~BattlegroundEY() { }
@@ -303,16 +297,6 @@ void BattlegroundEY::UpdatePointStatuses()
 void BattlegroundEY::UpdateTeamScore(uint32 Team)
 {
     uint32 score = GetTeamScore(Team);
-    /// @todo there should be some sound played when one team is near victory!! - and define variables
-    /*if (!m_IsInformedNearVictory && score >= BG_EY_WARNING_NEAR_VICTORY_SCORE)
-    {
-        if (Team == ALLIANCE)
-            SendMessageToAll(LANG_BG_EY_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-        else
-            SendMessageToAll(LANG_BG_EY_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-        PlaySoundToAll(BG_EY_SOUND_NEAR_VICTORY);
-        m_IsInformedNearVictory = true;
-    }*/
 
     if (score >= BG_EY_MAX_TEAM_SCORE)
     {
@@ -589,7 +573,7 @@ void BattlegroundEY::RespawnFlag(bool send_message)
 
     if (send_message)
     {
-        SendMessageToAll(LANG_BG_EY_RESETED_FLAG, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendBroadcastText(BG_EY_TEXT_FLAG_RESET, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         PlaySoundToAll(BG_EY_SOUND_FLAG_RESET);             // flags respawned sound...
     }
 
@@ -650,9 +634,9 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* player)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
 
     if (player->GetTeam() == ALLIANCE)
-        SendMessageToAll(LANG_BG_EY_DROPPED_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, nullptr);
+        SendBroadcastText(BG_EY_TEXT_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_ALLIANCE);
     else
-        SendMessageToAll(LANG_BG_EY_DROPPED_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, nullptr);
+        SendBroadcastText(BG_EY_TEXT_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_HORDE);
 }
 
 void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
@@ -682,9 +666,9 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* target
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
     if (player->GetTeam() == ALLIANCE)
-        PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, nullptr, player->GetName().c_str());
+        SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
     else
-        PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, nullptr, player->GetName().c_str());
+        SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
 }
 
 void BattlegroundEY::EventTeamLostPoint(Player* player, uint32 Point)
@@ -723,9 +707,9 @@ void BattlegroundEY::EventTeamLostPoint(Player* player, uint32 Point)
     m_PointState[Point] = EY_POINT_NO_OWNER;
 
     if (Team == ALLIANCE)
-        SendMessageToAll(m_LosingPointTypes[Point].MessageIdAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+        SendBroadcastText(m_LosingPointTypes[Point].MessageIdAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
     else
-        SendMessageToAll(m_LosingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
+        SendBroadcastText(m_LosingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
@@ -766,9 +750,9 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     m_PointState[Point] = EY_POINT_UNDER_CONTROL;
 
     if (Team == ALLIANCE)
-        SendMessageToAll(m_CapturingPointTypes[Point].MessageIdAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+        SendBroadcastText(m_CapturingPointTypes[Point].MessageIdAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
     else
-        SendMessageToAll(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
+        SendBroadcastText(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
     if (BgCreatures[Point])
         DelCreature(Point);
@@ -809,27 +793,22 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
     if (player->GetTeam() == ALLIANCE)
+    {
+        SendBroadcastText(BG_EY_TEXT_ALLIANCE_CAPTURED_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
         PlaySoundToAll(BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE);
+    }
     else
+    {
+        SendBroadcastText(BG_EY_TEXT_HORDE_CAPTURED_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
         PlaySoundToAll(BG_EY_SOUND_FLAG_CAPTURED_HORDE);
+    }
 
     SpawnBGObject(BgObjectType, RESPAWN_IMMEDIATELY);
 
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     m_FlagCapturedBgObjectType = BgObjectType;
 
-    uint8 team_id = 0;
-    if (player->GetTeam() == ALLIANCE)
-    {
-        team_id = TEAM_ALLIANCE;
-        SendMessageToAll(LANG_BG_EY_CAPTURED_FLAG_A, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
-    }
-    else
-    {
-        team_id = TEAM_HORDE;
-        SendMessageToAll(LANG_BG_EY_CAPTURED_FLAG_H, CHAT_MSG_BG_SYSTEM_HORDE, player);
-    }
-
+    uint8 team_id = player->GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE;
     if (m_TeamPointsCount[team_id] > 0)
         AddPoints(player->GetTeam(), BG_EY_FlagPoints[m_TeamPointsCount[team_id] - 1]);
 

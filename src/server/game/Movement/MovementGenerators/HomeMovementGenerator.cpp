@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,6 +52,7 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
         owner->GetHomePosition(x, y, z, o);
         init.SetFacing(o);
     }
+    owner->UpdateAllowedPositionZ(x, y, z);
     init.MoveTo(x, y, z);
     init.SetWalk(false);
     init.Launch();
@@ -83,11 +84,7 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
         owner->SetWalk(true);
         owner->LoadCreaturesAddon();
         owner->AI()->JustReachedHome();
-        if (owner->isRegeneratingHealth())
-        {
-            owner->SetFullHealth();
-            owner->SetPower(POWER_MANA, owner->GetMaxPower(POWER_MANA));
-        }
+        owner->SetSpawnHealth();
     }
 }
 

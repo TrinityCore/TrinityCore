@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Errors.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -37,8 +38,8 @@ template<class SocketType>
 class NetworkThread
 {
 public:
-    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr),
-        _acceptSocket(_io_service), _updateTimer(_io_service)
+    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1),
+        _acceptSocket(_ioContext), _updateTimer(_ioContext)
     {
     }
 
@@ -55,7 +56,7 @@ public:
     void Stop()
     {
         _stopped = true;
-        _io_service.stop();
+        _ioContext.stop();
     }
 
     bool Start()
@@ -123,7 +124,7 @@ protected:
 
         _updateTimer.expires_from_now(boost::posix_time::milliseconds(10));
         _updateTimer.async_wait(std::bind(&NetworkThread<SocketType>::Update, this));
-        _io_service.run();
+        _ioContext.run();
 
         TC_LOG_DEBUG("misc", "Network Thread exits");
         _newSockets.clear();
@@ -170,7 +171,7 @@ private:
     std::mutex _newSocketsLock;
     SocketContainer _newSockets;
 
-    boost::asio::io_service _io_service;
+    Trinity::Asio::IoContext _ioContext;
     tcp::socket _acceptSocket;
     boost::asio::deadline_timer _updateTimer;
 };

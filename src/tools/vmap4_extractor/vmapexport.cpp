@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 #include "Banner.h"
 #include <sys/stat.h>
 
-#ifdef WIN32
+#ifdef _WIN32
     #include <direct.h>
     #define mkdir _mkdir
 #endif
@@ -65,7 +65,7 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 char const* szWorkDirWmo = "./Buildings";
-char const* szRawVMAPMagic = "VMAP043";
+char const* szRawVMAPMagic = "VMAP044";
 
 // Local testing functions
 

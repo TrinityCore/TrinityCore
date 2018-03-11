@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,15 +81,15 @@ public:
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
-        ItemTemplateContainer::const_iterator result = std::find_if(itc->begin(), itc->end(), [quest](ItemTemplateContainer::value_type const& value)
+        ItemTemplateContainer const& itc = sObjectMgr->GetItemTemplateStore();
+        auto itr = std::find_if(std::begin(itc), std::end(itc), [quest](ItemTemplateContainer::value_type const& value)
         {
             return value.second.StartQuest == quest->GetQuestId();
         });
 
-        if (result != itc->end())
+        if (itr != std::end(itc))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, result->second.ItemId);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, itr->first);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -128,32 +128,40 @@ public:
             return false;
         }
 
-        // remove all quest entries for 'entry' from quest log
-        for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+        if (player->GetQuestStatus(entry) != QUEST_STATUS_NONE)
         {
-            uint32 logQuest = player->GetQuestSlotQuestId(slot);
-            if (logQuest == entry)
+            // remove all quest entries for 'entry' from quest log
+            for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
             {
-                player->SetQuestSlot(slot, 0);
-
-                // we ignore unequippable quest items in this case, its' still be equipped
-                player->TakeQuestSourceItem(logQuest, false);
-
-                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                uint32 logQuest = player->GetQuestSlotQuestId(slot);
+                if (logQuest == entry)
                 {
-                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                    player->UpdatePvPState();
+                    player->SetQuestSlot(slot, 0);
+
+                    // we ignore unequippable quest items in this case, its' still be equipped
+                    player->TakeQuestSourceItem(logQuest, false);
+
+                    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                    {
+                        player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                        player->UpdatePvPState();
+                    }
                 }
             }
+            player->RemoveActiveQuest(entry, false);
+            player->RemoveRewardedQuest(entry);
+
+            sScriptMgr->OnQuestStatusChange(player, entry);
+
+            handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
+            return true;
         }
-
-        player->RemoveActiveQuest(entry, false);
-        player->RemoveRewardedQuest(entry);
-
-        sScriptMgr->OnQuestStatusChange(player, entry);
-
-        handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
-        return true;
+        else
+        {
+            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
     }
 
     static bool HandleQuestComplete(ChatHandler* handler, char const* args)

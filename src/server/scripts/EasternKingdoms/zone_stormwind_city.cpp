@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -75,8 +75,8 @@ public:
                 //Take 0 damage
                 uiDamage = 0;
 
-                if (Player* player = pDoneBy->ToPlayer())
-                    player->AreaExploredOrEventHappens(QUEST_BEAT);
+                if (pDoneBy && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+                    pDoneBy->ToPlayer()->AreaExploredOrEventHappens(QUEST_BEAT);
                 EnterEvadeMode();
             }
         }
@@ -164,7 +164,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
             {
@@ -300,7 +300,7 @@ public:
             me->RestoreFaction();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_MARZON_2);
 

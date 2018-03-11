@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -232,6 +232,19 @@ namespace VMAP
         if (getIntersectionTime(ray, maxDist, false, ModelIgnoreFlags::Nothing))
         {
             height = pPos.z - maxDist;
+        }
+        return(height);
+    }
+
+    float StaticMapTree::getCeil(const G3D::Vector3 & pPos, float maxSearchDist) const
+    {
+        float height = G3D::finf();
+        Vector3 dir = Vector3(0, 0, 1);
+        G3D::Ray ray(pPos, dir);   // direction with length of 1
+        float maxDist = maxSearchDist;
+        if (getIntersectionTime(ray, maxDist, false, ModelIgnoreFlags::Nothing))
+        {
+            height = pPos.z + maxDist;
         }
         return(height);
     }

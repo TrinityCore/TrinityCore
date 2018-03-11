@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,9 +84,9 @@ class boss_hakkar : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90000);
                 events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25000);
                 events.ScheduleEvent(EVENT_CAUSE_INSANITY, 17000);
@@ -182,4 +182,3 @@ void AddSC_boss_hakkar()
 {
     new boss_hakkar();
 }
-

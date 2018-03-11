@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -411,7 +411,7 @@ public:
                 tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
                 tree->DespawnOrUnsummon(1000);
             }
-            else if (roll == 0) // enemy version
+            else // enemy version
             {
                 tree->AI()->Talk(SAY_WALKER_ENEMY, player);
                 tree->SetFaction(FACTION_MONSTER);
@@ -633,7 +633,7 @@ class npc_torturer_lecraft : public CreatureScript
                 _playerGUID.Clear();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
                 _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));

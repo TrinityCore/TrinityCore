@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "azjol_nerub.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -162,13 +163,9 @@ public:
 
         bool IsInCombatWithPlayer() const
         {
-            std::list<HostileReference*> const& refs = me->GetThreatManager().getThreatList();
-            for (HostileReference const* hostileRef : refs)
-            {
-                if (Unit const* target = hostileRef->getTarget())
-                    if (target->IsControlledByPlayer())
-                        return true;
-            }
+            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+                if (pair.second->GetOther(me)->IsControlledByPlayer())
+                    return true;
             return false;
         }
 
@@ -178,10 +175,10 @@ public:
                 return;
 
             _step = step;
+            me->SetReactState(REACT_PASSIVE);
             me->SetHomePosition(hadronoxStep[step]);
             me->GetMotionMaster()->Clear();
             me->AttackStop();
-            SetCombatMovement(false);
             me->GetMotionMaster()->MovePoint(0, hadronoxStep[step]);
         }
 
@@ -200,8 +197,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            SetCombatMovement(true);
-            AttackStart(me->GetVictim());
+            me->SetReactState(REACT_AGGRESSIVE);
             if (_step < NUM_STEPS-1)
                 return;
             DoCastAOE(SPELL_WEB_FRONT_DOORS);
@@ -222,12 +218,12 @@ public:
         bool CanAIAttack(Unit const* target) const override
         {
             // Prevent Hadronox from going too far from her current home position
-            if (!target->IsControlledByPlayer() && target->GetDistance(me->GetHomePosition()) > 20.0f)
+            if (!target->IsControlledByPlayer() && target->GetDistance(me->GetHomePosition()) > 70.0f)
                 return false;
             return BossAI::CanAIAttack(target);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_LEECH_POISON, randtime(Seconds(5), Seconds(7)));
             events.ScheduleEvent(EVENT_ACID_CLOUD, randtime(Seconds(7), Seconds(13)));
@@ -273,38 +269,35 @@ public:
                     nerubian->DespawnOrUnsummon();
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*what*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             _anubar.push_back(guid);
         }
 
-        void Initialize()
+        void InitializeAI() override
         {
+            BossAI::InitializeAI();
+            me->SetReactState(REACT_AGGRESSIVE);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
             _enteredCombat = false;
             _doorsWebbed = false;
             _lastPlayerCombatState = false;
             SetStep(0);
-            SetCombatMovement(true);
-            SummonCrusherPack(SUMMON_GROUP_CRUSHER_1);
-        }
-
-        void InitializeAI() override
-        {
-            BossAI::InitializeAI();
-            if (me->IsAlive())
-                Initialize();
         }
 
         void JustAppeared() override
         {
             BossAI::JustAppeared();
-            Initialize();
+            SetCombatMovement(true);
+            SummonCrusherPack(SUMMON_GROUP_CRUSHER_1);
         }
 
         void UpdateAI(uint32 diff) override
         {
+            if (!_lastPlayerCombatState && me->IsEngaged())
+                me->GetThreatManager().UpdateOnlineStates(false, true);
+
             if (!UpdateVictim())
                 return;
 
@@ -370,7 +363,7 @@ public:
         // Safeguard to prevent Hadronox dying to NPCs
         void DamageTaken(Unit* who, uint32& damage) override
         {
-            if (!who->IsControlledByPlayer() && me->HealthBelowPct(70))
+            if ((!who || !who->IsControlledByPlayer()) && me->HealthBelowPct(70))
             {
                 if (me->HealthBelowPctDamaged(5, damage))
                     damage = 0;
@@ -448,7 +441,7 @@ struct npc_hadronox_crusherPackAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (me->HasReactState(REACT_PASSIVE))
         {
@@ -461,11 +454,11 @@ struct npc_hadronox_crusherPackAI : public ScriptedAI
                     other->AI()->AttackStart(who);
                 }
         }
-        _EnterCombat();
-        ScriptedAI::EnterCombat(who);
+        _JustEngagedWith();
+        ScriptedAI::JustEngagedWith(who);
     }
 
-    virtual void _EnterCombat() = 0;
+    virtual void _JustEngagedWith() = 0;
     virtual void DoEvent(uint32 /*eventId*/) = 0;
 
     void MoveInLineOfSight(Unit* who) override
@@ -477,7 +470,7 @@ struct npc_hadronox_crusherPackAI : public ScriptedAI
         }
 
         if (me->CanStartAttack(who, false) && me->IsWithinDistInMap(who, me->GetAttackDistance(who) + me->m_CombatDistance))
-            EnterCombat(who);
+            JustEngagedWith(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -523,7 +516,7 @@ class npc_anub_ar_crusher : public CreatureScript
         {
             npc_anub_ar_crusherAI(Creature* creature) : npc_hadronox_crusherPackAI(creature, crusherWaypoints), _hadFrenzy(false) { }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_SMASH, randtime(Seconds(8), Seconds(12)));
 
@@ -607,7 +600,7 @@ class npc_anub_ar_crusher_champion : public CreatureScript
                 }
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_REND, randtime(Seconds(4), Seconds(8)));
                 _events.ScheduleEvent(EVENT_PUMMEL, randtime(Seconds(15), Seconds(19)));
@@ -650,7 +643,7 @@ class npc_anub_ar_crusher_crypt_fiend : public CreatureScript
                 }
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_CRUSHING_WEBS, randtime(Seconds(4), Seconds(8)));
                 _events.ScheduleEvent(EVENT_INFECTED_WOUND, randtime(Seconds(15), Seconds(19)));
@@ -693,7 +686,7 @@ class npc_anub_ar_crusher_necromancer : public CreatureScript
                 }
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_SHADOW_BOLT, randtime(Seconds(2), Seconds(4)));
                 _events.ScheduleEvent(EVENT_ANIMATE_BONES, randtime(Seconds(37), Seconds(45)));
@@ -851,7 +844,7 @@ class npc_anub_ar_champion : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_REND, randtime(Seconds(4), Seconds(8)));
                 _events.ScheduleEvent(EVENT_PUMMEL, randtime(Seconds(15), Seconds(19)));
@@ -893,7 +886,7 @@ class npc_anub_ar_crypt_fiend : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_CRUSHING_WEBS, randtime(Seconds(4), Seconds(8)));
             _events.ScheduleEvent(EVENT_INFECTED_WOUND, randtime(Seconds(15), Seconds(19)));
@@ -935,7 +928,7 @@ class npc_anub_ar_necromancer : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_SHADOW_BOLT, randtime(Seconds(2), Seconds(4)));
             _events.ScheduleEvent(EVENT_ANIMATE_BONES, randtime(Seconds(37), Seconds(45)));
@@ -974,6 +967,8 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
                 return;
             InstanceScript* instance = caster->GetInstanceScript();
             if (!instance)
+                return;
+            if (!instance->instance->HavePlayers())
                 return;
             if (instance->GetBossState(DATA_HADRONOX) == DONE)
                 GetAura()->Remove();

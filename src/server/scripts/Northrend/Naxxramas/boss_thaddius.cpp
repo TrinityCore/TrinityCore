@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -208,10 +208,17 @@ struct boss_thaddius : public BossAI
         {
             _JustDied();
             me->setActive(false);
+            me->SetFarVisible(false);
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+            {
                 stalagg->setActive(false);
+                stalagg->SetFarVisible(false);
+            }
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+            {
                 feugen->setActive(false);
+                feugen->SetFarVisible(false);
+            }
             Talk(SAY_DEATH);
         }
 
@@ -240,11 +247,18 @@ struct boss_thaddius : public BossAI
                     instance->SetBossState(BOSS_THADDIUS, IN_PROGRESS);
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     DoZoneInCombat();
                     if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+                    {
                         stalagg->setActive(true);
+                        stalagg->SetFarVisible(true);
+                    }
                     if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+                    {
                         feugen->setActive(true);
+                        feugen->SetFarVisible(true);
+                    }
                     break;
                 case ACTION_FEUGEN_DIED:
                     if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
@@ -305,6 +319,7 @@ struct boss_thaddius : public BossAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetImmuneToPC(true);
             me->setActive(false);
+            me->SetFarVisible(false);
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 feugen->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
@@ -496,6 +511,7 @@ public:
                     coil->SetGoState(GO_STATE_READY);
                 me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void ResetEncounter()
@@ -563,7 +579,7 @@ public:
                     Talk(SAY_STALAGG_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_STALAGG_AGGRO);
 
@@ -759,6 +775,7 @@ public:
                     coil->SetGoState(GO_STATE_READY);
                 me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void DoAction(int32 action) override
@@ -821,7 +838,7 @@ public:
                     Talk(SAY_FEUGEN_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_FEUGEN_AGGRO);
 
@@ -981,7 +998,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
     };
 };
@@ -1225,20 +1242,19 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
         }
 };
 
-class at_thaddius_entrance : public AreaTriggerScript
+class at_thaddius_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_thaddius_entrance() : AreaTriggerScript("at_thaddius_entrance") { }
+        at_thaddius_entrance() : OnlyOnceAreaTriggerScript("at_thaddius_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_HAD_THADDIUS_GREET) || instance->GetBossState(BOSS_THADDIUS) == DONE)
+            if (!instance || instance->GetBossState(BOSS_THADDIUS) == DONE)
                 return true;
 
             if (Creature* thaddius = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_THADDIUS)))
                 thaddius->AI()->Talk(SAY_GREET);
-            instance->SetData(DATA_HAD_THADDIUS_GREET, 1u);
 
             return true;
         }

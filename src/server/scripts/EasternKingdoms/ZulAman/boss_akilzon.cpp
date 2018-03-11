@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -113,9 +113,9 @@ class boss_akilzon : public CreatureScript
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
@@ -171,7 +171,13 @@ class boss_akilzon : public CreatureScript
                         if (Unit* target = (*i))
                         {
                             if (Cloud && !Cloud->IsWithinDist(target, 6, false))
-                                Cloud->CastCustomSpell(target, SPELL_ZAP, &bp0, nullptr, nullptr, true, 0, 0, me->GetGUID());
+                            {
+                                CastSpellExtraArgs args;
+                                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                                args.OriginalCaster = me->GetGUID();
+                                args.AddSpellMod(SPELLVALUE_BASE_POINT0, bp0);
+                                Cloud->CastSpell(target, SPELL_ZAP, args);
+                            }
                         }
                     }
 
@@ -190,7 +196,13 @@ class boss_akilzon : public CreatureScript
                             trigger->SetHealth(100000);
                             trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             if (Cloud)
-                                Cloud->CastCustomSpell(trigger, /*43661*/SPELL_ZAP, &bp0, nullptr, nullptr, true, 0, 0, Cloud->GetGUID());
+                            {
+                                CastSpellExtraArgs args;
+                                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                                args.OriginalCaster = Cloud->GetGUID();
+                                args.AddSpellMod(SPELLVALUE_BASE_POINT0, bp0);
+                                Cloud->CastSpell(trigger, SPELL_ZAP, args);
+                            }
                         }
                     }
                 }
@@ -204,7 +216,7 @@ class boss_akilzon : public CreatureScript
                     me->InterruptNonMeleeSpells(false);
                     CloudGUID.Clear();
                     if (Cloud)
-                        Cloud->DealDamage(Cloud, Cloud->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                        Cloud->KillSelf();
                     SetWeather(WEATHER_STATE_FINE, 0.0f);
                     isRaining = false;
                 }
@@ -397,7 +409,7 @@ class npc_akilzon_eagle : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
@@ -463,4 +475,3 @@ void AddSC_boss_akilzon()
     new boss_akilzon();
     new npc_akilzon_eagle();
 }
-

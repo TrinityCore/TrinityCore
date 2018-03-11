@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,9 +91,13 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 {
     ClearTaxiDestinations();
 
-    Tokenizer Tokenizer(values, ' ');
+    Tokenizer tokens(values, ' ');
+    auto iter = tokens.begin();
+    if (iter != tokens.end())
+        m_flightMasterFactionId = atoul(*iter);
 
-    for (Tokenizer::const_iterator iter = Tokenizer.begin(); iter != Tokenizer.end(); ++iter)
+    ++iter;
+    for (; iter != tokens.end(); ++iter)
     {
         uint32 node = atoul(*iter);
         AddTaxiDestination(node);
@@ -128,6 +132,7 @@ std::string PlayerTaxi::SaveTaxiDestinationsToString()
         return "";
 
     std::ostringstream ss;
+    ss << m_flightMasterFactionId << ' ';
 
     for (size_t i = 0; i < m_TaxiDestinations.size(); ++i)
         ss << m_TaxiDestinations[i] << ' ';
@@ -153,4 +158,9 @@ std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi)
     for (uint8 i = 0; i < TaxiMaskSize; ++i)
         ss << taxi.m_taximask[i] << ' ';
     return ss;
+}
+
+FactionTemplateEntry const* PlayerTaxi::GetFlightMasterFactionTemplate() const
+{
+    return sFactionTemplateStore.LookupEntry(m_flightMasterFactionId);
 }

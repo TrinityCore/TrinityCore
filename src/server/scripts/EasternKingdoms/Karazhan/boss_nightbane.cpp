@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -157,6 +157,7 @@ public:
                 Talk(EMOTE_SUMMON);
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
+                me->SetFarVisible(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
@@ -180,9 +181,9 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_MASTERS_TERRACE_DOOR_2), open);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(YELL_AGGRO);
             SetupGroundPhase();
         }
@@ -299,7 +300,7 @@ public:
                     break;
                 case EVENT_INTRO_LANDING:
                     me->SetImmuneToPC(false);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_LAND:
                     Talk(YELL_LAND_PHASE);

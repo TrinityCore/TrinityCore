@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,7 +60,7 @@ public:
                 (*itr)->Respawn();
         };
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_DAGGER_THROW,  7 * IN_MILLISECONDS);
@@ -71,7 +71,7 @@ public:
         void SpellHit(Unit* caster, SpellInfo const* /*spell*/) override
         {
             if (caster->IsVehicle())
-                me->Kill(caster);
+                Unit::Kill(me, caster);
         }
 
         void UpdateAI(uint32 diff) override
@@ -79,10 +79,10 @@ public:
             if (!UpdateVictim())
                 return;
 
+            _events.Update(diff);
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            _events.Update(diff);
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

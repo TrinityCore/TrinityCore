@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -234,6 +234,25 @@ namespace VMAP
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 
+    float VMapManager2::getCeil(unsigned int mapId, float x, float y, float z, float maxSearchDist)
+    {
+        if (isHeightCalcEnabled() && !IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_HEIGHT))
+        {
+            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+            if (instanceTree != iInstanceMapTrees.end())
+            {
+                Vector3 pos = convertPositionToInternalRep(x, y, z);
+                float height = instanceTree->second->getCeil(pos, maxSearchDist);
+                if (!(height < G3D::finf()))
+                    return height = VMAP_INVALID_CEIL_VALUE; // No height
+
+                return height;
+            }
+        }
+
+        return VMAP_INVALID_CEIL_VALUE;
+    }
+
     bool VMapManager2::getAreaInfo(unsigned int mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
@@ -297,6 +316,8 @@ namespace VMAP
             Vector3 pos = convertPositionToInternalRep(x, y, z);
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
+                ASSERT(info.hitModel);
+                ASSERT(info.hitInstance);
                 data.floorZ = info.ground_Z;
                 uint32 liquidType = info.hitModel->GetLiquidType();
                 float liquidLevel;

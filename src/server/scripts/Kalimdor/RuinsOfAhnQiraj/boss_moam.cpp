@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -149,7 +149,7 @@ class boss_moam : public CreatureScript
                             std::list<Unit*> targetList;
                             {
                                 for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->getPowerType() == POWER_MANA)
+                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->GetPowerType() == POWER_MANA)
                                         targetList.push_back(ref->GetVictim());
                             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,7 +81,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCastVictim(SPELL_BIRTH);
         }
@@ -122,10 +122,7 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                Unit* target = nullptr;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = urand(10000, 20000);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -63,7 +63,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(18000, 23000));
             events.ScheduleEvent(EVENT_TIME_LAPSE, urand(10000, 15000));
@@ -83,7 +83,7 @@ public:
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     Talk(SAY_BANISH);
-                    me->DealDamage(who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 
@@ -107,10 +107,10 @@ public:
             if (!UpdateVictim())
                 return;
 
+            events.Update(diff);
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {

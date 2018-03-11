@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 #include "Chat.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
@@ -173,6 +174,8 @@ inline uint32 Guild::LogHolder::GetNextGUID()
     return m_nextGUID;
 }
 
+Guild::LogEntry::LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(GameTime::GetGameTime()) { }
+
 // EventLogEntry
 void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
 {
@@ -206,7 +209,7 @@ void Guild::EventLogEntry::WritePacket(WorldPacket& data) const
     if (m_eventType == GUILD_EVENT_LOG_PROMOTE_PLAYER || m_eventType == GUILD_EVENT_LOG_DEMOTE_PLAYER)
         data << uint8(m_newRank);
     // Event timestamp
-    data << uint32(::time(nullptr) - m_timestamp);
+    data << uint32(GameTime::GetGameTime() - m_timestamp);
 }
 
 // BankEventLogEntry
@@ -256,7 +259,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
             data << uint32(m_itemOrMoney);
     }
 
-    data << uint32(time(nullptr) - m_timestamp);
+    data << uint32(GameTime::GetGameTime() - m_timestamp);
 }
 
 // RankInfo
@@ -612,7 +615,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_level(0),
     m_class(0),
     m_flags(GUILDMEMBER_STATUS_NONE),
-    m_logoutTime(::time(nullptr)),
+    m_logoutTime(GameTime::GetGameTime()),
     m_accountId(0),
     m_rankId(rankId)
 {
@@ -675,6 +678,11 @@ void Guild::Member::ChangeRank(SQLTransaction& trans, uint8 newRank)
     stmt->setUInt8 (0, newRank);
     stmt->setUInt32(1, m_guid.GetCounter());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
+}
+
+void Guild::Member::UpdateLogoutTime()
+{
+    m_logoutTime = GameTime::GetGameTime();
 }
 
 void Guild::Member::SaveToDB(SQLTransaction& trans) const
@@ -748,7 +756,7 @@ void Guild::Member::WritePacket(WorldPacket& data, bool sendOfficerNote) const
          << uint32(m_zoneId);
 
     if (!m_flags)
-        data << float(float(::time(nullptr) - m_logoutTime) / DAY);
+        data << float(float(GameTime::GetGameTime() - m_logoutTime) / DAY);
 
     data << m_publicNote;
 
@@ -1225,7 +1233,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     m_info = "";
     m_motd = "No message set.";
     m_bankMoney = 0;
-    m_createdDate = ::time(nullptr);
+    m_createdDate = GameTime::GetGameTime();
     _CreateLogHolders();
 
     TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%u)",
@@ -1709,6 +1717,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, std::string const& nam
         }
 
         Member const* memberMe = GetMember(player->GetGUID());
+        ASSERT(memberMe);
         uint8 rankId = memberMe->GetRankId();
         if (demote)
         {
@@ -2178,8 +2187,8 @@ bool Guild::Validate()
     Member* pLeader = GetMember(m_leaderGuid);
     if (!pLeader)
     {
-        SQLTransaction trans(nullptr);
-        DeleteMember(trans, m_leaderGuid);
+        SQLTransaction dummy(nullptr);
+        DeleteMember(dummy, m_leaderGuid);
         // If no more members left, disband guild
         if (m_members.empty())
         {
