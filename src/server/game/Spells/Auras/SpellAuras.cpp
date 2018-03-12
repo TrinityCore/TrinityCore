@@ -853,6 +853,11 @@ void Aura::Update(uint32 diff, Unit* caster)
     }
 }
 
+int32 Aura::CalcMaxDuration(Unit* caster) const
+{
+    return Aura::CalcMaxDuration(GetSpellInfo(), caster);
+}
+
 /*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster)
 {
     Player* modOwner = nullptr;
