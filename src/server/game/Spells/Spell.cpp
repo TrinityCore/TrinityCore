@@ -4241,6 +4241,8 @@ void Spell::SendSpellGo()
         if (Player* player = m_caster->GetAffectingPlayer())
             player->SendDirectMessage(packet.Write());
 
+        packet.Clear();
+
         // update nearby players (remove flag)
         castData.CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
         castData.RemainingPower = boost::none;
