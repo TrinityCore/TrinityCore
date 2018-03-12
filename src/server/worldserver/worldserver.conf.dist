@@ -4059,6 +4059,10 @@ Transmogrification.TokenAmount = 1
 #        Description: Allow axe to be transmogrified with dagger for example
 #        Default:    0
 #
+#    Transmogrification.AllowMixedInventoryTypes
+#        Description: Allow one hand to be transmogrified with main hand for example
+#        Default:    0
+#
 #    Transmogrification.AllowFishingPoles
 #        Description: Allow fishing poles to be transmogrified
 #        Default:    0
@@ -4102,6 +4106,7 @@ Transmogrification.AllowHeirloom = 1
 
 Transmogrification.AllowMixedArmorTypes = 0
 Transmogrification.AllowMixedWeaponTypes = 0
+Transmogrification.AllowMixedInventoryTypes = 0
 Transmogrification.AllowFishingPoles = 0
 
 Transmogrification.IgnoreReqRace = 0

@@ -84,6 +84,7 @@ public:
 
     bool AllowMixedArmorTypes;
     bool AllowMixedWeaponTypes;
+    bool AllowMixedInventoryTypes;
     bool AllowFishingPoles;
 
     bool IgnoreReqRace;
