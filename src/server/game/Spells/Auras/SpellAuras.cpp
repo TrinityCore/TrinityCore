@@ -2603,8 +2603,14 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
     // add non area aura targets
     // static applications go through spell system first, so we assume they meet conditions
     for (auto const& targetPair : _staticApplications)
-        if (Unit* target = ObjectAccessor::GetUnit(*GetUnitOwner(), targetPair.first))
+    {
+        Unit* target = ObjectAccessor::GetUnit(*GetUnitOwner(), targetPair.first);
+        if (!target && targetPair.first == GetUnitOwner()->GetGUID())
+            target = GetUnitOwner();
+
+        if (target)
             targets.emplace(target, targetPair.second);
+    }
 
     for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
     {
