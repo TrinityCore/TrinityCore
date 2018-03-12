@@ -172,7 +172,7 @@ void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaTypes type, uint64 miscVal
     CriteriaList const& playerCriteriaList = GetCriteriaByType(type);
     for (Criteria const* playerCriteria : playerCriteriaList)
     {
-        if (playerCriteria->Entry->FailEvent != miscValue1 || (playerCriteria->Entry->FailAsset && playerCriteria->Entry->FailAsset != miscValue2))
+        if (playerCriteria->Entry->FailEvent != miscValue1 || (playerCriteria->Entry->FailAsset && playerCriteria->Entry->FailAsset != int64(miscValue2)))
             continue;
 
         std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(playerCriteria->ID);

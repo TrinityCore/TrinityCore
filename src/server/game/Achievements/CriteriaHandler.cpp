@@ -638,7 +638,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
-                        if (skillIter->second->SkillLine == criteria->Entry->Asset.SkillID)
+                        if (skillIter->second->SkillLine == int32(criteria->Entry->Asset.SkillID))
                             spellCount++;
                     }
                 }
@@ -831,7 +831,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
     CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
     for (Criteria const* criteria : criteriaList)
     {
-        if (criteria->Entry->StartAsset != entry)
+        if (criteria->Entry->StartAsset != int32(entry))
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -862,7 +862,7 @@ void CriteriaHandler::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
     CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
     for (Criteria const* criteria : criteriaList)
     {
-        if (criteria->Entry->StartAsset != entry)
+        if (criteria->Entry->StartAsset != int32(entry))
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -1570,7 +1570,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
     if (!reqType)
         return true;
 
-    uint32 reqValue = tree->Entry->Asset[0];
+    uint32 reqValue = tree->Entry->Asset;
 
     switch (CriteriaAdditionalCondition(reqType))
     {
@@ -2249,8 +2249,8 @@ void CriteriaMgr::LoadCriteriaList()
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
     for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-        if (scenarioStep->CriteriaTreeID)
-            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+        if (scenarioStep->Criteriatreeid)
+            scenarioCriteriaTreeIds[scenarioStep->Criteriatreeid] = scenarioStep;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
     for (std::pair<uint32 /*questID*/, Quest const*> itr : sObjectMgr->GetQuestTemplates())

@@ -65,9 +65,9 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
     FactionTemplateEntry const* uEntry = sFactionTemplateStore.LookupEntry(factionTemplateId);
     if (!uEntry)
         return &mNeutralAuctions;
-    else if (uEntry->Mask & FACTION_MASK_ALLIANCE)
+    else if (uEntry->FactionGroup & FACTION_MASK_ALLIANCE)
         return &mAllianceAuctions;
-    else if (uEntry->Mask & FACTION_MASK_HORDE)
+    else if (uEntry->FactionGroup & FACTION_MASK_HORDE)
         return &mHordeAuctions;
     else
         return &mNeutralAuctions;
@@ -544,9 +544,9 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
                 FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
                 if (!u_entry)
                     houseid = 7; // goblin auction house
-                else if (u_entry->Mask & FACTION_MASK_ALLIANCE)
+                else if (u_entry->FactionGroup & FACTION_MASK_ALLIANCE)
                     houseid = 1; // human auction house
-                else if (u_entry->Mask & FACTION_MASK_HORDE)
+                else if (u_entry->FactionGroup & FACTION_MASK_HORDE)
                     houseid = 6; // orc auction house
                 else
                     houseid = 7; // goblin auction house

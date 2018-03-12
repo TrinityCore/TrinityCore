@@ -1282,7 +1282,7 @@ public:
                 auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
                 {
                     for (uint32 i = 0; i < MAX_LOCALES; ++i)
-                        if (itemName == sparse->Name->Str[i])
+                        if (itemName == sparse->Display->Str[i])
                             return true;
                     return false;
                 });
