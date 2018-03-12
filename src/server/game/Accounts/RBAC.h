@@ -781,6 +781,11 @@ enum RBACPermissions
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //
     // custom permissions 1000+
+    // ashamane permissions 2000+
+    RBAC_PERM_COMMAND_DEBUG_MOVEMENT_FORCE                   = 2000,
+    RBAC_PERM_COMMAND_DEBUG_APPLY_MOVEMENT_FORCE             = 2001,
+    RBAC_PERM_COMMAND_DEBUG_REMOVE_MOVEMENT_FORCE            = 2002,
+    RBAC_PERM_COMMAND_LIST_QUESTS                            = 2003,
     RBAC_PERM_MAX
 };
 

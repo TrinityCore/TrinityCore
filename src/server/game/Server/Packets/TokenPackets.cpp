@@ -53,3 +53,10 @@ WorldPacket const* WorldPackets::Token::WowTokenMarketPriceResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Token::WowTokenBuyStart::Read()
+{
+    _worldPacket >> UnkInt32;
+    _worldPacket >> BuyerGuid;
+    _worldPacket >> CurrentMarketPrice;
+}

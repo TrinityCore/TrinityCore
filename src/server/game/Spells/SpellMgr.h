@@ -463,6 +463,7 @@ struct TC_GAME_API SpellArea
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
     int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
+    int8   teamId;                                          // can be applied only to team
     uint32 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
@@ -532,8 +533,8 @@ typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::cons
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
 
-typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
-typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
+typedef std::vector<uint32> PetLevelupSpellStore;
+typedef std::map<uint32, PetLevelupSpellStore> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
@@ -660,7 +661,7 @@ class TC_GAME_API SpellMgr
 
         const std::vector<int32> *GetSpellLinked(int32 spell_id) const;
 
-        PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
+        PetLevelupSpellStore const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
 
         // Spell area

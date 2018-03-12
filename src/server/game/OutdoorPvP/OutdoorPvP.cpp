@@ -250,7 +250,10 @@ void OutdoorPvP::DeleteSpawns()
     m_capturePoints.clear();
 }
 
-OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_sendUpdate(true), m_map(nullptr) { }
+OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_sendUpdate(true), m_map(nullptr)
+{
+    _scriptType = ZONE_SCRIPT_TYPE_OUTDOORPVP;
+}
 
 OutdoorPvP::~OutdoorPvP()
 {

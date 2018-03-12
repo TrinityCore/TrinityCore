@@ -28,16 +28,19 @@
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
 #include "MapReference.h"
+#include "Optional.h"
 #include "PetDefines.h"
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
 #include "SceneMgr.h"
 #include <queue>
+#include "GarrisonMgr.h"
 
 struct AccessRequirement;
 struct AchievementEntry;
 struct AreaTableEntry;
 struct AreaTriggerEntry;
+struct AreaTriggerTeleportStruct;
 struct ArtifactPowerRankEntry;
 struct BarberShopStyleEntry;
 struct CharTitlesEntry;
@@ -89,6 +92,7 @@ enum InventoryType : uint8;
 enum ItemClass : uint8;
 enum LootError : uint8;
 enum LootType : uint8;
+enum ToastDisplayMethod : uint8;
 
 namespace WorldPackets
 {
@@ -158,6 +162,7 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
+
 
 enum TalentSpecialization // talent tabs
 {
@@ -244,6 +249,14 @@ typedef std::unordered_set<SpellModifier*> SpellModContainer;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
+
+enum TrainerSpellState
+{
+    TRAINER_SPELL_GRAY  = 0,
+    TRAINER_SPELL_GREEN = 1,
+    TRAINER_SPELL_RED   = 2,
+    TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
+};
 
 enum ActionButtonUpdateState
 {
@@ -485,6 +498,14 @@ enum PlayerFieldBytes2Offsets
 enum PlayerFieldBytes3Offsets
 {
     PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID                  = 0     // uint16!
+};
+
+enum PlayerAvgItemLevelOffsets
+{
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED_AND_BAG  = 0,
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED          = 1,
+    PLAYER_AVG_ITEM_LEVEL_UNK3              = 2,
+    PLAYER_AVG_ITEM_LEVEL_UNK4              = 3
 };
 
 static_assert((PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
@@ -829,11 +850,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CURRENCY,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
+    PLAYER_LOGIN_QUERY_LOAD_ALL_PETS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -850,7 +867,7 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-// Maximum money amount : 2^31 - 1
+// Maximum money amount : 2^63 - 1
 TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
 
 enum BindExtensionState
@@ -910,13 +927,37 @@ enum PlayerCommandStates
     CHEAT_CASTTIME  = 0x02,
     CHEAT_COOLDOWN  = 0x04,
     CHEAT_POWER     = 0x08,
-    CHEAT_WATERWALK = 0x10
+    CHEAT_WATERWALK = 0x10,
+
+    CHEAT_ALL       = CHEAT_GOD | CHEAT_CASTTIME | CHEAT_COOLDOWN | CHEAT_POWER
 };
 
 enum PlayerLogXPReason : uint8
 {
     LOG_XP_REASON_KILL    = 0,
     LOG_XP_REASON_NO_KILL = 1
+};
+
+struct PlayerPetData
+{
+    uint32 PetId;
+    uint32 CreatureId;
+    uint64 Owner;
+    uint32 DisplayId;
+    uint32 Petlevel;
+    uint32 PetExp;
+    ReactStates Reactstate;
+    uint8 Slot;
+    std::string Name;
+    bool Renamed;
+    bool Active;
+    uint32 SavedHealth;
+    uint32 SavedMana;
+    std::string Actionbar;
+    uint32 Timediff;
+    uint32 SummonSpellId;
+    PetType Type;
+    uint16 SpecId;
 };
 
 class Player;
@@ -1057,7 +1098,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetObjectScale(float scale) override;
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
+        bool TeleportTo(uint32 mapid, Position const &pos, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
+        bool TeleportTo(AreaTriggerTeleportStruct const* at);
+        bool SeamlessTeleportToMap(uint32 mapid, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -1169,6 +1213,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<Item*> GetItemListByEntry(uint32 entry, bool inBankAlso = false) const;
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
+        Item* GetEquippedItem(EquipmentSlots slot) const;
         Item* GetUseableItemByPos(uint8 bag, uint8 slot) const;
         Bag*  GetBagByPos(uint8 slot) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool useable = false) const;
@@ -1224,9 +1269,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AutoUnequipOffhandIfNeed(bool force = false);
         void EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem);
         void AutoUnequipChildItem(Item* parentItem);
-        bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
-        void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
-        void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
+        bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count, ItemContext context = ItemContext(0));
+        void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false, bool specOnly = false, ToastDisplayMethod toastMethod = ToastDisplayMethod(0));
+        void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false, bool specOnly = false, ToastDisplayMethod toastMethod = ToastDisplayMethod(0)) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast, specOnly, toastMethod); }
         void StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult = nullptr);
 
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = nullptr, uint32* offendingItemId = nullptr) const;
@@ -1327,6 +1372,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendItemDurations();
         void LoadCorpse(PreparedQueryResult result);
         void LoadPet();
+        void LoadPetsFromDB(PreparedQueryResult result);
 
         bool AddItem(uint32 itemId, uint32 count);
 
@@ -1369,6 +1415,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver);
         void AddQuest(Quest const* quest, Object* questGiver);
         void AbandonQuest(uint32 quest_id);
+        void ForceCompleteQuest(uint32 quest_id);
         void CompleteQuest(uint32 quest_id);
         void IncompleteQuest(uint32 quest_id);
         uint32 GetQuestMoneyReward(Quest const* quest) const;
@@ -1399,8 +1446,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TakeQuestSourceItem(uint32 questId, bool msg);
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
+        std::string GetQuestStatusString(QuestStatus status) const;
         void SetQuestStatus(uint32 questId, QuestStatus status, bool update = true);
-        void RemoveActiveQuest(uint32 questId, bool update = true);
+        void RemoveActiveQuest(Quest const* quest, bool update = true);
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         void SendQuestUpdate(uint32 questId);
         QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
@@ -1443,10 +1491,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CurrencyChanged(uint32 currencyId, int32 change);
         bool HasQuestForItem(uint32 itemId) const;
         bool HasQuestForGO(int32 goId) const;
+        bool HasQuest(uint32 questID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
+        int32 GetQuestObjectiveData(uint32 questId, int8 storageIndex) const;
+        int32 GetQuestObjectiveCounter(uint32 objectiveId) const;
         bool IsQuestObjectiveComplete(QuestObjective const& objective) const;
         void SetQuestObjectiveData(QuestObjective const& objective, int32 data);
         bool IsQuestObjectiveProgressComplete(Quest const* quest) const;
@@ -1525,6 +1576,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const;
         void RegenerateAll();
         void Regenerate(Powers power);
+        void SendPowerUpdate(Powers power, int32 amount);
         void RegenerateHealth();
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
@@ -1592,6 +1644,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
+        TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
@@ -1634,6 +1687,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
+        TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID); }
+        uint32 GetRoleForGroup() const;
+        static uint32 GetRoleBySpecializationId(uint32 specializationId);
 
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();
@@ -1813,6 +1869,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
         void UpdateMastery();
         bool CanUseMastery() const;
+        void UpdateVersatility();
+        void UpdateAverageItemLevel();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
@@ -1834,6 +1892,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateMeleeHitChances();
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
+        void UpdateLeechPercentage();
 
         void UpdateSpellCritChance();
         void UpdateArmorPenetration(int32 amount);
@@ -1876,6 +1935,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
+
+        bool MeetPlayerCondition(uint32 conditionId) const;
+        bool HasWorldQuestEnabled() const;
+        void UpdateWorldQuestPosition(float x, float y);
 
         void SendMessageToSet(WorldPacket const* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
@@ -1943,6 +2006,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static uint32 TeamForRace(uint8 race);
         static TeamId TeamIdForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
+        bool IsInAlliance() const { return m_team == ALLIANCE; }
+        bool IsInHorde() const { return m_team == HORDE; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
 
@@ -2223,6 +2288,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendMovieStart(uint32 movieId);
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
+        void ShowNeutralPlayerFactionSelectUI();
 
         void UpdateItemLevelAreaBasedScaling();
         void ActivatePvpItemLevels(bool activate) { _usePvpItemLevels = activate; }
@@ -2316,6 +2382,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
         void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
+        void CompletedAchievement(uint32 achievementId);
         void CompletedAchievement(AchievementEntry const* entry);
         bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
@@ -2330,7 +2397,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        float GetAverageItemLevel() const;
+        float GetAverageItemLevelEquipped() const;
+        float GetAverageItemLevelEquippedAndBag() const;
+        uint8 GetSlotEquipmentFromInventory(ItemTemplate const* proto) const;
+
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -2362,19 +2432,74 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
+        uint32 GetLastTargetedGO() { return _lastTargetedGO; }
+        void SetLastTargetedGO(uint32 lastTargetedGO) { _lastTargetedGO = lastTargetedGO; }
+
+        float GetPersonnalXpRate() { return _PersonnalXpRate; }
+        void SetPersonnalXpRate(float PersonnalXpRate);
+
         void OnCombatExit();
 
+        /*
+         * Garrisons
+         */
+
         void CreateGarrison(uint32 garrSiteId);
-        void DeleteGarrison();
-        Garrison* GetGarrison() const { return _garrison.get(); }
+        void DeleteGarrison(GarrisonType type);
+        PlayerGarrisonMap& GetGarrisons() { return _garrisons; }
+        Garrison* GetGarrison(GarrisonType type) const { auto garItr = _garrisons.find(type); return (garItr != _garrisons.end()) ? garItr->second.get() : nullptr; }
+
+        GarrisonType GetCurrentGarrison() const;
+        void SetCurrentGarrison(GarrisonType type);
+        bool IsInGarrison() const;
+
+        void AddGarrisonFollower(uint32 garrFollowerId);
+        void AddGarrisonMission(uint32 garrMissionId);
+
+        void SendGarrisonInfo() const;
+        void SendGarrisonRemoteInfo() const;
+        void SendGarrisonBlueprintAndSpecializationData() const;
+
+        // End Garrisons
 
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
+        PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
+        QuestObjectiveCriteriaMgr* GetQuestObjectiveCriteriaMgr() const { return m_questObjectiveCriteriaMgr.get(); }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
+        SceneMgr const& GetSceneMgr() const { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
 
+        struct MovieDelayedTeleport
+        {
+            uint32 movieId;
+            WorldLocation loc;
+        };
+
+        std::vector<MovieDelayedTeleport> MovieDelayedTeleports;
+
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, float x, float y, float z, float o)
+        {
+            MovieDelayedTeleport data;
+            data.movieId = movieId;
+            data.loc = WorldLocation(mapID);
+            data.loc.Relocate(x, y, z, o);
+
+            MovieDelayedTeleports.push_back(data);
+        }
+
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
+        void UpdateShop(uint32 diff);
+
+        PlayerPetData* GetPlayerPetDataById(uint32 petId);
+        PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
+        PlayerPetData* GetPlayerPetDataByCreatureId(uint32 creatureId);
+        PlayerPetData* GetPlayerPetDataCurrent();
+        Optional<uint8> GetFirstUnusedActivePetSlot();
+        Optional<uint8> GetFirstUnusedPetSlot();
+        void DeleteFromPlayerPetDataStore(uint32 petNumber);
+        void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
     protected:
         // Gamemaster whisper whitelist
@@ -2383,6 +2508,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_regenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+        uint32 m_areaQuestTimer;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -2707,9 +2833,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
 
+        uint32 _lastTargetedGO;
+        float _PersonnalXpRate;
+
         uint32 _activeCheats;
 
-        std::unique_ptr<Garrison> _garrison;
+        PlayerGarrisonMap _garrisons;
+        GarrisonType _insideGarrisonType;
 
         bool _advancedCombatLoggingEnabled;
 
@@ -2725,6 +2855,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
         std::unique_ptr<RestMgr> _restMgr;
+
+        std::vector<PlayerPetData*> PlayerPetDataStore;
+
+        uint32 m_shopTimer;
 
         bool _usePvpItemLevels;
 };

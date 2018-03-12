@@ -294,8 +294,6 @@ const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 struct CreatureLevelScaling
 {
-    uint16 MinLevel;
-    uint16 MaxLevel;
     int16 DeltaLevel;
 };
 
@@ -564,12 +562,13 @@ struct CreatureAddon
 // Vendors
 struct VendorItem
 {
-    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), Type(0), PlayerConditionId(0), IgnoreFiltering(false) { }
+    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), OverrideGoldCost(-1), Type(0), PlayerConditionId(0), IgnoreFiltering(false) { }
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    int64 OverrideGoldCost;
     uint8  Type;
     std::vector<int32> BonusListIDs;
     uint32 PlayerConditionId;
@@ -577,6 +576,7 @@ struct VendorItem
 
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const;
+    int64 GetBuyPrice(ItemTemplate const* pProto) const;
 };
 
 struct VendorItemData
@@ -602,6 +602,41 @@ struct VendorItemData
     {
         m_items.clear();
     }
+};
+
+#define MAX_TRAINERSPELL_ABILITY_REQS 3
+
+struct TrainerSpell
+{
+    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0), Index(0)
+    {
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+            ReqAbility[i] = 0;
+    }
+
+    uint32 SpellID;
+    uint32 MoneyCost;
+    uint32 ReqSkillLine;
+    uint32 ReqSkillRank;
+    uint32 ReqLevel;
+    uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+    uint32 Index;
+
+    // helpers
+    bool IsCastable() const { return ReqAbility[0] != SpellID; }
+};
+
+typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
+
+struct TC_GAME_API TrainerSpellData
+{
+    TrainerSpellData() : trainerType(0) { }
+    ~TrainerSpellData() { spellList.clear(); }
+
+    TrainerSpellMap spellList;
+    uint32 trainerType;                                     // trainer type based at trainer spells, can be different from creature_template value.
+                                                            // req. for correct show non-prof. trainers like weaponmaster, allowed values 0 and 2.
+    TrainerSpell const* Find(uint32 spell_id) const;
 };
 
 #endif // CreatureData_h__

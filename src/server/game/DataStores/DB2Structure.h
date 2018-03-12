@@ -45,6 +45,33 @@ struct AchievementEntry
     uint32 CriteriaTree;
 };
 
+struct AdventureJournalEntry
+{
+    uint32 ID;
+    LocalizedString* Title;
+    LocalizedString* Description;
+    LocalizedString* ButtonText;
+    LocalizedString* Unk3;
+    LocalizedString* ObjectiveText;
+    uint32 Unk1;
+    uint32 Unk2;
+    uint16 Unk4;
+    uint16 QuestID;
+    uint16 Unk5[2];
+    uint16 Unk6;
+    uint16 Unk7;
+    uint16 Unk8;
+    uint8 Unk9;
+    uint8 Unk10;
+    uint8 Unk11;
+    uint8 Unk12;
+    uint8 Unk13;
+    uint8 Unk14[2];
+    uint8 Unk15;
+    uint32 Unk16;
+    uint32 Unk17;
+};
+
 struct AnimKitEntry
 {
     uint32 ID;
@@ -93,6 +120,12 @@ struct AreaTableEntry
         if (MapID == 609)
             return true;
         return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
+    }
+
+    // Checks if zone activates pvp talents.
+    bool ActivatesPvpTalents() const
+    {
+        return (!IsSanctuary() && (Flags[0] & (AREA_FLAG_ARENA | AREA_FLAG_WINTERGRASP)) != 0) || ID == 5095 /*Tol Barad*/;
     }
 };
 
@@ -213,6 +246,26 @@ struct ArtifactQuestXPEntry
 {
     uint32 ID;
     uint32 Exp[10];
+};
+
+struct ArtifactTierEntry
+{
+    uint32 ID;
+    uint32 ArtifactTier;
+    uint32 MaxNumTraits;
+    uint32 MaxArtifactKnowledge;
+    uint32 KnowledgePlayerCondition;
+    uint32 MinimumEmpowerKnowledge;
+};
+
+struct ArtifactUnlockEntry
+{
+    uint32 ID;
+    uint16 ItemBonusListID;
+    uint8  PowerRank;
+    uint32 PowerID;
+    uint32 PlayerConditionID;
+    uint8  ArtifactID;
 };
 
 struct AuctionHouseEntry
@@ -1123,6 +1176,39 @@ struct GarrFollowerXAbilityEntry
     uint16 GarrFollowerID;
 };
 
+struct GarrMissionEntry
+{
+    LocalizedString const* Name;
+    LocalizedString const* Description;
+    LocalizedString const* Location;
+    uint32 Duration;
+    uint32 OfferTime;
+    float Map1[2];
+    float Map2[2];
+    uint16  RequiredItemLevel;
+    uint16 LocPrefixID;
+    uint16 CurrencyID;
+    uint8  RequiredLevel;
+    uint8  GarrMechanicTypeRecID;
+    uint8  RequiredFollowersCount;
+    uint8  Category;
+    uint8  MissionType;
+    uint8  FollowerType;
+    uint8  BaseBonusChance;
+    uint8  LostChance;
+    uint8  GarrTypeID;
+    uint32 ID;
+    uint32 TravelTime;
+    uint32 SubCategory2;
+    uint32 SubCategory1;
+    uint32 CurrencyCost;
+    uint32 Flags;
+    uint32 RewardFollowerExperience;
+    uint32 unk2;
+    uint32 unk3;
+    uint32 unk4;
+};
+
 struct GarrPlotEntry
 {
     uint32 ID;
@@ -1155,12 +1241,12 @@ struct GarrSiteLevelEntry
     uint32 ID;
     DBCPosition2D TownHall;
     uint16 MapID;
-    uint16 SiteID;
+    uint16 UITextureKitID;
     uint16 MovieID;
     uint16 UpgradeResourceCost;
     uint16 UpgradeMoneyCost;
     uint8 Level;
-    uint8 UITextureKitID;
+    uint8 SiteID;
     uint8 Level2;
 };
 
@@ -1179,6 +1265,14 @@ struct GemPropertiesEntry
     uint32 Type;
     uint16 EnchantID;
     uint16 MinItemLevel;
+};
+
+struct GlobalStringsEntry
+{
+    uint32 ID;
+    char const* StringName;
+    LocalizedString* StringValue;
+    uint8 Unknown;
 };
 
 struct GlyphBindableSpellEntry
@@ -2151,6 +2245,34 @@ struct QuestFactionRewardEntry
 {
     uint32 ID;
     int16 QuestRewFactionValue[10];
+};
+
+struct QuestV2CliTaskEntry
+{
+    int64 Unk1;
+    char* Name;
+    char* Description;
+    int32  Unk2;
+    uint16 Unk3;
+    uint16 Unk4;
+    uint16 Unk5;
+    uint16 QuestID[3];
+    uint16 Unk7;
+    uint16 Unk8;
+    uint8 Unk9;
+    uint8 Unk10;
+    uint8 Unk11;
+    uint8 Unk12;
+    uint8 Unk13;
+    uint8 Unk14;
+    uint8 Unk15;
+    uint8 Unk16;
+    uint8 RequiredLevel;
+    uint8 Unk18;
+    uint32 ID;
+    int32 Unk19;
+    int32 QuestInfoID;
+    int32 Unk20;
 };
 
 struct QuestMoneyRewardEntry

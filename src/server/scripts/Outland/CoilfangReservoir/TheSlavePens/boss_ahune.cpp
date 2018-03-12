@@ -655,7 +655,7 @@ class go_ahune_ice_stone : public GameObjectScript
 public:
     go_ahune_ice_stone() : GameObjectScript("go_ahune_ice_stone") { }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/)
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) override
     {
         InstanceScript* instance = go->GetInstanceScript();
         if (!instance)

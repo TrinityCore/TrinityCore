@@ -259,7 +259,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
 {
     if (playerLevel)
     {
-        uint32 questLevel = uint32(Level == -1 ? playerLevel : Level);
+        uint32 questLevel = uint32(Level == -1 ? std::min(playerLevel, uint32(GetQuestMaxScalingLevel())) : Level);
         QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
         if (!questXp || RewardXPDifficulty >= 10)
             return 0;
@@ -380,6 +380,42 @@ bool Quest::IsRaidQuest(Difficulty difficulty) const
 
     if ((Flags & QUEST_FLAGS_RAID) != 0)
         return true;
+
+    return false;
+}
+
+bool Quest::IsWorldQuest() const
+{
+    switch (QuestInfoID)
+    {
+        case QUEST_INFO_WORLD_QUEST:
+        case QUEST_INFO_WORLD_QUEST_EPIC:
+        case QUEST_INFO_WORLD_QUEST_ELITE:
+        case QUEST_INFO_WORLD_QUEST_RARE_ELITE:
+        case QUEST_INFO_WORLD_QUEST_PVP:
+        case QUEST_INFO_WORLD_QUEST_FIRST_AID:
+        case QUEST_INFO_WORLD_QUEST_BATTLEPET:
+        case QUEST_INFO_WORLD_QUEST_BLACKSMITHING:
+        case QUEST_INFO_WORLD_QUEST_LEATHERWORKING:
+        case QUEST_INFO_WORLD_QUEST_ALCHEMY:
+        case QUEST_INFO_WORLD_QUEST_HERBALISM:
+        case QUEST_INFO_WORLD_QUEST_MINING:
+        case QUEST_INFO_WORLD_QUEST_TAILORING:
+        case QUEST_INFO_WORLD_QUEST_ENGINEERING:
+        case QUEST_INFO_WORLD_QUEST_ENCHANTING:
+        case QUEST_INFO_WORLD_QUEST_SKINNINg:
+        case QUEST_INFO_WORLD_QUEST_JEWELCRAFTING:
+        case QUEST_INFO_WORLD_QUEST_INSCRIPTION:
+        case QUEST_INFO_WORLD_QUEST_ARCHEOLOGY:
+        case QUEST_INFO_WORLD_QUEST_FISHING:
+        case QUEST_INFO_WORLD_QUEST_COOKING:
+        case QUEST_INFO_WORLD_QUEST_RARE_2:
+        case QUEST_INFO_WORLD_QUEST_RARE_ELITE_2:
+        case QUEST_INFO_WORLD_QUEST_DUNGEON:
+            return true;
+        default:
+            break;
+    }
 
     return false;
 }

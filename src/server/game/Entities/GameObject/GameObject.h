@@ -25,6 +25,7 @@
 #include "Loot.h"
 #include "MapObject.h"
 #include "SharedDefines.h"
+#include "TaskScheduler.h"
 
 class GameObjectAI;
 class GameObjectModel;
@@ -296,11 +297,19 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint16 GetAIAnimKitId() const override { return _animKitId; }
         void SetAnimKitId(uint16 animKitId, bool oneshot);
 
+        /// Event handler
+        EventProcessor m_Events;
+
         uint32 GetWorldEffectID() const { return _worldEffectID; }
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
         void AIM_Destroy();
         bool AIM_Initialize();
+
+        void setShouldIntersectWithAllPhases(bool value) { m_shouldIntersectWithAllPhases = value; }
+        bool shouldIntersectWithAllPhases() const { return m_shouldIntersectWithAllPhases; }
+
+        TaskScheduler& GetScheduler() { return _scheduler; }
 
     protected:
         GameObjectModel* CreateModel();
@@ -338,6 +347,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
 
+        bool m_shouldIntersectWithAllPhases;
+
         ObjectGuid m_linkedTrap;
 
     private:
@@ -355,5 +366,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectAI* m_AI;
         uint16 _animKitId;
         uint32 _worldEffectID;
+
+        TaskScheduler _scheduler;
 };
 #endif

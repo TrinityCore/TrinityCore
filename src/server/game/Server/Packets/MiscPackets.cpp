@@ -17,6 +17,7 @@
 
 #include "MiscPackets.h"
 #include "Common.h"
+#include "Player.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
@@ -105,6 +106,11 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
 void WorldPackets::Misc::ViolenceLevel::Read()
 {
     _worldPacket >> ViolenceLvl;
+}
+
+void WorldPackets::Misc::PlayerSelectFaction::Read()
+{
+    _worldPacket >> SelectedFaction;
 }
 
 WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
@@ -379,7 +385,7 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
 WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
 {
     _worldPacket << ClientGUID;                                 // CLientGUID
-    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
+    _worldPacket << uint32(PhaseShifts.size() ? 24 : 8);        // PhaseShiftFlags // hackfix to be removed
     _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
     _worldPacket << PersonalGUID;                               // PersonalGUID
     for (uint32 phase : PhaseShifts)
@@ -666,4 +672,19 @@ void WorldPackets::Misc::MountSetFavorite::Read()
 void WorldPackets::Misc::CloseInteraction::Read()
 {
     _worldPacket >> SourceGuid;
+}
+
+void WorldPackets::Misc::FactionSelect::Read()
+{
+    _worldPacket >> FactionChoice;
+}
+
+void WorldPackets::Misc::AdventureJournalOpenQuest::Read()
+{
+    _worldPacket >> AdventureJournalID;
+}
+
+void WorldPackets::Misc::AdventureJournalStartQuest::Read()
+{
+    _worldPacket >> QuestID;
 }

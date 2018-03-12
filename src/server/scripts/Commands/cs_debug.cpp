@@ -37,6 +37,7 @@ EndScriptData */
 #include "M2Stores.h"
 #include "MapManager.h"
 #include "MovementPackets.h"
+#include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
 #include "SpellPackets.h"
@@ -73,6 +74,11 @@ public:
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
             { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE, false, &HandleDebugSendPlayerChoiceCommand,    "" },
         };
+        static std::vector<ChatCommand> debugMovementForceCommandTable =
+        {
+            { "apply",         rbac::RBAC_PERM_COMMAND_DEBUG_APPLY_MOVEMENT_FORCE,      false, &HandleDebugApplyForceMovementCommand,  "" },
+            { "remove",        rbac::RBAC_PERM_COMMAND_DEBUG_REMOVE_MOVEMENT_FORCE,     false, &HandleDebugRemoveForceMovementCommand, "" },
+        };
         static std::vector<ChatCommand> debugCommandTable =
         {
             { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "" },
@@ -107,6 +113,9 @@ public:
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
+            { "criteria",      rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugCriteriaCommand,         "" },
+            { "movementforce", rbac::RBAC_PERM_COMMAND_DEBUG_MOVEMENT_FORCE,false, nullptr,                             "", debugMovementForceCommandTable },
+            { "playercondition",rbac::RBAC_PERM_COMMAND_DEBUG,              false, &HandleDebugPlayerConditionCommand,  "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1580,6 +1589,99 @@ public:
         }
 
         return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
+    }
+
+    static bool HandleDebugCriteriaCommand(ChatHandler* handler, char const* args)
+    {
+        if (!args)
+            return false;
+
+        WorldPacket packet;
+
+        packet << uint32(atoi(args));
+        packet << uint64(1);
+        packet << handler->GetSession()->GetPlayer()->GetGUID();
+        packet << uint32(0);
+        packet.AppendPackedTime(time(nullptr));
+        packet << uint32(0);
+        packet << uint32(0);
+
+        handler->GetSession()->SendPacket(&packet);
+        return true;
+    }
+
+    static bool HandleDebugApplyForceMovementCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (!unit)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        float magnitude     = 10.0f;
+        Position direction  = player->GetPosition();
+        Position origin     = Position();
+
+        if (*args)
+        {
+            char* magnitudeStr = strtok((char*)args, " ");
+            char* directionX = strtok(NULL, " ");
+            char* directionY = strtok(NULL, " ");
+            char* directionZ = strtok(NULL, " ");
+            char* originX = strtok(NULL, " ");
+            char* originY = strtok(NULL, " ");
+            char* originZ = strtok(NULL, " ");
+
+            if (magnitudeStr)
+                magnitude = (float)atof(magnitudeStr);
+
+            if (directionX && directionY && directionZ)
+                direction.Relocate((float)atof(directionX), (float)atof(directionY), (float)atof(directionZ));
+
+            if (originX && originY && directionZ)
+                origin.Relocate((float)atof(originX), (float)atof(originY), (float)atof(originZ));
+        }
+
+        unit->ApplyMovementForce(player->GetGUID(), magnitude, direction, origin);
+        return true;
+    }
+
+    static bool HandleDebugRemoveForceMovementCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (!unit)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        unit->RemoveMovementForce(handler->GetSession()->GetPlayer()->GetGUID());
+        return true;
+    }
+
+    static bool HandleDebugPlayerConditionCommand(ChatHandler* handler, char const* args)
+    {
+        if (!args)
+            return false;
+
+        uint32 conditionId = atoi(args);
+        Player* player = handler->getSelectedPlayerOrSelf();
+
+        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId);
+        if (!playerCondition)
+            return false;
+
+        if (sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
+            handler->PSendSysMessage("True");
+        else
+            handler->PSendSysMessage("False");
+
+        return true;
     }
 };
 

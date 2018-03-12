@@ -18,6 +18,7 @@
 
 #include "Player.h"
 #include "AreaTrigger.h"
+#include "AreaTriggerPackets.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -55,6 +56,8 @@
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "Garrison.h"
+#include "WodGarrison.h"
+#include "ClassHall.h"
 #include "GitRevision.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
@@ -117,11 +120,13 @@
 #include "WeatherMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
+#define SHOP_UPDATE_INTERVAL (30*IN_MILLISECONDS)
 
 // corpse reclaim times
 #define DEATH_EXPIRE_STEP (5*MINUTE)
@@ -334,6 +339,10 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     healthBeforeDuel = 0;
     manaBeforeDuel = 0;
 
+    _lastTargetedGO = 0;
+
+    _PersonnalXpRate = 0;
+
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
 
     _cinematicMgr = new CinematicMgr(this);
@@ -348,6 +357,12 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _advancedCombatLoggingEnabled = false;
 
     _restMgr = Trinity::make_unique<RestMgr>(this);
+
+    m_areaQuestTimer = 0;
+
+    _insideGarrisonType = GARRISON_TYPE_NONE;
+
+    m_shopTimer = 0;
 
     _usePvpItemLevels = false;
 }
@@ -384,6 +399,9 @@ Player::~Player()
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
+
+    for (uint8 i = 0; i < PlayerPetDataStore.size(); i++)
+        delete PlayerPetDataStore[i];
 
     sWorld->DecreasePlayerCount();
 }
@@ -500,6 +518,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         start_level = sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
     else if (getClass() == CLASS_DEMON_HUNTER)
         start_level = sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL);
+    else if (getRace() >= RACE_NIGHTBORNE)
+        start_level = 20;
 
     if (createInfo->TemplateSet)
     {
@@ -529,6 +549,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetUInt64Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
+    SetCurrency(CURRENCY_TYPE_ARTIFACT_KNOWLEDGE, sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE));
 
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
@@ -611,48 +632,51 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         ab.SetActionAndType(action_itr->action, ActionButtonType(action_itr->type));
     }
 
-    // original items
-    if (CharStartOutfitEntry const* oEntry = sDB2Manager.GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Sex))
+    if (createInfo->withStartOutfit)
     {
-        for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        // original items
+        if (CharStartOutfitEntry const* oEntry = sDB2Manager.GetCharStartOutfitEntry(createInfo->Race, createInfo->Class, createInfo->Sex))
         {
-            if (oEntry->ItemID[j] <= 0)
-                continue;
-
-            uint32 itemId = oEntry->ItemID[j];
-
-            // just skip, reported in ObjectMgr::LoadItemTemplates
-            ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
-            if (!iProto)
-                continue;
-
-            // BuyCount by default
-            uint32 count = iProto->GetBuyCount();
-
-            // special amount for food/drink
-            if (iProto->GetClass() == ITEM_CLASS_CONSUMABLE && iProto->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+            for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
             {
-                if (iProto->Effects.size() >= 1)
-                {
-                    switch (iProto->Effects[0]->Category)
-                    {
-                        case SPELL_CATEGORY_FOOD:                                // food
-                            count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
-                            break;
-                        case SPELL_CATEGORY_DRINK:                                // drink
-                            count = 2;
-                            break;
-                    }
-                }
-                if (iProto->GetMaxStackSize() < count)
-                    count = iProto->GetMaxStackSize();
-            }
-            StoreNewItemInBestSlots(itemId, count);
-        }
-    }
+                if (oEntry->ItemID[j] <= 0)
+                    continue;
 
-    for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr)
-        StoreNewItemInBestSlots(item_id_itr->item_id, item_id_itr->item_amount);
+                uint32 itemId = oEntry->ItemID[j];
+
+                // just skip, reported in ObjectMgr::LoadItemTemplates
+                ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
+                if (!iProto)
+                    continue;
+
+                // BuyCount by default
+                uint32 count = iProto->GetBuyCount();
+
+                // special amount for food/drink
+                if (iProto->GetClass() == ITEM_CLASS_CONSUMABLE && iProto->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                {
+                    if (iProto->Effects.size() >= 1)
+                    {
+                        switch (iProto->Effects[0]->Category)
+                        {
+                            case SPELL_CATEGORY_FOOD:                                // food
+                                count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
+                                break;
+                            case SPELL_CATEGORY_DRINK:                                // drink
+                                count = 2;
+                                break;
+                        }
+                    }
+                    if (iProto->GetMaxStackSize() < count)
+                        count = iProto->GetMaxStackSize();
+                }
+                StoreNewItemInBestSlots(itemId, count);
+            }
+        }
+
+        for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr)
+            StoreNewItemInBestSlots(item_id_itr->item_id, item_id_itr->item_amount);
+    }
 
     // bags and main-hand weapon must equipped at this moment
     // now second pass for not equipped (offhand weapon/shield if it attempt equipped before main-hand weapon)
@@ -682,8 +706,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
                 }
             }
         }
+        // all item positions resolved
     }
-    // all item positions resolved
 
     if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(getClass()))
     {
@@ -694,7 +718,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     return true;
 }
 
-bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
+bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount, ItemContext context)
 {
     TC_LOG_DEBUG("entities.player.items", "Player::StoreNewItemInBestSlots: Player '%s' (%s) creates initial item (ItemID: %u, Count: %u)",
         GetName().c_str(), GetGUID().ToString().c_str(), titem_id, titem_amount);
@@ -721,7 +745,11 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, titem_id, titem_amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, titem_id, true, GenerateItemRandomPropertyId(titem_id));
+        std::vector<int32> bonusListIDs;
+        if (context)
+            bonusListIDs = sDB2Manager.GetItemBonusTreeVector(titem_id, context);
+
+        StoreNewItem(sDest, titem_id, true, GenerateItemRandomPropertyId(titem_id), GuidSet(), context, bonusListIDs);
         return true;                                        // stored
     }
 
@@ -1346,13 +1374,16 @@ void Player::Update(uint32 p_time)
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
-        RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
+        RemovePet(pet, PET_SAVE_DISMISS, true);
+
+    UpdateShop(p_time);
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
 
+    sScriptMgr->OnPlayerUpdate(this, p_time);
 }
 
 void Player::setDeathState(DeathState s)
@@ -1375,7 +1406,7 @@ void Player::setDeathState(DeathState s)
         ClearResurrectRequestData();
 
         //FIXME: is pet dismissed at dying or releasing spirit? if second, add setDeathState(DEAD) to HandleRepopRequestOpcode and define pet unsummon here with (s == DEAD)
-        RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
+        RemovePet(nullptr, PET_SAVE_DISMISS, true);
 
         InitializeSelfResurrectionSpells();
 
@@ -1657,9 +1688,121 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+bool Player::TeleportTo(uint32 mapid, Position const &pos, uint32 options /*= 0*/)
+{
+    WorldLocation loc(mapid);
+    loc.Relocate(pos);
+    return TeleportTo(loc, options);
+}
+
 bool Player::TeleportTo(WorldLocation const &loc, uint32 options /*= 0*/)
 {
     return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
+}
+
+bool Player::TeleportTo(AreaTriggerTeleportStruct const* at)
+{
+    bool teleported = false;
+    if (GetMapId() != at->target_mapId)
+    {
+        if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, this, false))
+        {
+            bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
+            switch (denyReason)
+            {
+                case Map::CANNOT_ENTER_NO_ENTRY:
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter map with id %d which has no entry", GetName().c_str(), at->target_mapId);
+                    break;
+                case Map::CANNOT_ENTER_UNINSTANCED_DUNGEON:
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter dungeon map %d but no instance template was found", GetName().c_str(), at->target_mapId);
+                    break;
+                case Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE:
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter instance map %d but the requested difficulty was not found", GetName().c_str(), at->target_mapId);
+                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
+                        SendTransferAborted(entry->ID, TRANSFER_ABORT_DIFFICULTY, GetDifficultyID(entry));
+                    break;
+                case Map::CANNOT_ENTER_NOT_IN_RAID:
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter map %d", GetName().c_str(), at->target_mapId);
+                    SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
+                    reviveAtTrigger = true;
+                    break;
+                case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
+                    GetSession()->SendPacket(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", GetName().c_str(), at->target_mapId);
+                    break;
+                case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
+                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
+                    {
+                        char const* mapName = entry->MapName->Str[GetSession()->GetSessionDbcLocale()];
+                        TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map '%s' because their permanent bind is incompatible with their group's", GetName().c_str(), mapName);
+                        // is there a special opcode for this?
+                        // @todo figure out how to get player localized difficulty string (e.g. "10 player", "Heroic" etc)
+                        ChatHandler(GetSession()).PSendSysMessage(GetSession()->GetTrinityString(LANG_INSTANCE_BIND_MISMATCH), mapName);
+                    }
+                    reviveAtTrigger = true;
+                    break;
+                case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
+                    SendTransferAborted(at->target_mapId, TRANSFER_ABORT_TOO_MANY_INSTANCES);
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because he has exceeded the maximum number of instances per hour.", GetName().c_str(), at->target_mapId);
+                    reviveAtTrigger = true;
+                    break;
+                case Map::CANNOT_ENTER_MAX_PLAYERS:
+                    SendTransferAborted(at->target_mapId, TRANSFER_ABORT_MAX_PLAYERS);
+                    reviveAtTrigger = true;
+                    break;
+                case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
+                    SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ZONE_IN_COMBAT);
+                    reviveAtTrigger = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (reviveAtTrigger) // check if the player is touching the areatrigger leading to the map his corpse is on
+                if (!IsAlive() && HasCorpse())
+                    if (GetCorpseLocation().GetMapId() == at->target_mapId)
+                    {
+                        ResurrectPlayer(0.5f);
+                        SpawnCorpseBones();
+                    }
+
+            return false;
+        }
+
+        if (Group* group = GetGroup())
+            if (group->isLFGGroup() && GetMap()->IsDungeon())
+                teleported = TeleportToBGEntryPoint();
+    }
+
+    if (!teleported)
+    {
+        WorldSafeLocsEntry const* entranceLocation = nullptr;
+        InstanceSave* instanceSave = GetInstanceSave(at->target_mapId);
+        if (instanceSave)
+        {
+            // Check if we can contact the instancescript of the instance for an updated entrance location
+            if (Map* map = sMapMgr->FindMap(at->target_mapId, GetInstanceSave(at->target_mapId)->GetInstanceId()))
+                if (InstanceMap* instanceMap = map->ToInstanceMap())
+                    if (InstanceScript* instanceScript = instanceMap->GetInstanceScript())
+                        entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceScript->GetEntranceLocation());
+
+            // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
+            if (!entranceLocation)
+                entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceSave->GetEntranceLocation());
+        }
+
+        if (entranceLocation)
+            return TeleportTo(entranceLocation->MapID, entranceLocation->Loc.X, entranceLocation->Loc.Y, entranceLocation->Loc.Z, entranceLocation->Facing * M_PI / 180, TELE_TO_NOT_LEAVE_TRANSPORT);
+        else
+            return TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
+    }
+
+    return false;
+}
+
+bool Player::SeamlessTeleportToMap(uint32 mapid, uint32 options /*= 0*/)
+{
+    return TeleportTo(mapid, GetPosition(), options | TELE_TO_SEAMLESS);
 }
 
 bool Player::TeleportToBGEntryPoint()
@@ -1895,7 +2038,7 @@ void Player::Regenerate(Powers power)
             if (Powers((*i)->GetMiscValue()) == power)
                 AddPct(addvalue, (*i)->GetAmount());
 
-        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
+        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (float((power != POWER_ENERGY && power != POWER_INSANITY) ? m_regenTimerCount : m_regenTimer) / float(5 * IN_MILLISECONDS));
     }
 
     int32 minPower = powerType->RegenerationMin;
@@ -1964,6 +2107,25 @@ void Player::Regenerate(Powers power)
         SetPower(power, curValue);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
+}
+
+void Player::SendPowerUpdate(Powers power, int32 amount)
+{
+    if (!IsInWorld())
+        return;
+
+    uint32 powerIndex = GetPowerIndex(power);
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+        return;
+
+    if (amount > GetMaxPower(power))
+        amount = GetMaxPower(power);
+
+    WorldPackets::Combat::PowerUpdatePower powUpd(amount, power);
+    WorldPackets::Combat::PowerUpdate upd;
+    upd.Guid = GetGUID();
+    upd.Powers.emplace_back(powUpd);
+    SendDirectMessage(upd.Write());
 }
 
 void Player::RegenerateHealth()
@@ -2097,7 +2259,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint64 npcflag
         return nullptr;
 
     // not too far
-    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+    if (!IsWithinDistInMap(creature, INTERACTION_DISTANCE))
         return nullptr;
 
     return creature;
@@ -3287,7 +3449,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (itr == m_spells.end())
         return;                                             // already unleared
 
-    bool cur_active    = itr->second->active;
+    bool cur_active = itr->second->active;
     bool cur_dependent = itr->second->dependent;
 
     if (disabled)
@@ -3318,7 +3480,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
     if (spellInfo && spellInfo->IsPrimaryProfessionFirstRank())
     {
-        uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
+        uint32 freeProfs = GetFreePrimaryProfessionPoints() + 1;
         if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
             SetFreePrimaryProfessions(freeProfs);
     }
@@ -3502,7 +3664,7 @@ bool Player::ResetTalents(bool noCost)
         }
     }
 
-    RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
+    RemovePet(nullptr, PET_SAVE_DISMISS, true);
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
@@ -3542,7 +3704,7 @@ bool Player::ResetTalents(bool noCost)
     if (Pet* pet = GetPet())
     {
         if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
-            RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+            RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
     }
     */
 
@@ -4068,7 +4230,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
             Corpse::DeleteFromDB(playerguid, trans);
 
-            Garrison::DeleteFromDB(guid, trans);
+            WodGarrison::DeleteFromDB(guid, trans);
+            ClassHall::DeleteFromDB(guid, trans);
 
             sWorld->DeleteCharacterInfo(playerguid);
             break;
@@ -5079,7 +5242,9 @@ void Player::UpdateRating(CombatRating cr)
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE:
         case CR_RESILIENCE_CRIT_TAKEN:
+            break;
         case CR_LIFESTEAL:
+            UpdateLeechPercentage();
             break;
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
@@ -5130,11 +5295,13 @@ void Player::UpdateRating(CombatRating cr)
         case CR_MASTERY:
             UpdateMastery();
             break;
-        case CR_PVP_POWER:
-        case CR_CLEAVE:
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_HEALING_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
+            UpdateVersatility();
+            break;
+        case CR_PVP_POWER:
+        case CR_CLEAVE:
         case CR_UNUSED_12:
             break;
     }
@@ -5863,6 +6030,8 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
+    UpdateWorldQuestPosition(x, y);
+
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
@@ -5876,6 +6045,79 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     CheckAreaExploreAndOutdoor();
 
     return true;
+}
+
+bool Player::MeetPlayerCondition(uint32 conditionId) const
+{
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
+        if (sConditionMgr->IsPlayerMeetingCondition(this, playerCondition))
+            return true;
+
+    return false;
+}
+
+bool Player::HasWorldQuestEnabled() const
+{
+    return MeetPlayerCondition(41005);
+}
+
+void Player::UpdateWorldQuestPosition(float x, float y)
+{
+    if (time(nullptr) < m_areaQuestTimer)
+        return;
+
+    m_areaQuestTimer = time(nullptr) + 2;
+
+    for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
+    {
+        if (IsQuestRewarded(bonus_quest.first))
+            continue;
+
+        bool found = false;
+
+        for (uint32 i = 0; i < bonus_quest.second.size(); ++i)
+        {
+            if (bonus_quest.second[i].IsIn(GetMapId(), x, y))
+                found = true;
+        }
+
+        uint32 slot = FindQuestSlot(bonus_quest.first);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(bonus_quest.first);
+        if (!quest)
+            continue;
+
+        if (!found && slot < MAX_QUEST_LOG_SIZE)
+        {
+            SetQuestSlot(slot, 0);
+            RemoveActiveQuest(quest, true);
+        }
+        else if (found && slot >= MAX_QUEST_LOG_SIZE)
+        {
+            if (!CanTakeQuest(quest, false))
+                continue;
+
+            if (quest->IsWorldQuest())
+            {
+                // Uniting the Isles, required for Legion world quests
+                if (!HasWorldQuestEnabled())
+                    continue;
+
+                if (!sWorldQuestMgr->IsQuestActive(quest->GetQuestId()))
+                    continue;
+            }
+
+            AddQuest(quest, this);
+            slot = FindQuestSlot(quest->GetQuestId());
+            auto itr = m_QuestStatus.find(quest->GetQuestId());
+            if (itr != m_QuestStatus.end())
+            {
+                QuestStatusData& questStatusData = itr->second;
+                uint8 index = 0;
+                for (auto obj : questStatusData.ObjectiveData)
+                    SetQuestSlotCounter(slot, index++, obj);
+            }
+        }
+    }
 }
 
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const
@@ -6979,6 +7221,8 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    uint32 oldArea = m_areaUpdateId;
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId = newArea;
@@ -7012,10 +7256,30 @@ void Player::UpdateArea(uint32 newArea)
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
+
+    if (oldArea != newArea)
+    {
+        sScriptMgr->OnPlayerUpdateArea(this, newArea, oldArea);
+
+        if (IsInGarrison())
+        {
+            if (Garrison* garrison = GetGarrison(GetCurrentGarrison()))
+                if (!garrison->IsAllowedArea(area))
+                    garrison->Leave();
+        }
+        else
+        {
+            for (auto& garrison : GetGarrisons())
+                if (garrison.second->IsAllowedArea(area))
+                    garrison.second->Enter();
+        }
+    }
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
 {
+    uint32 oldZone = m_zoneUpdateId;
+
     if (m_zoneUpdateId != newZone)
     {
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
@@ -7025,6 +7289,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
+
+        if (ZoneScript* oldZoneScript = GetZoneScript())
+            if (oldZoneScript->IsZoneScript())
+                oldZoneScript->OnPlayerExit(this);
     }
 
     // group update
@@ -7041,6 +7309,17 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // zone changed, so area changed as well, update it.
     UpdateArea(newArea);
 
+    if (m_zoneUpdateId != oldZone)
+    {
+        SetZoneScript();
+
+        if (ZoneScript* newZoneScript = GetZoneScript())
+            if (newZoneScript->IsZoneScript())
+                GetZoneScript()->OnPlayerEnter(this);
+    }
+
+    sScriptMgr->OnPlayerUpdateZone(this, newZone, oldZone, newArea);
+
     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(newZone);
     if (!zone)
         return;
@@ -7049,8 +7328,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         GetMap()->GetOrGenerateZoneDefaultWeather(newZone);
 
     GetMap()->SendZoneDynamicInfo(newZone, this);
-
-    sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
@@ -8689,6 +8966,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 2257:                                          // Deeprun Tram
         case 3703:                                          // Shattrath City});
             break;
+        case 5736:                                          // The Wandering Isle
+            if (areaid == 5833)                                 // Wreck of the Skyseeker
+            {
+                packet.Worldstates.emplace_back(6488, 0x0); // Healers Active
+                packet.Worldstates.emplace_back(6489, 0x1); // Healers Active enabled
+            }
+            break;
         case 1377:                                          // Silithus
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_SI)
                 pvp->FillInitialWorldStates(packet);
@@ -9234,6 +9518,26 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_BFG)
                 bg->FillInitialWorldStates(packet);
             break;
+        case 6732:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TTP)
+                bg->FillInitialWorldStates(packet);
+            else
+            {
+                packet.Worldstates.emplace_back(0xE10, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0xE11, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0xE1A, 0x0);           // 9 show
+            }
+            break;
+        case 6296:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TVA)
+                bg->FillInitialWorldStates(packet);
+            else
+            {
+                packet.Worldstates.emplace_back(0xE10, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0xE11, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0xE1A, 0x0);           // 9 show
+            }
+            break;
         // Tol Barad Peninsula
         case 5389:
             if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
@@ -9263,6 +9567,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
     }
 
+    sWorldQuestMgr->FillInitWorldStates(packet);
     GetSession()->SendPacket(packet.Write());
     SendBGWeekendWorldStates();
     SendBattlefieldWorldStates();
@@ -9677,6 +9982,11 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
     if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
     return nullptr;
+}
+
+Item* Player::GetEquippedItem(EquipmentSlots slot) const
+{
+    return GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 }
 
 //Does additional check for disarmed weapons
@@ -11691,14 +12001,16 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CRITERIA_TYPE_OWN_ITEM, itemId, 1);
 
         item->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM);
-        item->SetItemRandomProperties(randomPropertyId);
 
         if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
             item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
 
         item->SetUInt32Value(ITEM_FIELD_CONTEXT, context);
+
         for (int32 bonusListID : bonusListIDs)
             item->AddBonuses(bonusListID);
+
+        item->SetItemRandomProperties(randomPropertyId);
 
         item = StoreItem(pos, item, update);
 
@@ -11766,6 +12078,7 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
     }
 
     AutoUnequipChildItem(lastItem);
+    UpdateAverageItemLevel();
 
     return lastItem;
 }
@@ -11963,6 +12276,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             default:
                 break;
         }
+        UpdateAverageItemLevel();
     }
     else
     {
@@ -11989,6 +12303,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         pItem2->SetState(ITEM_CHANGED, this);
 
         ApplyEquipCooldown(pItem2);
+        UpdateAverageItemLevel();
 
         return pItem2;
     }
@@ -12257,6 +12572,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
             pItem->SendUpdateToPlayer(this);
 
         AutoUnequipChildItem(pItem);
+        UpdateAverageItemLevel();
     }
 }
 
@@ -12399,6 +12715,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid::Empty);
         pItem->SetSlot(NULL_SLOT);
         pItem->SetState(ITEM_REMOVED, this);
+
+        UpdateAverageItemLevel();
     }
 }
 
@@ -13016,6 +13334,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
+            UpdateAverageItemLevel();
         }
         else if (IsEquipmentPos(dst))
         {
@@ -13030,6 +13349,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
+            UpdateAverageItemLevel();
         }
 
         return;
@@ -13072,6 +13392,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
                     AutoUnequipOffhandIfNeed();
                 }
+                UpdateAverageItemLevel();
             }
             else
             {
@@ -13196,6 +13517,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                     fullBag->RemoveItem(i, true);
                     emptyBag->StoreItem(count, bagItem, true);
                     bagItem->SetState(ITEM_CHANGED, this);
+                    UpdateAverageItemLevel();
 
                     ++count;
                 }
@@ -13267,6 +13589,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     AutoUnequipOffhandIfNeed();
+    UpdateAverageItemLevel();
 }
 
 void Player::AddItemToBuyBackSlot(Item* pItem)
@@ -14029,6 +14352,12 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+                            break;
+                        case ITEM_MOD_VERSATILITY:
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u VERSATILITY", enchant_amount);
                             break;
                         default:
                             break;
@@ -14899,6 +15228,8 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         default:
             break;
     }
+
+    sScriptMgr->OnQuestAccept(this, quest);
 }
 
 bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
@@ -15044,6 +15375,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         if (questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
             limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
 
+        if (quest->IsWorldQuest())
+            limittime = sWorldQuestMgr->GetTimerForQuest(quest_id);
+
         AddTimedQuest(quest_id);
         questStatusData.Timer = limittime * IN_MILLISECONDS;
         qtime = static_cast<uint32>(time(nullptr)) + limittime;
@@ -15082,6 +15416,71 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
 }
 
+void Player::ForceCompleteQuest(uint32 quest_id)
+{
+    Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+    if (!quest)
+        return;
+
+    for (uint32 i = 0; i < quest->Objectives.size(); ++i)
+    {
+        QuestObjective const& obj = quest->Objectives[i];
+
+        switch (obj.Type)
+        {
+            case QUEST_OBJECTIVE_ITEM:
+            {
+                uint32 curItemCount = GetItemCount(obj.ObjectID, true);
+                ItemPosCountVec dest;
+                uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, obj.ObjectID, obj.Amount - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, obj.ObjectID, true);
+                    SendNewItem(item, obj.Amount - curItemCount, true, false);
+                }
+                break;
+            }
+            case QUEST_OBJECTIVE_MONSTER:
+            {
+                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        KilledMonster(creatureInfo, ObjectGuid::Empty);
+                break;
+            }
+            case QUEST_OBJECTIVE_GAMEOBJECT:
+            {
+                for (uint16 z = 0; z < obj.Amount; ++z)
+                    KillCreditGO(obj.ObjectID);
+                break;
+            }
+            case QUEST_OBJECTIVE_MIN_REPUTATION:
+            {
+                uint32 curRep = GetReputationMgr().GetReputation(obj.ObjectID);
+                if (curRep < uint32(obj.Amount))
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                break;
+            }
+            case QUEST_OBJECTIVE_MAX_REPUTATION:
+            {
+                uint32 curRep = GetReputationMgr().GetReputation(obj.ObjectID);
+                if (curRep > uint32(obj.Amount))
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                break;
+            }
+            case QUEST_OBJECTIVE_MONEY:
+            {
+                ModifyMoney(obj.Amount);
+                break;
+            }
+        }
+    }
+
+    if (GetQuestStatus(quest_id) != QUEST_STATUS_COMPLETE)
+        CompleteQuest(quest_id);
+}
+
 void Player::CompleteQuest(uint32 quest_id)
 {
     if (quest_id)
@@ -15093,8 +15492,14 @@ void Player::CompleteQuest(uint32 quest_id)
             SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
+        {
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
                 RewardQuest(qInfo, 0, this, false);
+            else if (qInfo->GetQuestType() == QUEST_TYPE_TASK)
+                RewardQuest(qInfo, 0, this, true);
+
+            sScriptMgr->OnQuestComplete(this, qInfo);
+        }
     }
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
@@ -15134,7 +15539,8 @@ uint32 Player::GetQuestXPReward(Quest const* quest)
     if (rewarded && !quest->IsDFQuest())
         return 0;
 
-    uint32 XP = quest->XPValue(getLevel()) * sWorld->getRate(RATE_XP_QUEST);
+    float questXpRate = GetPersonnalXpRate() ? GetPersonnalXpRate(): sWorld->getRate(RATE_XP_QUEST);
+    uint32 XP = quest->XPValue(getLevel()) * questXpRate;
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
@@ -15185,7 +15591,8 @@ void Player::RewardQuestPackage(uint32 questPackageId, uint32 onlyItemId /*= 0*/
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(questPackageItem->ItemID, 0);
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID), GuidSet(), 0, bonusListIDs);
                     SendNewItem(item, questPackageItem->ItemCount, true, false);
                 }
             }
@@ -15204,7 +15611,8 @@ void Player::RewardQuestPackage(uint32 questPackageId, uint32 onlyItemId /*= 0*/
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(questPackageItem->ItemID, 0);
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID), GuidSet(), 0, bonusListIDs);
                     SendNewItem(item, questPackageItem->ItemCount, true, false);
                 }
             }
@@ -15259,7 +15667,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, reward, true, GenerateItemRandomPropertyId(reward));
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(reward, 0);
+
+                    Item* item = StoreNewItem(dest, reward, true, GenerateItemRandomPropertyId(reward), GuidSet(), 0, bonusListIDs);
                     SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
                 }
             }
@@ -15279,7 +15689,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId));
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(itemId, 0);
+
+                    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0, bonusListIDs);
                     SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())
@@ -15319,6 +15731,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD, uint32(moneyRew));
     }
 
+    if (quest->IsWorldQuest())
+        sWorldQuestMgr->RewardQuestForPlayer(this, quest->ID);
+
     // honor reward
     if (uint32 honor = quest->CalculateHonorGain(getLevel()))
         RewardHonor(nullptr, 0, honor);
@@ -15357,10 +15772,11 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SetMonthlyQuestStatus(quest_id);
     else if (quest->IsSeasonal())
         SetSeasonalQuestStatus(quest_id);
-
-    RemoveActiveQuest(quest_id, false);
+    
     if (quest->CanIncreaseRewardedQuestCounters())
         SetRewardedQuest(quest_id);
+
+    RemoveActiveQuest(quest, false);
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -15377,7 +15793,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         if (questGiver && questGiver->isType(TYPEMASK_UNIT) &&
             !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) &&
             !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM) &&
-            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_APPLY_AURA))
+            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_APPLY_AURA) &&
+            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_SUMMON) &&
+            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES) &&
+            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_DUMMY))
         {
             if (Unit* unit = questGiver->ToUnit())
                 unit->CastSpell(this, quest->GetRewSpell(), true);
@@ -15427,7 +15846,27 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(false);
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
+    sScriptMgr->OnQuestReward(this, quest);
+
+    for (uint16 index = 0; index < MAX_QUEST_LOG_SIZE; ++index)
+    {
+        uint32 qu_id = GetQuestSlotQuestId(index);
+        if (Quest const* qu = sObjectMgr->GetQuestTemplate(qu_id))
+        {
+            for (auto obj : qu->GetObjectives())
+            {
+                if (obj.Type == QUEST_OBJECTIVE_CRITERIA_TREE)
+                {
+                    if (CanCompleteQuest(qu->GetQuestId()))
+                        CompleteQuest(qu->GetQuestId());
+                    break;
+                }
+            }
+        }
+    }
+
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
+
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -16079,6 +16518,18 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
     return QUEST_STATUS_NONE;
 }
 
+std::string Player::GetQuestStatusString(QuestStatus status) const
+{
+    switch (status)
+    {
+        case QUEST_STATUS_COMPLETE:     return "COMPLETE";
+        case QUEST_STATUS_INCOMPLETE:   return "INCOMPLETE";
+        case QUEST_STATUS_FAILED:       return "FAILED";
+        case QUEST_STATUS_REWARDED:     return "REWARDED";
+        default:                        return "NONE";
+    }
+}
+
 bool Player::CanShareQuest(uint32 quest_id) const
 {
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
@@ -16103,17 +16554,27 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
         SendQuestUpdate(questId);
 }
 
-void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
+void Player::RemoveActiveQuest(Quest const* quest, bool update /*= true*/)
 {
+    uint32 questId = quest->GetQuestId();
     QuestStatusMap::iterator itr = m_QuestStatus.find(questId);
-    if (itr != m_QuestStatus.end())
+
+    if (quest->GetQuestType() != QUEST_TYPE_TASK || (quest->GetQuestType() == QUEST_TYPE_TASK && IsQuestRewarded(questId)))
     {
-        m_QuestStatus.erase(itr);
-        m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
+        if (itr != m_QuestStatus.end())
+        {
+            m_QuestStatus.erase(itr);
+            m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
+        }
     }
+    else if (itr != m_QuestStatus.end())
+        itr->second.Status = QUEST_STATUS_NONE;
 
     if (update)
         SendQuestUpdate(questId);
+
+    if (!IsQuestRewarded(questId))
+        sScriptMgr->OnQuestAbandon(this, quest);
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -16365,20 +16826,19 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
         uint16 log_slot = FindQuestSlot(questId);
         if (log_slot < MAX_QUEST_LOG_SIZE)
         {
-            TC_LOG_ERROR("entities.player.quest", "Player::AreaExploredOrEventHappens:Deprecated function called for quest %u", questId);
-            /** @todo
-            This function was previously used for area triggers but now those are a part of quest objective system
-            Currently this function is used to complete quests with no objectives (needs verifying) so probably rename it?
-
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
+            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+            if (qInfo && GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
             {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
-                SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
-                SendQuestComplete(questId);
-            }**/
+                for (QuestObjective const& obj : qInfo->Objectives)
+                {
+                    if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !IsQuestObjectiveComplete(obj))
+                    {
+                        SetQuestObjectiveData(obj, 1);
+                        SendQuestUpdateAddCreditSimple(obj);
+                        break;
+                    }
+                }
+            }
         }
         if (CanCompleteQuest(questId))
             CompleteQuest(questId);
@@ -16939,6 +17399,29 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
     return status.ObjectiveData[storageIndex];
 }
 
+int32 Player::GetQuestObjectiveData(uint32 questId, int8 storageIndex) const
+{
+    if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+        return GetQuestObjectiveData(qInfo, storageIndex);
+
+    return 0;
+}
+
+int32 Player::GetQuestObjectiveCounter(uint32 objectiveId) const
+{
+    QuestObjective const* obj = sObjectMgr->GetQuestObjective(objectiveId);
+
+    if (obj == nullptr)
+        return 0;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(obj->QuestID);
+
+    if (quest == nullptr)
+        return 0;
+
+    return GetQuestObjectiveData(quest, obj->StorageIndex);
+}
+
 bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
 {
     Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID);
@@ -17027,8 +17510,12 @@ void Player::SetQuestObjectiveData(QuestObjective const& objective, int32 data)
     if (oldData == data)
         return;
 
+    if (data >= objective.Amount)
+        sScriptMgr->OnObjectiveValidate(this, objective.QuestID, objective.ID);
+
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID))
         sScriptMgr->OnQuestObjectiveChange(this, quest, objective, oldData, data);
+
 
     // Set data
     status.ObjectiveData[objective.StorageIndex] = data;
@@ -17472,9 +17959,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     //"resettalents_time, primarySpecialization, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeonDifficulty, "
     // 50          51          52              53           54              55
     //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
-    // 56      57      58      59      60      61      62      63           64                 65          66             67           68          69               70              71                    72
-    //"health, power1, power2, power3, power4, power5, power6, instance_id, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, grantableLevels, raidDifficulty, legacyRaidDifficulty, fishing_steps "
-    // 73     74          75             76                77
+    // 56      57      58      59      60      61      62      63           64                 65          66             67           68          69               70              71                    72      73
+    //"health, power1, power2, power3, power4, power5, power6, instance_id, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, grantableLevels, raidDifficulty, legacyRaidDifficulty, xpRate, fishing_steps "
+    // 74     75          76             77                78
     //"honor, honorLevel, prestigeLevel, honor_rest_state, honor_rest_bonus "
     //
     //"FROM characters WHERE guid = ?", CONNECTION_ASYNC);
@@ -17599,7 +18086,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
     SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[68].GetUInt8());
 
-    m_fishingSteps = fields[72].GetUInt8();
+    _PersonnalXpRate = fields[72].GetUInt8();
+    m_fishingSteps = fields[73].GetUInt8();
 
     InitDisplayIds();
 
@@ -17849,7 +18337,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // load the player's map here if it's not already loaded
     if (!map)
         map = sMapMgr->CreateMap(mapId, this, instanceId);
-    AreaTriggerStruct const* areaTrigger = nullptr;
+    AreaTriggerTeleportStruct const* areaTrigger = nullptr;
     bool check = false;
 
     if (!map)
@@ -18213,17 +18701,17 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
-    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
-    if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES)))
-        _garrison = std::move(garrison);
+    std::unique_ptr<WodGarrison> wodGarrison = Trinity::make_unique<WodGarrison>(this);
+    if (wodGarrison->LoadFromDB())
+        _garrisons[GARRISON_TYPE_GARRISON] = std::move(wodGarrison);
 
-    _InitHonorLevelOnLoadFromDB(fields[73].GetUInt32(), fields[74].GetUInt32(), fields[75].GetUInt32());
+    std::unique_ptr<ClassHall> classHall = Trinity::make_unique<ClassHall>(this);
+    if (classHall->LoadFromDB())
+        _garrisons[GARRISON_TYPE_CLASS_HALL] = std::move(classHall);
 
-    _restMgr->LoadRestBonus(REST_TYPE_HONOR, PlayerRestState(fields[76].GetUInt8()), fields[77].GetFloat());
+    _InitHonorLevelOnLoadFromDB(fields[74].GetUInt32(), fields[75].GetUInt32(), fields[76].GetUInt32());
+
+    _restMgr->LoadRestBonus(REST_TYPE_HONOR, PlayerRestState(fields[77].GetUInt8()), fields[78].GetFloat());
     if (time_diff > 0)
     {
         //speed collect rest bonus in offline, in logout, far from tavern, city (section/in hour)
@@ -18238,6 +18726,12 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
+
+    // Add active emissary quests on player at login
+    sWorldQuestMgr->AddEmissaryQuestsOnPlayerIfNeeded(this);
+
+    UpdateAverageItemLevel();
+
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
     return true;
 }
@@ -18503,9 +18997,9 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
     //expected to be equipped before offhand items (@todo fixme)
 
-    //                 0     1                       2                   3                 4
-    // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid INNER JOIN character_inventory ci ON ci.item = ap.guid WHERE ci.guid = ?
-    std::unordered_map<ObjectGuid, std::tuple<uint64, uint32, std::vector<ItemDynamicFieldArtifactPowers>>> artifactData;
+    //                 0     1                       2                 3                   4                 5
+    // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid INNER JOIN character_inventory ci ON ci.item = ap.guid WHERE ci.guid = ?
+    std::unordered_map<ObjectGuid, std::tuple<uint64, uint32, uint32, std::vector<ItemDynamicFieldArtifactPowers>>> artifactData;
     if (artifactsResult)
     {
         do
@@ -18514,17 +19008,22 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
             auto& artifactDataEntry = artifactData[ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64())];
             std::get<0>(artifactDataEntry) = fields[1].GetUInt64();
             std::get<1>(artifactDataEntry) = fields[2].GetUInt32();
+            std::get<2>(artifactDataEntry) = fields[3].GetUInt32();
             ItemDynamicFieldArtifactPowers artifactPowerData;
-            artifactPowerData.ArtifactPowerId = fields[3].GetUInt32();
-            artifactPowerData.PurchasedRank = fields[4].GetUInt8();
+            artifactPowerData.ArtifactPowerId = fields[4].GetUInt32();
+            artifactPowerData.PurchasedRank = fields[5].GetUInt8();
             if (ArtifactPowerEntry const* artifactPower = sArtifactPowerStore.LookupEntry(artifactPowerData.ArtifactPowerId))
             {
-                if (artifactPowerData.PurchasedRank > artifactPower->MaxRank)
-                    artifactPowerData.PurchasedRank = artifactPower->MaxRank;
+                uint32 maxRank = artifactPower->MaxRank;
+                if (artifactPower->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER)
+                    maxRank += std::get<2>(artifactDataEntry);
 
-                artifactPowerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) ? 1 : 0;
+                if (artifactPowerData.PurchasedRank > maxRank)
+                    artifactPowerData.PurchasedRank = maxRank;
 
-                std::get<2>(artifactDataEntry).push_back(artifactPowerData);
+                artifactPowerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) == ARTIFACT_POWER_FLAG_FIRST ? 1 : 0;
+
+                std::get<3>(artifactDataEntry).push_back(artifactPowerData);
             }
 
         } while (artifactsResult->NextRow());
@@ -18548,7 +19047,7 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
             {
                 auto artifactDataItr = artifactData.find(item->GetGUID());
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
-                    item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second));
+                    item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second), std::get<3>(artifactDataItr->second));
 
                 ObjectGuid bagGuid = fields[45].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[45].GetUInt64()) : ObjectGuid::Empty;
                 uint8 slot = fields[46].GetUInt8();
@@ -18565,7 +19064,12 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                         item->CopyArtifactDataFromParent(parent);
                     }
                     else
-                        err = EQUIP_ERR_WRONG_BAG_TYPE_3; // send by mail
+                    {
+                        item->DeleteFromDB(trans);
+                        item->DeleteFromInventoryDB(trans);
+                        delete item;
+                        continue;
+                    }
                 }
 
                 // Item is not in bag
@@ -18739,7 +19243,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
     {
         bool remove = false;
         item = NewItemOrBag(proto);
-        if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry))
+        if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry, this))
         {
             PreparedStatement* stmt;
 
@@ -18983,9 +19487,139 @@ void Player::LoadPet()
     if (IsInWorld())
     {
         Pet* pet = new Pet(this);
-        if (!pet->LoadPetFromDB(this, 0, 0, true))
+        if (pet->LoadPetData(this, 0, 0, true))
+            pet->UpdateAllStats();
+        else
             delete pet;
     }
+}
+
+void Player::LoadPetsFromDB(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        PlayerPetData* playerPetData = new PlayerPetData();
+
+        uint8 slot = fields[7].GetUInt8();
+        uint32 petId = fields[0].GetUInt32();
+
+        if (slot < PET_SLOT_FIRST || slot > PET_SLOT_LAST)
+        {
+            TC_LOG_ERROR("sql.sql", "Player::LoadPetsFromDB: bad slot %u for pet %u!", slot, petId);
+            continue;
+        }
+
+        playerPetData->PetId         = petId;
+        playerPetData->CreatureId    = fields[1].GetUInt32();
+        playerPetData->Owner         = fields[2].GetUInt64();
+        playerPetData->DisplayId     = fields[3].GetUInt32();
+        playerPetData->Petlevel      = fields[4].GetUInt16();
+        playerPetData->PetExp        = fields[5].GetUInt32();
+        playerPetData->Reactstate    = ReactStates(fields[6].GetUInt8());
+        playerPetData->Slot          = slot;
+        playerPetData->Name          = fields[8].GetString();
+        playerPetData->Renamed       = fields[9].GetBool();
+        playerPetData->Active        = fields[10].GetBool();
+        playerPetData->SavedHealth   = fields[11].GetUInt32();
+        playerPetData->SavedMana     = fields[12].GetUInt32();
+        playerPetData->Actionbar     = fields[13].GetString();
+        playerPetData->Timediff      = fields[14].GetUInt32();
+        playerPetData->SummonSpellId = fields[15].GetUInt32();
+        playerPetData->Type          = PetType(fields[16].GetUInt8());
+        playerPetData->SpecId        = fields[17].GetUInt16();
+
+        PlayerPetDataStore.push_back(playerPetData);
+
+    } while (result->NextRow());
+}
+
+PlayerPetData* Player::GetPlayerPetDataById(uint32 petId)
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->PetId == petId)
+            return p;
+
+    return nullptr;
+}
+
+PlayerPetData* Player::GetPlayerPetDataBySlot(uint8 slot)
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->Slot == slot)
+            return p;
+
+    return nullptr;
+}
+
+PlayerPetData* Player::GetPlayerPetDataByCreatureId(uint32 creatureId)
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->CreatureId == creatureId)
+            return p;
+
+    return nullptr;
+}
+
+PlayerPetData* Player::GetPlayerPetDataCurrent()
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->Active == true)
+            return p;
+
+    return nullptr;
+}
+
+Optional<uint8> Player::GetFirstUnusedActivePetSlot()
+{
+    std::set<uint8> unusedActiveSlot = { 0, 1, 2, 3, 4 }; //unfiltered
+
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (unusedActiveSlot.find(p->Slot) != unusedActiveSlot.end())
+            unusedActiveSlot.erase(p->Slot);
+
+    if (!unusedActiveSlot.empty())
+        return *unusedActiveSlot.begin();
+
+    return Optional<uint8>{};
+}
+
+Optional<uint8> Player::GetFirstUnusedPetSlot()
+{
+    std::set<uint8> unusedSlot;
+
+    for (uint8 i = 0; i < PET_SLOT_LAST; i++) // 55 MAX StableSlots (256 theoretically)
+        unusedSlot.insert(i);
+
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (unusedSlot.find(p->Slot) != unusedSlot.end())
+            unusedSlot.erase(p->Slot);
+
+    if (!unusedSlot.empty())
+        return *unusedSlot.begin();
+
+    return Optional<uint8>{};
+}
+
+void Player::DeleteFromPlayerPetDataStore(uint32 petNumber)
+{
+    for (uint8 i = 0; i < PlayerPetDataStore.size(); ++i)
+    {
+        if (PlayerPetDataStore[i]->PetId == petNumber)
+        {
+            delete PlayerPetDataStore[i];
+            PlayerPetDataStore.erase(PlayerPetDataStore.begin() + (i--));
+        }
+    }
+}
+
+void Player::AddToPlayerPetDataStore(PlayerPetData* playerPetData)
+{
+    PlayerPetDataStore.push_back(playerPetData);
 }
 
 void Player::_LoadQuestStatus(PreparedQueryResult result)
@@ -19689,8 +20323,9 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
 
     // raid instances require the player to be in a raid group to be valid
     if (map->IsRaid() && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
-        if (!GetGroup() || !GetGroup()->isRaidGroup())
-            return false;
+        if (map->GetEntry()->Expansion() >= uint8(CURRENT_EXPANSION))
+            if (!GetGroup() || !GetGroup()->isRaidGroup())
+                return false;
 
     if (Group* group = GetGroup())
     {
@@ -19966,6 +20601,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, realm.Build);
+        stmt->setFloat(index++, _PersonnalXpRate);
     }
     else
     {
@@ -20109,6 +20745,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
+        stmt->setFloat(index++, _PersonnalXpRate);
 
         stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_HONOR));
@@ -20159,8 +20796,10 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
-    if (_garrison)
-        _garrison->SaveToDB(trans);
+
+    for (auto const& garrison : GetGarrisons())
+        if (garrison.second)
+            garrison.second->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -20197,7 +20836,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -21038,7 +21677,7 @@ void Player::SendAutoRepeatCancel(Unit* target)
 {
     WorldPackets::Combat::CancelAutoRepeat cancelAutoRepeat;
     cancelAutoRepeat.Guid = target->GetGUID();                     // may be it's target guid
-    SendMessageToSet(cancelAutoRepeat.Write(), false);
+    SendMessageToSet(cancelAutoRepeat.Write(), true);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience) const
@@ -21282,12 +21921,11 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
             case 1863:
             case 417:
             case 17252:
-                mode = PET_SAVE_NOT_IN_SLOT;
+                mode = PET_SAVE_DISMISS;
                 break;
         }
     }
 
-    // only if current pet in slot
     pet->SavePetToDB(mode);
 
     SetMinion(pet, false);
@@ -21498,6 +22136,10 @@ void Player::PetSpellInitialize()
             if (itr->second.state == PETSPELL_REMOVED)
                 continue;
 
+            // Do not send this spells, they are used indirectly
+            if (sSpellMgr->GetSpellInfo(itr->first)->HasAttribute(SPELL_ATTR4_UNK15))
+                continue;
+
             petSpellsPacket.Actions.push_back(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
         }
     }
@@ -21630,7 +22272,7 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
         return false;
 
     // First time this aura applies a mod to us and is out of charges
-    if (spell && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges() && !spell->m_appliedMods.count(mod->ownerAura))
+    if (spell && mod->ownerAura && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges() && !spell->m_appliedMods.count(mod->ownerAura))
         return false;
 
     // +duration to infinite duration spells making them limited
@@ -21813,6 +22455,9 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId /*= 0*/, Aura* au
         {
             for (SpellModifier* mod : m_spellMods[i][j])
             {
+                if (!mod->ownerAura)
+                    continue;
+
                 // Spellmods without charged aura set cannot be charged
                 if (!mod->ownerAura->IsUsingCharges())
                     continue;
@@ -21858,7 +22503,7 @@ void Player::RestoreAllSpellMods(uint32 ownerAuraId /*= 0*/, Aura* aura /*= null
 
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
-    if (!spell)
+    if (!spell || !mod || !mod->ownerAura)
         return;
 
     // don't do anything with no charges
@@ -22076,10 +22721,14 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // check node starting pos data set case if provided
     if (node->Pos.X != 0.0f || node->Pos.Y != 0.0f || node->Pos.Z != 0.0f)
     {
-        if (node->MapID != GetMapId() || !IsInDist(node->Pos.X, node->Pos.Y, node->Pos.Z, 2 * INTERACTION_DISTANCE))
+        // Check only if start != end
+        if (nodes.size() > 2 || nodes[0] != nodes[1])
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
-            return false;
+            if (node->MapID != GetMapId() || !IsInDist(node->Pos.X, node->Pos.Y, node->Pos.Z, 2 * INTERACTION_DISTANCE))
+            {
+                GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
+                return false;
+            }
         }
     }
     // node must have pos if taxi master case (npc != NULL)
@@ -22152,7 +22801,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == nullptr || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
 
     // in spell case allow 0 model
-    if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
+    if ((mount_display_id == 0 && spellid == 0 && !(node->Flags & TAXI_NODE_FLAG_ARGUS)) || sourcepath == 0)
     {
         GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
         m_taxi.ClearTaxiDestinations();
@@ -22184,7 +22833,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // prevent stealth flight
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
-    if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
+    if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI) || node->Flags & TAXI_NODE_FLAG_ARGUS)
     {
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
         ASSERT(lastPathNode);
@@ -22720,9 +23369,9 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     }
 
     uint64 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (crItem->IsGoldRequired(pProto) && crItem->GetBuyPrice(pProto) > 0) //Assume price cannot be negative (do not know why it is int32)
     {
-        float buyPricePerItem = float(pProto->GetBuyPrice()) / pProto->GetBuyCount();
+        float buyPricePerItem = float(crItem->GetBuyPrice(pProto)) / pProto->GetBuyCount();
         uint64 maxCount = MAX_MONEY_AMOUNT / buyPricePerItem;
         if ((uint64)count > maxCount)
         {
@@ -23314,7 +23963,7 @@ template<>
 inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
 {
     if (p->GetPetGUID() == t->GetGUID() && t->IsPet())
-        t->ToPet()->Remove(PET_SAVE_NOT_IN_SLOT, true);
+        t->ToPet()->Remove(PET_SAVE_DISMISS, true);
 }
 
 void Player::UpdateVisibilityOf(WorldObject* target)
@@ -23442,6 +24091,7 @@ template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(SceneObject*   target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(Conversation*  target, UpdateData& data, std::set<Unit*>& visibleNow);
 
 void Player::UpdateObjectVisibility(bool forced)
@@ -23667,7 +24317,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty()->MaxPlayers;
+    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty() ? GetMap()->GetMapDifficulty()->MaxPlayers: 0;
     worldServerInfo.IsTournamentRealm = 0; /// @todo
     // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
     // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
@@ -23784,8 +24434,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
-    if (_garrison)
-        _garrison->SendRemoteInfo();
+    SendGarrisonRemoteInfo();
 
     UpdateItemLevelAreaBasedScaling();
 }
@@ -24224,8 +24873,9 @@ void Player::DailyReset()
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    if (_garrison)
-        _garrison->ResetFollowerActivationLimit();
+    for (auto const& garrison : GetGarrisons())
+        if (garrison.second)
+            garrison.second->ResetFollowerActivationLimit();
 }
 
 void Player::ResetWeeklyQuestStatus()
@@ -24492,6 +25142,18 @@ bool Player::HasQuestForGO(int32 GOId) const
             }
         }
     }
+    return false;
+}
+
+bool Player::HasQuest(uint32 questID) const
+{
+    if (questID == 0)
+        return false;
+
+    for (uint8 itr = 0; itr < MAX_QUEST_LOG_SIZE; ++itr)
+        if (GetQuestSlotQuestId(itr) == questID)
+            return true;
+
     return false;
 }
 
@@ -24977,6 +25639,16 @@ void Player::SetMover(Unit* target)
     WorldPackets::Movement::MoveSetActiveMover packet;
     packet.MoverGUID = target->GetGUID();
     SendDirectMessage(packet.Write());
+}
+
+void Player::SetPersonnalXpRate(float personnalXPRate)
+{
+    _PersonnalXpRate = personnalXPRate;
+
+    PreparedStatement* statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
+    statement->setFloat(0, personnalXPRate);
+    statement->setUInt64(1, GetGUID().GetCounter());
+    CharacterDatabase.Execute(statement);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
@@ -25658,10 +26330,10 @@ void Player::InitRunes()
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.0f);
 }
 
-void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
+void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast, bool specOnly/* = false*/, ToastDisplayMethod toastMethod/* = TOAST_METHOD_NONE*/)
 {
     Loot loot;
-    loot.FillLoot (loot_id, store, this, true);
+    loot.FillLoot(loot_id, store, this, true, false, LOOT_MODE_DEFAULT, specOnly);
 
     uint32 max_slot = loot.GetMaxSlotInLootFor(this);
     for (uint32 i = 0; i < max_slot; ++i)
@@ -25682,6 +26354,18 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
         Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId, GuidSet(), lootItem->context, lootItem->BonusListIDs);
         SendNewItem(pItem, lootItem->count, false, false, broadcast);
+
+        if (toastMethod != TOAST_METHOD_NONE)
+        {
+            WorldPackets::Loot::DisplayToast displayToast;
+            displayToast.EntityId = lootItem->itemid;
+            displayToast.ToastType = TOAST_ITEM;
+            displayToast.Quantity = lootItem->count;
+            displayToast.RandomPropertiesID = pItem->GetItemRandomPropertyId();
+            displayToast.ToastMethod = toastMethod;
+            displayToast.bonusListIDs = pItem->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+            SendDirectMessage(displayToast.Write());
+        }
     }
 }
 
@@ -26071,6 +26755,12 @@ void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint6
         guild->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 }
 
+void Player::CompletedAchievement(uint32 achievementId)
+{
+    if (AchievementEntry const* entry = sAchievementStore.LookupEntry(achievementId))
+        CompletedAchievement(entry);
+}
+
 void Player::CompletedAchievement(AchievementEntry const* entry)
 {
     m_achievementMgr->CompletedAchievement(entry, this);
@@ -26407,7 +27097,7 @@ void Player::UnsummonPetTemporaryIfAny()
         m_oldpetspell = pet->GetUInt32Value(UNIT_CREATED_BY_SPELL);
     }
 
-    RemovePet(pet, PET_SAVE_AS_CURRENT);
+    RemovePet(pet, PET_SAVE_DISMISS);
 }
 
 void Player::ResummonPetTemporaryUnSummonedIfAny()
@@ -26423,7 +27113,9 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         return;
 
     Pet* NewPet = new Pet(this);
-    if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
+    if (NewPet->LoadPetData(this, 0, m_temporaryUnsummonedPetNumber, false))
+        NewPet->UpdateAllStats();
+    else
         delete NewPet;
 
     m_temporaryUnsummonedPetNumber = 0;
@@ -26882,7 +27574,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     // TO-DO: We need more research to know what happens with warlock's reagent
     if (Pet* pet = GetPet())
-        RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+        RemovePet(pet, PET_SAVE_DISMISS);
 
     ClearAllReactives();
     UnsummonAllTotems();
@@ -27364,24 +28056,171 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
         m_IsBGRandomWinner = true;
 }
 
-float Player::GetAverageItemLevel() const
+float Player::GetAverageItemLevelEquipped() const
 {
-    float sum = 0;
+    uint32 levelSum = 0;
     uint32 count = 0;
+    bool has2hInMain = false;
+    uint32 invType = INVTYPE_NON_EQUIP;
 
-    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    if (Item * item = GetEquippedItem(EQUIPMENT_SLOT_MAINHAND))
+        invType = item->GetTemplate()->GetInventoryType();
+
+    if (getClass() == CLASS_HUNTER)
+        has2hInMain = invType == INVTYPE_RANGED || invType == INVTYPE_RANGEDRIGHT;
+    else
+        has2hInMain = invType == INVTYPE_2HWEAPON;
+
+    bool hasOffHand = GetEquippedItem(EQUIPMENT_SLOT_OFFHAND) != nullptr;
+
+    for (EquipmentSlots i = EQUIPMENT_SLOT_HEAD; i < EQUIPMENT_SLOT_TABARD; i = (EquipmentSlots)(int(i) + 1))
     {
-        // don't check tabard, ranged, offhand or shirt
-        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
+        if (i == EQUIPMENT_SLOT_BODY) // skip shirt
+            continue;
+        if (i == EQUIPMENT_SLOT_RANGED) // ranged slot was removed in MOP
             continue;
 
-        if (m_items[i])
-            sum += m_items[i]->GetItemLevel(this);
+        if (Item * item = GetEquippedItem(i))
+        {
+            uint32 ilvl = item->GetItemLevel(this);
+            if (i == EQUIPMENT_SLOT_MAINHAND && has2hInMain && !hasOffHand)
+            {
+                ilvl += ilvl;
+                count++;
+            }
 
-        ++count;
+            levelSum += ilvl;
+        }
+        count++;
+
+        if (has2hInMain && !hasOffHand && i == EQUIPMENT_SLOT_OFFHAND)
+            count--;
     }
+    uint32 iLevel = levelSum / (count ? count : 1);
 
-    return ((float)sum) / count;
+    return iLevel;
+}
+
+float Player::GetAverageItemLevelEquippedAndBag() const
+{
+    uint32 levelSum = 0;
+    uint32 count = 0;
+    bool has2hInMain = false;
+    uint32 invType = INVTYPE_NON_EQUIP;
+
+    if (Item * item = GetEquippedItem(EQUIPMENT_SLOT_MAINHAND))
+        invType = item->GetTemplate()->GetInventoryType();
+
+    if (getClass() == CLASS_HUNTER)
+        has2hInMain = invType == INVTYPE_RANGED || invType == INVTYPE_RANGEDRIGHT;
+    else
+        has2hInMain = invType == INVTYPE_2HWEAPON;
+
+    bool hasOffHand = GetEquippedItem(EQUIPMENT_SLOT_OFFHAND) != nullptr;
+
+    for (EquipmentSlots i = EQUIPMENT_SLOT_HEAD; i < EQUIPMENT_SLOT_TABARD; i = (EquipmentSlots)(int(i) + 1))
+    {
+        if (i == EQUIPMENT_SLOT_BODY) // skip shirt
+            continue;
+        if (i == EQUIPMENT_SLOT_RANGED) // ranged slot was removed in MOP
+            continue;
+        uint32 ilvl = 0;
+
+        if (Item * item = GetEquippedItem(i))
+            ilvl = item->GetItemLevel(this);
+
+        for (int j = INVENTORY_SLOT_ITEM_START; j < INVENTORY_SLOT_ITEM_END; ++j)
+        {
+            if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, j))
+            {
+                auto slot = GetSlotEquipmentFromInventory(item->GetTemplate());
+                if (slot == i ||
+                    ((slot == EQUIPMENT_SLOT_TRINKET1 || slot == EQUIPMENT_SLOT_TRINKET2) && (i == 12 || i == 13)) ||
+                    ((slot == EQUIPMENT_SLOT_FINGER1 || slot == EQUIPMENT_SLOT_FINGER2) && (i == 10 || i == 11)))
+                    ilvl = std::max(ilvl, item->GetItemLevel(this));
+            }
+        }
+
+        for (uint8 j = INVENTORY_SLOT_BAG_START; j < INVENTORY_SLOT_BAG_END; j++)
+        {
+            if (Bag* pBag = GetBagByPos(j))
+            {
+                for (uint32 g = 0; g < pBag->GetBagSize(); g++)
+                {
+                    if (Item* pItem = GetItemByPos(j, g))
+                    {
+                        auto slot = GetSlotEquipmentFromInventory(pItem->GetTemplate());
+                        if (slot == i ||
+                            ((slot == EQUIPMENT_SLOT_TRINKET1 || slot == EQUIPMENT_SLOT_TRINKET2) && (i == 12 || i == 13)) ||
+                            ((slot == EQUIPMENT_SLOT_FINGER1 || slot == EQUIPMENT_SLOT_FINGER2) && (i == 10 || i == 11)))
+                            ilvl = std::max(ilvl, pItem->GetItemLevel(this));
+                    }
+                }
+            }
+        }
+
+        if (i == EQUIPMENT_SLOT_MAINHAND && has2hInMain && !hasOffHand)
+        {
+            ilvl += ilvl;
+            count++;
+        }
+
+        levelSum += ilvl;
+        count++;
+
+
+        if (has2hInMain && i == EQUIPMENT_SLOT_OFFHAND)
+            count--;
+
+    }
+    uint32 iLevel = levelSum / (count ? count : 1);
+
+    return iLevel;
+}
+
+uint8 Player::GetSlotEquipmentFromInventory(ItemTemplate const* proto) const
+{
+    switch (proto->GetInventoryType())
+    {
+        case INVTYPE_HEAD:
+            return EQUIPMENT_SLOT_HEAD;
+        case INVTYPE_NECK:
+            return EQUIPMENT_SLOT_NECK;
+        case INVTYPE_SHOULDERS:
+            return EQUIPMENT_SLOT_SHOULDERS;
+        case INVTYPE_BODY:
+            return EQUIPMENT_SLOT_BODY;
+        case INVTYPE_CHEST:
+            return EQUIPMENT_SLOT_CHEST;
+        case INVTYPE_ROBE:
+            return EQUIPMENT_SLOT_CHEST;
+        case INVTYPE_WAIST:
+            return EQUIPMENT_SLOT_WAIST;
+        case INVTYPE_LEGS:
+            return EQUIPMENT_SLOT_LEGS;
+        case INVTYPE_FEET:
+            return EQUIPMENT_SLOT_FEET;
+        case INVTYPE_WRISTS:
+            return EQUIPMENT_SLOT_WRISTS;
+        case INVTYPE_HANDS:
+            return EQUIPMENT_SLOT_HANDS;
+        case INVTYPE_FINGER:
+            return EQUIPMENT_SLOT_FINGER1;
+        case INVTYPE_TRINKET:
+            return EQUIPMENT_SLOT_TRINKET1;
+        case INVTYPE_CLOAK:
+            return EQUIPMENT_SLOT_BACK;
+        case INVTYPE_RANGED:
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_RANGEDRIGHT:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_WEAPONOFFHAND:
+            return EQUIPMENT_SLOT_OFFHAND;
+        default:
+            return NULL_SLOT;
+    }
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
@@ -27512,17 +28351,144 @@ void Player::OnCombatExit()
 
 void Player::CreateGarrison(uint32 garrSiteId)
 {
-    std::unique_ptr<Garrison> garrison(new Garrison(this));
-    if (garrison->Create(garrSiteId))
-        _garrison = std::move(garrison);
+    if (garrSiteId == GARRISON_SITE_WOD_ALLIANCE ||
+        garrSiteId == GARRISON_SITE_WOD_HORDE)
+    {
+        std::unique_ptr<Garrison> garrison(new WodGarrison(this));
+        if (garrison->Create(garrSiteId))
+        {
+            _garrisons[GARRISON_TYPE_GARRISON] = std::move(garrison);
+        }
+    }
+    else
+    {
+        std::unique_ptr<Garrison> garrison(new ClassHall(this));
+        if (garrison->Create(garrSiteId))
+        {
+            _garrisons[GARRISON_TYPE_CLASS_HALL] = std::move(garrison);
+        }
+    }
 }
 
-void Player::DeleteGarrison()
+void Player::DeleteGarrison(GarrisonType type)
 {
-    if (_garrison)
+    auto garItr = _garrisons.find(type);
+
+    if (garItr != _garrisons.end())
     {
-        _garrison->Delete();
-        _garrison.reset();
+        garItr->second->Delete();
+        garItr->second.reset();
+        _garrisons.erase(garItr);
+    }
+}
+
+GarrisonType Player::GetCurrentGarrison() const
+{
+    return _insideGarrisonType;
+}
+
+void Player::SetCurrentGarrison(GarrisonType type)
+{
+    _insideGarrisonType = type;
+}
+
+bool Player::IsInGarrison() const
+{
+    return GetCurrentGarrison() != GARRISON_TYPE_NONE;
+}
+
+void Player::AddGarrisonFollower(uint32 garrFollowerId)
+{
+    if (GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId))
+        if (Garrison* garrison = GetGarrison((GarrisonType)followerEntry->GarrTypeID))
+            garrison->AddFollower(garrFollowerId);
+}
+
+void Player::AddGarrisonMission(uint32 garrMissionId)
+{
+    if (GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId))
+        if (Garrison* garrison = GetGarrison((GarrisonType)missionEntry->GarrTypeID))
+            garrison->AddMission(garrMissionId);
+}
+
+void Player::SendGarrisonInfo() const
+{
+    WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfoResult;
+    garrisonInfoResult.FactionIndex = GetTeam() == ALLIANCE ? GARRISON_FACTION_INDEX_ALLIANCE: GARRISON_FACTION_INDEX_HORDE;
+
+    for (auto const& garrison : _garrisons)
+    {
+        WorldPackets::Garrison::GarrisonInfo garrisonInfo;
+        garrisonInfo.GarrTypeID = garrison.second->GetType();
+        garrisonInfo.GarrSiteID = garrison.second->GetSiteLevel()->SiteID;
+        garrisonInfo.GarrSiteLevelID = garrison.second->GetSiteLevel()->ID;
+        garrisonInfo.NumFollowerActivationsRemaining = garrison.second->GetFollowerActivationLimit();
+
+        if (WodGarrison* wodGarrison = garrison.second->ToWodGarrison())
+        {
+            for (auto& plot : wodGarrison->GetPlots())
+            {
+                garrisonInfo.Plots.push_back(&plot->PacketInfo);
+                if (plot->BuildingInfo.PacketInfo)
+                    garrisonInfo.Buildings.push_back(plot->BuildingInfo.PacketInfo.get_ptr());
+            }
+        }
+
+        for (auto const& p : garrison.second->GetFollowers())
+            garrisonInfo.Followers.push_back(&p.second.PacketInfo);
+
+        for (auto const& p : garrison.second->GetMissions())
+        {
+            garrisonInfo.Missions.push_back(&p.second.PacketInfo);
+            garrisonInfo.MissionRewards.push_back(p.second.Rewards);
+            garrisonInfo.MissionOvermaxRewards.push_back(p.second.OvermaxRewards);
+            garrisonInfo.CanStartMission.push_back(p.second.CanStartMission);
+        }
+
+        garrisonInfoResult.Garrisons.push_back(garrisonInfo);
+    }
+
+    SendDirectMessage(garrisonInfoResult.Write());
+}
+
+void Player::SendGarrisonRemoteInfo() const
+{
+    WorldPackets::Garrison::GarrisonRemoteInfo remoteInfo;
+
+    for (auto const& garrison : _garrisons)
+    {
+        auto siteLevel = garrison.second->GetSiteLevel();
+        MapEntry const* garrisonMap = sMapStore.LookupEntry(siteLevel->MapID);
+        if (!garrisonMap || int32(GetMapId()) != garrisonMap->ParentMapID)
+            return;
+
+        WorldPackets::Garrison::GarrisonRemoteSiteInfo remoteSiteInfo;
+        remoteSiteInfo.GarrSiteLevelID = siteLevel->ID;
+
+        if (WodGarrison* wodGarrison = garrison.second->ToWodGarrison())
+        {
+            for (auto const& plot : wodGarrison->GetPlots())
+                if (plot->BuildingInfo.PacketInfo)
+                    remoteSiteInfo.Buildings.emplace_back(plot->PacketInfo.GarrPlotInstanceID, plot->BuildingInfo.PacketInfo->GarrBuildingID);
+        }
+
+        remoteInfo.Sites.push_back(remoteSiteInfo);
+    }
+
+    SendDirectMessage(remoteInfo.Write());
+}
+
+void Player::SendGarrisonBlueprintAndSpecializationData() const
+{
+    WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationDataResult data;
+
+    if (Garrison* garrison = GetGarrison(GARRISON_TYPE_GARRISON))
+    {
+        auto knownBlueprints = garrison->ToWodGarrison()->GetKnownBuildings();
+
+        data.GarrTypeID = GARRISON_TYPE_GARRISON;
+        data.BlueprintsKnown = &knownBlueprints;
+        SendDirectMessage(data.Write());
     }
 }
 
@@ -27707,21 +28673,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 {
     Pet* pet = new Pet(this, petType);
 
-    if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
-    {
-        if (duration > 0)
-            pet->SetDuration(duration);
-
-        return nullptr;
-    }
-
-    // petentry == 0 for hunter "call pet" (current pet summoned if any)
-    if (!entry)
-    {
-        delete pet;
-        return nullptr;
-    }
-
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
     {
@@ -27730,53 +28681,72 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return nullptr;
     }
 
-    Map* map = GetMap();
-    uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, entry))
+    bool hasPetData = pet->LoadPetData(this, entry);
+
+    if (!hasPetData && petType == HUNTER_PET)
     {
-        TC_LOG_ERROR("misc", "Player::SummonPet: No such creature entry %u", entry);
         delete pet;
         return nullptr;
     }
 
-    pet->CopyPhaseFrom(this);
-
-    pet->SetCreatorGUID(GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
-
-    pet->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-    pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-    pet->InitStatsForLevel(getLevel());
-
-    SetMinion(pet, true);
-
-    switch (petType)
+    if (!hasPetData)
     {
-        case SUMMON_PET:
-            // this enables pet details window (Shift+P)
-            pet->GetCharmInfo()->SetPetNumber(pet_number, true);
-            pet->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
-            pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-            pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-            pet->SetFullHealth();
-            pet->SetFullPower(POWER_MANA);
-            pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped in this case
-            break;
-        default:
-            break;
-    }
+        Map* map = GetMap();
+        if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, entry))
+        {
+            TC_LOG_ERROR("misc", "Player::SummonPet: No such creature entry %u", entry);
+            delete pet;
+            return nullptr;
+        }
 
-    map->AddToMap(pet->ToCreature());
+        uint32 pet_number = sObjectMgr->GeneratePetNumber();
 
-    switch (petType)
-    {
-        case SUMMON_PET:
-            pet->InitPetCreateSpells();
-            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-            PetSpellInitialize();
-            break;
-        default:
-            break;
+        // generate new name for summon pet
+        std::string new_name = sObjectMgr->GeneratePetName(entry);
+        if (!new_name.empty())
+            pet->SetName(new_name);
+
+        pet->CopyPhaseFrom(this);
+
+        pet->SetCreatorGUID(GetGUID());
+        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+
+        pet->SetPowerType(POWER_MANA);
+        pet->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+        pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+        pet->InitStatsForLevel(getLevel());
+        pet->SetReactState(REACT_ASSIST);
+
+        SetMinion(pet, true);
+
+        switch (petType)
+        {
+            case SUMMON_PET:
+                pet->GetCharmInfo()->SetPetNumber(pet_number, true);
+                pet->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
+                pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+                pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+                pet->SetFullHealth();
+                pet->SetFullPower(POWER_MANA);
+                pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped in this case
+                break;
+            default:
+                break;
+        }
+
+        map->AddToMap(pet->ToCreature());
+
+        switch (petType)
+        {
+            case SUMMON_PET:
+                pet->InitPetCreateSpells();
+                pet->SavePetToDB(PET_SAVE_NEW_PET);
+                PetSpellInitialize();
+                GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), pet->GetEntry(), pet->GetDisplayId(), pet->getLevel(), pet->GetName());
+                break;
+            default:
+                break;
+        }
     }
 
     if (duration > 0)
@@ -27996,6 +28966,70 @@ SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
     return Unit::GetCastSpellInfo(spellInfo);
 }
 
+TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell) const
+{
+    if (!trainer_spell)
+        return TRAINER_SPELL_RED;
+
+    bool hasSpell = true;
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+    {
+        if (!trainer_spell->ReqAbility[i])
+            continue;
+
+        if (!HasSpell(trainer_spell->ReqAbility[i]))
+        {
+            hasSpell = false;
+            break;
+        }
+    }
+    // known spell
+    if (hasSpell)
+        return TRAINER_SPELL_GRAY;
+
+    // check skill requirement
+    if (trainer_spell->ReqSkillLine && GetBaseSkillValue(trainer_spell->ReqSkillLine) < trainer_spell->ReqSkillRank)
+        return TRAINER_SPELL_RED;
+
+    // check level requirement
+    if (getLevel() < trainer_spell->ReqLevel)
+        return TRAINER_SPELL_RED;
+
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+    {
+        if (!trainer_spell->ReqAbility[i])
+            continue;
+
+        // check race/class requirement
+        if (!IsSpellFitByClassAndRace(trainer_spell->ReqAbility[i]))
+            return TRAINER_SPELL_RED;
+
+        if (uint32 prevSpell = sSpellMgr->GetPrevSpellInChain(trainer_spell->ReqAbility[i]))
+        {
+            // check prev.rank requirement
+            if (prevSpell && !HasSpell(prevSpell))
+                return TRAINER_SPELL_RED;
+        }
+
+        for (auto const& requirePair : sSpellMgr->GetSpellsRequiredForSpellBounds(trainer_spell->ReqAbility[i]))
+            if (!HasSpell(requirePair.second))
+                return TRAINER_SPELL_RED;
+    }
+
+    // check primary prof. limit
+    // first rank of primary profession spell when there are no professions available is disabled
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+    {
+        if (!trainer_spell->ReqAbility[i])
+            continue;
+        SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainer_spell->ReqAbility[i]);
+        if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank() && (GetFreePrimaryProfessionPoints() == 0))
+            return TRAINER_SPELL_GREEN_DISABLED;
+    }
+
+    return TRAINER_SPELL_GREEN;
+}
+
 void Player::AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
 {
     m_overrideSpells[overridenSpellId].insert(newSpellId);
@@ -28198,6 +29232,20 @@ uint32 Player::GetDefaultSpecId() const
     return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(getClass()))->ID;
 }
 
+uint32 Player::GetRoleForGroup() const
+{
+    return GetRoleBySpecializationId(GetSpecializationId());
+}
+
+uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
+{
+    if (specializationId)
+        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(specializationId))
+            return spec->Role;
+
+    return ROLE_DAMAGE;
+}
+
 void Player::SendSpellCategoryCooldowns() const
 {
     WorldPackets::Spells::CategoryCooldown cooldowns;
@@ -28248,6 +29296,154 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
         SendDirectMessage(randomRoll.Write());
 
     return roll;
+}
+
+void Player::ShowNeutralPlayerFactionSelectUI()
+{
+    WorldPackets::Misc::FactionSelectUI packet;
+    GetSession()->SendPacket(packet.Write());
+}
+
+enum LegionProfessionSpells
+{
+    Alchemy         = 201697,
+    Blacksmithing   = 201699,
+    Enchanting      = 201698,
+    Engineering     = 201700,
+    Inscription     = 201703,
+    JewelCrafting   = 201704,
+    LeatherWorking  = 201705,
+    Tailoring       = 201708,
+    FirstAid        = 201701,
+    Cooking         = 201710,
+    Herbalism       = 201702,
+    Mining          = 201706,
+    Skinning        = 201707,
+    Archaeology     = 201709,
+    Fishing         = 210829
+};
+
+const std::map<uint32, uint32> skillLearningSpells =
+{
+    { SkillType::SKILL_ALCHEMY,         LegionProfessionSpells::Alchemy         },
+    { SkillType::SKILL_BLACKSMITHING,   LegionProfessionSpells::Blacksmithing   },
+    { SkillType::SKILL_ENCHANTING,      LegionProfessionSpells::Enchanting      },
+    { SkillType::SKILL_ENGINEERING,     LegionProfessionSpells::Engineering     },
+    { SkillType::SKILL_INSCRIPTION,     LegionProfessionSpells::Inscription     },
+    { SkillType::SKILL_JEWELCRAFTING,   LegionProfessionSpells::JewelCrafting   },
+    { SkillType::SKILL_LEATHERWORKING,  LegionProfessionSpells::LeatherWorking  },
+    { SkillType::SKILL_TAILORING,       LegionProfessionSpells::Tailoring       },
+    { SkillType::SKILL_FIRST_AID,       LegionProfessionSpells::FirstAid        },
+    { SkillType::SKILL_COOKING,         LegionProfessionSpells::Cooking         },
+    { SkillType::SKILL_HERBALISM,       LegionProfessionSpells::Herbalism       },
+    { SkillType::SKILL_MINING,          LegionProfessionSpells::Mining          },
+    { SkillType::SKILL_SKINNING,        LegionProfessionSpells::Skinning        },
+    { SkillType::SKILL_ARCHAEOLOGY,     LegionProfessionSpells::Archaeology     },
+    { SkillType::SKILL_FISHING,         LegionProfessionSpells::Fishing         }
+};
+
+void Player::UpdateShop(uint32 diff)
+{
+    if (m_shopTimer > diff)
+    {
+        m_shopTimer -= diff;
+        return;
+    }
+
+    m_shopTimer = SHOP_UPDATE_INTERVAL;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SHOP);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id       = fields[0].GetUInt32();
+        uint8  type     = fields[1].GetUInt8();
+        uint32 itemId   = fields[2].GetUInt32();
+        uint32 itemCount= fields[3].GetUInt32();
+
+        bool delivered = false;
+
+        switch (type)
+        {
+            case 0: // ITEM
+            {
+                delivered = AddItem(itemId, itemCount);
+
+                if (delivered)
+                {
+                    WorldPackets::Loot::DisplayToast displayToast;
+                    displayToast.EntityId = itemId;
+                    displayToast.Quantity = itemCount;
+                    SendDirectMessage(displayToast.Write());
+                }
+
+                break;
+            }
+            case 1: // SPELL
+            {
+                LearnSpell(itemId, false);
+                delivered = true;
+                break;
+            }
+            case 2: // LEVEL
+            {
+                uint32 newLevel = std::min(uint32(getLevel() + itemCount), uint32(MAX_LEVEL));
+
+                if (newLevel > getLevel())
+                {
+                    GiveLevel(newLevel);
+                    InitTalentForLevel();
+                    SetUInt32Value(PLAYER_XP, 0);
+                    delivered = true;
+                }
+                break;
+            }
+            case 3: // CHARACTER
+                // TODO
+                break;
+            case 4: // APPEARANCE
+            {
+                GetSession()->GetCollectionMgr()->AddItemAppearance(itemId, itemCount);
+                delivered = true;
+                break;
+            }
+            case 5: // SKILL
+            {
+                auto itr = skillLearningSpells.find(itemId);
+                if (itr == skillLearningSpells.end())
+                    continue;
+
+                if (GetSkillValue(itemId) >= itemCount)
+                    break;
+
+                if (IsPrimaryProfessionSkill(itemId) && !GetFreePrimaryProfessionPoints())
+                    break;
+
+                CastSpell(this, itr->second, true);
+                SetSkill(itemId, GetSkillStep(itemId), itemCount, GetMaxSkillValue(itemId));
+                delivered = true;
+                break;
+            }
+        }
+
+        if (delivered)
+        {
+            PreparedStatement* deliveredStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_SHOP_DELIVERED);
+            deliveredStmt->setUInt32(0, id);
+            trans->Append(deliveredStmt);
+        }
+    } while (result->NextRow());
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Player::UpdateItemLevelAreaBasedScaling()

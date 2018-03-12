@@ -83,7 +83,8 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CHANNEL,
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
-    TARGET_SELECT_CATEGORY_AREA
+    TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_LINE
 };
 
 enum SpellTargetReferenceTypes
@@ -121,7 +122,9 @@ enum SpellTargetCheckTypes : uint8
     TARGET_CHECK_PARTY,
     TARGET_CHECK_RAID,
     TARGET_CHECK_RAID_CLASS,
-    TARGET_CHECK_PASSENGER
+    TARGET_CHECK_PASSENGER,
+    TARGET_CHECK_DEATH,
+    TARGET_CHECK_RAID_DEATH
 };
 
 enum SpellTargetDirectionTypes
@@ -316,8 +319,10 @@ struct TC_GAME_API ImmunityInfo
 
 class TC_GAME_API SpellEffectInfo
 {
-    SpellInfo const* _spellInfo;
 public:
+    Ashamane::VariablesSafe Variables;
+
+    SpellInfo const* _spellInfo;
     uint32    EffectIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
@@ -633,6 +638,7 @@ class TC_GAME_API SpellInfo
         std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
+        bool IsTargetingLine() const;
 
         bool IsRanked() const;
         uint8 GetRank() const;

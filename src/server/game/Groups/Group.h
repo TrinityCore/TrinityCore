@@ -221,6 +221,8 @@ struct RaidMarker
 class TC_GAME_API Group
 {
     public:
+        Ashamane::VariablesSafe Variables;
+
         struct MemberSlot
         {
             ObjectGuid  guid;

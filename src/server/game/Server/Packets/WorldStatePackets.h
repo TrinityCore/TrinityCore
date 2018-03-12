@@ -32,6 +32,11 @@ namespace WorldPackets
                 WorldStateInfo(uint32 variableID, int32 value)
                     : VariableID(variableID), Value(value) { }
 
+                bool operator < (const WorldStateInfo& info) const
+                {
+                    return (VariableID < info.VariableID);
+                }
+
                 uint32 VariableID;
                 int32 Value;
             };

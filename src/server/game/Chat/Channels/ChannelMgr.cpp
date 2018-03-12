@@ -18,7 +18,9 @@
 
 #include "ChannelMgr.h"
 #include "Channel.h"
+#include "ChatPackets.h"
 #include "ChannelPackets.h"
+#include "ChatPackets.h"
 #include "DB2Stores.h"
 #include "Player.h"
 #include "World.h"
@@ -193,4 +195,15 @@ void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const&
     notify.Type = CHAT_NOT_MEMBER_NOTICE;
     notify._Channel = name;
     player->SendDirectMessage(notify.Write());
+}
+
+bool ChannelMgr::SendToAllInChannel(std::string senderName, std::string channelName, std::string message)
+{
+    Channel* channel = GetChannel(0, channelName, nullptr, false);
+
+    if (!channel)
+        return false;
+
+    channel->SendToAllInChannel(senderName, message);
+    return true;
 }

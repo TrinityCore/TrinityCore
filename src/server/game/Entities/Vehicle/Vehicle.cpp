@@ -33,7 +33,8 @@
 #include "Util.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
-UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
+UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE),
+_lastShootPos(), _passengersSpawnedByAI(false), _canBeCastedByPassengers(false)
 {
     for (int8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
@@ -89,6 +90,9 @@ void Vehicle::Install()
 
 void Vehicle::InstallAllAccessories(bool evading)
 {
+    if (ArePassengersSpawnedByAI())
+        return;
+
     if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
         RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
@@ -377,6 +381,15 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
 
     /// If for some reason adding accessory to vehicle fails it will unsummon in
     /// @VehicleJoinEvent::Abort
+}
+
+bool Vehicle::AddPassenger(uint32 passengerEntry, int8 seatId /*= -1*/)
+{
+    if (Unit* base = GetBase())
+        if (Creature* summon = base->SummonCreature(passengerEntry, base->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
+            return summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId + 1, base, false);
+
+    return false;
 }
 
 /**

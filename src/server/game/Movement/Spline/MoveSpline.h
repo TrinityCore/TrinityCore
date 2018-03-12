@@ -81,6 +81,7 @@ namespace Movement
         int32           effect_start_time;
         int32           point_Idx;
         int32           point_Idx_offset;
+        int32           last_point_Idx;
         Optional<SpellEffectExtraData> spell_effect_extra;
 
         void init_spline(const MoveSplineInitArgs& args);
@@ -101,6 +102,7 @@ namespace Movement
         int32 Duration() const { return spline.length(); }
         MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
+        int32 _lastSplineIdx() const { return last_point_Idx; }
         void _Finalize();
         void _Interrupt() { splineflags.done = true; }
 
@@ -114,6 +116,7 @@ namespace Movement
         void updateState(int32 difftime, UpdateHandler& handler)
         {
             ASSERT(Initialized());
+            last_point_Idx = point_Idx;
             do
                 handler(_updateState(difftime));
             while (difftime > 0);
@@ -122,6 +125,7 @@ namespace Movement
         void updateState(int32 difftime)
         {
             ASSERT(Initialized());
+            last_point_Idx = point_Idx;
             do _updateState(difftime);
             while (difftime > 0);
         }

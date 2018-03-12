@@ -2458,10 +2458,10 @@ inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
         switch ((logic >> (2 * (i - 1))) & 3)
         {
             case 1:
-                result = result && results[i];
+                result = result || results[i];
                 break;
             case 2:
-                result = result || results[i];
+                result = result && results[i];
                 break;
             default:
                 break;

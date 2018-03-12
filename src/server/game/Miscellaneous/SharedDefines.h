@@ -62,6 +62,13 @@ enum SpellEffIndex : uint8
 #define EFFECT_FIRST_FOUND 254
 #define EFFECT_ALL 255
 
+enum Roles
+{
+    ROLE_TANK      = 0,
+    ROLE_HEALER    = 1,
+    ROLE_DAMAGE    = 2
+};
+
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
@@ -220,7 +227,7 @@ enum Classes : uint8
     CLASS_DEMON_HUNTER  = 12
 };
 
-// max+1 for player class
+// max1 for player class
 #define MAX_CLASSES       13
 
 #define CLASSMASK_ALL_PLAYABLE     \
@@ -327,7 +334,7 @@ enum SpellSchools : uint16
 
 #define MAX_SPELL_SCHOOL                  7
 
-enum SpellSchoolMask
+enum SpellSchoolMask : uint16
 {
     SPELL_SCHOOL_MASK_NONE    = 0x00,                       // not exist
     SPELL_SCHOOL_MASK_NORMAL  = (1 << SPELL_SCHOOL_NORMAL), // PHYSICAL (Armor)
@@ -534,7 +541,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
     SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
-    SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
+    SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736  52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
     SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?  client doesn't apply spellmods for those spells
@@ -1044,6 +1051,12 @@ enum Language
 
 #define LANGUAGES_COUNT   25
 
+enum FactionSelection
+{
+    JOIN_HORDE      = 0,
+    JOIN_ALLIANCE   = 1
+};
+
 enum TeamId
 {
     TEAM_ALLIANCE = 0,
@@ -1235,7 +1248,7 @@ enum SpellEffectName
     SPELL_EFFECT_ALLOW_CONTROL_PET                  = 168, // NYI
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES       = 170, // NYI
-    SPELL_EFFECT_171                                = 171, // Summons gamebject
+    SPELL_EFFECT_SUMMON_OBJECT_PERSONNAL            = 171, // Summons gamebject visible by summoner only
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172,
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174, // NYI
@@ -1318,7 +1331,7 @@ enum SpellEffectName
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
     SPELL_EFFECT_TELEPORT_UNITS                     = 252,
     SPELL_EFFECT_GIVE_HONOR                         = 253,
-    SPELL_EFFECT_254                                = 254,
+    SPELL_EFFECT_DASH                               = 254,
     SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
     TOTAL_SPELL_EFFECTS                             = 256,
 };
@@ -2278,23 +2291,23 @@ enum Targets
     TARGET_UNK_115                     = 115,
     TARGET_UNK_116                     = 116,
     TARGET_UNK_117                     = 117,
-    TARGET_UNK_118                     = 118,
-    TARGET_UNK_119                     = 119,
-    TARGET_UNK_120                     = 120,
-    TARGET_UNK_121                     = 121,
-    TARGET_UNK_122                     = 122,
-    TARGET_UNK_123                     = 123,
+    TARGET_UNIT_TARGET_CAN_RAID        = 118,
+    TARGET_UNIT_CASTER_AREA_RAID_DEATH = 119,
+    TARGET_UNIT_CASTER_PET             = 120,
+    TARGET_UNIT_TARGET_DEAD            = 121,
+    TARGET_UNIT_CASTER_AREA_ENEMY      = 122,
+    TARGET_UNIT_TARGET_AREA_ENEMY      = 123,
     TARGET_UNK_124                     = 124,
     TARGET_UNK_125                     = 125,
     TARGET_UNK_126                     = 126,
-    TARGET_UNK_127                     = 127,
+    TARGET_DEST_CASTER_ENEMY_CENTROID  = 127,
     TARGET_UNK_128                     = 128,
-    TARGET_UNK_129                     = 129,
-    TARGET_UNK_130                     = 130,
+    TARGET_UNIT_CASTER_AREA_ENEMY_FRONT= 129,
+    TARGET_ENNEMY_IN_LINE              = 130,
     TARGET_UNK_131                     = 131,
-    TARGET_UNK_132                     = 132,
+    TARGET_DEST_TARGET_ALLY            = 132,
     TARGET_UNK_133                     = 133,
-    TARGET_UNK_134                     = 134,
+    TARGET_UNIT_LINE_ENEMY_134         = 134,
     TARGET_UNK_135                     = 135,
     TARGET_UNK_136                     = 136,
     TARGET_UNK_137                     = 137,
@@ -4086,88 +4099,150 @@ enum QuestType
     MAX_QUEST_TYPES                 = 4
 };
 
-// QuestInfo.dbc (6.0.2.18988)
+// QuestInfo.db2 (7.3.2.25549)
 enum QuestInfo
 {
-    QUEST_INFO_GROUP               = 1,
-    QUEST_INFO_CLASS               = 21,
-    QUEST_INFO_PVP                 = 41,
-    QUEST_INFO_RAID                = 62,
-    QUEST_INFO_DUNGEON             = 81,
-    QUEST_INFO_WORLD_EVENT         = 82,
-    QUEST_INFO_LEGENDARY           = 83,
-    QUEST_INFO_ESCORT              = 84,
-    QUEST_INFO_HEROIC              = 85,
-    QUEST_INFO_RAID_10             = 88,
-    QUEST_INFO_RAID_25             = 89,
-    QUEST_INFO_SCENARIO            = 98,
-    QUEST_INFO_ACCOUNT             = 102,
-    QUEST_INFO_SIDE_QUEST          = 104
+    QUEST_INFO_GROUP                                = 1,
+    QUEST_INFO_CLASS                                = 21,
+    QUEST_INFO_PVP                                  = 41,
+    QUEST_INFO_RAID                                 = 62,
+    QUEST_INFO_DUNGEON                              = 81,
+    QUEST_INFO_WORLD_EVENT                          = 82,
+    QUEST_INFO_LEGENDARY                            = 83,
+    QUEST_INFO_ESCORT                               = 84,
+    QUEST_INFO_HEROIC                               = 85,
+    QUEST_INFO_RAID_10                              = 88,
+    QUEST_INFO_RAID_25                              = 89,
+    QUEST_INFO_SCENARIO                             = 98,
+    QUEST_INFO_ACCOUNT                              = 102,
+    QUEST_INFO_SIDE_QUEST                           = 104,
+    QUEST_INFO_ARTIFACT                             = 107,
+    QUEST_INFO_WORLD_QUEST                          = 109,
+    QUEST_INFO_WORLD_QUEST_EPIC                     = 110,
+    QUEST_INFO_WORLD_QUEST_ELITE                    = 111,
+    QUEST_INFO_WORLD_QUEST_RARE_ELITE               = 112,
+    QUEST_INFO_WORLD_QUEST_PVP                      = 113,
+    QUEST_INFO_WORLD_QUEST_FIRST_AID                = 114,
+    QUEST_INFO_WORLD_QUEST_BATTLEPET                = 115,
+    QUEST_INFO_WORLD_QUEST_BLACKSMITHING            = 116,
+    QUEST_INFO_WORLD_QUEST_LEATHERWORKING           = 117,
+    QUEST_INFO_WORLD_QUEST_ALCHEMY                  = 118,
+    QUEST_INFO_WORLD_QUEST_HERBALISM                = 119,
+    QUEST_INFO_WORLD_QUEST_MINING                   = 120,
+    QUEST_INFO_WORLD_QUEST_TAILORING                = 121,
+    QUEST_INFO_WORLD_QUEST_ENGINEERING              = 122,
+    QUEST_INFO_WORLD_QUEST_ENCHANTING               = 123,
+    QUEST_INFO_WORLD_QUEST_SKINNINg                 = 124,
+    QUEST_INFO_WORLD_QUEST_JEWELCRAFTING            = 125,
+    QUEST_INFO_WORLD_QUEST_INSCRIPTION              = 126,
+    QUEST_INFO_EMISSARY                             = 128,
+    QUEST_INFO_WORLD_QUEST_ARCHEOLOGY               = 129,
+    QUEST_INFO_WORLD_QUEST_FISHING                  = 130,
+    QUEST_INFO_WORLD_QUEST_COOKING                  = 131,
+    QUEST_INFO_WORLD_QUEST_RARE_2                   = 135,
+    QUEST_INFO_WORLD_QUEST_RARE_ELITE_2             = 136,
+    QUEST_INFO_WORLD_QUEST_DUNGEON                  = 137,
+    QUEST_INFO_WORLD_QUEST_LEGION_INVASION          = 139,
+    QUEST_INFO_RATED_REWARD                         = 140,
+    QUEST_INFO_WORLD_QUEST_RAID                     = 141,
+    QUEST_INFO_WORLD_QUEST_LEGION_INVASION_ELITE    = 142,
+    QUEST_INFO_WORLD_QUEST_LEGIONFALL_CONTRIBUTION  = 143,
+    QUEST_INFO_WORLD_QUEST_LEGIONFALL               = 144,
+    QUEST_INFO_WORLD_QUEST_LEGIONFALL_DUNGEON       = 145,
+    QUEST_INFO_WORLD_QUEST_LEGION_INVASION_WRAPPER  = 146,
+    QUEST_INFO_PICK_POCKET                          = 148
 };
 
-// QuestSort.dbc (6.0)
+// QuestSort.db2 (7.3.2.25549)
 enum QuestSort
 {
-    QUEST_SORT_EPIC                       = 1,
-    QUEST_SORT_HALLOWS_END                = 21,
-    QUEST_SORT_SEASONAL                   = 22,
-    QUEST_SORT_CATACLYSM                  = 23,
-    QUEST_SORT_HERBALISM                  = 24,
-    QUEST_SORT_BATTLEGROUNDS              = 25,
-    QUEST_SORT_DAY_OF_THE_DEAD            = 41,
-    QUEST_SORT_WARLOCK                    = 61,
-    QUEST_SORT_WARRIOR                    = 81,
-    QUEST_SORT_SHAMAN                     = 82,
-    QUEST_SORT_FISHING                    = 101,
-    QUEST_SORT_BLACKSMITHING              = 121,
-    QUEST_SORT_PALADIN                    = 141,
-    QUEST_SORT_MAGE                       = 161,
-    QUEST_SORT_ROGUE                      = 162,
-    QUEST_SORT_ALCHEMY                    = 181,
-    QUEST_SORT_LEATHERWORKING             = 182,
-    QUEST_SORT_ENGINEERING                = 201,
-    QUEST_SORT_TREASURE_MAP               = 221,
-    QUEST_SORT_TOURNAMENT                 = 241,
-    QUEST_SORT_HUNTER                     = 261,
-    QUEST_SORT_PRIEST                     = 262,
-    QUEST_SORT_DRUID                      = 263,
-    QUEST_SORT_TAILORING                  = 264,
-    QUEST_SORT_SPECIAL                    = 284,
-    QUEST_SORT_COOKING                    = 304,
-    QUEST_SORT_FIRST_AID                  = 324,
-    QUEST_SORT_LEGENDARY                  = 344,
-    QUEST_SORT_DARKMOON_FAIRE             = 364,
-    QUEST_SORT_AHN_QIRAJ_WAR              = 365,
-    QUEST_SORT_LUNAR_FESTIVAL             = 366,
-    QUEST_SORT_REPUTATION                 = 367,
-    QUEST_SORT_INVASION                   = 368,
-    QUEST_SORT_MIDSUMMER                  = 369,
-    QUEST_SORT_BREWFEST                   = 370,
-    QUEST_SORT_INSCRIPTION                = 371,
-    QUEST_SORT_DEATH_KNIGHT               = 372,
-    QUEST_SORT_JEWELCRAFTING              = 373,
-    QUEST_SORT_NOBLEGARDEN                = 374,
-    QUEST_SORT_PILGRIMS_BOUNTY            = 375,
-    QUEST_SORT_LOVE_IS_IN_THE_AIR         = 376,
-    QUEST_SORT_ARCHAEOLOGY                = 377,
-    QUEST_SORT_CHILDRENS_WEEK             = 378,
-    QUEST_SORT_FIRELANDS_INVASION         = 379,
-    QUEST_SORT_THE_ZANDALARI              = 380,
-    QUEST_SORT_ELEMENTAL_BONDS            = 381,
-    QUEST_SORT_PANDAREN_BREWMASTER        = 391,
-    QUEST_SORT_SCENARIO                   = 392,
-    QUEST_SORT_BATTLE_PETS                = 394,
-    QUEST_SORT_MONK                       = 395,
-    QUEST_SORT_LANDFALL                   = 396,
-    QUEST_SORT_PANDAREN_CAMPAIGN          = 397,
-    QUEST_SORT_RIDING                     = 398,
-    QUEST_SORT_BRAWLERS_GUILD             = 399,
-    QUEST_SORT_PROVING_GROUNDS            = 400,
-    QUEST_SORT_GARRISON_CAMPAIGN          = 401,
-    QUEST_SORT_ASSAULT_ON_THE_DARK_PORTAL = 402,
-    QUEST_SORT_GARRISON_SUPPORT           = 403,
-    QUEST_SORT_LOGGING                    = 404,
-    QUEST_SORT_PICKPOCKETING              = 405
+    QUEST_SORT_EPIC                         = 1,
+    QUEST_SORT_HALLOWS_END                  = 21,
+    QUEST_SORT_SEASONAL                     = 22,
+    QUEST_SORT_CATACLYSM                    = 23,
+    QUEST_SORT_HERBALISM                    = 24,
+    QUEST_SORT_BATTLEGROUNDS                = 25,
+    QUEST_SORT_DAY_OF_THE_DEAD              = 41,
+    QUEST_SORT_WARLOCK                      = 61,
+    QUEST_SORT_WARRIOR                      = 81,
+    QUEST_SORT_SHAMAN                       = 82,
+    QUEST_SORT_FISHING                      = 101,
+    QUEST_SORT_BLACKSMITHING                = 121,
+    QUEST_SORT_PALADIN                      = 141,
+    QUEST_SORT_MAGE                         = 161,
+    QUEST_SORT_ROGUE                        = 162,
+    QUEST_SORT_ALCHEMY                      = 181,
+    QUEST_SORT_LEATHERWORKING               = 182,
+    QUEST_SORT_ENGINEERING                  = 201,
+    QUEST_SORT_TREASURE_MAP                 = 221,
+    QUEST_SORT_TOURNAMENT                   = 241,
+    QUEST_SORT_HUNTER                       = 261,
+    QUEST_SORT_PRIEST                       = 262,
+    QUEST_SORT_DRUID                        = 263,
+    QUEST_SORT_TAILORING                    = 264,
+    QUEST_SORT_SPECIAL                      = 284,
+    QUEST_SORT_COOKING                      = 304,
+    QUEST_SORT_FIRST_AID                    = 324,
+    QUEST_SORT_LEGENDARY                    = 344,
+    QUEST_SORT_DARKMOON_FAIRE               = 364,
+    QUEST_SORT_AHN_QIRAJ_WAR                = 365,
+    QUEST_SORT_LUNAR_FESTIVAL               = 366,
+    QUEST_SORT_REPUTATION                   = 367,
+    QUEST_SORT_INVASION                     = 368,
+    QUEST_SORT_MIDSUMMER                    = 369,
+    QUEST_SORT_BREWFEST                     = 370,
+    QUEST_SORT_INSCRIPTION                  = 371,
+    QUEST_SORT_DEATH_KNIGHT                 = 372,
+    QUEST_SORT_JEWELCRAFTING                = 373,
+    QUEST_SORT_NOBLEGARDEN                  = 374,
+    QUEST_SORT_PILGRIMS_BOUNTY              = 375,
+    QUEST_SORT_LOVE_IS_IN_THE_AIR           = 376,
+    QUEST_SORT_ARCHAEOLOGY                  = 377,
+    QUEST_SORT_CHILDRENS_WEEK               = 378,
+    QUEST_SORT_FIRELANDS_INVASION           = 379,
+    QUEST_SORT_THE_ZANDALARI                = 380,
+    QUEST_SORT_ELEMENTAL_BONDS              = 381,
+    QUEST_SORT_PANDAREN_BREWMASTER          = 391,
+    QUEST_SORT_SCENARIO                     = 392,
+    QUEST_SORT_BATTLE_PETS                  = 394,
+    QUEST_SORT_MONK                         = 395,
+    QUEST_SORT_LANDFALL                     = 396,
+    QUEST_SORT_PANDAREN_CAMPAIGN            = 397,
+    QUEST_SORT_RIDING                       = 398,
+    QUEST_SORT_BRAWLERS_GUILD               = 399,
+    QUEST_SORT_PROVING_GROUNDS              = 400,
+    QUEST_SORT_GARRISON_CAMPAIGN            = 401,
+    QUEST_SORT_ASSAULT_ON_THE_DARK_PORTAL   = 402,
+    QUEST_SORT_GARRISON_SUPPORT             = 403,
+    QUEST_SORT_LOGGING                      = 404,
+    QUEST_SORT_PICKPOCKETING                = 405,
+    QUEST_SORT_ARTIFACT                     = 406,
+    QUEST_SORT_DEMON_HUNTER                 = 407,
+    QUEST_SORT_MINING                       = 408,
+    QUEST_SORT_WEEKEND_EVENT                = 409,
+    QUEST_SORT_ENCHANTING                   = 410,
+    QUEST_SORT_SKINNING                     = 411,
+    QUEST_SORT_WORLD_QUEST                  = 412,
+    QUEST_SORT_DEATH_KNIGHT_CAMPAIGN        = 413,
+    QUEST_SORT_DEMON_HUNTER_CAMPAIGN        = 416,
+    QUEST_SORT_DRUID_CAMPAIGN               = 417,
+    QUEST_SORT_HUNTER_CAMPAIGN              = 418,
+    QUEST_SORT_MONK_CAMPAIGN                = 419,
+    QUEST_SORT_MAGE_CAMPAIGN                = 420,
+    QUEST_SORT_PRIEST_CAMPAIGN              = 421,
+    QUEST_SORT_PALADIN_CAMPAIGN             = 422,
+    QUEST_SORT_SHAMAN_CAMPAIGN              = 423,
+    QUEST_SORT_ROGUE_CAMPAIGN               = 424,
+    QUEST_SORT_WARLOCK_CAMPAIGN             = 425,
+    QUEST_SORT_WARRIOR_CAMPAIGN             = 426,
+    QUEST_SORT_ORDER_HALL                   = 427,
+    QUEST_SORT_LEGIONFALL_CAMPAIGN          = 428,
+    QUEST_SORT_HUNT_FOR_ILLIDAN             = 429,
+    QUEST_SORT_PIRATES_DAY                  = 430,
+    QUEST_SORT_ARGUS_EXPEDITION             = 431,
+    QUEST_SORT_MOONKIN_FESTIVAL             = 433,
+    QUEST_SORT_KINGS_PATH                   = 434,
+    QUEST_SORT_DEATHS_OF_CHROMIE            = 435,
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -4681,7 +4756,11 @@ enum SummonType
     SUMMON_TYPE_VEHICLE2    = 10,   // Oculus and Argent Tournament vehicles (3.3.5a)
     SUMMON_TYPE_LIGHTWELL   = 11,
     SUMMON_TYPE_JEEVES      = 12,
-    SUMMON_TYPE_UNK13       = 13
+    SUMMON_TYPE_UNK13       = 13,
+    SUMMON_TYPE_UNK14       = 14,
+    SUMMON_TYPE_UNK15       = 15,
+    SUMMON_TYPE_UNK16       = 16,
+    SUMMON_TYPE_UNK17       = 17,
 };
 
 enum EventId
@@ -6227,6 +6306,20 @@ enum class GameError : uint32
     ERR_TALENT_GRANTED_BY_AURA                              = 985,
     ERR_CHALLENGE_MODE_ALREADY_COMPLETE                     = 986,
     ERR_GLYPH_TARGET_NOT_AVAILABLE                          = 987,
+};
+
+enum Maps : uint32
+{
+    MAP_EASTERN_KINGDOMS        = 0,
+    MAP_KALIMDOR                = 1,
+    MAP_OUTLAND                 = 530,
+    MAP_NORTHREND               = 571,
+    MAP_PANDARIA                = 870,
+    MAP_DRAENOR                 = 1116,
+    MAP_WOD_BLASTED_LANDS_PHASE = 1190,
+    MAP_BROKEN_ISLANDS          = 1220,
+    MAP_WOD_TANAAN_JUNGLE_INTRO = 1265,
+    MAP_DALARAN_UNDERBELLY      = 1502,
 };
 
 #endif

@@ -1,0 +1,4 @@
+ALTER TABLE `gameobject` ADD COLUMN `isActive` TINYINT(3) UNSIGNED DEFAULT 0 NOT NULL AFTER `state`;
+
+
+UPDATE gameobject SET isActive = 1 WHERE id IN (273512, 273515, 272208);

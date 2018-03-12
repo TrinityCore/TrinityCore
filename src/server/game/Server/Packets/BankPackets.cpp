@@ -20,15 +20,15 @@
 void WorldPackets::Bank::AutoBankItem::Read()
 {
     _worldPacket >> Inv
-                 >> Bag
-                 >> Slot;
+        >> Bag
+        >> Slot;
 }
 
 void WorldPackets::Bank::AutoStoreBankItem::Read()
 {
     _worldPacket >> Inv
-                 >> Bag
-                 >> Slot;
+        >> Bag
+        >> Slot;
 }
 
 void WorldPackets::Bank::BuyBankSlot::Read()

@@ -221,7 +221,7 @@ public:
                     TeleportPlayers();
                     Talk(SAY_SPELL);
                     events.ScheduleEvent(EVENT_FATAL_ATTRACTION_EXPLOSION, 2000);
-                    events.ScheduleEvent(EVENT_FATAL_ATTRACTION, 40000, 71000);
+                    events.ScheduleEvent(EVENT_FATAL_ATTRACTION, 40s, 71s);
                     break;
                 case EVENT_FATAL_ATTRACTION_EXPLOSION:
                     // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.

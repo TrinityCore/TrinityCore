@@ -41,6 +41,7 @@
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "SceneObject.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
@@ -1285,7 +1286,7 @@ void Map::MoveAllCreaturesInMoveList()
                 /// @todo pets will disappear if this is outside CreatureRespawnRelocation
                 //need to check why pet is frequently relocated to an unloaded cell
                 if (c->IsPet())
-                    ((Pet*)c)->Remove(PET_SAVE_NOT_IN_SLOT, true);
+                    ((Pet*)c)->Remove(PET_SAVE_DISMISS, true);
                 else
                     AddObjectToRemoveList(c);
             }
@@ -3056,6 +3057,9 @@ void Map::RemoveAllObjectsInRemoveList()
             case TYPEID_AREATRIGGER:
                 RemoveFromMap((AreaTrigger*)obj, true);
                 break;
+            case TYPEID_SCENEOBJECT:
+                RemoveFromMap((SceneObject*)obj, true);
+                break;
             case TYPEID_CONVERSATION:
                 RemoveFromMap((Conversation*)obj, true);
                 break;
@@ -3207,6 +3211,7 @@ template TC_GAME_API bool Map::AddToMap(Creature*);
 template TC_GAME_API bool Map::AddToMap(GameObject*);
 template TC_GAME_API bool Map::AddToMap(DynamicObject*);
 template TC_GAME_API bool Map::AddToMap(AreaTrigger*);
+template TC_GAME_API bool Map::AddToMap(SceneObject*);
 template TC_GAME_API bool Map::AddToMap(Conversation*);
 
 template TC_GAME_API void Map::RemoveFromMap(Corpse*, bool);
@@ -3214,6 +3219,7 @@ template TC_GAME_API void Map::RemoveFromMap(Creature*, bool);
 template TC_GAME_API void Map::RemoveFromMap(GameObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(DynamicObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(AreaTrigger*, bool);
+template TC_GAME_API void Map::RemoveFromMap(SceneObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
@@ -3411,6 +3417,7 @@ void InstanceMap::Update(const uint32 t_diff)
 
     if (i_data)
     {
+        i_data->UpdateOperations(t_diff);
         i_data->Update(t_diff);
         i_data->UpdateCombatResurrection(t_diff);
     }
@@ -3801,6 +3808,11 @@ void BattlegroundMap::RemoveAllPlayers()
 AreaTrigger* Map::GetAreaTrigger(ObjectGuid const& guid)
 {
     return _objectsStore.Find<AreaTrigger>(guid);
+}
+
+SceneObject* Map::GetSceneObject(ObjectGuid const& guid)
+{
+    return _objectsStore.Find<SceneObject>(guid);
 }
 
 Conversation* Map::GetConversation(ObjectGuid const& guid)

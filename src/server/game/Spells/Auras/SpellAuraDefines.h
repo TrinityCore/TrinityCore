@@ -247,7 +247,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT            = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION                         = 176,
     SPELL_AURA_AOE_CHARM                                    = 177,
-    SPELL_AURA_MOD_MAX_POWER_PCT                            = 178,  // NYI
+    SPELL_AURA_MOD_MAX_POWER_PCT                            = 178,
     SPELL_AURA_MOD_POWER_DISPLAY                            = 179,
     SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS                 = 180,
     SPELL_AURA_181                                          = 181,  // old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS - possible flat spell crit damage versus
@@ -448,7 +448,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE                = 376,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING_2                         = 377,  // NYI
     SPELL_AURA_378                                          = 378,
-    SPELL_AURA_379                                          = 379,
+    SPELL_AURA_MOD_MANA_REGEN_PCT                           = 379,
     SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE                 = 380,  // Allows melee abilities to benefit from haste GCD reduction
     SPELL_AURA_381                                          = 381,
     SPELL_AURA_MOD_PET_STAT_PCT                             = 382,  // NYI
@@ -512,7 +512,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MULTISTRIKE_DAMAGE                       = 440,  // NYI
     SPELL_AURA_MOD_MULTISTRIKE_CHANCE                       = 441,  // NYI
     SPELL_AURA_MOD_READINESS                                = 442,  // NYI
-    SPELL_AURA_MOD_LEECH                                    = 443,  // NYI
+    SPELL_AURA_MOD_LEECH                                    = 443,
     SPELL_AURA_444                                          = 444,
     SPELL_AURA_445                                          = 445,
     SPELL_AURA_446                                          = 446,
@@ -540,7 +540,7 @@ enum AuraType : uint32
     SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT                  = 468,  // Triggers spell when health goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY     = 469,
     SPELL_AURA_470                                          = 470,
-    SPELL_AURA_MOD_VERSATILITY                              = 471,  // NYI
+    SPELL_AURA_MOD_VERSATILITY                              = 471,
     SPELL_AURA_472                                          = 472,
     SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473,  // Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,
@@ -551,7 +551,7 @@ enum AuraType : uint32
     SPELL_AURA_479                                          = 479,
     SPELL_AURA_480                                          = 480,
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
-    SPELL_AURA_482                                          = 482,
+    SPELL_AURA_PROFIL_CAMERA                                = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
     SPELL_AURA_484                                          = 484,
     SPELL_AURA_485                                          = 485,

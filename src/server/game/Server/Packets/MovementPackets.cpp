@@ -562,8 +562,8 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
 {
     data << movementForce.ID;
-    data << movementForce.Origin;
     data << movementForce.Direction;
+    data << movementForce.Origin;
     data << movementForce.TransportID;
     data << movementForce.Magnitude;
     data.WriteBits(movementForce.Type, 2);
@@ -729,6 +729,24 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 {
     _worldPacket << *Status;
     _worldPacket << TriggerGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveApplyMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << Force;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
 
     return &_worldPacket;
 }

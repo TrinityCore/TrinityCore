@@ -18,6 +18,7 @@
 
 #include "InstanceScript.h"
 #include "AreaBoundary.h"
+#include "AchievementMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -50,6 +51,8 @@ BossBoundaryData::~BossBoundaryData()
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
+    _scriptType = ZONE_SCRIPT_TYPE_INSTANCE;
+
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
@@ -253,6 +256,8 @@ void InstanceScript::AddObject(Creature* obj, bool add)
     ObjectInfoMap::const_iterator j = _creatureInfo.find(obj->GetEntry());
     if (j != _creatureInfo.end())
         AddObject(obj, j->second, add);
+    else
+        AddObject(obj, obj->GetEntry(), add);
 }
 
 void InstanceScript::AddObject(GameObject* obj, bool add)
@@ -260,6 +265,8 @@ void InstanceScript::AddObject(GameObject* obj, bool add)
     ObjectInfoMap::const_iterator j = _gameObjectInfo.find(obj->GetEntry());
     if (j != _gameObjectInfo.end())
         AddObject(obj, j->second, add);
+    else
+        AddObject(obj, obj->GetEntry(), add);
 }
 
 void InstanceScript::AddObject(WorldObject* obj, uint32 type, bool add)
@@ -461,6 +468,42 @@ void InstanceScript::HandleGameObject(ObjectGuid guid, bool open, GameObject* go
         TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
 }
 
+void InstanceScript::UpdateOperations(uint32 const diff)
+{
+    for (auto l_It = m_TimedDelayedOperations.begin(); l_It != m_TimedDelayedOperations.end(); l_It++)
+    {
+        l_It->first -= diff;
+
+        if (l_It->first < 0)
+        {
+            l_It->second();
+            l_It->second = nullptr;
+        }
+    }
+
+    uint32 l_TimedDelayedOperationCountToRemove = std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+    {
+        return p_Pair.second == nullptr;
+    });
+
+    for (uint32 l_I = 0; l_I < l_TimedDelayedOperationCountToRemove; l_I++)
+    {
+        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        {
+            return p_Pair.second == nullptr;
+        });
+
+        if (l_It != std::end(m_TimedDelayedOperations))
+            m_TimedDelayedOperations.erase(l_It);
+    }
+
+    if (m_TimedDelayedOperations.empty() && !m_EmptyWarned)
+    {
+        m_EmptyWarned = true;
+        LastOperationCalled();
+    }
+}
+
 void InstanceScript::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime /*= 0*/, bool useAlternativeState /*= false*/)
 {
     if (!guid)
@@ -627,6 +670,102 @@ bool InstanceScript::ServerAllowsTwoSideGroups()
     return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP);
 }
 
+void InstanceScript::DoSetAlternatePowerOnPlayers(int32 value)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                pPlayer->SetPower(POWER_ALTERNATE_POWER, value);
+}
+
+void InstanceScript::DoModifyPlayerCurrencies(uint32 id, int32 value)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                pPlayer->ModifyCurrency(id, value);
+}
+
+void InstanceScript::DoNearTeleportPlayers(const Position pos, bool casting /*=false*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                pPlayer->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), casting);
+}
+
+void InstanceScript::DoKilledMonsterKredit(uint32 questId, uint32 entry, ObjectGuid guid/* =0*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                if (pPlayer->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                    pPlayer->KilledMonsterCredit(entry, guid);
+}
+
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievement);
+    if (!achievementEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
+        return;
+    }
+
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->CompletedAchievement(achievementEntry);
+}
+
+void InstanceScript::DoStartMovie(uint32 movieId)
+{
+    MovieEntry const* movieEntry = sMovieStore.LookupEntry(movieId);
+    if (!movieEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoStartMovie called for not existing movieId %u", movieId);
+        return;
+    }
+
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->SendMovieStart(movieId);
+}
+
+// Update Achievement Criteria for all players in instance
+void InstanceScript::DoUpdateAchievementCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
+{
+    Map::PlayerList const& playerList = instance->GetPlayers();
+
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->GetAchievementMgr()->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
+}
+
+// Add aura on all players in instance
+void InstanceScript::DoAddAuraOnPlayers(uint32 spell)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->AddAura(spell, player);
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
     TC_LOG_ERROR("misc", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
@@ -705,6 +844,27 @@ void InstanceScript::SendBossKillCredit(uint32 encounterId)
     bossKillCreditMessage.DungeonEncounterID = encounterId;
 
     instance->SendToPlayers(bossKillCreditMessage.Write());
+}
+
+bool InstanceScript::IsWipe() const
+{
+    Map::PlayerList const& PlayerList = instance->GetPlayers();
+
+    if (PlayerList.isEmpty())
+        return true;
+
+    for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+    {
+        Player* player = Itr->GetSource();
+
+        if (!player)
+            continue;
+
+        if (player->IsAlive() && !player->IsGameMaster())
+            return false;
+    }
+
+    return true;
 }
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)

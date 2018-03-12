@@ -88,6 +88,7 @@ class TC_GAME_API AuraApplication
         void SetNeedClientUpdate();
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
+        void SendFakeAuraUpdate(uint32 auraId, bool remove);
         void ClientUpdate(bool remove = false);
 };
 
@@ -117,6 +118,8 @@ class TC_GAME_API Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer, ObjectGuid castItemGuid, int32 castItemLevel);
     public:
+        Ashamane::VariablesSafe Variables;
+
         typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
@@ -179,6 +182,7 @@ class TC_GAME_API Aura
         void DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetStackAmount() const { return m_stackAmount; }
+        uint32 GetMaxStackAmount() const;
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
@@ -265,6 +269,7 @@ class TC_GAME_API Aura
         void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
+        void CallScriptAuraUpdateHandlers(uint32 diff);
         void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod);
@@ -295,8 +300,8 @@ class TC_GAME_API Aura
         SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
         SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
 
-    private:
         AuraScript* GetScriptByName(std::string const& scriptName) const;
+    private:
         void _DeleteRemovedApplications();
 
     protected:

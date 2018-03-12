@@ -18,7 +18,9 @@
 #ifndef GarrisonMgr_h__
 #define GarrisonMgr_h__
 
+#include "DB2Stores.h"
 #include "Define.h"
+#include "GarrisonConstants.h"
 #include "Hash.h"
 #include "Position.h"
 #include <list>
@@ -32,6 +34,9 @@ struct GarrAbilityEntry;
 struct GarrFollowerEntry;
 struct GarrSiteLevelEntry;
 struct GarrSiteLevelPlotInstEntry;
+
+class Garrison;
+class Player;
 
 struct FinalizeGarrisonPlotGOInfo
 {
@@ -49,6 +54,8 @@ struct GarrAbilities
     std::unordered_set<GarrAbilityEntry const*> Traits;
 };
 
+typedef std::map<GarrisonType, std::unique_ptr<Garrison>> PlayerGarrisonMap;
+
 class TC_GAME_API GarrisonMgr
 {
 public:
@@ -64,6 +71,7 @@ public:
     uint32 GetPreviousLevelBuildingId(uint32 buildingType, uint32 currentLevel) const;
     FinalizeGarrisonPlotGOInfo const* GetPlotFinalizeGOInfo(uint32 garrPlotInstanceID) const;
     uint64 GenerateFollowerDbId();
+    uint64 GenerateMissionDbId();
     std::list<GarrAbilityEntry const*> RollFollowerAbilities(uint32 garrFollowerId, GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const;
     std::list<GarrAbilityEntry const*> GetClassSpecAbilities(GarrFollowerEntry const* follower, uint32 faction) const;
 
@@ -83,6 +91,7 @@ private:
     std::set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
 
     uint64 _followerDbIdGenerator = UI64LIT(1);
+    uint64 _missionDbIdGenerator = UI64LIT(1);
 };
 
 #define sGarrisonMgr GarrisonMgr::Instance()

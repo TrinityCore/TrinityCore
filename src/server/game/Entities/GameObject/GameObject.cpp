@@ -55,7 +55,8 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0), _worldEffectID(0)
+    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0),
+    _worldEffectID(0), _scheduler(this)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -83,6 +84,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+
+    m_shouldIntersectWithAllPhases = false;
 }
 
 GameObject::~GameObject()
@@ -128,6 +131,9 @@ void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 
     if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
         RemoveFromOwner();
+
+    m_Events.KillAllEvents(false);
+    _scheduler.CancelAll();
 }
 
 void GameObject::RemoveFromOwner()
@@ -421,6 +427,9 @@ GameObject* GameObject::CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map*
 
 void GameObject::Update(uint32 diff)
 {
+    m_Events.Update(diff);
+    _scheduler.Update(diff);
+
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
@@ -742,19 +751,6 @@ void GameObject::Update(uint32 diff)
             //if Gameobject should cast spell, then this, but some GOs (type = 10) should be destroyed
             if (GetGoType() == GAMEOBJECT_TYPE_GOOBER)
             {
-                uint32 spellId = GetGOInfo()->goober.spell;
-
-                if (spellId)
-                {
-                    for (GuidSet::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
-                        // m_unique_users can contain only player GUIDs
-                        if (Player* owner = ObjectAccessor::GetPlayer(*this, *it))
-                            owner->CastSpell(owner, spellId, false);
-
-                    m_unique_users.clear();
-                    m_usetimes = 0;
-                }
-
                 SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
@@ -931,6 +927,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.go_state = GetGoState();
     data.spawnMask = spawnMask;
     data.artKit = GetGoArtKit();
+    data.isActive = isActiveObject();
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
@@ -962,6 +959,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setInt32(index++, int32(m_respawnDelayTime));
     stmt->setUInt8(index++, GetGoAnimProgress());
     stmt->setUInt8(index++, uint8(GetGoState()));
+    stmt->setUInt32(index++, uint8(isActiveObject()));
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1029,6 +1027,8 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     }
 
     m_goData = data;
+
+    setActive(data->isActive || GetGoType() == GAMEOBJECT_TYPE_PHASEABLE_MO);
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -1130,6 +1130,11 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
 
     if (!GetUInt32Value(GAMEOBJECT_DISPLAYID))
         return true;
+
+    if (seer->IsPlayer() && GetGoType() == GAMEOBJECT_TYPE_CHEST)
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(GetGOInfo()->chest.conditionID1))
+            if (!sConditionMgr->IsPlayerMeetingCondition(seer->ToPlayer(), playerCondition))
+                return true;
 
     return false;
 }
@@ -1324,6 +1329,10 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
 
 void GameObject::Use(Unit* user)
 {
+    // we cannot use go with not selectable flags
+    if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+        return;
+
     // by default spell caster is user
     Unit* spellCaster = user;
     uint32 spellId = 0;
@@ -1466,6 +1475,10 @@ void GameObject::Use(Unit* user)
         {
             GameObjectTemplate const* info = GetGOInfo();
 
+            // Goober cannot be used with this flag, skip
+            if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+                return;
+
             if (Player* player = user->ToPlayer())
             {
                 if (info->goober.pageID)                    // show page...
@@ -1509,20 +1522,23 @@ void GameObject::Use(Unit* user)
             if (uint32 trapEntry = info->goober.linkedTrap)
                 TriggeringLinkedGameObject(trapEntry, user);
 
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-            SetLootState(GO_ACTIVATED, user);
+            if (info->GetAutoCloseTime())
+            {
+                SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                SetLootState(GO_ACTIVATED, user);
+                if (!info->goober.customAnim)
+                    SetGoState(GO_STATE_ACTIVE);
+            }
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
             if (info->goober.customAnim)
                 SendCustomAnim(GetGoAnimProgress());
-            else
-                SetGoState(GO_STATE_ACTIVE);
 
             m_cooldownTime = time(NULL) + info->GetAutoCloseTime();
 
             // cast this spell later if provided
             spellId = info->goober.spell;
-            spellCaster = nullptr;
+            spellCaster = user;
 
             break;
         }
@@ -1785,6 +1801,7 @@ void GameObject::Use(Unit* user)
             break;
         }
 
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:                 // 42
         case GAMEOBJECT_TYPE_FLAGSTAND:                     // 24
         {
             if (user->GetTypeId() != TYPEID_PLAYER)
@@ -1861,7 +1878,7 @@ void GameObject::Use(Unit* user)
                     {
                         case 179785:                        // Silverwing Flag
                         case 179786:                        // Warsong Flag
-                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
+                            if (bg->GetTypeID(true) == BATTLEGROUND_WS || bg->GetTypeID(true) == BATTLEGROUND_TP)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 184142:                        // Netherstorm Flag
@@ -2623,7 +2640,7 @@ public:
 
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases); }
+    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases) || _owner->shouldIntersectWithAllPhases(); }
     virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     virtual float GetOrientation() const override { return _owner->GetOrientation(); }
     virtual float GetScale() const override { return _owner->GetObjectScale(); }

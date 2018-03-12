@@ -243,7 +243,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModSpellHealingPercentFromStat,            //175 SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT implemented in Unit::SpellBaseHealingBonus
     &AuraEffect::HandleSpiritOfRedemption,                        //176 SPELL_AURA_SPIRIT_OF_REDEMPTION   only for Spirit of Redemption spell, die at aura end
     &AuraEffect::HandleCharmConvert,                              //177 SPELL_AURA_AOE_CHARM
-    &AuraEffect::HandleNULL,                                      //178 SPELL_AURA_MOD_MAX_POWER_PCT
+    &AuraEffect::HandleAuraModMaxPowerPct,                        //178 SPELL_AURA_MOD_MAX_POWER_PCT
     &AuraEffect::HandleAuraModPowerDisplay,                       //179 SPELL_AURA_MOD_POWER_DISPLAY
     &AuraEffect::HandleNoImmediateEffect,                         //180 SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS   implemented in Unit::SpellDamageBonus
     &AuraEffect::HandleUnused,                                    //181 unused (4.3.4) old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS
@@ -444,7 +444,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //376 SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE
     &AuraEffect::HandleNULL,                                      //377 SPELL_AURA_CAST_WHILE_WALKING_2
     &AuraEffect::HandleNULL,                                      //378
-    &AuraEffect::HandleNULL,                                      //379
+    &AuraEffect::HandleNoImmediateEffect,                         //379 SPELL_AURA_MOD_MANA_REGEN_PCT implemented in Player::UpdateManaRegen
     &AuraEffect::HandleNoImmediateEffect,                         //380 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE implemented in Spell::TriggerGlobalCooldown
     &AuraEffect::HandleNULL,                                      //381
     &AuraEffect::HandleNULL,                                      //382 SPELL_AURA_MOD_PET_STAT_PCT
@@ -499,7 +499,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //431
     &AuraEffect::HandleNULL,                                      //432
     &AuraEffect::HandleNULL,                                      //433
-    &AuraEffect::HandleNULL,                                      //434
+    &AuraEffect::HandleAuraLeech,                                 //434 SPELL_AURA_MOD_LEECH
     &AuraEffect::HandleNULL,                                      //435
     &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_MOD_ENVIRONMENTAL_DAMAGE_TAKEN
     &AuraEffect::HandleAuraModMinimumSpeedRate,                   //437 SPELL_AURA_MOD_MINIMUM_SPEED_RATE
@@ -536,7 +536,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT
     &AuraEffect::HandleShowConfirmationPrompt,                    //469 SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY
     &AuraEffect::HandleNULL,                                      //470
-    &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_MOD_VERSATILITY
+    &AuraEffect::HandleModVersatilityByPct,                       //471 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //472
     &AuraEffect::HandleNoImmediateEffect,                         //473 SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT implemented in Player::DurabilityPointLossForEquipSlot
     &AuraEffect::HandleNULL,                                      //474
@@ -547,7 +547,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //479
     &AuraEffect::HandleNULL,                                      //480
     &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
-    &AuraEffect::HandleNULL,                                      //482
+    &AuraEffect::HandleProfilCamera,                              //482 SPELL_AURA_PROFIL_CAMERA
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_SUPPRESS_TRANSFORMS
     &AuraEffect::HandleNULL,                                      //484
     &AuraEffect::HandleNULL,                                      //485
@@ -1482,7 +1482,19 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     {
         // apply glow vision
         if (target->GetTypeId() == TYPEID_PLAYER)
-            target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
+        {
+            switch (GetId())
+            {
+                // Disable glow vision
+                case 108150: // Fire Crash Invis
+                case 108887: // Ox Cart Invisibility
+                case 105002: // Summon Hot Air Balloon
+                    break;
+                default:
+                    target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
+                    break;
+            }
+        }
 
         target->m_invisibility.AddFlag(type);
         target->m_invisibility.AddValue(type, GetAmount());
@@ -2903,7 +2915,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         pet->RemoveCharmedBy(caster);
 
         if (!pet->IsWithinDistInMap(caster, pet->GetMap()->GetVisibilityRange()))
-            pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
+            pet->Remove(PET_SAVE_DISMISS, true);
         else
         {
             // Reinitialize the pet bar or it will appear greyed out
@@ -3612,13 +3624,32 @@ void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* au
     target->UpdateAttackPowerAndDamage(true);
 }
 
-void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
     Unit* target = aurApp->GetTarget();
 
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    float value = target->ToPlayer()->GetFloatValue(PLAYER_VERSATILITY_BONUS);
+
+    if (apply)
+        target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value + GetAmount()));
+    else
+        target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value - GetAmount()));
+
+    target->ToPlayer()->UpdateVersatility();
+}
+
+void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
     Powers power = Powers(GetMiscValue());
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
@@ -3812,6 +3843,24 @@ void AuraEffect::HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp
     }
     else
         target->SetUInt32Value(UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, 0);
+}
+
+void AuraEffect::HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetPowerIndex(Powers(GetMiscValue())) == MAX_POWERS)
+        return;
+
+    if (apply)
+        target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + GetMiscValue()), TOTAL_PCT, float(GetAmount()), apply);
+    else
+        target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + GetMiscValue()), TOTAL_PCT, float(GetAmount()), apply);
+
+    target->UpdateMaxPower(Powers(GetMiscValue()));
 }
 
 /********************************/
@@ -4379,11 +4428,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     Aura* pet_aura  = pet->GetAura(58914, GetCasterGUID());
                     if (owner_aura)
                     {
-                        owner_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
+                        owner_aura->SetStackAmount(owner_aura->GetMaxStackAmount());
                         if (pet_aura)
                         {
                             pet_aura->SetCharges(0);
-                            pet_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
+                            pet_aura->SetStackAmount(owner_aura->GetMaxStackAmount());
                         }
                     }
                     break;
@@ -5013,7 +5062,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     }
                     break;
                 case 64821: // Fuse Armor (Razorscale)
-                    if (GetBase()->GetStackAmount() == GetSpellInfo()->StackAmount)
+                    if (GetBase()->GetStackAmount() == GetBase()->GetMaxStackAmount())
                     {
                         target->CastSpell(target, 64774, true, NULL, NULL, GetCasterGUID());
                         target->RemoveAura(64821);
@@ -6133,8 +6182,8 @@ void AuraEffect::HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool
         player->GetSceneMgr().PlayScene(sceneId);
     else
     {
-        SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId);
-        player->GetSceneMgr().CancelSceneByPackageId(sceneTemplate->ScenePackageId);
+        if (SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId))
+            player->GetSceneMgr().CancelSceneByPackageId(sceneTemplate->ScenePackageId);
     }
 }
 
@@ -6145,14 +6194,56 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
+    if (Unit* caster = GetCaster())
+    {
+        if (apply)
+            AreaTrigger::CreateAreaTrigger(GetMiscValue(), caster, target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellXSpellVisualId(), ObjectGuid::Empty, this);
+        else
+            caster->RemoveAreaTrigger(this);
+    }
+}
+
+enum HandleProfilCameraData
+{
+    PhotoBomberNPC  = 91977,
+    VisualKit       = 54168
+};
+
+void AuraEffect::HandleProfilCamera(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (!target->IsPlayer())
+        return;
+
     if (apply)
     {
-        AreaTrigger::CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellXSpellVisualId(), ObjectGuid::Empty, this);
+        target->ToPlayer()->SendPlaySpellVisualKit(VisualKit, 2, 0);
+
+        std::list<Creature*> photoBomberList;
+        target->GetCreatureListWithEntryInGrid(photoBomberList, PhotoBomberNPC, 100.0f);
+
+        /// Remove other players Master PhotoBomber
+        for (Creature* photoBomber : photoBomberList)
+        {
+            Unit* owner = photoBomber->GetOwner();
+            if (owner != nullptr && owner->GetGUID() == target->GetGUID() && photoBomber->IsSummon())
+            {
+                target->Variables.Set("PhotoBomberGUID", photoBomber->GetGUID());
+                break;
+            }
+        }
     }
     else
     {
-        if (Unit* caster = GetCaster())
-            caster->RemoveAreaTrigger(this);
+        if (Creature* photoBomber = ObjectAccessor::GetCreature(*target, target->Variables.GetValue<ObjectGuid>("PhotoBomberGUID")))
+            photoBomber->DespawnOrUnsummon();
+
+        target->Variables.Remove("PhotoBomberGUID");
+        target->ToPlayer()->SendCancelSpellVisualKit(VisualKit);
     }
 }
 
@@ -6168,4 +6259,13 @@ void AuraEffect::HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode
         else if (!target->HasAuraType(SPELL_AURA_PVP_TALENTS))
             target->TogglePvpTalents(false);
     }
+}
+
+void AuraEffect::HandleAuraLeech(AuraApplication const* auraApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* player = auraApp->GetTarget()->ToPlayer())
+        player->UpdateLeechPercentage();
 }

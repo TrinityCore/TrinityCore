@@ -138,6 +138,11 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum AreaFlags2
+{
+    AREA_FLAG_GARRISON  = 0x20,
+};
+
 enum AreaMountFlags
 {
     AREA_MOUNT_FLAG_GROUND_ALLOWED      = 0x1,
@@ -149,10 +154,13 @@ enum AreaMountFlags
 enum ArtifactPowerFlag : uint8
 {
     ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
-    ARTIFACT_POWER_FLAG_FIRST                       = 0x02,
+    ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED            = 0x02,
     ARTIFACT_POWER_FLAG_FINAL                       = 0x04,
     ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS      = 0x08,
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
+    ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER          = 0x20,
+
+    ARTIFACT_POWER_FLAG_FIRST                       = ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED | ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK,
 };
 
 #define BATTLE_PET_SPECIES_MAX_ID 2164
@@ -246,6 +254,7 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
     CRITERIA_ADDITIONAL_CONDITION_EXPANSION                     = 92,
+    CRITERIA_ADDITIONAL_CONDITION_REPUTATION                    = 95,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
@@ -503,7 +512,8 @@ enum CriteriaTreeFlags : uint16
     CRITERIA_TREE_FLAG_SHOW_CURRENCY_ICON   = 0x0008,
     CRITERIA_TREE_FLAG_ALLIANCE_ONLY        = 0x0200,
     CRITERIA_TREE_FLAG_HORDE_ONLY           = 0x0400,
-    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800
+    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800,
+    CRITERIA_TREE_FLAG_NOT_LINKED_TO_ACH    = 0x1000
 };
 
 enum CriteriaTreeOperator : uint8
@@ -791,6 +801,26 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_NONE             = 40
 };
 
+enum ItemContext : uint8
+{
+    None            = 0,
+
+    DungeonNormal   = 1,
+    DungeonHeroic   = 2,
+    DungeonMythic   = 23,
+
+    RaidLfr         = 4,
+    RaidNormal      = 3,
+    RaidHeroic      = 5,
+    RaidMythic      = 6,
+
+    ScenarioNormal  = 9,
+    ScenarioHeroic  = 10,
+
+    Event           = 9,
+    TimeWalker      = 22,
+};
+
 enum MapDifficultyFlags : uint8
 {
     MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
@@ -940,7 +970,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
     SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
     SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_UNK5            = 0x00000010,          // 25 spells in 3.0.3, quest related?
+    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Personal Spawn (creature visible only by summoner)
     SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
     SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
     SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
@@ -968,7 +998,8 @@ enum TaxiNodeFlags
 {
     TAXI_NODE_FLAG_ALLIANCE             = 0x01,
     TAXI_NODE_FLAG_HORDE                = 0x02,
-    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10,
+    TAXI_NODE_FLAG_ARGUS                = 0x20
 };
 
 enum TaxiPathNodeFlags

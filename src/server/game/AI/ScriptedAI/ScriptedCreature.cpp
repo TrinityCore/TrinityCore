@@ -125,6 +125,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
+    summons(creature),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
@@ -432,6 +433,15 @@ enum NPCs
     NPC_SARTHARION  = 28860
 };
 
+void Scripted_NoMovementAI::AttackStart(Unit* target)
+{
+    if (!target)
+        return;
+
+    if (me->Attack(target, true))
+        DoStartNoMovement(target);
+}
+
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
@@ -625,4 +635,39 @@ void WorldBossAI::UpdateAI(uint32 diff)
     }
 
     DoMeleeAttackIfReady();
+}
+
+void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y)
+{
+    x = pUnit->GetPositionX() + (dist * cos(orientation));
+    y = pUnit->GetPositionY() + (dist * sin(orientation));
+}
+
+void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition)
+{
+    float x = 0.0f;
+    float y = 0.0f;
+
+    GetPositionWithDistInOrientation(fromPos, dist, orientation, x, y);
+
+    movePosition.m_positionX = x;
+    movePosition.m_positionY = y;
+}
+
+void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y)
+{
+    float randOrientation = frand(0.0f, 2.0f * (float)M_PI);
+
+    x = centerX + (dist * cos(randOrientation));
+    y = centerY + (dist * sin(randOrientation));
+}
+
+void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition)
+{
+    GetPositionWithDistInOrientation(centerPos, dist, frand(0, 2 * float(M_PI)), movePosition);
+}
+
+void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition)
+{
+    GetPositionWithDistInOrientation(centerPos, dist, centerPos->GetOrientation(), movePosition);
 }

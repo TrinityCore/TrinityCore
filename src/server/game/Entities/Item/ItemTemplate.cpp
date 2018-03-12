@@ -233,6 +233,9 @@ bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alway
     else if (player->getLevel() > 40)
         levelIndex = 1;
 
+    if (Specializations[levelIndex].none())
+        return true;
+
     return Specializations[levelIndex].test(CalculateItemSpecBit(chrSpecialization));
 }
 

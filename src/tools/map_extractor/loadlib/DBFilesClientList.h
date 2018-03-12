@@ -594,7 +594,6 @@ char const* DBFilesClientList[] =
     "DBFilesClient\\UnitBloodLevels.db2",
     "DBFilesClient\\UnitCondition.db2",
     "DBFilesClient\\UnitPowerBar.db2",
-    "DBFilesClient\\UnitTest.db2",
     "DBFilesClient\\Vehicle.db2",
     "DBFilesClient\\VehicleSeat.db2",
     "DBFilesClient\\VehicleUIIndSeat.db2",

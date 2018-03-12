@@ -130,6 +130,28 @@ enum LootSlotType
     LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
 };
 
+enum ToastType
+{
+    TOAST_ITEM           = 0,
+    TOAST_CURRENCY       = 1,
+    TOAST_GOLD           = 2,
+};
+
+enum ToastDisplayMethod : uint8
+{
+    TOAST_METHOD_NONE                   = 0,
+    TOAST_METHOD_POPUP                  = 1,
+    TOAST_METHOD_NOTIFICATION           = 2,
+    TOAST_METHOD_POPUP_2                = 3,
+    TOAST_METHOD_ROLL_UPGRADE           = 5,
+    TOAST_METHOD_ROLL_UPGRADE_2         = 6,
+    TOAST_METHOD_PVP_FACTION            = 9,
+    TOAST_METHOD_GARRISON_CACHE         = 10,
+    TOAST_METHOD_UPGRADE                = 12,
+    TOAST_METHOD_LEGENDARY              = 13,
+    TOAST_METHOD_WORLD_QUEST_REWARD     = 16,
+};
+
 struct TC_GAME_API LootItem
 {
     uint32  itemid;
@@ -252,10 +274,10 @@ struct TC_GAME_API Loot
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
-    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
+    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, bool specOnly = false);
 
     // Inserts the item into the loot (called by LootTemplate processors)
-    void AddItem(LootStoreItem const & item);
+    void AddItem(LootStoreItem const & item, Player const* player = nullptr, bool specOnly = false);
 
     LootItem const* GetItemInSlot(uint32 lootSlot) const;
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = NULL, NotNormalLootItem** ffaitem = NULL, NotNormalLootItem** conditem = NULL);

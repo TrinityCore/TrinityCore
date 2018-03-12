@@ -28,6 +28,8 @@
 #    ARENA CONFIG
 #    NETWORK CONFIG
 #    CONSOLE AND REMOTE ACCESS
+#    REST SERVICE
+#    WORLD TO DISCORD
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
 #    AUCTION HOUSE BOT SETTINGS
@@ -2877,6 +2879,64 @@ SOAP.Port = 7878
 ###################################################################################################
 
 ###################################################################################################
+# REST SERVICE
+#
+#
+#    WorldREST.Enabled
+#        Description: Enable REST service.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WorldREST.Enabled = 0
+
+#
+#    WorldREST.BindIP
+#        Description: Bind REST service to IP/hostname.
+#        Default:     "127.0.0.1" - (Bind to localhost)
+
+WorldREST.BindIP = "127.0.0.1"
+
+#
+#    WorldREST.Port
+#        Description: TCP port to reach the REST service.
+#        Default:     8082
+
+WorldREST.Port = 8082
+
+#
+#    WorldREST.AuthToken
+#        Description: Auth Token, user will have to set this in headers to reach REST service
+#                     Minimum length (security reason) : 16 characters
+#        Default:     ""
+
+WorldREST.AuthToken = ""
+
+#
+###################################################################################################
+
+###################################################################################################
+# WORLD TO DISCORD
+#
+#
+#    WorldREST.Enabled
+#        Description: Enable World to Discord service.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WorldToDiscord.Enabled = 0
+
+#
+#    WorldREST.RelayURL
+#        Description: Relay http server that will handle the http call
+#                     every 2 seconds with world channel player chats
+#        Default:     "http://127.0.0.1:8083"
+
+WorldToDiscord.RelayURL = "http://127.0.0.1:8083"
+
+#
+###################################################################################################
+
+###################################################################################################
 # CHARACTER DELETE OPTIONS
 #
 #    CharDelete.Method
@@ -3194,6 +3254,13 @@ Creature.CheckInvalidPosition = 0
 #        Default:     0  - (Do not show)
 
 GameObject.CheckInvalidPosition = 0
+
+#
+#     LegacyBuffEnabled
+#        Description: Enable player damage increase for mobs of lower expansion, prior to Mists of Pandaria
+#        Default:     1  - (Enabled)
+
+LegacyBuffEnabled = 1
 
 #
 ###################################################################################################
@@ -3782,6 +3849,7 @@ Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
+Appender.SQLUpdateLog=2,1,16,SQLUpdate.log,w
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3855,7 +3923,7 @@ Logger.mmaps=3,Server
 #Logger.server.bnetserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.periodic=3,Console Server
-#Logger.sql.dev=3,Console Server
+#Logger.sql.dev=1,SQLUpdateLog
 #Logger.sql.driver=3,Console Server
 #Logger.warden=3,Console Server
 
@@ -3936,6 +4004,14 @@ Currency.StartJusticePoints = 0
 #
 
 Currency.MaxJusticePoints = 4000
+
+#
+#    Currency.StartArtifactKnowledge
+#        Amount artifact knowledge that new players will start with
+#        Default: 55 (max)
+#
+
+Currency.StartArtifactKnowledge = 55
 
 #
 ###################################################################################################

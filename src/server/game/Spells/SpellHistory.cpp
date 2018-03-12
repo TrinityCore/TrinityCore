@@ -742,6 +742,115 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
     return false;
 }
 
+void SpellHistory::ForceSendSpellCharges()
+{
+    if (Player* player = GetPlayerOwner())
+    {
+        WorldPackets::Spells::SendSpellCharges sendSpellCharges;
+        WritePacket(&sendSpellCharges);
+        player->SendDirectMessage(sendSpellCharges.Write());
+    }
+}
+
+void SpellHistory::ForceSendSpellCharge(SpellCategoryEntry const* chargeCategoryEntry)
+{
+    if (Player* player = GetPlayerOwner())
+    {
+        WorldPackets::Spells::SendSpellCharges sendSpellCharges;
+
+        Clock::time_point now = Clock::now();
+        for (auto const& p : _categoryCharges)
+        {
+            if (p.first != chargeCategoryEntry->ID)
+                continue;
+
+            if (!p.second.empty())
+            {
+                std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.front().RechargeEnd - now);
+                if (cooldownDuration.count() <= 0)
+                    continue;
+
+                WorldPackets::Spells::SpellChargeEntry chargeEntry;
+                chargeEntry.Category = p.first;
+                chargeEntry.NextRecoveryTime = uint32(cooldownDuration.count());
+                chargeEntry.ConsumedCharges = uint8(p.second.size());
+                sendSpellCharges.Entries.push_back(chargeEntry);
+            }
+        }
+        player->SendDirectMessage(sendSpellCharges.Write());
+    }
+}
+
+void SpellHistory::ForceSendSetSpellCharges(SpellCategoryEntry const* chargeCategoryEntry)
+{
+    if (!chargeCategoryEntry)
+        return;
+
+    if (Player* player = GetPlayerOwner())
+    {
+        auto itr = _categoryCharges.find(chargeCategoryEntry->ID);
+        if (itr != _categoryCharges.end())
+        {
+            WorldPackets::Spells::SetSpellCharges setSpellCharges;
+            setSpellCharges.Category = chargeCategoryEntry->ID;
+            setSpellCharges.NextRecoveryTime = chargeCategoryEntry->ChargeRecoveryTime;
+            setSpellCharges.ConsumedCharges = uint8(itr->second.size());
+            setSpellCharges.IsPet = false;
+
+            player->SendDirectMessage(setSpellCharges.Write());
+        }
+    }
+}
+
+void SpellHistory::UpdateCharges()
+{
+    if (GetPlayerOwner())
+    {
+        Clock::time_point now = Clock::now();
+
+        for (auto& categoryCharge : _categoryCharges)
+        {
+            std::deque<ChargeEntry>& chargeRefreshTimes = categoryCharge.second;
+
+            while (!chargeRefreshTimes.empty() && chargeRefreshTimes.front().RechargeEnd <= now)
+            {
+                chargeRefreshTimes.pop_front();
+
+                if (SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.LookupEntry(categoryCharge.first))
+                    ForceSendSetSpellCharges(categoryEntry);
+            }
+        }
+    }
+}
+
+void SpellHistory::UpdateCharge(SpellCategoryEntry const* chargeCategoryEntry)
+{
+    Clock::time_point l_Now = Clock::now();
+
+    std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryEntry->ID];
+
+    while (!charges.empty() && charges.front().RechargeEnd <= l_Now)
+    {
+        charges.pop_front();
+        ForceSendSetSpellCharges(chargeCategoryEntry);
+    }
+}
+
+void SpellHistory::ReduceChargeCooldown(SpellCategoryEntry const* chargeCategoryEntry, uint32 reductionTime)
+{
+    if (!chargeCategoryEntry)
+        return;
+
+    std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryEntry->ID];
+    for (ChargeEntry& entry : charges)
+    {
+        entry.RechargeStart -= std::chrono::milliseconds(reductionTime);
+        entry.RechargeEnd -= std::chrono::milliseconds(reductionTime);
+    }
+    UpdateCharge(chargeCategoryEntry);
+    ForceSendSpellCharge(chargeCategoryEntry);
+}
+
 void SpellHistory::RestoreCharge(uint32 chargeCategoryId)
 {
     auto itr = _categoryCharges.find(chargeCategoryId);
@@ -804,6 +913,23 @@ bool SpellHistory::HasCharge(uint32 chargeCategoryId) const
 
     auto itr = _categoryCharges.find(chargeCategoryId);
     return itr == _categoryCharges.end() || int32(itr->second.size()) < maxCharges;
+}
+
+int32 SpellHistory::GetChargeCount(uint32 chargeCategoryId) const
+{
+    if (!sSpellCategoryStore.LookupEntry(chargeCategoryId))
+        return 0;
+
+    // Check if the spell is currently using charges (untalented warlock Dark Soul)
+    int32 maxCharges = GetMaxCharges(chargeCategoryId);
+    if (maxCharges <= 0)
+        return 0;
+
+    auto const itr = _categoryCharges.find(chargeCategoryId);
+    if (itr == _categoryCharges.end())
+        return maxCharges;
+
+    return std::max(maxCharges - int32(itr->second.size()), 0);
 }
 
 int32 SpellHistory::GetMaxCharges(uint32 chargeCategoryId) const
