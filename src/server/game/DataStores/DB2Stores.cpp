@@ -865,6 +865,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
         _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearanceMod;
+
+        auto it = _itemModifiedAppearancesByItem.find(appearanceMod->ItemID);
+        if (it == _itemModifiedAppearancesByItem.end() || appearanceMod->AppearanceModID < it->second->AppearanceModID)
+            _itemModifiedAppearancesByItem[appearanceMod->ItemID] = appearanceMod;
     }
 
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
