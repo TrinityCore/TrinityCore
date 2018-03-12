@@ -251,11 +251,11 @@ struct ArtifactQuestXPEntry
 struct ArtifactTierEntry
 {
     uint32 ID;
-    uint32 Unk1;
-    uint32 MinArtifactRank;
-    uint32 MinKnowledgeRank;
-    uint32 Unk2;
-    uint32 Unk3;
+    uint32 ArtifactTier;
+    uint32 MaxNumTraits;
+    uint32 MaxArtifactKnowledge;
+    uint32 KnowledgePlayerCondition;
+    uint32 MinimumEmpowerKnowledge;
 };
 
 struct ArtifactUnlockEntry

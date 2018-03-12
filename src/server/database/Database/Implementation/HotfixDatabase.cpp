@@ -100,7 +100,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ArtifactTier.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_TIER, "SELECT ID, Unk1, MinArtifactRank, MinKnowledgeRank, Unk2, Unk3 FROM artifact_tier"
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_TIER, "SELECT ID, ArtifactTier, MaxNumTraits, MaxArtifactKnowledge, KnowledgePlayerCondition, MinimumEmpowerKnowledge FROM artifact_tier"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ArtifactUnlock.db2
