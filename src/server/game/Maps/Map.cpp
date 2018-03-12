@@ -2579,16 +2579,17 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
     return result;
 }
 
-void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType) const
+void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType) const
 {
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
-    vmgr->getAreaAndLiquidData(GetId(), x, y, z, reqLiquidType, vmapData);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
+    vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, reqLiquidType, vmapData);
     if (vmapData.areaInfo)
         data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
 
     float mapHeight = VMAP_INVALID_HEIGHT;
-    GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y);
+    GridMap* gmap = const_cast<Map*>(this)->GetGrid(terrainMapId, x, y);
     if (gmap)
         mapHeight = gmap->getHeight(x, y);
 
