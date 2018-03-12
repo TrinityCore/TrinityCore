@@ -1502,11 +1502,9 @@ void World::SetInitialWorldSettings()
     // Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
 
-    std::vector<uint32> mapIds;
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
     {
-        mapIds.push_back(mapEntry->MapID);
         mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->MapID), std::forward_as_tuple());
         if (mapEntry->rootPhaseMap != -1)
             mapData[mapEntry->rootPhaseMap].push_back(mapEntry->MapID);
@@ -1518,7 +1516,7 @@ void World::SetInitialWorldSettings()
         vmmgr2->InitializeThreadUnsafe(mapData);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
-    mmmgr->InitializeThreadUnsafe(mapIds);
+    mmmgr->InitializeThreadUnsafe(mapData);
 
     TC_LOG_INFO("server.loading", "Initializing PlayerDump tables...");
     PlayerDump::InitializeTables();
