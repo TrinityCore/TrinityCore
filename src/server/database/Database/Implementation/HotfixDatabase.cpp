@@ -99,6 +99,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_ARTIFACT_QUEST_XP, "SELECT ID, Exp1, Exp2, Exp3, Exp4, Exp5, Exp6, Exp7, Exp8, Exp9, Exp10 FROM artifact_quest_xp"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ArtifactTier.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_TIER, "SELECT ID, ArtifactTier, MaxNumTraits, MaxArtifactKnowledge, KnowledgePlayerCondition, MinimumEmpowerKnowledge FROM artifact_tier"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactUnlock.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_UNLOCK, "SELECT ID, ItemBonusListID, PowerRank, PowerID, PlayerConditionID, ArtifactID FROM artifact_unlock"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // AuctionHouse.db2
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name_lang FROM auction_house_locale WHERE locale = ?", CONNECTION_SYNCH);
