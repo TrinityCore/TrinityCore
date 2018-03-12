@@ -90,37 +90,14 @@ void MotionMaster::UpdateMotion(uint32 diff)
     ASSERT(!empty());
 
     _cleanFlag |= MMCF_UPDATE;
-    if (!top()->Update(_owner, diff))
-    {
-        _cleanFlag &= ~MMCF_UPDATE;
+    bool isMoveGenUpdateSuccess = top()->Update(_owner, diff);
+    _cleanFlag &= ~MMCF_UPDATE;
+
+    if (!isMoveGenUpdateSuccess)
         MovementExpired();
-    }
-    else
-        _cleanFlag &= ~MMCF_UPDATE;
 
     if (_expireList)
-    {
-        for (size_t i = 0; i < _expireList->size(); ++i)
-        {
-            MovementGenerator* mg = (*_expireList)[i];
-            DirectDelete(mg);
-        }
-
-        delete _expireList;
-        _expireList = nullptr;
-
-        if (empty())
-            Initialize();
-        else if (NeedInitTop())
-            InitTop();
-        else if (_cleanFlag & MMCF_RESET)
-            top()->Reset(_owner);
-
-        _cleanFlag &= ~MMCF_RESET;
-    }
-
-    // probably not the best place to pu this but im not really sure where else to put it.
-    _owner->UpdateUnderwaterState(_owner->GetMap(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+        ClearExpireList();
 }
 
 void MotionMaster::Clear(bool reset /*= true*/)
@@ -135,6 +112,27 @@ void MotionMaster::Clear(bool reset /*= true*/)
     }
     else
         DirectClean(reset);
+}
+
+void MotionMaster::ClearExpireList()
+{
+    for (size_t i = 0; i < _expireList->size(); ++i)
+    {
+        MovementGenerator* mg = (*_expireList)[i];
+        DirectDelete(mg);
+    }
+
+    delete _expireList;
+    _expireList = nullptr;
+
+    if (empty())
+        Initialize();
+    else if (NeedInitTop())
+        InitTop();
+    else if (_cleanFlag & MMCF_RESET)
+        top()->Reset(_owner);
+
+    _cleanFlag &= ~MMCF_RESET;
 }
 
 void MotionMaster::MovementExpired(bool reset /*= true*/)

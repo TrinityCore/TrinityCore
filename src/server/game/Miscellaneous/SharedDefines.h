@@ -672,7 +672,7 @@ enum SpellAttr7
     SPELL_ATTR7_UNK17                            = 0x00020000, // 17 Only 27965 (Suicide) spell.
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // 18 Only spells that have Charge among effects.
     SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000, // 19 Teleports to specific zones.
-    SPELL_ATTR7_USABLE_IN_STUN_FEAR_CONFUSION    = 0x00100000, // 20 Blink, Divine Shield, Ice Block
+    SPELL_ATTR7_UNK20                            = 0x00100000, // 20 Blink, Divine Shield, Ice Block
     SPELL_ATTR7_UNK21                            = 0x00200000, // 21 Not set
     SPELL_ATTR7_UNK22                            = 0x00400000, // 22
     SPELL_ATTR7_UNK23                            = 0x00800000, // 23 Motivate, Mutilate, Shattering Throw

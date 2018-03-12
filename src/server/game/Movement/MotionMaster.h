@@ -198,6 +198,7 @@ class TC_GAME_API MotionMaster
         void DelayedExpire();
         void DirectDelete(MovementGenerator* curr);
         void DelayedDelete(MovementGenerator* curr);
+        void ClearExpireList();
 
         ExpireList* _expireList;
         MovementGenerator* _slot[MAX_MOTION_SLOT];

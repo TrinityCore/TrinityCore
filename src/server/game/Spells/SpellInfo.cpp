@@ -532,8 +532,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 level = int32(_spellInfo->MaxLevel);
             else if (level < int32(_spellInfo->BaseLevel))
                 level = int32(_spellInfo->BaseLevel);
-            if (!_spellInfo->IsPassive())
-                level -= int32(_spellInfo->SpellLevel);
+            level -= int32(_spellInfo->SpellLevel);
             basePoints += int32(level * basePointsPerLevel);
         }
 
@@ -1615,6 +1614,17 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
     // these spells pierce all available spells (Resurrection Sickness for example)
     if (HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
         return true;
+
+    // these spells (Cyclone for example) can pierce all...
+    if (HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) || HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+    {
+        // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
+        if (!auraSpellInfo ||
+            (auraSpellInfo->Mechanic != MECHANIC_IMMUNE_SHIELD &&
+                auraSpellInfo->Mechanic != MECHANIC_INVULNERABILITY &&
+                (auraSpellInfo->Mechanic != MECHANIC_BANISH || (IsRankOf(auraSpellInfo) && auraSpellInfo->Dispel != DISPEL_NONE)))) // Banish shouldn't be immune to itself, but Cyclone should
+            return true;
+    }
 
     // Dispels other auras on immunity, check if this spell makes the unit immune to aura
     if (HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY) && CanSpellProvideImmunityAgainstAura(auraSpellInfo))
@@ -3409,8 +3419,8 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
     return false;
 }
 
-// based on client sub_007FDFA0
-bool SpellInfo::CanSpellCastOverrideAuraEffect(AuraEffect const* aurEff) const
+// based on client Spell_C::CancelsAuraEffect
+bool SpellInfo::SpellCancelsAuraEffect(AuraEffect const* aurEff) const
 {
     if (!HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
         return false;
@@ -3930,6 +3940,10 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
 {
     // ignore passive spells
     if (IsPassive())
+        return this;
+
+    // Client ignores spell with these attributes (sub_53D9D0)
+    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) || HasAttribute(SPELL_ATTR2_UNK3))
         return this;
 
     bool needRankSelection = false;

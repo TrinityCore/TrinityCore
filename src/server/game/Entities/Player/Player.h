@@ -1068,7 +1068,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time) override;
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const override; // override Unit::IsImmunedToSpellEffect
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
 
         void SetInWater(bool apply);
 
@@ -2032,7 +2032,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ApplyItemDependentAuras(Item* item, bool apply);
 
-        void _ApplyItemMods(Item* item, uint8 slot, bool apply);
+        void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
@@ -2112,7 +2112,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ClearAfkReports() { m_bgData.bgAfkReporter.clear(); }
 
         bool GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const;
-        bool isTotalImmunity() const;
         bool CanUseBattlegroundObject(GameObject* gameobject) const;
         bool isTotalImmune() const;
         bool CanCaptureTowerPoint() const;
