@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
@@ -17,12 +17,11 @@
  */
 
 #include "TerrainBuilder.h"
-
 #include "MapBuilder.h"
-
-#include "VMapManager2.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
 
 // ******************************************
 // Map file format defines
@@ -137,6 +136,16 @@ namespace MMAP
         sprintf(mapFileName, "maps/%03u%02u%02u.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName, "rb");
+        if (!mapFile)
+        {
+            int32 parentMapId = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager())->getParentMapId(mapID);
+            if (parentMapId != -1)
+            {
+                sprintf(mapFileName, "maps/%03u%02u%02u.map", parentMapId, tileY, tileX);
+                mapFile = fopen(mapFileName, "rb");
+            }
+        }
+
         if (!mapFile)
             return false;
 
