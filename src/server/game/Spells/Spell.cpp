@@ -2656,7 +2656,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                     if ((effMask & (1 << i)) && aurApp->HasEffect(i))
                         effMask &= ~(1 << i);
 
-                _spellHitTarget->_ApplyAura(aurApp, effMask);
+                if (effMask)
+                    _spellHitTarget->_ApplyAura(aurApp, effMask);
             }
         }
 
