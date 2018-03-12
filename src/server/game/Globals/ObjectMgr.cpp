@@ -1967,7 +1967,7 @@ void ObjectMgr::LoadCreatures()
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with abs(`orientation`) > 2*PI (orientation is expressed in radians), normalized.", guid, data.id);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %%u Entry: %u) with abs(`orientation`) > 2*PI (orientation is expressed in radians), normalized.", guid, data.id);
             data.orientation = Position::NormalizeOrientation(data.orientation);
         }
 
@@ -1979,13 +1979,13 @@ void ObjectMgr::LoadCreatures()
 
         if (data.phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: % Entry: %u) has unknown `phaseUseFlags` set, removed unknown value.", guid, data.id);
+            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) has unknown `phaseUseFlags` set, removed unknown value.", guid, data.id);
             data.phaseUseFlags &= PHASE_USE_FLAGS_ALL;
         }
 
         if (data.phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && data.phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: % Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
                 " removing PHASE_USE_FLAGS_INVERSE.", guid, data.id);
             data.phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
         }
