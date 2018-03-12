@@ -881,7 +881,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     r.FillPacket(startLootRoll.Item);
 
     if (ItemDisenchantLootEntry const* disenchant = r.GetItemDisenchantLoot(p))
-        if (m_maxEnchantingLevel >= disenchant->RequiredDisenchantSkill)
+        if (m_maxEnchantingLevel >= disenchant->SkillRequired)
             startLootRoll.ValidRolls |= ROLL_FLAG_TYPE_DISENCHANT;
 
     p->SendDirectMessage(startLootRoll.Write());
@@ -1508,7 +1508,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
             lfg::LfgDungeonSet const& selectedDungeons = sLFGMgr->GetSelectedDungeons(player->GetGUID());
             if (selectedDungeons.size() == 1)
                 if (LFGDungeonsEntry const* dungeon = sLFGDungeonsStore.LookupEntry(*selectedDungeons.begin()))
-                    if (dungeon->Type == lfg::LFG_TYPE_RANDOM)
+                    if (dungeon->TypeID == lfg::LFG_TYPE_RANDOM)
                         return dungeon->ID;
 
             return 0;
@@ -1800,7 +1800,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
 
-    if (memberscount > bgEntry->MaxGroupSize)                // no MinPlayerCount for battlegrounds
+    if (int32(memberscount) > bgEntry->MaxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)

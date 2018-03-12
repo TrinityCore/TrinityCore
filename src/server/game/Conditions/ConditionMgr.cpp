@@ -2502,10 +2502,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     {
         if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)))
         {
-            if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != uint32(condition->ChrSpecializationIndex))
+            if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != condition->ChrSpecializationIndex)
                 return false;
 
-            if (condition->ChrSpecializationRole >= 0 && spec->Role != uint32(condition->ChrSpecializationRole))
+            if (condition->ChrSpecializationRole >= 0 && spec->Role != condition->ChrSpecializationRole)
                 return false;
         }
     }
@@ -2596,10 +2596,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->MovementFlags[1] && !(player->GetExtraUnitMovementFlags() & condition->MovementFlags[1]))
         return false;
 
-    if (condition->MainHandItemSubclassMask)
+    if (condition->WeaponSubclassMask)
     {
         Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-        if (!mainHand || !((1 << mainHand->GetTemplate()->GetSubClass()) & condition->MainHandItemSubclassMask))
+        if (!mainHand || !((1 << mainHand->GetTemplate()->GetSubClass()) & condition->WeaponSubclassMask))
             return false;
     }
 
@@ -2740,8 +2740,8 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         {
             if (condition->AuraSpellID[i])
             {
-                if (condition->AuraCount[i])
-                    results[i] = player->GetAuraCount(condition->AuraSpellID[i]) >= condition->AuraCount[i];
+                if (condition->AuraStacks[i])
+                    results[i] = player->GetAuraCount(condition->AuraSpellID[i]) >= condition->AuraStacks[i];
                 else
                     results[i] = player->HasAura(condition->AuraSpellID[i]);
             }

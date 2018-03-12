@@ -54,7 +54,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         return;
 
     if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
-        artifactAddPower.PowerChoices[0].Rank > artifactPowerEntry->MaxRank)
+        artifactAddPower.PowerChoices[0].Rank > artifactPowerEntry->MaxPurchasableRank)
         return;
 
     if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
@@ -70,7 +70,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
             if (!artifactPowerLinkLearned)
                 continue;
 
-            if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxRank)
+            if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxPurchasableRank)
             {
                 hasAnyLink = true;
                 break;
@@ -134,17 +134,17 @@ void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactS
     if (!artifactAppearanceSet || artifactAppearanceSet->ArtifactID != artifact->GetTemplate()->GetArtifactID())
         return;
 
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactAppearance->PlayerConditionID))
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactAppearance->UnlockPlayerConditionID))
         if (!sConditionMgr->IsPlayerMeetingCondition(_player, playerCondition))
             return;
 
-    artifact->SetAppearanceModId(artifactAppearance->AppearanceModID);
+    artifact->SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
     artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearance->ID);
     artifact->SetState(ITEM_CHANGED, _player);
     Item* childItem = _player->GetChildItemByGuid(artifact->GetChildItem());
     if (childItem)
     {
-        childItem->SetAppearanceModId(artifactAppearance->AppearanceModID);
+        childItem->SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
         childItem->SetState(ITEM_CHANGED, _player);
     }
 
@@ -156,7 +156,7 @@ void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactS
             _player->SetVisibleItemSlot(childItem->GetSlot(), childItem);
 
         // change druid form appearance
-        if (artifactAppearance->ShapeshiftDisplayID && artifactAppearance->ModifiesShapeshiftFormDisplay && _player->GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->ModifiesShapeshiftFormDisplay))
+        if (artifactAppearance->OverrideShapeshiftDisplayID && artifactAppearance->OverrideShapeshiftFormID && _player->GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID))
             _player->RestoreDisplayId();
     }
 }

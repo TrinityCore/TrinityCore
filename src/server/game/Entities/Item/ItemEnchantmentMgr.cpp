@@ -253,14 +253,14 @@ TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uin
     switch (quality)
     {
         case ITEM_QUALITY_UNCOMMON:
-            return randPropPointsEntry->UncommonPropertiesPoints[propIndex];
+            return randPropPointsEntry->Good[propIndex];
         case ITEM_QUALITY_RARE:
         case ITEM_QUALITY_HEIRLOOM:
-            return randPropPointsEntry->RarePropertiesPoints[propIndex];
+            return randPropPointsEntry->Superior[propIndex];
         case ITEM_QUALITY_EPIC:
         case ITEM_QUALITY_LEGENDARY:
         case ITEM_QUALITY_ARTIFACT:
-            return randPropPointsEntry->EpicPropertiesPoints[propIndex];
+            return randPropPointsEntry->Epic[propIndex];
     }
 
     return 0;

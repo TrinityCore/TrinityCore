@@ -45,7 +45,7 @@ void WorldSession::HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVe
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleRequestVehiclePrevSeat: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -62,7 +62,7 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVe
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleRequestVehicleNextSeat: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -79,7 +79,7 @@ void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChang
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleMoveChangeVehicleSeats: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -108,7 +108,7 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPackets::Vehicle::Request
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleRequestVehicleSwitchSeat: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -181,7 +181,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
                 GetPlayer()->ExitVehicle();
             else
                 TC_LOG_ERROR("network", "%s tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                    GetPlayer()->GetGUID().ToString().c_str(), vehicle->GetVehicleInfo()->SeatID[itr->first], itr->second.SeatInfo->Flags[0]);
+                    GetPlayer()->GetGUID().ToString().c_str(), vehicle->GetVehicleInfo()->SeatID[itr->first], itr->second.SeatInfo->Flags);
         }
     }
 }
