@@ -613,7 +613,7 @@ int main(int argc, char ** argv)
 
             strncpy(m.name, map_name, max_map_name_length);
             m.name[max_map_name_length - 1] = '\0';
-            m.parent_id = int16(dbc->getRecord(x).getUInt(19));
+            m.parent_id = int16(dbc->getRecord(x).getInt(19));
             if (m.parent_id >= 0)
                 maps_that_are_parents.insert(m.parent_id);
 
