@@ -389,11 +389,11 @@ struct ArtifactTierLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_INT, "Unk1" },
-            { false, FT_INT, "MinArtifactRank" },
-            { false, FT_INT, "MinKnowledgeRank" },
-            { false, FT_INT, "Unk2" },
-            { false, FT_INT, "Unk3" },
+            { false, FT_INT, "ArtifactTier" },
+            { false, FT_INT, "MaxNumTraits" },
+            { false, FT_INT, "MaxArtifactKnowledge" },
+            { false, FT_INT, "KnowledgePlayerCondition" },
+            { false, FT_INT, "MinimumEmpowerKnowledge" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactTierMeta::Instance(), HOTFIX_SEL_ARTIFACT_TIER);
         return &loadInfo;

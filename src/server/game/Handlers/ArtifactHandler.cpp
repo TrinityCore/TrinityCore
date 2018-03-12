@@ -129,11 +129,21 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     artifact->SetState(ITEM_CHANGED, _player);
 
     uint32 totalPurchasedArtifactPower = artifact->GetTotalPurchasedArtifactPowers();
+    uint32 artifactTier = 0;
+
     for (uint32 i = 0; i < sArtifactTierStore.GetNumRows(); ++i)
+    {
         if (ArtifactTierEntry const* tier = sArtifactTierStore.LookupEntry(i))
-            if (tier->MinArtifactRank <= totalPurchasedArtifactPower)
-                if (artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) < tier->ID)
-                    artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, tier->ID);
+        {
+            if (totalPurchasedArtifactPower < tier->MaxNumTraits)
+            {
+                artifactTier = tier->ArtifactTier;
+                break;
+            }
+        }
+    }
+
+     artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
 }
 
 void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance)
