@@ -168,37 +168,37 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_ENRAGE:
-                    DoCast(SPELL_BERSERK);
-                    break;
-                case EVENT_INCINERATE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_INCINERATE);
-                    Talk(SAY_INCINERATE);
-                    events.Repeat(Seconds(12), Seconds(20));
-                    break;
-                case EVENT_SUMMON_DOOM_BLOSSOM:
-                    DoCastSelf(SPELL_SUMMON_DOOM_BLOSSOM, true);
-                    Talk(SAY_BLOSSOM);
-                    events.Repeat(Seconds(30), Seconds(40));
-                    break;
-                case EVENT_SHADOW_DEATH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
-                        DoCast(target, SPELL_SHADOW_OF_DEATH);
-                    events.Repeat(Seconds(30), Seconds(35));
-                    break;
-                case EVENT_CRUSHING_SHADOWS:
-                    me->CastCustomSpell(SPELL_CRUSHING_SHADOWS, SPELLVALUE_MAX_TARGETS, 5, me);
-                    Talk(SAY_CRUSHING);
-                    events.Repeat(Seconds(18), Seconds(30));
-                    break;
-                case EVENT_FINISH_INTRO:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    break;
-                default:
-                    break;
+                    case EVENT_ENRAGE:
+                        DoCast(SPELL_BERSERK);
+                        break;
+                    case EVENT_INCINERATE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_INCINERATE);
+                        Talk(SAY_INCINERATE);
+                        events.Repeat(Seconds(12), Seconds(20));
+                        break;
+                    case EVENT_SUMMON_DOOM_BLOSSOM:
+                        DoCastSelf(SPELL_SUMMON_DOOM_BLOSSOM, true);
+                        Talk(SAY_BLOSSOM);
+                        events.Repeat(Seconds(30), Seconds(40));
+                        break;
+                    case EVENT_SHADOW_DEATH:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
+                            DoCast(target, SPELL_SHADOW_OF_DEATH);
+                        events.Repeat(Seconds(30), Seconds(35));
+                        break;
+                    case EVENT_CRUSHING_SHADOWS:
+                        me->CastCustomSpell(SPELL_CRUSHING_SHADOWS, SPELLVALUE_MAX_TARGETS, 5, me);
+                        Talk(SAY_CRUSHING);
+                        events.Repeat(Seconds(18), Seconds(30));
+                        break;
+                    case EVENT_FINISH_INTRO:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    default:
+                        break;
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
