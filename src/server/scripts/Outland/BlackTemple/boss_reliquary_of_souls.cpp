@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
+#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
