@@ -1,3 +1,4 @@
+/*
 DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (2673, 2674, 17578, 16111, 24792, 32543, 32546, 32547, 32542, 32545, 30527, 31143, 31144, 31146, 32541, 32666, 32667);
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
 (2673,  1, 0, 0, 1),
@@ -17,3 +18,4 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (32541, 1, 0, 0, 1),
 (32666, 1, 0, 0, 1),
 (32667, 1, 0, 0, 1);
+*/
