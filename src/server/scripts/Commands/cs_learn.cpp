@@ -156,7 +156,7 @@ public:
             if (!entry)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Spell);
             if (!spellInfo)
                 continue;
 
@@ -424,7 +424,7 @@ public:
                 continue;
 
             // wrong skill
-            if (skillLine->SkillLine != skillId)
+            if (skillLine->SkillLine != int32(skillId))
                 continue;
 
             // not high rank
@@ -439,11 +439,11 @@ public:
             if (skillLine->ClassMask && (skillLine->ClassMask & classmask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->SpellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 
-            player->LearnSpell(skillLine->SpellID, false);
+            player->LearnSpell(skillLine->Spell, false);
         }
     }
 

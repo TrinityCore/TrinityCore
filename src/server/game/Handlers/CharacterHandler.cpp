@@ -1675,7 +1675,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
             if (!illusion->ItemVisual || !(illusion->Flags & ENCHANTMENT_COLLECTABLE))
                 return false;
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->PlayerConditionID))
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogPlayerConditionID))
                 if (!sConditionMgr->IsPlayerMeetingCondition(_player, condition))
                     return false;
 
@@ -2304,7 +2304,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale(), sWorld->GetDefaultDbcLocale());
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex);
 
     SendPacket(result.Write());
 }

@@ -52,13 +52,13 @@ void BattlePetMgr::BattlePet::CalculateStats()
     }
 
     // modify stats by quality
-    for (auto itr : sBattlePetBreedQualityStore)
+    for (BattlePetBreedQualityEntry const* battlePetBreedQuality : sBattlePetBreedQualityStore)
     {
-        if (itr->Quality == PacketInfo.Quality)
+        if (battlePetBreedQuality->QualityEnum == PacketInfo.Quality)
         {
-            health *= itr->Modifier;
-            power *= itr->Modifier;
-            speed *= itr->Modifier;
+            health *= battlePetBreedQuality->StateMultiplier;
+            power *= battlePetBreedQuality->StateMultiplier;
+            speed *= battlePetBreedQuality->StateMultiplier;
             break;
         }
         // TOOD: add check if pet has existing quality
@@ -86,11 +86,11 @@ void BattlePetMgr::Initialize()
     if (QueryResult result = LoginDatabase.Query("SELECT MAX(guid) FROM battle_pets"))
         sObjectMgr->GetGenerator<HighGuid::BattlePet>().Set((*result)[0].GetUInt64() + 1);
 
-    for (auto itr : sBattlePetBreedStateStore)
-        _battlePetBreedStates[itr->BreedID][BattlePetState(itr->State)] = itr->Value;
+    for (BattlePetBreedStateEntry const* battlePetBreedState : sBattlePetBreedStateStore)
+        _battlePetBreedStates[battlePetBreedState->BattlePetBreedID][BattlePetState(battlePetBreedState->BattlePetStateID)] = battlePetBreedState->Value;
 
-    for (auto itr : sBattlePetSpeciesStateStore)
-        _battlePetSpeciesStates[itr->SpeciesID][BattlePetState(itr->State)] = itr->Value;
+    for (BattlePetSpeciesStateEntry const* battlePetSpeciesState : sBattlePetSpeciesStateStore)
+        _battlePetSpeciesStates[battlePetSpeciesState->BattlePetSpeciesID][BattlePetState(battlePetSpeciesState->BattlePetStateID)] = battlePetSpeciesState->Value;
 
     LoadAvailablePetBreeds();
     LoadDefaultPetQualities();
