@@ -48,6 +48,7 @@
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
+#include "GameTime.h"
 #include "GameTables.h"
 #include "GarrisonMgr.h"
 #include "GitRevision.h"
@@ -116,8 +117,6 @@ World::World()
     m_allowMovement = true;
     m_ShutdownMask = 0;
     m_ShutdownTimer = 0;
-    m_gameTime = time(NULL);
-    m_startTime = m_gameTime;
     m_maxActiveSessionCount = 0;
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
@@ -360,7 +359,7 @@ bool World::HasRecentlyDisconnected(WorldSession* session)
     {
         for (DisconnectMap::iterator i = m_disconnects.begin(); i != m_disconnects.end();)
         {
-            if (difftime(i->second, time(NULL)) < tolerance)
+            if (difftime(i->second, GameTime::GetGameTime()) < tolerance)
             {
                 if (i->first == session->GetAccountId())
                     return true;
@@ -1499,7 +1498,7 @@ void World::SetInitialWorldSettings()
     uint32 startupBegin = getMSTime();
 
     ///- Initialize the random number generator
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)GameTime::GetGameTime());
 
     ///- Initialize detour memory management
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
@@ -2059,11 +2058,10 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
-    m_gameTime = time(NULL);
-    m_startTime = m_gameTime;
+    GameTime::UpdateGameTimers();
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
-                            realm.Id.Realm, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
+                            realm.Id.Realm, uint32(GameTime::GetStartTime()), GitRevision::GetFullVersion());       // One-time query
 
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS_PENDING].SetInterval(250);
@@ -2094,7 +2092,8 @@ void World::SetInitialWorldSettings()
     //one second is 1000 -(tested on win system)
     /// @todo Get rid of magic numbers
     tm localTm;
-    localtime_r(&m_gameTime, &localTm);
+    time_t gameTime = GameTime::GetGameTime();
+    localtime_r(&gameTime, &localTm);
     mail_timer = ((((localTm.tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
@@ -2296,29 +2295,29 @@ void World::Update(uint32 diff)
 
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
-
+    time_t currentGameTime = GameTime::GetGameTime();
     /// Handle daily quests reset time
-    if (m_gameTime > m_NextDailyQuestReset)
+    if (currentGameTime > m_NextDailyQuestReset)
     {
         DailyReset();
         InitDailyQuestResetTime(false);
     }
 
     /// Handle weekly quests reset time
-    if (m_gameTime > m_NextWeeklyQuestReset)
+    if (currentGameTime > m_NextWeeklyQuestReset)
         ResetWeeklyQuests();
 
     /// Handle monthly quests reset time
-    if (m_gameTime > m_NextMonthlyQuestReset)
+    if (currentGameTime > m_NextMonthlyQuestReset)
         ResetMonthlyQuests();
 
-    if (m_gameTime > m_NextRandomBGReset)
+    if (currentGameTime > m_NextRandomBGReset)
         ResetRandomBG();
 
-    if (m_gameTime > m_NextGuildReset)
+    if (currentGameTime > m_NextGuildReset)
         ResetGuildCap();
 
-    if (m_gameTime > m_NextCurrencyReset)
+    if (currentGameTime > m_NextCurrencyReset)
         ResetCurrencyWeekCap();
 
     /// <ul><li> Handle auctions when the timer has passed
@@ -2386,7 +2385,7 @@ void World::Update(uint32 diff)
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
     {
-        uint32 tmpDiff = uint32(m_gameTime - m_startTime);
+        uint32 tmpDiff = GameTime::GetUptime();
         uint32 maxOnlinePlayers = GetMaxPlayerCount();
 
         m_timers[WUPDATE_UPTIME].Reset();
@@ -2396,7 +2395,7 @@ void World::Update(uint32 diff)
         stmt->setUInt32(0, tmpDiff);
         stmt->setUInt16(1, uint16(maxOnlinePlayers));
         stmt->setUInt32(2, realm.Id.Realm);
-        stmt->setUInt32(3, uint32(m_startTime));
+        stmt->setUInt32(3, uint32(GameTime::GetStartTime()));
 
         LoginDatabase.Execute(stmt);
     }
@@ -2889,10 +2888,10 @@ bool World::RemoveBanCharacter(std::string const& name)
 void World::_UpdateGameTime()
 {
     ///- update the time
-    time_t thisTime = time(NULL);
-    uint32 elapsed = uint32(thisTime - m_gameTime);
-    m_gameTime = thisTime;
-
+    time_t lastGameTime = GameTime::GetGameTime();
+    GameTime::UpdateGameTimers();
+    uint32 elapsed = uint32(GameTime::GetGameTime() - lastGameTime);
+    
     ///- if there is a shutdown timer
     if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0)
     {
@@ -3010,7 +3009,7 @@ void World::UpdateSessions(uint32 diff)
         ProcessLinkInstanceSocket(std::move(linkInfo));
 
     ///- Add new sessions
-    WorldSession* sess = NULL;
+    WorldSession* sess = nullptr;
     while (addSessQueue.next(sess))
         AddSession_ (sess);
 
@@ -3027,7 +3026,7 @@ void World::UpdateSessions(uint32 diff)
         if (!pSession->Update(diff, updater))    // As interval = 0
         {
             if (!RemoveQueuedPlayer(itr->second) && itr->second && getIntConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
-                m_disconnects[itr->second->GetAccountId()] = time(NULL);
+                m_disconnects[itr->second->GetAccountId()] = GameTime::GetGameTime();
             RemoveQueuedPlayer(pSession);
             m_sessions.erase(itr);
             delete pSession;
@@ -3115,7 +3114,7 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 void World::InitWeeklyQuestResetTime()
 {
     time_t wstime = sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME);
-    time_t curtime = time(NULL);
+    time_t curtime = GameTime::GetGameTime();
     m_NextWeeklyQuestReset = wstime < curtime ? curtime : wstime;
 }
 
@@ -3134,7 +3133,7 @@ void World::InitDailyQuestResetTime(bool loading)
     }
 
     // FIX ME: client not show day start time
-    time_t curTime = time(NULL);
+    time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_DAILY_QUEST_RESET_TIME_HOUR);
@@ -3157,7 +3156,7 @@ void World::InitDailyQuestResetTime(bool loading)
 void World::InitMonthlyQuestResetTime()
 {
     time_t wstime = sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME);
-    time_t curtime = time(NULL);
+    time_t curtime = GameTime::GetGameTime();
     m_NextMonthlyQuestReset = wstime < curtime ? curtime : wstime;
 }
 
@@ -3165,10 +3164,10 @@ void World::InitRandomBGResetTime()
 {
     time_t bgtime = sWorld->getWorldState(WS_BG_DAILY_RESET_TIME);
     if (!bgtime)
-        m_NextRandomBGReset = time(NULL);         // game time not yet init
+        m_NextRandomBGReset = time_t(GameTime::GetGameTime());         // game time not yet init
 
     // generate time by config
-    time_t curTime = time(NULL);
+    time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_RANDOM_BG_RESET_HOUR);
@@ -3193,10 +3192,10 @@ void World::InitGuildResetTime()
 {
     time_t gtime = getWorldState(WS_GUILD_DAILY_RESET_TIME);
     if (!gtime)
-        m_NextGuildReset = time(NULL);         // game time not yet init
+        m_NextGuildReset = time_t(GameTime::GetGameTime());         // game time not yet init
 
     // generate time by config
-    time_t curTime = time(NULL);
+    time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_GUILD_RESET_HOUR);
@@ -3221,10 +3220,10 @@ void World::InitCurrencyResetTime()
 {
     time_t currencytime = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
     if (!currencytime)
-        m_NextCurrencyReset = time(NULL);         // game time not yet init
+        m_NextCurrencyReset = time_t(GameTime::GetGameTime());;         // game time not yet init
 
     // generate time by config
-    time_t curTime = time(NULL);
+    time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
 
@@ -3327,7 +3326,7 @@ void World::ResetMonthlyQuests()
             itr->second->GetPlayer()->ResetMonthlyQuestStatus();
 
     // generate time
-    time_t curTime = time(NULL);
+    time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
 

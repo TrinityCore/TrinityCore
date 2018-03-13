@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -197,7 +198,7 @@ class boss_ignis : public CreatureScript
 
                 me->RemoveAuraFromStack(SPELL_STRENGHT);
                 // Shattered Achievement
-                time_t secondKill = sWorld->GetGameTime();
+                time_t secondKill = GameTime::GetGameTime();
                 if ((secondKill - _firstConstructKill) < 5)
                     _shattered = true;
                 _firstConstructKill = secondKill;

@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "Config.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "Language.h"
 #include "Log.h"
@@ -112,7 +113,7 @@ public:
         uint32 queuedClientsNum     = sWorld->GetQueuedSessionCount();
         uint32 maxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
         uint32 maxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
-        std::string uptime          = secsToTimeString(sWorld->GetUptime());
+        std::string uptime          = secsToTimeString(GameTime::GetUptime());
         uint32 updateTime           = sWorld->GetUpdateTime();
 
         handler->SendSysMessage(GitRevision::GetFullVersion());
