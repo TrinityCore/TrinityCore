@@ -66,7 +66,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         artifactAddPower.PowerChoices[0].Rank > maxRank)
         return;
 
-    if (!(artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FIRST))
+    if (!(artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED))
     {
         if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
         {
