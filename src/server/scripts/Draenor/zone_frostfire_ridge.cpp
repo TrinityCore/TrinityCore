@@ -254,8 +254,8 @@ public:
                     {
                         if (GarrSiteLevelEntry const* garrSiteLevel = garr->GetSiteLevel())
                         {
-                            player->AddMovieDelayedTeleport(garrSiteLevel->MovieID, garrSiteLevel->MapID, 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f);
-                            player->SendMovieStart(garrSiteLevel->MovieID);
+                            player->AddMovieDelayedTeleport(garrSiteLevel->UpgradeMovieID, garrSiteLevel->MapID, 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f);
+                            player->SendMovieStart(garrSiteLevel->UpgradeMovieID);
 
                             player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
                         }
