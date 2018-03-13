@@ -28,19 +28,20 @@
 
 using namespace MMAP;
 
-bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
+bool checkDirectories(bool debugOutput)
 {
-    if (getDirContents(dbcLocales, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
-    {
-        printf("'dbc' directory is empty or does not exist\n");
-        return false;
-    }
-
     std::vector<std::string> dirFiles;
 
     if (getDirContents(dirFiles, "maps") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         printf("'maps' directory is empty or does not exist\n");
+        return false;
+    }
+
+    dirFiles.clear();
+    if (getDirContents(dirFiles, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    {
+        printf("'dbc' directory is empty or does not exist\n");
         return false;
     }
 
@@ -293,8 +294,8 @@ int main(int argc, char** argv)
             return 0;
     }
 
-    std::vector<std::string> dbcLocales;
-    if (!checkDirectories(debugOutput, dbcLocales))
+
+    if (!checkDirectories(debugOutput))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
     std::string mapPath = (boost::filesystem::path("dbc") / "Map.dbc").string();
@@ -302,15 +303,16 @@ int main(int argc, char** argv)
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     {
         DBCFileLoader* loader = new DBCFileLoader();
-        if (!loader->Load(mapPath.c_str(), "x"))
+        char const* mapFmt = "nxxxxxxxxxxxxxxxxxxi";
+        if (!loader->Load(mapPath.c_str(), mapFmt))
         {
             delete loader;
             return silent ? -4 : finish("Failed to load Map.dbc", -4);
         }
-        for (uint32 x = 0; x < loader->GetRowSize(); ++x)
+        for (uint32 x = 0; x < loader->GetNumRows(); ++x)
         {
             mapData.emplace(std::piecewise_construct, std::forward_as_tuple(loader->getRecord(x).getUInt(0)), std::forward_as_tuple());
-            int16 parentMapId = int16(loader->getRecord(x).getInt(19));
+            int16 parentMapId = int16(loader->getRecord(x).getUInt(19));
             if (parentMapId != -1)
                 mapData[parentMapId].push_back(loader->getRecord(x).getUInt(0));
         }

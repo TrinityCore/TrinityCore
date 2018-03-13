@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
@@ -786,7 +786,7 @@ namespace MMAP
         }
         while (false);
 
-        vmapManager->unloadMap(mapID, tileX, tileY);
+        vmapManager->unloadSingleMap(mapID, tileX, tileY);
 
         return retval;
     }
