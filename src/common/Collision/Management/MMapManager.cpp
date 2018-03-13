@@ -221,7 +221,7 @@ namespace MMAP
         }
         else
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %04u%02i%02i.mmtile into navmesh", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
             dtFree(data);
             return false;
         }
@@ -257,11 +257,11 @@ namespace MMAP
         if (dtStatusFailed(query->init(mmap->navMesh, 1024)))
         {
             dtFreeNavMeshQuery(query);
-            TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId %04u instanceId %u", mapId, instanceId);
+            TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId %03u instanceId %u", mapId, instanceId);
             return false;
         }
 
-        TC_LOG_DEBUG("maps", "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId %04u instanceId %u", mapId, instanceId);
+        TC_LOG_DEBUG("maps", "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId %03u instanceId %u", mapId, instanceId);
         mmap->navMeshQueries.insert(std::pair<uint32, dtNavMeshQuery*>(instanceId, query));
         return true;
     }

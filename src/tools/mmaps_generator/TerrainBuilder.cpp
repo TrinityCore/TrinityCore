@@ -640,7 +640,7 @@ namespace MMAP
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
         VMapManager2* vmapManager = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager());
-        int result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
+        int result = vmapManager->loadSingleMap(mapID, "vmaps", tileX, tileY);
         bool retval = false;
 
         do

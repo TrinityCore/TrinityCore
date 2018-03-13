@@ -87,10 +87,6 @@ namespace VMAP
             // Mutex for iLoadedModelFiles
             std::mutex LoadedModelFilesLock;
 
-            bool _loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
-            void _unloadMap(uint32 mapId, int x, int y);
-            void _unloadMap(uint32 mapId);
-
             static uint32 GetLiquidFlagsDummy(uint32) { return 0; }
             static bool IsVMAPDisabledForDummy(uint32 /*entry*/, uint8 /*flags*/) { return false; }
 
@@ -102,14 +98,18 @@ namespace VMAP
             static std::string getMapFileName(unsigned int mapId);
 
             VMapManager2();
-            ~VMapManager2(void);
+            ~VMapManager2();
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
-            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
 
+            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
+            bool loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
 
             void unloadMap(unsigned int mapId, int x, int y) override;
+            void unloadSingleMap(uint32 mapId, int x, int y);
+
             void unloadMap(unsigned int mapId) override;
+            void unloadSingleMap(uint32 mapId);
 
             bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags) override ;
             /**
