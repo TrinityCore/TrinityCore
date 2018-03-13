@@ -100,7 +100,7 @@ void TransportMgr::LoadTransportAnimationAndRotation()
         AddPathNodeToTransport(anim->TransportID, anim->TimeIndex, anim);
 
     for (TransportRotationEntry const* rot : sTransportRotationStore)
-        AddPathRotationToTransport(rot->TransportID, rot->TimeIndex, rot);
+        AddPathRotationToTransport(rot->GameObjectsID, rot->TimeIndex, rot);
 }
 
 class SplineRawInitializer
@@ -145,7 +145,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (!mapChange)
         {
             TaxiPathNodeEntry const* node_i = path[i];
-            if (i != path.size() - 1 && (node_i->Flags & TAXI_PATH_NODE_FLAG_TELEPORT || node_i->MapID != path[i + 1]->MapID))
+            if (i != path.size() - 1 && (node_i->Flags & TAXI_PATH_NODE_FLAG_TELEPORT || node_i->ContinentID != path[i + 1]->ContinentID))
             {
                 keyFrames.back().Teleport = true;
                 mapChange = true;
@@ -159,7 +159,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
 
                 keyFrames.push_back(k);
                 splinePath.push_back(G3D::Vector3(node_i->Loc.X, node_i->Loc.Y, node_i->Loc.Z));
-                transport->mapsUsed.insert(k.Node->MapID);
+                transport->mapsUsed.insert(k.Node->ContinentID);
             }
         }
         else
@@ -390,7 +390,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
 
     // ...at first waypoint
     TaxiPathNodeEntry const* startNode = tInfo->keyFrames.begin()->Node;
-    uint32 mapId = startNode->MapID;
+    uint32 mapId = startNode->ContinentID;
     float x = startNode->Loc.X;
     float y = startNode->Loc.Y;
     float z = startNode->Loc.Z;

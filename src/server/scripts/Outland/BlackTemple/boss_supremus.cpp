@@ -202,7 +202,7 @@ public:
         void InitializeAI() override
         {
             float x, y, z;
-            me->GetNearPoint(me, x, y, z, 1, 100.0f, float(M_PI * 2 * rand_norm()));
+            me->GetNearPoint(me, x, y, z, 1, 100.0f, frand(0.f, 2.f * float(M_PI)));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             DoCastSelf(SPELL_MOLTEN_FLAME, true);
         }
@@ -210,7 +210,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_flameAI(creature);
+        return GetBlackTempleAI<npc_molten_flameAI>(creature);
     }
 };
 

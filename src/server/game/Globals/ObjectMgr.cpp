@@ -1431,7 +1431,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                     "for CreatureID = %u and ID=%u, forced to default.",
                     equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId, i + 1, i + 1, entry, id);
                 if (ItemModifiedAppearanceEntry const* defaultAppearance = sDB2Manager.GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId))
-                    equipmentInfo.Items[i].AppearanceModId = defaultAppearance->AppearanceModID;
+                    equipmentInfo.Items[i].AppearanceModId = defaultAppearance->ItemAppearanceModifierID;
                 else
                     equipmentInfo.Items[i].AppearanceModId = 0;
                 continue;
@@ -2656,10 +2656,10 @@ struct ItemSpecStats
     {
         memset(ItemSpecStatTypes, -1, sizeof(ItemSpecStatTypes));
 
-        if (item->Class == ITEM_CLASS_WEAPON)
+        if (item->ClassID == ITEM_CLASS_WEAPON)
         {
             ItemType = 5;
-            switch (item->SubClass)
+            switch (item->SubclassID)
             {
                 case ITEM_SUBCLASS_WEAPON_AXE:
                     AddStat(ITEM_SPEC_STAT_ONE_HANDED_AXE);
@@ -2713,9 +2713,9 @@ struct ItemSpecStats
                     break;
             }
         }
-        else if (item->Class == ITEM_CLASS_ARMOR)
+        else if (item->ClassID == ITEM_CLASS_ARMOR)
         {
-            switch (item->SubClass)
+            switch (item->SubclassID)
             {
                 case ITEM_SUBCLASS_ARMOR_CLOTH:
                     if (sparse->InventoryType != INVTYPE_CLOAK)
@@ -2737,12 +2737,12 @@ struct ItemSpecStats
                     ItemType = 4;
                     break;
                 default:
-                    if (item->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                    if (item->SubclassID == ITEM_SUBCLASS_ARMOR_SHIELD)
                     {
                         ItemType = 6;
                         AddStat(ITEM_SPEC_STAT_SHIELD);
                     }
-                    else if (item->SubClass > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubClass <= ITEM_SUBCLASS_ARMOR_RELIC)
+                    else if (item->SubclassID > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubclassID <= ITEM_SUBCLASS_ARMOR_RELIC)
                     {
                         ItemType = 6;
                         AddStat(ITEM_SPEC_STAT_RELIC);
@@ -2752,7 +2752,7 @@ struct ItemSpecStats
                     break;
             }
         }
-        else if (item->Class == ITEM_CLASS_GEM)
+        else if (item->ClassID == ITEM_CLASS_GEM)
         {
             ItemType = 7;
             if (GemPropertiesEntry const* gem = sGemPropertiesStore.LookupEntry(sparse->GemProperties))
@@ -2785,8 +2785,8 @@ struct ItemSpecStats
             ItemType = 0;
 
         for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-            if (sparse->ItemStatType[i] != -1)
-                AddModStat(sparse->ItemStatType[i]);
+            if (sparse->StatModifierBonusStat[i] != -1)
+                AddModStat(sparse->StatModifierBonusStat[i]);
     }
 
     void AddStat(ItemSpecStat statType)
@@ -2872,7 +2872,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
 
-        itemTemplate.MaxDurability = FillMaxDurability(db2Data->Class, db2Data->SubClass, sparse->InventoryType, sparse->Quality, sparse->ItemLevel);
+        itemTemplate.MaxDurability = FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->OverallQualityID, sparse->ItemLevel);
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
@@ -2916,7 +2916,7 @@ void ObjectMgr::LoadItemTemplates()
                 if (!hasPrimary || !hasSecondary)
                     continue;
 
-                if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
+                if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecializationID))
                 {
                     if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
                     {
@@ -2943,7 +2943,7 @@ void ObjectMgr::LoadItemTemplates()
     // Load item effects (spells)
     for (ItemEffectEntry const* effectEntry : sItemEffectStore)
     {
-        auto itemItr = _itemTemplateStore.find(effectEntry->ItemID);
+        auto itemItr = _itemTemplateStore.find(effectEntry->ParentItemID);
         if (itemItr == _itemTemplateStore.end())
             continue;
 
@@ -3250,8 +3250,8 @@ void ObjectMgr::LoadPlayerInfo()
                 info->positionY = positionY;
                 info->positionZ = positionZ;
                 info->orientation = orientation;
-                info->displayId_m = rEntry->MaleDisplayID;
-                info->displayId_f = rEntry->FemaleDisplayID;
+                info->displayId_m = rEntry->MaleDisplayId;
+                info->displayId_f = rEntry->FemaleDisplayId;
                 _playerInfo[current_race][current_class] = info;
 
                 ++count;
@@ -6017,7 +6017,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        if (!node || node->MapID != mapid || !(node->Flags & requireFlag))
+        if (!node || node->ContinentID != mapid || !(node->Flags & requireFlag))
             continue;
 
         uint8  field   = (uint8)((node->ID - 1) / 8);
@@ -6250,7 +6250,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
                 || uint32(mapEntry->CorpseMapID) != entry->MapID
-                || (mapEntry->CorpsePos.X == 0 && mapEntry->CorpsePos.Y == 0)) // Check X and Y
+                || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0)) // Check X and Y
             {
                 // not have any corrdinates for check distance anyway
                 entryFar = entry;
@@ -6258,8 +6258,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->Loc.X - mapEntry->CorpsePos.X)*(entry->Loc.X - mapEntry->CorpsePos.X)
-                +(entry->Loc.Y - mapEntry->CorpsePos.Y)*(entry->Loc.Y - mapEntry->CorpsePos.Y);
+            float dist2 = (entry->Loc.X - mapEntry->Corpse.X)*(entry->Loc.X - mapEntry->Corpse.X)
+                +(entry->Loc.Y - mapEntry->Corpse.Y)*(entry->Loc.Y - mapEntry->Corpse.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6604,7 +6604,7 @@ AreaTriggerTeleportStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry && atEntry->MapID == Map)
+            if (atEntry && atEntry->ContinentID == int32(Map))
                 return &itr->second;
         }
     return nullptr;
@@ -6854,12 +6854,12 @@ void ObjectMgr::LoadGameObjectTemplate()
     {
         GameObjectTemplate& go = _gameObjectTemplateStore[db2go->ID];
         go.entry = db2go->ID;
-        go.type = db2go->Type;
+        go.type = db2go->TypeID;
         go.displayId = db2go->DisplayID;
         go.name = db2go->Name->Str[sWorld->GetDefaultDbcLocale()];
-        go.size = db2go->Size;
+        go.size = db2go->Scale;
         memset(go.raw.data, 0, sizeof(go.raw.data));
-        memcpy(go.raw.data, db2go->Data, std::min(sizeof(db2go->Data), sizeof(go.raw.data)));
+        memcpy(go.raw.data, db2go->PropValue, std::min(sizeof(db2go->PropValue), sizeof(go.raw.data)));
         go.RequiredLevel = 0;
         go.ScriptId = 0;
     }

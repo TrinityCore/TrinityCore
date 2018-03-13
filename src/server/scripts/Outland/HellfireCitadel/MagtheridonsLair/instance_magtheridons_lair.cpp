@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Magtheridons_Lair
-SD%Complete: 100
-SDComment:
-SDCategory: Hellfire Citadel, Magtheridon's lair
-EndScriptData */
-
+#include "AreaBoundary.h"
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -31,221 +24,116 @@ EndScriptData */
 #include "magtheridons_lair.h"
 #include "Map.h"
 
-enum Spells
+BossBoundaryData const boundaries =
 {
-    SPELL_SOUL_TRANSFER        = 30531, // core bug, does not support target 7
-    SPELL_BLAZE_TARGET         = 30541, // core bug, does not support target 7
+    { DATA_MAGTHERIDON, new CircleBoundary(Position(-18.70f, 2.24f), 52.30) }
 };
 
-#define CHAMBER_CENTER_X            -15.14
-#define CHAMBER_CENTER_Y              1.8
-#define CHAMBER_CENTER_Z             -0.4
+DoorData const doorData[] =
+{
+    { GO_MAGTHERIDON_DOOR,      DATA_MAGTHERIDON,           DOOR_TYPE_ROOM },
+    { 0,                        0,                          DOOR_TYPE_ROOM } // END
+};
 
-#define MAX_ENCOUNTER 2
+ObjectData const creatureData[] =
+{
+    { NPC_MAGTHERIDON,          DATA_MAGTHERIDON    },
+    { NPC_WORLD_TRIGGER,        DATA_WORLD_TRIGGER  },
+    { 0,                        0                   } // END
 
-#define EMOTE_BONDS_WEAKEN          "'s bonds begin to weaken!"
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_MAGTHERIDON_HALL,          DATA_MAGTHERIDON_HALL       },
+    { GO_MAGTHERIDON_COLUMN_0,      DATA_MAGTHERIDON_COLUMN_0   },
+    { GO_MAGTHERIDON_COLUMN_1,      DATA_MAGTHERIDON_COLUMN_1   },
+    { GO_MAGTHERIDON_COLUMN_2,      DATA_MAGTHERIDON_COLUMN_2   },
+    { GO_MAGTHERIDON_COLUMN_3,      DATA_MAGTHERIDON_COLUMN_3   },
+    { GO_MAGTHERIDON_COLUMN_4,      DATA_MAGTHERIDON_COLUMN_4   },
+    { GO_MAGTHERIDON_COLUMN_5,      DATA_MAGTHERIDON_COLUMN_5   },
+    { 0,                            0                           } //END
+};
+
+static DataTypes const collapseObjectDatas[] =
+{
+    DATA_MAGTHERIDON_COLUMN_0,
+    DATA_MAGTHERIDON_COLUMN_1,
+    DATA_MAGTHERIDON_COLUMN_2,
+    DATA_MAGTHERIDON_COLUMN_3,
+    DATA_MAGTHERIDON_COLUMN_4,
+    DATA_MAGTHERIDON_COLUMN_5,
+};
 
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair() : InstanceMapScript(MLScriptName, 544)
-        {
-        }
+        instance_magtheridons_lair() : InstanceMapScript("instance_magtheridons_lair", 544) { }
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {
             instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                CageTimer = 0;
-                RespawnTimer = 0;
-            }
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            ObjectGuid MagtheridonGUID;
-            GuidSet ChannelerGUID;
-            ObjectGuid DoorGUID;
-            GuidSet ColumnGUID;
-
-            uint32 CageTimer;
-            uint32 RespawnTimer;
-
-            bool IsEncounterInProgress() const override
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        return true;
-
-                return false;
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                case 17257:
-                    MagtheridonGUID = creature->GetGUID();
-                    break;
-                case 17256:
-                    ChannelerGUID.insert(creature->GetGUID());
-                    break;
-                }
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+                LoadBossBoundaries(boundaries);
+                LoadObjectData(creatureData, gameObjectData);
             }
 
             void OnGameObjectCreate(GameObject* go) override
             {
-                switch (go->GetEntry())
-                {
-                case 181713:
-                    go->SetUInt32Value(GAMEOBJECT_FLAGS, 0);
-                    break;
-                case 183847:
-                    DoorGUID = go->GetGUID();
-                    break;
-                case 184653: // hall
-                case 184634: // six columns
-                case 184635:
-                case 184636:
-                case 184637:
-                case 184638:
-                case 184639:
-                    ColumnGUID.insert(go->GetGUID());
-                    break;
-                }
+                InstanceScript::OnGameObjectCreate(go);
+
+                if (go->GetEntry() == GO_MANTICRON_CUBE)
+                    cubesGUIDS.push_back(go->GetGUID());
             }
 
-            ObjectGuid GetGuidData(uint32 type) const override
+            void OnCreatureCreate(Creature* creature) override
             {
-                switch (type)
-                {
-                case DATA_MAGTHERIDON:
-                    return MagtheridonGUID;
-                }
-                return ObjectGuid::Empty;
+                InstanceScript::OnCreatureCreate(creature);
+
+                if (creature->GetEntry() == NPC_HELLFIRE_WARDER)
+                    warderGUIDS.push_back(creature->GetGUID());
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 data, uint32 value) override
             {
-                switch (type)
+                switch (data)
                 {
-                case DATA_MAGTHERIDON_EVENT:
-                    m_auiEncounter[0] = data;
-                    if (data == NOT_STARTED)
-                        RespawnTimer = 10000;
-                    if (data != IN_PROGRESS)
-                       HandleGameObject(DoorGUID, true);
-                    break;
-                case DATA_CHANNELER_EVENT:
-                    switch (data)
-                    {
-                    case NOT_STARTED: // Reset all channelers once one is reset.
-                        if (m_auiEncounter[1] != NOT_STARTED)
-                        {
-                            m_auiEncounter[1] = NOT_STARTED;
-                            for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    case DATA_MANTICRON_CUBE:
+                        for (ObjectGuid gobGUID : cubesGUIDS)
+                            if (GameObject* cube = instance->GetGameObject(gobGUID))
                             {
-                                if (Creature* Channeler = instance->GetCreature(*i))
-                                {
-                                    if (Channeler->IsAlive())
-                                        Channeler->AI()->EnterEvadeMode();
-                                    else
-                                        Channeler->Respawn();
-                                }
-                            }
-                            CageTimer = 0;
-                            HandleGameObject(DoorGUID, true);
-                        }
-                        break;
-                    case IN_PROGRESS: // Event start.
-                        if (m_auiEncounter[1] != IN_PROGRESS)
-                        {
-                            m_auiEncounter[1] = IN_PROGRESS;
-                            // Let all five channelers aggro.
-                            for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
-                            {
-                                Creature* Channeler = instance->GetCreature(*i);
-                                if (Channeler && Channeler->IsAlive())
-                                    Channeler->AI()->AttackStart(Channeler->SelectNearestTarget(999));
-                            }
-                            // Release Magtheridon after two minutes.
-                            Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
-                            if (Magtheridon && Magtheridon->IsAlive())
-                            {
-                                Magtheridon->TextEmote(EMOTE_BONDS_WEAKEN);
-                                CageTimer = 120000;
-                            }
-                            HandleGameObject(DoorGUID, false);
-                        }
-                        break;
-                    case DONE: // Add buff and check if all channelers are dead.
-                        for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
-                        {
-                            Creature* Channeler = instance->GetCreature(*i);
-                            if (Channeler && Channeler->IsAlive())
-                            {
-                                //Channeler->CastSpell(Channeler, SPELL_SOUL_TRANSFER, true);
-                                data = IN_PROGRESS;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    m_auiEncounter[1] = data;
-                    break;
-                case DATA_COLLAPSE:
-                    // true - collapse / false - reset
-                    for (GuidSet::const_iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
-                        DoUseDoorOrButton(*i);
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_MAGTHERIDON_EVENT)
-                    return m_auiEncounter[0];
-                return 0;
-            }
-
-            void Update(uint32 diff) override
-            {
-                if (CageTimer)
-                {
-                    if (CageTimer <= diff)
-                    {
-                        Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
-                        if (Magtheridon && Magtheridon->IsAlive())
-                        {
-                            Magtheridon->ClearUnitState(UNIT_STATE_STUNNED);
-                            Magtheridon->AI()->AttackStart(Magtheridon->SelectNearestTarget(999));
-                        }
-                        CageTimer = 0;
-                    } else CageTimer -= diff;
-                }
-
-                if (RespawnTimer)
-                {
-                    if (RespawnTimer <= diff)
-                    {
-                        for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
-                        {
-                            if (Creature* Channeler = instance->GetCreature(*i))
-                            {
-                                if (Channeler->IsAlive())
-                                    Channeler->AI()->EnterEvadeMode();
+                                if (value == ACTION_ENABLE)
+                                    cube->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                                 else
-                                    Channeler->Respawn();
+                                    cube->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             }
-                        }
-                        RespawnTimer = 0;
-                    } else RespawnTimer -= diff;
+                        break;
+                    case DATA_COLLAPSE:
+                        if (GameObject* hall = GetGameObject(DATA_MAGTHERIDON_HALL))
+                            HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, hall);
+                        break;
+                    case DATA_COLLAPSE_2:
+                        for (DataTypes data : collapseObjectDatas)
+                            if (GameObject* go = GetGameObject(data))
+                                HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, go);
+                        break;
+                    case DATA_CALL_WARDERS:
+                        for (ObjectGuid warderGuid : warderGUIDS)
+                            if (Creature* warder = instance->GetCreature(warderGuid))
+                                if (warder->IsAlive())
+                                    warder->SetInCombatWithZone();
+                        break;
+                    default:
+                        break;
                 }
             }
+
+        protected:
+            GuidVector cubesGUIDS;
+            GuidVector warderGUIDS;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

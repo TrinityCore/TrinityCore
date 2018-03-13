@@ -392,7 +392,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     {
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(mover))
         {
-            if (seat->Flags[0] & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
+            if (seat->Flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
             {
                 if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
                 {
@@ -589,7 +589,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         // far teleport case
-        if (curDestNode && curDestNode->MapID != GetPlayer()->GetMapId())
+        if (curDestNode && curDestNode->ContinentID != GetPlayer()->GetMapId())
         {
             if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
             {
@@ -600,7 +600,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
                 TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
                 flight->SkipCurrentNode();
 
-                GetPlayer()->TeleportTo(curDestNode->MapID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+                GetPlayer()->TeleportTo(curDestNode->ContinentID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
             }
         }
 

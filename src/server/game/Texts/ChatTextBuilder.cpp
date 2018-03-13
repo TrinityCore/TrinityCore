@@ -25,7 +25,7 @@ WorldPackets::Packet* Trinity::BroadcastTextBuilder::operator()(LocaleConstant l
 {
     BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(_textId);
     WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-    chat->Initialize(_msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, "", locale);
+    chat->Initialize(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, "", locale);
     return chat;
 }
 

@@ -51,7 +51,7 @@ void Garrison::Delete()
 {
     WorldPackets::Garrison::GarrisonDeleteResult garrisonDelete;
     garrisonDelete.Result = GARRISON_SUCCESS;
-    garrisonDelete.GarrSiteID = _siteLevel->SiteID;
+    garrisonDelete.GarrSiteID = _siteLevel->GarrSiteID;
     _owner->SendDirectMessage(garrisonDelete.Write());
 }
 
@@ -259,7 +259,7 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     follower.PacketInfo.DbID = dbId;
     follower.PacketInfo.GarrFollowerID = garrFollowerId;
     follower.PacketInfo.Quality = followerEntry->Quality;   // TODO: handle magic upgrades
-    follower.PacketInfo.FollowerLevel = followerEntry->Level;
+    follower.PacketInfo.FollowerLevel = followerEntry->FollowerLevel;
     follower.PacketInfo.ItemLevelWeapon = followerEntry->ItemLevelWeapon;
     follower.PacketInfo.ItemLevelArmor = followerEntry->ItemLevelArmor;
     follower.PacketInfo.Xp = 0;
