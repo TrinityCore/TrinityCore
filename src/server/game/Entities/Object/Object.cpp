@@ -2356,7 +2356,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
     {
-        switch (properties->Category)
+        switch (properties->Control)
         {
             case SUMMON_CATEGORY_PET:
                 mask = UNIT_MASK_GUARDIAN;
@@ -2371,7 +2371,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_ALLY:
             case SUMMON_CATEGORY_UNK:
             {
-                switch (properties->Type)
+                switch (properties->Title)
                 {
                 case SUMMON_TYPE_MINION:
                 case SUMMON_TYPE_GUARDIAN:

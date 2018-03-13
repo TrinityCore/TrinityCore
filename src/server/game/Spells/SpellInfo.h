@@ -661,7 +661,7 @@ class TC_GAME_API SpellInfo
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const* effect, bool apply) const;
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
-        bool CanSpellCastOverrideAuraEffect(AuraEffect const* aurEff) const;
+        bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
     private:
         // loading helpers

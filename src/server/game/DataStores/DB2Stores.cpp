@@ -93,16 +93,16 @@ DB2Storage<EmotesTextEntry>                     sEmotesTextStore("EmotesText.db2
 DB2Storage<EmotesTextSoundEntry>                sEmotesTextSoundStore("EmotesTextSound.db2", EmotesTextSoundLoadInfo::Instance());
 DB2Storage<FactionEntry>                        sFactionStore("Faction.db2", FactionLoadInfo::Instance());
 DB2Storage<FactionTemplateEntry>                sFactionTemplateStore("FactionTemplate.db2", FactionTemplateLoadInfo::Instance());
-DB2Storage<GameObjectsEntry>                    sGameObjectsStore("GameObjects.db2", GameobjectsLoadInfo::Instance());
 DB2Storage<GameObjectDisplayInfoEntry>          sGameObjectDisplayInfoStore("GameObjectDisplayInfo.db2", GameobjectDisplayInfoLoadInfo::Instance());
+DB2Storage<GameObjectsEntry>                    sGameObjectsStore("GameObjects.db2", GameobjectsLoadInfo::Instance());
 DB2Storage<GarrAbilityEntry>                    sGarrAbilityStore("GarrAbility.db2", GarrAbilityLoadInfo::Instance());
 DB2Storage<GarrBuildingEntry>                   sGarrBuildingStore("GarrBuilding.db2", GarrBuildingLoadInfo::Instance());
 DB2Storage<GarrBuildingPlotInstEntry>           sGarrBuildingPlotInstStore("GarrBuildingPlotInst.db2", GarrBuildingPlotInstLoadInfo::Instance());
 DB2Storage<GarrClassSpecEntry>                  sGarrClassSpecStore("GarrClassSpec.db2", GarrClassSpecLoadInfo::Instance());
 DB2Storage<GarrFollowerEntry>                   sGarrFollowerStore("GarrFollower.db2", GarrFollowerLoadInfo::Instance());
 DB2Storage<GarrFollowerXAbilityEntry>           sGarrFollowerXAbilityStore("GarrFollowerXAbility.db2", GarrFollowerXAbilityLoadInfo::Instance());
-DB2Storage<GarrPlotBuildingEntry>               sGarrPlotBuildingStore("GarrPlotBuilding.db2", GarrPlotBuildingLoadInfo::Instance());
 DB2Storage<GarrPlotEntry>                       sGarrPlotStore("GarrPlot.db2", GarrPlotLoadInfo::Instance());
+DB2Storage<GarrPlotBuildingEntry>               sGarrPlotBuildingStore("GarrPlotBuilding.db2", GarrPlotBuildingLoadInfo::Instance());
 DB2Storage<GarrPlotInstanceEntry>               sGarrPlotInstanceStore("GarrPlotInstance.db2", GarrPlotInstanceLoadInfo::Instance());
 DB2Storage<GarrSiteLevelEntry>                  sGarrSiteLevelStore("GarrSiteLevel.db2", GarrSiteLevelLoadInfo::Instance());
 DB2Storage<GarrSiteLevelPlotInstEntry>          sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", GarrSiteLevelPlotInstLoadInfo::Instance());
@@ -321,7 +321,7 @@ typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellP
 typedef std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> SpellProcsPerMinuteModContainer;
 typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
 typedef std::unordered_set<uint32> ToyItemIdsContainer;
-typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
+typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
 typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
 
@@ -707,12 +707,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ArtifactPowerLinkEntry const* artifactPowerLink : sArtifactPowerLinkStore)
     {
-        _artifactPowerLinks[artifactPowerLink->FromArtifactPowerID].insert(artifactPowerLink->ToArtifactPowerID);
-        _artifactPowerLinks[artifactPowerLink->ToArtifactPowerID].insert(artifactPowerLink->FromArtifactPowerID);
+        _artifactPowerLinks[artifactPowerLink->PowerA].insert(artifactPowerLink->PowerB);
+        _artifactPowerLinks[artifactPowerLink->PowerB].insert(artifactPowerLink->PowerA);
     }
 
     for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
-        _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->Rank }] = artifactPowerRank;
+        _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->RankIndex }] = artifactPowerRank;
 
     ASSERT(BATTLE_PET_SPECIES_MAX_ID >= sBattlePetSpeciesStore.GetNumRows(),
         "BATTLE_PET_SPECIES_MAX_ID (%d) must be equal to or greater than %u", BATTLE_PET_SPECIES_MAX_ID, sBattlePetSpeciesStore.GetNumRows());
@@ -723,12 +723,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     std::array<CharBaseSectionVariation, SECTION_TYPE_MAX> sectionToBase = { {} };
     for (CharBaseSectionEntry const* charBaseSection : sCharBaseSectionStore)
     {
-        ASSERT(charBaseSection->ResolutionVariation < SECTION_TYPE_MAX,
-            "SECTION_TYPE_MAX (%d) must be equal to or greater than %u", uint32(SECTION_TYPE_MAX), uint32(charBaseSection->ResolutionVariation + 1));
-        ASSERT(charBaseSection->Variation < AsUnderlyingType(CharBaseSectionVariation::Count),
-            "CharBaseSectionVariation::Count %u must be equal to or greater than %u", uint32(CharBaseSectionVariation::Count), uint32(charBaseSection->Variation + 1));
+        ASSERT(charBaseSection->ResolutionVariationEnum < SECTION_TYPE_MAX,
+            "SECTION_TYPE_MAX (%d) must be equal to or greater than %u", uint32(SECTION_TYPE_MAX), uint32(charBaseSection->ResolutionVariationEnum + 1));
+        ASSERT(charBaseSection->VariationEnum < AsUnderlyingType(CharBaseSectionVariation::Count),
+            "CharBaseSectionVariation::Count %u must be equal to or greater than %u", uint32(CharBaseSectionVariation::Count), uint32(charBaseSection->VariationEnum + 1));
 
-        sectionToBase[charBaseSection->ResolutionVariation] = static_cast<CharBaseSectionVariation>(charBaseSection->Variation);
+        sectionToBase[charBaseSection->ResolutionVariationEnum] = static_cast<CharBaseSectionVariation>(charBaseSection->VariationEnum);
     }
 
     std::map<std::tuple<uint8, uint8, CharBaseSectionVariation>, std::set<std::pair<uint8, uint8>>> addedSections;
@@ -747,7 +747,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
-        _charStartOutfits[outfit->RaceID | (outfit->ClassID << 8) | (outfit->GenderID << 16)] = outfit;
+        _charStartOutfits[outfit->RaceID | (outfit->ClassID << 8) | (outfit->SexID << 16)] = outfit;
 
     {
         std::set<ChrClassesXPowerTypesEntry const*, ChrClassesXPowerTypesEntryComparator> powers;
@@ -794,14 +794,14 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             _curvePoints[curvePoint->CurveID].push_back(curvePoint);
 
     for (auto itr = _curvePoints.begin(); itr != _curvePoints.end(); ++itr)
-        std::sort(itr->second.begin(), itr->second.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->Index < point2->Index; });
+        std::sort(itr->second.begin(), itr->second.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->OrderIndex < point2->OrderIndex; });
 
     ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
         "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",
         MAX_DIFFICULTY, sDifficultyStore.GetNumRows());
 
     for (EmotesTextSoundEntry const* emoteTextSound : sEmotesTextSoundStore)
-        _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextId, emoteTextSound->RaceId, emoteTextSound->SexId, emoteTextSound->ClassId)] = emoteTextSound;
+        _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextID, emoteTextSound->RaceID, emoteTextSound->SexID, emoteTextSound->ClassID)] = emoteTextSound;
 
     for (FactionEntry const* faction : sFactionStore)
         if (faction->ParentFactionID)
@@ -827,44 +827,44 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _glyphRequiredSpecs[glyphRequiredSpec->GlyphPropertiesID].push_back(glyphRequiredSpec->ChrSpecializationID);
 
     for (ItemBonusEntry const* bonus : sItemBonusStore)
-        _itemBonusLists[bonus->BonusListID].push_back(bonus);
+        _itemBonusLists[bonus->ParentItemBonusListID].push_back(bonus);
 
     for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
-        _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->Delta] = itemBonusListLevelDelta->ID;
+        _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->ItemLevelDelta] = itemBonusListLevelDelta->ID;
 
     for (ItemBonusTreeNodeEntry const* bonusTreeNode : sItemBonusTreeNodeStore)
     {
-        uint32 bonusTreeId = bonusTreeNode->BonusTreeID;
+        uint32 bonusTreeId = bonusTreeNode->ParentItemBonusTreeID;
         while (bonusTreeNode)
         {
             _itemBonusTrees[bonusTreeId].insert(bonusTreeNode);
-            bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(bonusTreeNode->SubTreeID);
+            bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(bonusTreeNode->ChildItemBonusTreeID);
         }
     }
 
     for (ItemChildEquipmentEntry const* itemChildEquipment : sItemChildEquipmentStore)
     {
-        ASSERT(_itemChildEquipment.find(itemChildEquipment->ItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
-        _itemChildEquipment[itemChildEquipment->ItemID] = itemChildEquipment;
+        ASSERT(_itemChildEquipment.find(itemChildEquipment->ParentItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
+        _itemChildEquipment[itemChildEquipment->ParentItemID] = itemChildEquipment;
     }
 
     for (ItemClassEntry const* itemClass : sItemClassStore)
     {
-        ASSERT(itemClass->OldEnumValue < _itemClassByOldEnum.size());
-        ASSERT(!_itemClassByOldEnum[itemClass->OldEnumValue]);
-        _itemClassByOldEnum[itemClass->OldEnumValue] = itemClass;
+        ASSERT(itemClass->ClassID < int32(_itemClassByOldEnum.size()));
+        ASSERT(!_itemClassByOldEnum[itemClass->ClassID]);
+        _itemClassByOldEnum[itemClass->ClassID] = itemClass;
     }
 
     for (ItemCurrencyCostEntry const* itemCurrencyCost : sItemCurrencyCostStore)
-        _itemsWithCurrencyCost.insert(itemCurrencyCost->ItemId);
+        _itemsWithCurrencyCost.insert(itemCurrencyCost->ItemID);
 
     for (ItemLevelSelectorQualityEntry const* itemLevelSelectorQuality : sItemLevelSelectorQualityStore)
-        _itemLevelQualitySelectorQualities[itemLevelSelectorQuality->ItemLevelSelectorQualitySetID].insert(itemLevelSelectorQuality);
+        _itemLevelQualitySelectorQualities[itemLevelSelectorQuality->ParentILSQualitySetID].insert(itemLevelSelectorQuality);
 
     for (ItemModifiedAppearanceEntry const* appearanceMod : sItemModifiedAppearanceStore)
     {
         ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
-        _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearanceMod;
+        _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->ItemAppearanceModifierID << 24)] = appearanceMod;
     }
 
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
@@ -874,14 +874,14 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _itemSpecOverrides[itemSpecOverride->ItemID].push_back(itemSpecOverride);
 
     for (ItemXBonusTreeEntry const* itemBonusTreeAssignment : sItemXBonusTreeStore)
-        _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->BonusTreeID });
+        _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->ItemBonusTreeID });
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
     _mapDifficulties[0][0] = _mapDifficulties[1][0]; // map 0 is missing from MapDifficulty.dbc so we cheat a bit
 
     for (MountEntry const* mount : sMountStore)
-        _mountsBySpellId[mount->SpellId] = mount;
+        _mountsBySpellId[mount->SourceSpellID] = mount;
 
     for (MountTypeXCapabilityEntry const* mountTypeCapability : sMountTypeXCapabilityStore)
         _mountCapabilitiesByType[mountTypeCapability->MountTypeID].insert(mountTypeCapability);
@@ -890,7 +890,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _mountDisplays[mountDisplay->MountID].push_back(mountDisplay);
 
     for (NameGenEntry const* nameGen : sNameGenStore)
-        _nameGenData[nameGen->Race][nameGen->Sex].push_back(nameGen);
+        _nameGenData[nameGen->RaceID][nameGen->Sex].push_back(nameGen);
 
     for (NamesProfanityEntry const* namesProfanity : sNamesProfanityStore)
     {
@@ -947,14 +947,14 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (PVPDifficultyEntry const* entry : sPVPDifficultyStore)
     {
-        ASSERT(entry->BracketID < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->BracketID, MAX_BATTLEGROUND_BRACKETS);
+        ASSERT(entry->RangeIndex < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->RangeIndex, MAX_BATTLEGROUND_BRACKETS);
     }
 
     for (PVPItemEntry const* pvpItem : sPVPItemStore)
-        _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelBonus;
+        _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelDelta;
 
     for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
-        _pvpRewardPack[std::make_pair(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
+        _pvpRewardPack[std::make_pair(pvpReward->PrestigeLevel, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
 
     for (PvpTalentEntry const* talentInfo : sPvpTalentStore)
     {
@@ -979,10 +979,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
-        if (questPackageItem->FilterType != QUEST_PACKAGE_FILTER_UNMATCHED)
-            _questPackages[questPackageItem->QuestPackageID].first.push_back(questPackageItem);
+        if (questPackageItem->DisplayType != QUEST_PACKAGE_FILTER_UNMATCHED)
+            _questPackages[questPackageItem->PackageID].first.push_back(questPackageItem);
         else
-            _questPackages[questPackageItem->QuestPackageID].second.push_back(questPackageItem);
+            _questPackages[questPackageItem->PackageID].second.push_back(questPackageItem);
     }
 
     for (RewardPackXItemEntry const* rewardPackXItem : sRewardPackXItemStore)
@@ -1006,18 +1006,18 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         if (SpellPowerDifficultyEntry const* powerDifficulty = sSpellPowerDifficultyStore.LookupEntry(power->ID))
         {
             std::vector<SpellPowerEntry const*>& powers = _spellPowerDifficulties[power->SpellID][powerDifficulty->DifficultyID];
-            if (powers.size() <= powerDifficulty->PowerIndex)
-                powers.resize(powerDifficulty->PowerIndex + 1);
+            if (powers.size() <= powerDifficulty->OrderIndex)
+                powers.resize(powerDifficulty->OrderIndex + 1);
 
-            powers[powerDifficulty->PowerIndex] = power;
+            powers[powerDifficulty->OrderIndex] = power;
         }
         else
         {
             std::vector<SpellPowerEntry const*>& powers = _spellPowers[power->SpellID];
-            if (powers.size() <= power->PowerIndex)
-                powers.resize(power->PowerIndex + 1);
+            if (powers.size() <= power->OrderIndex)
+                powers.resize(power->OrderIndex + 1);
 
-            powers[power->PowerIndex] = power;
+            powers[power->OrderIndex] = power;
         }
     }
 
@@ -1034,7 +1034,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     for (TaxiPathEntry const* entry : sTaxiPathStore)
-        sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
+        sTaxiPathSetBySource[entry->FromTaxiNode][entry->ToTaxiNode] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
@@ -1084,7 +1084,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 sAllianceTaxiNodesMask[field] |= submask;
 
             uint32 nodeMap;
-            DeterminaAlternateMapPosition(node->MapID, node->Pos.X, node->Pos.Y, node->Pos.Z, &nodeMap);
+            DeterminaAlternateMapPosition(node->ContinentID, node->Pos.X, node->Pos.Y, node->Pos.Z, &nodeMap);
             if (nodeMap < 2)
                 sOldContinentsNodesMask[field] |= submask;
         }
@@ -1104,7 +1104,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     for (WMOAreaTableEntry const* entry : sWMOAreaTableStore)
-        _wmoAreaTableLookup[WMOAreaTableKey(entry->WMOID, entry->NameSet, entry->WMOGroupID)] = entry;
+        _wmoAreaTableLookup[WMOAreaTableKey(entry->WmoID, entry->NameSetID, entry->WmoGroupID)] = entry;
 
     for (WorldMapAreaEntry const* worldMapArea : sWorldMapAreaStore)
         _worldMapAreaByAreaID[worldMapArea->AreaID] = worldMapArea;
@@ -1259,18 +1259,18 @@ ArtifactPowerRankEntry const* DB2Manager::GetArtifactPowerRank(uint32 artifactPo
 
 char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)
 {
-    if ((gender == GENDER_FEMALE || gender == GENDER_NONE) && (forceGender || broadcastText->FemaleText->Str[DEFAULT_LOCALE][0] != '\0'))
+    if ((gender == GENDER_FEMALE || gender == GENDER_NONE) && (forceGender || broadcastText->Text1->Str[DEFAULT_LOCALE][0] != '\0'))
     {
-        if (broadcastText->FemaleText->Str[locale][0] != '\0')
-            return broadcastText->FemaleText->Str[locale];
+        if (broadcastText->Text1->Str[locale][0] != '\0')
+            return broadcastText->Text1->Str[locale];
 
-        return broadcastText->FemaleText->Str[DEFAULT_LOCALE];
+        return broadcastText->Text1->Str[DEFAULT_LOCALE];
     }
 
-    if (broadcastText->MaleText->Str[locale][0] != '\0')
-        return broadcastText->MaleText->Str[locale];
+    if (broadcastText->Text->Str[locale][0] != '\0')
+        return broadcastText->Text->Str[locale];
 
-    return broadcastText->MaleText->Str[DEFAULT_LOCALE];
+    return broadcastText->Text->Str[DEFAULT_LOCALE];
 }
 
 bool DB2Manager::HasCharacterFacialHairStyle(uint8 race, uint8 gender, uint8 variationId) const
@@ -1416,82 +1416,82 @@ float DB2Manager::GetCurveValueAt(uint32 curveId, float x) const
         case CurveInterpolationMode::Linear:
         {
             std::size_t pointIndex = 0;
-            while (pointIndex < points.size() && points[pointIndex]->X <= x)
+            while (pointIndex < points.size() && points[pointIndex]->Pos.X <= x)
                 ++pointIndex;
             if (!pointIndex)
-                return points[0]->Y;
+                return points[0]->Pos.Y;
             if (pointIndex >= points.size())
-                return points.back()->Y;
-            float xDiff = points[pointIndex]->X - points[pointIndex - 1]->X;
+                return points.back()->Pos.Y;
+            float xDiff = points[pointIndex]->Pos.X - points[pointIndex - 1]->Pos.X;
             if (xDiff == 0.0)
-                return points[pointIndex]->Y;
-            return (((x - points[pointIndex - 1]->X) / xDiff) * (points[pointIndex]->Y - points[pointIndex - 1]->Y)) + points[pointIndex - 1]->Y;
+                return points[pointIndex]->Pos.Y;
+            return (((x - points[pointIndex - 1]->Pos.X) / xDiff) * (points[pointIndex]->Pos.Y - points[pointIndex - 1]->Pos.Y)) + points[pointIndex - 1]->Pos.Y;
         }
         case CurveInterpolationMode::Cosine:
         {
             std::size_t pointIndex = 0;
-            while (pointIndex < points.size() && points[pointIndex]->X <= x)
+            while (pointIndex < points.size() && points[pointIndex]->Pos.X <= x)
                 ++pointIndex;
             if (!pointIndex)
-                return points[0]->Y;
+                return points[0]->Pos.Y;
             if (pointIndex >= points.size())
-                return points.back()->Y;
-            float xDiff = points[pointIndex]->X - points[pointIndex - 1]->X;
+                return points.back()->Pos.Y;
+            float xDiff = points[pointIndex]->Pos.X - points[pointIndex - 1]->Pos.X;
             if (xDiff == 0.0)
-                return points[pointIndex]->Y;
-            return ((points[pointIndex]->Y - points[pointIndex - 1]->Y) * (1.0f - std::cos((x - points[pointIndex - 1]->X) / xDiff * float(M_PI))) * 0.5f) + points[pointIndex - 1]->Y;
+                return points[pointIndex]->Pos.Y;
+            return ((points[pointIndex]->Pos.Y - points[pointIndex - 1]->Pos.Y) * (1.0f - std::cos((x - points[pointIndex - 1]->Pos.X) / xDiff * float(M_PI))) * 0.5f) + points[pointIndex - 1]->Pos.Y;
         }
         case CurveInterpolationMode::CatmullRom:
         {
             std::size_t pointIndex = 1;
-            while (pointIndex < points.size() && points[pointIndex]->X <= x)
+            while (pointIndex < points.size() && points[pointIndex]->Pos.X <= x)
                 ++pointIndex;
             if (pointIndex == 1)
-                return points[1]->Y;
+                return points[1]->Pos.Y;
             if (pointIndex >= points.size() - 1)
-                return points[points.size() - 2]->Y;
-            float xDiff = points[pointIndex]->X - points[pointIndex - 1]->X;
+                return points[points.size() - 2]->Pos.Y;
+            float xDiff = points[pointIndex]->Pos.X - points[pointIndex - 1]->Pos.X;
             if (xDiff == 0.0)
-                return points[pointIndex]->Y;
+                return points[pointIndex]->Pos.Y;
 
-            float mu = (x - points[pointIndex - 1]->X) / xDiff;
-            float a0 = -0.5f * points[pointIndex - 2]->Y + 1.5f * points[pointIndex - 1]->Y - 1.5f * points[pointIndex]->Y + 0.5f * points[pointIndex + 1]->Y;
-            float a1 = points[pointIndex - 2]->Y - 2.5f * points[pointIndex - 1]->Y + 2.0f * points[pointIndex]->Y - 0.5f * points[pointIndex + 1]->Y;
-            float a2 = -0.5f * points[pointIndex - 2]->Y + 0.5f * points[pointIndex]->Y;
-            float a3 = points[pointIndex - 1]->Y;
+            float mu = (x - points[pointIndex - 1]->Pos.X) / xDiff;
+            float a0 = -0.5f * points[pointIndex - 2]->Pos.Y + 1.5f * points[pointIndex - 1]->Pos.Y - 1.5f * points[pointIndex]->Pos.Y + 0.5f * points[pointIndex + 1]->Pos.Y;
+            float a1 = points[pointIndex - 2]->Pos.Y - 2.5f * points[pointIndex - 1]->Pos.Y + 2.0f * points[pointIndex]->Pos.Y - 0.5f * points[pointIndex + 1]->Pos.Y;
+            float a2 = -0.5f * points[pointIndex - 2]->Pos.Y + 0.5f * points[pointIndex]->Pos.Y;
+            float a3 = points[pointIndex - 1]->Pos.Y;
 
             return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
         }
         case CurveInterpolationMode::Bezier3:
         {
-            float xDiff = points[2]->X - points[0]->X;
+            float xDiff = points[2]->Pos.X - points[0]->Pos.X;
             if (xDiff == 0.0)
-                return points[1]->Y;
-            float mu = (x - points[0]->X) / xDiff;
-            return ((1.0f - mu) * (1.0f - mu) * points[0]->Y) + (1.0f - mu) * 2.0f * mu * points[1]->Y + mu * mu * points[2]->Y;
+                return points[1]->Pos.Y;
+            float mu = (x - points[0]->Pos.X) / xDiff;
+            return ((1.0f - mu) * (1.0f - mu) * points[0]->Pos.Y) + (1.0f - mu) * 2.0f * mu * points[1]->Pos.Y + mu * mu * points[2]->Pos.Y;
         }
         case CurveInterpolationMode::Bezier4:
         {
-            float xDiff = points[3]->X - points[0]->X;
+            float xDiff = points[3]->Pos.X - points[0]->Pos.X;
             if (xDiff == 0.0)
-                return points[1]->Y;
-            float mu = (x - points[0]->X) / xDiff;
-            return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0]->Y
-                + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1]->Y
-                + 3.0f * mu * mu * (1.0f - mu) * points[2]->Y
-                + mu * mu * mu * points[3]->Y;
+                return points[1]->Pos.Y;
+            float mu = (x - points[0]->Pos.X) / xDiff;
+            return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0]->Pos.Y
+                + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1]->Pos.Y
+                + 3.0f * mu * mu * (1.0f - mu) * points[2]->Pos.Y
+                + mu * mu * mu * points[3]->Pos.Y;
         }
         case CurveInterpolationMode::Bezier:
         {
-            float xDiff = points.back()->X - points[0]->X;
+            float xDiff = points.back()->Pos.X - points[0]->Pos.X;
             if (xDiff == 0.0f)
-                return points.back()->Y;
+                return points.back()->Pos.Y;
 
             std::vector<float> tmp(points.size());
             for (std::size_t i = 0; i < points.size(); ++i)
-                tmp[i] = points[i]->Y;
+                tmp[i] = points[i]->Pos.Y;
 
-            float mu = (x - points[0]->X) / xDiff;
+            float mu = (x - points[0]->Pos.X) / xDiff;
             int32 i = int32(points.size()) - 1;
             while (i > 0)
             {
@@ -1505,7 +1505,7 @@ float DB2Manager::GetCurveValueAt(uint32 curveId, float x) const
             return tmp[0];
         }
         case CurveInterpolationMode::Constant:
-            return points[0]->Y;
+            return points[0]->Pos.Y;
         default:
             break;
     }
@@ -1580,7 +1580,7 @@ uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
     return 0;
 }
 
-std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
+std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemContext) const
 {
     std::set<uint32> bonusListIDs;
 
@@ -1600,20 +1600,20 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
 
         for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
         {
-            if (bonusTreeNode->BonusTreeModID != itemBonusTreeMod)
+            if (bonusTreeNode->ItemContext != itemContext)
                 continue;
 
-            if (bonusTreeNode->BonusListID)
+            if (bonusTreeNode->ChildItemBonusListID)
             {
-                bonusListIDs.insert(bonusTreeNode->BonusListID);
+                bonusListIDs.insert(bonusTreeNode->ChildItemBonusListID);
             }
-            else if (bonusTreeNode->ItemLevelSelectorID)
+            else if (bonusTreeNode->ChildItemLevelSelectorID)
             {
-                ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ItemLevelSelectorID);
+                ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ChildItemLevelSelectorID);
                 if (!selector)
                     continue;
 
-                int16 delta = int16(selector->ItemLevel) - proto->ItemLevel;
+                int16 delta = int16(selector->MinItemLevel) - proto->ItemLevel;
 
                 if (uint32 bonus = GetItemBonusListForItemLevelDelta(delta))
                     bonusListIDs.insert(bonus);
@@ -1624,16 +1624,16 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
                     if (itemSelectorQualities != _itemLevelQualitySelectorQualities.end())
                     {
                         ItemQualities quality = ITEM_QUALITY_UNCOMMON;
-                        if (selector->ItemLevel >= selectorQualitySet->ItemLevelMax)
+                        if (selector->MinItemLevel >= selectorQualitySet->IlvlEpic)
                             quality = ITEM_QUALITY_EPIC;
-                        else if (selector->ItemLevel >= selectorQualitySet->ItemLevelMin)
+                        else if (selector->MinItemLevel >= selectorQualitySet->IlvlRare)
                             quality = ITEM_QUALITY_RARE;
 
                         auto itemSelectorQuality = std::lower_bound(itemSelectorQualities->second.begin(), itemSelectorQualities->second.end(),
                             quality, ItemLevelSelectorQualityEntryComparator{});
 
                         if (itemSelectorQuality != itemSelectorQualities->second.end())
-                            bonusListIDs.insert((*itemSelectorQuality)->ItemBonusListID);
+                            bonusListIDs.insert((*itemSelectorQuality)->QualityItemBonusListID);
                     }
                 }
             }
@@ -1665,8 +1665,8 @@ bool DB2Manager::HasItemCurrencyCost(uint32 itemId) const
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
 {
     if (ItemModifiedAppearanceEntry const* modifiedAppearance = GetItemModifiedAppearance(itemId, appearanceModId))
-        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->AppearanceID))
-            return itemAppearance->DisplayID;
+        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->ItemAppearanceID))
+            return itemAppearance->ItemDisplayInfoID;
 
     return 0;
 }
@@ -1732,7 +1732,7 @@ uint32 DB2Manager::GetDefaultMapLight(uint32 mapId)
         if (!light)
             continue;
 
-        if (light->MapID == mapId && light->Pos.X == 0.0f && light->Pos.Y == 0.0f && light->Pos.Z == 0.0f)
+        if (light->ContinentID == int32(mapId) && light->GameCoords.X == 0.0f && light->GameCoords.Y == 0.0f && light->GameCoords.Z == 0.0f)
             return uint32(i);
     }
 
@@ -1742,7 +1742,7 @@ uint32 DB2Manager::GetDefaultMapLight(uint32 mapId)
 uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
-        return 1 << liq->Type;
+        return 1 << liq->SoundBank;
 
     return 0;
 }
@@ -1846,7 +1846,7 @@ DB2Manager::MountXDisplayContainer const* DB2Manager::GetMountDisplays(uint32 mo
     return Trinity::Containers::MapGetValuePtr(_mountDisplays, mountId);
 }
 
-std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant locale, LocaleConstant defaultLocale) const
+std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender) const
 {
     ASSERT(gender < GENDER_NONE);
     auto ritr = _nameGenData.find(race);
@@ -1856,11 +1856,7 @@ std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant
     if (ritr->second[gender].empty())
         return "";
 
-    LocalizedString* data = Trinity::Containers::SelectRandomContainerElement(ritr->second[gender])->Name;
-    if (*data->Str[locale] != '\0')
-        return data->Str[locale];
-
-    return data->Str[defaultLocale];
+    return Trinity::Containers::SelectRandomContainerElement(ritr->second[gender])->Name;
 }
 
 ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant locale) const
@@ -1986,7 +1982,7 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeByName(std::string const& name) co
 {
     for (PowerTypeEntry const* powerType : sPowerTypeStore)
     {
-        std::string powerName = powerType->PowerTypeToken;
+        std::string powerName = powerType->NameGlobalStringTag;
         std::transform(powerName.begin(), powerName.end(), powerName.begin(), [](char c) { return char(::tolower(c)); });
         if (powerName == name)
             return powerType;
@@ -2076,8 +2072,8 @@ std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, D
                     powers.resize(powerDifficultyItr->second.size());
 
                 for (SpellPowerEntry const* difficultyPower : powerDifficultyItr->second)
-                    if (!powers[difficultyPower->PowerIndex])
-                        powers[difficultyPower->PowerIndex] = difficultyPower;
+                    if (!powers[difficultyPower->OrderIndex])
+                        powers[difficultyPower->OrderIndex] = difficultyPower;
             }
 
             difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
@@ -2091,8 +2087,8 @@ std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, D
             powers.resize(itr->second.size());
 
         for (SpellPowerEntry const* power : itr->second)
-            if (!powers[power->PowerIndex])
-                powers[power->PowerIndex] = power;
+            if (!powers[power->OrderIndex])
+                powers[power->OrderIndex] = power;
     }
 
     return powers;
@@ -2126,10 +2122,10 @@ bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint3
     if (!reqEntry)
         return false;
 
-    if (itemEntry->CategoryType != reqEntry->CategoryType)
+    if (itemEntry->TotemCategoryType != reqEntry->TotemCategoryType)
         return false;
 
-    return (itemEntry->CategoryMask & reqEntry->CategoryMask) == reqEntry->CategoryMask;
+    return (itemEntry->TotemCategoryMask & reqEntry->TotemCategoryMask) == reqEntry->TotemCategoryMask;
 }
 
 bool DB2Manager::IsToyItem(uint32 toy) const

@@ -38,8 +38,8 @@ void GarrisonMgr::Initialize()
         _garrisonPlotInstBySiteLevel[siteLevelPlotInst->GarrSiteLevelID].push_back(siteLevelPlotInst);
 
     for (GameObjectsEntry const* gameObject : sGameObjectsStore)
-        if (gameObject->Type == GAMEOBJECT_TYPE_GARRISON_PLOT)
-            _garrisonPlots[gameObject->MapID][gameObject->Data[0]] = gameObject;
+        if (gameObject->TypeID == GAMEOBJECT_TYPE_GARRISON_PLOT)
+            _garrisonPlots[gameObject->OwnerID][gameObject->PropValue[0]] = gameObject;
 
     for (GarrPlotBuildingEntry const* plotBuilding : sGarrPlotBuildingStore)
         _garrisonBuildingsByPlot[plotBuilding->GarrPlotID].insert(plotBuilding->GarrBuildingID);
@@ -48,13 +48,13 @@ void GarrisonMgr::Initialize()
         _garrisonBuildingPlotInstances[std::make_pair(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
 
     for (GarrBuildingEntry const* building : sGarrBuildingStore)
-        _garrisonBuildingsByType[building->Type].push_back(building->ID);
+        _garrisonBuildingsByType[building->BuildingType].push_back(building->ID);
 
     for (GarrFollowerXAbilityEntry const* followerAbility : sGarrFollowerXAbilityStore)
     {
         if (GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(followerAbility->GarrAbilityID))
         {
-            if (ability->FollowerTypeID != FOLLOWER_TYPE_GARRISON)
+            if (ability->GarrFollowerTypeID != FOLLOWER_TYPE_GARRISON)
                 continue;
 
             if (!(ability->Flags & GARRISON_ABILITY_CANNOT_ROLL) && ability->Flags & GARRISON_ABILITY_FLAG_TRAIT)
@@ -78,7 +78,7 @@ void GarrisonMgr::Initialize()
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
 {
     for (GarrSiteLevelEntry const* siteLevel : sGarrSiteLevelStore)
-        if (siteLevel->SiteID == garrSiteId && siteLevel->Level == level)
+        if (siteLevel->GarrSiteID == garrSiteId && siteLevel->GarrLevel == level)
             return siteLevel;
 
     return nullptr;
@@ -129,7 +129,7 @@ uint32 GarrisonMgr::GetPreviousLevelBuildingId(uint32 buildingType, uint32 curre
     auto itr = _garrisonBuildingsByType.find(buildingType);
     if (itr != _garrisonBuildingsByType.end())
         for (uint32 buildingId : itr->second)
-            if (sGarrBuildingStore.AssertEntry(buildingId)->Level == currentLevel - 1)
+            if (sGarrBuildingStore.AssertEntry(buildingId)->UpgradeLevel == currentLevel - 1)
                 return buildingId;
 
     return 0;

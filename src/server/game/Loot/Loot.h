@@ -284,7 +284,7 @@ private:
 
     // Loot GUID
     ObjectGuid _GUID;
-    uint8 _difficultyBonusTreeMod;
+    uint8 _itemContext;
 };
 
 class TC_GAME_API AELootResult
