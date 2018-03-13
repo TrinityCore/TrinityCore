@@ -2008,7 +2008,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             break;
     }
 
-    switch (properties->Category)
+    switch (properties->Control)
     {
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
@@ -2018,7 +2018,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 SummonGuardian(effIndex, entry, properties, numSummons);
                 break;
             }
-            switch (properties->Type)
+            switch (properties->Title)
             {
                 case SUMMON_TYPE_PET:
                 case SUMMON_TYPE_GUARDIAN:
@@ -2078,7 +2078,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         if (!summon)
                             continue;
 
-                        if (properties->Category == SUMMON_CATEGORY_ALLY)
+                        if (properties->Control == SUMMON_CATEGORY_ALLY)
                         {
                             summon->SetOwnerGUID(m_originalCaster->GetGUID());
                             summon->setFaction(m_originalCaster->getFaction());
@@ -5175,7 +5175,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
 
-        if (properties && properties->Category == SUMMON_CATEGORY_ALLY)
+        if (properties && properties->Control == SUMMON_CATEGORY_ALLY)
             summon->setFaction(caster->getFaction());
 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
@@ -5681,7 +5681,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex /*effIndex*/)
 
     if (Player* player = m_caster->ToPlayer())
         if (CollectionMgr* collectionMgr = player->GetSession()->GetCollectionMgr())
-            collectionMgr->UpgradeHeirloom(m_misc.Raw.Data[0], m_castItemEntry);
+            collectionMgr->UpgradeHeirloom(m_misc.Raw.Data[0], int32(m_castItemEntry));
 }
 
 void Spell::EffectApplyEnchantIllusion(SpellEffIndex /*effIndex*/)

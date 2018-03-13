@@ -5188,15 +5188,15 @@ void Unit::UpdateDisplayPower()
             else if (GetTypeId() == TYPEID_PLAYER)
             {
                 ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
-                if (cEntry && cEntry->PowerType < MAX_POWERS)
-                    displayPower = Powers(cEntry->PowerType);
+                if (cEntry && cEntry->DisplayPower < MAX_POWERS)
+                    displayPower = Powers(cEntry->DisplayPower);
             }
             else if (GetTypeId() == TYPEID_UNIT)
             {
-                if (Vehicle* vehicle = GetVehicle())
+                if (Vehicle* vehicle = GetVehicleKit())
                 {
                     if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(vehicle->GetVehicleInfo()->PowerDisplayID[0]))
-                        displayPower = Powers(powerDisplay->PowerType);
+                        displayPower = Powers(powerDisplay->ActualType);
                     else if (getClass() == CLASS_ROGUE)
                         displayPower = POWER_ENERGY;
                 }
@@ -5880,7 +5880,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        if (minion->m_Properties && minion->m_Properties->Title == SUMMON_TYPE_MINIPET)
         {
             SetCritterGUID(minion->GetGUID());
             if (GetTypeId() == TYPEID_PLAYER)
@@ -5911,7 +5911,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         m_Controlled.erase(minion);
 
-        if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        if (minion->m_Properties && minion->m_Properties->Title == SUMMON_TYPE_MINIPET)
             if (GetCritterGUID() == minion->GetGUID())
                 SetCritterGUID(ObjectGuid::Empty);
 
@@ -7589,7 +7589,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         if (!mountCapability)
             continue;
 
-        if (ridingSkill < mountCapability->RequiredRidingSkill)
+        if (ridingSkill < mountCapability->ReqRidingSkill)
             continue;
 
         if (!(mountCapability->Flags & MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS))
@@ -7623,19 +7623,19 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT))
             continue;
 
-        if (mountCapability->RequiredMap != -1 &&
-            int32(GetMapId()) != mountCapability->RequiredMap &&
-            GetMap()->GetEntry()->CosmeticParentMapID != mountCapability->RequiredMap &&
-            GetMap()->GetEntry()->ParentMapID != mountCapability->RequiredMap)
+        if (mountCapability->ReqMapID != -1 &&
+            int32(GetMapId()) != mountCapability->ReqMapID &&
+            GetMap()->GetEntry()->CosmeticParentMapID != mountCapability->ReqMapID &&
+            GetMap()->GetEntry()->ParentMapID != mountCapability->ReqMapID)
             continue;
 
-        if (mountCapability->RequiredArea && !DB2Manager::IsInArea(areaId, mountCapability->RequiredArea))
+        if (mountCapability->ReqAreaID && !DB2Manager::IsInArea(areaId, mountCapability->ReqAreaID))
             continue;
 
-        if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
+        if (mountCapability->ReqSpellAuraID && !HasAura(mountCapability->ReqSpellAuraID))
             continue;
 
-        if (mountCapability->RequiredSpell && !HasSpell(mountCapability->RequiredSpell))
+        if (mountCapability->ReqSpellKnownID && !HasSpell(mountCapability->ReqSpellKnownID))
             continue;
 
         return mountCapability;
@@ -9022,7 +9022,7 @@ float Unit::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spell
 {
     if (!spellInfo->RangeEntry)
         return 0;
-    if (spellInfo->RangeEntry->MaxRangeFriend == spellInfo->RangeEntry->MaxRangeHostile)
+    if (spellInfo->RangeEntry->RangeMax[0] == spellInfo->RangeEntry->RangeMax[1])
         return spellInfo->GetMaxRange();
     if (!target)
         return spellInfo->GetMaxRange(true);
@@ -9033,7 +9033,7 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
 {
     if (!spellInfo->RangeEntry)
         return 0;
-    if (spellInfo->RangeEntry->MinRangeFriend == spellInfo->RangeEntry->MinRangeHostile)
+    if (spellInfo->RangeEntry->RangeMin[0] == spellInfo->RangeEntry->RangeMin[1])
         return spellInfo->GetMinRange();
     if (!target)
         return spellInfo->GetMinRange(true);
@@ -9461,7 +9461,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         return GetCreateMana();
 
     if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
-        return powerType->MaxPower;
+        return powerType->MaxBasePower;
 
     return 0;
 }
@@ -12096,8 +12096,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
         if (Aura* artifactAura = GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
             if (Item* artifact = ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID()))
                 if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
-                    if (ShapeshiftForm(artifactAppearance->ModifiesShapeshiftFormDisplay) == form)
-                        return artifactAppearance->ShapeshiftDisplayID;
+                    if (ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID) == form)
+                        return artifactAppearance->OverrideShapeshiftDisplayID;
 
         switch (form)
         {

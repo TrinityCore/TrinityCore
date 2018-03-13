@@ -51,7 +51,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     for (SkillLineAbilityMap::const_iterator itr = skillBounds.first; itr != skillBounds.second; ++itr)
-        if (itr->second->SkillLine == skillId)
+        if (itr->second->SkillLine == int32(skillId))
             return true;
 
     return false;
@@ -724,11 +724,11 @@ void SpellMgr::LoadSpellRanks()
         if (!skillAbility->SupercedesSpell)
             continue;
 
-        if (!GetSpellInfo(skillAbility->SupercedesSpell) || !GetSpellInfo(skillAbility->SpellID))
+        if (!GetSpellInfo(skillAbility->SupercedesSpell) || !GetSpellInfo(skillAbility->Spell))
             continue;
 
-        chains[skillAbility->SupercedesSpell] = skillAbility->SpellID;
-        hasPrev.insert(skillAbility->SpellID);
+        chains[skillAbility->SupercedesSpell] = skillAbility->Spell;
+        hasPrev.insert(skillAbility->Spell);
     }
 
     // each key in chains that isn't present in hasPrev is a first rank
@@ -1007,7 +1007,7 @@ void SpellMgr::LoadSpellLearnSpells()
         bool found = false;
         for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
         {
-            if (itr->second.Spell == spellLearnSpell->SpellID)
+            if (int32(itr->second.Spell) == spellLearnSpell->SpellID)
             {
                 TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2", spellLearnSpell->LearnSpellID, spellLearnSpell->SpellID);
                 found = true;
@@ -1023,7 +1023,7 @@ void SpellMgr::LoadSpellLearnSpells()
         found = false;
         for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
         {
-            if (itr->second.Spell == spellLearnSpell->SpellID)
+            if (int32(itr->second.Spell) == spellLearnSpell->SpellID)
             {
                 found = true;
                 break;
@@ -1642,7 +1642,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         if (!SkillInfo)
             continue;
 
-        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->SpellID, SkillInfo));
+        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->Spell, SkillInfo));
         ++count;
     }
 
@@ -1893,7 +1893,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                SpellInfo const* spell = GetSpellInfo(skillLine->SpellID);
+                SpellInfo const* spell = GetSpellInfo(skillLine->Spell);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
@@ -2212,20 +2212,20 @@ void SpellMgr::LoadSpellInfoStore()
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
     std::unordered_map<uint32, SpellInfoLoadHelper> loadData;
 
-    std::unordered_map<uint32, SpellEffectEntryMap> effectsBySpell;
+    std::unordered_map<int32, SpellEffectEntryMap> effectsBySpell;
     std::unordered_map<uint32, SpellVisualMap> visualsBySpell;
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
-        ASSERT(effect->EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %u", effect->EffectIndex + 1);
+        ASSERT(effect->EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %d", effect->EffectIndex + 1);
         ASSERT(effect->Effect < TOTAL_SPELL_EFFECTS, "TOTAL_SPELL_EFFECTS must be at least %u", effect->Effect + 1);
-        ASSERT(effect->EffectAura < TOTAL_AURAS, "TOTAL_AURAS must be at least %u", effect->EffectAura + 1);
+        ASSERT(effect->EffectAura < int32(TOTAL_AURAS), "TOTAL_AURAS must be at least %d", effect->EffectAura + 1);
         ASSERT(effect->ImplicitTarget[0] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[0] + 1);
         ASSERT(effect->ImplicitTarget[1] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[1] + 1);
 
         SpellEffectEntryVector& effectsForDifficulty = effectsBySpell[effect->SpellID][effect->DifficultyID];
-        if (effectsForDifficulty.size() <= effect->EffectIndex)
-            effectsForDifficulty.resize(effect->EffectIndex + 1);
+        if (effectsForDifficulty.size() <= std::size_t(effect->EffectIndex))
+            effectsForDifficulty.resize(std::size_t(effect->EffectIndex + 1));
 
         effectsForDifficulty[effect->EffectIndex] = effect;
     }
@@ -2437,7 +2437,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                             if (enchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                                 continue;
 
-                            SpellInfo* procInfo = _GetSpellInfo(enchant->EffectSpellID[s]);
+                            SpellInfo* procInfo = _GetSpellInfo(enchant->EffectArg[s]);
                             if (!procInfo)
                                 continue;
 
@@ -3402,11 +3402,11 @@ void SpellMgr::LoadSpellInfoCorrections()
     }
 
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))
-        properties->Type = SUMMON_TYPE_TOTEM;
+        properties->Title = SUMMON_TYPE_TOTEM;
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(647))) // 52893
-        properties->Type = SUMMON_TYPE_TOTEM;
+        properties->Title = SUMMON_TYPE_TOTEM;
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(628))) // Hungry Plaguehound
-        properties->Category = SUMMON_CATEGORY_PET;
+        properties->Control = SUMMON_CATEGORY_PET;
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3467,11 +3467,11 @@ void SpellMgr::LoadPetFamilySpellsStore()
 
     for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
     {
-        SpellInfo const* spellInfo = GetSpellInfo(skillLine->SpellID);
+        SpellInfo const* spellInfo = GetSpellInfo(skillLine->Spell);
         if (!spellInfo)
             continue;
 
-        auto levels = levelsBySpell.find(skillLine->SpellID);
+        auto levels = levelsBySpell.find(skillLine->Spell);
         if (levels != levelsBySpell.end() && levels->second->SpellLevel)
             continue;
 

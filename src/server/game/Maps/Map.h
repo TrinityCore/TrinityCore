@@ -388,7 +388,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // have meaning only for instanced map (that have set real difficulty)
         Difficulty GetDifficultyID() const { return Difficulty(GetSpawnMode()); }
         MapDifficultyEntry const* GetMapDifficulty() const;
-        uint8 GetDifficultyLootBonusTreeMod() const;
+        uint8 GetDifficultyLootItemContext() const;
 
         uint32 GetId() const;
         bool Instanceable() const;

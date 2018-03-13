@@ -353,7 +353,7 @@ m_lastProcAttemptTime(std::chrono::steady_clock::now() - Seconds(10)), m_lastPro
 {
     std::vector<SpellPowerEntry const*> powers = sDB2Manager.GetSpellPowers(GetId(), caster ? caster->GetMap()->GetDifficultyID() : DIFFICULTY_NONE);
     for (SpellPowerEntry const* power : powers)
-        if (power->ManaCostPerSecond != 0 || power->ManaCostPercentagePerSecond > 0.0f)
+        if (power->ManaPerSecond != 0 || power->PowerPctPerSecond > 0.0f)
             m_periodicCosts.push_back(power);
 
     if (!m_periodicCosts.empty())
@@ -728,15 +728,15 @@ void Aura::Update(uint32 diff, Unit* caster)
 
                     for (SpellPowerEntry const* power : m_periodicCosts)
                     {
-                        if (power->RequiredAura && !caster->HasAura(power->RequiredAura))
+                        if (power->RequiredAuraSpellID && !caster->HasAura(power->RequiredAuraSpellID))
                             continue;
 
-                        int32 manaPerSecond = power->ManaCostPerSecond;
+                        int32 manaPerSecond = power->ManaPerSecond;
                         Powers powertype = Powers(power->PowerType);
                         if (powertype != POWER_HEALTH)
-                            manaPerSecond += int32(CalculatePct(caster->GetMaxPower(powertype), power->ManaCostPercentagePerSecond));
+                            manaPerSecond += int32(CalculatePct(caster->GetMaxPower(powertype), power->PowerPctPerSecond));
                         else
-                            manaPerSecond += int32(CalculatePct(caster->GetMaxHealth(), power->ManaCostPercentagePerSecond));
+                            manaPerSecond += int32(CalculatePct(caster->GetMaxHealth(), power->PowerPctPerSecond));
 
                         if (manaPerSecond)
                         {

@@ -4317,9 +4317,9 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
             {
                 if (ItemEntry const* itemEntry = sItemStore.LookupEntry(item_id))
                 {
-                    if (itemEntry->Class == ITEM_CLASS_WEAPON)
+                    if (itemEntry->ClassID == ITEM_CLASS_WEAPON)
                     {
-                        switch (itemEntry->SubClass)
+                        switch (itemEntry->SubclassID)
                         {
                             case ITEM_SUBCLASS_WEAPON_THROWN:
                                 ammoDisplayID = sDB2Manager.GetItemDisplayId(item_id, m_caster->GetVirtualItemAppearanceMod(i));
@@ -5504,7 +5504,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 SummonPropertiesEntry const* SummonProperties = sSummonPropertiesStore.LookupEntry(effect->MiscValueB);
                 if (!SummonProperties)
                     break;
-                switch (SummonProperties->Category)
+                switch (SummonProperties->Control)
                 {
                     case SUMMON_CATEGORY_PET:
                         if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && !m_caster->GetPetGUID().IsEmpty())
@@ -6467,7 +6467,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 ItemTemplate const* proto = targetItem->GetTemplate();
                 for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    if (proto->Effects[e]->SpellID && proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE)
+                    if (proto->Effects[e]->SpellID && proto->Effects[e]->TriggerType == ITEM_SPELLTRIGGER_ON_USE)
                     {
                         isItemUsable = true;
                         break;
@@ -6548,7 +6548,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 ItemDisenchantLootEntry const* itemDisenchantLoot = item->GetDisenchantLoot(m_caster->ToPlayer());
                 if (!itemDisenchantLoot)
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
-                if (itemDisenchantLoot->RequiredDisenchantSkill > player->GetSkillValue(SKILL_ENCHANTING))
+                if (itemDisenchantLoot->SkillRequired > player->GetSkillValue(SKILL_ENCHANTING))
                     return SPELL_FAILED_LOW_CASTLEVEL;
                 break;
             }
@@ -7238,7 +7238,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
         {
             // check key item (many fit cases can be)
             case LOCK_KEY_ITEM:
-                if (lockInfo->Index[j] && m_CastItem && m_CastItem->GetEntry() == lockInfo->Index[j])
+                if (lockInfo->Index[j] && m_CastItem && int32(m_CastItem->GetEntry()) == lockInfo->Index[j])
                     return SPELL_CAST_OK;
                 reqKey = true;
                 break;
@@ -7248,7 +7248,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                 reqKey = true;
 
                 // wrong locktype, skip
-                if (uint32(effect->MiscValue) != lockInfo->Index[j])
+                if (effect->MiscValue != lockInfo->Index[j])
                     continue;
 
                 skillId = SkillByLockType(LockType(lockInfo->Index[j]));

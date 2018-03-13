@@ -274,7 +274,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * questXp->Exp[RewardXPDifficulty] * RewardXPMultiplier / 10 * multiplier;
+        uint32 xp = diffFactor * questXp->Difficulty[RewardXPDifficulty] * RewardXPMultiplier / 10 * multiplier;
         if (xp <= 100)
             xp = 5 * ((xp + 2) / 5);
         else if (xp <= 500)
@@ -295,7 +295,7 @@ uint32 Quest::MoneyValue(uint8 playerLevel) const
     uint8 level = Level == -1 ? playerLevel : Level;
 
     if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(level))
-        return money->Money[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
+        return money->Difficulty[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
     else
         return 0;
 }
