@@ -3809,7 +3809,7 @@ public:
             {
                 target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
                 if (EmotesTextSoundEntry const* soundEntry = sDB2Manager.GetTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->getRace(), target->getGender(), target->getClass()))
-                    target->PlayDistanceSound(soundEntry->SoundId);
+                    target->PlayDistanceSound(soundEntry->SoundID);
             }
         }
 

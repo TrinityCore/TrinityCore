@@ -44,7 +44,7 @@ class spell_garrison_hearthstone : public SpellScript
                 if (GarrSiteLevelEntry const* siteLevel = garr->GetSiteLevel())
                 {
                     // Adjust effect summon position
-                    Position const garrPos = GarrisonHearthstoneCoordinates[caster->GetTeamId()][siteLevel->Level];
+                    Position const garrPos = GarrisonHearthstoneCoordinates[caster->GetTeamId()][siteLevel->GarrLevel];
                     dest.Relocate(WorldLocation(siteLevel->MapID, garrPos));
                 }
             }

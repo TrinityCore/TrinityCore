@@ -188,6 +188,7 @@ public:
     }
 };
 
+// 39992 - Needle Spine Targeting
 class spell_najentus_needle_spine : public SpellScriptLoader
 {
     public:
