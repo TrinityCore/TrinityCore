@@ -163,11 +163,11 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
         uint32 bonusId = 0;
 
         if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
-            bonusId = heirloom->ItemBonusListID[2];
+            bonusId = heirloom->UpgradeItemBonusListID[2];
         else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
-            bonusId = heirloom->ItemBonusListID[1];
+            bonusId = heirloom->UpgradeItemBonusListID[1];
         else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
-            bonusId = heirloom->ItemBonusListID[0];
+            bonusId = heirloom->UpgradeItemBonusListID[0];
 
         _heirlooms[itemId] = HeirloomData(flags, bonusId);
     } while (result->NextRow());
@@ -218,7 +218,7 @@ void CollectionMgr::AddHeirloom(uint32 itemId, uint32 flags)
     }
 }
 
-void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
+void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
 {
     Player* player = _owner->GetPlayer();
     if (!player)
@@ -238,17 +238,17 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
     if (heirloom->UpgradeItemID[0] == castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_90;
-        bonusId = heirloom->ItemBonusListID[0];
+        bonusId = heirloom->UpgradeItemBonusListID[0];
     }
     if (heirloom->UpgradeItemID[1] == castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_100;
-        bonusId = heirloom->ItemBonusListID[1];
+        bonusId = heirloom->UpgradeItemBonusListID[1];
     }
     if (heirloom->UpgradeItemID[2] == castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_110;
-        bonusId = heirloom->ItemBonusListID[2];
+        bonusId = heirloom->UpgradeItemBonusListID[2];
     }
 
     for (Item* item : player->GetItemListByEntry(itemId, true))
@@ -277,14 +277,14 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
             return;
 
         // Check for heirloom pairs (normal - heroic, heroic - mythic)
-        uint32 heirloomItemId = heirloom->NextDifficultyItemID;
+        uint32 heirloomItemId = heirloom->StaticUpgradedItemID;
         uint32 newItemId = 0;
         while (HeirloomEntry const* heirloomDiff = sDB2Manager.GetHeirloomByItemId(heirloomItemId))
         {
             if (player->GetItemByEntry(heirloomDiff->ItemID))
                 newItemId = heirloomDiff->ItemID;
 
-            if (HeirloomEntry const* heirloomSub = sDB2Manager.GetHeirloomByItemId(heirloomDiff->NextDifficultyItemID))
+            if (HeirloomEntry const* heirloomSub = sDB2Manager.GetHeirloomByItemId(heirloomDiff->StaticUpgradedItemID))
             {
                 heirloomItemId = heirloomSub->ItemID;
                 continue;
@@ -390,10 +390,10 @@ bool CollectionMgr::AddMount(uint32 spellId, MountStatusFlags flags, bool factio
     _mounts.insert(MountContainer::value_type(spellId, flags));
 
     // Mount condition only applies to using it, should still learn it.
-    if (mount->PlayerConditionId)
+    if (mount->PlayerConditionID)
     {
-        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mount->PlayerConditionId);
-        if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
+        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mount->PlayerConditionID);
+        if (playerCondition && !ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
             return false;
     }
 
@@ -655,7 +655,7 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (!itemModifiedAppearance)
         return false;
 
-    if (itemModifiedAppearance->SourceType == 6 || itemModifiedAppearance->SourceType == 9)
+    if (itemModifiedAppearance->TransmogSourceTypeEnum == 6 || itemModifiedAppearance->TransmogSourceTypeEnum == 9)
         return false;
 
     if (!sItemSearchNameStore.LookupEntry(itemModifiedAppearance->ItemID))

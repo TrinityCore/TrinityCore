@@ -80,13 +80,13 @@ void SmartWaypointMgr::LoadFromDB()
             TC_LOG_ERROR("sql.sql", "SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
 
         last_id++;
-        
+
         WayPoint point;
         point.id = id;
         point.x = x;
         point.y = y;
         point.z = z;
-        
+
         path.push_back(std::move(point));
 
         last_entry = entry;

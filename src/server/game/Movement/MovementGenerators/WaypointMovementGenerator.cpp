@@ -322,9 +322,9 @@ uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
     if (i_currentNode >= i_path.size())
         return i_path.size();
 
-    uint32 curMapId = i_path[i_currentNode]->MapID;
+    uint32 curMapId = i_path[i_currentNode]->ContinentID;
     for (uint32 i = i_currentNode; i < i_path.size(); ++i)
-        if (i_path[i]->MapID != curMapId)
+        if (i_path[i]->ContinentID != curMapId)
             return i;
 
     return i_path.size();
@@ -334,7 +334,7 @@ uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 
 bool IsNodeIncludedInShortenedPath(TaxiPathNodeEntry const* p1, TaxiPathNodeEntry const* p2)
 {
-    return p1->MapID != p2->MapID || std::pow(p1->Loc.X - p2->Loc.X, 2) + std::pow(p1->Loc.Y - p2->Loc.Y, 2) > SKIP_SPLINE_POINT_DISTANCE_SQ;
+    return p1->ContinentID != p2->ContinentID || std::pow(p1->Loc.X - p2->Loc.X, 2) + std::pow(p1->Loc.Y - p2->Loc.Y, 2) > SKIP_SPLINE_POINT_DISTANCE_SQ;
 }
 
 void FlightPathMovementGenerator::LoadPath(Player* player, uint32 startNode /*= 0*/)
@@ -469,10 +469,10 @@ void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
     if (i_path.empty() || i_currentNode >= i_path.size())
         return;
 
-    uint32 map0 = i_path[i_currentNode]->MapID;
+    uint32 map0 = i_path[i_currentNode]->ContinentID;
     for (size_t i = i_currentNode + 1; i < i_path.size(); ++i)
     {
-        if (i_path[i]->MapID != map0)
+        if (i_path[i]->ContinentID != map0)
         {
             i_currentNode = i;
             return;
@@ -503,7 +503,7 @@ void FlightPathMovementGenerator::InitEndGridInfo()
     /*! Storage to preload flightmaster grid at end of flight. For multi-stop flights, this will
        be reinitialized for each flightmaster at the end of each spline (or stop) in the flight. */
     uint32 nodeCount = i_path.size();        //! Number of nodes in path.
-    _endMapId = i_path[nodeCount - 1]->MapID; //! MapId of last node
+    _endMapId = i_path[nodeCount - 1]->ContinentID; //! MapId of last node
     _preloadTargetNode = nodeCount - 3;
     _endGridX = i_path[nodeCount - 1]->Loc.X;
     _endGridY = i_path[nodeCount - 1]->Loc.Y;
