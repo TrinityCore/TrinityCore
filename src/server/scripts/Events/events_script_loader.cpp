@@ -26,6 +26,7 @@ void AddSC_event_morph();
 void AddSC_event_noblegarden();
 void AddSC_event_pilgrims_bounty();
 void AddSC_event_hallows_end();
+void AddSC_event_fireworks();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -41,4 +42,5 @@ void AddEventsScripts()
     AddSC_event_noblegarden();
     AddSC_event_pilgrims_bounty();
     AddSC_event_hallows_end();
+    AddSC_event_fireworks();
 }

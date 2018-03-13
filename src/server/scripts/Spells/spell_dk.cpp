@@ -2166,7 +2166,7 @@ public:
                         if (!_player->IsValidAttackTarget(itr))
                             continue;
 
-                        if (itr->IsImmunedToSpell(GetSpellInfo()))
+                        if (itr->IsImmunedToSpell(GetSpellInfo(), GetCaster()))
                             continue;
 
                         if (!itr->IsWithinLOSInMap(_player))

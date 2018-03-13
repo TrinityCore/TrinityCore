@@ -79,7 +79,7 @@ void GuildFinderMgr::LoadGuildSettings()
 
         TeamId guildTeam = TEAM_NEUTRAL;
         if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(fields[7].GetUInt8()))
-            guildTeam = (TeamId)raceEntry->TeamID;
+            guildTeam = (TeamId)raceEntry->Alliance;
 
         LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
         _guildSettings[guildId] = settings;
