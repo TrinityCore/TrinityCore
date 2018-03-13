@@ -1027,10 +1027,10 @@ public:
             // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
             if (handler->GetSession())
                 handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, nodeEntry->ID, nodeEntry->ID, name.c_str(), "",
-                    nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
+                    uint32(nodeEntry->ContinentID), nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
             else
                 handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, nodeEntry->ID, name.c_str(), "",
-                    nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
+                    uint32(nodeEntry->ContinentID), nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
 
             if (!found)
                 found = true;
@@ -1134,7 +1134,7 @@ public:
                         continue;
 
                     int32 locale = handler->GetSessionDbcLocale();
-                    std::string name = (gender == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[locale];
+                    std::string name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[locale];
 
                     if (name.empty())
                         continue;
@@ -1147,7 +1147,7 @@ public:
                             if (locale == handler->GetSessionDbcLocale())
                                 continue;
 
-                            name = (gender == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[locale];
+                            name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[locale];
                             if (name.empty())
                                 continue;
 
@@ -1166,7 +1166,7 @@ public:
 
                         char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                        char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                        char const* activeStr = target && target->GetInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
                             ? handler->GetTrinityString(LANG_ACTIVE)
                             : "";
 

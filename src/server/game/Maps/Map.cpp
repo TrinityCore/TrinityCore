@@ -2411,23 +2411,23 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
         {
             entry = liquidEntry->ID;
             type &= MAP_LIQUID_TYPE_DARK_WATER;
-            uint32 liqTypeIdx = liquidEntry->Type;
+            uint32 liqTypeIdx = liquidEntry->SoundBank;
             if (entry < 21)
             {
                 if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(getArea(x, y)))
                 {
-                    uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
+                    uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
                     if (!overrideLiquid && area->ParentAreaID)
                     {
                         area = sAreaTableStore.LookupEntry(area->ParentAreaID);
                         if (area)
-                            overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
+                            overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
                     }
 
                     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                     {
                         entry = overrideLiquid;
-                        liqTypeIdx = liq->Type;
+                        liqTypeIdx = liq->SoundBank;
                     }
                 }
             }
@@ -2718,7 +2718,7 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
 
                 uint32 liquidFlagType = 0;
                 if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquid_type))
-                    liquidFlagType = liq->Type;
+                    liquidFlagType = liq->SoundBank;
 
                 if (liquid_type && liquid_type < 21)
                 {
@@ -2735,7 +2735,7 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
                         if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                         {
                             liquid_type = overrideLiquid;
-                            liquidFlagType = liq->Type;
+                            liquidFlagType = liq->SoundBank;
                         }
                     }
                 }
@@ -3619,14 +3619,14 @@ MapDifficultyEntry const* Map::GetMapDifficulty() const
     return sDB2Manager.GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
-uint8 Map::GetDifficultyLootBonusTreeMod() const
+uint8 Map::GetDifficultyLootItemContext() const
 {
     if (MapDifficultyEntry const* mapDifficulty = GetMapDifficulty())
-        if (mapDifficulty->ItemBonusTreeModID)
-            return mapDifficulty->ItemBonusTreeModID;
+        if (mapDifficulty->ItemContext)
+            return mapDifficulty->ItemContext;
 
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetDifficultyID()))
-        return difficulty->ItemBonusTreeModID;
+        return difficulty->ItemContext;
 
     return 0;
 }

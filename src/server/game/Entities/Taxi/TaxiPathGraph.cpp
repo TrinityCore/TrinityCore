@@ -40,8 +40,8 @@ void TaxiPathGraph::Initialize()
     // Initialize here
     for (TaxiPathEntry const* path : sTaxiPathStore)
     {
-        TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(path->From);
-        TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(path->To);
+        TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(path->FromTaxiNode);
+        TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(path->ToTaxiNode);
         if (from && to && from->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE) && to->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE))
             AddVerticeAndEdgeFromNodeInfo(from, to, path->ID, edges);
     }
@@ -67,7 +67,7 @@ uint32 TaxiPathGraph::GetNodeIDFromVertexID(vertex_descriptor vertexID)
 
 TaxiPathGraph::vertex_descriptor TaxiPathGraph::GetVertexIDFromNodeID(TaxiNodesEntry const* node)
 {
-    return node->LearnableIndex;
+    return node->CharacterBitNumber;
 }
 
 std::size_t TaxiPathGraph::GetVertexCount()
@@ -107,8 +107,8 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
             uint32 map1, map2;
             DBCPosition2D pos1, pos2;
 
-            DB2Manager::DeterminaAlternateMapPosition(nodes[i - 1]->MapID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
-            DB2Manager::DeterminaAlternateMapPosition(nodes[i]->MapID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
+            DB2Manager::DeterminaAlternateMapPosition(nodes[i - 1]->ContinentID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
+            DB2Manager::DeterminaAlternateMapPosition(nodes[i]->ContinentID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
 
             if (map1 != map2)
                 continue;
@@ -179,11 +179,11 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
 TaxiPathGraph::vertex_descriptor TaxiPathGraph::CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node)
 {
     //Check if we need a new one or if it may be already created
-    if (m_vertices.size() <= node->LearnableIndex)
-        m_vertices.resize(node->LearnableIndex + 1);
+    if (m_vertices.size() <= node->CharacterBitNumber)
+        m_vertices.resize(node->CharacterBitNumber + 1);
 
-    m_vertices[node->LearnableIndex] = node;
-    return node->LearnableIndex;
+    m_vertices[node->CharacterBitNumber] = node;
+    return node->CharacterBitNumber;
 }
 
 uint32 TaxiPathGraph::EdgeCost::EvaluateDistance(Player const* player) const

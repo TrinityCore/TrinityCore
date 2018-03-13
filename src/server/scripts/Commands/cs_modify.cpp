@@ -1040,7 +1040,7 @@ public:
             return false;
         }
 
-        std::string formattedPowerName = powerType->PowerTypeToken;
+        std::string formattedPowerName = powerType->NameGlobalStringTag;
         bool upperCase = true;
         for (char& c : formattedPowerName)
         {
@@ -1060,7 +1060,7 @@ public:
         }
 
         NotifyModification(handler, target, LANG_YOU_CHANGE_POWER, LANG_YOUR_POWER_CHANGED, formattedPowerName.c_str(), powerAmount, powerAmount);
-        powerAmount *= powerType->UIModifier;
+        powerAmount *= powerType->DisplayModifier;
         target->SetMaxPower(Powers(powerType->PowerTypeEnum), powerAmount);
         target->SetPower(Powers(powerType->PowerTypeEnum), powerAmount);
         return true;

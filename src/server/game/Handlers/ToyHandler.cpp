@@ -63,7 +63,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
 
     auto effect = std::find_if(item->Effects.begin(), item->Effects.end(), [&packet](ItemEffectEntry const* effect)
     {
-        return uint32(packet.Cast.SpellID) == effect->SpellID;
+        return packet.Cast.SpellID == effect->SpellID;
     });
 
     if (effect == item->Effects.end())

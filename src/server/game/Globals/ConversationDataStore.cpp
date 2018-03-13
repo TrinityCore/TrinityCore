@@ -178,10 +178,10 @@ void ConversationDataStore::LoadConversationTemplates()
                 else
                     TC_LOG_ERROR("sql.sql", "Table `conversation_line_template` has missing template for line (ID: %u) in Conversation %u, skipped", currentConversationLine->ID, conversationTemplate.Id);
 
-                if (!currentConversationLine->NextLineID)
+                if (!currentConversationLine->NextConversationLineID)
                     break;
 
-                currentConversationLine = sConversationLineStore.AssertEntry(currentConversationLine->NextLineID);
+                currentConversationLine = sConversationLineStore.AssertEntry(currentConversationLine->NextConversationLineID);
             }
 
             _conversationTemplateStore[conversationTemplate.Id] = conversationTemplate;
