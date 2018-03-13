@@ -2838,6 +2838,14 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
         {
             bool refresh = false;
 
+            // delayed spells with multiple targets need to create a new aura object, otherwise we'll access a deleted aura
+            if (m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled())
+            {
+                _spellAura = nullptr;
+                if (Aura* aura = unit->GetAura(m_spellInfo->Id, caster->GetGUID(), m_CastItem ? m_CastItem->GetGUID() : ObjectGuid::Empty, aura_effmask))
+                    _spellAura = aura->ToUnitAura();
+            }
+
             if (!_spellAura)
             {
                 bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
@@ -3666,21 +3674,19 @@ uint64 Spell::handle_delayed(uint64 t_offset)
     // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
     {
         std::vector<TargetInfo> delayedTargets;
-        auto itr = std::remove_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [&](TargetInfo& target) -> bool
+        m_UniqueTargetInfo.erase(std::remove_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [&](TargetInfo& target) -> bool
         {
             if (single_missile || target.TimeDelay <= t_offset)
             {
                 target.TimeDelay = t_offset;
+                delayedTargets.emplace_back(std::move(target));
                 return true;
             }
             else if (next_time == 0 || target.TimeDelay < next_time)
                 next_time = target.TimeDelay;
 
             return false;
-        });
-
-        delayedTargets.insert(delayedTargets.end(), std::make_move_iterator(itr), std::make_move_iterator(m_UniqueTargetInfo.end()));
-        m_UniqueTargetInfo.erase(itr, m_UniqueTargetInfo.end());
+        }), m_UniqueTargetInfo.end());
 
         DoProcessTargetContainer(delayedTargets);
     }
@@ -3688,21 +3694,19 @@ uint64 Spell::handle_delayed(uint64 t_offset)
     // now recheck gameobject targeting correctness
     {
         std::vector<GOTargetInfo> delayedGOTargets;
-        auto itr = std::remove_if(std::begin(m_UniqueGOTargetInfo), std::end(m_UniqueGOTargetInfo), [&](GOTargetInfo& goTarget) -> bool
+        m_UniqueGOTargetInfo.erase(std::remove_if(m_UniqueGOTargetInfo.begin(), m_UniqueGOTargetInfo.end(), [&](GOTargetInfo& goTarget) -> bool
         {
             if (single_missile || goTarget.TimeDelay <= t_offset)
             {
                 goTarget.TimeDelay = t_offset;
+                delayedGOTargets.emplace_back(std::move(goTarget));
                 return true;
             }
             else if (next_time == 0 || goTarget.TimeDelay < next_time)
                 next_time = goTarget.TimeDelay;
 
             return false;
-        });
-
-        delayedGOTargets.insert(delayedGOTargets.end(), std::make_move_iterator(itr), std::make_move_iterator(m_UniqueGOTargetInfo.end()));
-        m_UniqueGOTargetInfo.erase(itr, m_UniqueGOTargetInfo.end());
+        }), m_UniqueGOTargetInfo.end());
 
         DoProcessTargetContainer(delayedGOTargets);
     }
