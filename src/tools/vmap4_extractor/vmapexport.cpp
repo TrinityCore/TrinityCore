@@ -398,11 +398,10 @@ void ParsMapFiles()
         if (itr == wdts.end())
         {
             char fn[512];
-            char id[10];
             char* name = map_ids[mapId].name;
             sprintf(fn, "World\\Maps\\%s\\%s.wdt", name, name);
             itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fn, name, maps_that_are_parents.count(mapId) > 0)).first;
-            if (!itr->second.init(id, mapId))
+            if (!itr->second.init(mapId))
             {
                 wdts.erase(itr);
                 return nullptr;
@@ -418,9 +417,9 @@ void ParsMapFiles()
         {
             WDTFile* parentWDT = itr->second.parent_id >= 0 ? getWDT(itr->second.parent_id) : nullptr;
             printf("Processing Map %u\n[", itr->first);
-            for (int x = 0; x < 64; ++x)
+            for (int32 x = 0; x < 64; ++x)
             {
-                for (int y = 0; y < 64; ++y)
+                for (int32 y = 0; y < 64; ++y)
                 {
                     bool success = false;
                     if (ADTFile* ADT = WDT->GetMap(x, y))

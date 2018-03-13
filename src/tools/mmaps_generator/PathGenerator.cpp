@@ -298,10 +298,10 @@ int main(int argc, char** argv)
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
     std::string mapPath = (boost::filesystem::path("dbc") / "Map.dbc").string();
-    DBCFileLoader* loader = new DBCFileLoader();
 
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     {
+        DBCFileLoader* loader = new DBCFileLoader();
         if (!loader->Load(mapPath.c_str(), "x"))
         {
             delete loader;
