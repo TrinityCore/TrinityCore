@@ -2566,7 +2566,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                     if ((effMask & (1 << i)) && aurApp->HasEffect(i))
                         effMask &= ~(1 << i);
 
-                _spellHitTarget->_ApplyAura(aurApp, effMask);
+                if (effMask)
+                    _spellHitTarget->_ApplyAura(aurApp, effMask);
             }
         }
 
@@ -4239,6 +4240,8 @@ void Spell::SendSpellGo()
     {
         if (Player* player = m_caster->GetAffectingPlayer())
             player->SendDirectMessage(packet.Write());
+
+        packet.Clear();
 
         // update nearby players (remove flag)
         castData.CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
