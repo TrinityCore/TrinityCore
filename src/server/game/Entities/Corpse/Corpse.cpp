@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "DatabaseEnv.h"
 #include "World.h"
 
@@ -86,7 +87,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 
     _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
 
-    CopyPhaseFrom(owner);
+    PhasingHandler::InheritPhaseShift(this, owner);
 
     return true;
 }
@@ -116,12 +117,12 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
     trans->Append(stmt);
 
-    for (uint32 phaseId : GetPhases())
+    for (PhaseShift::PhaseRef const& phase : GetPhaseShift().GetPhases())
     {
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
         stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
-        stmt->setUInt32(index++, phaseId);                                            // PhaseId
+        stmt->setUInt32(index++, phase.Id);                                           // PhaseId
         trans->Append(stmt);
     }
 

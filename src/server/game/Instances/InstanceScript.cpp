@@ -27,6 +27,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
 #include "Guild.h"
@@ -749,7 +750,7 @@ void InstanceScript::UpdatePhasing()
     Map::PlayerList const& players = instance->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource())
-            player->SendUpdatePhasing();
+            PhasingHandler::SendToPlayer(player);
 }
 
 void InstanceScript::UpdateCombatResurrection(uint32 diff)

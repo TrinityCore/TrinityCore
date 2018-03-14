@@ -119,7 +119,7 @@ void Archaeology::UseSite()
         float x      = _player->GetPositionX() + cos(o) * 2.0f;
         float y      = _player->GetPositionY() + sin(o) * 2.0f;
         float z      = _player->GetPositionZ();
-        float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhases(), x, y, z, &ground, _player->IsInWater());
+        float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
 
         G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(angle, 0.f, 0.f);
         if (std::abs(z - ground) < 1.5f)
@@ -140,7 +140,7 @@ void Archaeology::UseSite()
     float x      = _player->GetPositionX() + cos(o) * 2.0f;
     float y      = _player->GetPositionY() + sin(o) * 2.0f;
     float z      = _player->GetPositionZ();
-    float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhases(), x, y, z, &ground, _player->IsInWater());
+    float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
 
     // Spawn object
     _player->SummonGameObject(goId, Position(x, y, ground, o), G3D::Quat(), 60);

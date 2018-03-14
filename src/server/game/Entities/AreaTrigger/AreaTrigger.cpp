@@ -16,6 +16,7 @@
  */
 
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Unit.h"
 #include "SpellInfo.h"
 #include "Log.h"
@@ -78,7 +79,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
     SetFloatValue(AREATRIGGER_FINAL_POS + 2, pos.GetPositionZ());
 
-    CopyPhaseFrom(caster);
+    PhasingHandler::InheritPhaseShift(this, caster);
 
     if (!GetMap()->AddToMap(this))
         return false;

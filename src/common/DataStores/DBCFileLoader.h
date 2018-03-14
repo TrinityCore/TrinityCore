@@ -47,6 +47,13 @@ class TC_SHARED_API DBCFileLoader
                     EndianConvert(val);
                     return val;
                 }
+                int32 getInt(size_t field) const
+                {
+                    assert(field < file.fieldCount);
+                    int32 val = *reinterpret_cast<int32*>(offset + file.GetOffset(field));
+                    EndianConvert(val);
+                    return val;
+                }
                 uint8 getUInt8(size_t field) const
                 {
                     assert(field < file.fieldCount);

@@ -31,6 +31,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "Opcodes.h"
+#include "PhasingHandler.h"
 
 class gobject_commandscript : public CommandScript
 {
@@ -147,7 +148,7 @@ public:
             return false;
         }
 
-        object->CopyPhaseFrom(player);
+        PhasingHandler::InheritPhaseShift(object, player);
 
         if (spawntimeSecs)
         {

@@ -112,7 +112,7 @@ class TC_GAME_API ChatHandler
         virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
-        virtual int GetSessionDbLocaleIndex() const;
+        virtual LocaleConstant GetSessionDbLocaleIndex() const;
 
         bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
@@ -178,7 +178,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
-        int GetSessionDbLocaleIndex() const override;
+        LocaleConstant GetSessionDbLocaleIndex() const override;
 
     private:
         void* m_callbackArg;
