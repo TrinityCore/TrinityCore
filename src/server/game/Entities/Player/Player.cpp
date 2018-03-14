@@ -7528,7 +7528,6 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
         combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
 
-    // req. check at equip, but allow use for extended range if range limit max level, set proper level
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         int32 statType = item->GetItemStatType(i);
@@ -12555,12 +12554,13 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         {
             if (slot < INVENTORY_SLOT_BAG_END)
             {
-                ItemTemplate const* pProto = pItem->GetTemplate();
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
-
-                if (pProto && pProto->GetItemSet())
+                ItemTemplate const* pProto = ASSERT_NOTNULL(pItem->GetTemplate());
+                if (pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
 
+                // remove here before _ApplyItemMods (for example to register correct damages of unequipped weapon)
+                m_items[slot] = nullptr;
                 _ApplyItemMods(pItem, slot, false, update);
 
                 pItem->RemoveItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
@@ -12585,7 +12585,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 }
             }
 
-            m_items[slot] = nullptr;
             SetInvSlot(slot, ObjectGuid::Empty);
 
             if (slot < EQUIPMENT_SLOT_END)
