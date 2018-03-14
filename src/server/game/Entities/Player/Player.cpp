@@ -5848,7 +5848,8 @@ void Player::GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue)
     // Skip if the profession is no gather profession
     if (skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY)
         return;
-    uint32 areaId = GetBaseMap()->GetAreaId(GetPositionX(), GetPositionY(), GetPositionZ());
+
+    uint32 areaId = GetBaseMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
     if (!areaEntry)
@@ -27674,7 +27675,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return nullptr;
     }
 
-    PhasingHandler::InheritPhaseShift(pet, this);
     if (!hasPetData)
     {
         Map* map = GetMap();
@@ -27690,8 +27690,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         std::string new_name = sObjectMgr->GeneratePetName(entry);
         if (!new_name.empty())
             pet->SetName(new_name);
-
-        pet->CopyPhaseFrom(this);
 
         pet->SetCreatorGUID(GetGUID());
         pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, GetFaction());
@@ -27733,6 +27731,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                 break;
         }
     }
+
+    PhasingHandler::InheritPhaseShift(pet, this);
 
     if (duration > 0)
         pet->SetDuration(duration);

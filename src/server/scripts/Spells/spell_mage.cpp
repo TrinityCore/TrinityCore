@@ -1880,7 +1880,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
                         SPELL_MAGE_IMPROVED_HOT_STREAK_R1,
                         SPELL_MAGE_IMPROVED_HOT_STREAK_R2,
                         SPELL_MAGE_FIREBALL,
-                        SPELL_MAGE_PYRO_BLAST,
+                        SPELL_MAGE_PYROBLAST,
                         SPELL_MAGE_FIRE_BLAST,
                         SPELL_MAGE_FROSTFIRE_BOLT,
                         SPELL_MAGE_SCORCH
@@ -1896,7 +1896,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
                         switch (eventInfo.GetSpellInfo()->Id)
                         {
                             case SPELL_MAGE_FIREBALL:
-                            case SPELL_MAGE_PYRO_BLAST:
+                            case SPELL_MAGE_PYROBLAST:
                             case SPELL_MAGE_FIRE_BLAST:
                             case SPELL_MAGE_FROSTFIRE_BOLT:
                             case SPELL_MAGE_SCORCH:
@@ -2027,7 +2027,7 @@ class spell_mage_pyroblast : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 // Copy the spellpower coefficient from the original pyroblast spell
-                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYRO_BLAST))
+                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST))
                 {
                     int32 damage = GetEffectValue();
                     if (Unit* target = GetHitUnit())
