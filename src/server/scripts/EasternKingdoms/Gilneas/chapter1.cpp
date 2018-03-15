@@ -24,6 +24,7 @@
 #include "ScriptedEscortAI.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "CreatureTextMgr.h"
@@ -367,14 +368,12 @@ class npc_josiah_avery : public CreatureScript
 
         struct npc_josiah_averyAI : public PassiveAI
         {
-            npc_josiah_averyAI(Creature* creature) : PassiveAI(creature)
-            {
-            }
+            npc_josiah_averyAI(Creature* creature) : PassiveAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {
-                me->SetInPhase(PHASE_ID_SUMMON, false, false);
-                me->SetInPhase(PHASE_ID_WOUND, false, true);
+                PhasingHandler::AddPhase(me, PHASE_ID_SUMMON, true);
+                PhasingHandler::AddPhase(me, PHASE_ID_WOUND, true);
                 _playerGuid = summoner->GetGUID();
                 _events.ScheduleEvent(EVENT_COSMETIC_ATTACK, Milliseconds(500));
             }

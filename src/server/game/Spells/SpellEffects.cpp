@@ -25,6 +25,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "SkillExtraItems.h"
 #include "Unit.h"
@@ -3184,7 +3185,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         return;
     }
 
-    pGameObj->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(pGameObj, m_caster);
 
     int32 duration = m_spellInfo->GetDuration();
 
@@ -3203,6 +3204,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
     {
+        PhasingHandler::InheritPhaseShift(linkedTrap, m_caster);
+
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
         linkedTrap->SetSpellId(m_spellInfo->Id);
 
@@ -3792,7 +3795,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
         return;
     }
 
-    pGameObj->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(pGameObj, m_caster);
 
     pGameObj->SetFaction(m_caster->GetFaction());
     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1);
@@ -4153,7 +4156,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         return;
     }
 
-    go->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(go, m_caster);
 
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     int32 duration = m_spellInfo->GetDuration();
@@ -4870,7 +4873,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         return;
     }
 
-    pGameObj->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(pGameObj, m_caster);
 
     int32 duration = m_spellInfo->GetDuration();
 
@@ -4930,6 +4933,8 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
     {
+        PhasingHandler::InheritPhaseShift(linkedTrap, m_caster);
+
         linkedTrap->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
         //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
         linkedTrap->SetSpellId(m_spellInfo->Id);
@@ -5764,7 +5769,7 @@ void Spell::EffectUpdatePlayerPhase(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->UpdateAreaPhase();
+    PhasingHandler::OnConditionChange(unitTarget);
 }
 
 void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex*/)

@@ -558,7 +558,7 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
             if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseId))
-                sPhasesByGroup[group->GroupId].insert(phase->ID);
+                sPhasesByGroup[group->GroupId].push_back(phase->ID);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");
 
@@ -1360,9 +1360,9 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     return NULL;
 }
 
-std::set<uint32> const& GetPhasesForGroup(uint32 group)
+std::vector<uint32> const* GetPhasesForGroup(uint32 group)
 {
-    return sPhasesByGroup[group];
+    return &sPhasesByGroup[group];
 }
 
 ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale)

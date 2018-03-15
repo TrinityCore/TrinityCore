@@ -3057,7 +3057,7 @@ class npc_mage_orb : public CreatureScript
                             pos.m_positionX = me->GetPositionX() + cos(pos.GetOrientation()) * 100.0f;
                             pos.m_positionY = me->GetPositionY() + sin(pos.GetOrientation()) * 100.0f;
                             float ground;
-                            me->GetMap()->GetWaterOrGroundLevel(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), &ground);
+                            me->GetMap()->GetWaterOrGroundLevel(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), &ground);
                             pos.m_positionZ = ground;
                             Movement::MoveSplineInit init(me);
                             init.SetSmooth();

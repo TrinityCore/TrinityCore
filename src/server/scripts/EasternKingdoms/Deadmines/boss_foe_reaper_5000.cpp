@@ -334,14 +334,14 @@ class boss_foe_reaper_5000 : public CreatureScript
                             Trinity::NormalizeMapCoord(destX);
                             Trinity::NormalizeMapCoord(destY);
                             travelDistZ = 10.0f;
-                            destZ = map->GetHeight(me->GetPhases(), destX, destY, respZ + travelDistZ - 2.0f, false);
+                            destZ = map->GetHeight(me->GetPhaseShift(), destX, destY, respZ + travelDistZ - 2.0f, false);
                             if (std::fabs(destZ - respZ) > travelDistZ)
                             {
-                                destZ = map->GetHeight(me->GetPhases(), destX, destY, respZ - 2.0f, true);
+                                destZ = map->GetHeight(me->GetPhaseShift(), destX, destY, respZ - 2.0f, true);
 
                                 if (std::fabs(destZ - respZ) > travelDistZ)
                                 {
-                                    destZ = map->GetHeight(me->GetPhases(), destX, destY, respZ + travelDistZ - 2.0f, true);
+                                    destZ = map->GetHeight(me->GetPhaseShift(), destX, destY, respZ + travelDistZ - 2.0f, true);
 
                                     if (std::fabs(destZ - respZ) > travelDistZ)
                                         return;

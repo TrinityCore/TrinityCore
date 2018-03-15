@@ -152,12 +152,12 @@ GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBas
     return mdl;
 }
 
-bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, std::set<uint32> const& phases, VMAP::ModelIgnoreFlags ignoreFlags) const
+bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
     if (!isCollisionEnabled() || !owner->IsSpawned())
         return false;
 
-    if (!owner->IsInPhase(phases))
+    if (!owner->IsInPhase(phaseShift))
         return false;
 
     float time = ray.intersectionTime(iBound);
