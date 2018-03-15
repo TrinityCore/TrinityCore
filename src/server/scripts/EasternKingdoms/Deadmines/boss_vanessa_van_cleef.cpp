@@ -130,6 +130,8 @@ class boss_vanessa_van_cleef : public CreatureScript
                 {
                     switch (eventId)
                     {
+                        default:
+                            break;
                     }
                 }
                 DoMeleeAttackIfReady();
