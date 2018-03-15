@@ -36,15 +36,18 @@ enum TextsIds
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GLUBTOK,                     DATA_GLUBTOK            },
-    { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER  },
-    { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000    },
-    { BOSS_ADMIRAL_RIPSNARL,            DATA_ADMIRAL_RIPSNARL   },
-    { BOSS_CAPTAIN_COOKIE,              DATA_CAPTAIN_COOKIE     },
-    { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF      },
-    { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY   },
-    { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER   },
-    { 0,                                0                       } // END
+    { BOSS_GLUBTOK,                     DATA_GLUBTOK                },
+    { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER      },
+    { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000        },
+    { BOSS_ADMIRAL_RIPSNARL,            DATA_ADMIRAL_RIPSNARL       },
+    { BOSS_CAPTAIN_COOKIE,              DATA_CAPTAIN_COOKIE         },
+    { BOSS_VANESSA_VAN_CLEEF,           DATA_VANESSA_VAN_CLEEF      },
+    { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF          },
+    { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY       },
+    { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER       },
+    { NPC_VANESSAS_TRAP_BUNNY,          DATA_VANESSAS_TRAP_BUNNY    },
+    { NPC_VANESSA_ANCHOR_BUNNY_JMF,     DATA_VANESSA_ANCHOR_BUNNY   },
+    { 0,                                0                           } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -77,12 +80,15 @@ class instance_deadmines : public InstanceMapScript
                 LoadObjectData(creatureData, gameobjectData);
                 _teamInInstance = 0;
                 _foeReaper5000Intro = 0;
-                _IronCladDoorState = 0;
+                _ironCladDoorState = 0;
+                _vanessaVanCleefEncounterState = 0;
+                _activatedVentCounter = 0;
                 _firstCookieSpawn = true;
             }
 
             void OnPlayerEnter(Player* player) override
             {
+                instance->LoadGrid(-205.75f, -579.09f);
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
             }
@@ -160,8 +166,18 @@ class instance_deadmines : public InstanceMapScript
                     case NPC_ROTTEN_LOAF:
                     case NPC_BUN:
                     case NPC_ROTTEN_BUN:
-                        if (Creature* cookie = GetCreature(DATA_CAPTAIN_COOKIE))
+                        if (GetBossState(DATA_CAPTAIN_COOKIE) != IN_PROGRESS)
+                            creature->DespawnOrUnsummon();
+                        else if (Creature* cookie = GetCreature(DATA_CAPTAIN_COOKIE))
                             cookie->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_VANESSAS_TRAP_BUNNY:
+                    case NPC_VANESSA_ANCHOR_BUNNY_JMF:
+                        creature->setActive(true);
+                        creature->SetFarVisible(true);
+                        break;
+                    case NPC_STEAM_VALVE:
+                        _steamValveGuidSet.insert(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -175,7 +191,7 @@ class instance_deadmines : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_IRON_CLAD_DOOR:
-                        if (_IronCladDoorState == DONE)
+                        if (_ironCladDoorState == DONE)
                             go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         break;
                     default:
@@ -197,11 +213,19 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_CAPTAIN_COOKIE:
                         if (state == FAIL)
                             events.ScheduleEvent(EVENT_SUMMON_CAPTAIN_COOKIE, Seconds(30));
+                        else if (state == DONE)
+                            if (instance->IsHeroic())
+                                instance->SummonCreature(NPC_A_NOTE_FROM_VANESSA, noteFromVanessaSpawnPos);
                         break;
                     default:
                         break;
                 }
                 return true;
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -213,11 +237,17 @@ class instance_deadmines : public InstanceMapScript
                         SaveToDB();
                         break;
                     case DATA_FOE_REAPER_INTRO:
+                        if (data == DONE)
+                            if (Creature* reaper = GetCreature(DATA_FOE_REAPER_5000))
+                                for (auto itr = _generalPurposeBunnyJMF2GuidSet.begin(); itr != _generalPurposeBunnyJMF2GuidSet.end(); itr++)
+                                    if (Creature* bunny = instance->GetCreature(*itr))
+                                        if (bunny->GetDistance2d(reaper->GetHomePosition().GetPositionX(), reaper->GetHomePosition().GetPositionY()) <= 15.0f)
+                                            bunny->AI()->DoAction(ACTION_ELECTRICAL_CHARGE);
                         _foeReaper5000Intro = data;
                         SaveToDB();
                         break;
                     case DATA_BROKEN_DOOR:
-                        _IronCladDoorState = data;
+                        _ironCladDoorState = data;
                         SaveToDB();
                         break;
                     case DATA_RIPSNARL_FOG:
@@ -236,6 +266,32 @@ class instance_deadmines : public InstanceMapScript
                                     bunny->RemoveAllAuras();
                         }
                         break;
+                    case DATA_VANESSA_VAN_CLEEF_ENCOUNTER:
+                        _vanessaVanCleefEncounterState = data;
+                        switch (_vanessaVanCleefEncounterState)
+                        {
+                            case IN_PROGRESS:
+                                instance->SummonCreature(NPC_VANESSA_VAN_CLEEF_INTRO, vanessaVanCleefSpawnPos);
+                                break;
+                            case NIGHTMARE_STATE_PREPARE_TRAP:
+                                if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                    if (Creature* anchorBunny = GetCreature(DATA_VANESSA_ANCHOR_BUNNY))
+                                        anchorBunny->CastSpell(trapBunny, SPELL_ROPE_BEAM, true);
+                                break;
+                            case NIGHTMARE_STAGE_GLUBTOK:
+                                if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                    trapBunny->CastSpell(trapBunny, SPELL_RIDE_MAGMA_VEHICLE, true);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case DATA_ACTIVATED_VENT:
+                        _activatedVentCounter++;
+                        if (_activatedVentCounter == 4)
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                trapBunny->AI()->DoAction(ACTION_EJECT_PLAYERS);
+                        break;
                     default:
                         break;
                 }
@@ -250,7 +306,9 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_FOE_REAPER_INTRO:
                         return _foeReaper5000Intro;
                     case DATA_BROKEN_DOOR:
-                        return _IronCladDoorState;
+                        return _ironCladDoorState;
+                    case DATA_VANESSA_VAN_CLEEF_ENCOUNTER:
+                        return _vanessaVanCleefEncounterState;
                     default:
                         return 0;
                 }
@@ -260,15 +318,14 @@ class instance_deadmines : public InstanceMapScript
             {
                 data << _teamInInstance << ' '
                     << _foeReaper5000Intro << ' '
-                    << _IronCladDoorState;
+                    << _ironCladDoorState;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _teamInInstance;
                 data >> _foeReaper5000Intro;
-                data >> _IronCladDoorState;
-
+                data >> _ironCladDoorState;
             }
 
             void Update(uint32 diff) override
@@ -296,10 +353,13 @@ class instance_deadmines : public InstanceMapScript
 
         protected:
             EventMap events;
+            uint8 _activatedVentCounter;
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
-            uint32 _IronCladDoorState;
+            uint32 _ironCladDoorState;
+            uint32 _vanessaVanCleefEncounterState;
             GuidSet _generalPurposeBunnyJMF2GuidSet;
+            GuidSet _steamValveGuidSet;
             bool _firstCookieSpawn;
         };
 

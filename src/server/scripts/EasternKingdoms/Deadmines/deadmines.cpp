@@ -23,6 +23,7 @@
 #include "WorldSession.h"
 #include "GameObjectAI.h"
 #include "GameObject.h"
+#include "Vehicle.h"
 
 enum DefiasWatcherSpells
 {
@@ -114,6 +115,163 @@ class npc_deadmines_defias_watcher : public CreatureScript
         }
 };
 
+enum VanessasTrapBunny
+{
+    EVENT_MOVE_DOWN = 1,
+    EVENT_SUMMON_VALVES,
+    EVENT_ANNOUNCE_VALVES,
+
+    SAY_ANNOUNCE_ACTIVATE_VALVES = 0,
+
+    POINT_MOLTEN_MAGMA = 1,
+};
+
+Position const trapBunnyMoveDownPos = { -205.7569f, -579.0972f, 35.98623f };
+
+Position const steamValvePositions[] =
+{
+    { -199.1944f, -583.1545f, 37.33158f, 2.600541f  },
+    { -201.809f,  -572.6215f, 37.33158f, 4.171337f  },
+    { -209.6823f, -585.8924f, 37.33158f, 0.9599311f },
+    { -212.3524f, -575.3976f, 37.33158f, 5.707227f  }
+};
+
+class npc_deadmines_vanessas_trap_bunny : public CreatureScript
+{
+    public:
+        npc_deadmines_vanessas_trap_bunny() : CreatureScript("npc_deadmines_vanessas_trap_bunny") { }
+
+        struct npc_deadmines_vanessas_trap_bunnyAI : public ScriptedAI
+        {
+            npc_deadmines_vanessas_trap_bunnyAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            {
+                Inizialize();
+            }
+
+            void Inizialize()
+            {
+                _movementStarted = false;
+            }
+
+            void Reset() override
+            {
+                Inizialize();
+            }
+
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+            {
+                if (!passenger)
+                    return;
+
+                if (apply && passenger->GetTypeId() == TYPEID_PLAYER && !_movementStarted)
+                {
+                    passenger->SetDisableGravity(true);
+                    _events.ScheduleEvent(EVENT_SUMMON_VALVES, Seconds(2) + Milliseconds(900));
+                    _events.ScheduleEvent(EVENT_MOVE_DOWN, Seconds(6));
+                    _movementStarted = true;
+                }
+                else if (!apply)
+                    passenger->SetDisableGravity(false);
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_EJECT_PLAYERS)
+                {
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                        for (uint8 i = 0; i < 5; i++)
+                            if (Unit* passenger = vehicle->GetPassenger(i))
+                            {
+                                passenger->ExitVehicle();
+                                DoCast(passenger, SPELL_FORCE_MAGMA_TRAP_THROW, true);
+                            }
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 point) override
+            {
+                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+                    return;
+
+                switch (point)
+                {
+                    case POINT_MOLTEN_MAGMA:
+                        DoCastSelf(SPELL_MOLTEN_MAGMA, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MOVE_DOWN:
+                            me->SetSpeed(MOVE_RUN, me->GetSpeed(MOVE_WALK) * 0.5f); // Moving down very, very slow
+                            me->GetMotionMaster()->MovePoint(POINT_MOLTEN_MAGMA, trapBunnyMoveDownPos, false);
+                            _events.ScheduleEvent(EVENT_ANNOUNCE_VALVES, Milliseconds(200));
+                            break;
+                        case EVENT_SUMMON_VALVES:
+                            for (uint8 i = 0; i < 4; i++)
+                                DoSummon(NPC_STEAM_VALVE, steamValvePositions[i], 0, TEMPSUMMON_MANUAL_DESPAWN);
+                            break;
+                        case EVENT_ANNOUNCE_VALVES:
+                            Talk(SAY_ANNOUNCE_ACTIVATE_VALVES);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+            }
+        private:
+            EventMap _events;
+            InstanceScript* _instance;
+            bool _movementStarted;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetDeadminesAI<npc_deadmines_vanessas_trap_bunnyAI>(creature);
+        }
+};
+
+class npc_deadmines_steam_valve : public CreatureScript
+{
+    public:
+        npc_deadmines_steam_valve() : CreatureScript("npc_deadmines_steam_valve") { }
+
+        struct npc_deadmines_steam_valveAI : public ScriptedAI
+        {
+            npc_deadmines_steam_valveAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+            void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) override
+            {
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                {
+                    _instance->SetData(DATA_ACTIVATED_VENT, DONE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+            }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetDeadminesAI<npc_deadmines_steam_valveAI>(creature);
+        }
+};
+
 enum DefiasCannon
 {
     // GroupID 0 and 1 are used by Foe Reaper 5000
@@ -189,9 +347,39 @@ class spell_deadmines_on_fire : public SpellScriptLoader
         }
 };
 
+class spell_deadmines_ride_magma_vehicle : public SpellScriptLoader
+{
+    public:
+        spell_deadmines_ride_magma_vehicle() : SpellScriptLoader("spell_deadmines_ride_magma_vehicle") { }
+
+        class spell_deadmines_ride_magma_vehicle_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_deadmines_ride_magma_vehicle_SpellScript);
+
+            void HandleHit(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_deadmines_ride_magma_vehicle_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_deadmines_ride_magma_vehicle_SpellScript();
+        }
+};
+
 void AddSC_deadmines()
 {
     new npc_deadmines_defias_watcher();
+    new npc_deadmines_vanessas_trap_bunny();
+    new npc_deadmines_steam_valve();
     new go_deadmines_defias_cannon();
     new spell_deadmines_on_fire();
+    new spell_deadmines_ride_magma_vehicle();
 }

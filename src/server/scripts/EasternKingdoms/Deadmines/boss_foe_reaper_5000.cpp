@@ -106,11 +106,6 @@ enum Phases
     PHASE_1     = 2,
 };
 
-enum Actions
-{
-    ACTION_ELECTRICAL_CHARGE = 1
-};
-
 enum Points
 {
     POINT_MOVE_OVERDRIVE    = 1,
@@ -289,16 +284,9 @@ class boss_foe_reaper_5000 : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ON_LINE:
-                        {
-                            me->CastSpell(me, SPELL_ON_LINE);
+                            DoCastSelf(SPELL_ON_LINE);
                             events.ScheduleEvent(EVENT_RED_EYES, Seconds(8) + Milliseconds(400));
-                            std::list<Creature*> units;
-                            GetCreatureListWithEntryInGrid(units, me, NPC_GENERAL_PURPOSE_BUNNY_L2, 15.0f);
-                            if (!units.empty())
-                                for (auto itr = units.begin(); itr != units.end(); ++itr)
-                                    (*itr)->AI()->DoAction(ACTION_ELECTRICAL_CHARGE);
                             break;
-                        }
                         case EVENT_RED_EYES:
                             DoCastSelf(SPELL_RED_EYES, true);
                             events.ScheduleEvent(EVENT_ON_LINE_2, Seconds(2) + Milliseconds(400));
@@ -337,7 +325,7 @@ class boss_foe_reaper_5000 : public CreatureScript
                             float respX, respY, respZ, respO, destX, destY, destZ, travelDistZ;
                             me->GetPosition(respX, respY, respZ, respO);
                             Map const* map = me->GetBaseMap();
-                            const float angle = float(rand_norm()) * static_cast<float>(M_PI*2.0f);
+                            const float angle = float(rand_norm()) * static_cast<float>(M_PI * 2.0f);
                             const float range = 15.0f;
                             const float distanceX = range * std::cos(angle);
                             const float distanceY = range * std::sin(angle);

@@ -26,22 +26,26 @@ uint32 const EncounterCount = 6;
 enum DMDataTypes
 {
     // Encounters
-    DATA_GLUBTOK            = 0,
-    DATA_HELIX_GEARBREAKER  = 1,
-    DATA_FOE_REAPER_5000    = 2,
-    DATA_ADMIRAL_RIPSNARL   = 3,
-    DATA_CAPTAIN_COOKIE     = 4,
-    DATA_VANESSA_VAN_CLEEF  = 5,
+    DATA_GLUBTOK                        = 0,
+    DATA_HELIX_GEARBREAKER              = 1,
+    DATA_FOE_REAPER_5000                = 2,
+    DATA_ADMIRAL_RIPSNARL               = 3,
+    DATA_CAPTAIN_COOKIE                 = 4,
+    DATA_VANESSA_VAN_CLEEF              = 5,
 
-    DATA_TEAM_IN_INSTANCE   = 6,
-    DATA_FIREWALL_PLATTER   = 7,
-    DATA_LUMBERING_OAF      = 8,
-    DATA_FOE_REAPER_INTRO   = 9,
-    DATA_FOE_REAPER_BUNNY   = 10,
-    DATA_PROTOTYPE_REAPER   = 11,
-    DATA_BROKEN_DOOR        = 13,
-    DATA_IRON_CLAD_DOOR     = 14,
-    DATA_RIPSNARL_FOG       = 15
+    DATA_TEAM_IN_INSTANCE               = 6,
+    DATA_FIREWALL_PLATTER               = 7,
+    DATA_LUMBERING_OAF                  = 8,
+    DATA_FOE_REAPER_INTRO               = 9,
+    DATA_FOE_REAPER_BUNNY               = 10,
+    DATA_PROTOTYPE_REAPER               = 11,
+    DATA_BROKEN_DOOR                    = 13,
+    DATA_IRON_CLAD_DOOR                 = 14,
+    DATA_RIPSNARL_FOG                   = 15,
+    DATA_VANESSA_VAN_CLEEF_ENCOUNTER    = 16,
+    DATA_VANESSAS_TRAP_BUNNY            = 17,
+    DATA_VANESSA_ANCHOR_BUNNY           = 18,
+    DATA_ACTIVATED_VENT                 = 19,
 };
 
 enum DMCreatures
@@ -52,6 +56,7 @@ enum DMCreatures
     BOSS_FOE_REAPER_5000            = 43778,
     BOSS_ADMIRAL_RIPSNARL           = 47626,
     BOSS_CAPTAIN_COOKIE             = 47739,
+    BOSS_VANESSA_VAN_CLEEF          = 49541,
 
     // Horde Creatures
     NPC_SLINKY_SHARPSHIV            = 46906,
@@ -101,6 +106,12 @@ enum DMCreatures
     NPC_ROTTEN_LOAF                 = 48299,
     NPC_BUN                         = 48301,
     NPC_ROTTEN_BUN                  = 48302,
+
+    NPC_A_NOTE_FROM_VANESSA         = 49564,
+    NPC_VANESSA_VAN_CLEEF_INTRO     = 49429,
+    NPC_VANESSAS_TRAP_BUNNY         = 49454,
+    NPC_VANESSA_ANCHOR_BUNNY_JMF    = 51624,
+    NPC_STEAM_VALVE                 = 49457,
 };
 
 enum DMGameObjects
@@ -114,12 +125,43 @@ enum DMGameObjects
     GO_FOUNDRY_DOOR     = 16399
 };
 
+enum DMActions
+{
+    ACTION_ELECTRICAL_CHARGE = 1,
+    ACTION_EJECT_PLAYERS     = 1,
+};
+
 enum DMSpells
 {
-    SPELL_FOG           = 88768
+    // -- Admiral Ripsnarl Encounter
+    SPELL_FOG                       = 88768,
+
+    // -- Vanessa VanCleef Encounter
+    // Vanessa's Trap Bunny
+    SPELL_RIDE_MAGMA_VEHICLE        = 92378,
+    SPELL_MOLTEN_MAGMA              = 92424,
+    SPELL_FORCE_MAGMA_TRAP_THROW    = 92489,
+
+    // Vanessas Anchor Bunny JMF
+    SPELL_ROPE_BEAM                 = 43785,
+
+    // Steam Valve
+    SPELL_STEAM_VENT                = 92399,
+};
+
+enum DMVanessasNightmareStages
+{
+    NIGHTMARE_STATE_PREPARE_TRAP    = 2,
+    NIGHTMARE_STAGE_GLUBTOK         = 3,
+    NIGHTMARE_STATE_HELIX           = 4,
+    NIGHTMARE_STAGE_FOE_REAPER      = 5,
+    NIGHTMARE_STAGE_RIPSNARL        = 6
 };
 
 Position const captainCookieSpawnPos = { -88.13194f, -819.3299f, 39.23453f };
+
+Position const noteFromVanessaSpawnPos = { -74.36111f, -820.0139f, 40.37145f, 4.014257f };
+Position const vanessaVanCleefSpawnPos = { -75.58507f, -819.9636f, 47.06727f, 6.178465f };
 
 template<class AI>
 AI* GetDeadminesAI(Creature* creature)

@@ -74,6 +74,7 @@ void AddSC_boss_helix_gearbreaker();
 void AddSC_boss_foe_reaper_5000();
 void AddSC_boss_admiral_ripsnarl();
 void AddSC_boss_captain_cookie();
+void AddSC_boss_vanessa_van_cleef();
 void AddSC_gilneas_c1();                     //Gilneas
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
@@ -280,6 +281,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_foe_reaper_5000();
     AddSC_boss_admiral_ripsnarl();
     AddSC_boss_captain_cookie();
+    AddSC_boss_vanessa_van_cleef();
     AddSC_gilneas_c1();                     //Gilneas
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
