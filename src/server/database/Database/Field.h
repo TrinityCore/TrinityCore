@@ -136,7 +136,7 @@ class TC_DATABASE_API Field
         bool IsNumeric() const;
 
     private:
-        #ifdef TRINITY_DEBUG
+        #ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
         void SetMetadata(MYSQL_FIELD* field, uint32 fieldIndex);
         Metadata meta;
         #endif
