@@ -2007,12 +2007,12 @@ void ObjectMgr::LoadCreatures()
             MapEntry const* terrainSwapEntry = sMapStore.LookupEntry(data.terrainSwapMap);
             if (!terrainSwapEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: % Entry: %u) with `terrainSwapMap` %u does not exist, set to -1", guid, data.id, data.terrainSwapMap);
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `terrainSwapMap` %u does not exist, set to -1", guid, data.id, data.terrainSwapMap);
                 data.terrainSwapMap = -1;
             }
             else if (terrainSwapEntry->rootPhaseMap != data.mapid)
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: % Entry: %u) with `terrainSwapMap` %u which cannot be used on spawn map, set to -1", guid, data.id, data.terrainSwapMap);
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `terrainSwapMap` %u which cannot be used on spawn map, set to -1", guid, data.id, data.terrainSwapMap);
                 data.terrainSwapMap = -1;
             }
         }
