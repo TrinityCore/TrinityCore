@@ -75,7 +75,7 @@ enum ConditionTypes
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
     CONDITION_REALM_ACHIEVEMENT     = 39,                   // achievement_id   0              0                  true if realm achievement is complete
     CONDITION_IN_WATER              = 40,                   // 0                0              0                  true if unit in water
-    CONDITION_TERRAIN_SWAP          = 41,                   //                                                    only for 6.x
+    CONDITION_TERRAIN_SWAP          = 41,                   //                                                    only for master branch
     CONDITION_STAND_STATE           = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
     CONDITION_DAILY_QUEST_DONE      = 43,                   // quest id         0              0                  true if daily quest has been completed for the day
     CONDITION_CHARMED               = 44,                   // 0                0              0                  true if unit is currently charmed
@@ -139,9 +139,10 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
-    CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25, // only 6.x
-    CONDITION_SOURCE_TYPE_PHASE                          = 26, // only 6.x
-    CONDITION_SOURCE_TYPE_MAX                            = 27  // MAX
+    CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25, // only master
+    CONDITION_SOURCE_TYPE_PHASE                          = 26, // only master
+    CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27, // only master
+    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
 };
 
 enum RelationType
