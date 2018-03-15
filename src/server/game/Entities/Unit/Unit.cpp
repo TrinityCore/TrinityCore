@@ -10139,9 +10139,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
 
-    if (IsInWorld())
-        RemoveFromWorld();
-
     ASSERT(GetGUID());
 
     // A unit may be in removelist and not in world, but it is still in grid
@@ -10157,6 +10154,9 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     ClearComboPointHolders();
     DeleteThreatList();
     getHostileRefManager().deleteReferences();
+
+    if (IsInWorld())
+        RemoveFromWorld();
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)
