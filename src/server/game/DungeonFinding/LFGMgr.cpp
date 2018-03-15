@@ -1485,7 +1485,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
 
         // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
         if (player->CanRewardQuest(quest, false))
-            player->RewardQuest(quest, 0, NULL, false);
+            player->RewardQuest(quest, 0, nullptr, false);
         else
         {
             done = true;
@@ -1493,7 +1493,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             if (!quest)
                 continue;
             // we give reward without informing client (retail does this)
-            player->RewardQuest(quest, 0, NULL, false);
+            player->RewardQuest(quest, 0, nullptr, false);
         }
         uint8 tmpRole = 0;
         if (Group *group = player->GetGroup())
@@ -1503,7 +1503,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             if (player->GetCallToArmsTempRoles() & tmpRole)
             {
                 const Quest* q = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST);
-                player->RewardQuest(q, 0, NULL, false);
+                player->RewardQuest(q, 0, nullptr, false);
             }
         player->SetTempCallToArmsRoles(0);
 
