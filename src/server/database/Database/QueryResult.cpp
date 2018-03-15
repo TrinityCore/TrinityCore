@@ -126,7 +126,7 @@ _result(result),
 _fields(fields)
 {
     _currentRow = new Field[_fieldCount];
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     for (uint32 i = 0; i < _fieldCount; i++)
         _currentRow[i].SetMetadata(&_fields[i], i);
 #endif
@@ -253,7 +253,7 @@ m_metadataResult(result)
                     *m_rBind[fIndex].length);
             }
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
             m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&field[fIndex], fIndex);
 #endif
         }
