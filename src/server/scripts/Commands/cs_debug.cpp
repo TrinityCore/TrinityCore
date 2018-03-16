@@ -1526,7 +1526,7 @@ public:
                 if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
                     nearestLoc = bf->GetClosestGraveYard(player);
                 else
-                    nearestLoc = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+                    nearestLoc = sObjectMgr->GetClosestGraveYard(*player, player->GetTeam(), player);
             }
         }
         else
