@@ -45,6 +45,11 @@ std::size_t DB2FileSystemSource::GetPosition() const
     return ftell(_file);
 }
 
+void DB2FileSystemSource::SetPosition(std::size_t position)
+{
+    fseek(_file, position, SEEK_SET);
+}
+
 std::size_t DB2FileSystemSource::GetFileSize() const
 {
     boost::system::error_code error;
