@@ -6179,8 +6179,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team) const
     else return nullptr;
 }
 
-WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team) const
+WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const
 {
+    float x, y, z;
+    location.GetPosition(x, y, z);
+    uint32 MapId = location.GetMapId();
+
     // search for zone associated closest graveyard
     uint32 zoneId = sMapMgr->GetZoneId(MapId, x, y, z);
 
@@ -6226,6 +6230,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
+    ConditionSourceInfo conditionSource(conditionObject);
+
     for (; range.first != range.second; ++range.first)
     {
         GraveYardData const& data = range.first->second;
@@ -6240,6 +6246,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // skip enemy faction graveyard
         // team == 0 case can be at call from .neargrave
         if (data.team != 0 && team != 0 && data.team != team)
+            continue;
+
+        if (conditionObject && !sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_GRAVEYARD, data.safeLocId, conditionSource))
             continue;
 
         // find now nearest graveyard at other map
