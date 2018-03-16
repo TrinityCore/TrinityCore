@@ -443,20 +443,20 @@ void TransportMgr::SpawnContinentTransports()
 
             if (phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
                 phaseUseFlags &= PHASE_USE_FLAGS_ALL;
             }
 
             if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
                     " removing PHASE_USE_FLAGS_INVERSE.", guid, entry);
                 phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
             }
 
             if (phaseGroupId && phaseId)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
                 phaseGroupId = 0;
             }
 
@@ -464,7 +464,7 @@ void TransportMgr::SpawnContinentTransports()
             {
                 if (!sPhaseStore.LookupEntry(phaseId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
                     phaseId = 0;
                 }
             }
@@ -473,7 +473,7 @@ void TransportMgr::SpawnContinentTransports()
             {
                 if (!GetPhasesForGroup(phaseGroupId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
                     phaseGroupId = 0;
                 }
             }
