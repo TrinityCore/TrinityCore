@@ -1094,6 +1094,9 @@ void Guardian::UpdateMaxHealth()
         case ENTRY_BLOODWORM:
             multiplicator = 1.0f;
             break;
+        case ENTRY_WATER_ELEMENTAL:
+            multiplicator = 7.5;
+            break;
         default:
             multiplicator = 14.0f;
             break;
@@ -1135,6 +1138,10 @@ void Guardian::UpdateMaxHealth()
         }
     }
 
+    // Glyph of Voidwalker
+    if (GetEntry() == ENTRY_VOIDWALKER && GetOwner() && GetOwner()->HasAura(56247))
+        value += value * 0.20f;
+
     SetMaxHealth((uint32)value);
 }
 
@@ -1145,20 +1152,26 @@ void Guardian::UpdateMaxPower(Powers power)
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
     float multiplicator = 15.0f;
 
-    switch (GetEntry())
-    {
-        case ENTRY_IMP:         multiplicator = 4.95f;  break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_SUCCUBUS:
-        case ENTRY_FELHUNTER:
-        case ENTRY_FELGUARD:    multiplicator = 11.5f;  break;
-        default:                multiplicator = 15.0f;  break;
-    }
-
     float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + addValue * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
+
+    if (Unit* owner = GetOwner())
+    {
+        switch (GetEntry())
+        {
+            case ENTRY_IMP:
+            case ENTRY_FELHUNTER:
+            case ENTRY_FELGUARD:
+            case ENTRY_SUCCUBUS:
+            case ENTRY_VOIDWALKER:
+                value = (7.5 * getLevel() / 80) * GetOwner()->GetStat(STAT_INTELLECT) + GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
+                break;
+            default:
+                break;
+        }
+    }
 
     SetMaxPower(power, uint32(value));
 }
@@ -1182,26 +1195,21 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         if (IsHunterPet())                      //hunter pets benefit from owner's attack power
         {
-            float mod = 1.0f;                                                 //Hunter contribution modifier
-            bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
-            if (AuraEffect* aurEff = owner->GetAuraEffectOfRankedSpell(34453, EFFECT_1, owner->GetGUID())) // Animal Handler
-            {
-                AddPct(bonusAP, aurEff->GetAmount());
-                AddPct(val, aurEff->GetAmount());
-            }
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
+            float mod = 0.425f;                                                 //Hunter contribution modifier
+            bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * mod;
+            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.0687f));
         }
         else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
         {
-            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
+            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.12f;
+            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.06287f));
         }
         else if (IsSpiritWolf()) //wolf benefit from shaman's attack power
         {
-            float dmg_multiplier = 0.31f;
+            float dmg_multiplier = 0.50f;
             if (m_owner->GetAuraEffect(63271, 0)) // Glyph of Feral Spirit
-                dmg_multiplier = 0.61f;
-            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier;
+                dmg_multiplier = 0.80f;
+            bonusAP += owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
         }
         //demons benefit from warlocks shadow or fire damage
@@ -1212,8 +1220,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             int32 maximum  = (fire > shadow) ? fire : shadow;
             if (maximum < 0)
                 maximum = 0;
-            SetBonusDamage(int32(maximum * 0.15f));
-            bonusAP = maximum * 0.57f;
+            SetBonusDamage(int32(maximum * 0.07f));
+            bonusAP += maximum * 0.25f;
         }
         //water elementals benefit from mage's frost damage
         else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
@@ -1222,6 +1230,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             if (frost < 0)
                 frost = 0;
             SetBonusDamage(int32(frost * 0.4f));
+        }
+        else if (GetEntry() == ENTRY_RUNIC_WEAPON)
+        {
+            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK);
         }
     }
 
