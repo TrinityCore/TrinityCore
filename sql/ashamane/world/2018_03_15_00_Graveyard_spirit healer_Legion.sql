@@ -61,8 +61,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 
 -- Fix one wrong graveyard
 DELETE FROM `graveyard_zone` WHERE `id` = 1691 AND `GhostZone`=5728;
-INSERT INTO `graveyard_zone` VALUES 
-(1691, 5287, 0, 'Stranglethorn Vale, Gurubashi Arena GY');
 
 -- Delete duplicate spirit
 DELETE FROM `creature` WHERE `guid` = '371245' AND `ID` = '6491';
