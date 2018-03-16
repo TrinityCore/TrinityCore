@@ -28,6 +28,7 @@ set(mmap_gen_Includes
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Maps
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common/DataStores
 )
 
 include_directories(${mmap_gen_Includes})
