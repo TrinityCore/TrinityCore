@@ -296,9 +296,9 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             // check for sub-factions that receive spillover
             std::vector<uint32> const* flist = sDB2Manager.GetFactionTeamList(factionEntry->ID);
             // if has no sub-factions, check for factions with same parent
-            if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionModOut != 0.0f)
+            if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionMod[1] != 0.0f)
             {
-                spillOverRepOut *= factionEntry->ParentFactionModOut;
+                spillOverRepOut *= factionEntry->ParentFactionMod[1];
                 if (FactionEntry const* parent = sFactionStore.LookupEntry(factionEntry->ParentFactionID))
                 {
                     FactionStateList::iterator parentState = _factions.find(parent->ReputationIndex);
@@ -320,9 +320,9 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                 {
                     if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
                     {
-                        if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCapIn))
+                        if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCap[0]))
                             continue;
-                        int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionModIn);
+                        int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionMod[0]);
                         if (spilloverRep != 0 || !incremental)
                             res = SetOneFactionReputation(factionEntryCalc, spilloverRep, incremental);
                     }
