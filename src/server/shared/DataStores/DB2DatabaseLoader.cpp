@@ -112,7 +112,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
         for (uint32 x = 0; x < _loadInfo->Meta->FieldCount; ++x)
         {
-            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->Fields[x].ArraySize; ++z)
             {
                 switch (_loadInfo->TypesString[f])
                 {
@@ -236,7 +236,7 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
 
             for (uint32 x = 0; x < fieldCount; ++x)
             {
-                for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
+                for (uint32 z = 0; z < _loadInfo->Meta->Fields[x].ArraySize; ++z)
                 {
                     switch (_loadInfo->TypesString[fieldIndex])
                     {
