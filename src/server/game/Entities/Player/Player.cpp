@@ -4760,7 +4760,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
         if (removeChannel)
         {
-            removeChannel->LeaveChannel(this, sendRemove);                                      // Leave old channel
+            removeChannel->LeaveChannel(this, sendRemove, true);                                // Leave old channel
 
             LeftChannel(removeChannel);                                                         // Remove from player's channel list
             cMgr->LeftChannel(removeChannel->GetChannelId(), removeChannel->GetZoneEntry());    // Delete if empty
