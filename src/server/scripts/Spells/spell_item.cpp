@@ -256,9 +256,15 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                 caster->CastSpell(target, spellId, aurEff);
             }
 
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+            {
+            	GetTarget()->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
+            }
+
             void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_item_anger_capacitor_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_item_anger_capacitor_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1783,6 +1789,11 @@ class spell_item_shadowmourne : public AuraScript
                 soulFragments->Remove();
             }
         }
+    }
+
+    void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_SOUL_FRAGMENT);
     }
 
     void Register() override
@@ -3456,9 +3467,15 @@ public:
                 caster->CastSpell(target, _triggerSpell, aurEff);
         }
 
+        void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+        {
+        	GetTarget()->RemoveAurasDueToSpell(_stackSpell);
+        }
+
         void Register() override
         {
             OnEffectProc += AuraEffectProcFn(spell_item_trinket_stack_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_item_trinket_stack_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
         }
 
         uint32 _stackSpell;
