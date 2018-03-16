@@ -32,10 +32,6 @@ target_compile_options(trinity-compile-option-interface
     -Wno-narrowing
     -Wno-deprecated-register)
 
-target_compile_definitions(trinity-compile-option-interface
-  INTERFACE
-    -DDEBUG=1)
-
 if (BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.
   # -fvisibility=hidden sets the default visibility to hidden to prevent exporting of all symbols.
