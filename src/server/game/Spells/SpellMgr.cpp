@@ -1837,6 +1837,11 @@ void SpellMgr::LoadSpellProcs()
                 case SPELL_AURA_MOD_BLOCK_PERCENT:
                     procEntry.HitMask = PROC_HIT_BLOCK;
                     break;
+                // proc auras with another aura reducing hit chance (eg 63767) only proc on missed attack
+                case SPELL_AURA_MOD_HIT_CHANCE:
+                    if (spellEffectInfo.CalcValue() <= -100)
+                        procEntry.HitMask = PROC_HIT_MISS;
+                    break;
                 default:
                     continue;
             }
