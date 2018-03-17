@@ -122,8 +122,6 @@ class TC_GAME_API AuraEffect
         uint8 const m_effIndex;
         bool m_canBeRecalculated;
         bool m_isPeriodic;
-    private:
-        bool CanPeriodicTickCrit(Unit const* caster) const;
 
     public:
         // aura effect apply/remove handlers
