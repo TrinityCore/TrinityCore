@@ -241,14 +241,16 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     SendToOne(builder, guid);
     */
 
-    auto builder = [&](LocaleConstant /*locale*/)
+    auto builder = [&](LocaleConstant locale)
     {
+        LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
+
         WorldPackets::Channel::ChannelNotifyJoined* notify = new WorldPackets::Channel::ChannelNotifyJoined();
         //notify->ChannelWelcomeMsg = "";
         notify->ChatChannelID = _channelId;
         //notify->InstanceID = 0;
         notify->_ChannelFlags = _channelFlags;
-        notify->_Channel = _channelName;
+        notify->_Channel = GetName(localeIdx);
         return notify;
     };
 
@@ -276,7 +278,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     }
 }
 
-void Channel::LeaveChannel(Player* player, bool send)
+void Channel::LeaveChannel(Player* player, bool send, bool suspend)
 {
     ObjectGuid const& guid = player->GetGUID();
     if (!IsOn(guid))
@@ -306,8 +308,8 @@ void Channel::LeaveChannel(Player* player, bool send)
 
             WorldPackets::Channel::ChannelNotifyLeft* notify = new WorldPackets::Channel::ChannelNotifyLeft();
             notify->Channel = GetName(localeIdx);
-            notify->ChatChannelID = 0;
-            //notify->Suspended = false;
+            notify->ChatChannelID = _channelId;
+            notify->Suspended = suspend;
             return notify;
         };
 
