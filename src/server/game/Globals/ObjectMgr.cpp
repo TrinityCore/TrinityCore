@@ -6397,10 +6397,14 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team) const
     else return nullptr;
 }
 
-WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team) const
+WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const
 {
+    float x, y, z;
+    location.GetPosition(x, y, z);
+    uint32 MapId = location.GetMapId();
+
     // search for zone associated closest graveyard
-    uint32 zoneId = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
+    uint32 zoneId = sMapMgr->GetZoneId(conditionObject->GetPhaseShift(), MapId, x, y, z);
 
     if (!zoneId)
     {
@@ -6444,24 +6448,30 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
+    ConditionSourceInfo conditionSource(conditionObject);
+
     for (; range.first != range.second; ++range.first)
     {
         GraveYardData const& data = range.first->second;
 
-        WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(data.safeLocId);
-        if (!entry)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has record for not existing graveyard (WorldSafeLocsID %u), skipped.", data.safeLocId);
-            continue;
-        }
+        WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.AssertEntry(data.safeLocId);
 
         // skip enemy faction graveyard
         // team == 0 case can be at call from .neargrave
         if (data.team != 0 && team != 0 && data.team != team)
             continue;
 
+        if (conditionObject)
+        {
+            if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_GRAVEYARD, data.safeLocId, conditionSource))
+                continue;
+
+            if (int16(entry->map_id) == mapEntry->rootPhaseMap && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->map_id))
+                continue;
+        }
+
         // find now nearest graveyard at other map
-        if (MapId != entry->map_id)
+        if (MapId != entry->map_id && int16(entry->map_id) != mapEntry->rootPhaseMap)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
