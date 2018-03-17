@@ -6404,12 +6404,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
             if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_GRAVEYARD, data.safeLocId, conditionSource))
                 continue;
 
-            if (int16(entry->MapID) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->MapID))
+            if (int16(entry->map_id) == mapEntry->rootPhaseMap && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->map_id))
                 continue;
         }
 
         // find now nearest graveyard at other map
-        if (MapId != entry->MapID && int16(entry->MapID) != mapEntry->ParentMapID)
+        if (MapId != entry->map_id && int16(entry->map_id) != mapEntry->rootPhaseMap)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
