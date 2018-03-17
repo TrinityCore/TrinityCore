@@ -27,7 +27,7 @@ CHANGEME 3.3.5, master or both
 
 **TC rev. hash/commit:** 
 
-CHANGEME Copy the result of server debug command
+CHANGEME Copy the result of server debug command (if you need to run it from client get prat addon)
 
 **Operating system:** CHANGEME OS
 
