@@ -50,6 +50,7 @@ enum WarlockSpells
     SPELL_WARLOCK_DRAIN_LIFE_HEAL                   = 89653,
     SPELL_WARLOCK_DRAIN_LIFE_SOULBURN               = 89420,
     SPELL_WARLOCK_SOULBURN_DRAIN_LIFE               = 74434,
+    SPELL_WARLOCK_FEL_ARMOR_HEAL                    = 96379,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
@@ -1623,6 +1624,41 @@ class spell_warl_drain_soul : public SpellScriptLoader
         }
 };
 
+// 28176 - Fel Armor
+class spell_warl_fel_armor : public SpellScriptLoader
+{
+    public:
+        spell_warl_fel_armor() : SpellScriptLoader("spell_warl_fel_armor") { }
+
+        class spell_warl_fel_armor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_fel_armor_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARLOCK_FEL_ARMOR_HEAL });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 bp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                if (Unit* caster = GetCaster())
+                    caster->CastCustomSpell(caster, SPELL_WARLOCK_FEL_ARMOR_HEAL, &bp, 0, 0, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_fel_armor_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_fel_armor_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1640,6 +1676,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
+    new spell_warl_fel_armor();
     new spell_warl_glyph_of_shadowflame();
     new spell_warl_haunt();
     new spell_warl_health_funnel();
