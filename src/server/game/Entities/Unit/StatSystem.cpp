@@ -706,17 +706,10 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));
 
-    Item* weapon = GetWeaponForAttack(attack, true);
+    Item const* weapon = GetWeaponForAttack(attack, true);
     expertise += GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE, [weapon](AuraEffect const* aurEff) -> bool
     {
-        // item neutral spell
-        if (aurEff->GetSpellInfo()->EquippedItemClass == -1)
-            return true;
-        // item dependent spell
-        else if (weapon && weapon->IsFitToSpellRequirements(aurEff->GetSpellInfo()))
-            return true;
-
-        return false;
+        return aurEff->GetSpellInfo()->IsItemFitToSpellRequirements(weapon);
     });
 
     if (expertise < 0)

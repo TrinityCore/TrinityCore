@@ -2030,6 +2030,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ResetAllPowers();
 
+        void CastAllObtainSpells();
+        void ApplyItemObtainSpells(Item* item, bool apply);
         void ApplyItemDependentAuras(Item* item, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);

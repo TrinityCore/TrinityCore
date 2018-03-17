@@ -31,7 +31,10 @@ enum Spells
 
     // Angered Soul Fragment
     SPELL_GREATER_INVISIBILITY  = 41253,
-    SPELL_ANGER                 = 41986
+    SPELL_ANGER                 = 41986,
+
+    // Illidari Nightlord
+    SPELL_SHADOW_INFERNO_DAMAGE = 39646
 };
 
 enum Creatures
@@ -284,9 +287,44 @@ class spell_soul_fragment_anger : public SpellScriptLoader
         }
 };
 
+// 39645 - Shadow Inferno
+class spell_illidari_nightlord_shadow_inferno : public SpellScriptLoader
+{
+    public:
+        spell_illidari_nightlord_shadow_inferno() : SpellScriptLoader("spell_illidari_nightlord_shadow_inferno") { }
+
+        class spell_illidari_nightlord_shadow_inferno_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_illidari_nightlord_shadow_inferno_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_SHADOW_INFERNO_DAMAGE });
+            }
+
+            void OnPeriodic(AuraEffect const* aurEffect)
+            {
+                PreventDefaultAction();
+                int32 bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
+                GetUnitOwner()->CastCustomSpell(SPELL_SHADOW_INFERNO_DAMAGE, SPELLVALUE_BASE_POINT0, bp, GetUnitOwner(), true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidari_nightlord_shadow_inferno_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_illidari_nightlord_shadow_inferno_AuraScript();
+        }
+};
+
 void AddSC_black_temple()
 {
     new npc_wrathbone_flayer();
     new npc_angered_soul_fragment();
     new spell_soul_fragment_anger();
+    new spell_illidari_nightlord_shadow_inferno();
 }

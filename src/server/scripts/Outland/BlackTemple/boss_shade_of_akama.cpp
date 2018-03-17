@@ -87,12 +87,6 @@ enum Creatures
     NPC_CREATURE_SPAWNER_AKAMA       = 23210
 };
 
-enum Factions
-{
-    FACTION_FRIENDLY                 = 1820,
-    FACTION_COMBAT                   = 1868
-};
-
 enum Actions
 {
     ACTION_START_SPAWNING            = 0,
@@ -390,7 +384,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setFaction(FACTION_FRIENDLY);
+            me->setFaction(ASHTONGUE_FACTION_FRIEND);
             DoCastSelf(SPELL_STEALTH);
 
             if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
@@ -436,7 +430,7 @@ public:
             {
                 _isInCombat = false;
                 me->CombatStop(true);
-                me->setFaction(FACTION_FRIENDLY);
+                me->setFaction(ASHTONGUE_FACTION_FRIEND);
                 me->SetWalk(true);
                 _events.Reset();
                 me->GetMotionMaster()->MovePoint(AKAMA_INTRO_WAYPOINT, AkamaWP[1]);
@@ -490,7 +484,7 @@ public:
                     case EVENT_SHADE_CHANNEL:
                         me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
-                        me->setFaction(FACTION_COMBAT);
+                        me->setFaction(AKAMA_FACTION_COMBAT);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
                         break;
                     case EVENT_FIXATE:
@@ -538,7 +532,7 @@ public:
                 }
             }
 
-            if (me->getFaction() == FACTION_COMBAT)
+            if (me->getFaction() == AKAMA_FACTION_COMBAT)
             {
                 if (!UpdateVictim())
                     return;
@@ -1176,7 +1170,7 @@ public:
                     Talk(SAY_BROKEN_SPECIAL);
                     break;
                 case ACTION_BROKEN_HAIL:
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->setFaction(ASHTONGUE_FACTION_FRIEND);
                     Talk(SAY_BROKEN_HAIL);
                     break;
                 case ACTION_BROKEN_EMOTE:

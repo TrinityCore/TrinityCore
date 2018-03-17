@@ -3355,6 +3355,15 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 AuctionHouseBot.BuyPrice.Seller = 1
 
 #
+#    AuctionHouseBot.BidPrice.*
+#       Description: These values determine the range that the Bid Price will fall into, as a percentage of the Buy Price
+#       Default:     0.6 - (Min)
+#                    0.9 - (Max)
+
+AuctionHouseBot.BidPrice.Min = 0.6
+AuctionHouseBot.BidPrice.Max = 0.9
+
+#
 #    AuctionHouseBot.Alliance.Price.Ratio
 #       Description: Percentage by which the price of items selled on Alliance Auction House is incremented / decreased
 #       Default:     100 - (Not modify)

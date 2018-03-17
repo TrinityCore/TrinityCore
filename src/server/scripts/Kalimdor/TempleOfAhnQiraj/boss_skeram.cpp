@@ -34,8 +34,10 @@ enum Spells
     SPELL_ARCANE_EXPLOSION      = 26192,
     SPELL_EARTH_SHOCK           = 26194,
     SPELL_TRUE_FULFILLMENT      = 785,
+    SPELL_TRUE_FULFILLMENT_2    = 2313,
     SPELL_INITIALIZE_IMAGE      = 3730,
-    SPELL_SUMMON_IMAGES         = 747
+    SPELL_SUMMON_IMAGES         = 747,
+    SPELL_GENERIC_DISMOUNT      = 61286
 };
 
 enum Events
@@ -158,9 +160,8 @@ class boss_skeram : public CreatureScript
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 18000));
                             break;
                         case EVENT_FULLFILMENT:
-                            /// @todo For some weird reason boss does not cast this
-                            // Spell actually works, tested in duel
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true), SPELL_TRUE_FULFILLMENT, true);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45.0f, true))
+                                DoCast(target, SPELL_TRUE_FULFILLMENT);
                             events.ScheduleEvent(EVENT_FULLFILMENT, urand(20000, 30000));
                             break;
                         case EVENT_BLINK:
@@ -203,6 +204,7 @@ class boss_skeram : public CreatureScript
     }
 };
 
+// 26192 - Arcane Explosion
 class spell_skeram_arcane_explosion : public SpellScriptLoader
 {
     public:
@@ -232,8 +234,42 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
         }
 };
 
+// 785 - True Fulfillment
+class spell_skeram_true_fulfillment : public SpellScriptLoader
+{
+public:
+    spell_skeram_true_fulfillment() : SpellScriptLoader("spell_skeram_true_fulfillment") { }
+
+    class spell_skeram_true_fulfillment_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_skeram_true_fulfillment_SpellScript);
+        
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_GENERIC_DISMOUNT, SPELL_TRUE_FULFILLMENT_2 });
+        }
+
+        void HandleEffect(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_GENERIC_DISMOUNT, true);
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_TRUE_FULFILLMENT_2, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_skeram_true_fulfillment_SpellScript::HandleEffect, EFFECT_0, SPELL_AURA_MOD_CHARM);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_skeram_true_fulfillment_SpellScript();
+    }
+};
+
 void AddSC_boss_skeram()
 {
     new boss_skeram();
     new spell_skeram_arcane_explosion();
+    new spell_skeram_true_fulfillment();
 }
