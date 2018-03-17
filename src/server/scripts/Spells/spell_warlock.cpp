@@ -46,6 +46,10 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMON_SOUL_FELGUARD               = 79452,
     SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS               = 79453,
     SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER             = 79454,
+    SPELL_WARLOCK_DRAIN_LIFE                        = 689,
+    SPELL_WARLOCK_DRAIN_LIFE_HEAL                   = 89653,
+    SPELL_WARLOCK_DRAIN_LIFE_SOULBURN               = 89420,
+    SPELL_WARLOCK_SOULBURN_DRAIN_LIFE               = 74434,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
@@ -80,7 +84,14 @@ enum WarlockSpells
 enum WarlockSpellIcons
 {
     WARLOCK_ICON_ID_IMPROVED_LIFE_TAP               = 208,
-    WARLOCK_ICON_ID_MANA_FEED                       = 1982
+    WARLOCK_ICON_ID_MANA_FEED                       = 1982,
+	WARLOCK_ICON_ID_DEATHS_EMBRACE                  = 3223,
+	WARLOCK_ICON_ID_SOUL_SIPHON                     = 5001,
+};
+
+enum WarlockSkillIds
+{
+    WARLOCK_SKILL_ID_AFFLICTION                     = 355
 };
 
 enum MiscSpells
@@ -1442,6 +1453,127 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
+// 689 / 89420 - Drain Life
+class spell_warl_drain_life : public SpellScriptLoader
+{
+    public:
+        spell_warl_drain_life() : SpellScriptLoader("spell_warl_drain_life") { }
+
+        class spell_warl_drain_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_drain_life_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) 
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_WARLOCK_DRAIN_LIFE_HEAL,
+                        SPELL_WARLOCK_DRAIN_LIFE_SOULBURN,
+                        SPELL_WARLOCK_SOULBURN_DRAIN_LIFE
+                    });
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetSpellInfo()->Id == SPELL_WARLOCK_DRAIN_LIFE_SOULBURN)
+                    GetCaster()->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DRAIN_LIFE);
+            }
+
+            void HandlePeriodic(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 baseAmount = 0;
+                    if (SpellInfo const* healspell = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DRAIN_LIFE_HEAL))
+                        baseAmount = caster->CalculateSpellDamage(caster, healspell, aurEff->GetEffIndex());
+
+                    // Death's Embrace
+                    if (AuraEffect const* deathsEmbraceAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEATHS_EMBRACE, 0))
+                        if (caster->HealthBelowPct(25))
+                            baseAmount += int32(deathsEmbraceAurEff->GetAmount());
+
+                    GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARLOCK_DRAIN_LIFE_HEAL, &baseAmount, 0, 0, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_drain_life_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_life_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_drain_life_AuraScript();
+        }
+};
+
+// 89653 - Drain Life (Health Energize)
+class spell_warl_drain_life_heal : public SpellScriptLoader
+{
+    public:
+        spell_warl_drain_life_heal() : SpellScriptLoader("spell_warl_drain_life_heal") { }
+
+        class spell_warl_drain_life_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_drain_life_heal_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_WARLOCK_DRAIN_LIFE,
+                        SPELL_WARLOCK_DRAIN_LIFE_SOULBURN,
+                    });
+            }
+
+            void HandleSoulSiphon(SpellEffIndex effIndex)
+            {
+                // Soul Siphon
+                int32 baseHeal = 0;
+                int32 bonusHeal = 0;
+                if (Unit* caster = GetCaster())
+                {
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOUL_SIPHON, 0))
+                    {
+                        baseHeal = CalculatePct(caster->GetHealth(), GetSpellInfo()->Effects[effIndex].BasePoints);
+                        Unit* target = nullptr;
+                        if (Spell* spell = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                            target = spell->m_targets.GetUnitTarget();
+
+                        if (target)
+                        {
+                            uint8 afflictionAurasCount = 0;
+                            if (!target->GetOwnedAuras().empty())
+                                for (auto itr = target->GetOwnedAuras().begin(); itr != target->GetOwnedAuras().end(); itr++)
+                                    if (Aura* auraToCheck = itr->second)
+                                        if (auraToCheck->GetCasterGUID() == caster->GetGUID())
+                                            if (auraToCheck->GetSpellInfo()->Id != SPELL_WARLOCK_DRAIN_LIFE && auraToCheck->GetSpellInfo()->Id != SPELL_WARLOCK_DRAIN_LIFE_SOULBURN)
+                                                if (auraToCheck->GetSpellInfo()->IsAbilityOfSkillType(WARLOCK_SKILL_ID_AFFLICTION) && afflictionAurasCount < 3)
+                                                {
+                                                    bonusHeal += CalculatePct(baseHeal, aurEff->GetAmount());
+                                                    afflictionAurasCount++;
+                                                }
+
+                            SetHitHeal(bonusHeal);
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_drain_life_heal_SpellScript::HandleSoulSiphon, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warl_drain_life_heal_SpellScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1453,6 +1585,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
     new spell_warl_demon_soul();
+    new spell_warl_drain_life();
+    new spell_warl_drain_life_heal();
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
