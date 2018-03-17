@@ -113,8 +113,11 @@ namespace WorldPackets
     namespace Bank
     {
         class AutoBankItem;
+        class AutoBankReagent;
         class AutoStoreBankItem;
+        class AutoStoreBankReagent;
         class BuyBankSlot;
+        class DepositReagentBank;
     }
 
     namespace Battlefield
@@ -1391,8 +1394,12 @@ class TC_GAME_API WorldSession
 
         // Bank
         void HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet);
+        void HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReagent& packet);
         void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
+        void HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStoreBankReagent& packet);
         void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet);
+        void HandleBuyReagentBankOpcode(WorldPackets::NPC::Hello& packet);
+        void HandleDepositReagentBankOpcode(WorldPackets::Bank::DepositReagentBank& packet);
 
         // Black Market
         void HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& blackMarketOpen);
