@@ -423,13 +423,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 // Warlock Pets deal 50% of the coefficient's spell power bonus as bonus damage
                 if (m_caster->IsPet())
-                {
-                    if (Unit* owner = m_caster->GetCharmerOrOwner())
-                    {
-                        damage = CalculatePct(owner->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, effIndex), 50);
-                        damage = unitTarget->SpellDamageBonusTaken(owner, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
-                    }
-                }
+					if (Unit* owner = m_caster->GetCharmerOrOwner())
+						damage += CalculatePct(owner->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, effIndex), 50);
+
                 break;
             }
             case SPELLFAMILY_PRIEST:
