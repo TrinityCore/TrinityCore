@@ -259,7 +259,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
             void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
             	if (GetTarget())
-            		GetTarget()->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
+            	    GetTarget()->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
             }
 
             void Register() override
