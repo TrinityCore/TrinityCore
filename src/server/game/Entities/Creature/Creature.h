@@ -82,7 +82,6 @@ enum CreatureFlagsExtra : uint32
 };
 
 const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
-const uint32 CREATURE_REGEN_ENERGY_INTERVAL = 100;
 const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
 const uint8 MAX_KILL_CREDIT = 2;
@@ -804,8 +803,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
         uint32 m_path_id;
-
-        float m_tmpEnergyReg;
 
         //Formation var
         CreatureGroup* m_formation;

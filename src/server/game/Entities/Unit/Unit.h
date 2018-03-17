@@ -2296,7 +2296,6 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
-        uint32 m_regenTimerEnergy;
 
         ThreatManager m_ThreatManager;
 
