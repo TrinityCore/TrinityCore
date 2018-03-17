@@ -805,6 +805,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 break;
             case EVENT_SLIME_POOL:
                 DoCastSelf(SUMMON_SLIME_POOL);
+                DoCastSelf(SPELL_SLIME_POOL_EFFECT);
                 events.Repeat(12s);
                 break;
             case EVENT_SUMMON_ACIDMAW:
