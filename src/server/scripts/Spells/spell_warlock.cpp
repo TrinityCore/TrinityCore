@@ -1478,7 +1478,8 @@ class spell_warl_drain_life : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetSpellInfo()->Id == SPELL_WARLOCK_DRAIN_LIFE_SOULBURN)
-                    GetCaster()->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DRAIN_LIFE);
+                    if (Unit* caster = GetCaster())
+                        caster->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DRAIN_LIFE);
             }
 
             void HandlePeriodic(AuraEffect const* aurEff)
@@ -1494,7 +1495,7 @@ class spell_warl_drain_life : public SpellScriptLoader
                         if (caster->HealthBelowPct(25))
                             baseAmount += int32(deathsEmbraceAurEff->GetAmount());
 
-                    GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARLOCK_DRAIN_LIFE_HEAL, &baseAmount, 0, 0, true);
+                    caster->CastCustomSpell(caster, SPELL_WARLOCK_DRAIN_LIFE_HEAL, &baseAmount, 0, 0, true);
                 }
             }
 
@@ -1586,7 +1587,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) 
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 return ValidateSpellInfo(
                     {
@@ -1597,22 +1598,22 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             void HandlePeriodic(AuraEffect const* aurEff)
             {
-				if (Unit* caster = GetCaster())
-					GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_SOUL_SHARD, true, 0, aurEff);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, 0, aurEff);
             }
 
-			void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-			{
-				if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-					if (Unit* caster = GetCaster())
+            void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    if (Unit* caster = GetCaster())
                         if (GetOwner() && caster->ToPlayer() && caster->ToPlayer()->isHonorOrXPTarget(GetOwner()->ToUnit()))
-						    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD_ENERGIZE, true);
-			}
+                            caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD_ENERGIZE, true);
+            }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-				AfterEffectRemove += AuraEffectRemoveFn(spell_warl_drain_soul_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_warl_drain_soul_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
