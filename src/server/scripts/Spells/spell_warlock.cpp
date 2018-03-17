@@ -72,6 +72,8 @@ enum WarlockSpells
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_SHADOW_WARD                       = 6229,
+    SPELL_WARLOCK_SOUL_SHARD                        = 87388,
+    SPELL_WARLOCK_SOUL_SHARD_ENERGIZE               = 95810,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_SOUL_SWAP_CD_MARKER               = 94229,
     SPELL_WARLOCK_SOUL_SWAP_OVERRIDE                = 86211,
@@ -1574,6 +1576,52 @@ class spell_warl_drain_life_heal : public SpellScriptLoader
         }
 };
 
+// 1120 - Drain Soul
+class spell_warl_drain_soul : public SpellScriptLoader
+{
+    public:
+		spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
+
+        class spell_warl_drain_soul_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_drain_soul_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) 
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_WARLOCK_SOUL_SHARD,
+                        SPELL_WARLOCK_SOUL_SHARD_ENERGIZE
+                    });
+            }
+
+            void HandlePeriodic(AuraEffect const* aurEff)
+            {
+				if (Unit* caster = GetCaster())
+					GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_SOUL_SHARD, true, 0, aurEff);
+            }
+
+			void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+			{
+				if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+					if (Unit* caster = GetCaster())
+                        if (GetOwner() && caster->ToPlayer() && caster->ToPlayer()->isHonorOrXPTarget(GetOwner()->ToUnit()))
+						    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD_ENERGIZE, true);
+			}
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+				AfterEffectRemove += AuraEffectRemoveFn(spell_warl_drain_soul_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_drain_soul_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1587,6 +1635,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demon_soul();
     new spell_warl_drain_life();
     new spell_warl_drain_life_heal();
+	new spell_warl_drain_soul();
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
