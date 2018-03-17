@@ -258,8 +258,8 @@ class spell_item_anger_capacitor : public SpellScriptLoader
 
             void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
-            	if (GetTarget())
-            	    GetTarget()->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
+                if (GetTarget())
+                    GetTarget()->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
             }
 
             void Register() override
@@ -1794,8 +1794,8 @@ class spell_item_shadowmourne : public AuraScript
 
     void OnRemove(AuraEffect const*, AuraEffectHandleModes)
     {
-    	if (GetTarget())
-        	GetTarget()->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_SOUL_FRAGMENT);
+        if (GetTarget())
+            GetTarget()->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_SOUL_FRAGMENT);
     }
 
     void Register() override
@@ -3472,8 +3472,8 @@ public:
 
         void OnRemove(AuraEffect const*, AuraEffectHandleModes)
         {
-        	if (GetTarget())
-       			GetTarget()->RemoveAurasDueToSpell(_stackSpell);
+            if (GetTarget())
+                GetTarget()->RemoveAurasDueToSpell(_stackSpell);
         }
 
         void Register() override
