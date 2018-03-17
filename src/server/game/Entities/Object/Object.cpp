@@ -1498,9 +1498,11 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         }
         else
         {
-            float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
-            if (z < ground_z)
-                z = ground_z;
+            float ground_z = GetMap()->GetGridMapHeight(x, y) + unit->GetHoverOffset();
+            float vmap_z = std::max(GetMap()->GetAreaInfoFloorZ(x, y, z + GetCollisionHeight()), GetMap()->GetGameObjectFloor(GetPhaseMask(), x, y, z, DEFAULT_HEIGHT_SEARCH, GetCollisionHeight())) + unit->GetHoverOffset();
+            if (vmap_z <= INVALID_HEIGHT)
+                if (z < ground_z)
+                    z = ground_z;
         }
     }
     else
@@ -3271,33 +3273,34 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
     float const destCollisionHeight = excludeCollisionHeight ? 0.0f : myCollisionHeight;
 
     float const myGridHeight = GetMap()->GetGridMapHeight(myX, myY);
-    float const myVmapFloor = std::max(GetMap()->GetVMapFloor(myX, myY, myZ, 150.0f, myCollisionHeight),
+    float const myVmapFloor = std::max(GetMap()->GetAreaInfoFloorZ(myX, myY, myZ + myCollisionHeight),
         GetMap()->GetGameObjectFloor(GetPhaseMask(), myX, myY, myZ, 150.0f, myCollisionHeight));
 
     // which of these 3 do I want ?
     float const destGridHeight = GetMap()->GetGridMapHeight(x, y);
     float const destCeil = GetMap()->GetCeil(GetPhaseMask(), x, y, z, 150.0f, destCollisionHeight);
-    float const destVmapFloor = std::max(GetMap()->GetVMapFloor(x, y, z, 150.0f, destCollisionHeight),
+    float const destVmapFloor = std::max(GetMap()->GetAreaInfoFloorZ(x, y, z + destCollisionHeight),
         GetMap()->GetGameObjectFloor(GetPhaseMask(), x, y, z, 150.0f, destCollisionHeight));
 
     bool const hasVmapFloor = myVmapFloor > INVALID_HEIGHT;
     bool const hasDestGridHeight = destGridHeight > INVALID_HEIGHT;
     bool const hasDestVmapCeil = destCeil < VMAP_INVALID_CEIL && destCeil != destVmapFloor;
     bool const hasDestVmapFloor = destVmapFloor > INVALID_HEIGHT;
-    bool const destBetweenVmaps = hasDestVmapCeil && hasDestVmapFloor;
-    bool const noVmap = !hasDestVmapFloor && !hasDestVmapCeil;
 
     // It is possible that while moving, our feet are slightly moving under the ground. Jumping / reconnecting fixes this issue but we don't want to rely on that.
     myZ += myCollisionHeight;
-    bool const isOnVmap = hasVmapFloor &&
-        ((myZ < myGridHeight && std::fabs(myVmapFloor - myZ) < std::fabs(myGridHeight - myZ)) ||
-        (myZ > myGridHeight && myVmapFloor > myGridHeight));
 
-    bool const hasToFollowGridHeight = hasDestGridHeight && (noVmap ||
+    bool const destOnVmap = hasDestVmapFloor && !(z > destGridHeight && destGridHeight > destVmapFloor);
+    bool const onVmap = hasVmapFloor && !(myZ > myGridHeight && myGridHeight > myVmapFloor);
+
+    bool const notDirectlyOnVmap = !onVmap && !destOnVmap;
+    bool const destGridBetweenVmaps = destGridHeight > destVmapFloor && hasDestVmapCeil && destGridHeight < destCeil;
+
+    bool const hasToFollowGridHeight = hasDestGridHeight && (notDirectlyOnVmap ||
         (z > destGridHeight && destGridHeight > destVmapFloor) ||
-        (z < destGridHeight && hasDestVmapFloor && !hasDestVmapCeil) ||
+        (myZ > myGridHeight && z < destGridHeight && hasDestVmapFloor && !hasDestVmapCeil) ||
         (z < destGridHeight && !hasDestVmapFloor) ||
-        (destBetweenVmaps && !isOnVmap && destGridHeight > destVmapFloor && destGridHeight < destCeil));
+        (destGridBetweenVmaps && !onVmap));
 
     float result = INVALID_HEIGHT;
     if (hasToFollowGridHeight)
