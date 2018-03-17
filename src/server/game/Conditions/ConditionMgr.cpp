@@ -1835,6 +1835,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
+            break;
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
             if (!sWorldSafeLocsStore.LookupEntry(cond->SourceEntry))
             {
