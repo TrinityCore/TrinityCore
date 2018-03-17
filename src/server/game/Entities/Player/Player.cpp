@@ -2584,8 +2584,15 @@ void Player::SetInWater(bool apply)
 
 bool Player::IsInAreaTriggerRadius(const AreaTriggerEntry* trigger) const
 {
-    if (!trigger || GetMapId() != trigger->mapid)
+    if (!trigger)
         return false;
+
+    if (int32(GetMapId()) != trigger->mapid && !GetPhaseShift().HasVisibleMapId(trigger->mapid))
+        return false;
+
+    if (trigger->PhaseID || trigger->PhaseGroupID || trigger->PhaseUseFlags)
+        if (!PhasingHandler::InDbPhaseShift(this, trigger->PhaseUseFlags, trigger->PhaseID, trigger->PhaseGroupID))
+            return false;
 
     if (trigger->radius > 0.f)
     {
