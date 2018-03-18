@@ -7322,7 +7322,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         packet << uint32(newTotalCount / precision);
         packet << uint32(id);
         if (weekCap)
-            packet << uint32(newWeekCount / precision);
+            packet << uint32((!isRefund ? newWeekCount : oldWeekCount) / precision);
 
         GetSession()->SendPacket(&packet);
     }
