@@ -127,7 +127,7 @@ Position const DespawnPoint = { 497.4939f, 183.2081f, 94.53341f };
 
 class EnslavedSoulEvent : public BasicEvent
 {
-    public: explicit EnslavedSoulEvent(Creature* owner) : _owner(owner) { }
+    public: EnslavedSoulEvent(Creature* owner) : _owner(owner) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
