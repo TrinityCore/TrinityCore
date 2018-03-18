@@ -801,8 +801,7 @@ public:
             localtime_r(&time, &localTm);
 
             // Start
-            if (((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
-                ((localTm.tm_hour == 0 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && IsEventActive(GAME_EVENT_NEW_YEAR)))
+            if ((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
@@ -810,14 +809,14 @@ public:
             }
 
             // Event is active
-            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59) && !_started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
+            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59 && !_started) && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 _started = true;
             }
 
             // Stop
-            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) || (localTm.tm_min == 10 && localTm.tm_sec == 0 && localTm.tm_hour == 0 && _started == true))
+            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) && _started == true)
             {
                 _started = false;
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
