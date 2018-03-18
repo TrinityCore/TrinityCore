@@ -2674,8 +2674,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
     });
 
-    // Death and Decay
-    ApplySpellFix({ 52212 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        52212, // Death and Decay
+        41485, // Deadly Poison - Black Temple
+        41487  // Envenom - Black Temple
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
     });
@@ -2845,8 +2848,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->SpellFamilyFlags[2] = 0x80000000;
     });
 
-    // Unleashed Souls
-    ApplySpellFix({ 68979 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        50661, // Weakened Resolve
+        68979  // Unleashed Souls
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
     });

@@ -699,9 +699,11 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
     buyp = static_cast<uint32>(frand(basePriceFloat - range, basePriceFloat + range) + 0.5f);
     if (buyp == 0)
         buyp = 1;
-    uint32 basePrice = buyp * .5;
-    range = buyp * .4;
-    bidp = urand(static_cast<uint32>(basePrice - range + 0.5f), static_cast<uint32>(basePrice + range + 0.5f)) + 1;
+
+    float bidPercentage = frand(sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIDPRICE_MIN), sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIDPRICE_MAX));
+    bidp = static_cast<uint32>(bidPercentage * buyp);
+    if (bidp == 0)
+        bidp = 1;
 }
 
 // Determines the stack size to use for the item

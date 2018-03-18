@@ -432,7 +432,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from
                     // starting in the next player update
-                    if (!plrMover->IsAlive())
+                    if (plrMover->IsAlive())
                         plrMover->KillPlayer();
                 }
             }
