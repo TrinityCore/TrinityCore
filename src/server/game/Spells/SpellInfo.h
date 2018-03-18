@@ -38,6 +38,7 @@ struct SpellChainNode;
 struct SpellModifier;
 struct SpellTargetPosition;
 struct Condition;
+enum WeaponAttackType : uint8;
 
 enum SpellCastTargetFlags : uint32
 {
@@ -585,6 +586,10 @@ class TC_GAME_API SpellInfo
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
+
+        WeaponAttackType GetAttackType() const;
+
+        bool IsItemFitToSpellRequirements(Item const* item) const;
 
         bool IsAffected(uint32 familyName, flag128 const& familyFlags) const;
 

@@ -788,7 +788,6 @@ public:
                     nextBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
                     nextBoss->SetStandState(UNIT_STAND_STATE_STAND);
                     nextBoss->SetInCombatWithZone();
-                    nextBoss->Attack(nextBoss->SelectNearestTarget(100), true);
                 }
                 currentPhase = PHASE_NONE;
 
