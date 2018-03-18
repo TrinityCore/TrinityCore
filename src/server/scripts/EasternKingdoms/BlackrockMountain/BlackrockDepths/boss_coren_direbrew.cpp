@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blackrock_depths.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -28,6 +27,8 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "blackrock_depths.h"
 
 enum DirebrewSays
 {
