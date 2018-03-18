@@ -24,7 +24,9 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=617299839 WHERE `entry` IN
 DELETE FROM `waypoint_scripts` WHERE `id` IN(2,5);
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (2,0,1,468,1,0,0,0,0,0,1360540),
-(5,0,1,10,1,0,0,0,0,0,1360541);
+(2,11000,1,0,1,0,0,0,0,0,1360541),
+(5,0,1,10,1,0,0,0,0,0,1360542),
+(5,30000,1,0,1,0,0,0,0,0,1360543);
 
 DELETE FROM `waypoint_data` WHERE `id`=1360540;
 INSERT INTO `waypoint_data` VALUES
