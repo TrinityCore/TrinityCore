@@ -185,6 +185,7 @@ struct PlayerCurrency
    PlayerCurrencyState state;
    uint32 totalCount;
    uint32 weekCount;
+   uint32 seasonCount;
 };
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
@@ -1457,6 +1458,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetCurrency(uint32 id, bool usePrecision) const;
         /// return count of currency gaind on current week
         uint32 GetCurrencyOnWeek(uint32 id, bool usePrecision) const;
+        /// return count of earned currency on current season
+        uint32 GetCurrencyOnSeason(uint32 id) const;
         /// return week cap by currency id
         uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
         /// return presence related currency

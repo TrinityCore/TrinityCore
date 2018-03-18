@@ -7028,6 +7028,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
         cur.state = PLAYERCURRENCY_UNCHANGED;
         cur.weekCount = fields[1].GetUInt32();
         cur.totalCount = fields[2].GetUInt32();
+        cur.seasonCount = fields[3].GetUInt32();
 
         _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
@@ -7051,14 +7052,16 @@ void Player::_SaveCurrency(SQLTransaction& trans)
                 stmt->setUInt16(1, itr->first);
                 stmt->setUInt32(2, itr->second.weekCount);
                 stmt->setUInt32(3, itr->second.totalCount);
+                stmt->setUInt32(4, 0);
                 trans->Append(stmt);
                 break;
             case PLAYERCURRENCY_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_CURRENCY);
                 stmt->setUInt32(0, itr->second.weekCount);
                 stmt->setUInt32(1, itr->second.totalCount);
-                stmt->setUInt32(2, GetGUID().GetCounter());
-                stmt->setUInt16(3, itr->first);
+                stmt->setUInt32(2, itr->second.seasonCount);
+                stmt->setUInt32(3, GetGUID().GetCounter());
+                stmt->setUInt16(4, itr->first);
                 trans->Append(stmt);
                 break;
             default:
@@ -7127,18 +7130,20 @@ void Player::SendCurrencies() const
         uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
         uint32 weekCount = itr->second.weekCount / precision;
         uint32 weekCap = GetCurrencyWeekCap(entry) / precision;
+        uint32 seasonCount = itr->second.seasonCount / precision;
+        bool seasonTotal = entry->Flags & CURRENCY_FLAG_COUNT_SEASON_TOTAL;
 
         packet.WriteBit(weekCount);
         packet.WriteBits(0, 4); // some flags
         packet.WriteBit(weekCap);
-        packet.WriteBit(0);     // season total earned
+        packet.WriteBit(seasonTotal ? 1 : 0); // season total earned
 
         currencyData << uint32(itr->second.totalCount / precision);
         if (weekCap)
             currencyData << uint32(weekCap);
 
-        //if (seasonTotal)
-        //    currencyData << uint32(seasonTotal / precision);
+        if (seasonTotal)
+            currencyData << uint32(seasonCount);
 
         currencyData << uint32(entry->ID);
         if (weekCount)
@@ -7190,6 +7195,15 @@ uint32 Player::GetCurrencyOnWeek(uint32 id, bool usePrecision) const
     return itr->second.weekCount / precision;
 }
 
+uint32 Player::GetCurrencyOnSeason(uint32 id) const
+{
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    return itr->second.seasonCount;
+}
+
 bool Player::HasCurrency(uint32 id, uint32 count) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
@@ -7210,6 +7224,8 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     int32 precision = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
     uint32 oldTotalCount = 0;
     uint32 oldWeekCount = 0;
+    uint32 seasonCount = 0;
+    bool hasSeasonCount = false;
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
     {
@@ -7217,6 +7233,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         cur.state = PLAYERCURRENCY_NEW;
         cur.totalCount = 0;
         cur.weekCount = 0;
+        cur.seasonCount = 0;
         _currencyStorage[id] = cur;
         itr = _currencyStorage.find(id);
     }
@@ -7224,6 +7241,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     {
         oldTotalCount = itr->second.totalCount;
         oldWeekCount = itr->second.weekCount;
+        seasonCount = itr->second.seasonCount;
     }
 
     // count can't be more then weekCap if used (weekCap > 0)
@@ -7261,6 +7279,9 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     if (uint32(newTotalCount) != oldTotalCount)
     {
+        if (currency->Flags & CURRENCY_FLAG_COUNT_SEASON_TOTAL)
+            hasSeasonCount = true;
+
         if (itr->second.state != PLAYERCURRENCY_NEW)
             itr->second.state = PLAYERCURRENCY_CHANGED;
 
@@ -7268,7 +7289,12 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         itr->second.weekCount = newWeekCount;
 
         if (count > 0)
+        {
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
+            if (hasSeasonCount)
+                seasonCount += count;
+            itr->second.seasonCount = seasonCount;
+        }
 
         if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
         {
@@ -7284,10 +7310,11 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
 
         packet.WriteBit(weekCap != 0);
-        packet.WriteBit(0); // hasSeasonCount
+        packet.WriteBit(hasSeasonCount); // hasSeasonCount
         packet.WriteBit(!printLog); // print in log
 
-        // if hasSeasonCount packet << uint32(seasontotalearned); TODO: save this in character DB and use it
+        if (hasSeasonCount)
+            packet << uint32(seasonCount / precision);
 
         packet << uint32(newTotalCount / precision);
         packet << uint32(id);
@@ -7307,6 +7334,7 @@ void Player::SetCurrency(uint32 id, uint32 count, bool /*printLog*/ /*= true*/)
         cur.state = PLAYERCURRENCY_NEW;
         cur.totalCount = count;
         cur.weekCount = 0;
+        cur.seasonCount = 0;
         _currencyStorage[id] = cur;
     }
 }
@@ -22447,8 +22475,17 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
             if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
             {
-                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, nullptr, nullptr); // Find correct error
-                return false;
+                if (GetCurrencyOnSeason(entry->ID) < iece->RequiredCurrencyCount[0])
+                {
+                    SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                    return false;
+                }
+
+                if (!HasCurrency(iece->RequiredCurrency[1], iece->RequiredCurrencyCount[1] * stacks))
+                {
+                    SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                    return false;
+                }
             }
             else if (!HasCurrency(iece->RequiredCurrency[i], iece->RequiredCurrencyCount[i] * stacks))
             {
@@ -27377,6 +27414,9 @@ void Player::RefundItem(Item* item)
 
         uint32 count = iece->RequiredCurrencyCount[i];
         uint32 currencyid = iece->RequiredCurrency[i];
+        if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
+            continue;
+
         if (count && currencyid)
             ModifyCurrency(currencyid, count);
     }
