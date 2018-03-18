@@ -18,6 +18,7 @@
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "Group.h"
+#include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
