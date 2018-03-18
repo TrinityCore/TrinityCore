@@ -38,6 +38,7 @@ struct SpellChainNode;
 struct SpellModifier;
 struct SpellTargetPosition;
 struct Condition;
+enum WeaponAttackType : uint8;
 
 enum SpellCastTargetFlags : uint32
 {
