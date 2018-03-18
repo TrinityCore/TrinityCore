@@ -631,7 +631,7 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Guild::GuildBankSwapItems::Read()
+void WorldPackets::Guild::GuildBankSwapItemsLegacy::Read()
 {
     _worldPacket >> Banker;
     _worldPacket >> BankTab;
@@ -649,6 +649,42 @@ void WorldPackets::Guild::GuildBankSwapItems::Read()
     _worldPacket.ResetBitPos();
     BankOnly = _worldPacket.ReadBit();
     AutoStore = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Guild::GuildBankSwapItems::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> PlayerSlot;
+    _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsAuto::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsCount::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> PlayerSlot;
+    _worldPacket >> StackCount;
+    _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsBankBankCount::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> NewBankTab;
+    _worldPacket >> NewBankSlot;
+    _worldPacket >> StackCount;
 }
 
 void WorldPackets::Guild::GuildBankLogQuery::Read()
