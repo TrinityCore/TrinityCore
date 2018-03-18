@@ -7210,7 +7210,7 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
+void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool isRefund/* = false*/)
 {
     if (!count)
         return;
@@ -7218,7 +7218,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
     ASSERT(currency);
 
-    if (!ignoreMultipliers)
+    if (!ignoreMultipliers && !isRefund)
         count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
 
     int32 precision = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
@@ -7246,7 +7246,10 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     // count can't be more then weekCap if used (weekCap > 0)
     uint32 weekCap = GetCurrencyWeekCap(currency);
-    if (weekCap && count > int32(weekCap))
+    if (!isRefund && weekCap && weekCap == oldWeekCount && count > 0)
+        return;
+
+    if (!isRefund && weekCap && count > int32(weekCap))
         count = weekCap;
 
     // count can't be more then totalCap if used (totalCap > 0)
@@ -7262,8 +7265,8 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     if (newWeekCount < 0)
         newWeekCount = 0;
 
-    // if we get more then weekCap just set to limit
-    if (weekCap && int32(weekCap) < newWeekCount)
+    // if we get more than weekCap just set to limit
+    if (!isRefund && weekCap && int32(weekCap) < newWeekCount)
     {
         newWeekCount = int32(weekCap);
         // weekCap - oldWeekCount always >= 0 as we set limit before!
@@ -7286,9 +7289,9 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             itr->second.state = PLAYERCURRENCY_CHANGED;
 
         itr->second.totalCount = newTotalCount;
-        itr->second.weekCount = newWeekCount;
+        itr->second.weekCount = isRefund ? oldWeekCount : newWeekCount;
 
-        if (count > 0)
+        if (!isRefund && count > 0)
         {
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
             if (hasSeasonCount)
@@ -27418,7 +27421,7 @@ void Player::RefundItem(Item* item)
             continue;
 
         if (count && currencyid)
-            ModifyCurrency(currencyid, count);
+            ModifyCurrency(currencyid, count, false, false, true);
     }
 
     // Grant back money
