@@ -1283,7 +1283,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DeleteRefundReference(ObjectGuid it);
 
         void UnlockReagentBank();
-        bool HasUnlockedReagentBank();
+        bool HasUnlockedReagentBank() const;
 
         /// send initialization of new currency for client
         void SendNewCurrency(uint32 id) const;

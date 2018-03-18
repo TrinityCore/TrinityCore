@@ -10907,7 +10907,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
                     return EQUIP_ERR_ITEM_MAX_COUNT;
                 }
             }
-            else if (!removeFromBank && pProto->IsCraftingReagent() && HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED))
+            else if (!removeFromBank && pProto->IsCraftingReagent() && HasUnlockedReagentBank())
             {
                 res = CanStoreItem_InInventorySlots(REAGENT_SLOT_START, REAGENT_SLOT_END, dest, pProto, count, false, pItem, bag, slot);
                 if (res != EQUIP_ERR_OK)
@@ -11115,7 +11115,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
             return EQUIP_ERR_ITEM_MAX_COUNT;
         }
     }
-    else if (!removeFromBank && pProto->IsCraftingReagent() && HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED))
+    else if (!removeFromBank && pProto->IsCraftingReagent() && HasUnlockedReagentBank())
     {
         res = CanStoreItem_InInventorySlots(REAGENT_SLOT_START, REAGENT_SLOT_END, dest, pProto, count, false, pItem, bag, slot);
         if (res != EQUIP_ERR_OK)
@@ -29465,7 +29465,7 @@ void Player::UnlockReagentBank()
     SetFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
 }
 
-bool Player::HasUnlockedReagentBank()
+bool Player::HasUnlockedReagentBank() const
 {
     return HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
 }
