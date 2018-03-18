@@ -273,7 +273,7 @@ void BattlegroundBFG::_DelBanner(uint8 node, uint8 type, uint8 teamIndex)
 
 void BattlegroundBFG::FillInitialWorldStates(WorldPacket& data)
 {
-    const uint8 plusArray[] = { 0, 2, 3, 0, 1 };
+    const uint8 plusArray[] = { 0, 1, 2 };
 
     // Node icons
     for (uint8 node = 0; node < BG_BFG_DYNAMIC_NODES_COUNT; ++node)
