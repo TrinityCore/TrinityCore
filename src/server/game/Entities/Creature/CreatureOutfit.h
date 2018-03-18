@@ -30,7 +30,6 @@ public:
         EQUIPMENT_SLOT_HANDS,
         EQUIPMENT_SLOT_BACK,
         EQUIPMENT_SLOT_TABARD,
-        EQUIPMENT_SLOT_END,
     };
 
     static bool IsFake(uint32 modelid) { return modelid > max_real_modelid; };
