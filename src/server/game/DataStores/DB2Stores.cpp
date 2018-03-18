@@ -144,6 +144,7 @@ DB2Storage<ItemLevelSelectorEntry>              sItemLevelSelectorStore("ItemLev
 DB2Storage<ItemLevelSelectorQualityEntry>       sItemLevelSelectorQualityStore("ItemLevelSelectorQuality.db2", ItemLevelSelectorQualityLoadInfo::Instance());
 DB2Storage<ItemLevelSelectorQualitySetEntry>    sItemLevelSelectorQualitySetStore("ItemLevelSelectorQualitySet.db2", ItemLevelSelectorQualitySetLoadInfo::Instance());
 DB2Storage<ItemLimitCategoryEntry>              sItemLimitCategoryStore("ItemLimitCategory.db2", ItemLimitCategoryLoadInfo::Instance());
+DB2Storage<ItemLimitCategoryConditionEntry>     sItemLimitCategoryConditionStore("ItemLimitCategoryCondition.db2", ItemLimitCategoryConditionLoadInfo::Instance());
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceLoadInfo::Instance());
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", ItemPriceBaseLoadInfo::Instance());
 DB2Storage<ItemRandomPropertiesEntry>           sItemRandomPropertiesStore("ItemRandomProperties.db2", ItemRandomPropertiesLoadInfo::Instance());
@@ -301,6 +302,7 @@ typedef std::unordered_map<int16, uint32> ItemBonusListLevelDeltaContainer;
 typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
 typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
 typedef std::array<ItemClassEntry const*, 19> ItemClassByOldEnumContainer;
+typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
 typedef std::set<ItemLevelSelectorQualityEntry const*, ItemLevelSelectorQualityEntryComparator> ItemLevelSelectorQualities;
 typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
 typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
@@ -353,6 +355,7 @@ namespace
     ItemChildEquipmentContainer _itemChildEquipment;
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
+    ItemLimitCategoryConditionContainer _itemCategoryConditions;
     std::unordered_map<uint32 /*itemLevelSelectorQualitySetId*/, ItemLevelSelectorQualities> _itemLevelQualitySelectorQualities;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
     ItemToBonusTreeContainer _itemToBonusTree;
@@ -578,6 +581,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemLevelSelectorQualityStore);
     LOAD_DB2(sItemLevelSelectorQualitySetStore);
     LOAD_DB2(sItemLimitCategoryStore);
+    LOAD_DB2(sItemLimitCategoryConditionStore);
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemPriceBaseStore);
     LOAD_DB2(sItemRandomPropertiesStore);
@@ -860,6 +864,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ItemCurrencyCostEntry const* itemCurrencyCost : sItemCurrencyCostStore)
         _itemsWithCurrencyCost.insert(itemCurrencyCost->ItemID);
+
+    for (ItemLimitCategoryConditionEntry const* condition : sItemLimitCategoryConditionStore)
+        _itemCategoryConditions[condition->ParentItemLimitCategoryID].push_back(condition);
 
     for (ItemLevelSelectorQualityEntry const* itemLevelSelectorQuality : sItemLevelSelectorQualityStore)
         _itemLevelQualitySelectorQualities[itemLevelSelectorQuality->ParentILSQualitySetID].insert(itemLevelSelectorQuality);
@@ -1666,6 +1673,15 @@ ItemClassEntry const* DB2Manager::GetItemClassByOldEnum(uint32 itemClass) const
 bool DB2Manager::HasItemCurrencyCost(uint32 itemId) const
 {
     return _itemsWithCurrencyCost.count(itemId) > 0;
+}
+
+std::vector<ItemLimitCategoryConditionEntry const*> const* DB2Manager::GetItemLimitCategoryConditions(uint32 categoryId) const
+{
+    auto itr = _itemCategoryConditions.find(categoryId);
+    if (itr != _itemCategoryConditions.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const

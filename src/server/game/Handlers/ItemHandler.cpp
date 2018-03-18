@@ -1044,7 +1044,7 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                     }
                 }
 
-                if (limit_newcount > 0 && uint32(limit_newcount) > limitEntry->Quantity)
+                if (limit_newcount > 0 && uint32(limit_newcount) > _player->GetItemLimitCategoryQuantity(limitEntry))
                 {
                     _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                     return;

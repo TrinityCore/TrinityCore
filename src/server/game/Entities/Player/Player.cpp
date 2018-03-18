@@ -10190,11 +10190,12 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
 
         if (limitEntry->Flags == ITEM_LIMIT_CATEGORY_MODE_HAVE)
         {
+            uint8 limitQuantity = GetItemLimitCategoryQuantity(limitEntry);
             uint32 curcount = GetItemCountWithLimitCategory(pProto->GetItemLimitCategory(), pItem);
-            if (curcount + count > uint32(limitEntry->Quantity))
+            if (curcount + count > uint32(limitQuantity))
             {
                 if (no_space_count)
-                    *no_space_count = count + curcount - limitEntry->Quantity;
+                    *no_space_count = count + curcount - limitQuantity;
                 if (offendingItemId)
                     *offendingItemId = pProto->GetId();
                 return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
@@ -25979,14 +25980,15 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
             return EQUIP_ERR_NOT_EQUIPPABLE;
 
         // NOTE: limitEntry->mode not checked because if item have have-limit then it applied and to equip case
+        uint8 limitQuantity = GetItemLimitCategoryQuantity(limitEntry);
 
-        if (limit_count > limitEntry->Quantity)
+        if (limit_count > limitQuantity)
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
 
         // there is an equip limit on this item
-        if (HasItemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
+        if (HasItemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitQuantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
-        else if (HasGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
+        else if (HasGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitQuantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 
@@ -28290,4 +28292,21 @@ void Player::UpdateItemLevelAreaBasedScaling()
         SetHealth(CalculatePct(GetMaxHealth(), healthPct));
     }
     // @todo other types of power scaling such as timewalking
+}
+
+uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEntry) const
+{
+    uint8 limit = limitEntry->Quantity;
+
+    if (std::vector<ItemLimitCategoryConditionEntry const*> const* limitConditions = sDB2Manager.GetItemLimitCategoryConditions(limitEntry->ID))
+    {
+        for (ItemLimitCategoryConditionEntry const* limitCondition : *limitConditions)
+        {
+            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(limitCondition->PlayerConditionID);
+            if (!playerCondition || ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+                limit += limitCondition->AddQuantity;
+        }
+    }
+
+    return limit;
 }
