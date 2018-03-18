@@ -335,6 +335,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         // already in evade mode
                         me->GetMotionMaster()->MoveTargetedHome();
                         Reset();
+                        break;
                     default:
                         break;
                 }
