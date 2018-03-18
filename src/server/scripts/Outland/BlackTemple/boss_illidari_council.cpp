@@ -22,6 +22,7 @@
 #include "black_temple.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "PassiveAI.h"
 #include "InstanceScript.h"
 
