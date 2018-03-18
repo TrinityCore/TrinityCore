@@ -2587,7 +2587,7 @@ bool Player::IsInAreaTriggerRadius(const AreaTriggerEntry* trigger) const
     if (!trigger)
         return false;
 
-    if (int32(GetMapId()) != trigger->mapid && !GetPhaseShift().HasVisibleMapId(trigger->mapid))
+    if (GetMapId() != trigger->mapid && !GetPhaseShift().HasVisibleMapId(trigger->mapid))
         return false;
 
     if (trigger->PhaseID || trigger->PhaseGroupID || trigger->PhaseUseFlags)
