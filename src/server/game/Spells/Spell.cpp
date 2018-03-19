@@ -2907,10 +2907,9 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                 }
             }
             else
-            {
-                hitInfo.HitAura = _spellAura;
                 _spellAura->AddStaticApplication(unit, aura_effmask);
-            }
+
+            hitInfo.HitAura = _spellAura;
         }
     }
 
