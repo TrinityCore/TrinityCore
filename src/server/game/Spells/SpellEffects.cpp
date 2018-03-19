@@ -1195,6 +1195,11 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         int32 addhealth = damage;
 
+        // Nature's Blessing
+        if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2012, EFFECT_0))
+            if (unitTarget->HasAura(974))
+                AddPct(addhealth, aurEff->GetAmount());
+
         // Vessel of the Naaru (Vial of the Sunwell trinket)
         if (m_spellInfo->Id == 45064)
         {
