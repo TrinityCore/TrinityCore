@@ -15,17 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "blackrock_depths.h"
-#include "Player.h"
-#include "SpellScript.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
-#include "LFGMgr.h"
-#include "Group.h"
-#include "GridNotifiers.h"
-#include "GameObjectAI.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "blackrock_depths.h"
 
 enum DirebrewSays
 {
