@@ -541,8 +541,8 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     _worldPacket << float(Facing);
     _worldPacket << uint8(PreloadWorld);
 
-    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.WriteBit(TransportGUID.is_initialized());
+    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.FlushBits();
 
     if (Vehicle)
