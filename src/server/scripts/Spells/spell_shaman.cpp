@@ -33,9 +33,15 @@ enum ShamanSpells
 {
     SPELL_SHAMAN_ANCESTRAL_AWAKENING            = 52759,
     SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC       = 52752,
+    SPELL_SHAMAN_ANCESTRAL_VIGOR                = 105284,
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
+    SPELL_SHAMAN_CHAIN_HEAL                     = 1064,
     SPELL_SHAMAN_CHAIN_LIGHTNING                = 421,
     SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED      = 45297,
+    SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R1      = 86959,
+    SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R2      = 86962,
+    SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1       = 86961,
+    SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R2       = 86958,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
@@ -47,6 +53,7 @@ enum ShamanSpells
     SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE          = 55533,
     SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
     SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM          = 62132,
+    SPELL_SHAMAN_HEALING_SURGE                  = 8004,
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_BURST_TRIGGERED           = 77451,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
@@ -59,6 +66,8 @@ enum ShamanSpells
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
+    SPELL_SHAMAN_RESURGENCE_ENERGIZE            = 101033,
+    SPELL_SHAMAN_RIPTIDE                        = 61295,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TELLURIC_CURRENTS              = 82987,
@@ -67,19 +76,26 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEM_EARTHEN_POWER            = 59566,
     SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
-    SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437
+    SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437,
+    SPELL_SHAMAN_UNLEASH_LIFE                   = 73685
 };
 
 enum ShamanSpellIcons
 {
     SHAMAN_ICON_ID_SOOTHING_RAIN                = 2011,
-    SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087
+    SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087,
+    SHAMAN_ICON_ID_CLEANSING_WATERS             = 2020,
 };
 
 enum MiscSpells
 {
     SPELL_HUNTER_INSANITY                       = 95809,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT            = 80354
+};
+
+enum ShamanSpellCategories
+{
+    SHAMAN_SPELL_CATEGORY_SHOCK_SPELLS = 19
 };
 
 // -51556 - Ancestral Awakening
@@ -568,6 +584,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
         }
 };
 
+// Updated 4.3.4
 // 77794 - Focused Insight
 class spell_sha_focused_insight : public SpellScriptLoader
 {
@@ -585,17 +602,24 @@ class spell_sha_focused_insight : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetSpellInfo()->GetCategory() == SHAMAN_SPELL_CATEGORY_SHOCK_SPELLS;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 basePoints0 = aurEff->GetAmount();
-                int32 basePoints1 = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_FOCUSED_INSIGHT, &basePoints0, &basePoints1, &basePoints1, true, NULL, aurEff);
+                int32 bp0 = -CalculatePct(eventInfo.GetSpellInfo()->CalcPowerCost(GetUnitOwner(), SpellSchoolMask(eventInfo.GetSpellInfo()->SchoolMask)), aurEff->GetAmount());
+                int32 bp1 = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_FOCUSED_INSIGHT, &bp0, &bp1, &bp1, true, NULL, aurEff);
             }
 
             void Register() override
             {
+                DoCheckProc += AuraCheckProcFn(spell_sha_focused_insight_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_sha_focused_insight_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -1023,10 +1047,11 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
-                ///@TODO: Exclude the "short term" buffs from the stat value
-                if (Unit* caster = GetCaster())
-                    if (Unit* owner = caster->GetOwner())
-                        amount = CalculatePct(owner->GetStat(STAT_SPIRIT), aurEff->GetAmount());
+                // @TODO: Exclude the "short term" buffs from the stat value
+                if (Unit* caster = GetUnitOwner())
+                    if (Unit* owner = caster->GetCharmerOrOwner())
+                        if (Unit* owner = caster->GetOwner())
+                            amount = CalculatePct(owner->GetStat(STAT_SPIRIT), amount);
             }
 
             void Register() override
@@ -1155,7 +1180,7 @@ class spell_sha_telluric_currents : public SpellScriptLoader
                 PreventDefaultAction();
                 int32 basePoints0 = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
 
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_TELLURIC_CURRENTS, &basePoints0, NULL, NULL, true);
+                GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_SHAMAN_TELLURIC_CURRENTS, &basePoints0, 0, 0, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1336,11 +1361,223 @@ public:
     }
 };
 
+// -77829 - Ancestral Resolve
+class spell_sha_ancestral_resolve : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_resolve() : SpellScriptLoader("spell_sha_ancestral_resolve") { }
+
+        class sspell_sha_ancestral_resolve_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(sspell_sha_ancestral_resolve_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                amount = -1;
+            }
+
+            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (target->HasUnitState(UNIT_STATE_CASTING))
+                        absorbAmount = CalculatePct(dmgInfo.GetDamage(), aurEff->GetBaseAmount());
+                    else
+                        absorbAmount = 0;
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(sspell_sha_ancestral_resolve_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(sspell_sha_ancestral_resolve_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new sspell_sha_ancestral_resolve_AuraScript();
+        }
+};
+
+// -16180 - Resourgence
+class spell_sha_resurgence : public SpellScriptLoader
+{
+    public:
+        spell_sha_resurgence() : SpellScriptLoader("spell_sha_resurgence") { }
+
+        class spell_sha_resurgence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_resurgence_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_SHAMAN_RESURGENCE_ENERGIZE,
+                        SPELL_SHAMAN_HEALING_SURGE,
+                        SPELL_SHAMAN_RIPTIDE,
+                        SPELL_SHAMAN_UNLEASH_LIFE,
+                        SPELL_SHAMAN_CHAIN_HEAL
+                    });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                // Calculate the default amount
+                int32 baseAmount = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_RESURGENCE_ENERGIZE)->Effects[EFFECT_0].CalcValue(GetTarget());
+                baseAmount = CalculatePct(baseAmount, aurEff->GetAmount());
+
+                // Apply extra modifiers for specific spells
+                float modifier = 1.0f;
+                switch (eventInfo.GetSpellInfo()->Id)
+                {
+                    case SPELL_SHAMAN_HEALING_SURGE:
+                    case SPELL_SHAMAN_RIPTIDE:
+                    case SPELL_SHAMAN_UNLEASH_LIFE:
+                        modifier = 0.6f;
+                        break;
+                    case SPELL_SHAMAN_CHAIN_HEAL:
+                        modifier = 0.333f;
+                        break;
+                    default:
+                        break;
+                }
+
+                int32 bp = ceil(baseAmount * modifier);
+                GetTarget()->EnergizeBySpell(GetTarget(), SPELL_SHAMAN_RESURGENCE_ENERGIZE, bp, POWER_MANA);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_resurgence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_resurgence_AuraScript();
+        }
+};
+
+// -16176 - Ancestral Healing
+class spell_sha_ancestral_healing : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_healing() : SpellScriptLoader("spell_sha_ancestral_healing") { }
+
+        class spell_sha_ancestral_healing_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_ancestral_healing_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_VIGOR });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* target = eventInfo.GetHealInfo()->GetTarget())
+                {
+                    uint32 baseHealth = target->GetMaxHealth();
+
+                    // Do not take previous Ancestral Vigor buffs into account to avoid endless stacking
+                    if (Aura* oldVigor = target->GetAura(SPELL_SHAMAN_ANCESTRAL_VIGOR))
+                        baseHealth -= oldVigor->GetEffect(EFFECT_0)->GetAmount();
+
+                    int32 bp = std::min(CalculatePct(baseHealth, aurEff->GetAmount()), CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount()));
+
+                    GetUnitOwner()->CastCustomSpell(target, SPELL_SHAMAN_ANCESTRAL_VIGOR, &bp, 0, 0, true, nullptr, aurEff);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_healing_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_ancestral_healing_AuraScript();
+        }
+};
+
+// 51886 - Cleanse Spirit
+class spell_sha_cleanse_spirit : public SpellScriptLoader
+{
+    public:
+        spell_sha_cleanse_spirit() : SpellScriptLoader("spell_sha_cleanse_spirit") { }
+
+        class spell_sha_cleanse_spirit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_cleanse_spirit_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R1,
+                        SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R2,
+                        SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1,
+                        SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R2
+
+                    });
+            }
+
+            void HandleDispel(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        if (player->GetSpellHistory()->HasCooldown(SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1))
+                            return;
+
+                        // Cleansing Waters
+                        if (AuraEffect* aura = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_CLEANSING_WATERS, EFFECT_0))
+                        {
+                            switch (aura->GetId())
+                            {
+                                case SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R1:
+                                    caster->CastSpell(GetHitUnit(), SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1, true);
+                                    break;
+                                case SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R2:
+                                    caster->CastSpell(GetHitUnit(), SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R2, true);
+                                    break;
+                            }
+
+                            // The heal effect may not occur again for 6 seconds
+                            player->GetSpellHistory()->AddCooldown(SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1, 0, std::chrono::seconds(6));
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectSuccessfulDispel += SpellEffectFn(spell_sha_cleanse_spirit_SpellScript::HandleDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_sha_cleanse_spirit_SpellScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
     new spell_sha_ancestral_awakening_proc();
+    new spell_sha_ancestral_healing();
+    new spell_sha_ancestral_resolve();
     new spell_sha_bloodlust();
+    new spell_sha_cleanse_spirit();
     new spell_sha_chain_heal();
     new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
@@ -1362,6 +1599,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_surge_proc();
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
+    new spell_sha_resurgence();
     new spell_sha_rolling_thunder();
     new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();
