@@ -517,7 +517,7 @@ CREATE TABLE `character_archaeology_completed` (
 -- Dumping data for table `character_archaeology_completed`
 --
 
-LOCK TABLES `character_action` WRITE;
+LOCK TABLES `character_archaeology_completed` WRITE;
 /*!40000 ALTER TABLE `character_archaeology_completed` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_archaeology_completed` ENABLE KEYS */;
 UNLOCK TABLES;
