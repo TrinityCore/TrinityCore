@@ -13623,8 +13623,8 @@ void Unit::SendTeleportPacket(Position const& pos)
         data2.WriteBit(guid[0]);
         data2.WriteBit(guid[3]);
         data2.WriteBit(guid[2]);
-        data2.WriteBit(0); // unknown
         data2.WriteBit(uint64(transGuid));
+        data2.WriteBit(bool(GetVehicle())); // unknown
         data2.WriteBit(guid[1]);
         if (transGuid)
         {
