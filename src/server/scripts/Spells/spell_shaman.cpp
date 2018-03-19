@@ -77,7 +77,8 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437,
-    SPELL_SHAMAN_UNLEASH_LIFE                   = 73685
+    SPELL_SHAMAN_UNLEASH_LIFE                   = 73685,
+    SPELL_SHAMAN_WATER_SHIELD                   = 52127
 };
 
 enum ShamanSpellIcons
@@ -1418,8 +1419,14 @@ class spell_sha_resurgence : public SpellScriptLoader
                         SPELL_SHAMAN_HEALING_SURGE,
                         SPELL_SHAMAN_RIPTIDE,
                         SPELL_SHAMAN_UNLEASH_LIFE,
-                        SPELL_SHAMAN_CHAIN_HEAL
+                        SPELL_SHAMAN_CHAIN_HEAL,
+                        SPELL_SHAMAN_WATER_SHIELD
                     });
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return GetUnitOwner()->HasAura(SPELL_SHAMAN_WATER_SHIELD);
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1452,6 +1459,7 @@ class spell_sha_resurgence : public SpellScriptLoader
 
             void Register() override
             {
+                DoCheckProc += AuraCheckProcFn(spell_sha_resurgence_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_sha_resurgence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -1525,7 +1533,6 @@ class spell_sha_cleanse_spirit : public SpellScriptLoader
                         SPELL_SHAMAN_CLEANSING_WATERS_DUMMY_R2,
                         SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1,
                         SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R2
-
                     });
             }
 
