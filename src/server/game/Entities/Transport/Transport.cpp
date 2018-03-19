@@ -513,6 +513,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
     Cell oldCell(GetPositionX(), GetPositionY());
 
     Relocate(x, y, z, o);
+    m_stationaryPosition.SetOrientation(o);
     UpdateModelPosition();
 
     UpdatePassengerPositions(_passengers);
@@ -625,6 +626,8 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
     }
     else
     {
+        UpdatePosition(x, y, z, o);
+
         // Teleport players, they need to know it
         for (PassengerSet::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
         {
@@ -643,7 +646,6 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
             }
         }
 
-        UpdatePosition(x, y, z, o);
         return false;
     }
 }
