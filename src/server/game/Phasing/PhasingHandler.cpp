@@ -516,7 +516,7 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* 
     for (auto itr = phaseShift.VisibleMapIds.rbegin(); itr != phaseShift.VisibleMapIds.rend(); ++itr)
         for (int32 gxi = gxbegin; gxi < gxend; ++gxi)
             for (int32 gyi = gybegin; gyi < gyend; ++gyi)
-                if (map->HasGrid(gxi, gyi))
+                if (map->HasGrid(itr->first, gxi, gyi))
                     return itr->first;
 
     return map->GetId();
