@@ -350,7 +350,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         time_t GetGridExpiry(void) const { return i_gridExpiry; }
         uint32 GetId(void) const { return i_mapEntry->MapID; }
 
-        bool HasGrid(int32 gx, int32 gy) const { return GridMaps[gx][gy] && GridMaps[gx][gy]->fileExists(); }
+        bool HasGrid(uint32 mapId, int32 gx, int32 gy) const;
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
 

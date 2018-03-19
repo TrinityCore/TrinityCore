@@ -67,7 +67,7 @@ Map::~Map()
     if (!m_scriptSchedule.empty())
         sMapMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
-    if (m_parentMap != this)
+    if (m_parentMap == this)
         delete m_childTerrainMaps;
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
@@ -670,6 +670,7 @@ bool Map::AddToMap(Transport* obj)
             {
                 UpdateData data(GetId());
                 obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
+                itr->GetSource()->m_visibleTransports.insert(obj->GetGUID());
                 WorldPacket packet;
                 data.BuildPacket(&packet);
                 itr->GetSource()->SendDirectMessage(&packet);
@@ -968,8 +969,13 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
         WorldPacket packet;
         data.BuildPacket(&packet);
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
             if (itr->GetSource()->GetTransport() != obj)
+            {
                 itr->GetSource()->SendDirectMessage(&packet);
+                itr->GetSource()->m_visibleTransports.erase(obj->GetGUID());
+            }
+        }
     }
 
     if (_transportsUpdateIter != _transports.end())
@@ -2295,6 +2301,12 @@ GridMap* Map::GetGrid(uint32 mapId, float x, float y)
     return grid;
 }
 
+bool Map::HasGrid(uint32 mapId, int32 gx, int32 gy) const
+{
+    auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) { return childTerrainMap->GetId() == mapId; });
+    return childMapItr != m_childTerrainMaps->end() && (*childMapItr)->GridMaps[gx][gy] && (*childMapItr)->GridMaps[gx][gy]->fileExists();
+}
+
 float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/) const
 {
     if (const_cast<Map*>(this)->GetGrid(x, y))
@@ -2824,13 +2836,20 @@ void Map::SendUpdateTransportVisibility(Player* player)
     UpdateData transData(player->GetMapId());
     for (Transport* transport : _transports)
     {
+        auto transportItr = player->m_visibleTransports.find(transport->GetGUID());
         if (player->IsInPhase(transport))
         {
-            if (player->m_visibleTransports.find(transport->GetGUID()) == player->m_visibleTransports.end())
+            if (transportItr == player->m_visibleTransports.end())
+            {
                 transport->BuildCreateUpdateBlockForPlayer(&transData, player);
+                player->m_visibleTransports.insert(transport->GetGUID());
+            }
         }
-        else if (player->m_visibleTransports.find(transport->GetGUID()) != player->m_visibleTransports.end())
+        else if (transportItr != player->m_visibleTransports.end())
+        {
             transport->BuildOutOfRangeUpdateBlock(&transData);
+            player->m_visibleTransports.erase(transportItr);
+        }
     }
 
     WorldPacket packet;
