@@ -4653,6 +4653,52 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+enum EredarBloodmage
+{
+    SPELL_BLOOD_SIPHON_DAMAGE  = 235232,
+    SPELL_BLOOD_SIPHON_HEAL    = 235262
+};
+
+// 235222
+class spell_gen_eredar_bloodmage_blood_siphon : public AuraScript
+{
+    PrepareAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        GetCaster()->CastSpell(GetTarget(), aurEff->GetAmount(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_eredar_bloodmage_blood_siphon::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 235232 - Blood Siphon (damage)
+class spell_gen_eredar_bloodmage_blood_siphon_damage : public SpellScript
+{
+    PrepareSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
+
+    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        int32 healthPctDmg = target->CountPctFromCurHealth(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints);
+        SetHitDamage(healthPctDmg);
+        target->CastCustomSpell(GetCaster(), SPELL_BLOOD_SIPHON_HEAL, &healthPctDmg, 0, 0, true);
+
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_eredar_bloodmage_blood_siphon_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4759,4 +4805,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    RegisterAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
+    RegisterSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
 }
