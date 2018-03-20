@@ -2428,11 +2428,11 @@ void Creature::SetInCombatWithZone()
 
 bool Creature::HasSpell(uint32 spellID) const
 {
-    uint8 i;
-    for (i = 0; i < MAX_CREATURE_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         if (spellID == m_spells[i])
-            break;
-    return i < MAX_CREATURE_SPELLS;                         //broke before end of iteration of known spells
+            return true;
+
+    return false;
 }
 
 time_t Creature::GetRespawnTimeEx() const
