@@ -1054,8 +1054,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
                 // @TODO: Exclude the "short term" buffs from the stat value
                 if (Unit* caster = GetUnitOwner())
                     if (Unit* owner = caster->GetCharmerOrOwner())
-                        if (Unit* owner = caster->GetOwner())
-                            amount = CalculatePct(owner->GetStat(STAT_SPIRIT), amount);
+                        amount = CalculatePct(owner->GetStat(STAT_SPIRIT), amount);
             }
 
             void Register() override
