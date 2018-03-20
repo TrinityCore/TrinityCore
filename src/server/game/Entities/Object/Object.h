@@ -653,6 +653,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
         float GetFloorZ() const;
+        virtual float GetCollisionHeight() const { return 0.0f; }
+        float GetMidsectionHeight() const { return GetCollisionHeight() / 2.0f; }
 
         uint16 GetAIAnimKitId() const { return m_aiAnimKitId; }
         void SetAIAnimKitId(uint16 animKitId);
