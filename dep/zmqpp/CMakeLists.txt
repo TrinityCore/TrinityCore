@@ -10,7 +10,7 @@
 
 file(GLOB_RECURSE sources_zmqpp zmqpp/*.cpp zmqpp/*.hpp zmqpp/*.h)
 
-include_directories(${ZMQ_INCLUDE_DIR})
+include_directories(libzmq)
 
 add_library(zmqpp STATIC
   ${sources_zmqpp}
@@ -18,7 +18,7 @@ add_library(zmqpp STATIC
 
 target_link_libraries(zmqpp
   PUBLIC
-    zmq)
+    libzmq)
 
 target_include_directories(zmqpp
   PUBLIC

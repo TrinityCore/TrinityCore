@@ -61,7 +61,6 @@ include(GroupSources)
 include(AutoCollect)
 
 find_package(PCHSupport)
-find_package(ZMQ REQUIRED)
 find_package(MySQL)
 
 if(NOT WITHOUT_GIT)

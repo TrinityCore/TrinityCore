@@ -51,6 +51,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
   ${CMAKE_CURRENT_SOURCE_DIR}/Server
   ${CMAKE_SOURCE_DIR}/dep/fmt
+  ${CMAKE_SOURCE_DIR}/dep/libzmq
   ${CMAKE_SOURCE_DIR}/dep/zmqpp
   ${CMAKE_SOURCE_DIR}/src/common
   ${CMAKE_SOURCE_DIR}/src/common/Configuration
@@ -73,7 +74,6 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
-  ${ZMQ_INCLUDE_DIR}
 )
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -96,9 +96,9 @@ target_link_libraries(bnetserver
   common
   zmqpp
   fmt
+  libzmq
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
-  ${ZMQ_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )
