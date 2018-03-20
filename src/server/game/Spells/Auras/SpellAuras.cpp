@@ -178,7 +178,7 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
 
 void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove)
 {
-    ASSERT(_target->HasVisibleAura(this) != remove);
+    //ASSERT(_target->HasVisibleAura(this) != remove);
 
     auraInfo.Slot = GetSlot();
     if (remove)
