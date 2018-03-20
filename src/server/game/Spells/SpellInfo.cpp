@@ -3419,6 +3419,9 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Permafrost (due to zero basepoint)
             if (spellInfo->SpellFamilyFlags[2] == 0x00000010)
                 return false;
+            // Arcane Missiles
+            if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
+                return false;
             break;
         case SPELLFAMILY_WARRIOR:
             // Slam, Execute
