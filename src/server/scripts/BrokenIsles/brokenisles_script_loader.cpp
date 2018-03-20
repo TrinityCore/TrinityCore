@@ -50,6 +50,9 @@ void AddSC_class_hall_shaman();
 void AddSC_class_hall_warlock();
 void AddSC_class_hall_warrior();
 
+// Professions
+void AddSC_legion_profession_blacksmithing();
+
 // WorldBoss
 void AddSC_boss_nitthogg();
 void AddSC_boss_ana_mouz();
@@ -198,6 +201,9 @@ void AddBrokenIslesScripts()
     AddSC_class_hall_shaman();
     AddSC_class_hall_warlock();
     AddSC_class_hall_warrior();
+
+    // Professions
+    AddSC_legion_profession_blacksmithing();
 
     // WorldBoss
     AddSC_boss_ana_mouz();
