@@ -286,18 +286,21 @@ namespace Ashamane
 
             variablesMap const * GetVariables() const { return &variables; }
 
-            bool IncrementOrProcCounter(std::string const& key, uint32 maxVal, uint32 increment = 1)
+            uint32 Increment(std::string const& key, uint32 increment = 1)
             {
                 uint32 currentValue = GetValue<uint32>(key, uint32(0));
+                Set(key, currentValue += increment);
+                return currentValue;
+            }
 
-                if ((currentValue += increment) >= maxVal)
-                {
-                    Remove(key);
-                    return true;
-                }
+            bool IncrementOrProcCounter(std::string const& key, uint32 maxVal, uint32 increment = 1)
+            {
+                uint32 newValue = Increment(key, increment);
+                if (newValue < maxVal)
+                    return false;
 
-                Set(key, currentValue);
-                return false;
+                Remove(key);
+                return true;
             }
 
             // format helpers
