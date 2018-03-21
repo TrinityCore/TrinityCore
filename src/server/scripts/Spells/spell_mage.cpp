@@ -1658,20 +1658,7 @@ public:
             if (eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
                 return false;
 
-            // Some spells have a increased chance of triggering the proc
-            switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
-            {
-                case SPELL_MAGE_ARCANE_BLAST: // Arcane Blast has a 30% chance
-                    if (roll_chance_i(30))
-                        return true;
-                    break;
-                default: // The default chance is at 15%
-                    if (roll_chance_i(15))
-                        return true;
-                    break;
-            }
-
-            return false;
+            return roll_chance_i(40);
         }
 
         void Register() override
