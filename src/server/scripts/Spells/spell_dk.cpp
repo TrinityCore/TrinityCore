@@ -1738,7 +1738,7 @@ class spell_dk_runic_empowerment : public SpellScriptLoader
                         }
                         else
                         {
-                            uint8 randomRune = std::min(Trinity::Containers::SelectRandomContainerElement(cooldownRuneIndex) + 1, MAX_RUNES);
+                            uint8 randomRune = Trinity::Containers::SelectRandomContainerElement(cooldownRuneIndex);
                             RuneType rune = player->GetCurrentRune(randomRune);
                             switch (rune)
                             {
