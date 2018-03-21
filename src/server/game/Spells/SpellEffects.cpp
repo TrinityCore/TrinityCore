@@ -5267,8 +5267,6 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
 
                 player->SetRuneCooldown(l, 0);
                 --count;
-                // is needed to push through to the client that the rune is active
-                player->ResyncRunes(MAX_RUNES);
             }
             else
                 break;
@@ -5297,6 +5295,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
                 player->SetRuneCooldown(i, 0);
         }
     }
+    player->ResyncRunes(MAX_RUNES);
 }
 
 void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)

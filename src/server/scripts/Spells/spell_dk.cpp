@@ -50,8 +50,12 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_GRIP                         = 49560,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832,
+    SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
+    SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
+    SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48266,
+    SPELL_DK_FROST_STRIKE                       = 49143,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
@@ -65,6 +69,8 @@ enum DeathKnightSpells
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     SPELL_DK_MASTER_OF_GHOULS                   = 52143,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
+    SPELL_DK_RUNIC_CORRUPTION_TRIGGERED         = 51460,
+    SPELL_DK_RUNE_STRIKE                        = 56815,
     SPELL_DK_RUNE_TAP                           = 48982,
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
@@ -73,6 +79,11 @@ enum DeathKnightSpells
     SPELL_DK_PESTILENCE_REDUCED_DOTS            = 76243,
     SPELL_DK_PESTILENCE_VISUAL                  = 91939,
     SPELL_DK_WILL_OF_THE_NECROPOLIS             = 96171
+};
+
+enum DKSpellIcons
+{
+    DK_ICON_ID_RUNIC_CORRUPTION = 4068
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -1669,6 +1680,97 @@ class spell_dk_dark_transformation_aura : public SpellScriptLoader
         }
 };
 
+// 81229 - Runic Empowerment
+// -51459 - Runic Corruption
+class spell_dk_runic_empowerment : public SpellScriptLoader
+{
+    public:
+        spell_dk_runic_empowerment() : SpellScriptLoader("spell_dk_runic_empowerment") { }
+
+        class spell_dk_runic_empowerment_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_runic_empowerment_AuraScript);
+
+        private:
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DK_DEATH_COIL_DAMAGE,
+                        SPELL_DK_FROST_STRIKE,
+                        SPELL_DK_RUNE_STRIKE,
+                        SPELL_DK_ENERGIZE_BLOOD_RUNE,
+                        SPELL_DK_ENERGIZE_FROST_RUNE,
+                        SPELL_DK_ENERGIZE_UNHOLY_RUNE,
+                        SPELL_DK_RUNIC_CORRUPTION_TRIGGERED
+                    });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                uint32 spellId = eventInfo.GetSpellInfo()->Id;
+                if (spellId == SPELL_DK_DEATH_COIL_DAMAGE || spellId == SPELL_DK_FROST_STRIKE || spellId == SPELL_DK_RUNE_STRIKE)
+                    return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (Player* player = GetUnitOwner()->ToPlayer())
+                {
+                    std::list<uint8> cooldownRuneIndex;
+
+                    for (uint8 i = 0; i < MAX_RUNES; i++)
+                    {
+                        if (player->GetRuneCooldown(i))
+                            cooldownRuneIndex.push_back(i);
+                    }
+
+                    if (!cooldownRuneIndex.empty())
+                    {
+                        // Runic Corruption
+                        if (AuraEffect* corruptionEff = player->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_RUNIC_CORRUPTION, EFFECT_0))
+                        {
+                            int32 bp0 = corruptionEff->GetAmount();
+                            player->CastCustomSpell(player, SPELL_DK_RUNIC_CORRUPTION_TRIGGERED, &bp0, 0, 0, true, nullptr, aurEff);
+                        }
+                        else
+                        {
+                            uint8 randomRune = std::min(Trinity::Containers::SelectRandomContainerElement(cooldownRuneIndex) + 1, MAX_RUNES);
+                            RuneType rune = player->GetCurrentRune(randomRune);
+                            switch (rune)
+                            {
+                                case RUNE_BLOOD:
+                                case RUNE_DEATH:
+                                    player->CastSpell(player, SPELL_DK_ENERGIZE_BLOOD_RUNE, true, nullptr, aurEff);
+                                    break;
+                                case RUNE_FROST:
+                                    player->CastSpell(player, SPELL_DK_ENERGIZE_FROST_RUNE, true, nullptr, aurEff);
+                                    break;
+                                case RUNE_UNHOLY:
+                                    player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, true, nullptr, aurEff);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_runic_empowerment_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_runic_empowerment_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_runic_empowerment_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1696,6 +1798,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_presence();
     new spell_dk_raise_dead();
     new spell_dk_rune_tap_party();
+    new spell_dk_runic_empowerment();
     new spell_dk_scent_of_blood();
     new spell_dk_shadow_infusion();
     new spell_dk_scourge_strike();
