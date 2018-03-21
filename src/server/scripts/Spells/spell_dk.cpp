@@ -1691,7 +1691,6 @@ class spell_dk_runic_empowerment : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_runic_empowerment_AuraScript);
 
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -1718,6 +1717,7 @@ class spell_dk_runic_empowerment : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
+
                 if (Player* player = GetUnitOwner()->ToPlayer())
                 {
                     std::list<uint8> cooldownRuneIndex;
