@@ -32,9 +32,16 @@ class spell_firmament_stone : public SpellScript
         uint32 killCredit = 0;
         switch (GetCaster()->Variables.Increment("spell_firmament_stone"))
         {
-            case 1: killCredit = 93304; break;
-            case 2: killCredit = 93305; break;
-            case 3: killCredit = 93306; break;
+            case 1:
+                killCredit = 93304;
+                break;
+            case 2:
+                killCredit = 93305;
+                break;
+            case 3:
+                killCredit = 93306;
+                GetCaster()->Variables.Remove("spell_firmament_stone");
+                break;
         }
 
         GetCaster()->ToPlayer()->KilledMonsterCredit(killCredit);
