@@ -103,24 +103,16 @@ public:
         void SetGUID(ObjectGuid guid, int32 /*id*/) override
         {
             playerGuid = guid;
-            Start(true, true, guid);
+            Start(false, true, guid);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void LastWaypointReached() override
         {
-            switch (pointId)
-            {
-                case 13:
-                {
-                    me->DespawnOrUnsummon();
-                    me->SetFacingTo(5.631830f);
+            me->DespawnOrUnsummon();
+            me->SetFacingTo(5.631830f);
 
-                    if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-                        player->KilledMonsterCredit(NPC_FINDING_A_FOOTHOLD_KILL_CREDIT);
-
-                    break;
-                }
-            }
+            if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                player->KilledMonsterCredit(NPC_FINDING_A_FOOTHOLD_KILL_CREDIT);
         }
     };
 };
