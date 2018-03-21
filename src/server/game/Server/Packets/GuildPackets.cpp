@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -379,11 +379,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRankData cons
 
 void WorldPackets::Guild::GuildAddRank::Read()
 {
-    _worldPacket.WriteBits(Name.length(), 7);
-    _worldPacket.FlushBits();
+    uint32 nameLen = _worldPacket.ReadBits(7);
+    _worldPacket.ResetBitPos();
 
     _worldPacket >> RankOrder;
-    _worldPacket.WriteString(Name);
+    Name = _worldPacket.ReadString(nameLen);
 }
 
 void WorldPackets::Guild::GuildAssignMemberRank::Read()
@@ -511,7 +511,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem co
     data << rewardItem.ItemID;
     data << rewardItem.Unk4;
     data << uint32(rewardItem.AchievementsRequired.size());
-    data << rewardItem.RaceMask;
+    data << uint64(rewardItem.RaceMask);
     data << rewardItem.MinGuildLevel;
     data << rewardItem.MinGuildRep;
     data << rewardItem.Cost;

@@ -40,7 +40,7 @@ namespace Movement
 
         MonsterMoveType type;
 
-        FacingInfo() : angle(0.0f), type(MONSTER_MOVE_NORMAL) { }
+        FacingInfo() : angle(0.0f), type(MONSTER_MOVE_NORMAL) { f.x = f.y = f.z = 0.0f; }
     };
 
     struct SpellEffectExtraData

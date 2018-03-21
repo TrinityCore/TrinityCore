@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,7 +79,7 @@ void GuildFinderMgr::LoadGuildSettings()
 
         TeamId guildTeam = TEAM_NEUTRAL;
         if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(fields[7].GetUInt8()))
-            guildTeam = (TeamId)raceEntry->TeamID;
+            guildTeam = (TeamId)raceEntry->Alliance;
 
         LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
         _guildSettings[guildId] = settings;

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,9 @@
 #include "Patterns/Windows.hpp"
 
 #include "Banner.h"
-#include "CompilerDefs.h"
+#include "BigNumber.h"
+#include "RSA.h"
+#include "SHA256.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/program_options.hpp>
@@ -57,16 +59,14 @@ namespace Connection_Patcher
             patcher->Patch(Patches::Common::Modulus(), Patterns::Common::Modulus());
 
             std::cout << "patching BNet certificate file location\n";
-            // replace name of the file with certificates
-            patcher->Patch(Patches::Common::CertFileName(), Patterns::Common::CertFileName());
+            // replace certificate bundle url
+            patcher->Patch(Patches::Common::CertBundleUrl(), Patterns::Common::CertBundleUrl());
 
-            std::cout << "patching BNet certificate file to load from local path instead of CASC\n";
-            // force loading tc_bundle.txt from local directory instead of CASC
-            patcher->Patch(PATCH::CertBundleCASCLocalFile(), PATTERN::CertBundleCASCLocalFile());
-
-            std::cout << "patching BNet certificate file signature check\n";
-            // remove signature check from certificate bundle
-            patcher->Patch(PATCH::CertBundleSignatureCheck(), PATTERN::CertBundleSignatureCheck());
+            std::cout << "patching BNet certificate file signature\n";
+            Trinity::Crypto::RSA rsa;
+            rsa.LoadFromString(Patches::Common::CertificatePrivateKey(), Trinity::Crypto::RSA::PrivateKey{});
+            std::unique_ptr<uint8[]> modulusArray = rsa.GetModulus().AsByteArray(256);
+            patcher->Patch(std::vector<uint8>(modulusArray.get(), modulusArray.get() + 256), Patterns::Common::CertSignatureModulus());
 
             std::cout << "patching Versions\n";
             // sever the connection to blizzard's versions file to stop it from updating and replace with custom version
@@ -79,6 +79,10 @@ namespace Connection_Patcher
             std::vector<unsigned char> verVec(verPatch.begin(), verPatch.end());
             patcher->Patch(verVec, Patterns::Common::VersionsFile());
 
+            std::cout << "patching launcher login parameters location\n";
+            // change registry/CFPreferences path
+            patcher->Patch(PATCH::LauncherLoginParametersLocation(), PATTERN::LauncherLoginParametersLocation());
+
             patcher->Finish(output);
 
             std::cout << "Patching done.\n";
@@ -86,11 +90,27 @@ namespace Connection_Patcher
 
         void WriteCertificateBundle(boost::filesystem::path const& dest)
         {
+            if (!boost::filesystem::exists(dest.parent_path()) &&
+                !boost::filesystem::create_directories(dest.parent_path()))
+                throw std::runtime_error("could not create " + dest.parent_path().string());
+
             std::ofstream ofs(dest.string(), std::ofstream::binary);
             if (!ofs)
                 throw std::runtime_error("could not open " + dest.string());
 
-            ofs << std::noskipws << Patches::Common::CertificateBundle();
+            ofs << std::noskipws << Patches::Common::CertificateBundle() << "NGIS";
+
+            SHA256Hash signatureHash;
+            signatureHash.UpdateData(Patches::Common::CertificateBundle());
+            signatureHash.UpdateData("Blizzard Certificate Bundle");
+            signatureHash.Finalize();
+            std::array<uint8, 256> signature;
+
+            Trinity::Crypto::RSA rsa;
+            rsa.LoadFromString(Patches::Common::CertificatePrivateKey(), Trinity::Crypto::RSA::PrivateKey{});
+            rsa.Sign(signatureHash.GetDigest(), signatureHash.GetLength(), signature.data(), Trinity::Crypto::RSA::SHA256{});
+
+            ofs.write(reinterpret_cast<char const*>(signature.data()), signature.size());
         }
     }
 
@@ -145,7 +165,23 @@ int main(int argc, char** argv)
 
         std::string const binary_path(std::move(vm["path"].as<std::string>()));
         std::string renamed_binary_path(binary_path);
+        std::wstring appDataPath;
 
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+        wchar_t* tempPath(nullptr);
+        SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &tempPath);
+        appDataPath = std::wstring(tempPath);
+        CoTaskMemFree(tempPath);
+#elif TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX
+        char* tempPath(nullptr);
+        if ((tempPath = getenv("HOME")) == nullptr)
+            tempPath = getpwuid(getuid())->pw_dir;
+        std::string tempPathStr(tempPath);
+        appDataPath.assign(tempPathStr.begin(), tempPathStr.end());
+        appDataPath += std::wstring(L"/.wine/drive_c/users/Public/Application Data");
+#elif TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
+        appDataPath = L"/Users/Shared";
+#endif
         std::cout << "Creating patched binary..." << std::endl;
 
         Patcher patcher(binary_path);
@@ -162,20 +198,13 @@ int main(int argc, char** argv)
         switch (patcher.GetType())
         {
             case Constants::BinaryTypes::Pe32:
-                std::cout << "Win32 client...\n";
-
-                boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
-                do_patches<Patches::Windows::x86, Patterns::Windows::x86>
-                    (&patcher, renamed_binary_path, wowBuild);
-                WriteCertificateBundle(boost::filesystem::path(binary_path).remove_filename() / "tc_bundle.txt");
-                break;
             case Constants::BinaryTypes::Pe64:
-                std::cout << "Win64 client...\n";
+                std::cout << (patcher.GetType() == Constants::BinaryTypes::Pe64 ? "Win64" : "Win32") << " client...\n";
 
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
-                do_patches<Patches::Windows::x64, Patterns::Windows::x64>
+                do_patches<Patches::Windows, Patterns::Windows>
                     (&patcher, renamed_binary_path, wowBuild);
-                WriteCertificateBundle(boost::filesystem::path(binary_path).remove_filename() / "tc_bundle.txt");
+                WriteCertificateBundle(boost::filesystem::path(appDataPath) / L"Blizzard Entertainment/Battle.net/Cache/web_cert_bundle");
                 break;
             case Constants::BinaryTypes::Mach64:
                 std::cout << "Mac client...\n";
@@ -185,14 +214,14 @@ int main(int argc, char** argv)
                         , boost::filesystem::path(renamed_binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
                         );
 
-                do_patches<Patches::Mac::x64, Patterns::Mac::x64>
+                do_patches<Patches::Mac, Patterns::Mac>
                     (&patcher, renamed_binary_path, wowBuild);
 
                 {
                     namespace fs = boost::filesystem;
                     fs::permissions(renamed_binary_path, fs::add_perms | fs::others_exe | fs::group_exe | fs::owner_exe);
                 }
-                WriteCertificateBundle(boost::filesystem::path(binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()/*World of Warcraft.app*/.parent_path() / "tc_bundle.txt");
+                WriteCertificateBundle(boost::filesystem::path(appDataPath) / "Blizzard/Battle.net/Cache/web_cert_bundle");
                 break;
             default:
                 throw std::runtime_error("Type: " + std::to_string(static_cast<uint32_t>(patcher.GetType())) + " not supported!");

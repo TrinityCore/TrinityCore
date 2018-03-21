@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,7 +88,7 @@ class TC_GAME_API BattlegroundMgr
         /* Packet Building */
         void SendBattlegroundList(Player* player, ObjectGuid const& guid, BattlegroundTypeId bgTypeId);
         void BuildBattlegroundStatusHeader(WorldPackets::Battleground::BattlefieldStatusHeader* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType);
-        void BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType);
+        void BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime);
         void BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 timeout, uint32 arenaType);
         void BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType);
         void BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 avgWaitTime, uint32 arenaType, bool asGroup);
@@ -98,7 +98,7 @@ class TC_GAME_API BattlegroundMgr
         /* Battlegrounds */
         Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId);
         Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
-        Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvpDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
+        Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PVPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
 
         void AddBattleground(Battleground* bg);
         void RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId);
@@ -177,8 +177,6 @@ class TC_GAME_API BattlegroundMgr
                 return itr->second;
             return nullptr;
         }
-
-        typedef std::map<BattlegroundTypeId, uint8 /*weight*/> BattlegroundSelectionWeightMap;
 
         typedef std::map<BattlegroundTypeId, BattlegroundTemplate> BattlegroundTemplateMap;
         typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;

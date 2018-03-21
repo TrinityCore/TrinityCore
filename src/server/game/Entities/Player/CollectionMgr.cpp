@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -163,11 +163,11 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
         uint32 bonusId = 0;
 
         if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
-            bonusId = heirloom->ItemBonusListID[2];
+            bonusId = heirloom->UpgradeItemBonusListID[2];
         else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
-            bonusId = heirloom->ItemBonusListID[1];
+            bonusId = heirloom->UpgradeItemBonusListID[1];
         else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
-            bonusId = heirloom->ItemBonusListID[0];
+            bonusId = heirloom->UpgradeItemBonusListID[0];
 
         _heirlooms[itemId] = HeirloomData(flags, bonusId);
     } while (result->NextRow());
@@ -218,7 +218,7 @@ void CollectionMgr::AddHeirloom(uint32 itemId, uint32 flags)
     }
 }
 
-void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
+void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
 {
     Player* player = _owner->GetPlayer();
     if (!player)
@@ -238,17 +238,17 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
     if (heirloom->UpgradeItemID[0] == castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_90;
-        bonusId = heirloom->ItemBonusListID[0];
+        bonusId = heirloom->UpgradeItemBonusListID[0];
     }
     if (heirloom->UpgradeItemID[1] == castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_100;
-        bonusId = heirloom->ItemBonusListID[1];
+        bonusId = heirloom->UpgradeItemBonusListID[1];
     }
     if (heirloom->UpgradeItemID[2] == castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_110;
-        bonusId = heirloom->ItemBonusListID[2];
+        bonusId = heirloom->UpgradeItemBonusListID[2];
     }
 
     for (Item* item : player->GetItemListByEntry(itemId, true))
@@ -277,14 +277,14 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
             return;
 
         // Check for heirloom pairs (normal - heroic, heroic - mythic)
-        uint32 heirloomItemId = heirloom->NextDifficultyItemID;
+        uint32 heirloomItemId = heirloom->StaticUpgradedItemID;
         uint32 newItemId = 0;
         while (HeirloomEntry const* heirloomDiff = sDB2Manager.GetHeirloomByItemId(heirloomItemId))
         {
             if (player->GetItemByEntry(heirloomDiff->ItemID))
                 newItemId = heirloomDiff->ItemID;
 
-            if (HeirloomEntry const* heirloomSub = sDB2Manager.GetHeirloomByItemId(heirloomDiff->NextDifficultyItemID))
+            if (HeirloomEntry const* heirloomSub = sDB2Manager.GetHeirloomByItemId(heirloomDiff->StaticUpgradedItemID))
             {
                 heirloomItemId = heirloomSub->ItemID;
                 continue;
@@ -390,10 +390,10 @@ bool CollectionMgr::AddMount(uint32 spellId, MountStatusFlags flags, bool factio
     _mounts.insert(MountContainer::value_type(spellId, flags));
 
     // Mount condition only applies to using it, should still learn it.
-    if (mount->PlayerConditionId)
+    if (mount->PlayerConditionID)
     {
-        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mount->PlayerConditionId);
-        if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
+        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mount->PlayerConditionID);
+        if (playerCondition && !ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
             return false;
     }
 
@@ -603,12 +603,59 @@ void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 
     AddItemAppearance(itemModifiedAppearance);
 }
 
+void CollectionMgr::AddTransmogSet(uint32 transmogSetId)
+{
+    std::vector<TransmogSetItemEntry const*> const* items = sDB2Manager.GetTransmogSetItems(transmogSetId);
+    if (!items)
+        return;
+
+    for (TransmogSetItemEntry const* item : *items)
+    {
+        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearanceID);
+        if (!itemModifiedAppearance)
+            continue;
+
+        AddItemAppearance(itemModifiedAppearance);
+    }
+}
+
+bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
+{
+    std::vector<TransmogSetItemEntry const*> const* transmogSetItems = sDB2Manager.GetTransmogSetItems(transmogSetId);
+    if (!transmogSetItems)
+        return false;
+
+    std::array<int8, EQUIPMENT_SLOT_END> knownPieces;
+    knownPieces.fill(-1);
+    for (TransmogSetItemEntry const* transmogSetItem : *transmogSetItems)
+    {
+        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogSetItem->ItemModifiedAppearanceID);
+        if (!itemModifiedAppearance)
+            continue;
+
+        ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID);
+        if (!item)
+            continue;
+
+        int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
+        if (transmogSlot < 0 || knownPieces[transmogSlot] == 1)
+            continue;
+
+        bool hasAppearance, isTemporary;
+        std::tie(hasAppearance, isTemporary) = HasItemAppearance(transmogSetItem->ItemModifiedAppearanceID);
+
+        knownPieces[transmogSlot] = (hasAppearance && !isTemporary) ? 1 : 0;
+    }
+
+    return std::find(knownPieces.begin(), knownPieces.end(), 0) == knownPieces.end();
+}
+
 bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const
 {
     if (!itemModifiedAppearance)
         return false;
 
-    if (itemModifiedAppearance->SourceType == 6 || itemModifiedAppearance->SourceType == 9)
+    if (itemModifiedAppearance->TransmogSourceTypeEnum == 6 || itemModifiedAppearance->TransmogSourceTypeEnum == 9)
         return false;
 
     if (!sItemSearchNameStore.LookupEntry(itemModifiedAppearance->ItemID))
@@ -705,6 +752,18 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _owner->GetPlayer()->RemoveDynamicValue(PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG, itemModifiedAppearance->ID);
         _temporaryAppearances.erase(temporaryAppearance);
     }
+
+    if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
+    {
+        int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
+        if (transmogSlot >= 0)
+            _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT, transmogSlot, 1);
+    }
+
+    if (std::vector<TransmogSetEntry const*> const* sets = sDB2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
+        for (TransmogSetEntry const* set : *sets)
+            if (IsSetCompleted(set->ID))
+                _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED, set->TransmogSetGroupID);
 }
 
 void CollectionMgr::AddTemporaryAppearance(ObjectGuid const& itemGuid, ItemModifiedAppearanceEntry const* itemModifiedAppearance)

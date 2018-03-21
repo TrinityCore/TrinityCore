@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "IpAddress.h"
 #include "Map.h"
 #include "Metric.h"
 #include "MiscPackets.h"
@@ -111,7 +112,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _accountId(id),
     _accountName(std::move(name)),
     _battlenetAccountId(battlenetAccountId),
-    m_expansion(expansion),
+    m_accountExpansion(expansion),
+    m_expansion(std::min<uint8>(expansion, sWorld->getIntConfig(CONFIG_EXPANSION))),
     _os(os),
     _battlenetRequestToken(0),
     _warden(NULL),
@@ -708,7 +710,7 @@ void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
-    boost::asio::ip::address instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
+    boost::asio::ip::address instanceAddress = realm.GetAddressForClient(Trinity::Net::make_address(GetRemoteAddress(), ignored_error));
 
     _instanceConnectKey.Fields.AccountId = GetAccountId();
     _instanceConnectKey.Fields.ConnectionType = CONNECTION_TYPE_INSTANCE;
@@ -1055,7 +1057,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendSetTimeZoneInformation();
     SendFeatureSystemStatusGlueScreen();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    SendHotfixList(int32(sWorld->getIntConfig(CONFIG_HOTFIX_CACHE_VERSION)));
+    SendAvailableHotfixes(int32(sWorld->getIntConfig(CONFIG_HOTFIX_CACHE_VERSION)));
     SendTutorialsData();
 
     if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))

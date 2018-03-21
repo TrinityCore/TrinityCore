@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@
 //==============================================================
 
 // The hatingUnit is not used yet
-float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float threat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
+float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float threat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell /*= nullptr*/)
 {
     if (threatSpell)
     {
@@ -40,7 +40,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
                 threat *= threatEntry->pctMod;
 
         // Energize is not affected by Mods
-            for (SpellEffectInfo const* effect : threatSpell->GetEffectsForDifficulty(hatedUnit->GetMap()->GetDifficultyID()))
+        for (SpellEffectInfo const* effect : threatSpell->GetEffectsForDifficulty(hatedUnit->GetMap()->GetDifficultyID()))
             if (effect && (effect->Effect == SPELL_EFFECT_ENERGIZE || effect->ApplyAuraName == SPELL_AURA_PERIODIC_ENERGIZE))
                 return threat;
 
@@ -51,7 +51,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
     return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
 }
 
-bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell)
+bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell /*= nullptr*/)
 {
     //function deals with adding threat and adding players and pets into ThreatList
     //mobs, NPCs, guards have ThreatList and HateOfflineList
@@ -135,18 +135,20 @@ void HostileReference::fireStatusChanged(ThreatRefStatusChangeEvent& threatRefSt
 
 void HostileReference::addThreat(float modThreat)
 {
+    if (!modThreat)
+        return;
+
     iThreat += modThreat;
+
     // the threat is changed. Source and target unit have to be available
     // if the link was cut before relink it again
     if (!isOnline())
         updateOnlineStatus();
-    if (modThreat != 0.0f)
-    {
-        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, modThreat);
-        fireStatusChanged(event);
-    }
 
-    if (isValid() && modThreat >= 0.0f)
+    ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, modThreat);
+    fireStatusChanged(event);
+
+    if (isValid() && modThreat > 0.0f)
     {
         Unit* victimOwner = getTarget()->GetCharmerOrOwner();
         if (victimOwner && victimOwner->IsAlive())
@@ -156,9 +158,7 @@ void HostileReference::addThreat(float modThreat)
 
 void HostileReference::addThreatPercent(int32 percent)
 {
-    float tmpThreat = iThreat;
-    AddPct(tmpThreat, percent);
-    addThreat(tmpThreat - iThreat);
+    addThreat(CalculatePct(iThreat, percent));
 }
 
 //============================================================
@@ -194,6 +194,7 @@ void HostileReference::updateOnlineStatus()
         else
             accessible = true;
     }
+
     setAccessibleState(accessible);
     setOnlineOfflineState(online);
 }
@@ -222,7 +223,7 @@ void HostileReference::setAccessibleState(bool isAccessible)
     {
         iAccessible = isAccessible;
 
-        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_ASSECCIBLE_STATUS, this);
+        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_ACCESSIBLE_STATUS, this);
         fireStatusChanged(event);
     }
 }

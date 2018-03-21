@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,7 +107,7 @@ inline void KillRewarder::_InitGroupData()
                     // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
                     //      for whom victim is not gray;
                     uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
-                    if (_victim->getLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
+                    if (_victim->GetLevelForTarget(member) > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
                         _maxNotGrayMember = member;
                 }
         // 2.5. _isFullXP - flag identifying that for all group members victim is not gray,

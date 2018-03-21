@@ -12,13 +12,17 @@ bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
 
-cppformat (type safe format library)
-  https://github.com/cppformat/cppformat
-  Version: 3.0.1 7fa8f8fa48b0903deab5bb42e6760477173ac485
+cotire (CMake module to speed up builds)
+  https://github.com/sakra/cotire
+  Version: 1.7.10 516d78476f6dda336181fc5514f72774e1e0a8e2
 
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
-  ff0b69daeca1edf7785a8a580518e462be5a6f3d
+  Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
+
+fmt (a small, safe and fast formatting library)
+  https://github.com/fmtlib/fmt
+  Version: 4.0.0 f9c97de46b9914c86366ddcb3474a36e654cbd42
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -50,7 +54,7 @@ zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.33
+  Version: 2.8.49
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/memononen/recastnavigation
@@ -58,7 +62,7 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib
-  Version: 4c04c6c2bf29f44d09b6ba18623859c7295cbd87
+  Version: c63818ecf8d998fae811a2d6db23045f4f6e36a1
 
 rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
   https://github.com/miloyip/rapidjson

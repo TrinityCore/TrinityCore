@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -656,7 +656,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
     // Send scripted event call
     if (unit)
         if (Creature* creature = unit->ToCreature())
-            creature->AI()->ReceiveEmote(_player, packet.SoundIndex);
+            creature->AI()->ReceiveEmote(_player, packet.EmoteID);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored)

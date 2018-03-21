@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -727,46 +727,52 @@ namespace MMAP
 
                         G3D::Vector3 vert;
                         for (uint32 x = 0; x < vertsX; ++x)
+                        {
                             for (uint32 y = 0; y < vertsY; ++y)
                             {
-                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
+                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y * vertsX + x]);
                                 vert = vert * rotation * scale + position;
                                 vert.x *= -1.f;
                                 vert.y *= -1.f;
                                 liqVerts.push_back(vert);
                             }
+                        }
 
-                            int idx1, idx2, idx3, idx4;
-                            uint32 square;
-                            for (uint32 x = 0; x < tilesX; ++x)
-                                for (uint32 y = 0; y < tilesY; ++y)
-                                    if ((flags[x+y*tilesX] & 0x0f) != 0x0f)
-                                    {
-                                        square = x * tilesY + y;
-                                        idx1 = square+x;
-                                        idx2 = square+1+x;
-                                        idx3 = square+tilesY+1+1+x;
-                                        idx4 = square+tilesY+1+x;
+                        int idx1, idx2, idx3, idx4;
+                        uint32 square;
+                        for (uint32 x = 0; x < tilesX; ++x)
+                        {
+                            for (uint32 y = 0; y < tilesY; ++y)
+                            {
+                                if ((flags[x + y * tilesX] & 0x0f) != 0x0f)
+                                {
+                                    square = x * tilesY + y;
+                                    idx1 = square + x;
+                                    idx2 = square + 1 + x;
+                                    idx3 = square + tilesY + 1 + 1 + x;
+                                    idx4 = square + tilesY + 1 + x;
 
-                                        // top triangle
-                                        liqTris.push_back(idx3);
-                                        liqTris.push_back(idx2);
-                                        liqTris.push_back(idx1);
-                                        // bottom triangle
-                                        liqTris.push_back(idx4);
-                                        liqTris.push_back(idx3);
-                                        liqTris.push_back(idx1);
-                                    }
+                                    // top triangle
+                                    liqTris.push_back(idx3);
+                                    liqTris.push_back(idx2);
+                                    liqTris.push_back(idx1);
+                                    // bottom triangle
+                                    liqTris.push_back(idx4);
+                                    liqTris.push_back(idx3);
+                                    liqTris.push_back(idx1);
+                                }
+                            }
+                        }
 
-                                    uint32 liqOffset = meshData.liquidVerts.size() / 3;
-                                    for (uint32 i = 0; i < liqVerts.size(); ++i)
-                                        meshData.liquidVerts.append(liqVerts[i].y, liqVerts[i].z, liqVerts[i].x);
+                        uint32 liqOffset = meshData.liquidVerts.size() / 3;
+                        for (uint32 i = 0; i < liqVerts.size(); ++i)
+                            meshData.liquidVerts.append(liqVerts[i].y, liqVerts[i].z, liqVerts[i].x);
 
-                                    for (uint32 i = 0; i < liqTris.size() / 3; ++i)
-                                    {
-                                        meshData.liquidTris.append(liqTris[i*3+1] + liqOffset, liqTris[i*3+2] + liqOffset, liqTris[i*3] + liqOffset);
-                                        meshData.liquidType.append(type);
-                                    }
+                        for (uint32 i = 0; i < liqTris.size() / 3; ++i)
+                        {
+                            meshData.liquidTris.append(liqTris[i * 3 + 1] + liqOffset, liqTris[i * 3 + 2] + liqOffset, liqTris[i * 3] + liqOffset);
+                            meshData.liquidType.append(type);
+                        }
                     }
                 }
             }

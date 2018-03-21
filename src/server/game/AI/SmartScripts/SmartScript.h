@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ class TC_GAME_API SmartScript
         static bool IsUnit(WorldObject* obj);
         static bool IsPlayer(WorldObject* obj);
         static bool IsCreature(WorldObject* obj);
-        static bool IsCreatureInControlOfSelf(WorldObject* obj);
+        static bool IsCharmedCreature(WorldObject* obj);
         static bool IsGameObject(WorldObject* obj);
 
         void OnUpdate(const uint32 diff);

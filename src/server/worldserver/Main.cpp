@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@
 #include "DatabaseLoader.h"
 #include "GitRevision.h"
 #include "InstanceSaveMgr.h"
+#include "IoContext.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
@@ -50,7 +51,6 @@
 #include "WorldSocketMgr.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -85,8 +85,8 @@ int m_ServiceStatus = -1;
 class FreezeDetector
 {
 public:
-    FreezeDetector(boost::asio::io_service& ioService, uint32 maxCoreStuckTime)
-        : _timer(ioService), _worldLoopCounter(0), _lastChangeMsTime(0), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
+    FreezeDetector(Trinity::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
+        : _timer(ioContext), _worldLoopCounter(0), _lastChangeMsTime(0), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
 
     static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
     {
@@ -104,7 +104,7 @@ private:
 };
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
-AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService);
+AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
@@ -148,11 +148,11 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    std::shared_ptr<boost::asio::io_service> ioService = std::make_shared<boost::asio::io_service>();
+    std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 
     sLog->RegisterAppender<AppenderDB>();
-    // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
-    sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? ioService.get() : nullptr);
+    // If logs are supposed to be handled async then we need to pass the IoContext into the Log singleton
+    sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? ioContext.get() : nullptr);
 
     Trinity::Banner::Show("worldserver-daemon",
         [](char const* text)
@@ -189,8 +189,8 @@ extern int main(int argc, char** argv)
         }
     }
 
-    // Set signal handlers (this must be done before starting io_service threads, because otherwise they would unblock and exit)
-    boost::asio::signal_set signals(*ioService, SIGINT, SIGTERM);
+    // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
+    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
@@ -198,9 +198,9 @@ extern int main(int argc, char** argv)
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetIntDefault("ThreadPool", 1);
-    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioService](std::vector<std::thread>* del)
+    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
     {
-        ioService->stop();
+        ioContext->stop();
         for (std::thread& thr : *del)
             thr.join();
 
@@ -211,7 +211,7 @@ extern int main(int argc, char** argv)
         numThreads = 1;
 
     for (int i = 0; i < numThreads; ++i)
-        threadPool->push_back(std::thread([ioService]() { ioService->run(); }));
+        threadPool->push_back(std::thread([ioContext]() { ioContext->run(); }));
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -225,13 +225,13 @@ extern int main(int argc, char** argv)
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
-    sRealmList->Initialize(*ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
+    sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
 
     LoadRealmInfo();
 
-    sMetric->Initialize(realm.Name, *ioService, []()
+    sMetric->Initialize(realm.Name, *ioContext, []()
     {
         TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
     });
@@ -267,7 +267,7 @@ extern int main(int argc, char** argv)
     // Start the Remote Access port (acceptor) if enabled
     std::unique_ptr<AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
-        raAcceptor.reset(StartRaSocketAcceptor(*ioService));
+        raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
 
     // Start soap serving thread if enabled
     std::shared_ptr<std::thread> soapThread;
@@ -294,7 +294,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioService, worldListener, worldPort, instancePort, networkThreads))
+    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, instancePort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
         return 1;
@@ -331,7 +331,7 @@ extern int main(int argc, char** argv)
     std::shared_ptr<FreezeDetector> freezeDetector;
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
-        freezeDetector = std::make_shared<FreezeDetector>(*ioService, coreStuckTime * 1000);
+        freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
@@ -371,50 +371,54 @@ void ShutdownCLIThread(std::thread* cliThread)
         {
             // if CancelSynchronousIo() fails, print the error and try with old way
             DWORD errorCode = GetLastError();
-            LPSTR errorBuffer;
 
-            DWORD formatReturnCode = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                                   nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
-            if (!formatReturnCode)
-                errorBuffer = "Unknown error";
+            // if CancelSynchronousIo fails with ERROR_NOT_FOUND then there was nothing to cancel, proceed with shutdown
+            if (errorCode != ERROR_NOT_FOUND)
+            {
+                LPSTR errorBuffer;
+                DWORD numCharsWritten = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+                    nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
+                if (!numCharsWritten)
+                    errorBuffer = "Unknown error";
 
-            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+                TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
 
-            if (!formatReturnCode)
-                LocalFree(errorBuffer);
+                if (numCharsWritten)
+                    LocalFree(errorBuffer);
 
-            // send keyboard input to safely unblock the CLI thread
-            INPUT_RECORD b[4];
-            HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-            b[0].EventType = KEY_EVENT;
-            b[0].Event.KeyEvent.bKeyDown = TRUE;
-            b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
-            b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
-            b[0].Event.KeyEvent.wRepeatCount = 1;
+                // send keyboard input to safely unblock the CLI thread
+                INPUT_RECORD b[4];
+                HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+                b[0].EventType = KEY_EVENT;
+                b[0].Event.KeyEvent.bKeyDown = TRUE;
+                b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
+                b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
+                b[0].Event.KeyEvent.wRepeatCount = 1;
 
-            b[1].EventType = KEY_EVENT;
-            b[1].Event.KeyEvent.bKeyDown = FALSE;
-            b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
-            b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
-            b[1].Event.KeyEvent.wRepeatCount = 1;
+                b[1].EventType = KEY_EVENT;
+                b[1].Event.KeyEvent.bKeyDown = FALSE;
+                b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
+                b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
+                b[1].Event.KeyEvent.wRepeatCount = 1;
 
-            b[2].EventType = KEY_EVENT;
-            b[2].Event.KeyEvent.bKeyDown = TRUE;
-            b[2].Event.KeyEvent.dwControlKeyState = 0;
-            b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
-            b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-            b[2].Event.KeyEvent.wRepeatCount = 1;
-            b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
+                b[2].EventType = KEY_EVENT;
+                b[2].Event.KeyEvent.bKeyDown = TRUE;
+                b[2].Event.KeyEvent.dwControlKeyState = 0;
+                b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
+                b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+                b[2].Event.KeyEvent.wRepeatCount = 1;
+                b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
 
-            b[3].EventType = KEY_EVENT;
-            b[3].Event.KeyEvent.bKeyDown = FALSE;
-            b[3].Event.KeyEvent.dwControlKeyState = 0;
-            b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
-            b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-            b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
-            b[3].Event.KeyEvent.wRepeatCount = 1;
-            DWORD numb;
-            WriteConsoleInput(hStdIn, b, 4, &numb);
+                b[3].EventType = KEY_EVENT;
+                b[3].Event.KeyEvent.bKeyDown = FALSE;
+                b[3].Event.KeyEvent.dwControlKeyState = 0;
+                b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
+                b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+                b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
+                b[3].Event.KeyEvent.wRepeatCount = 1;
+                DWORD numb;
+                WriteConsoleInput(hStdIn, b, 4, &numb);
+            }
         }
 #endif
         cliThread->join();
@@ -427,8 +431,6 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
-    uint32 prevSleepTime = 0;                               // used for balanced full tick time length near WORLD_SLEEP_CONST
-
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
     {
@@ -440,18 +442,11 @@ void WorldUpdateLoop()
         sWorld->Update(diff);
         realPrevTime = realCurrTime;
 
-        // diff (D0) include time of previous sleep (d0) + tick time (t0)
-        // we want that next d1 + t1 == WORLD_SLEEP_CONST
-        // we can't know next t1 and then can use (t0 + d1) == WORLD_SLEEP_CONST requirement
-        // d1 = WORLD_SLEEP_CONST - t0 = WORLD_SLEEP_CONST - (D0 - d0) = WORLD_SLEEP_CONST + d0 - D0
-        if (diff <= WORLD_SLEEP_CONST + prevSleepTime)
-        {
-            prevSleepTime = WORLD_SLEEP_CONST + prevSleepTime - diff;
+        uint32 executionTimeDiff = getMSTimeDiff(realCurrTime, getMSTime());
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(prevSleepTime));
-        }
-        else
-            prevSleepTime = 0;
+        // we know exactly how long it took to update the world, if the update took less than WORLD_SLEEP_CONST, sleep for WORLD_SLEEP_CONST - world update time
+        if (executionTimeDiff < WORLD_SLEEP_CONST)
+            std::this_thread::sleep_for(std::chrono::milliseconds(WORLD_SLEEP_CONST - executionTimeDiff));
 
 #ifdef _WIN32
         if (m_ServiceStatus == 0)
@@ -496,12 +491,12 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService)
+AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioService, raListener, raPort);
+    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
     if (!acceptor->Bind())
     {
         TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");

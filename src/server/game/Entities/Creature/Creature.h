@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,7 +62,6 @@ typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup
 class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
-
         explicit Creature(bool isWorldObject = false);
         virtual ~Creature();
 
@@ -74,7 +73,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DisappearAndDie();
 
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float x, float y, float z, float ang, CreatureData const* data, uint32 vehId);
+
+        static Creature* CreateCreature(uint32 entry, Map* map, Position const& pos, uint32 vehId = 0);
+        static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
+
         bool LoadCreaturesAddon();
         void SelectLevel();
         void UpdateLevelDependantStats();
@@ -103,22 +106,34 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
-        bool isCanTrainingAndResetTalentsOf(Player* player) const;
+        bool CanResetTalents(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
-        bool IsImmunedToSpell(SpellInfo const* spellInfo) const override;                     // override Unit::IsImmunedToSpell
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const override; // override Unit::IsImmunedToSpellEffect
+        bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
         bool isElite() const;
         bool isWorldBoss() const;
 
         bool IsDungeonBoss() const;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
+        bool HasScalableLevels() const;
+        uint8 GetLevelForTarget(WorldObject const* target) const override;
+
+        uint64 GetMaxHealthByLevel(uint8 level) const;
+        float GetHealthMultiplierForTarget(WorldObject const* target) const override;
+
+        float GetBaseDamageForLevel(uint8 level) const;
+        float GetDamageMultiplierForTarget(WorldObject const* target) const override;
+
+        float GetBaseArmorForLevel(uint8 level) const;
+        float GetArmorMultiplierForTarget(WorldObject const* target) const override;
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Destroy();
-        bool AIM_Initialize(CreatureAI* ai = NULL);
+        bool AIM_Create(CreatureAI* ai = nullptr);
+        void AI_InitializeAndEnable();
+        bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
@@ -138,6 +153,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateArmor() override;
         void UpdateMaxHealth() override;
         void UpdateMaxPower(Powers power) override;
+        uint32 GetPowerIndex(Powers power) const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
@@ -152,8 +168,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
 
-        TrainerSpellData const* GetTrainerSpells() const;
-
         CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
@@ -167,11 +181,13 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void setDeathState(DeathState s) override;                   // override virtual Unit::setDeathState
 
-        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadCreatureFromDB(spawnId, map, false); }
-        bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadCreatureFromDB(spawnId, map, false, false); }
+    private:
+        bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
+    public:
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
+        virtual void SaveToDB(uint32 mapid, uint64 spawnMask);
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;
@@ -263,6 +279,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
+        float GetPetChaseDistance() const;
 
         void SetCannotReachTarget(bool cannotReach) { if (cannotReach == m_cannotReachTarget) return; m_cannotReachTarget = cannotReach; m_cannotReachTimer = 0; }
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
@@ -311,6 +328,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid const& guid) override;
         void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
+        void DoNotReacquireTarget() { m_shouldReacquireTarget = false; m_suppressedTarget = ObjectGuid::Empty; m_suppressedOrientation = 0.0f; }
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);

@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -49,19 +49,11 @@ if (MSVC)
     ${protobuf_STAT_SRCS}
     src/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
   )
-  add_compile_options(/wd4800)
 else()
   set(protobuf_STAT_SRCS
     ${protobuf_STAT_SRCS}
     src/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
   )
-endif()
-
-if (UNIX)
-  # Enable the default unix export behaviour for protobuf so we don't
-  # need to patch it's sources.
-  string(REPLACE "-fvisibility=hidden" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  string(REPLACE "-fvisibility=hidden" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 add_library(protobuf ${protobuf_STAT_SRCS})
@@ -73,6 +65,9 @@ target_include_directories(protobuf
     ${CMAKE_CURRENT_SOURCE_DIR}/tc_custom)
 
 target_link_libraries(protobuf
+  PRIVATE
+    trinity-default-interface
+    trinity-no-warning-interface
   PUBLIC
     threads)
 
@@ -83,6 +78,16 @@ if (BUILD_SHARED_LIBS)
       -DLIBPROTOC_EXPORTS
     PUBLIC
       -DPROTOBUF_USE_DLLS)
+endif()
+
+if (MSVC)
+  target_compile_options(protobuf
+    PRIVATE
+      /wd4996)
+
+  target_compile_definitions(protobuf
+    PRIVATE
+      -D_SCL_SECURE_NO_WARNINGS)
 endif()
 
 set_target_properties(protobuf

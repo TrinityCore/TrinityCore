@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -320,7 +320,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
         case CRITERIA_DATA_TYPE_T_LEVEL:
             if (!target)
                 return false;
-            return target->getLevel() >= Level.Min;
+            return target->GetLevelForTarget(source) >= Level.Min;
         case CRITERIA_DATA_TYPE_T_GENDER:
             if (!target)
                 return false;
@@ -638,7 +638,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
-                        if (skillIter->second->SkillLine == criteria->Entry->Asset.SkillID)
+                        if (skillIter->second->SkillLine == int32(criteria->Entry->Asset.SkillID))
                             spellCount++;
                     }
                 }
@@ -699,6 +699,16 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             }
             case CRITERIA_TYPE_REACH_GUILD_LEVEL:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer);
+                break;
+            case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
+                if (miscValue1 != criteria->Entry->Asset.TransmogSetGroupID)
+                    continue;
+                SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
+                break;
+            case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+                if (!miscValue2 /*login case*/ || miscValue1 != criteria->Entry->Asset.EquipmentSlot)
+                    continue;
+                SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // FIXME: not triggered in code as result, need to implement
             case CRITERIA_TYPE_COMPLETE_RAID:
@@ -774,9 +784,11 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
             case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
             case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
-            case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
             case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
             case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
+            case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
+            case CRITERIA_TYPE_EARN_HONOR_XP:
+            case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
                 break;                                   // Not implemented yet :(
         }
 
@@ -819,7 +831,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
     CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
     for (Criteria const* criteria : criteriaList)
     {
-        if (criteria->Entry->StartAsset != entry)
+        if (criteria->Entry->StartAsset != int32(entry))
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -850,7 +862,7 @@ void CriteriaHandler::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
     CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
     for (Criteria const* criteria : criteriaList)
     {
-        if (criteria->Entry->StartAsset != entry)
+        if (criteria->Entry->StartAsset != int32(entry))
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -1135,6 +1147,10 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_CURRENCY:
         case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
         case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+        case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+        case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
+        case CRITERIA_TYPE_EARN_HONOR_XP:
+        case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
             return progress->Counter >= requiredAmount;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case CRITERIA_TYPE_COMPLETE_QUEST:
@@ -1144,6 +1160,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_OWN_BATTLE_PET:
         case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
         case CRITERIA_TYPE_PRESTIGE_REACHED:
+        case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
             return progress->Counter >= 1;
         case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return progress->Counter >= (requiredAmount * 75);
@@ -1553,7 +1570,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
     if (!reqType)
         return true;
 
-    uint32 reqValue = tree->Entry->Asset[0];
+    uint32 reqValue = tree->Entry->Asset;
 
     switch (CriteriaAdditionalCondition(reqType))
     {
@@ -1588,6 +1605,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA: // 10
             if (!unit || !unit->HasAura(reqValue))
                 return false;
+            break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA_TYPE: // 11
             if (!unit || !unit->HasAuraType(AuraType(reqValue)))
                 return false;
@@ -1682,7 +1700,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL: // 40
-            if (!unit || unit->getLevel() != reqValue)
+            if (!unit || unit->GetLevelForTarget(referencePlayer) != reqValue)
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_ZONE: // 41
@@ -2124,6 +2142,14 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "ORDER_HALL_RECRUIT_TROOP";
         case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
             return "COMPLETE_WORLD_QUEST";
+        case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
+            return "TRANSMOG_SET_UNLOCKED";
+        case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
+            return "GAIN_PARAGON_REPUTATION";
+        case CRITERIA_TYPE_EARN_HONOR_XP:
+            return "EARN_HONOR_XP";
+        case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
+            return "RELIC_TALENT_UNLOCKED";
     }
     return "MISSING_TYPE";
 }
@@ -2223,8 +2249,21 @@ void CriteriaMgr::LoadCriteriaList()
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
     for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-        if (scenarioStep->CriteriaTreeID)
-            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+        if (scenarioStep->Criteriatreeid)
+            scenarioCriteriaTreeIds[scenarioStep->Criteriatreeid] = scenarioStep;
+
+    std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
+    for (std::pair<uint32 /*questID*/, Quest const*> itr : sObjectMgr->GetQuestTemplates())
+    {
+        for (QuestObjective const& objective : itr.second->Objectives)
+        {
+            if (objective.Type != QUEST_OBJECTIVE_CRITERIA_TREE)
+                continue;
+
+            if (objective.ObjectID)
+                questObjectiveCriteriaTreeIds[objective.ObjectID] = &objective;
+        }
+    }
 
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)
@@ -2232,13 +2271,15 @@ void CriteriaMgr::LoadCriteriaList()
         // Find linked achievement
         AchievementEntry const* achievement = GetEntry(achievementCriteriaTreeIds, tree);
         ScenarioStepEntry const* scenarioStep = GetEntry(scenarioCriteriaTreeIds, tree);
-        if (!achievement && !scenarioStep)
+        QuestObjective const* questObjective = GetEntry(questObjectiveCriteriaTreeIds, tree);
+        if (!achievement && !scenarioStep && !questObjective)
             continue;
 
         CriteriaTree* criteriaTree = new CriteriaTree();
         criteriaTree->ID = tree->ID;
         criteriaTree->Achievement = achievement;
         criteriaTree->ScenarioStep = scenarioStep;
+        criteriaTree->QuestObjective = questObjective;
         criteriaTree->Entry = tree;
 
         _criteriaTrees[criteriaTree->Entry->ID] = criteriaTree;
@@ -2273,6 +2314,7 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 criterias = 0;
     uint32 guildCriterias = 0;
     uint32 scenarioCriterias = 0;
+    uint32 questObjectiveCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
         ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
@@ -2304,6 +2346,8 @@ void CriteriaMgr::LoadCriteriaList()
             }
             else if (tree->ScenarioStep)
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_SCENARIO;
+            else if (tree->QuestObjective)
+                criteria->FlagsCu |= CRITERIA_FLAG_CU_QUEST_OBJECTIVE;
         }
 
         if (criteria->FlagsCu & (CRITERIA_FLAG_CU_PLAYER | CRITERIA_FLAG_CU_ACCOUNT))
@@ -2324,6 +2368,12 @@ void CriteriaMgr::LoadCriteriaList()
             _scenarioCriteriasByType[criteriaEntry->Type].push_back(criteria);
         }
 
+        if (criteria->FlagsCu & CRITERIA_FLAG_CU_QUEST_OBJECTIVE)
+        {
+            ++questObjectiveCriterias;
+            _questObjectiveCriteriasByType[criteriaEntry->Type].push_back(criteria);
+        }
+
         if (criteriaEntry->StartTimer)
             _criteriasByTimedType[criteriaEntry->StartEvent].push_back(criteria);
     }
@@ -2331,7 +2381,7 @@ void CriteriaMgr::LoadCriteriaList()
     for (auto& p : _criteriaTrees)
         const_cast<CriteriaTree*>(p.second)->Criteria = GetCriteria(p.second->Entry->CriteriaID);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria and %u scenario criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria, %u scenario criteria and %u quest objective criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, questObjectiveCriterias, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void CriteriaMgr::LoadCriteriaData()

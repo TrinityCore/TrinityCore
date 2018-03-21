@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "Spline.h"
 #include "Transport.h"
 #include "Unit.h"
@@ -85,7 +86,7 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/, AuraEffect const* aurEff)
+bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId, AuraEffect const* aurEff)
 {
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
     _aurEff = aurEff;
@@ -106,7 +107,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     }
 
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
-    SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(GetTemplate()->Id);
     SetDuration(duration);
@@ -170,6 +170,18 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     _ai->OnCreate();
 
     return true;
+}
+
+AreaTrigger* AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/, AuraEffect const* aurEff /*= nullptr*/)
+{
+    AreaTrigger* at = new AreaTrigger();
+    if (!at->Create(spellMiscId, caster, target, spell, pos, duration, spellXSpellVisualId, castId, aurEff))
+    {
+        delete at;
+        return nullptr;
+    }
+
+    return at;
 }
 
 void AreaTrigger::Update(uint32 diff)
@@ -501,17 +513,17 @@ void AreaTrigger::UpdateShape()
         UpdatePolygonOrientation();
 }
 
-bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerActionUserTypes targetType)
+bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction const& action)
 {
-    switch (targetType)
+    switch (action.TargetType)
     {
         case AREATRIGGER_ACTION_USER_FRIEND:
         {
-            return caster->IsFriendlyTo(unit);
+            return caster->_IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
         }
         case AREATRIGGER_ACTION_USER_ENEMY:
         {
-            return !caster->IsFriendlyTo(unit);
+            return caster->_IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
         }
         case AREATRIGGER_ACTION_USER_RAID:
         {
@@ -539,7 +551,7 @@ void AreaTrigger::DoActions(Unit* unit)
     {
         for (AreaTriggerAction const& action : GetTemplate()->Actions)
         {
-            if (UnitFitToActionRequirement(unit, caster, action.TargetType))
+            if (UnitFitToActionRequirement(unit, caster, action))
             {
                 switch (action.ActionType)
                 {

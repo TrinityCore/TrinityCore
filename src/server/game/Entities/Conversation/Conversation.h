@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,11 @@ struct ConversationDynamicFieldActor
     ConversationDynamicFieldActor() : Type(0), Padding(0)
     {
         memset(Raw.Data, 0, sizeof(Raw.Data));
+    }
+
+    bool IsEmpty() const
+    {
+        return ActorGuid.IsEmpty(); // this one is good enough
     }
 
     enum ActorType
@@ -83,6 +88,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
+
+        uint32 GetScriptId() const;
 
     private:
         Position _stationaryPosition;

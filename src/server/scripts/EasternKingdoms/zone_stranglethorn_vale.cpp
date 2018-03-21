@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,6 +36,14 @@ EndContentData */
 ## npc_yenniku
 ######*/
 
+enum Yenniku
+{
+    SPELL_YENNIKUS_RELEASE   = 3607,
+    QUEST_SAVING_YENNIKU     = 592,
+    FACTION_HORDE_GENERIC    = 83,
+    FACTION_TROLL_BLOODSCALP = 28
+};
+
 class npc_yenniku : public CreatureScript
 {
 public:
@@ -70,17 +78,17 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
-            if (bReset || spell->Id != 3607)
+            if (bReset || spell->Id != SPELL_YENNIKUS_RELEASE)
                 return;
 
             if (Player* player = caster->ToPlayer())
             {
-                if (player->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE) //Yenniku's Release
+                if (player->GetQuestStatus(QUEST_SAVING_YENNIKU) == QUEST_STATUS_INCOMPLETE) // Yenniku's Release
                 {
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
-                    me->CombatStop();                   //stop combat
-                    me->DeleteThreatList();             //unsure of this
-                    me->setFaction(83);                 //horde generic
+                    me->CombatStop();                      // stop combat
+                    me->DeleteThreatList();                // unsure of this
+                    me->setFaction(FACTION_HORDE_GENERIC); // horde generic
 
                     bReset = true;
                     Reset_Timer = 60000;
@@ -98,7 +106,7 @@ public:
                 {
                     EnterEvadeMode();
                     bReset = false;
-                    me->setFaction(28);                     //troll, bloodscalp
+                    me->setFaction(FACTION_TROLL_BLOODSCALP); // troll, bloodscalp
                     return;
                 }
 
@@ -125,10 +133,6 @@ public:
         }
     };
 };
-
-/*######
-##
-######*/
 
 void AddSC_stranglethorn_vale()
 {

@@ -16,13 +16,9 @@
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
 #include "Log.h"
+#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
-
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
 
 namespace bgs {
 namespace protocol {
@@ -701,15 +697,23 @@ void ReportService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffe
         SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ReportService.SendReport(bgs.protocol.report.v1.SendReportRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ReportService* self = static_cast<ReportService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ReportService.SendReport() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 1, token, response);
+        else
+          self->SendResponse(self->service_hash_, 1, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleSendReport(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ReportService.SendReport(bgs.protocol.report.v1.SendReportRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 1, token, &response);
-      else
-        SendResponse(service_hash_, 1, token, status);
+      uint32 status = HandleSendReport(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 2: {
@@ -719,15 +723,23 @@ void ReportService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffe
         SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ReportService.SubmitReport(bgs.protocol.report.v1.SubmitReportRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ReportService* self = static_cast<ReportService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ReportService.SubmitReport() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 2, token, response);
+        else
+          self->SendResponse(self->service_hash_, 2, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleSubmitReport(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ReportService.SubmitReport(bgs.protocol.report.v1.SubmitReportRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 2, token, &response);
-      else
-        SendResponse(service_hash_, 2, token, status);
+      uint32 status = HandleSubmitReport(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     default:
@@ -737,13 +749,13 @@ void ReportService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffe
     }
 }
 
-uint32 ReportService::HandleSendReport(::bgs::protocol::report::v1::SendReportRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ReportService::HandleSendReport(::bgs::protocol::report::v1::SendReportRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ReportService.SendReport({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ReportService::HandleSubmitReport(::bgs::protocol::report::v1::SubmitReportRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ReportService::HandleSubmitReport(::bgs::protocol::report::v1::SubmitReportRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ReportService.SubmitReport({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,9 @@ namespace Connection_Patcher
 {
     namespace Patterns
     {
-        namespace Mac
+        struct Mac
         {
-            struct x64
-            {
-                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x48, 0x8D, 0x55, 0xC4, 0x31, 0xDB, 0x31, 0xC9 }; }
-                static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x45, 0x84, 0xFF, 0xB0, 0x01, 0x75, 0x06, 0x8B, 0x85 }; }
-            };
+            static std::vector<unsigned char> LauncherLoginParametersLocation() { return { 'n','e','t','.','b','a','t','t','l','e',0 }; }
         };
     }
 }

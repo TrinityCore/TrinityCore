@@ -961,13 +961,13 @@ class TC_PROTO_API PresenceService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* response);
-  virtual uint32 HandleOwnership(::bgs::protocol::presence::v1::OwnershipRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleMigrateOlympusCustomMessage(::bgs::protocol::presence::v1::MigrateOlympusCustomMessageRequest const* request, ::bgs::protocol::presence::v1::MigrateOlympusCustomMessageResponse* response);
+  virtual uint32 HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleOwnership(::bgs::protocol::presence::v1::OwnershipRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleMigrateOlympusCustomMessage(::bgs::protocol::presence::v1::MigrateOlympusCustomMessageRequest const* request, ::bgs::protocol::presence::v1::MigrateOlympusCustomMessageResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;

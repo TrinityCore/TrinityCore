@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -335,6 +335,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         // already in evade mode
                         me->GetMotionMaster()->MoveTargetedHome();
                         Reset();
+                        break;
                     default:
                         break;
                 }
@@ -729,8 +730,12 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), TRIGGERED_FULL_MASK, NULL, aurEff);
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 heal = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                GetTarget()->CastCustomSpell(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
             void Register() override

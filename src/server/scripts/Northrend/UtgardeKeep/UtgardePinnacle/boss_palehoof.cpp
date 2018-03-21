@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -788,7 +788,6 @@ public:
                     nextBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
                     nextBoss->SetStandState(UNIT_STAND_STATE_STAND);
                     nextBoss->SetInCombatWithZone();
-                    nextBoss->Attack(nextBoss->SelectNearestTarget(100), true);
                 }
                 currentPhase = PHASE_NONE;
 

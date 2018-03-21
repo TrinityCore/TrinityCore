@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,8 @@ DoorData const doorData[] =
 MinionData const minionData[] =
 {
     { NPC_SKARVALD,     DATA_SKARVALD_DALRONN },
-    { NPC_DALRONN,      DATA_SKARVALD_DALRONN }
+    { NPC_DALRONN,      DATA_SKARVALD_DALRONN },
+    { 0,                0                     } // END
 };
 
 class instance_utgarde_keep : public InstanceMapScript

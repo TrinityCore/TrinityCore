@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,31 +68,30 @@ public:
             if (me->IsNonMeleeSpellCast(false))
                 return;
 
-                if (!targetGUID)
+            if (!targetGUID)
+            {
+                if (me->GetEntry() == NPC_WARMAGE_SARINA)
                 {
-                    if (me->GetEntry() == NPC_WARMAGE_SARINA)
+                    std::list<Creature*> orbList;
+                    GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+                    if (!orbList.empty())
                     {
-                        std::list<Creature*> orbList;
-                        GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
-                        if (!orbList.empty())
+                        for (Creature* orb : orbList)
                         {
-                            for (Creature* orb : orbList)
+                            if (orb->GetPositionY() < 1000)
                             {
-                                if (orb->GetPositionY() < 1000)
-                                {
-                                    targetGUID = orb->GetGUID();
-                                    break;
-                                }
+                                targetGUID = orb->GetGUID();
+                                break;
                             }
                         }
                     }
-                    else if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
-                        targetGUID = pOrb->GetGUID();
                 }
+                else if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
+                    targetGUID = pOrb->GetGUID();
+            }
 
             if (Creature* pOrb = ObjectAccessor::GetCreature(*me, targetGUID))
                 DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
-
         }
     };
 

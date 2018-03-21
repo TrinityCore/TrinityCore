@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
+#include "IpAddress.h"
 #include "Item.h"
 #include "Language.h"
 #include "LFG.h"
@@ -50,7 +51,6 @@
 #include "WeatherMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <boost/asio/ip/address_v4.hpp>
 
  // temporary hack until database includes are sorted out (don't want to pull in Windows.h everywhere from mysql.h)
 #ifdef GetClassName
@@ -268,7 +268,7 @@ public:
 
         uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId(), handler->GetSession()->GetPlayer()->GetTerrainSwaps())) ? 1 : 0;
+        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -286,7 +286,7 @@ public:
             mapId, (mapEntry ? mapEntry->MapName->Str[handler->GetSessionDbcLocale()] : unknown),
             zoneId, (zoneEntry ? zoneEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
             areaId, (areaEntry ? areaEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
-            object->GetPhaseMask(), StringJoin(object->GetPhases(), ", ").c_str(),
+            StringJoin(object->GetPhases(), ", ").c_str(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1071,7 +1071,7 @@ public:
         if (!px)
             return false;
 
-        uint32 graveyardId = uint32(atoi(px));
+        uint32 graveyardId = atoul(px);
 
         uint32 team;
 
@@ -1133,7 +1133,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
+        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveYard(*player, team, nullptr);
         if (graveyard)
         {
             uint32 graveyardId = graveyard->ID;
@@ -1282,7 +1282,7 @@ public:
                 auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
                 {
                     for (uint32 i = 0; i < MAX_LOCALES; ++i)
-                        if (itemName == sparse->Name->Str[i])
+                        if (itemName == sparse->Display->Str[i])
                             return true;
                     return false;
                 });
@@ -1496,10 +1496,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zoneid = player->GetZoneId();
 
-        Weather* weather = WeatherMgr::FindWeather(zoneid);
-
-        if (!weather)
-            weather = WeatherMgr::AddWeather(zoneid);
+        Weather* weather = player->GetMap()->GetOrGenerateZoneDefaultWeather(zoneid);
         if (!weather)
         {
             handler->SendSysMessage(LANG_NO_WEATHER);
@@ -1541,15 +1538,15 @@ public:
 
         char const* maxPureSkill = strtok(NULL, " ");
 
-        int32 skill = atoi(skillStr);
-        if (skill <= 0)
+        uint32 skill = atoul(skillStr);
+        if (skill == 0)
         {
             handler->PSendSysMessage(LANG_INVALID_SKILL_ID, skill);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        int32 level = atol(levelStr);
+        uint32 level = atoul(levelStr);
 
         Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
@@ -1573,7 +1570,7 @@ public:
         // the max level of the new profession.
         uint16 max = maxPureSkill ? atoul(maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
 
-        if (level <= 0 || level > max || max <= 0)
+        if (level == 0 || level > max || max <= 0)
             return false;
 
         // If the player has the skill, we get the current skill step. If they don't have the skill, we
@@ -1642,8 +1639,8 @@ public:
          * * Phases: %s                              - XIII. LANG_PINFO_CHR_PHASE (if not GM)
          * * Money: %ug%us%uc                        - XIV.  LANG_PINFO_CHR_MONEY
          * * Map: %s, Area: %s                       - XV.   LANG_PINFO_CHR_MAP
-         * * Guild: %s (Id: %u)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
-         * ** Rank: %s                               - XVII. LANG_PINFO_CHR_GUILD_RANK (if in guild)
+         * * Guild: %s (Id: %s)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
+         * ** Rank: %s, ID: %u                       - XVII. LANG_PINFO_CHR_GUILD_RANK (if in guild)
          * ** Note: %s                               - XVIII.LANG_PINFO_CHR_GUILD_NOTE (if in guild and has note)
          * ** O. Note: %s                            - XVIX. LANG_PINFO_CHR_GUILD_ONOTE (if in guild and has officer note)
          * * Played time: %s                         - XX.   LANG_PINFO_CHR_PLAYEDTIME
@@ -1688,7 +1685,7 @@ public:
         uint32 totalPlayerTime          = 0;
         uint8 level                     = 0;
         std::string alive               = handler->GetTrinityString(LANG_ERROR);
-        uint32 money                    = 0;
+        uint64 money                    = 0;
         uint32 xp                       = 0;
         uint32 xptotal                  = 0;
 
@@ -1747,7 +1744,7 @@ public:
             Field* fields      = result->Fetch();
             totalPlayerTime    = fields[0].GetUInt32();
             level              = fields[1].GetUInt8();
-            money              = fields[2].GetUInt32();
+            money              = fields[2].GetUInt64();
             accId              = fields[3].GetUInt32();
             raceid             = fields[4].GetUInt8();
             classid            = fields[5].GetUInt8();
@@ -1784,7 +1781,7 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = boost::asio::ip::address_v4::from_string(lastIp).to_ulong();;
+                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(lastIp));
                 EndianConvertReverse(ip);
 
                 // If ip2nation table is populated, it displays the country
@@ -1942,7 +1939,7 @@ public:
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
         {
-            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), guildId);
+            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), std::to_string(guildId).c_str());
             handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank.c_str(), uint32(guildRankId));
             if (!note.empty())
                 handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_NOTE, note.c_str());
@@ -2358,7 +2355,7 @@ public:
                 GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
                 if (!go)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -2371,7 +2368,7 @@ public:
                 }
 
                 go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), std::to_string(guidLow).c_str(), -damage, go->GetGOValue()->Building.Health);
             }
 
             return true;
@@ -2424,22 +2421,24 @@ public:
 
         char* spellStr = strtok((char*)NULL, " ");
 
+        Player* attacker = handler->GetSession()->GetPlayer();
+
         // melee damage by specific school
         if (!spellStr)
         {
-            uint32 absorb = 0;
-            uint32 resist = 0;
+            DamageInfo dmgInfo(attacker, target, damage, nullptr, schoolmask, SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+            attacker->CalcAbsorbResist(dmgInfo);
 
-            handler->GetSession()->GetPlayer()->CalcAbsorbResist(target, schoolmask, SPELL_DIRECT_DAMAGE, damage, &absorb, &resist);
-
-            if (damage <= absorb + resist)
+            if (!dmgInfo.GetDamage())
                 return true;
 
-            damage -= absorb + resist;
+            damage = dmgInfo.GetDamage();
 
-            handler->GetSession()->GetPlayer()->DealDamageMods(target, damage, &absorb);
-            handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
-            handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
+            uint32 absorb = dmgInfo.GetAbsorb();
+            uint32 resist = dmgInfo.GetResist();
+            attacker->DealDamageMods(target, damage, &absorb);
+            attacker->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, schoolmask, nullptr, false);
+            attacker->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 0, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
             return true;
         }
 
@@ -2447,13 +2446,16 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellid = handler->extractSpellIdFromLink((char*)args);
+        if (!spellid)
+            return false;
+
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
         if (!spellInfo)
             return false;
 
-        SpellNonMeleeDamage damageInfo(handler->GetSession()->GetPlayer(), target, spellid, spellInfo->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()), spellInfo->SchoolMask);
+        SpellNonMeleeDamage damageInfo(attacker, target, spellid, spellInfo->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()), spellInfo->SchoolMask);
         damageInfo.damage = damage;
-        handler->GetSession()->GetPlayer()->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+        attacker->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
         target->DealSpellDamage(&damageInfo, true);
         target->SendSpellNonMeleeDamageLog(&damageInfo);
         return true;
@@ -2706,7 +2708,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 soundId = atoi((char*)args);
+        uint32 soundId = atoul(args);
 
         if (!sSoundKitStore.LookupEntry(soundId))
         {
@@ -2783,7 +2785,7 @@ public:
         }
 
         Unit::AuraApplicationMap const& uAuras = target->GetAppliedAuras();
-        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
+        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, std::to_string(uAuras.size()).c_str());
         for (Unit::AuraApplicationMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
         {
             AuraApplication const* aurApp = itr->second;

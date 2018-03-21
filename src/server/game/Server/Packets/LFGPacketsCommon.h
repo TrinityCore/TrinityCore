@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,12 +25,19 @@ namespace WorldPackets
 {
     namespace LFG
     {
+        enum class RideType : uint32
+        {
+            None = 0,
+            Battlegrounds = 1,
+            Lfg = 2
+        };
+
         struct RideTicket
         {
             ObjectGuid RequesterGuid;
-            int32 Id = 0;
-            int32 Type = 0;
-            uint32 Time = 0;
+            uint32 Id = 0;
+            RideType Type = RideType::None;
+            int32 Time = 0;
         };
     }
 }

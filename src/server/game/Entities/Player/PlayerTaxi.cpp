@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     {
         case CLASS_DEATH_KNIGHT:
         {
-            for (uint8 i = 0; i < TaxiMaskSize; ++i)
+            for (std::size_t i = 0; i < TaxiMaskSize; ++i)
                 m_taximask[i] |= sOldContinentsNodesMask[i] & factionMask[i];
             break;
         }
@@ -99,7 +99,7 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
 {
     Tokenizer tokens(data, ' ');
 
-    uint8 index = 0;
+    std::size_t index = 0;
     for (Tokenizer::const_iterator iter = tokens.begin(); index < TaxiMaskSize && iter != tokens.end(); ++iter, ++index)
     {
         // load and set bits only for existing taxi nodes
@@ -110,9 +110,15 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
 void PlayerTaxi::AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool all)
 {
     if (all)
-        data.Nodes = &sTaxiNodesMask;              // all existed nodes
+    {
+        data.CanLandNodes = &sTaxiNodesMask;              // all existed nodes
+        data.CanUseNodes = &sTaxiNodesMask;
+    }
     else
-        data.Nodes = &m_taximask;                  // known nodes
+    {
+        data.CanLandNodes = &m_taximask;                  // known nodes
+        data.CanUseNodes = &m_taximask;
+    }
 }
 
 bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint32 team)
@@ -120,8 +126,12 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
     ClearTaxiDestinations();
 
     Tokenizer tokens(values, ' ');
+    auto iter = tokens.begin();
+    if (iter != tokens.end())
+        m_flightMasterFactionId = atoul(*iter);
 
-    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+    ++iter;
+    for (; iter != tokens.end(); ++iter)
     {
         uint32 node = atoul(*iter);
         AddTaxiDestination(node);
@@ -156,6 +166,7 @@ std::string PlayerTaxi::SaveTaxiDestinationsToString()
         return "";
 
     std::ostringstream ss;
+    ss << m_flightMasterFactionId << ' ';
 
     for (size_t i = 0; i < m_TaxiDestinations.size(); ++i)
         ss << m_TaxiDestinations[i] << ' ';
@@ -176,9 +187,9 @@ uint32 PlayerTaxi::GetCurrentTaxiPath() const
     return path;
 }
 
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
+std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi)
 {
-    for (uint8 i = 0; i < TaxiMaskSize; ++i)
+    for (std::size_t i = 0; i < TaxiMaskSize; ++i)
         ss << uint32(taxi.m_taximask[i]) << ' ';
     return ss;
 }
@@ -202,4 +213,9 @@ bool PlayerTaxi::RequestEarlyLanding()
     }
 
     return false;
+}
+
+FactionTemplateEntry const* PlayerTaxi::GetFlightMasterFactionTemplate() const
+{
+    return sFactionTemplateStore.LookupEntry(m_flightMasterFactionId);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,11 +91,12 @@ public:
         {
             if (Unit* caster = eventInfo.GetActor())
             {
-                if (caster->GetTypeId() != TYPEID_PLAYER || caster->getClass() != CLASS_DEATH_KNIGHT)
+                Player* player = caster->ToPlayer();
+                if (!player  || caster->getClass() != CLASS_DEATH_KNIGHT)
                     return false;
 
-                for (uint8 i = 0; i < MAX_RUNES; ++i)
-                    if (caster->ToPlayer()->GetRuneCooldown(i) == 0)
+                for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+                    if (player->GetRuneCooldown(i) == 0)
                         return false;
 
                 return true;

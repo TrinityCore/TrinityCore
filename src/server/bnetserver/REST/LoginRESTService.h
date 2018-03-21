@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,17 +18,16 @@
 #ifndef LoginRESTService_h__
 #define LoginRESTService_h__
 
-#include "Session.h"
 #include "Define.h"
+#include "IoContext.h"
+#include "IpAddress.h"
 #include "Login.pb.h"
-#include <boost/asio/io_service.hpp>
+#include "Session.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/deadline_timer.hpp>
 #include <atomic>
-#include <mutex>
 #include <thread>
 
+class AsyncRequest;
 struct soap;
 struct soap_plugin;
 
@@ -41,48 +40,46 @@ enum class BanMode
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
+    LoginRESTService() : _ioContext(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
-    bool Start(boost::asio::io_service& ioService);
+    bool Start(Trinity::Asio::IoContext* ioContext);
     void Stop();
 
     boost::asio::ip::tcp::endpoint const& GetAddressForClient(boost::asio::ip::address const& address) const;
-
-    std::unique_ptr<Battlenet::Session::AccountInfo> VerifyLoginTicket(std::string const& id);
 
 private:
     void Run();
 
     friend int32 handle_get_plugin(soap* soapClient);
-    int32 HandleGet(soap* soapClient);
-
     friend int32 handle_post_plugin(soap* soapClient);
-    int32 HandlePost(soap* soapClient);
+
+    using HttpMethodHandlerMap = std::unordered_map<std::string, int32(LoginRESTService::*)(std::shared_ptr<AsyncRequest>)>;
+    int32 HandleHttpRequest(soap* soapClient, char const* method, HttpMethodHandlerMap const& handlers);
+
+    int32 HandleGetForm(std::shared_ptr<AsyncRequest> request);
+    int32 HandleGetGameAccounts(std::shared_ptr<AsyncRequest> request);
+    int32 HandleGetPortal(std::shared_ptr<AsyncRequest> request);
+
+    int32 HandlePostLogin(std::shared_ptr<AsyncRequest> request);
+    int32 HandlePostRefreshLoginTicket(std::shared_ptr<AsyncRequest> request);
 
     int32 SendResponse(soap* soapClient, google::protobuf::Message const& response);
 
+    void HandleAsyncRequest(std::shared_ptr<AsyncRequest> request);
+
     std::string CalculateShaPassHash(std::string const& name, std::string const& password);
-
-    void AddLoginTicket(std::string const& id, std::unique_ptr<Battlenet::Session::AccountInfo> accountInfo);
-    void CleanupLoginTickets(boost::system::error_code const& error);
-
-    struct LoginTicket
-    {
-        LoginTicket& operator=(LoginTicket&& right);
-
-        std::string Id;
-        std::unique_ptr<Battlenet::Session::AccountInfo> Account;
-        std::time_t ExpiryTime;
-    };
 
     struct ResponseCodePlugin
     {
         static char const* const PluginId;
         static int32 Init(soap* s, soap_plugin*, void*);
+        static int32 Copy(soap* s, soap_plugin* dst, soap_plugin* src);
         static void Destroy(soap* s, soap_plugin* p);
         static int32 ChangeResponse(soap* s, int32 originalResponse, size_t contentLength);
+
+        static ResponseCodePlugin* GetForClient(soap* s);
 
         int32(*fresponse)(soap* s, int32 status, size_t length);
         int32 ErrorCode;
@@ -99,6 +96,7 @@ private:
         char const* ContentType;
     };
 
+    Trinity::Asio::IoContext* _ioContext;
     std::thread _thread;
     std::atomic<bool> _stopped;
     Battlenet::JSON::Login::FormInputs _formInputs;
@@ -106,9 +104,11 @@ private:
     int32 _port;
     boost::asio::ip::tcp::endpoint _externalAddress;
     boost::asio::ip::tcp::endpoint _localAddress;
-    std::mutex _loginTicketMutex;
-    std::unordered_map<std::string, LoginTicket> _validLoginTickets;
-    boost::asio::deadline_timer* _loginTicketCleanupTimer;
+    boost::asio::ip::address_v4 _localNetmask;
+    uint32 _loginTicketDuration;
+
+    HttpMethodHandlerMap _getHandlers;
+    HttpMethodHandlerMap _postHandlers;
 };
 
 #define sLoginService LoginRESTService::Instance()

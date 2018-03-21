@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,6 +38,7 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 
+struct ItemDisenchantLootEntry;
 struct MapEntry;
 
 namespace WorldPackets
@@ -178,6 +179,7 @@ class Roll : public LootValidatorRef
         Loot* getLoot();
         void targetObjectBuildLink() override;
         void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
+        ItemDisenchantLootEntry const* GetItemDisenchantLoot(Player const* player) const;
 
         uint32 itemid;
         ItemRandomEnchantmentId itemRandomPropId;

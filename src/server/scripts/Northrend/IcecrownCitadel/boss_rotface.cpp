@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -546,7 +546,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_2);
-                return effect && !ValidateSpellInfo({ uint32(effect->CalcValue()) });
+                return effect && ValidateSpellInfo({ uint32(effect->CalcValue()) });
             }
 
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,8 +35,8 @@ namespace Battlenet
         public:
             Authentication(Session* session);
 
-            uint32 HandleLogon(authentication::v1::LogonRequest const* request, NoData* respons) override;
-            uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* respons) override;
+            uint32 HandleLogon(authentication::v1::LogonRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
         };
     }
 }

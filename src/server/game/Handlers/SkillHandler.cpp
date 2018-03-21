@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "DB2Stores.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
@@ -50,6 +51,30 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
         _player->SendTalentsInfoData();
 }
 
+void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet)
+{
+    WorldPackets::Talent::LearnPvpTalentsFailed learnPvpTalentsFailed;
+    bool anythingLearned = false;
+    for (uint32 talentId : packet.Talents)
+    {
+        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, &learnPvpTalentsFailed.SpellID))
+        {
+            if (!learnPvpTalentsFailed.Reason)
+                learnPvpTalentsFailed.Reason = result;
+
+            learnPvpTalentsFailed.Talents.push_back(talentId);
+        }
+        else
+            anythingLearned = true;
+    }
+
+    if (learnPvpTalentsFailed.Reason)
+        SendPacket(learnPvpTalentsFailed.Write());
+
+    if (anythingLearned)
+        _player->SendTalentsInfoData();
+}
+
 void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, UNIT_NPC_FLAG_TRAINER);
@@ -65,7 +90,10 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
         return;
     }
 
-    if (!unit->isCanTrainingAndResetTalentsOf(_player))
+    if (!unit->CanResetTalents(_player))
+        return;
+
+    if (!_player->PlayerTalkClass->GetGossipMenu().HasMenuItemType(GOSSIP_OPTION_UNLEARNTALENTS))
         return;
 
     // remove fake death

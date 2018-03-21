@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,6 +51,7 @@ struct GameObjectTemplate
             uint32 DoorisOpaque;                            // 8 Door is Opaque (Disable portal on close), enum { false, true, }; Default: true
             uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
             uint32 InfiniteAOI;                             // 10 Infinite AOI, enum { false, true, }; Default: false
+            uint32 NotLOSBlocking;                          // 11 Not LOS Blocking, enum { false, true, }; Default: false
         } door;
         // 1 GAMEOBJECT_TYPE_BUTTON
         struct
@@ -573,6 +574,7 @@ struct GameObjectTemplate
             uint32 SpellVisual3;                            // 19 Spell Visual 3, References: SpellVisual, NoValue = 0
             uint32 SpellVisual4;                            // 20 Spell Visual 4, References: SpellVisual, NoValue = 0
             uint32 SpellVisual5;                            // 21 Spell Visual 5, References: SpellVisual, NoValue = 0
+            uint32 SpawnVignette;                           // 22 Spawn Vignette, References: vignette, NoValue = 0
         } capturePoint;
         // 43 GAMEOBJECT_TYPE_PHASEABLE_MO
         struct
@@ -608,6 +610,7 @@ struct GameObjectTemplate
             uint32 IgnoreBoundingBox;                       // 2 Ignore Bounding Box, enum { false, true, }; Default: false
             uint32 CameraMode;                              // 3 Camera Mode, References: CameraMode, NoValue = 0
             uint32 FadeRegionRadius;                        // 4 Fade Region Radius, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 ForgeType;                               // 5 Forge Type, enum { Artifact Forge, Relic Forge, }; Default: Relic Forge
         } artifactForge;
         // 48 GAMEOBJECT_TYPE_UI_LINK
         struct
@@ -817,6 +820,7 @@ struct GameObjectTemplateAddon
     uint32  flags;
     uint32  mingold;
     uint32  maxgold;
+    uint32  WorldEffectID;
 };
 
 
@@ -844,16 +848,16 @@ struct GameObjectAddon
     QuaternionData ParentRotation;
     InvisibilityType invisibilityType;
     uint32 InvisibilityValue;
+    uint32 WorldEffectID;
 };
 
 // from `gameobject`
 struct GameObjectData
 {
-    explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
-                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), phaseid(0), phaseGroup(0), dbData(true) { }
+    explicit GameObjectData() : id(0), mapid(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
+                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), phaseId(0), phaseGroup(0), ScriptId(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
-    uint32 phaseMask;
     float posX;
     float posY;
     float posZ;
@@ -862,9 +866,9 @@ struct GameObjectData
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
-    uint32 spawnMask;
+    uint64 spawnMask;
     uint8 artKit;
-    uint32 phaseid;
+    uint32 phaseId;
     uint32 phaseGroup;
     uint32 ScriptId;
     bool dbData;

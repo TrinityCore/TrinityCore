@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ServiceRegistry_h__
-#define ServiceRegistry_h__
+#ifndef WorldserverServiceDispatcher_h__
+#define WorldserverServiceDispatcher_h__
 
 #include "WorldSession.h"
 #include "MessageBuffer.h"
@@ -55,13 +55,14 @@ namespace Battlenet
         template<class Service>
         static void Dispatch(WorldSession* session, uint32 token, uint32 methodId, MessageBuffer buffer)
         {
-            Service(session).CallServerMethod(token, methodId, std::forward<MessageBuffer>(buffer));
+            Service(session).CallServerMethod(token, methodId, std::move(buffer));
         }
 
-        std::unordered_map<uint32, std::function<void(WorldSession*, uint32, uint32, MessageBuffer)>> _dispatchers;
+        typedef void(*ServiceMethod)(WorldSession*, uint32, uint32, MessageBuffer);
+        std::unordered_map<uint32, ServiceMethod> _dispatchers;
     };
 }
 
 #define sServiceDispatcher Battlenet::WorldserverServiceDispatcher::Instance()
 
-#endif // ServiceRegistry_h__
+#endif // WorldserverServiceDispatcher_h__

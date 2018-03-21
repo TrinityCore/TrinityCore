@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,7 +72,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = NULL;
-        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me, max_range);
+        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
         Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
         Cell::VisitAllObjects(me, checker, max_range);
     }

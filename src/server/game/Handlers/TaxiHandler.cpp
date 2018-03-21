@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -186,7 +186,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     uint32 preferredMountDisplay = 0;
     if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
     {
-        if (GetPlayer()->HasSpell(mount->SpellId))
+        if (GetPlayer()->HasSpell(mount->SourceSpellID))
         {
             if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mount->ID))
             {
@@ -200,7 +200,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
                 });
 
                 if (!usableDisplays.empty())
-                    preferredMountDisplay = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+                    preferredMountDisplay = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->CreatureDisplayInfoID;
             }
         }
     }

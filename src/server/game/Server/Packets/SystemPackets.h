@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,6 +102,7 @@ namespace WorldPackets
             uint32 TokenPollTimeSeconds                  = 0;
             uint32 TokenRedeemIndex                      = 0;
             int64 TokenBalanceAmount                     = 0;
+            uint32 BpayStoreProductDeliveryDelay         = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -140,9 +141,13 @@ namespace WorldPackets
             bool CompetitiveModeEnabled              = false; // NYI
             bool TrialBoostEnabled                   = false; // NYI
             bool TokenBalanceEnabled                 = false; // NYI
+            bool LiveRegionCharacterListEnabled      = false; // NYI
+            bool LiveRegionCharacterCopyEnabled      = false; // NYI
+            bool LiveRegionAccountCopyEnabled        = false; // NYI
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
+            uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
         };
 
         class MOTD final : public ServerPacket

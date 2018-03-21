@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,8 +28,8 @@ HostileRefManager::~HostileRefManager()
 }
 
 //=================================================
-// send threat to all my hateres for the victim
-// The victim is hated than by them as well
+// send threat to all my haters for the victim
+// The victim is then hated by them as well
 // use for buffs and healing threat functionality
 
 void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo const* threatSpell)
@@ -37,9 +37,10 @@ void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo c
     if (getSize() == 0)
         return;
 
-    HostileReference* ref = getFirst();
     float threat = ThreatCalcHelper::calcThreat(victim, iOwner, baseThreat, (threatSpell ? threatSpell->GetSchoolMask() : SPELL_SCHOOL_MASK_NORMAL), threatSpell);
     threat /= getSize();
+
+    HostileReference* ref = getFirst();
     while (ref)
     {
         if (ThreatCalcHelper::isValidProcess(victim, ref->GetSource()->GetOwner(), threatSpell))
@@ -54,7 +55,6 @@ void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo c
 void HostileRefManager::addTempThreat(float threat, bool apply)
 {
     HostileReference* ref = getFirst();
-
     while (ref)
     {
         if (apply)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -302,6 +302,7 @@ TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, b
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
 TC_COMMON_API bool StringToBool(std::string const& str);
+TC_COMMON_API float DegToRad(float degrees);
 
 template<class Container>
 std::string StringJoin(Container const& c, std::string delimiter)
@@ -534,6 +535,13 @@ bool CompareValues(ComparisionType type, T val1, T val2)
             ABORT();
             return false;
     }
+}
+
+template<typename E>
+typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
+{
+    static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
+    return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
 #endif

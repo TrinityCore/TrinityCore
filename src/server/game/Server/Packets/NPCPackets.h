@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,6 +60,7 @@ namespace WorldPackets
             int32 QuestID       = 0;
             int32 QuestType     = 0;
             int32 QuestLevel    = 0;
+            int32 QuestMaxScalingLevel = 0;
             bool Repeatable     = false;
             std::string QuestTitle;
             int32 QuestFlags[2] = { };
@@ -133,7 +134,7 @@ namespace WorldPackets
             int32 MoneyCost     = 0;
             int32 ReqSkillLine  = 0;
             int32 ReqSkillRank  = 0;
-            std::array<int32, 3> ReqAbility;
+            std::array<int32, 3> ReqAbility = { };
             uint8 Usable        = 0;
             uint8 ReqLevel      = 0;
         };
@@ -145,11 +146,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::string Greeting;
-            int32 TrainerType   = 0;
             ObjectGuid TrainerGUID;
+            int32 TrainerType   = 0;
             int32 TrainerID     = 1;
             std::vector<TrainerListSpell> Spells;
+            std::string Greeting;
         };
 
         class ShowBank final : public ServerPacket

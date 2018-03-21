@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
-    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+    if (owner->IsMovementPreventedByCasting())
     {
         owner->CastStop();
         return;

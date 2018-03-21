@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -131,8 +131,8 @@ class TC_GAME_API LootTemplate
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
 
         // Objects of this class must never be copied, we are storing pointers in container
-        LootTemplate(LootTemplate const&);
-        LootTemplate& operator=(LootTemplate const&);
+        LootTemplate(LootTemplate const&) = delete;
+        LootTemplate& operator=(LootTemplate const&) = delete;
 };
 
 //=====================================================

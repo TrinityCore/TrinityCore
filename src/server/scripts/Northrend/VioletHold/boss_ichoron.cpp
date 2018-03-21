@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -347,7 +347,7 @@ class spell_ichoron_merge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return !ValidateSpellInfo({ SPELL_SHRINK });
+                return ValidateSpellInfo({ SPELL_SHRINK });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

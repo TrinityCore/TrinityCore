@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ namespace Connection_Patcher
     {
         struct Common
         {
-            static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-            static const std::vector<unsigned char> Modulus()
+            static std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
+            static std::vector<unsigned char> Modulus()
             {
                 return
                 {
@@ -50,9 +50,9 @@ namespace Connection_Patcher
                     0xF0, 0xB8, 0x32, 0xCB, 0x5B, 0x66, 0xCE, 0x51, 0x54, 0xB4, 0xC3, 0xD3, 0xD4, 0xDC, 0xB3, 0xEE
                 };
             }
-            static const std::string VersionsFile() { return "trinity6.github.io/%s/%s/build/versi"; };
-            static const std::vector<unsigned char> CertFileName() { return{ 't', 'c', '_', 'b', 'u', 'n', 'd', 'l', 'e', '.', 't', 'x', 't', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-            static const std::string CertificateBundle()
+            static std::string VersionsFile() { return "trinity6.github.io/%s/%s/build/versi"; };
+            static std::vector<unsigned char> CertBundleUrl() { return { 'h', 't', 't', 'p', 's', ':', '/', '/', 't', 'r', 'i', 'n', 'i', 't', 'y', '6', '.', 'g', 'i', 't', 'h', 'u', 'b', '.', 'i', 'o', '/', 'B', 'n', 'e', 't', '/', 'z', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', '/', 'c', 'l', 'i', 'e', 'n', 't', '/', 'b', 'g', 's', '-', 'k', 'e', 'y', '-', 'f', 'i', 'n', 'g', 'e', 'r', 'p', 'r', 'i', 'n', 't' }; }
+            static std::string CertificateBundle()
             {
                 return
 R"({
@@ -66,7 +66,39 @@ R"({
     "SigningCertificates": [
         { "RawData": "-----BEGIN CERTIFICATE-----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-----END CERTIFICATE-----" }
     ]
-}NGISerting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature)";
+})";
+            }
+            static std::string CertificatePrivateKey()
+            {
+                return
+R"(-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAwN3EYmKhDGawGrh62wAgjh3wr4CcV6lp61Ev39jzTkgetXDB
+F2SWC9s/pzS/h10HQwL9P0cYlqbZHj/darOphcqplK05WsJC876lUASSeVWVPiHs
+mfpSzjx65qV2PfmcNE1SUEizOOfpaoxvLfVqh5y4MkuSxXxOXCXS9CnQBwQo8f/4
+uV6czHZgigi7CSID75VK3VhqvlTaLYFoEiOpjWNAQ7x/18sv+VoSVuX+alYez2PD
+wU+hl0CpzEIqtaavntce9sQ3uEd3eXYGAJp6X+bOVItRmUhb3WXoIXmHMaLe5oSc
+cINa17ZL7H2ISOqr/1Pfq84Ck/VStbzEfJdTZwIDAQABAoIBAHcu1DQERQd30a3B
+gNIi4vtPzzN1I6gcXgL3+cC3vasLcEapdflxxDNxeoVmWFFbEKi9iSf4VF6MnrFN
+wBM3ETRHh8IDxeSrFVqw3lFzcdyfIYnyxtZkVZVy1HQBne8wd/HuMkbAllg9IAYi
+4HWjKgDBvSX/g6Sca4QQL6uIxy/9s3Z4K2vU8KbvUpwo+ON4HMt61fgrIrbEUVCl
+TMCVEf8UphwHctmQJb/Pr0+BCTdiv04ga1dkt+ZyR2o0VN6T/zKDqk4m1sSl0GZz
+8sn63GbuTlwHcm9GgkaxoeeZJK1/sdOSIZN8W3PpnyHrAZJlNOY7G684F1mBaWV1
+PGCcVtkCgYEA8jCDTGub7ZyMk48x+8L3Devja3TQz7YNIGkVEbQBpNw4gDV8j1m6
+EgqFdzowkY+gbA76ylNfm6Aa66RDR/LbTbXlsNd8YkXcbU3xDQ96F6cS51VBkled
+hq+iAuGJB9VYN5yP1P/Oswg/AFMjOnsfBL/1zFo26364z9x8zazw0wsCgYEAy907
+mpkk59AQ4YIDSR9wK2YpXv6HoBPFld6m7PAnBWFO0uNtQ0YppbYbrhmDqrxUoFud
+ZiEHIa0gLlp9lHr+UdUAMPDlJ6gbMnJW3U5qiVuuZA13tiZFlv11qUeU1tQUzTUv
+ZoIISN15Im0PQzUFbTxSFbS+vTYjsedv1C9UOpUCgYEAkTaTUzvmV3cZNtSSFLFW
+ros0Zda56QDwJ/G5x06V+cJtQjpPwCf9kBms4ssKGgzzFDd7GdsZpVc/LPDlwnsU
+ESkyWnEpzEa1HvivwrP38bykcf5Ffbh45CvkyTNvlTnPVjDScNUcm24jUE+I/OSb
+uZ5bg7bH3TWzHDbIwg2iq/cCgYB+DPqvqoVhOAtYBBWX/vJSQ0bNT7/4QIFpG1RH
+KG5YK0SbrLeAYz+ZELKowWniBbSluj/mSAGq1usQ/i6rwijB3FvT5v8puA2o8X24
+NKY27BM2FgWxAJUCuREpa/Mhqdx6zanTTg9lTlt558kKGxyR4Dw445sUTwdfFuTU
+Y7dGyQKBgAG0vyOdfku9TlPX2a3LasM5jkbxljeTlCJUlahW7LSoQEmLoEhOM4Ja
+6CA5PADhA16pOUweKjOtSkNEcVEorFNjlH34PpnsysF+NsDBP5HEy0eYyHSYwg1Y
+7BGwQxUOoBaUKMu7jVQcffrKiWOGEXzBDSEZ3A30t7+JIS7qy1d1
+-----END RSA PRIVATE KEY-----
+)";
             }
         };
     }

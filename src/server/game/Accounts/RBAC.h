@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +68,7 @@ enum RBACPermissions
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK        = 15,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK         = 16,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME     = 17,
-    RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT     = 18,
+    RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT     = 18,  // deprecated since Draenor DON'T reuse
     RBAC_PERM_SKIP_CHECK_CHAT_CHANNEL_REQ                    = 19,
     RBAC_PERM_SKIP_CHECK_DISABLE_MAP                         = 20,
     RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED           = 21,
@@ -577,7 +577,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE              = 669,
     RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE           = 670,
     RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS           = 671,
-    RBAC_PERM_COMMAND_RELOAD_NPC_TRAINER                     = 672,
+    RBAC_PERM_COMMAND_RELOAD_TRAINER                         = 672,
     RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR                      = 673,
     RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT                       = 674,
     RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE     = 675,
@@ -603,7 +603,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE             = 695,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL              = 696,
     RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS                 = 697,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_PROC_EVENT                = 698,
+    // 698 - reuse
     RBAC_PERM_COMMAND_RELOAD_SPELL_PROC                      = 699,
     RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS                   = 700,
     RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION           = 701,
@@ -765,7 +765,21 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858, // reserved for dynamic_spawning
     RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859, // reserved for dynamic_spawning
     RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860, // reserved for dynamic_spawning
-
+    RBAC_PERM_COMMAND_GROUP_SET                              = 861, // reserved
+    RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862, // reserved
+    RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863, // reserved
+    RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864, // reserved
+    RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved
+    RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE           = 867, // reserved
+    RBAC_PERM_COMMAND_MODIFY_POWER                           = 868,
+    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869,
+    RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870, // reserved
+    RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871, // reserved
+    RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
+    //
+    // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
+    //
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

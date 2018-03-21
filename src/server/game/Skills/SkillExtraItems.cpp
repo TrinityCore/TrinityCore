@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -207,9 +207,6 @@ bool CanCreatePerfectItem(Player* player, uint32 spellId, float &perfectCreateCh
         return false;
 
     SkillPerfectItemEntry const* thisEntry = &ret->second;
-    // lack of entry means no perfection proc possible
-    if (!thisEntry)
-        return false;
 
     // if you don't have the spell needed, then no procs for you
     if (!player->HasSpell(thisEntry->requiredSpecialization))
@@ -231,10 +228,6 @@ bool CanCreateExtraItems(Player* player, uint32 spellId, float &additionalChance
         return false;
 
     SkillExtraItemEntry const* specEntry = &ret->second;
-
-    // if no entry, then no extra items can be created
-    if (!specEntry)
-        return false;
 
     // the player doesn't have the required specialization, return false
     if (!player->HasSpell(specEntry->requiredSpecialization))

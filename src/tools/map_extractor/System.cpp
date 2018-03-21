@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -66,8 +66,7 @@ struct CinematicCameraLoadInfo
         };
         static char const* types = "iffi";
         static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
-        static DB2FieldDefault const fieldDefaults[4] = { uint32(0), float(0), float(0), uint32(0) };
-        static DB2Meta const meta(-1, 4, 0x85F98D68, types, arraySizes, fieldDefaults);
+        static DB2Meta const meta(-1, 4, 0x0062B0F4, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -81,18 +80,18 @@ struct LiquidTypeLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
-            { false, FT_INT, "SpellID" },
-            { false, FT_FLOAT, "MaxDarkenDepth" },
-            { false, FT_FLOAT, "FogDarkenIntensity" },
-            { false, FT_FLOAT, "AmbDarkenIntensity" },
-            { false, FT_FLOAT, "DirDarkenIntensity" },
-            { false, FT_FLOAT, "ParticleScale" },
             { false, FT_STRING_NOT_LOCALIZED, "Texture1" },
             { false, FT_STRING_NOT_LOCALIZED, "Texture2" },
             { false, FT_STRING_NOT_LOCALIZED, "Texture3" },
             { false, FT_STRING_NOT_LOCALIZED, "Texture4" },
             { false, FT_STRING_NOT_LOCALIZED, "Texture5" },
             { false, FT_STRING_NOT_LOCALIZED, "Texture6" },
+            { false, FT_INT, "SpellID" },
+            { false, FT_FLOAT, "MaxDarkenDepth" },
+            { false, FT_FLOAT, "FogDarkenIntensity" },
+            { false, FT_FLOAT, "AmbDarkenIntensity" },
+            { false, FT_FLOAT, "DirDarkenIntensity" },
+            { false, FT_FLOAT, "ParticleScale" },
             { false, FT_INT, "Color1" },
             { false, FT_INT, "Color2" },
             { false, FT_FLOAT, "Float1" },
@@ -131,10 +130,9 @@ struct LiquidTypeLoadInfo
             { false, FT_BYTE, "DepthTexCount6" },
             { false, FT_INT, "SoundID" },
         };
-        static char const* types = "sifffffsifihhbbbbbi";
-        static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
-        static DB2FieldDefault const fieldDefaults[19] = { "", uint32(0), float(0), float(0), float(0), float(0), float(0), "", uint32(0), float(0), uint32(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0), uint32(0) };
-        static DB2Meta const meta(-1, 19, 0xEB9E4B52, types, arraySizes, fieldDefaults);
+        static char const* types = "ssifffffifihhbbbbbi";
+        static uint8 const arraySizes[19] = { 1, 6, 1, 1, 1, 1, 1, 1, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
+        static DB2Meta const meta(-1, 19, 0x3313BBF3, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -148,16 +146,16 @@ struct MapLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING_NOT_LOCALIZED, "Directory" },
-            { false, FT_INT, "Flags1" },
-            { false, FT_INT, "Flags2" },
-            { false, FT_FLOAT, "MinimapIconScale" },
-            { false, FT_FLOAT, "CorpsePosX" },
-            { false, FT_FLOAT, "CorpsePosY" },
             { false, FT_STRING, "MapName" },
             { false, FT_STRING, "MapDescription0" },
             { false, FT_STRING, "MapDescription1" },
             { false, FT_STRING, "ShortDescription" },
             { false, FT_STRING, "LongDescription" },
+            { false, FT_INT, "Flags1" },
+            { false, FT_INT, "Flags2" },
+            { false, FT_FLOAT, "MinimapIconScale" },
+            { false, FT_FLOAT, "CorpsePosX" },
+            { false, FT_FLOAT, "CorpsePosY" },
             { false, FT_SHORT, "AreaTableID" },
             { false, FT_SHORT, "LoadingScreenID" },
             { true, FT_SHORT, "CorpseMapID" },
@@ -171,10 +169,9 @@ struct MapLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "TimeOffset" },
         };
-        static char const* types = "siffssssshhhhhhhbbbbb";
-        static uint8 const arraySizes[21] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2FieldDefault const fieldDefaults[21] = { "", uint32(0), float(0), float(0), "", "", "", "", "", uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0) };
-        static DB2Meta const meta(-1, 21, 0xC34CD39B, types, arraySizes, fieldDefaults);
+        static char const* types = "ssssssiffhhhhhhhbbbbb";
+        static uint8 const arraySizes[21] = { 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta const meta(-1, 21, 0xF568DF12, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -183,16 +180,18 @@ struct MapLoadInfo
 // **************************************************
 // Extractor options
 // **************************************************
-enum Extract
+enum Extract : uint8
 {
-    EXTRACT_MAP = 1,
-    EXTRACT_DBC = 2,
-    EXTRACT_CAMERA = 4,
-    EXTRACT_GT  = 8
+    EXTRACT_MAP     = 0x1,
+    EXTRACT_DBC     = 0x2,
+    EXTRACT_CAMERA  = 0x4,
+    EXTRACT_GT      = 0x8,
+
+    EXTRACT_ALL = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT;
+int   CONF_extract = EXTRACT_ALL;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -255,7 +254,7 @@ void Usage(char const* prg)
         "%s -[var] [value]\n"\
         "-i set input path\n"\
         "-o set output path\n"\
-        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(15)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
@@ -299,7 +298,7 @@ void HandleArgs(int argc, char* arg[])
                 if (c + 1 < argc)                            // all ok
                 {
                     CONF_extract = atoi(arg[c++ + 1]);
-                    if (!(CONF_extract > 0 && CONF_extract < 12))
+                    if (!(CONF_extract > 0 && CONF_extract <= EXTRACT_ALL))
                         Usage(arg[0]);
                 }
                 else
@@ -1129,6 +1128,14 @@ void ExtractMaps(uint32 build)
 
 bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
 {
+    DWORD fileSize, fileSizeHigh;
+    fileSize = CASC::GetFileSize(fileInArchive, &fileSizeHigh);
+    if (fileSize == CASC_INVALID_SIZE)
+    {
+        printf("Can't read file size of '%s'\n", filename.c_str());
+        return false;
+    }
+
     FILE* output = fopen(filename.c_str(), "wb");
     if (!output)
     {
@@ -1137,14 +1144,28 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     }
 
     char  buffer[0x10000];
-    DWORD readBytes = 1;
+    DWORD readBytes;
 
-    while (readBytes > 0)
+    do
     {
-        CASC::ReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes);
-        if (readBytes > 0)
-            fwrite(buffer, 1, readBytes, output);
-    }
+        readBytes = 0;
+        if (!CASC::ReadFile(fileInArchive, buffer, std::min<DWORD>(fileSize, sizeof(buffer)), &readBytes))
+        {
+            printf("Can't read file '%s'\n", filename.c_str());
+            fclose(output);
+            boost::filesystem::remove(filename);
+            return false;
+        }
+
+        if (!readBytes)
+            break;
+
+        fwrite(buffer, 1, readBytes, output);
+        fileSize -= readBytes;
+        if (!fileSize) // now we have read entire file
+            break;
+
+    } while (true);
 
     fclose(output);
     return true;
@@ -1313,6 +1334,25 @@ bool OpenCascStorage(int locale)
     }
 }
 
+uint32 GetInstalledLocalesMask()
+{
+    try
+    {
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0);
+        if (!storage)
+            return false;
+
+        return CASC::GetInstalledLocalesMask(storage);
+    }
+    catch (boost::filesystem::filesystem_error const& error)
+    {
+        printf("Unable to determine installed locales mask: %s\n", error.what());
+    }
+
+    return 0;
+}
+
 static bool RetardCheck()
 {
     try
@@ -1351,11 +1391,13 @@ int main(int argc, char * arg[])
 
     HandleArgs(argc, arg);
 
-    int FirstLocale = -1;
-    uint32 build = 0;
-
     if (!RetardCheck())
         return 1;
+
+
+    uint32 installedLocalesMask = GetInstalledLocalesMask();
+    int32 firstInstalledLocale = -1;
+    uint32 build = 0;
 
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
@@ -1365,12 +1407,15 @@ int main(int argc, char * arg[])
         if (i == LOCALE_none)
             continue;
 
+        if (!(installedLocalesMask & WowLocaleToCascLocaleFlags[i]))
+            continue;
+
         if (!OpenCascStorage(i))
             continue;
 
         if ((CONF_extract & EXTRACT_DBC) == 0)
         {
-            FirstLocale = i;
+            firstInstalledLocale = i;
             build = CASC::GetBuildNumber(CascStorage);
             if (!build)
             {
@@ -1394,14 +1439,14 @@ int main(int argc, char * arg[])
         ExtractDBFilesClient(i);
         CascStorage.reset();
 
-        if (FirstLocale < 0)
+        if (firstInstalledLocale < 0)
         {
-            FirstLocale = i;
+            firstInstalledLocale = i;
             build = tempBuild;
         }
     }
 
-    if (FirstLocale < 0)
+    if (firstInstalledLocale < 0)
     {
         printf("No locales detected\n");
         return 0;
@@ -1409,21 +1454,21 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_CAMERA)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractCameraFiles();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_GT)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractGameTables();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractMaps(build);
         CascStorage.reset();
     }

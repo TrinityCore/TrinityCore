@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -77,8 +77,7 @@ struct GameobjectDisplayInfoLoadInfo
         };
         static char const* types = "ifffh";
         static uint8 const arraySizes[5] = { 1, 6, 1, 1, 1 };
-        static DB2FieldDefault const fieldDefaults[5] = { uint32(0), float(0), float(0), float(0), uint16(0) };
-        static DB2Meta const meta(-1, 5, 0x9EF36BC0, types, arraySizes, fieldDefaults);
+        static DB2Meta const meta(-1, 5, 0x9F2098D1, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,7 +86,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 {
     WorldPackets::Who::WhoRequest& request = whoRequest.Request;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: MinLevel: %u, MaxLevel: %u, Name: %s (VirtualRealmName: %s), Guild: %s (GuildVirtualRealmName: %s), RaceFilter: %d, ClassFilter: %d, Areas: " SZFMTD ", Words: " SZFMTD ".",
+    TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: MinLevel: %u, MaxLevel: %u, Name: %s (VirtualRealmName: %s), Guild: %s (GuildVirtualRealmName: %s), RaceFilter: " UI64FMTD ", ClassFilter: %d, Areas: " SZFMTD ", Words: " SZFMTD ".",
         request.MinLevel, request.MaxLevel, request.Name.c_str(), request.VirtualRealmName.c_str(), request.Guild.c_str(), request.GuildVirtualRealmName.c_str(),
         request.RaceFilter, request.ClassFilter, whoRequest.Areas.size(), request.Words.size());
 
@@ -172,7 +172,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
             continue;
 
         // check if race matches racemask
-        if (request.RaceFilter >= 0 && !(request.RaceFilter & (1 << target->getRace())))
+        if (request.RaceFilter >= 0 && !(request.RaceFilter & (SI64LIT(1) << target->getRace())))
             continue;
 
         if (!whoRequest.Areas.empty())
@@ -1167,4 +1167,10 @@ void WorldSession::HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp
 {
     if (_player->CanPrestige())
         _player->Prestige();
+}
+
+void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction)
+{
+    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
+        _player->PlayerTalkClass->GetInteractionData().Reset();
 }

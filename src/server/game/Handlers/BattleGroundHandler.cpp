@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -94,7 +94,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
         return;
 
     // expected bracket entry
-    PvpDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
     if (!bracketEntry)
         return;
 
@@ -255,7 +255,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
     if (!_player->InBattlegroundQueue())
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, AcceptedInvite: %u. Player not in queue!",
-            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
+            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, uint32(battlefieldPort.Ticket.Type), battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
         return;
     }
 
@@ -263,7 +263,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
     if (bgQueueTypeId == BATTLEGROUND_QUEUE_NONE)
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, AcceptedInvite: %u. Invalid queueSlot!",
-            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
+            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, uint32(battlefieldPort.Ticket.Type), battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
         return;
     }
 
@@ -274,14 +274,14 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
     if (!bgQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, AcceptedInvite: %u. Player not in queue (No player Group Info)!",
-            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
+            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, uint32(battlefieldPort.Ticket.Type), battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
         return;
     }
     // if action == 1, then player must have been invited to join
     if (!ginfo.IsInvitedToBGInstanceGUID && battlefieldPort.AcceptedInvite)
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, AcceptedInvite: %u. Player is not invited to any bg!",
-            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
+            GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, uint32(battlefieldPort.Ticket.Type), battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
         return;
     }
 
@@ -294,7 +294,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
         if (battlefieldPort.AcceptedInvite)
         {
             TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, AcceptedInvite: %u. Cant find BG with id %u!",
-                GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite), ginfo.IsInvitedToBGInstanceGUID);
+                GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, uint32(battlefieldPort.Ticket.Type), battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite), ginfo.IsInvitedToBGInstanceGUID);
             return;
         }
 
@@ -307,13 +307,13 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
     }
 
     TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, AcceptedInvite: %u.",
-        GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
+        GetPlayerInfo().c_str(), battlefieldPort.Ticket.Id, uint32(battlefieldPort.Ticket.Type), battlefieldPort.Ticket.Time, uint32(battlefieldPort.AcceptedInvite));
 
     // get real bg type
     bgTypeId = bg->GetTypeID();
 
     // expected bracket entry
-    PvpDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
     if (!bracketEntry)
         return;
 
@@ -326,7 +326,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
             //send bg command result to show nice message
             WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
             sBattlegroundMgr->BuildBattlegroundStatusFailed(&battlefieldStatus, bg, _player, battlefieldPort.Ticket.Id, 0, ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS);
-            SendPacket(battlefieldPort.Write());
+            SendPacket(battlefieldStatus.Write());
             battlefieldPort.AcceptedInvite = false;
             TC_LOG_DEBUG("bg.battleground", "Player %s (%s) has a deserter debuff, do not port him to battleground!", _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         }
@@ -474,7 +474,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
                 continue;
 
             // expected bracket entry
-            PvpDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+            PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
             if (!bracketEntry)
                 continue;
 
@@ -510,7 +510,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
 
     BattlegroundTypeId bgTypeId = bg->GetTypeID();
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenatype);
-    PvpDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
     if (!bracketEntry)
         return;
 

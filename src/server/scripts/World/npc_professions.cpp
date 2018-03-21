@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -190,6 +190,7 @@ enum SpecializationTrainers
     N_TRAINER_TRANSMUTE     = 22427, // Zarevhi
     N_TRAINER_ELIXIR        = 19052, // Lorokeem
     N_TRAINER_POTION        = 17909, // Lauranna Thar'well
+    TRAINER_ID_ALCHEMY      = 122,
 
     /* Blacksmithing */
     N_TRAINER_SMITHOMNI1    = 11145, // Myolor Sunderfury
@@ -201,6 +202,7 @@ enum SpecializationTrainers
     N_TRAINER_HAMMER        = 11191, // Lilith the Lithe
     N_TRAINER_AXE           = 11192, // Kilram
     N_TRAINER_SWORD         = 11193, // Seril Scourgebane
+    TRAINER_ID_BLACKSMITHING = 80,
 
     /* Leatherworking */
     N_TRAINER_DRAGON1       =  7866, // Peter Galen
@@ -209,11 +211,13 @@ enum SpecializationTrainers
     N_TRAINER_ELEMENTAL2    =  7869, // Brumn Winterhoof
     N_TRAINER_TRIBAL1       =  7870, // Caryssia Moonhunter
     N_TRAINER_TRIBAL2       =  7871, // Se'Jib
+    TRAINER_ID_LEATHERWORKING = 103,
 
     /* Tailoring */
     N_TRAINER_SPELLFIRE     = 22213, // Gidge Spellweaver
     N_TRAINER_MOONCLOTH     = 22208, // Nasmara Moonsong
     N_TRAINER_SHADOWEAVE    = 22212, // Andrion Darkspinner
+    TRAINER_ID_TAILORING    = 117,
 };
 
 /*###
@@ -485,7 +489,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_ALCHEMY);
                 break;
                 //Learn Alchemy
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -673,7 +677,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_BLACKSMITHING);
                 break;
                 //Learn Armor/Weapon
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -983,7 +987,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_LEATHERWORKING);
                 break;
                 //Unlearn Leather
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -1113,7 +1117,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_TAILORING);
                 break;
                 //Learn Tailor
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -1241,94 +1245,6 @@ enum MultiProfessionTrainer
     GOSSIP_MENU_TAILORING        = 12199
 };
 
-/*###
-# start menu multi profession trainer
-###*/
-
-class npc_multi_profession_trainer : public CreatureScript
-{
-public:
-    npc_multi_profession_trainer() : CreatureScript("npc_multi_profession_trainer") { }
-
-    struct npc_multi_profession_trainerAI : public ScriptedAI
-    {
-        npc_multi_profession_trainerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
-        {
-            switch (gossipListId)
-            {
-            case GOSSIP_OPTION_ALCHEMY:
-            case GOSSIP_OPTION_BLACKSMITHING:
-            case GOSSIP_OPTION_ENCHANTING:
-            case GOSSIP_OPTION_ENGINEERING:
-            case GOSSIP_OPTION_HERBALISM:
-            case GOSSIP_OPTION_INSCRIPTION:
-            case GOSSIP_OPTION_JEWELCRAFTING:
-            case GOSSIP_OPTION_LEATHERWORKING:
-            case GOSSIP_OPTION_MINING:
-            case GOSSIP_OPTION_SKINNING:
-            case GOSSIP_OPTION_TAILORING:
-                SendTrainerList(player, gossipListId);
-                break;
-            case GOSSIP_OPTION_MULTI:
-            {
-                switch (menuId)
-                {
-                case GOSSIP_MENU_HERBALISM:
-                    SendTrainerList(player, GOSSIP_OPTION_HERBALISM);
-                    break;
-                case GOSSIP_MENU_MINING:
-                    SendTrainerList(player, GOSSIP_OPTION_MINING);
-                    break;
-                case GOSSIP_MENU_SKINNING:
-                    SendTrainerList(player, GOSSIP_OPTION_SKINNING);
-                    break;
-                case GOSSIP_MENU_ALCHEMY:
-                    SendTrainerList(player, GOSSIP_OPTION_ALCHEMY);
-                    break;
-                case GOSSIP_MENU_BLACKSMITHING:
-                    SendTrainerList(player, GOSSIP_OPTION_BLACKSMITHING);
-                    break;
-                case GOSSIP_MENU_ENCHANTING:
-                    SendTrainerList(player, GOSSIP_OPTION_ENCHANTING);
-                    break;
-                case GOSSIP_MENU_ENGINEERING:
-                    SendTrainerList(player, GOSSIP_OPTION_ENGINEERING);
-                    break;
-                case GOSSIP_MENU_INSCRIPTION:
-                    SendTrainerList(player, GOSSIP_OPTION_INSCRIPTION);
-                    break;
-                case GOSSIP_MENU_JEWELCRAFTING:
-                    SendTrainerList(player, GOSSIP_OPTION_JEWELCRAFTING);
-                    break;
-                case GOSSIP_MENU_LEATHERWORKING:
-                    SendTrainerList(player, GOSSIP_OPTION_LEATHERWORKING);
-                    break;
-                case GOSSIP_MENU_TAILORING:
-                    SendTrainerList(player, GOSSIP_OPTION_TAILORING);
-                    break;
-                default:
-                    break;
-                }
-            }
-            default:
-                break;
-            }
-        }
-
-        void SendTrainerList(Player* player, uint32 Index)
-        {
-            player->GetSession()->SendTrainerList(me->GetGUID(), Index + 1);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_multi_profession_trainerAI(creature);
-    }
-};
-
 void AddSC_npc_professions()
 {
     new npc_prof_alchemy();
@@ -1336,5 +1252,4 @@ void AddSC_npc_professions()
     new npc_engineering_tele_trinket();
     new npc_prof_leather();
     new npc_prof_tailor();
-    new npc_multi_profession_trainer();
 }

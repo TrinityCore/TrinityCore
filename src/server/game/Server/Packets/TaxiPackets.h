@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,7 +62,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<ShowTaxiNodesWindowInfo> WindowInfo;
-            TaxiMask const* Nodes = nullptr;
+            TaxiMask const* CanLandNodes = nullptr; // Nodes known by player
+            TaxiMask const* CanUseNodes = nullptr;  // Nodes available for use - this can temporarily disable a known node
         };
 
         class EnableTaxiNode final : public ClientPacket

@@ -91,14 +91,6 @@ typedef struct _CASC_ROOT_ENTRY_MNDX
 } CASC_ROOT_ENTRY_MNDX, *PCASC_ROOT_ENTRY_MNDX;
 
 //-----------------------------------------------------------------------------
-// Testing functions prototypes
-
-#if defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)
-extern "C" bool _cdecl sub_1958B00_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
-void TestMndxRootFile(PCASC_MNDX_INFO pMndxInfo);
-#endif
-
-//-----------------------------------------------------------------------------
 // Local variables
 
 unsigned char table_1BA1818[0x800] =
@@ -2721,20 +2713,27 @@ int TFileNameDatabasePtr::CreateDatabase(LPBYTE pbMarData, DWORD cbMarData)
         return ERROR_INVALID_PARAMETER;
 
     pDatabase = new TFileNameDatabase;
-    if(pDatabase == NULL)
+    if(pDatabase != NULL)
+    {
+        nError = ByteStream.SetByteBuffer(pbMarData, cbMarData);
+        if(nError == ERROR_SUCCESS)
+        {
+            // HOTS: 1956E11
+            nError = pDatabase->LoadFromStream_Exchange(ByteStream);
+            if(nError == ERROR_SUCCESS)
+            {
+                pDB = pDatabase;
+                return ERROR_SUCCESS;
+            }
+        }
+
+        delete pDatabase;
+        return nError;
+    }
+    else
+    {
         return ERROR_NOT_ENOUGH_MEMORY;
-
-    nError = ByteStream.SetByteBuffer(pbMarData, cbMarData);
-    if(nError != ERROR_SUCCESS)
-        return nError;
-
-    // HOTS: 1956E11
-    nError = pDatabase->LoadFromStream_Exchange(ByteStream);
-    if(nError != ERROR_SUCCESS)
-        return nError;
-
-    pDB = pDatabase;
-    return ERROR_SUCCESS;
+    }
 }
 
 // HOTS: 19584B0
@@ -3345,8 +3344,9 @@ int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
 // Unit tests
 
 #if defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)
-
+/*
 extern "C" {
+    bool  _cdecl sub_1958B00_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
     DWORD _cdecl sub_19573D0_x86(TFileNameDatabase * pDB, DWORD arg_0, DWORD arg_4);
     DWORD _cdecl sub_1957EF0_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
     bool  _cdecl sub_1959460_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
@@ -3390,7 +3390,7 @@ static int sub_1956CE0_x86(TFileNameDatabasePtr * pDatabasePtr, TMndxFindResult 
     *pbFindResult = sub_1959460_x86(pDatabasePtr->pDB, pStruct1C);
     return nError;
 }
-/*
+
 static void TestFileSearch_SubStrings(PMAR_FILE pMarFile, char * szFileName, size_t nLength)
 {
     TMndxFindResult Struct1C_1;
@@ -3437,7 +3437,6 @@ static void TestFileSearch_SubStrings(PMAR_FILE pMarFile, char * szFileName, siz
         nLength--;
     }
 }
-*/
 
 static void TestFindPackage(PMAR_FILE pMarFile, const char * szPackageName)
 {
@@ -3621,4 +3620,5 @@ void TestMndxRootFile(PCASC_MNDX_INFO pMndxInfo)
         ListFile_Free(pvListFile);
     }
 }
+*/
 #endif  // defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)

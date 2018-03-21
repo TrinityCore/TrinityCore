@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
+#include "DB2HotfixGenerator.h"
 #include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
@@ -82,7 +83,7 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
         return false;
     }
 
-    if (achievement->MapID != -1 && referencePlayer->GetMapId() != uint32(achievement->MapID))
+    if (achievement->InstanceID != -1 && referencePlayer->GetMapId() != uint32(achievement->InstanceID))
     {
         TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong map",
             criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
@@ -170,7 +171,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     // Oddly, the target count is NOT contained in the achievement, but in each individual criteria
     if (entry->Flags & ACHIEVEMENT_FLAG_SUMM)
     {
-        uint64 progress = 0;
+        int64 progress = 0;
         CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
         {
             if (criteriaTree->Criteria)
@@ -272,7 +273,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria %u data has been removed from the table `character_achievement_progress`.", id);
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
-                stmt->setUInt32(0, uint16(id));
+                stmt->setUInt32(0, id);
                 CharacterDatabase.Execute(stmt);
 
                 continue;
@@ -351,7 +352,7 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, 
     CriteriaList const& achievementCriteriaList = GetCriteriaByType(type);
     for (Criteria const* achievementCriteria : achievementCriteriaList)
     {
-        if (achievementCriteria->Entry->FailEvent != miscValue1 || (achievementCriteria->Entry->FailAsset && achievementCriteria->Entry->FailAsset != miscValue2))
+        if (achievementCriteria->Entry->FailEvent != miscValue1 || (achievementCriteria->Entry->FailAsset && achievementCriteria->Entry->FailAsset != int64(miscValue2)))
             continue;
 
         std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(achievementCriteria->ID);
@@ -588,7 +589,7 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
     {
         if (Guild* guild = sGuildMgr->GetGuildById(_owner->GetGuildId()))
         {
-            Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner, achievement->ID);
+            Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner->getGender(), _owner, achievement->ID);
             Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
             guild->BroadcastWorker(_localizer, _owner);
         }
@@ -605,7 +606,7 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         // if player is in world he can tell his friends about new achievement
         else if (_owner->IsInWorld())
         {
-            Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner, achievement->ID);
+            Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner->getGender(), _owner, achievement->ID);
             Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
             Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder>> _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
             Cell::VisitWorldObjects(_owner, _worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
@@ -716,7 +717,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria %u data removed from table `guild_achievement_progress`.", id);
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
-                stmt->setUInt32(0, uint16(id));
+                stmt->setUInt32(0, id);
                 CharacterDatabase.Execute(stmt);
                 continue;
             }
@@ -1052,9 +1053,14 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
+    DB2HotfixGenerator<AchievementEntry> hotfixes(sAchievementStore);
+
     // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-    if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(4539))
-        const_cast<AchievementEntry*>(achievement)->MapID = 631;    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
+    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
+    hotfixes.ApplyHotfix(4539, [](AchievementEntry* achievement)
+    {
+        achievement->InstanceID = 631;
+    });
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }

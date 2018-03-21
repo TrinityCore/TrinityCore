@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,20 +26,16 @@ class MapReference;
 class MapRefManager : public RefManager<Map, Player>
 {
     public:
-        typedef LinkedListHead::Iterator< MapReference > iterator;
-        typedef LinkedListHead::Iterator< MapReference const > const_iterator;
+        typedef LinkedListHead::Iterator<MapReference> iterator;
+        typedef LinkedListHead::Iterator<MapReference const> const_iterator;
 
-        MapReference* getFirst() { return (MapReference*)RefManager<Map, Player>::getFirst(); }
+        MapReference* getFirst()             { return (MapReference*)RefManager<Map, Player>::getFirst(); }
         MapReference const* getFirst() const { return (MapReference const*)RefManager<Map, Player>::getFirst(); }
-        MapReference* getLast() { return (MapReference*)RefManager<Map, Player>::getLast(); }
-        MapReference const* getLast() const { return (MapReference const*)RefManager<Map, Player>::getLast(); }
 
         iterator begin() { return iterator(getFirst()); }
-        iterator end() { return iterator(NULL); }
-        iterator rbegin() { return iterator(getLast()); }
-        iterator rend() { return iterator(NULL); }
+        iterator end()   { return iterator(nullptr); }
+
         const_iterator begin() const { return const_iterator(getFirst()); }
-        const_iterator end() const  { return const_iterator(NULL); }
+        const_iterator end() const   { return const_iterator(nullptr); }
 };
 #endif
-

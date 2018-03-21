@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellPackets.h"
 #include "MovementPackets.h"
+#include "SpellPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
 {
@@ -372,7 +372,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
-    data.WriteBits(spellCastData.CastFlagsEx, 22);
+    data.WriteBits(spellCastData.CastFlagsEx, 23);
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
     data.WriteBits(spellCastData.MissStatus.size(), 16);
@@ -819,6 +819,11 @@ WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
 void WorldPackets::Spells::UnlearnSkill::Read()
 {
     _worldPacket >> SkillLine;
+}
+
+void WorldPackets::Spells::SelfRes::Read()
+{
+    _worldPacket >> SpellID;
 }
 
 void WorldPackets::Spells::GetMirrorImageData::Read()

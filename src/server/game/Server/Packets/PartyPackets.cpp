@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -579,10 +579,10 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     MemberStats.MaxHealth = player->GetMaxHealth();
 
     // Power
-    MemberStats.PowerType = player->getPowerType();
+    MemberStats.PowerType = player->GetPowerType();
     MemberStats.PowerDisplayID = 0;
-    MemberStats.CurrentPower = player->GetPower(player->getPowerType());
-    MemberStats.MaxPower = player->GetMaxPower(player->getPowerType());
+    MemberStats.CurrentPower = player->GetPower(player->GetPowerType());
+    MemberStats.MaxPower = player->GetMaxPower(player->GetPowerType());
 
     // Position
     MemberStats.ZoneID = player->GetZoneId();
@@ -682,4 +682,3 @@ WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
 
     return &_worldPacket;
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -63,17 +63,24 @@ void UnitAI::DoMeleeAttackIfReady()
     if (!me->IsWithinMeleeRange(victim))
         return;
 
+    bool sparAttack = me->GetFactionTemplateEntry()->ShouldSparAttack() && victim->GetFactionTemplateEntry()->ShouldSparAttack();
     //Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
-        me->AttackerStateUpdate(victim);
+        if (sparAttack)
+            me->FakeAttackerStateUpdate(victim);
+        else
+            me->AttackerStateUpdate(victim);
 
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
-        me->AttackerStateUpdate(victim, OFF_ATTACK);
+        if (sparAttack)
+            me->FakeAttackerStateUpdate(victim, OFF_ATTACK);
+        else
+            me->AttackerStateUpdate(victim, OFF_ATTACK);
 
         me->resetAttackTimer(OFF_ATTACK);
     }
@@ -143,8 +150,7 @@ void UnitAI::DoCast(uint32 spellId)
                 float range = spellInfo->GetMaxRange(false);
 
                 DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
-                if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
-                    && targetSelector(me->GetVictim()))
+                if (!spellInfo->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_NOT_VICTIM) && targetSelector(me->GetVictim()))
                     target = me->GetVictim();
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);

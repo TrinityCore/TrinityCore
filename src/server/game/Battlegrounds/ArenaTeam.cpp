@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -747,6 +747,10 @@ void ArenaTeam::SaveToDB()
 
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
+        // Save the effort and go
+        if (itr->WeekGames == 0)
+            continue;
+
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_MEMBER);
         stmt->setUInt16(0, itr->PersonalRating);
         stmt->setUInt16(1, itr->WeekGames);
@@ -767,8 +771,12 @@ void ArenaTeam::SaveToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void ArenaTeam::FinishWeek()
+bool ArenaTeam::FinishWeek()
 {
+    // No need to go further than this
+    if (Stats.WeekGames == 0)
+        return false;
+
     // Reset team stats
     Stats.WeekGames = 0;
     Stats.WeekWins = 0;
@@ -779,6 +787,8 @@ void ArenaTeam::FinishWeek()
         itr->WeekGames = 0;
         itr->WeekWins = 0;
     }
+
+    return true;
 }
 
 bool ArenaTeam::IsFighting() const

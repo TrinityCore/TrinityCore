@@ -1319,14 +1319,14 @@ class TC_PROTO_API UserManagerService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleSubscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, ::bgs::protocol::user_manager::v1::SubscribeResponse* response);
-  virtual uint32 HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse* response);
-  virtual uint32 HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse* response);
-  virtual uint32 HandleBlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleBlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleLoadBlockList(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUnsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleSubscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, ::bgs::protocol::user_manager::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleBlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleBlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleLoadBlockList(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;

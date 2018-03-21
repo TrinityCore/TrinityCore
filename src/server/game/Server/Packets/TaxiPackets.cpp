@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,8 @@ WorldPacket const* WorldPackets::Taxi::ShowTaxiNodes::Write()
     _worldPacket.WriteBit(WindowInfo.is_initialized());
     _worldPacket.FlushBits();
 
-    _worldPacket << uint32(Nodes->size());
+    _worldPacket << uint32(CanLandNodes->size());
+    _worldPacket << uint32(CanUseNodes->size());
 
     if (WindowInfo.is_initialized())
     {
@@ -44,7 +45,8 @@ WorldPacket const* WorldPackets::Taxi::ShowTaxiNodes::Write()
         _worldPacket << uint32(WindowInfo->CurrentNode);
     }
 
-    _worldPacket.append(Nodes->data(), Nodes->size());
+    _worldPacket.append(CanLandNodes->data(), CanLandNodes->size());
+    _worldPacket.append(CanUseNodes->data(), CanUseNodes->size());
 
     return &_worldPacket;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -93,7 +93,7 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
     if (!factionEntry)
         return 0;
 
-    uint32 raceMask = _player->getRaceMask();
+    uint64 raceMask = _player->getRaceMask();
     uint32 classMask = _player->getClassMask();
     for (int i=0; i < 4; i++)
     {
@@ -152,7 +152,7 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
     if (!factionEntry)
         return 0;
 
-    uint32 raceMask = _player->getRaceMask();
+    uint64 raceMask = _player->getRaceMask();
     uint32 classMask = _player->getClassMask();
     for (int i=0; i < 4; i++)
     {
@@ -296,9 +296,9 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             // check for sub-factions that receive spillover
             std::vector<uint32> const* flist = sDB2Manager.GetFactionTeamList(factionEntry->ID);
             // if has no sub-factions, check for factions with same parent
-            if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionModOut != 0.0f)
+            if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionMod[1] != 0.0f)
             {
-                spillOverRepOut *= factionEntry->ParentFactionModOut;
+                spillOverRepOut *= factionEntry->ParentFactionMod[1];
                 if (FactionEntry const* parent = sFactionStore.LookupEntry(factionEntry->ParentFactionID))
                 {
                     FactionStateList::iterator parentState = _factions.find(parent->ReputationIndex);
@@ -320,9 +320,9 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                 {
                     if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
                     {
-                        if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCapIn))
+                        if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCap[0]))
                             continue;
-                        int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionModIn);
+                        int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionMod[0]);
                         if (spilloverRep != 0 || !incremental)
                             res = SetOneFactionReputation(factionEntryCalc, spilloverRep, incremental);
                     }

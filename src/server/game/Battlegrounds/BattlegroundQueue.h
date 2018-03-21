@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,7 +85,7 @@ class TC_GAME_API BattlegroundQueue
         bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
         bool CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
-        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvpDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 ArenaTeamId = 0);
+        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PVPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 ArenaTeamId = 0);
         void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount);
         bool IsPlayerInvited(ObjectGuid pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo);
@@ -168,8 +168,8 @@ class TC_GAME_API BGQueueInviteEvent : public BasicEvent
 class TC_GAME_API BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
-            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_ArenaType(arenaType), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
+        BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
+            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
         { }
 
         virtual ~BGQueueRemoveEvent() { }
@@ -179,7 +179,6 @@ class TC_GAME_API BGQueueRemoveEvent : public BasicEvent
     private:
         ObjectGuid m_PlayerGuid;
         uint32 m_BgInstanceGUID;
-        uint8 m_ArenaType;
         uint32 m_RemoveTime;
         BattlegroundTypeId m_BgTypeId;
         BattlegroundQueueTypeId m_BgQueueTypeId;

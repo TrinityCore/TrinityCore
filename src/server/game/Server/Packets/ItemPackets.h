@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -347,9 +347,9 @@ namespace WorldPackets
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
             int32 DungeonEncounterID       = 0;
+            int32 BattlePetSpeciesID        = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
-            int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;
@@ -479,7 +479,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid ItemGuid;
-            std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem;
+            std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem = { };
         };
 
         class SocketGemsResult final : public ServerPacket
@@ -490,6 +490,56 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Item;
+        };
+
+        class SortBags final : public ClientPacket
+        {
+        public:
+            SortBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortBankBags final : public ClientPacket
+        {
+        public:
+            SortBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortReagentBankBags final : public ClientPacket
+        {
+        public:
+            SortReagentBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_REAGENT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortBagsResult final : public ServerPacket
+        {
+        public:
+            SortBagsResult() : ServerPacket(SMSG_SORT_BAGS_RESULT, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class RemoveNewItem final : public ClientPacket
+        {
+        public:
+            RemoveNewItem(WorldPacket&& packet) : ClientPacket(CMSG_REMOVE_NEW_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+        };
+
+        class CharacterInventoryOverflowWarning final : public ServerPacket
+        {
+        public:
+            CharacterInventoryOverflowWarning() : ServerPacket(SMSG_CHARACTER_INVENTORY_OVERFLOW_WARNING, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

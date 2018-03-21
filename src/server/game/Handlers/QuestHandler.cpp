@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "UnitAI.h"
 #include "World.h"
@@ -235,7 +236,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
         if (quest->IsAutoComplete())
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
         else
-            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
+            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true, false);
     }
 }
 
@@ -287,7 +288,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             {
                 for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
                 {
-                    if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
+                    if (questPackageItem->ItemID != packet.ItemChoiceID)
                         continue;
 
                     if (_player->CanSelectQuestPackageItem(questPackageItem))
@@ -304,7 +305,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                 {
                     for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
                     {
-                        if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
+                        if (questPackageItem->ItemID != packet.ItemChoiceID)
                             continue;
 
                         itemValid = true;
@@ -364,7 +365,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                 _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true);
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
                         }
                     }
 
@@ -387,7 +388,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                 _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true);
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
                         }
                     }
 
@@ -436,7 +437,10 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             if (!_player->TakeQuestSourceItem(questId, true))
                 return;                                     // can't un-equip some items, reject quest cancel
 
-            if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+            Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+            QuestStatus oldStatus = _player->GetQuestStatus(questId);
+
+            if (quest)
             {
                 if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
                     _player->RemoveTimedQuest(questId);
@@ -446,6 +450,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
                     _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
                     _player->UpdatePvPState();
                 }
+
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
@@ -467,6 +472,9 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             }
 
             sScriptMgr->OnQuestStatusChange(_player, questId);
+
+            if (quest)
+                sScriptMgr->OnQuestStatusChange(_player, quest, oldStatus, QUEST_STATUS_NONE);
         }
 
         _player->SetQuestSlot(packet.Entry, 0);
@@ -635,7 +643,7 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
         else
         {
             receiver->SetDivider(sender->GetGUID());
-            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
+            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true, false);
         }
     }
 }
@@ -665,4 +673,65 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
     //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
 
     SendPacket(response.Write());
+}
+
+void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse)
+{
+    if (_player->PlayerTalkClass->GetInteractionData().PlayerChoiceId != uint32(choiceResponse.ChoiceID))
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_CHOICE_RESPONSE: %s tried to respond to invalid player choice %d (allowed %u) (possible packet-hacking detected)",
+            GetPlayerInfo().c_str(), choiceResponse.ChoiceID, _player->PlayerTalkClass->GetInteractionData().PlayerChoiceId);
+        return;
+    }
+
+    PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(choiceResponse.ChoiceID);
+    if (!playerChoice)
+        return;
+
+    PlayerChoiceResponse const* playerChoiceResponse = playerChoice->GetResponse(choiceResponse.ResponseID);
+    if (!playerChoiceResponse)
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_CHOICE_RESPONSE: %s tried to select invalid player choice response %d (possible packet-hacking detected)",
+            GetPlayerInfo().c_str(), choiceResponse.ResponseID);
+        return;
+    }
+
+    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), choiceResponse.ChoiceID, choiceResponse.ResponseID);
+
+    if (playerChoiceResponse->Reward)
+    {
+        if (playerChoiceResponse->Reward->TitleId)
+            _player->SetTitle(sCharTitlesStore.AssertEntry(playerChoiceResponse->Reward->TitleId), false);
+
+        if (playerChoiceResponse->Reward->PackageId)
+            _player->RewardQuestPackage(playerChoiceResponse->Reward->PackageId);
+
+        if (playerChoiceResponse->Reward->SkillLineId && _player->HasSkill(playerChoiceResponse->Reward->SkillLineId))
+            _player->UpdateSkillPro(playerChoiceResponse->Reward->SkillLineId, 1000, playerChoiceResponse->Reward->SkillPointCount);
+
+        if (playerChoiceResponse->Reward->HonorPointCount)
+            _player->AddHonorXP(playerChoiceResponse->Reward->HonorPointCount);
+
+        if (playerChoiceResponse->Reward->Money)
+            _player->ModifyMoney(playerChoiceResponse->Reward->Money, false);
+
+        if (playerChoiceResponse->Reward->Xp)
+            _player->GiveXP(playerChoiceResponse->Reward->Xp, nullptr, 0.0f);
+
+        for (PlayerChoiceResponseRewardItem const& item : playerChoiceResponse->Reward->Items)
+        {
+            ItemPosCountVec dest;
+            if (_player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.Id, item.Quantity) == EQUIP_ERR_OK)
+            {
+                Item* newItem = _player->StoreNewItem(dest, item.Id, true, GenerateItemRandomPropertyId(item.Id), {}, 0, item.BonusListIDs);
+                _player->SendNewItem(newItem, item.Quantity, true, false);
+            }
+        }
+
+        for (PlayerChoiceResponseRewardEntry const& currency : playerChoiceResponse->Reward->Currency)
+            _player->ModifyCurrency(currency.Id, currency.Quantity);
+
+        for (PlayerChoiceResponseRewardEntry const& faction : playerChoiceResponse->Reward->Faction)
+            _player->GetReputationMgr().ModifyReputation(sFactionStore.AssertEntry(faction.Id), faction.Quantity);
+    }
 }

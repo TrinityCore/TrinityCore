@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -285,10 +285,6 @@ public:
             return false;
 
         Player* chr = handler->GetSession()->GetPlayer();
-        float x = chr->GetPositionX();
-        float y = chr->GetPositionY();
-        float z = chr->GetPositionZ();
-        float o = chr->GetOrientation();
         Map* map = chr->GetMap();
 
         if (Transport* trans = chr->GetTransport())
@@ -296,28 +292,26 @@ public:
             ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Creature>();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
-            data.phaseMask = chr->GetPhaseMask();
             data.posX = chr->GetTransOffsetX();
             data.posY = chr->GetTransOffsetY();
             data.posZ = chr->GetTransOffsetZ();
             data.orientation = chr->GetTransOffsetO();
+            /// @todo: add phases
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, 1 << map->GetSpawnMode(), chr->GetPhaseMask());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, UI64LIT(1) << map->GetSpawnMode());
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
         }
 
-        Creature* creature = new Creature();
-        if (!creature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, chr->GetPhaseMask(), id, x, y, z, o))
-        {
-            delete creature;
+        Creature* creature = Creature::CreateCreature(id, map, chr->GetPosition());
+        if (!creature)
             return false;
-        }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+        creature->CopyPhaseFrom(chr);
+        creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 
@@ -325,12 +319,10 @@ public:
         // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
         creature->CleanupsBeforeDelete();
         delete creature;
-        creature = new Creature();
-        if (!creature->LoadCreatureFromDB(db_guid, map))
-        {
-            delete creature;
+
+        creature = Creature::CreateCreatureFromDB(db_guid, map);
+        if (!creature)
             return false;
-        }
 
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
         return true;
@@ -352,11 +344,9 @@ public:
             return false;
         }
 
-        int32 item_int = atol(pitem);
-        if (item_int <= 0)
+        uint32 itemId = atoull(pitem);
+        if (!itemId)
             return false;
-
-        uint32 itemId = item_int;
 
         char* fmaxcount = strtok(nullptr, " ");                    //add maxcount, default: 0
         uint32 maxcount = 0;
@@ -370,6 +360,7 @@ public:
 
         char* fextendedcost = strtok(nullptr, " ");                //add ExtendedCost, default: 0
         uint32 extendedcost = fextendedcost ? atoul(fextendedcost) : 0;
+        char const* fbonuslist = strtok(nullptr, " ");
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor)
         {
@@ -380,13 +371,27 @@ public:
 
         uint32 vendor_entry = vendor->GetEntry();
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, type, handler->GetSession()->GetPlayer()))
+        VendorItem vItem;
+        vItem.item = itemId;
+        vItem.maxcount = maxcount;
+        vItem.incrtime = incrtime;
+        vItem.ExtendedCost = extendedcost;
+        vItem.Type = type;
+
+        if (fbonuslist)
+        {
+            Tokenizer bonusListIDsTok(fbonuslist, ';');
+            for (char const* token : bonusListIDsTok)
+                vItem.BonusListIDs.push_back(int32(atol(token)));
+        }
+
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, vItem, handler->GetSession()->GetPlayer()))
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, type);
+        sObjectMgr->AddVendorItem(vendor_entry, vItem);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
@@ -409,7 +414,7 @@ public:
         CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
         if (!data)
         {
-            handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowGuid);
+            handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(lowGuid).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -728,10 +733,10 @@ public:
         std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);
         std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
 
-        handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetSpawnId(), target->GetGUID().ToString().c_str(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage(LANG_NPCINFO_CHAR,  std::to_string(target->GetSpawnId()).c_str(), target->GetGUID().ToString().c_str(), faction, std::to_string(npcflags).c_str(), Entry, displayid, nativeid);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
-        handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
+        handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), std::to_string(target->GetMaxHealth()).c_str(), std::to_string(target->GetHealth()).c_str());
         handler->PSendSysMessage(LANG_NPCINFO_INHABIT_TYPE, cInfo->InhabitType);
 
         handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS));
@@ -756,7 +761,7 @@ public:
 
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
         {
-            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseid, data->phaseGroup);
+            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseId, data->phaseGroup);
             if (data->phaseGroup)
             {
                 std::set<uint32> _phases = target->GetPhases();
@@ -825,7 +830,7 @@ public:
                 if (!creatureTemplate)
                     continue;
 
-                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, creatureTemplate->Name.c_str(), x, y, z, mapId);
+                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), std::to_string(guid).c_str(), creatureTemplate->Name.c_str(), x, y, z, mapId);
 
                 ++count;
             }
@@ -857,7 +862,7 @@ public:
             CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
             if (!data)
             {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
+                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(lowguid).c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -866,7 +871,7 @@ public:
 
             if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
             {
-                handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, lowguid);
+                handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, std::to_string(lowguid).c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -1042,7 +1047,7 @@ public:
                 CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
                 if (!data)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
+                    handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(lowguid).c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -1107,7 +1112,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 phaseGroupId = (uint32)atoi((char*)args);
+        int32 phaseGroupId = atoi(args);
 
         Creature* creature = handler->getSelectedCreature();
         if (!creature || creature->IsPet())
@@ -1123,7 +1128,7 @@ public:
             creature->SetInPhase(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
 
         creature->UpdateObjectVisibility();
-        creature->SetDBPhase(-int(phaseGroupId));
+        creature->SetDBPhase(-phaseGroupId);
 
         creature->SaveToDB();
 
@@ -1219,31 +1224,21 @@ public:
         if (!stime)
             return false;
 
-        int spawnTime = atoi(stime);
-
-        if (spawnTime < 0)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        uint32 spawnTime = atoul(stime);
 
         Creature* creature = handler->getSelectedCreature();
-        ObjectGuid::LowType guidLow = UI64LIT(0);
-
-        if (creature)
-            guidLow = creature->GetSpawnId();
-        else
+        if (!creature)
             return false;
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_SPAWN_TIME_SECS);
+        ObjectGuid::LowType guidLow = creature->GetSpawnId();
 
-        stmt->setUInt32(0, uint32(spawnTime));
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_SPAWN_TIME_SECS);
+        stmt->setUInt32(0, spawnTime);
         stmt->setUInt64(1, guidLow);
 
         WorldDatabase.Execute(stmt);
 
-        creature->SetRespawnDelay((uint32)spawnTime);
+        creature->SetRespawnDelay(spawnTime);
         handler->PSendSysMessage(LANG_COMMAND_SPAWNTIME, spawnTime);
 
         return true;

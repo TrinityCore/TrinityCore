@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -178,6 +178,9 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                if (targets.empty())
+                    return;
+
                 WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);

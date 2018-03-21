@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,12 +85,12 @@ struct TC_GAME_API AuctionEntry
     uint32 itemEntry;
     uint32 itemCount;
     ObjectGuid::LowType owner;
-    uint32 startbid;                                        //maybe useless
-    uint32 bid;
-    uint32 buyout;
+    uint64 startbid;                                        //maybe useless
+    uint64 bid;
+    uint64 buyout;
     time_t expire_time;
     ObjectGuid::LowType bidder;
-    uint32 deposit;                                         //deposit can be calculated only when creating auction
+    uint64 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
     uint32 houseId;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
@@ -99,14 +99,14 @@ struct TC_GAME_API AuctionEntry
     // helpers
     uint32 GetHouseId() const { return houseId; }
     uint32 GetHouseFaction() const { return auctionHouseEntry->FactionID; }
-    uint32 GetAuctionCut() const;
-    uint32 GetAuctionOutBid() const;
+    uint64 GetAuctionCut() const;
+    uint64 GetAuctionOutBid() const;
     void BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems, Item* sourceItem = nullptr) const;
     void DeleteFromDB(SQLTransaction& trans) const;
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
-    static std::string BuildAuctionMailBody(uint64 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
+    static std::string BuildAuctionMailBody(uint64 lowGuid, uint64 bid, uint64 buyout, uint64 deposit, uint64 cut);
 
 };
 
@@ -122,10 +122,10 @@ struct AuctionSearchFilters
     struct SubclassFilter
     {
         uint32 SubclassMask = FILTER_SKIP_CLASS;
-        std::array<uint32, MAX_ITEM_SUBCLASS_TOTAL> InvTypes;
+        std::array<uint32, MAX_ITEM_SUBCLASS_TOTAL> InvTypes = { };
     };
 
-    std::array<SubclassFilter, MAX_ITEM_CLASS> Classes;
+    std::array<SubclassFilter, MAX_ITEM_CLASS> Classes = { };
 };
 
 //this class is used as auctionhouse instance
@@ -215,10 +215,10 @@ class TC_GAME_API AuctionHouseMgr
         void SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans);
         void SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans);
         void SendAuctionExpiredMail(AuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
+        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans);
         void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
 
-        static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
+        static uint64 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId, uint32* houseId);
 
     public:

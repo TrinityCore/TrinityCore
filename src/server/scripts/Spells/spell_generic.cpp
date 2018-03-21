@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -117,7 +117,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                if (!eventInfo.GetSpellInfo())
                     return false;
 
                 // find Mage Armor
@@ -160,7 +160,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
                     default:
                         return;
                 }
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1105,9 +1105,17 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
                     target->ToCreature()->SetReactState(REACT_PASSIVE);
             }
 
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_gen_creature_permanent_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_creature_permanent_feign_death_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2120,7 +2128,7 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                if (!eventInfo.GetSpellInfo())
                     return false;
 
                 if (GetFirstSchoolInMask(eventInfo.GetSchoolMask()) == SPELL_SCHOOL_NORMAL)
@@ -2522,6 +2530,46 @@ class spell_gen_orc_disguise : public SpellScriptLoader
         }
 };
 
+enum ParalyticPoison
+{
+    SPELL_PARALYSIS = 35202
+};
+
+// 35201 - Paralytic Poison
+class spell_gen_paralytic_poison : public SpellScriptLoader
+{
+    public:
+        spell_gen_paralytic_poison() : SpellScriptLoader("spell_gen_paralytic_poison") { }
+
+        class spell_gen_paralytic_poison_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_paralytic_poison_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PARALYSIS });
+            }
+
+            void HandleStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                GetTarget()->CastSpell((Unit*)nullptr, SPELL_PARALYSIS, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_paralytic_poison_AuraScript::HandleStun, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_paralytic_poison_AuraScript();
+        }
+};
+
 class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
 {
     public:
@@ -2635,7 +2683,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                             newPet->setDeathState(ALIVE);
 
                         newPet->SetFullHealth();
-                        newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
+                        newPet->SetFullPower(newPet->GetPowerType());
 
                         switch (newPet->GetEntry())
                         {
@@ -2798,7 +2846,7 @@ public:
     bool operator()(WorldObject* obj) const
     {
         if (Unit* target = obj->ToUnit())
-            return target->getPowerType() != POWER_MANA;
+            return target->GetPowerType() != POWER_MANA;
 
         return true;
     }
@@ -2854,7 +2902,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetUnitOwner()->getPowerType() == POWER_MANA;
+                return GetUnitOwner()->GetPowerType() == POWER_MANA;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -2884,10 +2932,8 @@ class spell_gen_replenishment : public SpellScriptLoader
         }
 };
 
-
 enum RunningWildMountIds
 {
-    RUNNING_WILD_MODEL          = 73200,
     SPELL_ALTERED_FORM          = 97709
 };
 
@@ -2902,7 +2948,7 @@ class spell_gen_running_wild : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL))
+                if (!sCreatureDisplayInfoStore.LookupEntry(DISPLAYID_HIDDEN_MOUNT))
                     return false;
                 return true;
             }
@@ -2912,11 +2958,11 @@ class spell_gen_running_wild : public SpellScriptLoader
                 Unit* target = GetTarget();
                 PreventDefaultAction();
 
-                target->Mount(RUNNING_WILD_MODEL, 0, 0);
+                target->Mount(DISPLAYID_HIDDEN_MOUNT, 0, 0);
 
                 // cast speed aura
                 if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
-                    target->CastSpell(target, mountCapability->SpeedModSpell, TRIGGERED_FULL_MASK);
+                    target->CastSpell(target, mountCapability->ModSpellAuraID, TRIGGERED_FULL_MASK);
             }
 
             void Register() override
@@ -3363,7 +3409,70 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
         }
 };
 
+class spell_gen_trigger_exclude_caster_aura_spell : public SpellScriptLoader
+{
+    public:
+        spell_gen_trigger_exclude_caster_aura_spell() : SpellScriptLoader("spell_gen_trigger_exclude_caster_aura_spell") { }
 
+        class spell_gen_trigger_exclude_caster_aura_spell_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_trigger_exclude_caster_aura_spell_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ spellInfo->ExcludeCasterAuraSpell });
+            }
+
+            void HandleTrigger()
+            {
+                // Blizz seems to just apply aura without bothering to cast
+                GetCaster()->AddAura(GetSpellInfo()->ExcludeCasterAuraSpell, GetCaster());
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_trigger_exclude_caster_aura_spell_SpellScript::HandleTrigger);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_trigger_exclude_caster_aura_spell_SpellScript();
+        }
+};
+
+class spell_gen_trigger_exclude_target_aura_spell : public SpellScriptLoader
+{
+    public:
+        spell_gen_trigger_exclude_target_aura_spell() : SpellScriptLoader("spell_gen_trigger_exclude_target_aura_spell") { }
+
+        class spell_gen_trigger_exclude_target_aura_spell_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_trigger_exclude_target_aura_spell_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ spellInfo->ExcludeTargetAuraSpell });
+            }
+
+            void HandleTrigger()
+            {
+                if (Unit* target = GetHitUnit())
+                    // Blizz seems to just apply aura without bothering to cast
+                    GetCaster()->AddAura(GetSpellInfo()->ExcludeTargetAuraSpell, target);
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_gen_trigger_exclude_target_aura_spell_SpellScript::HandleTrigger);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_trigger_exclude_target_aura_spell_SpellScript();
+        }
+};
 
 enum PvPTrinketTriggeredSpells
 {
@@ -3371,30 +3480,45 @@ enum PvPTrinketTriggeredSpells
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757
 };
 
+template <uint32 TriggeredSpellId>
 class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 {
     public:
-        spell_pvp_trinket_wotf_shared_cd() : SpellScriptLoader("spell_pvp_trinket_wotf_shared_cd") { }
+        spell_pvp_trinket_wotf_shared_cd(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
 
+        template <uint32 Triggered>
         class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pvp_trinket_wotf_shared_cd_SpellScript);
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER, SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF });
+                return ValidateSpellInfo({ Triggered });
             }
 
             void HandleScript()
             {
-                // This is only needed because spells cast from spell_linked_spell are triggered by default
-                // Spell::SendSpellCooldown() skips all spells with TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD
-                GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, GetSpell());
+                /*
+                 * @workaround: PendingCast flag normally means 'triggered' spell, however
+                 * if the spell is cast triggered, the core won't send SMSG_SPELL_GO packet
+                 * so client never registers the cooldown (see Spell::IsNeedSendToClient)
+                 *
+                 * ServerToClient: SMSG_SPELL_GO (0x0132) Length: 42 ConnIdx: 0 Time: 07/19/2010 02:32:35.000 Number: 362675
+                 * Caster GUID: Full: Player
+                 * Caster Unit GUID: Full: Player
+                 * Cast Count: 0
+                 * Spell ID: 72752 (72752)
+                 * Cast Flags: PendingCast, Unknown3, Unknown7 (265)
+                 * Time: 3901468825
+                 * Hit Count: 1
+                 * [0] Hit GUID: Player
+                 * Miss Count: 0
+                 * Target Flags: Unit (2)
+                 * Target GUID: 0x0
+                */
+
+                // Spell flags need further research, until then just cast not triggered
+                GetCaster()->CastSpell((Unit*)nullptr, Triggered, false);
             }
 
             void Register() override
@@ -3405,7 +3529,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_pvp_trinket_wotf_shared_cd_SpellScript();
+            return new spell_pvp_trinket_wotf_shared_cd_SpellScript<TriggeredSpellId>();
         }
 };
 
@@ -3526,7 +3650,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_VAMPIRIC_TOUCH_HEAL });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -3535,7 +3659,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 int32 bp = damageInfo->GetDamage() / 2;
-                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true);
+                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -4369,7 +4493,7 @@ class MarkTargetHellfireFilter
         bool operator()(WorldObject* target) const
         {
             if (Unit* unit = target->ToUnit())
-                return unit->getPowerType() != POWER_MANA;
+                return unit->GetPowerType() != POWER_MANA;
             return false;
         }
 };
@@ -4570,8 +4694,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_dru_mark_of_the_wild");
     new spell_gen_increase_stats_buff("spell_pri_power_word_fortitude");
     new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
-    new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
-    new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
     new spell_gen_interrupt();
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
@@ -4584,6 +4706,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_on_tournament_mount();
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_orc_disguise();
+    new spell_gen_paralytic_poison();
     new spell_gen_proc_below_pct_damaged("spell_item_soul_harvesters_charm");
     new spell_gen_proc_below_pct_damaged("spell_item_commendation_of_kaelthas");
     new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin");
@@ -4610,7 +4733,10 @@ void AddSC_generic_spell_scripts()
     new spell_gen_throw_shield();
     new spell_gen_tournament_duel();
     new spell_gen_tournament_pennant();
-    new spell_pvp_trinket_wotf_shared_cd();
+    new spell_gen_trigger_exclude_caster_aura_spell();
+    new spell_gen_trigger_exclude_target_aura_spell();
+    new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER>("spell_pvp_trinket_shared_cd");
+    new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF>("spell_wotf_shared_cd");
     new spell_gen_turkey_marker();
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_vampiric_touch();

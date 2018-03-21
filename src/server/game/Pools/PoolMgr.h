@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "Define.h"
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 class Creature;
@@ -144,12 +145,11 @@ class TC_GAME_API PoolMgr
         template<typename T>
         void SpawnPool(uint32 pool_id, uint64 db_guid_or_pool_id);
 
-        uint32 max_pool_id;
-        typedef std::vector<PoolTemplateData>       PoolTemplateDataMap;
-        typedef std::vector<PoolGroup<Creature> >   PoolGroupCreatureMap;
-        typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
-        typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
-        typedef std::vector<PoolGroup<Quest> >      PoolGroupQuestMap;
+        typedef std::unordered_map<uint32, PoolTemplateData>      PoolTemplateDataMap;
+        typedef std::unordered_map<uint32, PoolGroup<Creature>>   PoolGroupCreatureMap;
+        typedef std::unordered_map<uint32, PoolGroup<GameObject>> PoolGroupGameObjectMap;
+        typedef std::unordered_map<uint32, PoolGroup<Pool>>       PoolGroupPoolMap;
+        typedef std::unordered_map<uint32, PoolGroup<Quest>>      PoolGroupQuestMap;
         typedef std::pair<uint64, uint32> SearchPair;
         typedef std::map<uint64, uint32> SearchMap;
 

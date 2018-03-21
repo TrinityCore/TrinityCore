@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,6 +54,7 @@ class Unit;
 class WorldObject;
 struct SpellPowerCost;
 struct SummonPropertiesEntry;
+enum AuraType : uint32;
 enum CurrentSpellTypes : uint8;
 enum LootType : uint8;
 enum SpellCastTargetFlags : uint32;
@@ -454,7 +455,7 @@ class TC_GAME_API Spell
         void EffectRemoveAura(SpellEffIndex effIndex);
         void EffectDamageFromMaxHealthPCT(SpellEffIndex effIndex);
         void EffectCastButtons(SpellEffIndex effIndex);
-        void EffectRechargeManaGem(SpellEffIndex effIndex);
+        void EffectRechargeItem(SpellEffIndex effIndex);
         void EffectGiveCurrency(SpellEffIndex effIndex);
         void EffectResurrectWithAura(SpellEffIndex effIndex);
         void EffectCreateAreaTrigger(SpellEffIndex effIndex);
@@ -467,6 +468,7 @@ class TC_GAME_API Spell
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
         void EffectHealBattlePetPct(SpellEffIndex effIndex);
         void EffectEnableBattlePets(SpellEffIndex effIndex);
+        void EffectLaunchQuestChoice(SpellEffIndex effIndex);
         void EffectUncageBattlePet(SpellEffIndex effIndex);
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
@@ -477,8 +479,9 @@ class TC_GAME_API Spell
         void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
         void EffectPlayScene(SpellEffIndex effIndex);
         void EffectGiveHonor(SpellEffIndex effIndex);
+        void EffectLearnTransmogSet(SpellEffIndex effIndex);
 
-        typedef std::set<Aura*> UsedSpellMods;
+        typedef std::unordered_set<Aura*> UsedSpellMods;
 
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
         ~Spell();
@@ -522,7 +525,7 @@ class TC_GAME_API Spell
         void TakeReagents();
         void TakeCastItem();
 
-        SpellCastResult CheckCast(bool strict);
+        SpellCastResult CheckCast(bool strict, uint32* param1 = nullptr, uint32* param2 = nullptr);
         SpellCastResult CheckPetCast(Unit* target);
 
         // handlers
@@ -532,12 +535,20 @@ class TC_GAME_API Spell
         void _handle_immediate_phase();
         void _handle_finish_phase();
 
-        SpellCastResult CheckItems();
-        SpellCastResult CheckRange(bool strict);
-        SpellCastResult CheckPower();
-        SpellCastResult CheckRuneCost();
-        SpellCastResult CheckCasterAuras() const;
+        SpellCastResult CheckItems(uint32* param1, uint32* param2) const;
+        SpellCastResult CheckRange(bool strict) const;
+        SpellCastResult CheckPower() const;
+        SpellCastResult CheckRuneCost() const;
+        SpellCastResult CheckCasterAuras(uint32* param1) const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
+
+        bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;
+        bool CheckSpellCancelsCharm(uint32* param1) const;
+        bool CheckSpellCancelsStun(uint32* param1) const;
+        bool CheckSpellCancelsSilence(uint32* param1) const;
+        bool CheckSpellCancelsPacify(uint32* param1) const;
+        bool CheckSpellCancelsFear(uint32* param1) const;
+        bool CheckSpellCancelsConfuse(uint32* param1) const;
 
         int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const;
 
@@ -556,9 +567,9 @@ class TC_GAME_API Spell
         void CheckSrc();
         void CheckDst();
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* misc = nullptr);
-        void SendCastResult(SpellCastResult result);
-        void SendPetCastResult(SpellCastResult result);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* param1 = nullptr, uint32* param2 = nullptr);
+        void SendCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
+        void SendPetCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
         void SendSpellStart();
         void SendSpellGo();
         void SendSpellCooldown();
@@ -624,7 +635,6 @@ class TC_GAME_API Spell
             } Raw;
         } m_misc;
         uint32 m_SpellVisual;
-        uint32 m_preCastSpell;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
@@ -635,11 +645,13 @@ class TC_GAME_API Spell
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
-        bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const;
         bool IsIgnoringCooldowns() const;
+        bool IsProcDisabled() const;
         bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
+
+        bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
@@ -687,7 +699,7 @@ class TC_GAME_API Spell
         void CancelGlobalCooldown();
 
         void SendLoot(ObjectGuid guid, LootType loottype);
-        std::pair<float, float> GetMinMaxRange(bool strict);
+        std::pair<float, float> GetMinMaxRange(bool strict) const;
 
         Unit* const m_caster;
 
@@ -742,10 +754,6 @@ class TC_GAME_API Spell
         // used in effects handlers
         Aura* m_spellAura;
 
-        // this is set in Spell Hit, but used in Apply Aura handler
-        DiminishingLevels m_diminishLevel;
-        DiminishingGroup m_diminishGroup;
-
         // -------------------------------------------
         GameObject* focusObject;
 
@@ -758,8 +766,8 @@ class TC_GAME_API Spell
         // ******************************************
         uint32 m_procAttacker;                // Attacker trigger flags
         uint32 m_procVictim;                  // Victim   trigger flags
-        uint32 m_procEx;
-        void   prepareDataForTriggerSystem(AuraEffect const* triggeredByAura);
+        uint32 m_hitMask;
+        void   prepareDataForTriggerSystem();
 
         // *****************************************
         // Spell target subsystem
@@ -839,6 +847,9 @@ class TC_GAME_API Spell
 
         struct HitTriggerSpell
         {
+            HitTriggerSpell(SpellInfo const* spellInfo, SpellInfo const* auraSpellInfo, int32 procChance) :
+                triggeredSpell(spellInfo), triggeredByAura(auraSpellInfo), chance(procChance) { }
+
             SpellInfo const* triggeredSpell;
             SpellInfo const* triggeredByAura;
             // uint8 triggeredByEffIdx          This might be needed at a later stage - No need known for now
@@ -847,7 +858,7 @@ class TC_GAME_API Spell
 
         bool CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura = nullptr) const;
         void PrepareTriggersExecutedOnHit();
-        typedef std::list<HitTriggerSpell> HitTriggerSpellList;
+        typedef std::vector<HitTriggerSpell> HitTriggerSpellList;
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers

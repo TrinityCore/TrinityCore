@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -184,31 +184,6 @@ namespace Trinity
         {
             auto itr = map.find(key);
             return itr != map.end() ? AddressOrSelf(itr->second) : nullptr;
-        }
-
-        /**
-         * @class IteratorPair
-         *
-         * @brief Utility class to enable range for loop syntax for multimap.equal_range uses
-         */
-        template<class iterator>
-        class IteratorPair
-        {
-        public:
-            IteratorPair() : _iterators() { }
-            IteratorPair(std::pair<iterator, iterator> iterators) : _iterators(iterators) { }
-
-            iterator begin() const { return _iterators.first; }
-            iterator end() const { return _iterators.second; }
-
-        private:
-            std::pair<iterator, iterator> _iterators;
-        };
-
-        template<class M>
-        inline auto MapEqualRange(M& map, typename M::key_type const& key) -> IteratorPair<decltype(map.begin())>
-        {
-            return { map.equal_range(key) };
         }
 
         template<class K, class V, template<class, class, class...> class M, class... Rest>

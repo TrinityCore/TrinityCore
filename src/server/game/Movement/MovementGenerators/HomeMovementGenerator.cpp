@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,8 +34,8 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
         owner->ClearUnitState(UNIT_STATE_EVADE);
         owner->SetWalk(true);
         owner->LoadCreaturesAddon();
-        owner->SetSpawnHealth();
         owner->AI()->JustReachedHome();
+        owner->SetSpawnHealth();
     }
 }
 

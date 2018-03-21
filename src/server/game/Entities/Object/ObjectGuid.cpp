@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -148,18 +148,6 @@ void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
 {
     ASSERT(guid.size() == sizeof(*this));
     memcpy(this, guid.data(), sizeof(*this));
-}
-
-uint8& ObjectGuid::operator[](uint32 index)
-{
-    ASSERT(index < sizeof(uint64) * 2);
-    return ((uint8*)&_low)[index];
-}
-
-uint8 const& ObjectGuid::operator[](uint32 index) const
-{
-    ASSERT(index < sizeof(uint64) * 2);
-    return ((uint8 const*)&_low)[index];
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)

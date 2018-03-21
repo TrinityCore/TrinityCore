@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define ConversationDataStore_h__
 
 #include "Define.h"
+#include "ObjectGuid.h"
 
 #include <vector>
 
@@ -47,7 +48,10 @@ struct ConversationTemplate
     uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
 
     std::vector<ConversationActorTemplate const*> Actors;
+    std::vector<ObjectGuid::LowType> ActorGuids;
     std::vector<ConversationLineTemplate const*> Lines;
+
+    uint32 ScriptId;
 };
 
 class TC_GAME_API ConversationDataStore

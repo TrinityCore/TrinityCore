@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2730,8 +2730,12 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 damage = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), 60);
-                GetTarget()->CastCustomSpell(SPELL_GRIM_REPRISAL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetDamageInfo()->GetAttacker(), true, NULL, aurEff);
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 damage = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), 60);
+                GetTarget()->CastCustomSpell(SPELL_GRIM_REPRISAL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, damageInfo->GetAttacker(), true, nullptr, aurEff);
             }
 
             void Register() override

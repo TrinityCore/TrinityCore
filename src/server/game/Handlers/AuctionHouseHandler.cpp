@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -161,25 +161,27 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     uint32 finalCount = 0;
-    for (auto const& packetItem : packet.Items)
+    std::array<Item*, decltype(packet.Items)::max_capacity::value> items;
+    items.fill(nullptr);
+    for (std::size_t i = 0; i < packet.Items.size(); ++i)
     {
-        Item* item = _player->GetItemByGuid(packetItem.Guid);
+        items[i] = _player->GetItemByGuid(packet.Items[i].Guid);
 
-        if (!item)
+        if (!items[i])
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
             return;
         }
 
-        if (sAuctionMgr->GetAItem(item->GetGUID().GetCounter()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
-            item->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
-            item->GetCount() < packetItem.UseCount)
+        if (sAuctionMgr->GetAItem(items[i]->GetGUID().GetCounter()) || !items[i]->CanBeTraded() || items[i]->IsNotEmptyBag() ||
+            items[i]->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || items[i]->GetUInt32Value(ITEM_FIELD_DURATION) ||
+            items[i]->GetCount() < packet.Items[i].UseCount)
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
             return;
         }
 
-        finalCount += packetItem.UseCount;
+        finalCount += packet.Items[i].UseCount;
     }
 
     if (packet.Items.empty())
@@ -195,36 +197,39 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     }
 
     // check if there are 2 identical guids, in this case user is most likely cheating
-    for (uint32 i = 0; i < packet.Items.size() - 1; ++i)
+    for (std::size_t i = 0; i < packet.Items.size() - 1; ++i)
     {
-        for (uint32 j = i + 1; j < packet.Items.size(); ++j)
+        for (std::size_t j = i + 1; j < packet.Items.size(); ++j)
         {
             if (packet.Items[i].Guid == packet.Items[j].Guid)
             {
                 SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
                 return;
             }
+            if (items[i]->GetEntry() != items[j]->GetEntry())
+            {
+                SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
+                return;
+            }
         }
     }
 
-    for (auto const& packetItem : packet.Items)
+    for (std::size_t i = 0; i < packet.Items.size(); ++i)
     {
-        Item* item = _player->GetItemByGuid(packetItem.Guid);
-
-        if (item->GetMaxStackCount() < finalCount)
+        if (items[i]->GetMaxStackCount() < finalCount)
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
             return;
         }
     }
 
-    Item* item = _player->GetItemByGuid(packet.Items[0].Guid);
+    Item* item = items[0];
 
     uint32 auctionTime = uint32(packet.RunTime * sWorld->getRate(RATE_AUCTION_TIME));
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    uint32 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
-    if (!_player->HasEnoughMoney((uint64)deposit))
+    uint64 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
+    if (!_player->HasEnoughMoney(deposit))
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
         return;
@@ -317,12 +322,12 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         auctionHouse->AddAuction(AH);
         sAuctionMgr->PendingAuctionAdd(_player, AH);
 
-        for (auto const& packetItem : packet.Items)
+        for (std::size_t i = 0; i < packet.Items.size(); ++i)
         {
-            Item* item2 = _player->GetItemByGuid(packetItem.Guid);
+            Item* item2 = items[i];
 
             // Item stack count equals required count, ready to delete item - cloned item will be used for auction
-            if (item2->GetCount() == packetItem.UseCount)
+            if (item2->GetCount() == packet.Items[i].UseCount)
             {
                 _player->MoveItemFromInventory(item2->GetBagSlot(), item2->GetSlot(), true);
 
@@ -334,9 +339,9 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             }
             else // Item stack count is bigger than required count, update item stack count and save to database - cloned item will be used for auction
             {
-                item2->SetCount(item2->GetCount() - packetItem.UseCount);
+                item2->SetCount(item2->GetCount() - packet.Items[i].UseCount);
                 item2->SetState(ITEM_CHANGED, _player);
-                _player->ItemRemovedQuestCheck(item2->GetEntry(), packetItem.UseCount);
+                _player->ItemRemovedQuestCheck(item2->GetEntry(), packet.Items[i].UseCount);
                 item2->SendUpdateToPlayer(_player);
 
                 SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -440,7 +445,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt64(0, auction->bidder);
-        stmt->setUInt32(1, auction->bid);
+        stmt->setUInt64(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
 
@@ -511,8 +516,8 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
         {
             if (auction->bidder)                            // If we have a bidder, we have to send him the money he paid
             {
-                uint32 auctionCut = auction->GetAuctionCut();
-                if (!player->HasEnoughMoney((uint64)auctionCut))          //player doesn't have enough money, maybe message needed
+                uint64 auctionCut = auction->GetAuctionCut();
+                if (!player->HasEnoughMoney(auctionCut))          //player doesn't have enough money, maybe message needed
                     return;
                 sAuctionMgr->SendAuctionCancelledToBidderMail(auction, trans);
                 player->ModifyMoney(-int64(auctionCut));
@@ -637,8 +642,12 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
             {
                 for (auto const& subClassFilter : classFilter.SubClassFilters)
                 {
-                    filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
-                    filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    if (classFilter.ItemClass < MAX_ITEM_CLASS)
+                    {
+                        filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
+                        if (subClassFilter.ItemSubclass < MAX_ITEM_SUBCLASS_TOTAL)
+                            filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    }
                 }
             }
             else

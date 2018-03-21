@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -132,12 +132,7 @@ struct TC_COMMON_API LocalizedString
 
 namespace Trinity
 {
-    //! std::make_unique implementation (TODO: remove this once C++14 is supported)
-    template<typename T, typename ...Args>
-    std::unique_ptr<T> make_unique(Args&& ...args)
-    {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
+    using std::make_unique;
 }
 
 #endif

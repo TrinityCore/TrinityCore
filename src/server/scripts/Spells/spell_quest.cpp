@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -838,7 +838,7 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
                         target->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, 0);
                         target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
                         target->SetHealth(target->GetMaxHealth() / 2);
-                        target->SetPower(POWER_MANA, uint32(target->GetMaxPower(POWER_MANA) * 0.75f));
+                        target->SetPower(POWER_MANA, target->GetMaxPower(POWER_MANA) * 0.75f);
                     }
                 }
             }
@@ -2587,6 +2587,173 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
         }
 };
 
+// herald of war and life without regret portal spells
+class spell_59064_59439_portals : public SpellScriptLoader
+{
+public:
+    spell_59064_59439_portals() : SpellScriptLoader("spell_59064_59439_portals") { }
+
+    class spell_59064_59439_portals_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_59064_59439_portals_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_59064_59439_portals_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_59064_59439_portals_SpellScript();
+    }
+};
+
+enum ApplyHeatAndStir
+{
+    SPELL_SPURTS_AND_SMOKE    = 38594,
+    SPELL_FAILED_MIX_1        = 43376,
+    SPELL_FAILED_MIX_2        = 43378,
+    SPELL_FAILED_MIX_3        = 43970,
+    SPELL_SUCCESSFUL_MIX      = 43377,
+
+    CREATURE_GENERIC_TRIGGER_LAB = 24042,
+
+    TALK_0 = 0,
+    TALK_1 = 1
+};
+
+class spell_q11306_mixing_blood : public SpellScriptLoader
+{
+public:
+    spell_q11306_mixing_blood() : SpellScriptLoader("spell_q11306_mixing_blood") { }
+
+    class spell_q11306_mixing_blood_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q11306_mixing_blood_SpellScript);
+
+        void HandleEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* trigger = caster->FindNearestCreature(CREATURE_GENERIC_TRIGGER_LAB, 100.0f))
+                    trigger->AI()->DoCastSelf(SPELL_SPURTS_AND_SMOKE);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_q11306_mixing_blood_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q11306_mixing_blood_SpellScript();
+    }
+};
+
+class spell_q11306_mixing_vrykul_blood : public SpellScriptLoader
+{
+    public:
+        spell_q11306_mixing_vrykul_blood() : SpellScriptLoader("spell_q11306_mixing_vrykul_blood") { }
+
+        class spell_q11306_mixing_vrykul_blood_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q11306_mixing_vrykul_blood_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    uint8 chance = urand(0, 99);
+                    uint32 spellId = 0;
+
+                    // 90% chance of getting one out of three failure effects
+                    if (chance < 30)
+                        spellId = SPELL_FAILED_MIX_1;
+                    else if (chance < 60)
+                        spellId = SPELL_FAILED_MIX_2;
+                    else if (chance < 90)
+                        spellId = SPELL_FAILED_MIX_3;
+                    else // 10% chance of successful cast
+                        spellId = SPELL_SUCCESSFUL_MIX;
+
+                    caster->CastSpell(caster, spellId, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q11306_mixing_vrykul_blood_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q11306_mixing_vrykul_blood_SpellScript();
+        }
+};
+
+class spell_q11306_failed_mix_43376 : public SpellScriptLoader
+{
+public:
+    spell_q11306_failed_mix_43376() : SpellScriptLoader("spell_q11306_failed_mix_43376") { }
+
+    class spell_q11306_failed_mix_43376_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q11306_failed_mix_43376_SpellScript);
+
+        void HandleEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* trigger = caster->FindNearestCreature(CREATURE_GENERIC_TRIGGER_LAB, 100.0f))
+                    trigger->AI()->Talk(TALK_0, caster);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_q11306_failed_mix_43376_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q11306_failed_mix_43376_SpellScript();
+    }
+};
+
+class spell_q11306_failed_mix_43378 : public SpellScriptLoader
+{
+public:
+    spell_q11306_failed_mix_43378() : SpellScriptLoader("spell_q11306_failed_mix_43378") { }
+
+    class spell_q11306_failed_mix_43378_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q11306_failed_mix_43378_SpellScript);
+
+        void HandleEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* trigger = caster->FindNearestCreature(CREATURE_GENERIC_TRIGGER_LAB, 100.0f))
+                    trigger->AI()->Talk(TALK_1, caster);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_q11306_failed_mix_43378_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q11306_failed_mix_43378_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2651,4 +2818,9 @@ void AddSC_quest_spell_scripts()
     new spell_q28813_set_health_random();
     new spell_q12414_hand_over_reins();
     new spell_q13665_q13790_bested_trigger();
+    new spell_59064_59439_portals();
+    new spell_q11306_mixing_blood();
+    new spell_q11306_mixing_vrykul_blood();
+    new spell_q11306_failed_mix_43376();
+    new spell_q11306_failed_mix_43378();
 }

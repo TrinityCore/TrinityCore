@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,8 +37,8 @@ enum Spells
     SPELL_THORNS                = 25640,
     SPELL_BURU_TRANSFORM        = 24721,
     SPELL_SUMMON_HATCHLING      = 1881,
-    SPELL_EXPLODE               = 19593,
-    SPELL_EXPLODE_2             = 5255,
+    SPELL_EGG_EXPLOSION         = 19593,
+    SPELL_EXPLOSION_DAMAGE      = 5255,
     SPELL_BURU_EGG_TRIGGER      = 26646
 };
 
@@ -225,9 +225,8 @@ class npc_buru_egg : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                DoCastAOE(SPELL_EXPLODE, true);
-                DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
-                DoCast(me, SPELL_SUMMON_HATCHLING, true);
+                DoCastAOE(SPELL_EGG_EXPLOSION, true);
+                DoCastAOE(SPELL_SUMMON_HATCHLING, true);
 
                 if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
                     if (boss_buru::boss_buruAI* buruAI = dynamic_cast<boss_buru::boss_buruAI*>(buru->AI()))
@@ -243,6 +242,7 @@ class npc_buru_egg : public CreatureScript
         }
 };
 
+// 19593 - Egg Explosion
 class spell_egg_explosion : public SpellScriptLoader
 {
     public:
@@ -261,7 +261,10 @@ class spell_egg_explosion : public SpellScriptLoader
             void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->DealDamage(target, -16 * GetCaster()->GetDistance(target) + 500);
+                {
+                    int32 damage = std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500);
+                    GetCaster()->CastCustomSpell(SPELL_EXPLOSION_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target, true);
+                }
             }
 
             void Register() override

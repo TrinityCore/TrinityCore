@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -274,7 +274,7 @@ public:
             else FrostCooldown = 0;
             }
 
-            if (!Drinking && me->GetMaxPower(POWER_MANA) && (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA)) < 20)
+            if (!Drinking && me->GetMaxPower(POWER_MANA) && me->GetPowerPct(POWER_MANA) < 20.f)
             {
                 Drinking = true;
                 me->InterruptNonMeleeSpells(false);
@@ -506,26 +506,24 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
         {
-            //We only care about interrupt effects and only if they are durring a spell currently being cast
-            for (SpellEffectInfo const* effect : Spell->GetEffectsForDifficulty(me->GetMap()->GetDifficultyID()))
-                if (effect && effect->Effect == SPELL_EFFECT_INTERRUPT_CAST && me->IsNonMeleeSpellCast(false))
+            // We only care about interrupt effects and only if they are durring a spell currently being cast
+            if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST) && me->IsNonMeleeSpellCast(false))
+            {
+                // Interrupt effect
+                me->InterruptNonMeleeSpells(false);
+
+                // Normally we would set the cooldown equal to the spell duration
+                // but we do not have access to the DurationStore
+
+                switch (CurrentNormalSpell)
                 {
-                    //Interrupt effect
-                    me->InterruptNonMeleeSpells(false);
-
-                    //Normally we would set the cooldown equal to the spell duration
-                    //but we do not have access to the DurationStore
-
-                    switch (CurrentNormalSpell)
-                    {
                     case SPELL_ARCMISSLE: ArcaneCooldown = 5000; break;
                     case SPELL_FIREBALL: FireCooldown = 5000; break;
                     case SPELL_FROSTBOLT: FrostCooldown = 5000; break;
-                    }
-                    return;
                 }
+            }
         }
 
         void MoveInLineOfSight(Unit* who) override

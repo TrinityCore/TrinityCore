@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -320,7 +320,7 @@ class instance_gundrak : public InstanceMapScript
 
                     if (GameObject* altar = GetGameObject(altarId))
                         if (Creature* trigger = altar->FindNearestCreature(NPC_ALTAR_TRIGGER, 10.0f))
-                            trigger->CastSpell((Unit*)nullptr, spellId, true);
+                            trigger->CastSpell(nullptr, spellId, true);
 
                     // eventId equals statueId
                     ToggleGameObject(eventId, GO_STATE_READY);

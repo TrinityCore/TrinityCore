@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1122,8 +1122,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 //Conflagration_Timer
                 if (Conflagration_Timer <= diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (target && me->IsWithinDistInMap(target, 30))
                         DoCast(target, SPELL_CONFLAGRATION);

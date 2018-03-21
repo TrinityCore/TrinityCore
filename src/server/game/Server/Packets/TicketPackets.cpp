@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -163,6 +163,8 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     data >> lfgListSearchResult->LastTitleAuthorGuid;
     data >> lfgListSearchResult->LastDescriptionAuthorGuid;
     data >> lfgListSearchResult->LastVoiceChatAuthorGuid;
+    data >> lfgListSearchResult->ListingCreatorGuid;
+    data >> lfgListSearchResult->Unknown735;
 
     uint32 titleLength = data.ReadBits(8);
     uint32 descriptionLength = data.ReadBits(11);

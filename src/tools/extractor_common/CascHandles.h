@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,6 +50,7 @@ namespace CASC
 
     StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask);
     DWORD GetBuildNumber(StorageHandle const& storage);
+    DWORD GetInstalledLocalesMask(StorageHandle const& storage);
 
     FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false);
     DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);

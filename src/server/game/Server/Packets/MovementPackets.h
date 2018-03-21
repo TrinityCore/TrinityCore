@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
+            MovementInfo Status;
         };
 
         class TC_GAME_API MoveUpdate final : public ServerPacket
@@ -50,7 +50,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
         };
 
         struct MonsterSplineFilterKey
@@ -160,7 +160,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             float Speed = 1.0f;
         };
 
@@ -199,6 +199,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = -1;
+            TaggedPosition<Position::XYZ> OldMapPosition;
             Optional<ShipTransferPending> Ship;
             Optional<int32> TransferSpellID;
         };
@@ -277,7 +278,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             std::vector<MovementForce> MovementForces;
             Optional<float> SwimBackSpeed;
             Optional<float> FlightSpeed;
@@ -297,7 +298,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             MovementForce Force;
         };
 
@@ -308,7 +309,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             ObjectGuid TriggerGUID;
         };
 
@@ -326,7 +327,7 @@ namespace WorldPackets
 
         struct MovementAck
         {
-            MovementInfo movementInfo;
+            MovementInfo Status;
             int32 AckIndex = 0;
         };
 
@@ -397,7 +398,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
         };
 
         class MoveKnockBackAck final : public ClientPacket
@@ -441,7 +442,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             float Scale = 1.0f;
             float Height = 1.0f;
         };
@@ -499,7 +500,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
+            MovementInfo Status;
             int32 SplineID = 0;
         };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,7 @@ Battlenet::Services::Connection::Connection(Session* session) : ConnectionServic
 {
 }
 
-uint32 Battlenet::Services::Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response)
+uint32 Battlenet::Services::Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     if (request->has_client_id())
         response->mutable_client_id()->CopyFrom(request->client_id());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -211,7 +211,7 @@ public:
             if (ManaBurn_Timer <= diff)
             {
                 Unit* target = me->GetVictim();
-                if (target && target->getPowerType() == POWER_MANA)
+                if (target && target->GetPowerType() == POWER_MANA)
                     DoCast(target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000 + rand32() % 8000;
             } else ManaBurn_Timer -= diff;

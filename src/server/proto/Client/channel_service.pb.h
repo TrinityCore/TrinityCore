@@ -1447,11 +1447,11 @@ class TC_PROTO_API ChannelService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleRemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleDissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleRemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleDissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -479,7 +479,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         SpellInfo const* GetTriggeringSpell() const;
 
         // finishes spellcast prematurely with selected error message
-        void FinishCast(SpellCastResult result);
+        void FinishCast(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr);
 
         void SetCustomCastResultMessage(SpellCustomErrors result);
 };
@@ -506,6 +506,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_AFTER_DISPEL,
     // Spell Proc Hooks
     AURA_SCRIPT_HOOK_CHECK_PROC,
+    AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC,
     AURA_SCRIPT_HOOK_PREPARE_PROC,
     AURA_SCRIPT_HOOK_PROC,
     AURA_SCRIPT_HOOK_EFFECT_PROC,
@@ -537,6 +538,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         typedef void(CLASSNAME::*AuraEffectAbsorbFnType)(AuraEffect*, DamageInfo &, uint32 &); \
         typedef void(CLASSNAME::*AuraEffectSplitFnType)(AuraEffect*, DamageInfo &, uint32 &); \
         typedef bool(CLASSNAME::*AuraCheckProcFnType)(ProcEventInfo&); \
+        typedef bool(CLASSNAME::*AuraCheckEffectProcFnType)(AuraEffect const*, ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraProcFnType)(ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraEffectProcFnType)(AuraEffect const*, ProcEventInfo&); \
 
@@ -646,6 +648,14 @@ class TC_GAME_API AuraScript : public _SpellScript
             private:
                 AuraCheckProcFnType _HandlerScript;
         };
+        class TC_GAME_API CheckEffectProcHandler : public EffectBase
+        {
+            public:
+                CheckEffectProcHandler(AuraCheckEffectProcFnType handlerScript, uint8 effIndex, uint16 effName);
+                bool Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo);
+            private:
+                AuraCheckEffectProcFnType _HandlerScript;
+        };
         class TC_GAME_API AuraProcHandler
         {
             public:
@@ -676,6 +686,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         class EffectManaShieldFunction : public AuraScript::EffectManaShieldHandler { public: EffectManaShieldFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectManaShieldHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) { } }; \
         class EffectSplitFunction : public AuraScript::EffectSplitHandler { public: EffectSplitFunction(AuraEffectSplitFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectSplitHandler((AuraScript::AuraEffectSplitFnType)_pEffectHandlerScript, _effIndex) { } }; \
         class CheckProcHandlerFunction : public AuraScript::CheckProcHandler { public: CheckProcHandlerFunction(AuraCheckProcFnType handlerScript) : AuraScript::CheckProcHandler((AuraScript::AuraCheckProcFnType)handlerScript) { } }; \
+        class CheckEffectProcHandlerFunction : public AuraScript::CheckEffectProcHandler { public: CheckEffectProcHandlerFunction(AuraCheckEffectProcFnType handlerScript, uint8 effIndex, uint16 effName) : AuraScript::CheckEffectProcHandler((AuraScript::AuraCheckEffectProcFnType)handlerScript, effIndex, effName) { } }; \
         class AuraProcHandlerFunction : public AuraScript::AuraProcHandler { public: AuraProcHandlerFunction(AuraProcFnType handlerScript) : AuraScript::AuraProcHandler((AuraScript::AuraProcFnType)handlerScript) { } }; \
         class EffectProcHandlerFunction : public AuraScript::EffectProcHandler { public: EffectProcHandlerFunction(AuraEffectProcFnType effectHandlerScript, uint8 effIndex, uint16 effName) : AuraScript::EffectProcHandler((AuraScript::AuraEffectProcFnType)effectHandlerScript, effIndex, effName) { } }
 
@@ -782,7 +793,7 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // executed when absorb aura effect is going to reduce damage
         // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect const* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
+        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectAbsorbHandler> OnEffectAbsorb;
         #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
 
@@ -792,13 +803,13 @@ class TC_GAME_API AuraScript : public _SpellScript
         HookList<EffectAbsorbHandler> AfterEffectAbsorb;
 
         // executed when mana shield aura effect is going to reduce damage
-        // example: OnEffectManaShield += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
+        // example: OnEffectManaShield += AuraEffectManaShieldFn(class::function, EffectIndexSpecifier);
         // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectManaShieldHandler> OnEffectManaShield;
         #define AuraEffectManaShieldFn(F, I) EffectManaShieldFunction(&F, I)
 
         // executed after mana shield aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
-        // example: AfterEffectManaShield += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
+        // example: AfterEffectManaShield += AuraEffectManaShieldFn(class::function, EffectIndexSpecifier);
         // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectManaShieldHandler> AfterEffectManaShield;
 
@@ -813,6 +824,12 @@ class TC_GAME_API AuraScript : public _SpellScript
         // where function is: bool function (ProcEventInfo& eventInfo);
         HookList<CheckProcHandler> DoCheckProc;
         #define AuraCheckProcFn(F) CheckProcHandlerFunction(&F)
+
+        // executed when aura effect checks if it can proc the aura
+        // example: DoCheckEffectProc += AuraCheckEffectProcFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is bool function (AuraEffect const* aurEff, ProcEventInfo& eventInfo);
+        HookList<CheckEffectProcHandler> DoCheckEffectProc;
+        #define AuraCheckEffectProcFn(F, I, N) CheckEffectProcHandlerFunction(&F, I, N)
 
         // executed before aura procs (possibility to prevent charge drop/cooldown)
         // example: DoPrepareProc += AuraProcFn(class::function);

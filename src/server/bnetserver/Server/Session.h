@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,8 @@
 using boost::asio::ip::tcp;
 
 namespace pb = google::protobuf;
+
+class ServiceBase;
 
 namespace bgs
 {
@@ -114,7 +116,7 @@ namespace Battlenet
             bool IsLockedToIP;
             std::string LockCountry;
             std::string LastIP;
-            uint32 FailedLogins;
+            uint32 LoginTicketExpiry;
             bool IsBanned;
             bool IsPermanenetlyBanned;
 
@@ -141,8 +143,8 @@ namespace Battlenet
 
         void SendRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request);
 
-        uint32 HandleLogon(authentication::v1::LogonRequest const* logonRequest);
-        uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* verifyWebCredentialsRequest);
+        uint32 HandleLogon(authentication::v1::LogonRequest const* logonRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+        uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* verifyWebCredentialsRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
         uint32 HandleGetAccountState(account::v1::GetAccountStateRequest const* request, account::v1::GetAccountStateResponse* response);
         uint32 HandleGetGameAccountState(account::v1::GetGameAccountStateRequest const* request, account::v1::GetGameAccountStateResponse* response);
         uint32 HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response);
@@ -164,6 +166,8 @@ namespace Battlenet
 
         void CheckIpCallback(PreparedQueryResult result);
 
+        uint32 VerifyWebCredentials(std::string const& webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+
         typedef uint32(Session::*ClientRequestHandler)(std::unordered_map<std::string, Variant const*> const&, game_utilities::v1::ClientResponse*);
         static std::unordered_map<std::string, ClientRequestHandler> const ClientRequestHandlers;
 
@@ -176,7 +180,7 @@ namespace Battlenet
         MessageBuffer _headerBuffer;
         MessageBuffer _packetBuffer;
 
-        std::unique_ptr<AccountInfo> _accountInfo;
+        std::shared_ptr<AccountInfo> _accountInfo;
         GameAccountInfo* _gameAccountInfo;          // Points at selected game account (inside _gameAccounts)
 
         std::string _locale;

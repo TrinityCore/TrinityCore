@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -120,6 +120,52 @@ enum UnitRename : uint8
     UNIT_CAN_BE_ABANDONED   = 0x02
 };
 
+// high byte (3 from 0..3) of UNIT_FIELD_BYTES_2
+enum ShapeshiftForm
+{
+    FORM_NONE                       = 0,
+    FORM_CAT_FORM                   = 1,
+    FORM_TREE_OF_LIFE               = 2,
+    FORM_TRAVEL_FORM                = 3,
+    FORM_AQUATIC_FORM               = 4,
+    FORM_BEAR_FORM                  = 5,
+    FORM_AMBIENT                    = 6,
+    FORM_GHOUL                      = 7,
+    FORM_DIRE_BEAR_FORM             = 8,
+    FORM_CRANE_STANCE               = 9,
+    FORM_THARONJA_SKELETON          = 10,
+    FORM_DARKMOON_TEST_OF_STRENGTH  = 11,
+    FORM_BLB_PLAYER                 = 12,
+    FORM_SHADOW_DANCE               = 13,
+    FORM_CREATURE_BEAR              = 14,
+    FORM_CREATURE_CAT               = 15,
+    FORM_GHOST_WOLF                 = 16,
+    FORM_BATTLE_STANCE              = 17,
+    FORM_DEFENSIVE_STANCE           = 18,
+    FORM_BERSERKER_STANCE           = 19,
+    FORM_SERPENT_STANCE             = 20,
+    FORM_ZOMBIE                     = 21,
+    FORM_METAMORPHOSIS              = 22,
+    FORM_OX_STANCE                  = 23,
+    FORM_TIGER_STANCE               = 24,
+    FORM_UNDEAD                     = 25,
+    FORM_FRENZY                     = 26,
+    FORM_FLIGHT_FORM_EPIC           = 27,
+    FORM_SHADOWFORM                 = 28,
+    FORM_FLIGHT_FORM                = 29,
+    FORM_STEALTH                    = 30,
+    FORM_MOONKIN_FORM               = 31,
+    FORM_SPIRIT_OF_REDEMPTION       = 32,
+    FORM_GLADIATOR_STANCE           = 33,
+    FORM_METAMORPHOSIS_2            = 34,
+    FORM_MOONKIN_FORM_RESTORATION   = 35,
+    FORM_TREANT_FORM                = 36,
+    FORM_SPIRIT_OWL_FORM            = 37,
+    FORM_SPIRIT_OWL_FORM_2          = 38,
+    FORM_WISP_FORM                  = 39,
+    FORM_WISP_FORM_2                = 40,
+};
+
 // Value masks for UNIT_FIELD_FLAGS
 enum UnitFlags : uint32
 {
@@ -224,6 +270,7 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC = 0x0008000000,     // artifact powers reset
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x0010000000,     // transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x0020000000,     // void storage
+    UNIT_NPC_FLAG_WILD_BATTLE_PET       = 0x0040000000,     // Pet that player can fight (Battle Pet)
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
     UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER   = 0x0100000000,
     UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x0200000000,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,9 +17,9 @@
 
 #include "SessionManager.h"
 
-bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
+bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
 {
-    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
     _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));

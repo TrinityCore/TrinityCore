@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -504,7 +504,7 @@ void AccountMgr::LoadRBAC()
 
 void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
-    if (rbac && securityLevel == rbac->GetSecurityLevel())
+    if (rbac && securityLevel != rbac->GetSecurityLevel())
         rbac->SetSecurityLevel(securityLevel);
 
     SQLTransaction trans = LoginDatabase.BeginTransaction();

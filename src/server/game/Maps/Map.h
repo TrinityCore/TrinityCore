@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,6 +51,7 @@ class Object;
 class Player;
 class TempSummon;
 class Unit;
+class Weather;
 class WorldObject;
 class WorldPacket;
 struct MapDifficultyEntry;
@@ -231,6 +232,7 @@ struct ZoneDynamicInfo
     ZoneDynamicInfo();
 
     uint32 MusicId;
+    std::unique_ptr<Weather> DefaultWeather;
     WeatherState WeatherId;
     float WeatherGrade;
     uint32 OverrideLightId;
@@ -386,7 +388,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // have meaning only for instanced map (that have set real difficulty)
         Difficulty GetDifficultyID() const { return Difficulty(GetSpawnMode()); }
         MapDifficultyEntry const* GetMapDifficulty() const;
-        uint8 GetDifficultyLootBonusTreeMod() const;
+        uint8 GetDifficultyLootItemContext() const;
 
         uint32 GetId() const;
         bool Instanceable() const;
@@ -536,9 +538,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
         void SendUpdateTransportVisibility(Player* player, std::set<uint32> const& previousPhases);
-        void SendZoneDynamicInfo(Player* player);
+        void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
+        Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade);
         void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime);
 
@@ -715,6 +720,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _goRespawnTimes;
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
+        IntervalTimer _weatherUpdateTimer;
         uint32 _defaultLight;
 
         template<HighGuid high>

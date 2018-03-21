@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -14,14 +14,12 @@ if(WIN32)
     set(BOOST_ROOT $ENV{BOOST_ROOT})
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
       set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-12.0)
+    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
+      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
     else()
-      if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
-        set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-      else()
-        list(APPEND BOOST_LIBRARYDIR
-          ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
-          ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0 )
-      endif()
+      list(APPEND BOOST_LIBRARYDIR
+        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
+        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
     endif()
   else()
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
@@ -40,9 +38,9 @@ check_cxx_source_compiles("
   STD_HAS_WORKING_WREGEX)
 
 if (STD_HAS_WORKING_WREGEX)
-  find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams)
+  find_package(Boost 1.58 REQUIRED system filesystem thread program_options iostreams)
 else()
-  find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams regex)
+  find_package(Boost 1.58 REQUIRED system filesystem thread program_options iostreams regex)
 endif()
 
 # Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
@@ -73,7 +71,9 @@ target_compile_definitions(boost
   INTERFACE
     -DBOOST_DATE_TIME_NO_LIB
     -DBOOST_REGEX_NO_LIB
-    -DBOOST_CHRONO_NO_LIB)
+    -DBOOST_CHRONO_NO_LIB
+    -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
+    -DBOOST_ASIO_NO_DEPRECATED)
 
 if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
   target_compile_definitions(boost

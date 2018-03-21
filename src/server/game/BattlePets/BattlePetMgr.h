@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,15 +121,17 @@ public:
     WorldSession* GetOwner() const { return _owner; }
 
     uint16 GetTrapLevel() const { return _trapLevel; }
-    std::vector<BattlePet> GetLearnedPets() const;
-    std::vector<WorldPackets::BattlePet::BattlePetSlot> GetSlots() const { return _slots; }
+    uint16 GetMaxPetLevel() const;
+    std::vector<WorldPackets::BattlePet::BattlePetSlot> const& GetSlots() const { return _slots; }
 
     void CageBattlePet(ObjectGuid guid);
     void HealBattlePetsPct(uint8 pct);
 
     void SummonPet(ObjectGuid guid);
+    void DismissPet();
 
-    void SendUpdates(std::vector<BattlePet> pets, bool petAdded);
+    void SendJournal();
+    void SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded);
     void SendError(BattlePetError error, uint32 creatureId);
 
 private:

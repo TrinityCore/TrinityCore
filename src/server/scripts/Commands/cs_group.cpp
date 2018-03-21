@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -267,7 +267,6 @@ public:
     {
         // Get ALL the variables!
         Player* playerTarget;
-        uint32 phase = 0;
         ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
@@ -315,7 +314,7 @@ public:
         Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
 
         // To avoid a cluster fuck, namely trying multiple queries to simply get a group member count...
-        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"), members.size());
+        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"), std::to_string(members.size()).c_str());
         // ... we simply move the group type and member count print after retrieving the slots and simply output it's size.
 
         // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
@@ -348,11 +347,12 @@ public:
 
             // Check if iterator is online. If is...
             Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+            std::string phases;
             if (p)
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
-                phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
+                phases = StringJoin(p->GetPhases(), ", ");
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
@@ -367,12 +367,11 @@ public:
                 // ... else, everything is set to offline or neutral values.
                 zoneName    = "<ERROR>";
                 onlineState = "Offline";
-                phase       = 0;
             }
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phase, slot.guid.ToString().c_str(), flags.c_str(),
+                zoneName.c_str(), phases.c_str(), slot.guid.ToString().c_str(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 

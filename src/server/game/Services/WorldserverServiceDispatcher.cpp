@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ void Battlenet::WorldserverServiceDispatcher::Dispatch(WorldSession* session, ui
 {
     auto itr = _dispatchers.find(serviceHash);
     if (itr != _dispatchers.end())
-        itr->second(session, token, methodId, std::forward<MessageBuffer>(buffer));
+        itr->second(session, token, methodId, std::move(buffer));
     else
         TC_LOG_DEBUG("session.rpc", "%s tried to call invalid service 0x%X", session->GetPlayerInfo().c_str(), serviceHash);
 }

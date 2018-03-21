@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,7 +94,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
                 bindAppearances.push_back(transmogItem.ItemModifiedAppearanceID);
 
             // add cost
-            cost += itemTransmogrified->GetSpecialPrice();
+            cost += itemTransmogrified->GetSellPrice(_player);
         }
         else
             resetAppearanceItems.push_back(itemTransmogrified);
@@ -120,7 +120,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
                 return;
             }
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->PlayerConditionID))
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogPlayerConditionID))
             {
                 if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
                 {

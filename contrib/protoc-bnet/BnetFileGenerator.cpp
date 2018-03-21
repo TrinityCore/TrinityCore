@@ -354,15 +354,13 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
     printer->Print("#include \"Log.h\"\n");
 
     if (file_->service_count() > 0)
+    {
+        printer->Print("#include \"Errors.h\"\n");
         printer->Print("#include \"BattlenetRpcErrorCodes.h\"\n");
+    }
 
     printer->Print(
         "// @@protoc_insertion_point(includes)\n");
-
-    printer->Print("\n// Fix stupid windows.h included from Log.h->Common.h\n");
-    printer->Print("#ifdef SendMessage\n");
-    printer->Print("#undef SendMessage\n");
-    printer->Print("#endif\n");
 
     GenerateNamespaceOpeners(printer);
 

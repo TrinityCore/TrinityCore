@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,6 +70,7 @@ enum ItemUpdateState
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 extern ItemModifier const AppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS];
 extern ItemModifier const IllusionModifierSlotBySpec[MAX_SPECIALIZATIONS];
+extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
 
 struct BonusData
 {
@@ -85,7 +86,8 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
-    uint32 ItemLevelOverride;
+    uint32 SandboxScalingId;
+    uint32 DisenchantLootId;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
@@ -94,14 +96,13 @@ struct BonusData
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
-    void AddBonus(uint32 type, int32 const (&values)[2]);
+    void AddBonus(uint32 type, int32 const (&values)[3]);
 
 private:
     struct
     {
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
-        int32 ItemLevelOverridePriority;
         bool HasQualityBonus;
     } _state;
 };
@@ -129,12 +130,12 @@ class TC_GAME_API Item : public Object
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
-        Item* CloneItem(uint32 count, Player const* player = NULL) const;
+        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = nullptr);
+        Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
 
-        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }
@@ -261,6 +262,8 @@ class TC_GAME_API Item : public Object
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
         uint32 GetQuality() const { return _bonusData.Quality; }
         uint32 GetItemLevel(Player const* owner) const;
+        static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel, uint32 upgradeId,
+            uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus);
         int32 GetRequiredLevel() const { return _bonusData.RequiredLevel; }
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         int32 GetItemStatValue(uint32 index, Player const* owner) const;
@@ -273,15 +276,17 @@ class TC_GAME_API Item : public Object
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
         uint32 GetScalingStatDistribution() const { return _bonusData.ScalingStatDistribution; }
+        ItemDisenchantLootEntry const* GetDisenchantLoot(Player const* owner) const;
+        static ItemDisenchantLootEntry const* GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = nullptr, bool addToCollection = true);
         void SetRefundRecipient(ObjectGuid const& guid) { m_refundRecipient = guid; }
-        void SetPaidMoney(uint32 money) { m_paidMoney = money; }
+        void SetPaidMoney(uint64 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
 
         ObjectGuid const& GetRefundRecipient() const { return m_refundRecipient; }
-        uint32 GetPaidMoney() const { return m_paidMoney; }
+        uint64 GetPaidMoney() const { return m_paidMoney; }
         uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
         void UpdatePlayedTime(Player* owner);
@@ -304,15 +309,16 @@ class TC_GAME_API Item : public Object
         bool HasStats() const;
         static bool HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus);
         static bool CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance);
-        static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
-        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
+        uint32 GetBuyPrice(Player const* owner, bool& standardPrice) const;
+        static uint32 GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel, bool& standardPrice);
+        uint32 GetSellPrice(Player const* owner) const;
+        static uint32 GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel);
 
         uint32 GetVisibleEntry(Player const* owner) const;
         uint16 GetVisibleAppearanceModId(Player const* owner) const;
         uint32 GetVisibleEnchantmentId(Player const* owner) const;
         uint16 GetVisibleItemVisual(Player const* owner) const;
 
-        static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
         uint32 GetModifier(ItemModifier modifier) const;
         void SetModifier(ItemModifier modifier, uint32 value);
@@ -342,7 +348,7 @@ class TC_GAME_API Item : public Object
         bool mb_in_trade;                                   // true if item is currently in trade-window
         time_t m_lastPlayedTimeUpdate;
         ObjectGuid m_refundRecipient;
-        uint32 m_paidMoney;
+        uint64 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
         ItemRandomEnchantmentId m_randomEnchantment;        // store separately to easily find which bonus list is the one randomly given for stat rerolling

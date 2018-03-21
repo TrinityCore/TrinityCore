@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "Player.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -872,10 +873,10 @@ class spell_dru_t3_6p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_BLESSING_OF_THE_CLAW });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -908,18 +909,18 @@ class spell_dru_t3_8p_bonus : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-                if (!spellInfo)
+                Spell const* spell = eventInfo.GetProcSpell();
+                if (!spell)
                     return;
 
                 Unit* caster = eventInfo.GetActor();
-                std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask());
+                std::vector<SpellPowerCost> const& costs = spell->GetPowerCost();
                 auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
                 if (m == costs.end())
                     return;
 
                 int32 amount = CalculatePct(m->Amount, aurEff->GetAmount());
-                caster->CastCustomSpell(SPELL_DRUID_EXHILARATE, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                caster->CastCustomSpell(SPELL_DRUID_EXHILARATE, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -950,10 +951,10 @@ class spell_dru_t4_2p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_INFUSION });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DRUID_INFUSION, true);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DRUID_INFUSION, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -987,7 +988,7 @@ class spell_dru_item_t6_trinket : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -1019,7 +1020,7 @@ class spell_dru_item_t6_trinket : public SpellScriptLoader
                     return;
 
                 if (roll_chance_i(chance))
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true);
+                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1066,7 +1067,7 @@ class spell_dru_t10_balance_4p_bonus : public SpellScriptLoader
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);
 
-                caster->CastCustomSpell(SPELL_DRUID_LANGUISH, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_DRUID_LANGUISH, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1168,12 +1169,12 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public SpellScriptLoader
                 return caster->GetGroup() || caster != eventInfo.GetProcTarget();
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
                 int32 amount = static_cast<int32>(eventInfo.GetHealInfo()->GetHeal());
-                eventInfo.GetActor()->CastCustomSpell(SPELL_DRUID_REJUVENATION_T10_PROC, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DRUID_REJUVENATION_T10_PROC, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override

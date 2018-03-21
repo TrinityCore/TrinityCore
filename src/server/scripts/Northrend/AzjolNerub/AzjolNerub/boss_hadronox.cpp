@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -793,7 +793,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
                                 me->GetMotionMaster()->MovePoint(MOVE_HADRONOX, hadronoxStep[2]);
                                 break;
                             }
-                        me->GetMotionMaster()->MoveChase(hadronox);
+                        AttackStart(hadronox);
                     }
                     break;
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@ class Battleground;
 class BattlegroundMap;
 class Channel;
 class ChatCommand;
+class Conversation;
 class Creature;
 class CreatureAI;
 class DynamicObject;
@@ -71,6 +72,7 @@ struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
 struct OutdoorPvPData;
+struct QuestObjective;
 struct SceneTemplate;
 
 enum BattlegroundTypeId : uint32;
@@ -205,10 +207,10 @@ class TC_GAME_API SpellScriptLoader : public ScriptObject
     public:
 
         // Should return a fully valid SpellScript pointer.
-        virtual SpellScript* GetSpellScript() const { return NULL; }
+        virtual SpellScript* GetSpellScript() const { return nullptr; }
 
         // Should return a fully valid AuraScript pointer.
-        virtual AuraScript* GetAuraScript() const { return NULL; }
+        virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
 class TC_GAME_API ServerScript : public ScriptObject
@@ -753,6 +755,9 @@ class TC_GAME_API PlayerScript : public UnitScript
 
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
+
+        // Called when a player choose a response from a PlayerChoice
+        virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceId*/, uint32 /*responseId*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -859,6 +864,17 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
+class TC_GAME_API ConversationScript : public ScriptObject
+{
+    protected:
+        ConversationScript(char const* name);
+
+    public:
+
+        // Called when Conversation is created but not added to Map yet.
+        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
+};
+
 class TC_GAME_API SceneScript : public ScriptObject
 {
     protected:
@@ -877,6 +893,20 @@ class TC_GAME_API SceneScript : public ScriptObject
 
         // Called when a scene is completed
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+};
+
+class TC_GAME_API QuestScript : public ScriptObject
+{
+    protected:
+
+        QuestScript(const char* name);
+
+    public:
+        // Called when a quest status change
+        virtual void OnQuestStatusChange(Player* /*player*/, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus /*newStatus*/) { }
+
+        // Called when a quest objective data change
+        virtual void OnQuestObjectiveChange(Player* /*player*/, Quest const* /*quest*/, QuestObjective const& /*objective*/, int32 /*oldAmount*/, int32 /*newAmount*/) { }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -1116,6 +1146,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId);
         void OnMovieComplete(Player* player, uint32 movieId);
+        void OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId);
 
     public: /* AccountScript */
 
@@ -1161,11 +1192,21 @@ class TC_GAME_API ScriptMgr
 
         AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
 
+    public: /* ConversationScript */
+
+        void OnConversationCreate(Conversation* conversation, Unit* creator);
+
     public: /* SceneScript */
+
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
         void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+
+    public: /* QuestScript */
+
+        void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
+        void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
 
     private:
         uint32 _scriptCount;
@@ -1174,6 +1215,70 @@ class TC_GAME_API ScriptMgr
 
         std::string _currentContext;
 };
+
+template <class S>
+class GenericSpellScriptLoader : public SpellScriptLoader
+{
+    public:
+        GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        SpellScript* GetSpellScript() const override { return new S(); }
+};
+#define RegisterSpellScript(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
+
+template <class A>
+class GenericAuraScriptLoader : public SpellScriptLoader
+{
+    public:
+        GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        AuraScript* GetAuraScript() const override { return new A(); }
+};
+#define RegisterAuraScript(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
+
+template <class S, class A>
+class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
+{
+    public:
+        GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        SpellScript* GetSpellScript() const override { return new S(); }
+        AuraScript* GetAuraScript() const override { return new A(); }
+};
+#define RegisterSpellAndAuraScriptPair(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
+
+template <class AI>
+class GenericCreatureScript : public CreatureScript
+{
+    public:
+        GenericCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
+};
+#define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
+
+template <class AI, AI*(*AIFactory)(Creature*)>
+class FactoryCreatureScript : public CreatureScript
+{
+    public:
+        FactoryCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
+};
+#define RegisterCreatureAIWithFactory(ai_name, factory_fn) new FactoryCreatureScript<ai_name, &factory_fn>(#ai_name)
+
+template <class AI>
+class GenericGameObjectScript : public GameObjectScript
+{
+    public:
+        GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+        GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
+};
+#define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
+
+template <class AI>
+class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
+{
+    public:
+        GenericAreaTriggerEntityScript(char const* name) : AreaTriggerEntityScript(name) { }
+        AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
+};
+#define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
 #define sScriptMgr ScriptMgr::instance()
 

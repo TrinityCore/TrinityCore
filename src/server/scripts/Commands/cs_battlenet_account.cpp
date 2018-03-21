@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,13 +20,13 @@
 #include "BigNumber.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "IpAddress.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Util.h"
 #include "WorldSession.h"
-#include <boost/asio/ip/address_v4.hpp>
 
 class battlenet_account_commandscript : public CommandScript
 {
@@ -144,7 +144,7 @@ public:
             if (param == "on")
             {
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
-                uint32 ip = boost::asio::ip::address_v4::from_string(handler->GetSession()->GetRemoteAddress()).to_ulong();
+                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(handler->GetSession()->GetRemoteAddress()));
                 EndianConvertReverse(ip);
                 stmt->setUInt32(0, ip);
                 PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -242,12 +242,12 @@ public:
         }
 
         // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-        if (!Battlenet::AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
+        if (!Battlenet::AccountMgr::CheckPassword(handler->GetSession()->GetBattlenetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (%s) Tried to change password, but the provided old password is wrong.",
-                handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
+                handler->GetSession()->GetBattlenetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
@@ -477,7 +477,7 @@ public:
             return false;
 
         char* battlenetAccountName = strtok((char*)args, " ");
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST_SMALL);
         stmt->setString(0, battlenetAccountName);
         if (PreparedQueryResult accountList = LoginDatabase.Query(stmt))
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -350,11 +350,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
     bool HasAreaTrigger = (flags & UPDATEFLAG_AREATRIGGER) != 0;
-    bool HasGameObject = false;
+    bool HasGameObject = (flags & UPDATEFLAG_GAMEOBJECT) != 0;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
-    bool PlayerCreateData = false;
+    bool PlayerCreateData = GetTypeId() == TYPEID_PLAYER && ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
     std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -667,19 +667,26 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
     }
 
-    //if (GameObject)
-    //{
-    //    *data << uint32(WorldEffectID);
+    if (HasGameObject)
+    {
+        bool bit8 = false;
+        uint32 Int1 = 0;
 
-    //    data->WriteBit(bit8);
-    //    if (bit8)
-    //        *data << uint32(Int1);
-    //}
+        GameObject const* gameObject = ToGameObject();
+
+        *data << uint32(gameObject->GetWorldEffectID());
+
+        data->WriteBit(bit8);
+        data->FlushBits();
+        if (bit8)
+            *data << uint32(Int1);
+    }
 
     //if (SmoothPhasing)
     //{
     //    data->WriteBit(ReplaceActive);
-    //    data->WriteBit(HasReplaceObjectt);
+    //    data->WriteBit(HasReplaceObject);
+    //    data->FlushBits();
     //    if (HasReplaceObject)
     //        *data << ObjectGuid(ReplaceObject);
     //}
@@ -688,10 +695,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //{
     //    data->WriteBit(HasLocalScriptData);
     //    data->WriteBit(HasPetBattleFullUpdate);
+    //    data->FlushBits();
 
     //    if (HasLocalScriptData)
     //    {
     //        data->WriteBits(Data.length(), 7);
+    //        data->FlushBits();
     //        data->WriteString(Data);
     //    }
 
@@ -707,6 +716,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //            *data << uint8(Players[i].InputFlags);
 
     //            data->WriteBits(Players[i].Pets.size(), 2);
+    //            data->FlushBits();
     //            for (std::size_t j = 0; j < Players[i].Pets.size(); ++j)
     //            {
     //                *data << ObjectGuid(Players[i].Pets[j].BattlePetGUID);
@@ -752,6 +762,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //                }
 
     //                data->WriteBits(Players[i].Pets[j].CustomName.length(), 7);
+    //                data->FlushBits();
     //                data->WriteString(Players[i].Pets[j].CustomName);
     //            }
     //        }
@@ -786,28 +797,37 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //        *data << ObjectGuid(InitialWildPetGUID);
     //        data->WriteBit(IsPVP);
     //        data->WriteBit(CanAwardXP);
+    //        data->FlushBits();
     //    }
     //}
 
-    //if (PlayerCreateData)
-    //{
-    //    data->WriteBit(HasSceneInstanceIDs);
-    //    data->WriteBit(HasRuneState);
-    //    if (HasSceneInstanceIDs)
-    //    {
-    //        *data << uint32(SceneInstanceIDs.size());
-    //        for (std::size_t i = 0; i < SceneInstanceIDs.size(); ++i)
-    //            *data << uint32(SceneInstanceIDs[i]);
-    //    }
-    //    if (HasRuneState)
-    //    {
-    //        *data << uint8(RechargingRuneMask);
-    //        *data << uint8(UsableRuneMask);
-    //        *data << uint32(ToUnit()->GetMaxPower(POWER_RUNES));
-    //        for (uint32 i = 0; i < ToUnit()->GetMaxPower(POWER_RUNES); ++i)
-    //            *data << uint8(255 - (ToUnit()->ToPlayer()->GetRuneCooldown(i) * 51));
-    //    }
-    //}
+    if (PlayerCreateData)
+    {
+        bool HasSceneInstanceIDs = false;
+        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+
+        data->WriteBit(HasSceneInstanceIDs);
+        data->WriteBit(HasRuneState);
+        data->FlushBits();
+        //if (HasSceneInstanceIDs)
+        //{
+        //    *data << uint32(SceneInstanceIDs.size());
+        //    for (std::size_t i = 0; i < SceneInstanceIDs.size(); ++i)
+        //        *data << uint32(SceneInstanceIDs[i]);
+        //}
+        if (HasRuneState)
+        {
+            Player const* player = ToPlayer();
+            float baseCd = float(player->GetRuneBaseCooldown());
+            uint32 maxRunes = uint32(player->GetMaxPower(POWER_RUNES));
+
+            *data << uint8((1 << maxRunes) - 1);
+            *data << uint8(player->GetRunesState());
+            *data << uint32(maxRunes);
+            for (uint32 i = 0; i < maxRunes; ++i)
+                *data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255);
+        }
+    }
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -1522,7 +1542,7 @@ void MovementInfo::OutDebug()
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0)
+_dbPhase(0), m_notifyflags(0), m_executed_notifies(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -2224,13 +2244,13 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
         // Level difference: 5 point / level, starting from level 1.
         // There may be spells for this and the starting points too, but
         // not in the DBCs of the client.
-        detectionValue += int32(getLevelForTarget(obj) - 1) * 5;
+        detectionValue += int32(GetLevelForTarget(obj) - 1) * 5;
 
         // Apply modifiers
         detectionValue += m_stealthDetect.GetValue(StealthType(i));
         if (go)
             if (Unit* owner = go->GetOwner())
-                detectionValue -= int32(owner->getLevelForTarget(this) - 1) * 5;
+                detectionValue -= int32(owner->GetLevelForTarget(this) - 1) * 5;
 
         detectionValue -= obj->m_stealth.GetValue(StealthType(i));
 
@@ -2263,19 +2283,19 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
     AddToObjectUpdateIfNeeded();
 }
 
-void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)
+void WorldObject::SendMessageToSet(WorldPacket const* data, bool self) const
 {
     if (IsInWorld())
         SendMessageToSetInRange(data, GetVisibilityRange(), self);
 }
 
-void WorldObject::SendMessageToSetInRange(WorldPacket const* data, float dist, bool /*self*/)
+void WorldObject::SendMessageToSetInRange(WorldPacket const* data, float dist, bool /*self*/) const
 {
     Trinity::MessageDistDeliverer notifier(this, data, dist);
     Cell::VisitWorldObjects(this, notifier, dist);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
+void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const
 {
     Trinity::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
@@ -2336,7 +2356,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
     {
-        switch (properties->Category)
+        switch (properties->Control)
         {
             case SUMMON_CATEGORY_PET:
                 mask = UNIT_MASK_GUARDIAN;
@@ -2351,7 +2371,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_ALLY:
             case SUMMON_CATEGORY_UNK:
             {
-                switch (properties->Type)
+                switch (properties->Title)
                 {
                 case SUMMON_TYPE_MINION:
                 case SUMMON_TYPE_GUARDIAN:
@@ -2377,11 +2397,11 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                 break;
             }
             default:
-                return NULL;
+                return nullptr;
         }
     }
 
-    TempSummon* summon = NULL;
+    TempSummon* summon = nullptr;
     switch (mask)
     {
         case UNIT_MASK_SUMMON:
@@ -2401,10 +2421,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(GenerateLowGuid<HighGuid::Creature>(), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    if (!summon->Create(GenerateLowGuid<HighGuid::Creature>(), this, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
-        return NULL;
+        return nullptr;
     }
 
     // Set the summon to the summoner's phase
@@ -2509,12 +2529,9 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     }
 
     Map* map = GetMap();
-    GameObject* go = new GameObject();
-    if (!go->Create(entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
-    {
-        delete go;
+    GameObject* go = GameObject::CreateGameObject(entry, map, pos, rot, 255, GO_STATE_READY);
+    if (!go)
         return nullptr;
-    }
 
     go->CopyPhaseFrom(this);
 
@@ -2609,101 +2626,29 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
     return go;
 }
 
-void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const
+template <typename Container>
+void WorldObject::GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange /*= 250.0f*/) const
 {
     Trinity::AllGameObjectsWithEntryInRange check(this, entry, maxSearchRange);
-    Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange> searcher(this, gameobjectList, check);
+    Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange> searcher(this, gameObjectContainer, check);
     Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
-void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureList, uint32 entry, float maxSearchRange) const
+template <typename Container>
+void WorldObject::GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange /*= 250.0f*/) const
 {
     Trinity::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
-    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, creatureList, check);
+    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, creatureContainer, check);
     Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
-void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
+template <typename Container>
+void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const
 {
     Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerList, checker);
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerContainer, checker);
     Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
-
-/*
-namespace Trinity
-{
-    class NearUsedPosDo
-    {
-        public:
-            NearUsedPosDo(WorldObject const& obj, WorldObject const* searcher, float angle, ObjectPosSelector& selector)
-                : i_object(obj), i_searcher(searcher), i_angle(angle), i_selector(selector) { }
-
-            void operator()(Corpse*) const { }
-            void operator()(DynamicObject*) const { }
-
-            void operator()(Creature* c) const
-            {
-                // skip self or target
-                if (c == i_searcher || c == &i_object)
-                    return;
-
-                float x, y, z;
-
-                if (!c->IsAlive() || c->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) ||
-                    !c->GetMotionMaster()->GetDestination(x, y, z))
-                {
-                    x = c->GetPositionX();
-                    y = c->GetPositionY();
-                }
-
-                add(c, x, y);
-            }
-
-            template<class T>
-                void operator()(T* u) const
-            {
-                // skip self or target
-                if (u == i_searcher || u == &i_object)
-                    return;
-
-                float x, y;
-
-                x = u->GetPositionX();
-                y = u->GetPositionY();
-
-                add(u, x, y);
-            }
-
-            // we must add used pos that can fill places around center
-            void add(WorldObject* u, float x, float y) const
-            {
-                // u is too nearest/far away to i_object
-                if (!i_object.IsInRange2d(x, y, i_selector.m_dist - i_selector.m_size, i_selector.m_dist + i_selector.m_size))
-                    return;
-
-                float angle = i_object.GetAngle(u)-i_angle;
-
-                // move angle to range -pi ... +pi
-                while (angle > M_PI)
-                    angle -= 2.0f * M_PI;
-                while (angle < -M_PI)
-                    angle += 2.0f * M_PI;
-
-                // dist include size of u
-                float dist2d = i_object.GetDistance2d(x, y);
-                i_selector.AddUsedPos(u->GetObjectSize(), angle, dist2d + i_object.GetObjectSize());
-            }
-        private:
-            WorldObject const& i_object;
-            WorldObject const* i_searcher;
-            float              i_angle;
-            ObjectPosSelector& i_selector;
-    };
-}                                                           // namespace Trinity
-*/
-
-//===================================================================================================
 
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
 {
@@ -2922,14 +2867,6 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     pos.SetOrientation(GetOrientation());
 }
 
-void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    m_phaseMask = newPhaseMask;
-
-    if (update && IsInWorld())
-        UpdateObjectVisibility();
-}
-
 bool WorldObject::HasInPhaseList(uint32 phase)
 {
     return _phases.find(phase) != _phases.end();
@@ -2940,35 +2877,27 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
-    PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
-    for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-    {
-        uint32 areaOrZoneId = itr->first;
+    PhaseInfo const& allAreasPhases = sObjectMgr->GetAreaAndZonePhases();
+    uint32 zoneAndArea[] = { GetZoneId(), GetAreaId() };
+
+    // We first remove all phases from other areas & zones
+    for (auto itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
         for (PhaseInfoStruct const& phase : itr->second)
+            if (!DB2Manager::IsInArea(GetAreaId(), itr->first))
+                updateNeeded = SetInPhase(phase.Id, false, false) || updateNeeded; // not in area, remove phase, true if there was something removed
+
+    // Then we add the phases from this area and zone if conditions are met
+    // Zone is done before Area, so if Area does not meet condition, the phase will be removed
+    for (uint32 area : zoneAndArea)
+    {
+        if (std::vector<PhaseInfoStruct> const* currentPhases = sObjectMgr->GetPhasesForArea(area))
         {
-            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
+            for (PhaseInfoStruct const& phaseInfoStruct : *currentPhases)
             {
-                if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
-                {
-                    // add new phase if condition passed, true if it wasnt added before
-                    bool up = SetInPhase(phase.Id, false, true);
-                    if (!updateNeeded && up)
-                        updateNeeded = true;
-                }
-                else
-                {
-                    // condition failed, remove phase, true if there was something removed
-                    bool up = SetInPhase(phase.Id, false, false);
-                    if (!updateNeeded && up)
-                        updateNeeded = true;
-                }
-            }
-            else
-            {
-                // not in area, remove phase, true if there was something removed
-                bool up = SetInPhase(phase.Id, false, false);
-                if (!updateNeeded && up)
-                    updateNeeded = true;
+                bool apply = sConditionMgr->IsObjectMeetToConditions(this, phaseInfoStruct.Conditions);
+
+                // add or remove phase depending of condition
+                updateNeeded = SetInPhase(phaseInfoStruct.Id, false, apply) || updateNeeded;
             }
         }
     }
@@ -2980,20 +2909,15 @@ void WorldObject::UpdateAreaAndZonePhase()
         for (Unit::AuraEffectList::const_iterator itr = auraPhaseList.begin(); itr != auraPhaseList.end(); ++itr)
         {
             uint32 phase = uint32((*itr)->GetMiscValueB());
-            bool up = SetInPhase(phase, false, true);
-            if (!updateNeeded && up)
-                updateNeeded = true;
+            updateNeeded = SetInPhase(phase, false, true) || updateNeeded;
         }
         Unit::AuraEffectList const& auraPhaseGroupList = unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP);
         for (Unit::AuraEffectList::const_iterator itr = auraPhaseGroupList.begin(); itr != auraPhaseGroupList.end(); ++itr)
         {
-            bool up = false;
             uint32 phaseGroup = uint32((*itr)->GetMiscValueB());
-            std::set<uint32> const& phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
+            std::set<uint32> phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
             for (uint32 phase : phaseIDs)
-                up = SetInPhase(phase, false, true);
-            if (!updateNeeded && up)
-                updateNeeded = true;
+                updateNeeded = SetInPhase(phase, false, true) || updateNeeded;
         }
     }
 
@@ -3012,13 +2936,16 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
     {
         if (apply)
         {
-            if (HasInPhaseList(id)) // do not run the updates if we are already in this phase
+            // do not run the updates if we are already in this phase
+            if (!_phases.insert(id).second)
                 return false;
-
-            _phases.insert(id);
         }
         else
         {
+            auto phaseItr = _phases.find(id);
+            if (phaseItr == _phases.end())
+                return false;
+
             // if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
             // this however breaks the .mod phase command, you wont be able to remove any area based phases with it
             if (std::vector<PhaseInfoStruct> const* phases = sObjectMgr->GetPhasesForArea(GetAreaId()))
@@ -3027,10 +2954,7 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
                         if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                             return false;
 
-            if (!HasInPhaseList(id)) // do not run the updates if we are not in this phase
-                return false;
-
-            _phases.erase(id);
+            _phases.erase(phaseItr);
         }
     }
 
@@ -3101,6 +3025,14 @@ void WorldObject::PlayDirectSound(uint32 soundId, Player* target /*= nullptr*/)
         target->SendDirectMessage(WorldPackets::Misc::PlaySound(GetGUID(), soundId).Write());
     else
         SendMessageToSet(WorldPackets::Misc::PlaySound(GetGUID(), soundId).Write(), true);
+}
+
+void WorldObject::PlayDirectMusic(uint32 musicId, Player* target /*= nullptr*/)
+{
+    if (target)
+        target->SendDirectMessage(WorldPackets::Misc::PlayMusic(musicId).Write());
+    else
+        SendMessageToSet(WorldPackets::Misc::PlayMusic(musicId).Write(), true);
 }
 
 void WorldObject::DestroyForNearbyPlayers()
@@ -3292,3 +3224,15 @@ void WorldObject::RebuildWorldMapAreaSwaps()
                         for (uint32 worldMapAreaId : *uiMapSwaps)
                             _worldMapAreaSwaps.insert(worldMapAreaId);
 }
+
+template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;
+template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::deque<GameObject*>&, uint32, float) const;
+template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::vector<GameObject*>&, uint32, float) const;
+
+template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>&, uint32, float) const;
+template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::deque<Creature*>&, uint32, float) const;
+template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::vector<Creature*>&, uint32, float) const;
+
+template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::list<Player*>&, float) const;
+template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::deque<Player*>&, float) const;
+template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::vector<Player*>&, float) const;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,14 +35,14 @@ public:
         ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction");
     }
 
-    virtual bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
+    virtual bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
     {
         ASSERT(threadCount > 0);
 
         AsyncAcceptor* acceptor = nullptr;
         try
         {
-            acceptor = new AsyncAcceptor(service, bindIp, port);
+            acceptor = new AsyncAcceptor(ioContext, bindIp, port);
         }
         catch (boost::system::system_error const& err)
         {

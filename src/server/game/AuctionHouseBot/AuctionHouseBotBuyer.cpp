@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -105,7 +105,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
     {
         AuctionEntry* entry = itr->second;
 
-        if (!entry->owner)
+        if (!entry->owner || sAuctionBotConfig->IsBotChar(entry->owner))
             continue; // Skip auctions owned by AHBot
 
         Item* item = sAuctionMgr->GetAItem(entry->itemGUIDLow);
@@ -220,7 +220,7 @@ bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* ite
     }
 
     // If a player has bidded on item, have fifth of normal chance
-    if (auction->bidder)
+    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
         chance = chance / 5.f;
 
     // Add config weigh in for quality
@@ -393,11 +393,11 @@ void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctio
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Send mail to previous bidder if any
-    if (auction->bidder)
+    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
         sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, NULL, trans);
 
     // Set bot as bidder and set new bid amount
-    auction->bidder = 0;
+    auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
     auction->bid = auction->buyout;
 
     // Mails must be under transaction control too to prevent data loss
@@ -424,11 +424,11 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Send mail to previous bidder if any
-    if (auction->bidder)
+    if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
         sAuctionMgr->SendAuctionOutbiddedMail(auction, bidPrice, NULL, trans);
 
     // Set bot as bidder and set new bid amount
-    auction->bidder = 0;
+    auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
     auction->bid = bidPrice;
 
     // Update auction to DB

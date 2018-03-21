@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -138,6 +138,14 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum AreaMountFlags
+{
+    AREA_MOUNT_FLAG_GROUND_ALLOWED      = 0x1,
+    AREA_MOUNT_FLAG_FLYING_ALLOWED      = 0x2,
+    AREA_MOUNT_FLAG_FLOAT_ALLOWED       = 0x4,
+    AREA_MOUNT_FLAG_UNDERWATER_ALLOWED  = 0x8
+};
+
 enum ArtifactPowerFlag : uint8
 {
     ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
@@ -147,7 +155,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2073
+#define BATTLE_PET_SPECIES_MAX_ID 2164
 
 enum ChrSpecializationFlag
 {
@@ -237,6 +245,7 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK86                         = 86, // Some external event id
     //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
+    CRITERIA_ADDITIONAL_CONDITION_EXPANSION                     = 92,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
@@ -479,9 +488,13 @@ enum CriteriaTypes : uint8
     // 202 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_WORLD_QUEST                  = 203,
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
+    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205,
+    CRITERIA_TYPE_GAIN_PARAGON_REPUTATION               = 206,
+    CRITERIA_TYPE_EARN_HONOR_XP                         = 207,
+    CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211
 };
 
-#define CRITERIA_TYPE_TOTAL 208
+#define CRITERIA_TYPE_TOTAL 213
 
 enum CriteriaTreeFlags : uint16
 {
@@ -503,6 +516,20 @@ enum CriteriaTreeOperator : uint8
     CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN    = 7,
     CRITERIA_TREE_OPERATOR_ANY                      = 8,
     CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
+};
+
+enum class CharBaseSectionVariation : uint8
+{
+    Skin           = 0,
+    Face           = 1,
+    FacialHair     = 2,
+    Hair           = 3,
+    Underwear      = 4,
+    CustomDisplay1 = 5,
+    CustomDisplay2 = 6,
+    CustomDisplay3 = 7,
+
+    Count
 };
 
 enum CharSectionFlags
@@ -529,7 +556,9 @@ enum CharSectionType
     SECTION_TYPE_CUSTOM_DISPLAY_2_LOW_RES = 12,
     SECTION_TYPE_CUSTOM_DISPLAY_2 = 13,
     SECTION_TYPE_CUSTOM_DISPLAY_3_LOW_RES = 14,
-    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15
+    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15,
+
+    SECTION_TYPE_MAX
 };
 
 enum Curves
@@ -567,6 +596,7 @@ enum Difficulty : uint8
     DIFFICULTY_EVENT_SCENARIO_6     = 30,
     DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
     DIFFICULTY_TIMEWALKING_RAID     = 33,
+    DIFFICULTY_PVP                  = 34,
 
     MAX_DIFFICULTY
 };
@@ -604,6 +634,7 @@ enum SpawnMask
 
 enum FactionTemplateFlags
 {
+    FACTION_TEMPLATE_ENEMY_SPAR             = 0x00000020,   // guessed, sparring with enemies?
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
     FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
@@ -618,7 +649,7 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
-#define MAX_ITEM_PROTO_FLAGS 3
+#define MAX_ITEM_PROTO_FLAGS 4
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
@@ -696,10 +727,11 @@ enum ItemBonusType
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
     ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
-    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14,
+    ITEM_BONUS_ITEM_LEVEL_CAN_INCREASE      = 14,                 // Displays a + next to item level indicating it can warforge
     ITEM_BONUS_RANDOM_ENCHANTMENT           = 15,                 // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
     ITEM_BONUS_BONDING                      = 16,
-    ITEM_BONUS_RELIC_TYPE                   = 17
+    ITEM_BONUS_RELIC_TYPE                   = 17,
+    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL      = 18
 };
 
 enum ItemLimitCategoryMode
@@ -766,8 +798,11 @@ enum MapDifficultyFlags : uint8
 
 enum MountCapabilityFlags
 {
-    MOUNT_CAPABILITY_FLAG_CAN_PITCH     = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING
-    MOUNT_CAPABILITY_FLAG_CAN_SWIM      = 0x8,                    // client checks MOVEMENTFLAG_SWIMMING
+    MOUNT_CAPABILITY_FLAG_GROUND                = 0x1,
+    MOUNT_CAPABILITY_FLAG_FLYING                = 0x2,
+    MOUNT_CAPABILITY_FLAG_FLOAT                 = 0x4,
+    MOUNT_CAPABILITY_FLAG_UNDERWATER            = 0x8,
+    MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
 enum MountFlags
@@ -818,6 +853,8 @@ enum SpellCategoryFlags
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
+#define MAX_SPELL_AURA_INTERRUPT_FLAGS 2
+
 enum SpellItemEnchantmentFlags
 {
     ENCHANTMENT_CAN_SOULBOUND           = 0x01,
@@ -852,7 +889,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 243
+#define TaxiMaskSize 258
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -924,6 +961,8 @@ enum SummonPropFlags
 
 #define MAX_TALENT_TIERS 7
 #define MAX_TALENT_COLUMNS 3
+#define MAX_PVP_TALENT_TIERS 6
+#define MAX_PVP_TALENT_COLUMNS 3
 
 enum TaxiNodeFlags
 {
@@ -995,6 +1034,11 @@ enum CurrencyTypes
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
+};
+
+enum WorldMapTransformsFlags
+{
+    WORLD_MAP_TRANSFORMS_FLAG_DUNGEON   = 0x04
 };
 
 #endif

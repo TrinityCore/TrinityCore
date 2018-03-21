@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -373,7 +373,7 @@ void InstanceSaveManager::LoadResetTimes()
                     itr->second.second = resettime;
                 }
             }
-            while (result->NextRow());
+            while (result2->NextRow());
         }
 
         // schedule the reset times

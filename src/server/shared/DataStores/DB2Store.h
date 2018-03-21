@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define DB2STORE_H
 
 #include "Common.h"
+#include "Errors.h"
 #include "DBStorageIterator.h"
 #include <vector>
 
@@ -94,6 +95,7 @@ public:
 
     T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : _indexTable.AsT[id]; }
     T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
+    T const* operator[](uint32 id) const { return LookupEntry(id); }
 
     uint32 GetNumRows() const { return _indexTableSize; }
     bool Load(std::string const& path, uint32 locale) override

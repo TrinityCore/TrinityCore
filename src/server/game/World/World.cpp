@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
+#include "AuthenticationPackets.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetRpcErrorCodes.h"
@@ -69,6 +70,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
+#include "PlayerDump.h"
 #include "PoolMgr.h"
 #include "Realm.h"
 #include "ScenarioMgr.h"
@@ -85,6 +87,7 @@
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "WardenCheckMgr.h"
+#include "WaypointManager.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WorldSession.h"
@@ -745,7 +748,6 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_GROUP_XP_DISTANCE] = sConfigMgr->GetFloatDefault("MaxGroupXPDistance", 74.0f);
     m_float_configs[CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE] = sConfigMgr->GetFloatDefault("MaxRecruitAFriendBonusDistance", 100.0f);
 
-    /// @todo Add MonsterSight (with meaning) in worldserver.conf or put them as define
     m_float_configs[CONFIG_SIGHT_MONSTER] = sConfigMgr->GetFloatDefault("MonsterSight", 50.0f);
 
     if (reload)
@@ -821,19 +823,10 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = m_int_configs[CONFIG_CHARACTERS_PER_REALM];
     }
 
-    m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] = sConfigMgr->GetIntDefault("DeathKnightsPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] > 12)
-    {
-        TC_LOG_ERROR("server.loading", "DeathKnightsPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM]);
-        m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] = 1;
-    }
-
-    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForDeathKnight", 55);
-
     m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = sConfigMgr->GetIntDefault("DemonHuntersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 12)
+    if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 16)
     {
-        TC_LOG_ERROR("server.loading", "DemonHuntersPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]);
+        TC_LOG_ERROR("server.loading", "DemonHuntersPerRealm (%i) must be in range 0..16. Set to 1.", m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]);
         m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = 1;
     }
 
@@ -906,7 +899,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_START_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartPlayerMoney", 0);
     if (int32(m_int_configs[CONFIG_START_PLAYER_MONEY]) < 0)
     {
-        TC_LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0.." UI64FMTD ". Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], uint64(MAX_MONEY_AMOUNT), 0);
+        TC_LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0.." UI64FMTD ". Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, 0);
         m_int_configs[CONFIG_START_PLAYER_MONEY] = 0;
     }
     else if (m_int_configs[CONFIG_START_PLAYER_MONEY] > 0x7FFFFFFF-1) // TODO: (See MAX_MONEY_AMOUNT)
@@ -1542,6 +1535,10 @@ void World::SetInitialWorldSettings()
         exit(1);
     }
 
+    ///- Initialize PlayerDump
+    TC_LOG_INFO("server.loading", "Initialize PlayerDump...");
+    PlayerDump::InitializeColumnDefinition();
+
     ///- Initialize pool manager
     sPoolMgr->Initialize();
 
@@ -1578,19 +1575,15 @@ void World::SetInitialWorldSettings()
     //Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
 
-    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    std::vector<uint32> mapIds;
     for (MapEntry const* mapEntry : sMapStore)
-    {
-        mapData.insert(std::unordered_map<uint32, std::vector<uint32>>::value_type(mapEntry->ID, std::vector<uint32>()));
-        if (mapEntry->ParentMapID != -1)
-            mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
-    }
+        mapIds.push_back(mapEntry->ID);
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapData);
+        vmmgr2->InitializeThreadUnsafe(mapIds);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
-    mmmgr->InitializeThreadUnsafe(mapData);
+    mmmgr->InitializeThreadUnsafe(mapIds);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
@@ -1603,6 +1596,12 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
     sSpellMgr->LoadSpellInfoCustomAttributes();
+
+    TC_LOG_INFO("server.loading", "Loading SpellInfo diminishing infos...");
+    sSpellMgr->LoadSpellInfoDiminishing();
+
+    TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
+    sSpellMgr->LoadSpellInfoImmunities();
 
     TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
     sSpellMgr->LoadPetFamilySpellsStore();
@@ -1665,11 +1664,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Spell Learn Skills...");
     sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
 
+    TC_LOG_INFO("server.loading", "Loading SpellInfo SpellSpecific and AuraState...");
+    sSpellMgr->LoadSpellInfoSpellSpecificAndAuraState();         // must be after LoadSpellRanks
+
     TC_LOG_INFO("server.loading", "Loading Spell Learn Spells...");
     sSpellMgr->LoadSpellLearnSpells();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Proc Event conditions...");
-    sSpellMgr->LoadSpellProcEvents();
 
     TC_LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
     sSpellMgr->LoadSpellProcs();
@@ -1712,6 +1711,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
+
+    TC_LOG_INFO("server.loading", "Loading Creature template scaling...");
+    sObjectMgr->LoadCreatureScalingData();
 
     TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
@@ -1851,6 +1853,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading Player Choices...");
+    sObjectMgr->LoadPlayerChoices();
+
+    TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
+    sObjectMgr->LoadPlayerChoicesLocale();
+
     CharacterDatabaseCleaner::CleanDatabase();
 
     TC_LOG_INFO("server.loading", "Loading the max pet number...");
@@ -1937,17 +1945,20 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
 
+    TC_LOG_INFO("server.loading", "Loading Trainers...");
+    sObjectMgr->LoadTrainers();                                 // must be after load CreatureTemplate
+
+    TC_LOG_INFO("server.loading", "Loading Creature default trainers...");
+    sObjectMgr->LoadCreatureDefaultTrainers();
+
     TC_LOG_INFO("server.loading", "Loading Gossip menu...");
     sObjectMgr->LoadGossipMenu();
 
     TC_LOG_INFO("server.loading", "Loading Gossip menu options...");
-    sObjectMgr->LoadGossipMenuItems();
+    sObjectMgr->LoadGossipMenuItems();                          // must be after LoadTrainers
 
     TC_LOG_INFO("server.loading", "Loading Vendors...");
-    sObjectMgr->LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
-
-    TC_LOG_INFO("server.loading", "Loading Trainers...");
-    sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
+    sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
 
     TC_LOG_INFO("server.loading", "Loading Waypoints...");
     sWaypointMgr->Load();
@@ -2054,7 +2065,6 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
                             realm.Id.Realm, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
 
-    m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS_PENDING].SetInterval(250);
     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
@@ -2112,6 +2122,7 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Initializing Opcodes...");
     opcodeTable.Initialize();
+    WorldPackets::Auth::ConnectTo::InitializeEncryption();
 
     TC_LOG_INFO("server.loading", "Starting Arena Season...");
     sGameEventMgr->StartArenaSeason();
@@ -2371,13 +2382,6 @@ void World::Update(uint32 diff)
     ResetTimeDiffRecord();
     UpdateSessions(diff);
     RecordTimeDiff("UpdateSessions");
-
-    /// <li> Handle weather updates when the timer has passed
-    if (m_timers[WUPDATE_WEATHERS].Passed())
-    {
-        m_timers[WUPDATE_WEATHERS].Reset();
-        WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
-    }
 
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())

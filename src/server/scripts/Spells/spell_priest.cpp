@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,6 +76,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
@@ -100,7 +101,7 @@ class PowerCheck
         bool operator()(WorldObject* obj) const
         {
             if (Unit* target = obj->ToUnit())
-                return target->getPowerType() != _power;
+                return target->GetPowerType() != _power;
 
             return true;
         }
@@ -141,7 +142,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_PRIEST_ORACULAR_HEAL });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
@@ -153,7 +154,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
                     return;
 
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), 10);
-                caster->CastCustomSpell(SPELL_PRIEST_ORACULAR_HEAL, SPELLVALUE_BASE_POINT0, amount, caster, true);
+                caster->CastCustomSpell(SPELL_PRIEST_ORACULAR_HEAL, SPELLVALUE_BASE_POINT0, amount, caster, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -466,7 +467,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
 
                 absorb = std::min(absorb, eventInfo.GetProcTarget()->getLevel() * 125);
 
-                GetTarget()->CastCustomSpell(SPELL_PRIEST_DIVINE_AEGIS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_PRIEST_DIVINE_AEGIS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1209,6 +1210,35 @@ class spell_pri_shadowform : public SpellScriptLoader
         }
 };
 
+// 20711 - Spirit of Redemption
+class spell_priest_spirit_of_redemption : public AuraScript
+{
+    PrepareAuraScript(spell_priest_spirit_of_redemption);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
+    }
+
+    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    {
+        Unit* target = GetTarget();
+        if (dmgInfo.GetDamage() >= target->GetHealth())
+        {
+            target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            target->SetFullHealth();
+            return;
+        }
+
+        PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_priest_spirit_of_redemption::HandleAbsorb, EFFECT_0);
+    }
+};
+
 // 28809 - Greater Heal
 class spell_pri_t3_4p_bonus : public SpellScriptLoader
 {
@@ -1224,10 +1254,10 @@ class spell_pri_t3_4p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_PRIEST_ARMOR_OF_FAITH });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_ARMOR_OF_FAITH, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_ARMOR_OF_FAITH, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1319,7 +1349,7 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PRIEST_BLESSED_HEALING, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_PRIEST_BLESSED_HEALING, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_PRIEST_BLESSED_HEALING, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1577,6 +1607,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_shadowform();
+    RegisterAuraScript(spell_priest_spirit_of_redemption);
     new spell_pri_t3_4p_bonus();
     new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();

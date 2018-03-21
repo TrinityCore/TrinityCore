@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 // This is where scripts' loading functions should be declared:
 // world
 void AddSC_areatrigger_scripts();
+void AddSC_conversation_scripts();
 void AddSC_emerald_dragons();
 void AddSC_generic_creature();
 void AddSC_go_scripts();
@@ -40,6 +41,7 @@ void AddSC_duel_reset();
 void AddWorldScripts()
 {
     AddSC_areatrigger_scripts();
+    AddSC_conversation_scripts();
     AddSC_emerald_dragons();
     AddSC_generic_creature();
     AddSC_go_scripts();

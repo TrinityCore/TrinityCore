@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,24 +45,12 @@ class DuelResetScript : public PlayerScript
             if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
             {
                 player1->SaveHealthBeforeDuel();
-                player1->SetHealth(player1->GetMaxHealth());
+                player1->SaveManaBeforeDuel();
+                player1->ResetAllPowers();
 
                 player2->SaveHealthBeforeDuel();
-                player2->SetHealth(player2->GetMaxHealth());
-
-                // check if player1 class uses mana
-                if (player1->getPowerType() == POWER_MANA || player1->getClass() == CLASS_DRUID)
-                {
-                    player1->SaveManaBeforeDuel();
-                    player1->SetPower(POWER_MANA, player1->GetMaxPower(POWER_MANA));
-                }
-
-                // check if player2 class uses mana
-                if (player2->getPowerType() == POWER_MANA || player2->getClass() == CLASS_DRUID)
-                {
-                    player2->SaveManaBeforeDuel();
-                    player2->SetPower(POWER_MANA, player2->GetMaxPower(POWER_MANA));
-                }
+                player2->SaveManaBeforeDuel();
+                player2->ResetAllPowers();
             }
         }
 
@@ -89,11 +77,11 @@ class DuelResetScript : public PlayerScript
                     loser->RestoreHealthAfterDuel();
 
                     // check if player1 class uses mana
-                    if (winner->getPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
+                    if (winner->GetPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
                         winner->RestoreManaAfterDuel();
 
                     // check if player2 class uses mana
-                    if (loser->getPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
+                    if (loser->GetPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
                         loser->RestoreManaAfterDuel();
                 }
             }
@@ -139,4 +127,3 @@ void AddSC_duel_reset()
 {
     new DuelResetScript();
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -226,7 +226,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             SetSheath(SHEATH_STATE_MELEE);
             SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet abandon, cancel)
-            setPowerType(POWER_FOCUS);
             break;
         default:
             if (!IsPetGhoul())
@@ -257,7 +256,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     SetCanModifyStats(true);
 
     if (getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
-        SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+        SetFullPower(POWER_MANA);
     else
     {
         uint32 savedhealth = fields[10].GetUInt32();
@@ -266,8 +265,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             setDeathState(JUST_DIED);
         else
         {
-            SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
-            SetPower(POWER_MANA, savedmana > uint32(GetMaxPower(POWER_MANA)) ? GetMaxPower(POWER_MANA) : savedmana);
+            SetHealth(savedhealth);
+            SetPower(POWER_MANA, savedmana);
         }
     }
 
@@ -599,7 +598,7 @@ void Pet::Update(uint32 diff)
                     m_focusRegenTimer -= diff;
                 else
                 {
-                    switch (getPowerType())
+                    switch (GetPowerType())
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
@@ -661,12 +660,9 @@ void Creature::Regenerate(Powers power)
     }
 
     // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if (Powers((*i)->GetMiscValue()) == power)
-            AddPct(addvalue, (*i)->GetAmount());
+    addvalue *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power);
 
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
 
     ModifyPower(power, int32(addvalue));
 }
@@ -780,7 +776,6 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
     if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, cinfo->Entry))
         return false;
 
-    setPowerType(POWER_FOCUS);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
     SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(getLevel()+1)*PET_XP_FACTOR));
@@ -860,13 +855,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
-    //health, mana, armor and resistance
+    // Health, Mana or Power, Armor
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
         SetCreateHealth(pInfo->health);
-        if (petType != HUNTER_PET) //hunter pet use focus
-            SetCreateMana(pInfo->mana);
+        SetCreateMana(pInfo->mana);
 
         if (pInfo->armor > 0)
             SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
@@ -887,6 +881,17 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetCreateStat(STAT_INTELLECT, 28);
     }
 
+    // Power
+    if (petType == HUNTER_PET) // Hunter pets have focus
+        SetPowerType(POWER_FOCUS);
+    else if (IsPetGhoul() || IsPetAbomination()) // DK pets have energy
+        SetPowerType(POWER_ENERGY);
+    else if (IsPetImp() || IsPetFelhunter() || IsPetVoidwalker() || IsPetSuccubus() || IsPetDoomguard() || IsPetFelguard()) // Warlock pets have energy (since 5.x)
+        SetPowerType(POWER_ENERGY);
+    else 
+        SetPowerType(POWER_MANA);
+
+    // Damage
     SetBonusDamage(0);
     switch (petType)
     {
@@ -1036,7 +1041,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     UpdateAllStats();
 
     SetFullHealth();
-    SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+    SetFullPower(POWER_MANA);
     return true;
 }
 

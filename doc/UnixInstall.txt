@@ -1,20 +1,20 @@
 = TrinityCore -- Linux installation =
-Copyright (C) 2008-2017 TrinityCore (http://www.trinitycore.org/)
+Copyright (C) 2008-2018 TrinityCore (https://www.trinitycore.org/)
 
 =========================================================
 WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
 FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
 =========================================================
 
-CHECK http://www.trinitycore.info/ FOR FURTHER HELP
+CHECK https://www.trinitycore.info/ FOR FURTHER HELP
 
 These are instructions for installation in a Linux environment, if you are
-using Windows refer to http://www.trinitycore.info/
+using Windows refer to https://www.trinitycore.info/
 
 Installing TrinityCore is fairly simple on a Linux machine, assuming you 
 have all required applications
 
-http://collab.kpsn.org/display/tc/Requirements
+https://www.trinitycore.info/display/tc/Requirements
 
 Most of these are included on common Linux distros, others you may have 
 to install by your self. Please check your distro's repos.

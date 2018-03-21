@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -237,9 +237,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                     Talk(SAY_NOVA);
 
-                    if (SpellInfo const* nova = sSpellMgr->GetSpellInfo(SPELL_BURNING_NOVA))
-                        if (Aura* aura = Aura::TryRefreshStackOrCreate(nova, ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, me->GetMapId(), nova->Id, me->GetMap()->GenerateLowGuid<HighGuid::Cast>()), MAX_EFFECT_MASK, me, me))
-                            aura->ApplyForTargets();
+                    me->AddAura(SPELL_BURNING_NOVA, me);
 
                     if (IsHeroic())
                         DoTeleportAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -375,4 +373,3 @@ void AddSC_boss_kelidan_the_breaker()
     new boss_kelidan_the_breaker();
     new npc_shadowmoon_channeler();
 }
-

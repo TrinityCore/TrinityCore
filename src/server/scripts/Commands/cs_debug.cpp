@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,6 +71,7 @@ public:
             { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
+            { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE, false, &HandleDebugSendPlayerChoiceCommand,    "" },
         };
         static std::vector<ChatCommand> debugCommandTable =
         {
@@ -126,7 +127,7 @@ public:
             return false;
         }
 
-        uint32 id = atoi((char*)args);
+        uint32 id = atoul(args);
 
         CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(id);
         if (!cineSeq)
@@ -164,7 +165,7 @@ public:
             return false;
         }
 
-        uint32 id = atoi((char*)args);
+        uint32 id = atoul(args);
 
         if (!sMovieStore.LookupEntry(id))
         {
@@ -189,7 +190,7 @@ public:
             return false;
         }
 
-        uint32 soundId = atoi((char*)args);
+        uint32 soundId = atoul(args);
 
         if (!sSoundKitStore.LookupEntry(soundId))
         {
@@ -242,6 +243,18 @@ public:
         castFailed.FailedArg2 = failArg2;
         handler->GetSession()->SendPacket(castFailed.Write());
 
+        return true;
+    }
+
+    static bool HandleDebugSendPlayerChoiceCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        int32 choiceId = atoi(args);
+        Player* player = handler->GetSession()->GetPlayer();
+
+        player->SendPlayerChoice(player->GetGUID(), choiceId);
         return true;
     }
 
@@ -386,7 +399,7 @@ public:
                 GameObject* obj = handler->GetNearbyGameObject();
                 if (!obj)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, UI64LIT(0));
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, "0");
                     handler->SetSentErrorMessage(true);
                     ifs.close();
                     return false;
@@ -434,8 +447,8 @@ public:
         if (!w || !s)
             return false;
 
-        uint32 world = (uint32)atoi(w);
-        uint32 state = (uint32)atoi(s);
+        uint32 world = atoul(w);
+        uint32 state = atoul(s);
         handler->GetSession()->GetPlayer()->SendUpdateWorldState(world, state);
         return true;
     }
@@ -501,8 +514,8 @@ public:
         if (!target)
             return false;
 
-        handler->PSendSysMessage("Loot recipient for creature %s (%s, DB GUID " UI64FMTD ") is %s",
-            target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetSpawnId(),
+        handler->PSendSysMessage("Loot recipient for creature %s (%s, DB GUID %s) is %s",
+            target->GetName().c_str(), target->GetGUID().ToString().c_str(), std::to_string(target->GetSpawnId()).c_str(),
             target->hasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
         return true;
     }
@@ -832,7 +845,7 @@ public:
             if (Unit* unit = ref->GetSource()->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (%s, SpawnId: %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), unit->GetTypeId() == TYPEID_UNIT ? unit->ToCreature()->GetSpawnId() : 0, ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (%s, SpawnId: %s)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), unit->GetTypeId() == TYPEID_UNIT ? std::to_string(unit->ToCreature()->GetSpawnId()).c_str() : "0", ref->getThreat());
             }
             ref = ref->next();
         }
@@ -853,7 +866,7 @@ public:
         if (!i)
             return false;
 
-        uint32 id = (uint32)atoi(i);
+        uint32 id = atoul(i);
         //target->SetVehicleId(id);
         handler->PSendSysMessage("Vehicle id set to %u", id);
         return true;
@@ -874,7 +887,7 @@ public:
 
         char* j = strtok(NULL, " ");
 
-        uint32 entry = (uint32)atoi(i);
+        uint32 entry = atoul(i);
         int8 seatId = j ? (int8)atoi(j) : -1;
 
         if (!entry)
@@ -905,7 +918,7 @@ public:
         if (!e)
             return false;
 
-        uint32 entry = (uint32)atoi(e);
+        uint32 entry = atoul(e);
 
         float x, y, z, o = handler->GetSession()->GetPlayer()->GetOrientation();
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
@@ -913,7 +926,7 @@ public:
         if (!i)
             return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
 
-        uint32 id = (uint32)atoi(i);
+        uint32 id = atoul(i);
 
         CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
 
@@ -925,19 +938,16 @@ public:
         if (!ve)
             return false;
 
-        Creature* v = new Creature();
-
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
+        Position pos = { x, y, z, o };
 
-        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
-        {
-            delete v;
+        Creature* v = Creature::CreateCreature(entry, map, pos, id);
+        if (!v)
             return false;
-        }
 
         v->CopyPhaseFrom(handler->GetSession()->GetPlayer());
 
-        map->AddToMap(v->ToCreature());
+        map->AddToMap(v);
 
         return true;
     }
@@ -995,7 +1005,7 @@ public:
             return false;
 
         ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
-        uint32 index = (uint32)atoi(f);
+        uint32 index = atoul(f);
 
         Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
@@ -1025,8 +1035,8 @@ public:
             return false;
 
         ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
-        uint32 index = (uint32)atoi(f);
-        uint32 value = (uint32)atoi(g);
+        uint32 index = atoul(f);
+        uint32 value = atoul(g);
 
         Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
@@ -1134,7 +1144,7 @@ public:
 
         ObjectGuid guid = target->GetGUID();
 
-        uint32 field = (uint32)atoi(x);
+        uint32 field = atoul(x);
         if (field >= target->GetValuesCount())
         {
             handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, guid.ToString().c_str(), target->GetValuesCount());
@@ -1147,7 +1157,7 @@ public:
 
         if (isInt32)
         {
-            uint32 value = (uint32)atoi(y);
+            uint32 value = atoul(y);
             target->SetUInt32Value(field, value);
             handler->PSendSysMessage(LANG_SET_UINT_FIELD, guid.ToString().c_str(), field, value);
         }
@@ -1182,7 +1192,7 @@ public:
 
         ObjectGuid guid = target->GetGUID();
 
-        uint32 opcode = (uint32)atoi(x);
+        uint32 opcode = atoul(x);
         if (opcode >= target->GetValuesCount())
         {
             handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.ToString().c_str(), target->GetValuesCount());
@@ -1218,7 +1228,7 @@ public:
         if (!x || !y)
             return false;
 
-        uint32 opcode = (uint32)atoi(x);
+        uint32 opcode = atoul(x);
         int value = atoi(y);
 
         if (opcode >= handler->GetSession()->GetPlayer()->GetValuesCount())
@@ -1227,10 +1237,10 @@ public:
             return false;
         }
 
-        int currentValue = (int)handler->GetSession()->GetPlayer()->GetUInt32Value(opcode);
+        uint32 currentValue = handler->GetSession()->GetPlayer()->GetUInt32Value(opcode);
 
         currentValue += value;
-        handler->GetSession()->GetPlayer()->SetUInt32Value(opcode, (uint32)currentValue);
+        handler->GetSession()->GetPlayer()->SetUInt32Value(opcode, currentValue);
 
         handler->PSendSysMessage(LANG_CHANGE_32BIT_FIELD, opcode, currentValue);
 
@@ -1305,8 +1315,8 @@ public:
         if (!x || !y)
             return false;
 
-        uint32 opcode = (uint32)atoi(x);
-        uint32 val = (uint32)atoi(y);
+        uint32 opcode = atoul(x);
+        uint32 val = atoul(y);
         if (val > 32)                                         //uint32 = 32 bits
             return false;
 
@@ -1352,7 +1362,7 @@ public:
             else
             {
                 WorldPackets::Movement::MoveUpdate moveUpdate;
-                moveUpdate.movementInfo = &target->m_movementInfo;
+                moveUpdate.Status = &target->m_movementInfo;
                 target->SendMessageToSet(moveUpdate.Write(), true);
             }
 
@@ -1457,13 +1467,10 @@ public:
             return false;
         }
 
-        if (target->GetTypeId() == TYPEID_UNIT)
-        {
-            if (target->ToCreature()->GetDBPhase() > 0)
-                handler->PSendSysMessage("Target creature's PhaseId in DB: %d", target->ToCreature()->GetDBPhase());
-            else if (target->ToCreature()->GetDBPhase() < 0)
-                handler->PSendSysMessage("Target creature's PhaseGroup in DB: %d", abs(target->ToCreature()->GetDBPhase()));
-        }
+        if (target->GetDBPhase() > 0)
+            handler->PSendSysMessage("Target creature's PhaseId in DB: %d", target->GetDBPhase());
+        else if (target->GetDBPhase() < 0)
+            handler->PSendSysMessage("Target creature's PhaseGroup in DB: %d", abs(target->GetDBPhase()));
 
         std::stringstream phases;
 
@@ -1519,7 +1526,7 @@ public:
                 if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
                     nearestLoc = bf->GetClosestGraveYard(player);
                 else
-                    nearestLoc = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+                    nearestLoc = sObjectMgr->GetClosestGraveYard(*player, player->GetTeam(), player);
             }
         }
         else

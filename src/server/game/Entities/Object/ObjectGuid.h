@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -246,9 +246,6 @@ class TC_GAME_API ObjectGuid
         }
 
         LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
-
-        uint8& operator[](uint32 index);
-        uint8 const& operator[](uint32 index) const;
 
         bool IsEmpty()             const { return _low == 0 && _high == 0; }
         bool IsCreature()          const { return GetHigh() == HighGuid::Creature; }

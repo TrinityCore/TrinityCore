@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,11 +59,11 @@ namespace WorldPackets
             ByteBuffer Data;
         };
 
-        class HotfixList final : public ServerPacket
+        class AvailableHotfixes final : public ServerPacket
         {
         public:
-            HotfixList(int32 hotfixCacheVersion, std::map<uint64, int32> const& hotfixes)
-                : ServerPacket(SMSG_HOTFIX_LIST), HotfixCacheVersion(hotfixCacheVersion), Hotfixes(hotfixes) { }
+            AvailableHotfixes(int32 hotfixCacheVersion, std::map<uint64, int32> const& hotfixes)
+                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), HotfixCacheVersion(hotfixCacheVersion), Hotfixes(hotfixes) { }
 
             WorldPacket const* Write() override;
 
@@ -71,17 +71,17 @@ namespace WorldPackets
             std::map<uint64, int32> const& Hotfixes;
         };
 
-        class HotfixQuery final : public ClientPacket
+        class HotfixRequest final : public ClientPacket
         {
         public:
-            HotfixQuery(WorldPacket&& packet) : ClientPacket(CMSG_HOTFIX_QUERY, std::move(packet)) { }
+            HotfixRequest(WorldPacket&& packet) : ClientPacket(CMSG_HOTFIX_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
             std::vector<uint64> Hotfixes;
         };
 
-        class HotfixQueryResponse final : public ServerPacket
+        class HotfixResponse final : public ServerPacket
         {
         public:
             struct HotfixData
@@ -91,7 +91,7 @@ namespace WorldPackets
                 Optional<ByteBuffer> Data;
             };
 
-            HotfixQueryResponse() : ServerPacket(SMSG_HOTFIX_QUERY_RESPONSE) { }
+            HotfixResponse() : ServerPacket(SMSG_HOTFIX_RESPONSE) { }
 
             WorldPacket const* Write() override;
 

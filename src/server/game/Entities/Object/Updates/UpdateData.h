@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,7 +47,7 @@ enum OBJECT_UPDATE_FLAGS
     UPDATEFLAG_ROTATION              = 0x0080,
     UPDATEFLAG_ANIMKITS              = 0x0100,
     UPDATEFLAG_AREATRIGGER           = 0x0200,
-    //UPDATEFLAG_GAMEOBJECT            = 0x0400,
+    UPDATEFLAG_GAMEOBJECT            = 0x0400,
     //UPDATEFLAG_REPLACE_ACTIVE        = 0x0800,
     //UPDATEFLAG_NO_BIRTH_ANIM         = 0x1000,
     //UPDATEFLAG_ENABLE_PORTALS        = 0x2000,
@@ -86,4 +86,3 @@ class UpdateData
         UpdateData& operator=(UpdateData const& right) = delete;
 };
 #endif
-

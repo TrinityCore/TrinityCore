@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -187,7 +187,7 @@ ObjectData const gameObjectData[] =
 MinionData const minionData[] =
 {
     { NPC_EREKEM_GUARD, DATA_EREKEM },
-    { 0,                0,          } // END
+    { 0,                0           } // END
 };
 
 class instance_violet_hold : public InstanceMapScript

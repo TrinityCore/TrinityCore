@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -384,111 +384,31 @@ class go_wg_vehicle_teleporter : public GameObjectScript
         }
 };
 
-class npc_wg_quest_giver : public CreatureScript
+class npc_wg_give_promotion_credit : public CreatureScript
 {
     public:
-        npc_wg_quest_giver() : CreatureScript("npc_wg_quest_giver") { }
+        npc_wg_give_promotion_credit() : CreatureScript("npc_wg_give_promotion_credit") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        struct npc_wg_give_promotion_creditAI : public ScriptedAI
         {
-            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-            if (!wintergrasp)
-                return true;
+            npc_wg_give_promotion_creditAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (creature->IsVendor())
+            void JustDied(Unit* killer) override
             {
-                AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_VENDOR);
-                player->PlayerTalkClass->GetGossipMenu().AddGossipMenuItemData(0, 0, 0);
+                if (killer->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG));
+                if (!wintergrasp)
+                    return;
+
+                wintergrasp->HandlePromotion(killer->ToPlayer(), me);
             }
+        };
 
-            /// @todo: move this to conditions or something else
-
-            // Player::PrepareQuestMenu(guid)
-            if (creature->IsQuestGiver())
-            {
-                QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-                QuestRelationBounds objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(creature->GetEntry());
-
-                QuestMenu& qm = player->PlayerTalkClass->GetQuestMenu();
-                qm.ClearMenu();
-
-                for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i)
-                {
-                    uint32 questId = i->second;
-                    QuestStatus status = player->GetQuestStatus(questId);
-                    if (status == QUEST_STATUS_COMPLETE)
-                        qm.AddMenuItem(questId, 4);
-                    else if (status == QUEST_STATUS_INCOMPLETE)
-                        qm.AddMenuItem(questId, 4);
-                    //else if (status == QUEST_STATUS_AVAILABLE)
-                    //    qm.AddMenuItem(quest_id, 2);
-                }
-
-                for (QuestRelations::const_iterator i = objectQR.first; i != objectQR.second; ++i)
-                {
-                    uint32 questId = i->second;
-                    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
-                    if (!quest)
-                        continue;
-
-                    if (!player->CanTakeQuest(quest, false))
-                        continue;
-
-                    switch (questId)
-                    {
-                        // Horde attacker
-                        case QUEST_BONES_AND_ARROWS_HORDE_ATT:
-                        case QUEST_JINXING_THE_WALLS_HORDE_ATT:
-                        case QUEST_SLAY_THEM_ALL_HORDE_ATT:
-                        case QUEST_FUELING_THE_DEMOLISHERS_HORDE_ATT:
-                        case QUEST_HEALING_WITH_ROSES_HORDE_ATT:
-                        case QUEST_DEFEND_THE_SIEGE_HORDE_ATT:
-                            if (wintergrasp->GetAttackerTeam() != TEAM_HORDE)
-                                continue;
-                            break;
-                        // Horde defender
-                        case QUEST_BONES_AND_ARROWS_HORDE_DEF:
-                        case QUEST_WARDING_THE_WALLS_HORDE_DEF:
-                        case QUEST_SLAY_THEM_ALL_HORDE_DEF:
-                        case QUEST_FUELING_THE_DEMOLISHERS_HORDE_DEF:
-                        case QUEST_HEALING_WITH_ROSES_HORDE_DEF:
-                        case QUEST_TOPPLING_THE_TOWERS_HORDE_DEF:
-                        case QUEST_STOP_THE_SIEGE_HORDE_DEF:
-                            if (wintergrasp->GetDefenderTeam() != TEAM_HORDE)
-                                continue;
-                            break;
-                        // Alliance attacker
-                        case QUEST_BONES_AND_ARROWS_ALLIANCE_ATT:
-                        case QUEST_WARDING_THE_WARRIORS_ALLIANCE_ATT:
-                        case QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_ATT:
-                        case QUEST_DEFEND_THE_SIEGE_ALLIANCE_ATT:
-                        case QUEST_A_RARE_HERB_ALLIANCE_ATT:
-                            if (wintergrasp->GetAttackerTeam() != TEAM_ALLIANCE)
-                                continue;
-                            break;
-                        // Alliance defender
-                        case QUEST_BONES_AND_ARROWS_ALLIANCE_DEF:
-                        case QUEST_WARDING_THE_WARRIORS_ALLIANCE_DEF:
-                        case QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_DEF:
-                        case QUEST_SHOUTHERN_SABOTAGE_ALLIANCE_DEF:
-                        case QUEST_STOP_THE_SIEGE_ALLIANCE_DEF:
-                        case QUEST_A_RARE_HERB_ALLIANCE_DEF:
-                            if (wintergrasp->GetDefenderTeam() != TEAM_ALLIANCE)
-                                continue;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (quest->IsAutoComplete())
-                        qm.AddMenuItem(questId, 4);
-                    else if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
-                        qm.AddMenuItem(questId, 2);
-                }
-            }
-
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_wg_give_promotion_creditAI(creature);
         }
 };
 
@@ -681,7 +601,7 @@ void AddSC_wintergrasp()
     new npc_wg_spirit_guide();
     new npc_wg_demolisher_engineer();
     new go_wg_vehicle_teleporter();
-    new npc_wg_quest_giver();
+    new npc_wg_give_promotion_credit();
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();

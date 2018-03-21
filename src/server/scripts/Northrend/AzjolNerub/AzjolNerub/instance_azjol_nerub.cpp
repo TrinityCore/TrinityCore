@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +45,8 @@ ObjectData const creatureData[] =
 
 ObjectData const gameobjectData[] =
 {
-    { GO_ANUBARAK_DOOR_3, DATA_ANUBARAK_WALL },
+    { GO_ANUBARAK_DOOR_1, DATA_ANUBARAK_WALL },
+    { GO_ANUBARAK_DOOR_3, DATA_ANUBARAK_WALL_2 },
     { 0,                  0                  } // END
 };
 
@@ -80,6 +81,17 @@ class instance_azjol_nerub : public InstanceMapScript
                     return;
                 if (Creature* gatewatcher = GetCreature(DATA_KRIKTHIR_THE_GATEWATCHER))
                     gatewatcher->AI()->DoAction(-ACTION_GATEWATCHER_GREET);
+            }
+
+            bool CheckRequiredBosses(uint32 bossId, Player const* player) const override
+            {
+                if (_SkipCheckRequiredBosses(player))
+                    return true;
+
+                if (bossId > DATA_KRIKTHIR_THE_GATEWATCHER && GetBossState(DATA_KRIKTHIR_THE_GATEWATCHER) != DONE)
+                    return false;
+
+                return true;
             }
         };
 

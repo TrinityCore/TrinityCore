@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -223,5 +223,6 @@ inline AI* GetNaxxramasAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, NaxxramasScriptName);
 }
+#define RegisterNaxxramasCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetNaxxramasAI)
 
 #endif

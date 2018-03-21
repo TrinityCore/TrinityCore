@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,6 +35,7 @@ namespace WorldPackets
     template<typename T, std::size_t N>
     class Array
     {
+    public:
         typedef boost::container::static_vector<T, N> storage_type;
 
         typedef std::integral_constant<std::size_t, N> max_capacity;
@@ -46,7 +47,6 @@ namespace WorldPackets
         typedef typename storage_type::iterator iterator;
         typedef typename storage_type::const_iterator const_iterator;
 
-    public:
         Array() { }
 
         iterator begin() { return _storage.begin(); }

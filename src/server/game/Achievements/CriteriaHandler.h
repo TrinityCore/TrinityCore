@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@ struct AchievementEntry;
 struct CriteriaEntry;
 struct CriteriaTreeEntry;
 struct ModifierTreeEntry;
+struct QuestObjective;
 struct ScenarioStepEntry;
 
 struct ModifierTreeNode
@@ -44,10 +45,11 @@ struct ModifierTreeNode
 
 enum CriteriaFlagsCu
 {
-    CRITERIA_FLAG_CU_PLAYER     = 0x1,
-    CRITERIA_FLAG_CU_ACCOUNT    = 0x2,
-    CRITERIA_FLAG_CU_GUILD      = 0x4,
-    CRITERIA_FLAG_CU_SCENARIO   = 0x8
+    CRITERIA_FLAG_CU_PLAYER             = 0x1,
+    CRITERIA_FLAG_CU_ACCOUNT            = 0x2,
+    CRITERIA_FLAG_CU_GUILD              = 0x4,
+    CRITERIA_FLAG_CU_SCENARIO           = 0x8,
+    CRITERIA_FLAG_CU_QUEST_OBJECTIVE    = 0x10
 };
 
 struct Criteria
@@ -66,6 +68,7 @@ struct CriteriaTree
     CriteriaTreeEntry const* Entry = nullptr;
     AchievementEntry const* Achievement = nullptr;
     ScenarioStepEntry const* ScenarioStep = nullptr;
+    struct QuestObjective const* QuestObjective = nullptr;
     struct Criteria const* Criteria = nullptr;
     std::vector<CriteriaTree const*> Children;
 };
@@ -331,6 +334,11 @@ public:
         return _scenarioCriteriasByType[type];
     }
 
+    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaTypes type) const
+    {
+        return _questObjectiveCriteriasByType[type];
+    }
+
     CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
     {
         auto itr = _criteriaTreeByCriteria.find(criteriaId);
@@ -395,6 +403,7 @@ private:
     CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
 
     CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
 };

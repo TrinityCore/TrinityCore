@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,6 +37,7 @@
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -46,7 +47,6 @@
 #include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 bool BattlegroundTemplate::IsArena() const
 {
@@ -169,7 +169,7 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
-    header->Ticket.Type = bg->isArena() ? arenaType : 1;
+    header->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     header->Ticket.Time = joinTime;
     header->QueueID = bg->GetQueueId();
     header->RangeMin = bg->GetMinLevel();
@@ -180,11 +180,11 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
     header->TournamentRules = false;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType)
+void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime)
 {
     battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
-    battlefieldStatus->Ticket.Type = arenaType;
+    battlefieldStatus->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     battlefieldStatus->Ticket.Time = joinTime;
 }
 
@@ -220,7 +220,7 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
 {
     battlefieldStatus->Ticket.RequesterGuid = pPlayer->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
-    battlefieldStatus->Ticket.Type = arenaType;
+    battlefieldStatus->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     battlefieldStatus->Ticket.Time = pPlayer->GetBattlegroundQueueJoinTime(BGQueueTypeId(bg->GetTypeID(), arenaType));
     battlefieldStatus->QueueID = bg->GetQueueId();
     battlefieldStatus->Reason = result;
@@ -296,7 +296,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvpDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PVPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId);
 
@@ -875,7 +875,6 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        BattlegroundSelectionWeightMap selectionWeights;
         std::vector<BattlegroundTypeId> ids;
         ids.reserve(16);
         std::vector<double> weights;

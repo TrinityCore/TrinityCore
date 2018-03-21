@@ -1160,12 +1160,12 @@ class TC_PROTO_API ConnectionService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleConnect(::bgs::protocol::connection::v1::ConnectRequest const* request, ::bgs::protocol::connection::v1::ConnectResponse* response);
-  virtual uint32 HandleBind(::bgs::protocol::connection::v1::BindRequest const* request, ::bgs::protocol::connection::v1::BindResponse* response);
-  virtual uint32 HandleEcho(::bgs::protocol::connection::v1::EchoRequest const* request, ::bgs::protocol::connection::v1::EchoResponse* response);
+  virtual uint32 HandleConnect(::bgs::protocol::connection::v1::ConnectRequest const* request, ::bgs::protocol::connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleBind(::bgs::protocol::connection::v1::BindRequest const* request, ::bgs::protocol::connection::v1::BindResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleEcho(::bgs::protocol::connection::v1::EchoRequest const* request, ::bgs::protocol::connection::v1::EchoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleForceDisconnect(::bgs::protocol::connection::v1::DisconnectNotification const* request);
   virtual uint32 HandleKeepAlive(::bgs::protocol::NoData const* request);
-  virtual uint32 HandleEncrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleEncrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleRequestDisconnect(::bgs::protocol::connection::v1::DisconnectRequest const* request);
 
  private:

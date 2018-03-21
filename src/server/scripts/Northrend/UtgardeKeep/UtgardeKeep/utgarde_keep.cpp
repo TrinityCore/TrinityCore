@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -219,11 +219,11 @@ class spell_uk_second_wind : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
-                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true);
+                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true, nullptr, aurEff);
             }
 
             void Register() override

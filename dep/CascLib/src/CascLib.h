@@ -108,6 +108,7 @@ typedef enum _CASC_STORAGE_INFO_CLASS
     CascStorageFeatures,
     CascStorageGameInfo,
     CascStorageGameBuild,
+    CascStorageInstalledLocales,
     CascStorageInfoClassMax
 
 } CASC_STORAGE_INFO_CLASS, *PCASC_STORAGE_INFO_CLASS;
@@ -126,7 +127,7 @@ typedef struct _CASC_FIND_DATA
     char * szPlainName;                         // Plain name of the found file
     BYTE   EncodingKey[MD5_HASH_SIZE];          // Encoding key
     DWORD  dwLocaleFlags;                       // Locale flags (WoW only)
-    DWORD  dwFileDataId;                        // File data ID (WoW only) 
+    DWORD  dwFileDataId;                        // File data ID (WoW only)
     DWORD  dwFileSize;                          // Size of the file
 
 } CASC_FIND_DATA, *PCASC_FIND_DATA;

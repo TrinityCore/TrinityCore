@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,7 +91,12 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+    private:
+        bool Create(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit);
+    public:
+        static GameObject* CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit = 0);
+        static GameObject* CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
+
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
@@ -114,9 +119,11 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
+        void SaveToDB(uint32 mapid, uint64 spawnMask);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
-        bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
+    private:
+        bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap);
+    public:
         void DeleteFromDB();
 
         void SetOwnerGUID(ObjectGuid owner)
@@ -221,6 +228,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting
 
+        GameObject* GetLinkedTrap();
+        void SetLinkedTrap(GameObject* linkedTrap) { m_linkedTrap = linkedTrap->GetGUID(); }
+
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
         bool ActivateToQuest(Player* target) const;
@@ -234,7 +244,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsInvisibleDueToDespawn() const override;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override;
+        uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         GameObject* LookupFishingHoleAround(float range);
 
@@ -286,6 +296,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint16 GetAIAnimKitId() const override { return _animKitId; }
         void SetAnimKitId(uint16 animKitId, bool oneshot);
 
+        uint32 GetWorldEffectID() const { return _worldEffectID; }
+        void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
+
         void AIM_Destroy();
         bool AIM_Initialize();
 
@@ -324,6 +337,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_lootRecipient;
         ObjectGuid m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+
+        ObjectGuid m_linkedTrap;
+
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
@@ -338,5 +354,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         GameObjectAI* m_AI;
         uint16 _animKitId;
+        uint32 _worldEffectID;
 };
 #endif

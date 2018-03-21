@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -151,19 +151,11 @@ void FollowerAI::JustDied(Unit* /*killer*/)
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
-            {
                 if (Player* member = groupRef->GetSource())
-                {
-                    if (member->GetQuestStatus(m_pQuestForFollow->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
-                        member->FailQuest(m_pQuestForFollow->GetQuestId());
-                }
-            }
+                    member->FailQuest(m_pQuestForFollow->GetQuestId());
         }
         else
-        {
-            if (player->GetQuestStatus(m_pQuestForFollow->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
-                player->FailQuest(m_pQuestForFollow->GetQuestId());
-        }
+            player->FailQuest(m_pQuestForFollow->GetQuestId());
     }
 }
 

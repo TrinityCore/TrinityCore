@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -110,6 +110,10 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_ACCOUNT_MUTE_INFO,
     LOGIN_DEL_ACCOUNT_MUTED,
 
+    LOGIN_SEL_BNET_AUTHENTICATION,
+    LOGIN_UPD_BNET_AUTHENTICATION,
+    LOGIN_SEL_BNET_EXISTING_AUTHENTICATION,
+    LOGIN_UPD_BNET_EXISTING_AUTHENTICATION,
     LOGIN_SEL_BNET_ACCOUNT_INFO,
     LOGIN_UPD_BNET_LAST_LOGIN_INFO,
     LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO,
@@ -128,6 +132,7 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT,
     LOGIN_UPD_BNET_GAME_ACCOUNT_LINK,
     LOGIN_SEL_BNET_MAX_ACCOUNT_INDEX,
+    LOGIN_SEL_BNET_GAME_ACCOUNT_LIST_SMALL,
     LOGIN_SEL_BNET_GAME_ACCOUNT_LIST,
 
     LOGIN_UPD_BNET_FAILED_LOGINS,

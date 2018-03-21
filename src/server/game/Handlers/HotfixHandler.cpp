@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,15 +54,15 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
     }
 }
 
-void WorldSession::SendHotfixList(int32 version)
+void WorldSession::SendAvailableHotfixes(int32 version)
 {
-    SendPacket(WorldPackets::Hotfix::HotfixList(version, sDB2Manager.GetHotfixData()).Write());
+    SendPacket(WorldPackets::Hotfix::AvailableHotfixes(version, sDB2Manager.GetHotfixData()).Write());
 }
 
-void WorldSession::HandleHotfixQuery(WorldPackets::Hotfix::HotfixQuery& hotfixQuery)
+void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery)
 {
     std::map<uint64, int32> const& hotfixes = sDB2Manager.GetHotfixData();
-    WorldPackets::Hotfix::HotfixQueryResponse hotfixQueryResponse;
+    WorldPackets::Hotfix::HotfixResponse hotfixQueryResponse;
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());
     for (uint64 hotfixId : hotfixQuery.Hotfixes)
     {
@@ -70,7 +70,7 @@ void WorldSession::HandleHotfixQuery(WorldPackets::Hotfix::HotfixQuery& hotfixQu
         {
             DB2StorageBase const* storage = sDB2Manager.GetStorage(PAIR64_HIPART(hotfixId));
 
-            WorldPackets::Hotfix::HotfixQueryResponse::HotfixData hotfixData;
+            WorldPackets::Hotfix::HotfixResponse::HotfixData hotfixData;
             hotfixData.ID = hotfixId;
             hotfixData.RecordID = *hotfix;
             if (storage->HasRecord(hotfixData.RecordID))

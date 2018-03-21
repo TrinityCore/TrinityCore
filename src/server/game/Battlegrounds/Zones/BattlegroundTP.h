@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,10 +42,12 @@ class BattlegroundTPScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
         {
-            stats.push_back(FlagCaptures);
-            stats.push_back(FlagReturns);
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.push_back(FlagCaptures);
+            playerData.Stats.push_back(FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint32 Species = 0;
             uint32 CreatureID = 0;
-            uint32 CollarID = 0; // what's this?
+            uint32 CollarID = 0;
             uint16 Breed = 0;
             uint16 Level = 0;
             uint16 Exp = 0;
@@ -56,7 +56,7 @@ namespace WorldPackets
         struct BattlePetSlot
         {
             BattlePet Pet;
-            uint32 CollarID = 0; // what's this?
+            uint32 CollarID = 0;
             uint8 Index = 0;
             bool Locked = true;
         };
@@ -70,8 +70,8 @@ namespace WorldPackets
 
             uint16 Trap = 0;
             bool HasJournalLock = true;
-            std::vector<BattlePetSlot> Slots;
-            std::vector<BattlePet> Pets;
+            std::vector<std::reference_wrapper<BattlePetSlot>> Slots;
+            std::vector<std::reference_wrapper<BattlePet>> Pets;
             int32 MaxPets = 1000;
         };
 
@@ -98,7 +98,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<BattlePet> Pets;
+            std::vector<std::reference_wrapper<BattlePet>> Pets;
             bool PetAdded = false;
         };
 

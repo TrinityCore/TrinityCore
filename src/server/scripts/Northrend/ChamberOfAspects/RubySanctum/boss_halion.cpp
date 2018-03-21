@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,7 +53,7 @@ enum Texts
     EMOTE_CORPOREALITY_TIT             = 3, // Your companions' efforts force %s further into the twilight realm!
     EMOTE_CORPOREALITY_TOT             = 4, // Your efforts force %s further out of the twilight realm!
 
-    EMOTE_WARN_LASER                   = 0, // The orbiting spheres pulse with dark energy!
+    EMOTE_WARN_LASER                   = 0  // The orbiting spheres pulse with dark energy!
 };
 
 enum Spells
@@ -143,7 +143,8 @@ enum Events
     EVENT_SHADOW_PULSARS_SHOOT  = 14,
     EVENT_TRIGGER_BERSERK       = 15,
     EVENT_TWILIGHT_MENDING      = 16,
-    EVENT_ACTIVATE_EMBERS       = 17
+    EVENT_ACTIVATE_EMBERS       = 17,
+    EVENT_EVADE_CHECK           = 18
 };
 
 enum Actions
@@ -176,7 +177,7 @@ enum Misc
     DATA_MATERIAL_DAMAGE_TAKEN   = 2,
     DATA_STACKS_DISPELLED        = 3,
     DATA_FIGHT_PHASE             = 4,
-    DATA_SPAWNED_FLAMES          = 5,
+    DATA_SPAWNED_FLAMES          = 5
 };
 
 enum OrbCarrierSeats
@@ -206,7 +207,8 @@ struct CorporealityEntry
     uint32 materialRealmSpell;
 };
 
-CorporealityEntry const _corporealityReference[MAX_CORPOREALITY_STATE] = {
+CorporealityEntry const _corporealityReference[MAX_CORPOREALITY_STATE] =
+{
     {74836, 74831},
     {74835, 74830},
     {74834, 74829},
@@ -406,7 +408,7 @@ class boss_twilight_halion : public CreatureScript
                 DoCast(me, SPELL_DUSK_SHROUD, true);
 
                 me->SetHealth(halion->GetHealth());
-                me->SetPhaseMask(0x20, true);
+                me->SetInPhase(174, false, true);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                 events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(12));
@@ -566,7 +568,7 @@ class npc_halion_controller : public CreatureScript
 
             void JustRespawned() override
             {
-                if (!_instance->GetGuidData(DATA_HALION).IsEmpty())
+                if (!_instance->GetGuidData(DATA_HALION).IsEmpty() || _instance->GetBossState(DATA_GENERAL_ZARITHRIAN) != DONE)
                     return;
 
                 Reset();
@@ -601,6 +603,7 @@ class npc_halion_controller : public CreatureScript
                 _materialDamageTaken = 0;
 
                 _events.ScheduleEvent(EVENT_TRIGGER_BERSERK, Minutes(8));
+                _events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(5));
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -749,10 +752,25 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_ACTIVATE_EMBERS:
                             _summons.DoZoneInCombat(NPC_LIVING_EMBER);
                             break;
+                        case EVENT_EVADE_CHECK:
+                            DoCheckEvade();
+                            _events.Repeat(Seconds(5));
+                            break;
                         default:
                             break;
                     }
                 }
+            }
+
+            void DoCheckEvade()
+            {
+                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                    if (Player* player = i->GetSource())
+                        if (player->IsAlive() && CheckBoundary(player) && !player->IsGameMaster())
+                            return;
+
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             }
 
             void SetData(uint32 id, uint32 value) override
@@ -1193,12 +1211,16 @@ class npc_combustion_consumption : public CreatureScript
                     case NPC_COMBUSTION:
                         _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
                         _damageSpell = SPELL_COMBUSTION_DAMAGE_AURA;
-                        creature->SetPhaseMask(IsHeroic() ? 0x21 : 0x01, true);
+                        creature->SetInPhase(DEFAULT_PHASE, false, true);
+                        if (IsHeroic())
+                            creature->SetInPhase(174, false, true);
                         break;
                     case NPC_CONSUMPTION:
                         _explosionSpell = SPELL_SOUL_CONSUMPTION_EXPLOSION;
                         _damageSpell = SPELL_CONSUMPTION_DAMAGE_AURA;
-                        creature->SetPhaseMask(IsHeroic() ? 0x21 : 0x20, true);
+                        creature->SetInPhase(174, false, true);
+                        if (IsHeroic())
+                            creature->SetInPhase(DEFAULT_PHASE, false, true);
                         break;
                     default: // Should never happen
                         _explosionSpell = 0;
@@ -1335,12 +1357,12 @@ class go_twilight_portal : public GameObjectScript
                 switch (gameobject->GetEntry())
                 {
                     case GO_HALION_PORTAL_EXIT:
-                        gameobject->SetPhaseMask(0x20, true);
+                        gameobject->SetInPhase(174, false, true);
                         _spellId = gameobject->GetGOInfo()->goober.spell;
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2:
-                        gameobject->SetPhaseMask(0x1, true);
+                        gameobject->SetInPhase(DEFAULT_PHASE, false, true);
                         /// Because WDB template has non-existent spell ID, not seen in sniffs either, meh
                         _spellId = SPELL_TWILIGHT_REALM;
                         break;
@@ -1763,6 +1785,11 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
         class spell_halion_twilight_phasing_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_halion_twilight_phasing_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                return ValidateSpellInfo({ SPELL_SUMMON_TWILIGHT_PORTAL });
+            }
 
             void Phase()
             {

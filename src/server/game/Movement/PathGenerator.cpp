@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,8 +43,8 @@ PathGenerator::PathGenerator(const Unit* owner) :
     if (DisableMgr::IsPathfindingEnabled(mapId))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
-        _navMesh = mmap->GetNavMesh(mapId, _sourceUnit->GetTerrainSwaps());
-        _navMeshQuery = mmap->GetNavMeshQuery(mapId, _sourceUnit->GetInstanceId(), _sourceUnit->GetTerrainSwaps());
+        _navMesh = mmap->GetNavMesh(mapId);
+        _navMeshQuery = mmap->GetNavMeshQuery(mapId, _sourceUnit->GetInstanceId());
     }
 
     CreateFilter();

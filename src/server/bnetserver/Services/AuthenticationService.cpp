@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,12 +22,12 @@ Battlenet::Services::Authentication::Authentication(Session* session) : Authenti
 {
 }
 
-uint32 Battlenet::Services::Authentication::HandleLogon(authentication::v1::LogonRequest const* request, NoData* /*respons*/)
+uint32 Battlenet::Services::Authentication::HandleLogon(authentication::v1::LogonRequest const* request, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
-    return _session->HandleLogon(request);
+    return _session->HandleLogon(request, continuation);
 }
 
-uint32 Battlenet::Services::Authentication::HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* /*respons*/)
+uint32 Battlenet::Services::Authentication::HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
-    return _session->HandleVerifyWebCredentials(request);
+    return _session->HandleVerifyWebCredentials(request, continuation);
 }
