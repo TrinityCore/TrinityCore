@@ -4840,7 +4840,23 @@ void Spell::TakeRunePower(bool didHit)
     // you can gain some runic power when use runes
     if (didHit)
         if (int32 rp = int32(runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
+        {
+            Unit::AuraEffectList const& bonusPct = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_RUNE_REGEN_SPEED);
+            for (Unit::AuraEffectList::const_iterator i = bonusPct.begin(); i != bonusPct.end(); ++i)
+            {
+                // Improved Frost Presence
+                if ((*i)->GetId() == 63621)
+                {
+                    // Apply bonus when in Unholy or Blood Presence
+                    if (player->HasAura(48265) || player->HasAura(48263))
+                        AddPct(int32(rp), (*i)->GetAmount());
+                    continue;
+                }
+                else
+                    AddPct(int32(rp), (*i)->GetAmount());
+            }
             player->ModifyPower(POWER_RUNIC_POWER, int32(rp));
+        }
 }
 
 void Spell::TakeReagents()

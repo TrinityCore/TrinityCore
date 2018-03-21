@@ -55,6 +55,7 @@ enum DeathKnightSpells
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     SPELL_DK_IMPROVED_DEATH_STRIKE              = 62905,
     SPELL_DK_IMPROVED_FROST_PRESENCE_R1         = 50384,
     SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED  = 63621,
@@ -1125,8 +1126,8 @@ class spell_dk_pestilence : public SpellScriptLoader
         }
 };
 
-// 48266 - Blood Presence
-// 48263 - Frost Presence
+// 48266 - Frost Presence
+// 48263 - Blood Presence
 // 48265 - Unholy Presence
 class spell_dk_presence : public SpellScriptLoader
 {
@@ -1139,24 +1140,39 @@ class spell_dk_presence : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PRESENCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_FROST_PRESENCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_UNHOLY_PRESENCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_FROST_PRESENCE_R1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PRESENCE_TRIGGERED)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DK_BLOOD_PRESENCE,
+                        SPELL_DK_FROST_PRESENCE,
+                        SPELL_DK_UNHOLY_PRESENCE,
+                        SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1,
+                        SPELL_DK_IMPROVED_FROST_PRESENCE_R1,
+                        SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1,
+                        SPELL_DK_BLOOD_PRESENCE_TRIGGERED,
+                        SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED,
+                        SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED,
+                        SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED
+                    });
             }
 
             void HandleImprovedBloodPresence(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                /// @todo: rune regg (effect 2)
                 Unit* target = GetTarget();
+
+                // Improved Blood Presence Rune Regeneration Bonus
+                if (GetSpellInfo()->Id == SPELL_DK_BLOOD_PRESENCE)
+                {
+                    if (Aura const* aura = target->GetAuraOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1))
+                        if (AuraEffect const* impAurEff = aura->GetEffect(EFFECT_2))
+                            if (!target->HasAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
+                            {
+                                CustomSpellValues val;
+                                val.AddSpellMod(SPELLVALUE_BASE_POINT0, impAurEff->GetAmount());
+                                val.AddSpellMod(SPELLVALUE_BASE_POINT1, impAurEff->GetAmount());
+                                target->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, val, target, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                            }
+                }
+
                 if (Aura const* aura = target->GetAuraOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1))
                 {
                     CustomSpellValues val;
@@ -1173,6 +1189,7 @@ class spell_dk_presence : public SpellScriptLoader
 
                     if (!target->HasAura(SPELL_DK_BLOOD_PRESENCE_TRIGGERED))
                         target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, val, target, TRIGGERED_FULL_MASK, NULL, aurEff);
+
                 }
                 else if (GetSpellInfo()->Id == SPELL_DK_BLOOD_PRESENCE)
                     target->CastSpell(target, SPELL_DK_BLOOD_PRESENCE_TRIGGERED, true, NULL, aurEff);
@@ -1211,6 +1228,7 @@ class spell_dk_presence : public SpellScriptLoader
                 target->RemoveAura(SPELL_DK_BLOOD_PRESENCE_TRIGGERED);
                 target->RemoveAura(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED);
                 target->RemoveAura(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED);
+                target->RemoveAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED);
             }
 
             void Register() override

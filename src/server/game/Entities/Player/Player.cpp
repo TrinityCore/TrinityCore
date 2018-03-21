@@ -25408,6 +25408,10 @@ void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false
 {
     uint32 gracePeriod = GetRuneTimer(index);
 
+    // Improved Blood Presence
+    if (AuraEffect* aurEff = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, 2636, EFFECT_2))
+        cooldown *= 1.0 - CalculatePct(aurEff->GetAmount(), 1);
+
     if (casted && IsInCombat())
     {
         if (gracePeriod < 0xFFFFFFFF && cooldown > 0)
