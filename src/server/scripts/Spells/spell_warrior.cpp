@@ -37,9 +37,9 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_STUN                       = 7922,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
-    SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
-    SPELL_WARRIOR_DEEP_WOUNDS_RANK_2                = 12850,
-    SPELL_WARRIOR_DEEP_WOUNDS_RANK_3                = 12868,
+    SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12834,
+    SPELL_WARRIOR_DEEP_WOUNDS_RANK_2                = 12849,
+    SPELL_WARRIOR_DEEP_WOUNDS_RANK_3                = 12867,
     SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC              = 12721,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_EXECUTION                = 58367,
@@ -252,56 +252,62 @@ class spell_warr_concussion_blow : public SpellScriptLoader
         }
 };
 
-// -12162 - Deep Wounds
+// Updated 4.3.4
+// -12834 - Deep Wounds
 class spell_warr_deep_wounds : public SpellScriptLoader
 {
     public:
         spell_warr_deep_wounds() : SpellScriptLoader("spell_warr_deep_wounds") { }
 
-        class spell_warr_deep_wounds_SpellScript : public SpellScript
+        class spell_warr_deep_wounds_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_warr_deep_wounds_SpellScript);
+            PrepareAuraScript(spell_warr_deep_wounds_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_3) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_WARRIOR_DEEP_WOUNDS_RANK_1,
+                        SPELL_WARRIOR_DEEP_WOUNDS_RANK_2,
+                        SPELL_WARRIOR_DEEP_WOUNDS_RANK_3,
+                        SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC
+                    });
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                int32 damage = GetEffectValue();
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
+                if (Player* player = GetUnitOwner()->ToPlayer())
                 {
-                    ApplyPct(damage, 16 * GetSpellInfo()->GetRank());
+                    int32 damage = 0;
+                    Item* mainhandWeapon = player->GetWeaponForAttack(BASE_ATTACK);
+                    Item* offhandWeapon = player->GetWeaponForAttack(OFF_ATTACK);
+                    if (mainhandWeapon)
+                        damage += (mainhandWeapon->GetTemplate()->DamageMin + mainhandWeapon->GetTemplate()->DamageMax) * 0.5f;
+                    if (offhandWeapon)
+                        damage += (mainhandWeapon->GetTemplate()->DamageMin + mainhandWeapon->GetTemplate()->DamageMax) * 0.5f;
 
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC);
-                    uint32 ticks = uint32(spellInfo->GetDuration()) / spellInfo->Effects[EFFECT_0].Amplitude;
+                    damage = CalculatePct(damage, 16 * GetSpellInfo()->GetRank());
 
-                    // Add remaining ticks to damage done
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, EFFECT_0, caster->GetGUID()))
-                        damage += (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct() * int32(ticks - aurEff->GetTickNumber());
+                    if (damage)
+                        if (SpellInfo const* periodicSpell = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC))
+                                if (uint32 ticks = periodicSpell->GetMaxTicks())
+                                    damage = damage / ticks;
 
-                    damage /= int32(ticks);
-
-                    caster->CastCustomSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, &damage, NULL, NULL, true);
+                    if (Unit* target = eventInfo.GetProcTarget())
+                        player->CastCustomSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, &damage, 0, 0, true, nullptr, aurEff);
                 }
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_deep_wounds_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_warr_deep_wounds_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
+
         };
 
-        SpellScript* GetSpellScript() const override
+        AuraScript* GetAuraScript() const override
         {
-            return new spell_warr_deep_wounds_SpellScript();
+            return new spell_warr_deep_wounds_AuraScript();
         }
 };
 

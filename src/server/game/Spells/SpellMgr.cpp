@@ -3267,13 +3267,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
     });
 
-    // Deep Wounds
-    ApplySpellFix({ 12721 }, [](SpellInfo* spellInfo)
-    {
-        // shouldnt ignore resillience or damage taken auras because its damage is not based off a spell.
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_FIXED_DAMAGE;
-    });
-
     // Tremor Totem (instant pulse)
     ApplySpellFix({ 8145 }, [](SpellInfo* spellInfo)
     {
