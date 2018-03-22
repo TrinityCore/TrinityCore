@@ -211,56 +211,37 @@ set(TOMMATH_FILES
            src/libtommath/bn_s_mp_sub.c
 )
 
-set(ZLIB_BZIP2_FILES
-           src/bzip2/blocksort.c
-           src/bzip2/bzlib.c
-           src/bzip2/compress.c
-           src/bzip2/crctable.c
-           src/bzip2/decompress.c
-           src/bzip2/huffman.c
-           src/bzip2/randtable.c
-           src/zlib/adler32.c
-           src/zlib/compress2.c
-           src/zlib/crc32.c
-           src/zlib/deflate.c
-           src/zlib/inffast.c
-           src/zlib/inflate.c
-           src/zlib/inftrees.c
-           src/zlib/trees.c
-           src/zlib/zutil.c
-)
-
 set(TEST_SRC_FILES
            test/Test.cpp
 )
 
 add_definitions(-D_7ZIP_ST -DBZ_STRICT_ANSI)
+add_definitions(-D__SYS_ZLIB -D__SYS_BZLIB)
 
 if(WIN32)
     if(MSVC)
         add_definitions(-D_7ZIP_ST -DWIN32)
     endif()
-    set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
+    set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES} ${TOMMATH_FILES})
     set(LINK_LIBS wininet)
 endif()
 
 if(APPLE)
-    set(LINK_LIBS z bz2)
     set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES} ${TOMMATH_FILES})
 endif()
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
     option(WITH_LIBTOMCRYPT "Use system LibTomCrypt library" OFF)
     if(WITH_LIBTOMCRYPT)
-        set(LINK_LIBS z bz2 tomcrypt)
+        set(LINK_LIBS tomcrypt)
     else()
-        set(LINK_LIBS z bz2)
         set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES} ${TOMMATH_FILES})
     endif()
 endif()
 
 add_library(storm STATIC ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
-target_link_libraries(storm ${LINK_LIBS})
+
+set_target_properties(storm PROPERTIES LINKER_LANGUAGE CXX)
 
 if(UNIX)
     set_target_properties(storm PROPERTIES SOVERSION 0)
@@ -270,3 +251,22 @@ endif()
 if(WIN32)
     set_target_properties(storm PROPERTIES OUTPUT_NAME StormLib)
 endif()
+
+target_include_directories(storm
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/dep/zlib
+    ${CMAKE_SOURCE_DIR}/dep/bzip2)
+
+target_link_libraries(storm
+  PRIVATE
+    trinity-dependency-interface
+  PUBLIC
+    zlib
+    bzip2
+    ${LINK_LIBS})
+
+set_target_properties(storm
+  PROPERTIES
+    FOLDER
+      "dep")

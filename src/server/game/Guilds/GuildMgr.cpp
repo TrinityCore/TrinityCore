@@ -15,8 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "GuildMgr.h"
+#include "AchievementMgr.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "World.h"
 
 GuildMgr::GuildMgr() : NextGuildId(1)
 { }
@@ -60,7 +65,7 @@ Guild* GuildMgr::GetGuildById(ObjectGuid::LowType guildId) const
     if (itr != GuildStore.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
@@ -71,7 +76,7 @@ Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
         if (uint32 guildId = guid.GetCounter())
             return GetGuildById(guildId);
 
-    return NULL;
+    return nullptr;
 }
 
 Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
@@ -85,7 +90,7 @@ Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
         if (search == gname)
             return itr->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
@@ -108,7 +113,7 @@ Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
         if (itr->second->GetLeaderGUID() == guid)
             return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 uint32 GuildMgr::GetXPForGuildLevel(uint8 level) const

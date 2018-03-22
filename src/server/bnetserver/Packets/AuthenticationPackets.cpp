@@ -182,7 +182,7 @@ void Battlenet::Authentication::LogonResponse::Write()
         }
 
         _stream.Write(PingTimeout + std::numeric_limits<int32>::min(), 32);
-        _stream.Write(1, 1);    // RegulatorRules != NULL (not a pointer for us, always write)
+        _stream.Write(1, 1);    // RegulatorRules != nullptr (not a pointer for us, always write)
         // if written == 1
         {
             _stream.Write(RegulatorRules.Type == Regulator::LEAKY_BUCKET, 1);
@@ -269,7 +269,7 @@ void Battlenet::Authentication::ResumeResponse::Write()
         }
 
         _stream.Write(PingTimeout + std::numeric_limits<int32>::min(), 32);
-        _stream.Write(1, 1);    // RegulatorRules != NULL (not a pointer for us, always write)
+        _stream.Write(1, 1);    // RegulatorRules != nullptr (not a pointer for us, always write)
         // if written == 1
         {
             _stream.Write(RegulatorRules.Type == Regulator::LEAKY_BUCKET, 1);

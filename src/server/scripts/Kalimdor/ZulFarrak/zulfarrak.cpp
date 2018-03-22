@@ -29,11 +29,15 @@ npc_weegli_blastfuse
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "zulfarrak.h"
-#include "Player.h"
-#include "GameObjectAI.h"
 
 /*######
 ## npc_sergeant_bly
@@ -57,11 +61,6 @@ class npc_sergeant_bly : public CreatureScript
 {
 public:
     npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_sergeant_blyAI>(creature);
-    }
 
     struct npc_sergeant_blyAI : public ScriptedAI
     {
@@ -102,21 +101,17 @@ public:
 
         bool GossipHello(Player* player) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
+            if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
-                if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, 1517, me->GetGUID());
-                }
-                else
-                    if (instance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
-                        SendGossipMenuFor(player, 1515, me->GetGUID());
-                    else
-                        SendGossipMenuFor(player, 1516, me->GetGUID());
-                return true;
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, 1517, me->GetGUID());
             }
-            return false;
+            else
+                if (instance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
+                    SendGossipMenuFor(player, 1515, me->GetGUID());
+                else
+                    SendGossipMenuFor(player, 1516, me->GetGUID());
+            return true;
         }
 
         void Reset() override
@@ -136,7 +131,7 @@ public:
                     {
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
-                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetGuidData(ENTRY_WEEGLI)))
+                            if (Creature* pWeegli = ObjectAccessor::GetCreature(*me, instance->GetGuidData(ENTRY_WEEGLI)))
                                 pWeegli->AI()->DoAction(0);
                             Talk(SAY_1);
                             Text_Timer = 5000;
@@ -195,6 +190,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetZulFarrakAI<npc_sergeant_blyAI>(creature);
+    }
 };
 
 /*######
@@ -208,27 +207,26 @@ public:
 
     struct go_troll_cageAI : public GameObjectAI
     {
-        go_troll_cageAI(GameObject* go) : GameObjectAI(go) { }
+        go_troll_cageAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
 
         bool GossipHello(Player* /*player*/) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-            {
-                instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
-                //set bly & co to aggressive & start moving to top of stairs
-                initBlyCrewMember(instance, ENTRY_BLY, 1884.99f, 1263, 41.52f);
-                initBlyCrewMember(instance, ENTRY_RAVEN, 1882.5f, 1263, 41.52f);
-                initBlyCrewMember(instance, ENTRY_ORO, 1886.47f, 1270.68f, 41.68f);
-                initBlyCrewMember(instance, ENTRY_WEEGLI, 1890, 1263, 41.52f);
-                initBlyCrewMember(instance, ENTRY_MURTA, 1891.19f, 1272.03f, 41.60f);
-            }
+            instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
+            //set bly & co to aggressive & start moving to top of stairs
+            initBlyCrewMember(ENTRY_BLY, 1884.99f, 1263, 41.52f);
+            initBlyCrewMember(ENTRY_RAVEN, 1882.5f, 1263, 41.52f);
+            initBlyCrewMember(ENTRY_ORO, 1886.47f, 1270.68f, 41.68f);
+            initBlyCrewMember(ENTRY_WEEGLI, 1890, 1263, 41.52f);
+            initBlyCrewMember(ENTRY_MURTA, 1891.19f, 1272.03f, 41.60f);
             return false;
         }
 
     private:
-        void initBlyCrewMember(InstanceScript* instance, uint32 entry, float x, float y, float z) const
+        void initBlyCrewMember(uint32 entry, float x, float y, float z) const
         {
-            if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
+            if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
             {
                 crew->SetReactState(REACT_AGGRESSIVE);
                 crew->SetWalk(true);
@@ -241,7 +239,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_troll_cageAI(go);
+        return GetZulFarrakAI<go_troll_cageAI>(go);
     }
 };
 
@@ -269,11 +267,6 @@ class npc_weegli_blastfuse : public CreatureScript
 {
 public:
     npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_weegli_blastfuseAI>(creature);
-    }
 
     struct npc_weegli_blastfuseAI : public ScriptedAI
     {
@@ -394,6 +387,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetZulFarrakAI<npc_weegli_blastfuseAI>(creature);
+    }
 };
 
 /*######
@@ -436,7 +433,7 @@ class go_shallow_grave : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_shallow_graveAI(go);
+            return GetZulFarrakAI<go_shallow_graveAI>(go);
         }
 };
 

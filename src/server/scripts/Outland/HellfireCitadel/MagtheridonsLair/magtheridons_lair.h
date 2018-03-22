@@ -18,8 +18,10 @@
 #ifndef DEF_MAGTHERIDONS_LAIR_H
 #define DEF_MAGTHERIDONS_LAIR_H
 
-#define DataHeader "ML"
+#include "CreatureAIImpl.h"
 
+#define MLScriptName "instance_magtheridons_lair"
+#define DataHeader "ML"
 
 uint32 const EncounterCount = 1;
 
@@ -40,13 +42,13 @@ enum MLDataTypes
     DATA_CALL_WARDERS         = 12
 };
 
-enum Actions
+enum MLActions
 {
     ACTION_ENABLE             = 1,
     ACTION_DISABLE            = 2
 };
 
-enum CreatureIds
+enum MLCreatureIds
 {
     NPC_MAGTHERIDON          = 17257,
     NPC_ABYSSAL              = 17454,
@@ -59,7 +61,7 @@ enum CreatureIds
     NPC_HELLFIRE_WARDER      = 18829
 };
 
-enum GameObjectIds
+enum MLGameObjectIds
 {
     GO_MAGTHERIDON_DOOR      = 183847,
     GO_MANTICRON_CUBE        = 181713,
@@ -71,5 +73,11 @@ enum GameObjectIds
     GO_MAGTHERIDON_COLUMN_4  = 184636,
     GO_MAGTHERIDON_COLUMN_5  = 184637
 };
+
+template <class AI, class T>
+inline AI* GetMagtheridonsLairAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MLScriptName);
+}
 
 #endif

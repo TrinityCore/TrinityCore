@@ -24,8 +24,11 @@ SDCategory: Blackfathom Deeps
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "blackfathom_deeps.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 const Position LorgusPosition[4] =
 {
@@ -47,12 +50,7 @@ const Position SpawnsLocation[] =
 class instance_blackfathom_deeps : public InstanceMapScript
 {
 public:
-    instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps", 48) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_blackfathom_deeps_InstanceMapScript(map);
-    }
+    instance_blackfathom_deeps() : InstanceMapScript(BFDScriptName, 48) { }
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
@@ -238,6 +236,11 @@ public:
         uint8 countFires;
         uint8 deathTimes;
     };
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_blackfathom_deeps_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_blackfathom_deeps()

@@ -21,6 +21,7 @@
 
 #include "Spline.h"
 #include "MoveSplineInitArgs.h"
+#include <G3D/Vector3.h>
 
 namespace Movement
 {
@@ -28,8 +29,8 @@ namespace Movement
     {
         Location() : orientation(0) { }
         Location(float x, float y, float z, float o) : Vector3(x, y, z), orientation(o) { }
-        Location(const Vector3& v) : Vector3(v), orientation(0) { }
-        Location(const Vector3& v, float o) : Vector3(v), orientation(o) { }
+        Location(Vector3 const& v) : Vector3(v), orientation(0) { }
+        Location(Vector3 const& v, float o) : Vector3(v), orientation(o) { }
 
         float orientation;
     };
@@ -69,7 +70,7 @@ namespace Movement
         int32           point_Idx;
         int32           point_Idx_offset;
 
-        void init_spline(const MoveSplineInitArgs& args);
+        void init_spline(MoveSplineInitArgs const& args);
 
     protected:
         MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
@@ -90,7 +91,7 @@ namespace Movement
         void _Interrupt() { splineflags.done = true; }
 
     public:
-        void Initialize(const MoveSplineInitArgs&);
+        void Initialize(MoveSplineInitArgs const&);
         bool Initialized() const { return !spline.empty(); }
 
         MoveSpline();

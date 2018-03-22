@@ -25,6 +25,8 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "temple_of_ahnqiraj.h"
+#include "TemporarySummon.h"
 
 #define SOUND_SENTENCE_YOU 8588
 #define SOUND_SERVE_TO     8589
@@ -45,11 +47,6 @@ class boss_fankriss : public CreatureScript
 {
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_fankrissAI(creature);
-    }
 
     struct boss_fankrissAI : public ScriptedAI
     {
@@ -210,6 +207,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<boss_fankrissAI>(creature);
+    }
 };
 
 void AddSC_boss_fankriss()

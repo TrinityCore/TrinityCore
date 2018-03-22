@@ -86,14 +86,14 @@ template<class OBJECT_TYPES>
 class TypeMapContainer
 {
     public:
-        template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)NULL); }
+        template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)nullptr); }
 
         /// inserts a specific object into the container
         template<class SPECIFIC_TYPE>
         bool insert(SPECIFIC_TYPE *obj)
         {
             SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj);
-            return (t != NULL);
+            return (t != nullptr);
         }
 
         ///  Removes the object from the container, and returns the removed object
@@ -101,7 +101,7 @@ class TypeMapContainer
         //bool remove(SPECIFIC_TYPE* obj)
         //{
         //    SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
-        //    return (t != NULL);
+        //    return (t != nullptr);
         //}
 
         ContainerMapList<OBJECT_TYPES> & GetElements(void) { return i_elements; }

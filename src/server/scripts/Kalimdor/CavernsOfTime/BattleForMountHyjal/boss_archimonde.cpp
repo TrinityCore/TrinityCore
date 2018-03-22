@@ -24,10 +24,13 @@ SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "hyjal.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "Player.h"
-#include "hyjal.h"
 
 enum Texts
 {
@@ -97,11 +100,6 @@ class npc_ancient_wisp : public CreatureScript
 public:
     npc_ancient_wisp() : CreatureScript("npc_ancient_wisp") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_ancient_wispAI>(creature);
-    }
-
     struct npc_ancient_wispAI : public ScriptedAI
     {
         npc_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
@@ -151,6 +149,11 @@ public:
             } else CheckTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<npc_ancient_wispAI>(creature);
+    }
 };
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
@@ -159,11 +162,6 @@ class npc_doomfire : public CreatureScript
 {
 public:
     npc_doomfire() : CreatureScript("npc_doomfire") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_doomfireAI(creature);
-    }
 
     struct npc_doomfireAI : public ScriptedAI
     {
@@ -180,6 +178,11 @@ public:
             damage = 0;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<npc_doomfireAI>(creature);
+    }
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
@@ -188,11 +191,6 @@ class npc_doomfire_targetting : public CreatureScript
 {
 public:
     npc_doomfire_targetting() : CreatureScript("npc_doomfire_targetting") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_doomfire_targettingAI(creature);
-    }
 
     struct npc_doomfire_targettingAI : public ScriptedAI
     {
@@ -249,6 +247,11 @@ public:
             } else ChangeTargetTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<npc_doomfire_targettingAI>(creature);
+    }
 };
 
 /* Finally, Archimonde's script. His script isn't extremely complex, most are simply spells on timers.
@@ -389,7 +392,7 @@ public:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     ++WispCount;
                     if (WispCount >= 30)
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
                     break;
                 default:
@@ -530,7 +533,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_archimondeAI>(creature);
+        return GetHyjalAI<boss_archimondeAI>(creature);
     }
 };
 
@@ -546,9 +549,7 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DRAIN_WORLD_TREE_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DRAIN_WORLD_TREE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

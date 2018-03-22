@@ -16,10 +16,6 @@ CollectSourceFiles(
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/gamePCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/gamePCH.cpp)
-  if (MSVC)
-    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/gamePCH.cpp)
-  endif (MSVC)
 endif ()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -53,11 +49,12 @@ target_include_directories(game
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(game
+  PRIVATE
+    trinity-core-interface
+    efsw
   PUBLIC
     ipc
-    game-interface
-  PRIVATE
-    efsw)
+    game-interface)
 
 set_target_properties(game
     PROPERTIES
@@ -78,5 +75,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(game ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(game ${PRIVATE_PCH_HEADER})
 endif ()

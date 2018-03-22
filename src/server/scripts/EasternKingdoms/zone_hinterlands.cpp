@@ -28,9 +28,9 @@ npc_oox09hl
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_oox09hl
@@ -142,8 +142,7 @@ enum Sharpbeak
     SPELL_EJECT_ALL_PASSENGERS    = 50630
 };
 
-uint32 const campPathSize = 12;
-G3D::Vector3 const campPath[campPathSize] =
+Position const campPath[] =
 {
     { -75.40077f, -4037.111f, 114.6418f },
     { -68.80193f, -4034.235f, 123.6844f },
@@ -158,9 +157,9 @@ G3D::Vector3 const campPath[campPathSize] =
     { -169.123f, -3582.08f, 282.866f },
     { -241.8403f, -3625.01f, 247.4203f }
 };
+uint32 const campPathSize = std::extent<decltype(campPath)>::value;
 
-uint32 const jinthaalorPathSize = 20;
-G3D::Vector3 const jinthaalorPath[jinthaalorPathSize] =
+Position const jinthaalorPath[] =
 {
     { -249.4681f, -3632.487f, 232.6947f },
     { -241.606f, -3627.713f, 236.61870f },
@@ -183,6 +182,7 @@ G3D::Vector3 const jinthaalorPath[jinthaalorPathSize] =
     { -76.90625f, -4040.207f, 126.0433f },
     { -77.51563f, -4022.026f, 123.2135f }
 };
+uint32 const jinthaalorPathSize = std::extent<decltype(jinthaalorPath)>::value;
 
 class npc_sharpbeak : public CreatureScript
 {

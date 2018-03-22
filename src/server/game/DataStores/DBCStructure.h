@@ -19,9 +19,13 @@
 #ifndef TRINITY_DBCSTRUCTURE_H
 #define TRINITY_DBCSTRUCTURE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCEnums.h"
+#include "SharedDefines.h"
 #include "Util.h"
+#include <set>
+#include <map>
+#include <unordered_map>
 
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
@@ -978,8 +982,6 @@ struct CreatureModelDataEntry
     float MountHeight;                                       // Used in calculation of unit collision data when mounted
     //float Unks[11]
 };
-
-#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 struct CreatureSpellDataEntry
 {
@@ -1999,10 +2001,6 @@ struct SpellEffectEntry
     //uint32  Unk0                                          // 26        4.2.0 only 0 or 1
 };
 
-#define MAX_SPELL_EFFECTS 3
-#define MAX_EFFECT_MASK 7
-#define MAX_SPELL_REAGENTS 8
-
 // SpellAuraOptions.dbc
 struct SpellAuraOptionsEntry
 {
@@ -2114,7 +2112,7 @@ struct SpellCategoriesEntry
 };
 
 typedef std::set<uint32> PetFamilySpellsSet;
-typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
+typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
 
 struct SpellCastTimesEntry
 {
@@ -2354,10 +2352,6 @@ struct SummonPropertiesEntry
     int32   Slot;                                           // 4, 0-6
     uint32  Flags;                                          // 5
 };
-
-#define MAX_TALENT_RANK 5
-#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
-#define MAX_TALENT_TABS 3
 
 struct TalentEntry
 {
@@ -2730,9 +2724,6 @@ typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
 typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
-
-#define TaxiMaskSize 114
-typedef uint8 TaxiMask[TaxiMaskSize];
 
 typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 #endif

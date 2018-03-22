@@ -2439,7 +2439,8 @@ DROP TABLE IF EXISTS `item_loot_money`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_money` (
   `container_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
-  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)'
+  `money` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
+  PRIMARY KEY (`container_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2952,7 +2953,8 @@ INSERT INTO `updates` VALUES
 ('2017_12_17_00_characters.sql','937E8F51DC74AC41FF8F213CE36C69DDEB878D6A','ARCHIVED','2017-12-17 00:00:00',0),
 ('2018_01_15_00_characters.sql','43C8E4549E1AA9610B377BC7139C88C63D0DC193','ARCHIVED','2018-01-15 00:00:00',0),
 ('2018_02_16_00_characters.sql','F1254689CE8A0B0AF149E557830287FF583B8D91','ARCHIVED','2018-02-16 00:00:00',0),
-('2018_03_16_00_characters.sql','722EAFB7F508882F584DCAE61F97F1A11EDE126E','ARCHIVED','2018-03-16 00:00:00',0);
+('2018_03_16_00_characters.sql','722EAFB7F508882F584DCAE61F97F1A11EDE126E','RELEASED','2018-03-16 00:00:00',0),
+('2018_03_25_00_characters.sql','4FE3C6866A6DCD4926D451F6009464D290C2EF1F','RELEASED','2018-03-25 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

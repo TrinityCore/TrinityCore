@@ -17,12 +17,18 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "trial_of_the_crusader.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "trial_of_the_crusader.h"
 
-BossBoundaryData const boundaries = {
+BossBoundaryData const boundaries =
+{
     { BOSS_BEASTS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
     { BOSS_JARAXXUS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
     { BOSS_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
@@ -33,7 +39,7 @@ BossBoundaryData const boundaries = {
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
     public:
-        instance_trial_of_the_crusader() : InstanceMapScript("instance_trial_of_the_crusader", 649) { }
+        instance_trial_of_the_crusader() : InstanceMapScript(ToCrScriptName, 649) { }
 
         struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {
@@ -234,14 +240,14 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 ResilienceWillFixItTimer = 0;
                                 break;
                             case SPECIAL: //Means the first blood
-                                ResilienceWillFixItTimer = 60*IN_MILLISECONDS;
+                                ResilienceWillFixItTimer = 60 * IN_MILLISECONDS;
                                 state = IN_PROGRESS;
                                 break;
                             case DONE:
                                 DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
                                 if (ResilienceWillFixItTimer > 0)
                                     DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
-                                DoRespawnGameObject(CrusadersCacheGUID, 7*DAY);
+                                DoRespawnGameObject(CrusadersCacheGUID, 7 * DAY);
                                 if (GameObject* cache = instance->GetGameObject(CrusadersCacheGUID))
                                     cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                                 EventStage = 3100;
@@ -313,8 +319,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 }
 
                                 if (tributeChest)
-                                    if (Creature* tirion =  instance->GetCreature(TirionGUID))
-                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, G3D::Quat(), WEEK))
+                                    if (Creature* tirion = instance->GetCreature(TirionGUID))
+                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData(), WEEK))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             }
@@ -404,7 +410,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 NotOneButTwoJormungarsTimer = 0;
                                 break;
                             case SNAKES_SPECIAL:
-                                NotOneButTwoJormungarsTimer = 10*IN_MILLISECONDS;
+                                NotOneButTwoJormungarsTimer = 10 * IN_MILLISECONDS;
                                 break;
                             case SNAKES_DONE:
                                 if (NotOneButTwoJormungarsTimer > 0)
@@ -640,7 +646,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 return SaveDataBuffer;
             }
 
-            void Load(const char* strIn) override
+            void Load(char const* strIn) override
             {
                 if (!strIn)
                 {

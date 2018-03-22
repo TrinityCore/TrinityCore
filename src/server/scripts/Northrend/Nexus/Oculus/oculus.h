@@ -18,6 +18,8 @@
 #ifndef OCULUS_H_
 #define OCULUS_H_
 
+#include "CreatureAIImpl.h"
+
 #define OculusScriptName "instance_oculus"
 #define DataHeader "OC"
 
@@ -69,13 +71,13 @@ enum OCCreatureActions
     ACTION_CALL_DRAGON_EVENT    = 1
 };
 
-enum OCWorldStates
+enum OCOculusWorldStates
 {
     WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW   = 3524,
     WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT = 3486
 };
 
-enum OCSpells
+enum OCOculusSpells
 {
     SPELL_CENTRIFUGE_SHIELD     = 50053,
     SPELL_DEATH_SPELL           = 50415
@@ -105,10 +107,10 @@ enum OCMisc
     POINT_MOVE_OUT              = 1
 };
 
-template<class AI>
-AI* GetOculusAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetOculusAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OculusScriptName);
+    return GetInstanceAI<AI>(obj, OculusScriptName);
 }
 
 #endif // OCULUS_H_

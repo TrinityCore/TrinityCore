@@ -21,6 +21,9 @@
 #include "ObjectRegistry.h"
 #include "SelectableAI.h"
 
+class GameObject;
+class GameObjectAI;
+
 template <class REAL_GO_AI, bool is_db_allowed = true>
 struct GameObjectAIFactory : public SelectableAI<GameObject, GameObjectAI, is_db_allowed>
 {

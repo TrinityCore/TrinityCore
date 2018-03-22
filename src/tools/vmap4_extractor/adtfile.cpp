@@ -30,7 +30,7 @@ char const* GetPlainName(char const* FileName)
 {
     const char * szTemp;
 
-    if ((szTemp = strrchr(FileName, '\\')) != NULL)
+    if ((szTemp = strrchr(FileName, '\\')) != nullptr)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -39,7 +39,7 @@ char* GetPlainName(char* FileName)
 {
     char * szTemp;
 
-    if ((szTemp = strrchr(FileName, '\\')) != NULL)
+    if ((szTemp = strrchr(FileName, '\\')) != nullptr)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -74,7 +74,7 @@ char* GetExtension(char* FileName)
 {
     if (char* szTemp = strrchr(FileName, '.'))
         return szTemp;
-    return NULL;
+    return nullptr;
 }
 
 extern HANDLE WorldMpq;
@@ -199,7 +199,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                     ModelInstance inst(ADT, ModelInstanceNames[id].c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
                 }
                 delete[] ModelInstanceNames;
-                ModelInstanceNames = NULL;
+                ModelInstanceNames = nullptr;
             }
         }
         else if (!strcmp(fourcc,"MODF"))
@@ -215,7 +215,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                 }
 
                 delete[] WmoInstanceNames;
-                WmoInstanceNames = NULL;
+                WmoInstanceNames = nullptr;
             }
         }
 

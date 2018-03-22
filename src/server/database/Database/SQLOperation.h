@@ -18,16 +18,14 @@
 #ifndef _SQLOPERATION_H
 #define _SQLOPERATION_H
 
-#include "QueryResult.h"
-
-//- Forward declare (don't include header to prevent circular includes)
-class PreparedStatement;
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 
 //- Union that holds element data
 union SQLElementUnion
 {
     PreparedStatement* stmt;
-    const char* query;
+    char const* query;
 };
 
 //- Type specifier of our element data
@@ -56,7 +54,7 @@ class MySQLConnection;
 class TC_DATABASE_API SQLOperation
 {
     public:
-        SQLOperation(): m_conn(NULL) { }
+        SQLOperation(): m_conn(nullptr) { }
         virtual ~SQLOperation() { }
 
         virtual int call()

@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
 #include "ScriptMgr.h"
-#include "OutdoorPvPHP.h"
+#include "GameObject.h"
+#include "MapManager.h"
 #include "OutdoorPvP.h"
+#include "OutdoorPvPHP.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
-#include "ObjectMgr.h"
 #include "WorldPacket.h"
 
 uint32 const OutdoorPvPHPBuffZonesNum = 6;

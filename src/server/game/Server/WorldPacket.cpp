@@ -15,9 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <zlib.h>
 #include "WorldPacket.h"
+#include "Errors.h"
+#include "Log.h"
 #include "World.h"
+#include <zlib.h>
 
 //! Compresses packet in place
 void WorldPacket::Compress(z_stream* compressionStream)

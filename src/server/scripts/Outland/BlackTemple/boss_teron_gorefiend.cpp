@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "SpellScript.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -231,6 +234,7 @@ class npc_doom_blossom : public CreatureScript
 {
 public:
     npc_doom_blossom() : CreatureScript("npc_doom_blossom") { }
+
     struct npc_doom_blossomAI : public NullCreatureAI
     {
         npc_doom_blossomAI(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()) { }
@@ -391,15 +395,16 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SPIRIT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_POSSESS_SPIRIT_IMMUNE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SPIRITUAL_VENGEANCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SUMMON_SPIRIT,
+                    SPELL_POSSESS_SPIRIT_IMMUNE,
+                    SPELL_SPIRITUAL_VENGEANCE,
+                    SPELL_SUMMON_SKELETRON_1,
+                    SPELL_SUMMON_SKELETRON_2,
+                    SPELL_SUMMON_SKELETRON_3,
+                    SPELL_SUMMON_SKELETRON_4
+                });
             }
 
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
@@ -475,9 +480,7 @@ class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_OF_DEATH)
-                    || !sSpellMgr->GetSpellInfo(SPELL_POSSESS_SPIRIT_IMMUNE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SPIRITUAL_VENGEANCE))
+                return ValidateSpellInfo({ SPELL_SHADOW_OF_DEATH, SPELL_POSSESS_SPIRIT_IMMUNE, SPELL_SPIRITUAL_VENGEANCE });
                     return false;
                 return true;
             }

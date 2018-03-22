@@ -16,70 +16,64 @@
 */
 
 #include "Archaeology.h"
-#include "DBCStore.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "Log.h"
 #include "Player.h"
 
 void Archaeology::LoadCompletedProjectsFromDB()
 {
-    QueryResult result;
-
-    result = CharacterDatabase.PQuery("SELECT project, time, count FROM character_archaeology_completed WHERE guid=%u",
-        _player->GetGUID());
-
+    QueryResult result = CharacterDatabase.PQuery("SELECT project, time, count FROM character_archaeology_completed WHERE guid = %u", _player->GetGUID().GetCounter());
     if (!result)
         return;
 
-    do {
-        Field *fields = result->Fetch();
+    do
+    {
+        Field* fields = result->Fetch();
         uint16 project = fields[0].GetUInt16();
         int32 time = fields[1].GetInt32();
         int32 count = fields[2].GetInt32();
 
-        _completedProjects[project].first = time;
-        _completedProjects[project].second = count;
-
+        _completedProjects.emplace(project, std::make_pair(time, count));
     } while (result->NextRow());
 }
 
 void Archaeology::InitBranches()
 {
-    for (uint8 i = 0; i < sResearchBranchStore.GetNumRows(); ++i)
-        if (const ResearchBranchEntry *branch = sResearchBranchStore.LookupEntry(i))
-            if (branch->CurrencyID)
-            {
-                struct BranchData branchData;
-                branchData.branchId = branch->ID;
-                branchData.completedRares = 0;
-                branchData.project = 0;
-                _branches[i] = branchData;
-            }
+    for (ResearchBranchEntry const* branch : sResearchBranchStore)
+    {
+        if (branch->CurrencyID)
+        {
+            BranchData& branchData = _branches[uint8(branch->ID)];
+            branchData.CompletedRares = 0;
+            branchData.Project = 0;
+        }
+    }
 }
 
 void Archaeology::LoadCurrentProjectsFromDB()
 {
-    QueryResult result;
-
     InitBranches();
 
-    result = CharacterDatabase.PQuery("SELECT branch, project FROM character_archaeology_projects WHERE guid=%u",
-        _player->GetGUID());
-
+    QueryResult result = CharacterDatabase.PQuery("SELECT branch, project FROM character_archaeology_projects WHERE guid = %u", _player->GetGUID().GetCounter());
     if (!result)
         return;
 
-    do {
-        Field *fields = result->Fetch();
+    do
+    {
+        Field* fields = result->Fetch();
         uint8 branch = fields[0].GetUInt8();
         uint16 project = fields[1].GetUInt16();
 
-        if (uint16 old_project = _branches[branch].project)
+        auto itr = _branches.find(branch);
+        if (itr != _branches.end())
         {
-            TC_LOG_ERROR("player.skills", "ERROR - Archaeology: Tried to assign project %u to branch %u, which already holds project %u!",
-                project, branch, old_project);
+            TC_LOG_ERROR("player.skills", "ERROR - Archaeology: Tried to assign project %u to branch %u, which already holds project %u!", project, branch, itr->second.Project);
             continue;
         }
 
-        _branches[branch].project = project;
+        BranchData& branchData = _branches[branch];
+        branchData.Project = project;
     } while (result->NextRow());
 }
 
@@ -91,19 +85,19 @@ void Archaeology::VisualizeBranch(uint8 position, uint16 project)
 
 void Archaeology::RegenerateBranch(uint8 branch)
 {
-    uint16 project = sArchaeologyMgr->GetNewProject(&_branches[branch], &_completedProjects, _player->GetSkillValue(SKILL_ARCHAEOLOGY));
-    _branches[branch].project = project;
+    uint16 project = sArchaeologyMgr->GetNewProject(branch, &_branches[branch], &_completedProjects, _player->GetSkillValue(SKILL_ARCHAEOLOGY));
+    _branches[branch].Project = project;
 
-    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_projects VALUES (%u, %u, %u)",
-        _player->GetGUID(), branch, project);
+    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_projects VALUES (%u, %u, %u)", _player->GetGUID(), branch, project);
 }
 
 void Archaeology::VerifyProjects()
 {
     for (std::map<uint8, BranchData>::iterator itr = _branches.begin(); itr != _branches.end(); ++itr)
-        if (const BranchEntry* branch = sArchaeologyMgr->GetBranchEntry(itr->first))
+    {
+        if (BranchEntry const* branch = sArchaeologyMgr->GetBranchEntry(itr->first))
         {
-            uint16 project = itr->second.project;
+            uint16 project = itr->second.Project;
             if (project)
             {
                 if (_completedProjects.find(project) != _completedProjects.end() && sArchaeologyMgr->IsRareProject(project))
@@ -114,8 +108,9 @@ void Archaeology::VerifyProjects()
             else
                 continue;
 
-            VisualizeBranch(branch->fieldId, _branches[itr->first].project);
+            VisualizeBranch(branch->fieldId, _branches[itr->first].Project);
         }
+    }
 }
 
 void Archaeology::CleanProjects()
@@ -131,73 +126,76 @@ void Archaeology::CleanProjects()
 
 void Archaeology::ActivateBranch(uint8 branchId, bool force)
 {
-    if (_branches[branchId].project && !force)
+    if (_branches[branchId].Project && !force)
         return;
 
     RegenerateBranch(branchId);
-    VisualizeBranch(sArchaeologyMgr->GetBranchEntry(branchId)->fieldId, _branches[branchId].project);
+    VisualizeBranch(sArchaeologyMgr->GetBranchEntry(branchId)->fieldId, _branches[branchId].Project);
 }
 
 bool Archaeology::ProjectExists(uint16 projectId)
 {
-    if (const ProjectEntry* project = sArchaeologyMgr->GetProjectEntry(projectId))
-        return (_branches[project->branch].project == projectId);
+    if (ProjectEntry const* project = sArchaeologyMgr->GetProjectEntry(projectId))
+        return (_branches[project->branch].Project == projectId);
 
     return false;
 }
 
 bool Archaeology::ProjectCompleteable(uint16 projectId)
 {
-    if (!archData)
+    if (!_archData)
         return false;
 
-    if (const ProjectEntry* project = sArchaeologyMgr->GetProjectEntry(projectId))
-        if (_branches[project->branch].project == projectId)
-        {
-            const BranchEntry* branchEntry = sArchaeologyMgr->GetBranchEntry(project->branch);
+    ProjectEntry const* project = sArchaeologyMgr->GetProjectEntry(projectId);
+    if (!project)
+        return false;
 
-            // Check Ids
-            uint32 currencyId = branchEntry->currencyId;
-            uint32 keystoneId = branchEntry->keystoneId;
-            if (currencyId != archData->fragId || (archData->keyId && archData->keyId != keystoneId))
-                return false;
+    if (_branches[project->branch].Project != projectId)
+        return false;
 
-            // Project can have keystones ?
-            if (project->keystone < archData->keyCount)
-                return false;
+    BranchEntry const* branchEntry = sArchaeologyMgr->GetBranchEntry(project->branch);
+    if (!branchEntry)
+        return false;
 
-            // Check if the given fragment/keystone usage would be enough
-            if (archData->fragCount + archData->keyCount * 12 != project->fragments)
-                return false;
+    // Check Ids
+    uint32 currencyId = branchEntry->currencyId;
+    uint32 keystoneId = branchEntry->keystoneId;
+    if (currencyId != _archData->FragId || (_archData->KeyId && _archData->KeyId != keystoneId))
+        return false;
 
-            // Check if the player has the keystones
-            if (_player->GetCurrency(archData->fragId, false) < archData->fragCount)
-                return false;
+    // Project can have keystones ?
+    if (project->keystone < _archData->KeyCount)
+        return false;
 
-            // Check if the player has the fragments
-            return (!archData->keyId || _player->GetItemCount(archData->keyId) >= archData->keyCount);
-        }
+    // Check if the given fragment/keystone usage would be enough
+    if (_archData->FragCount + _archData->KeyCount * 12 != project->fragments)
+        return false;
 
-    return false;
+    // Check if the player has the keystones
+    if (_player->GetCurrency(_archData->FragId, false) < _archData->FragCount)
+        return false;
+
+    // Check if the player has the fragments
+    return (!_archData->KeyId || _player->GetItemCount(_archData->KeyId) >= _archData->KeyCount);
 }
 
 void Archaeology::CompleteProject(uint16 projectId)
 {
-    const ProjectEntry *project = sArchaeologyMgr->GetProjectEntry(projectId);
+    ProjectEntry const* project = sArchaeologyMgr->GetProjectEntry(projectId);
     ASSERT(project);
-    ASSERT(_branches[project->branch].project == projectId);
-    ASSERT(archData);
+    ASSERT(_branches[project->branch].Project == projectId);
+    ASSERT(_archData);
 
-    _player->ModifyCurrency(archData->fragId, -int32(archData->fragCount), false, true);
-    _player->DestroyItemCount(archData->keyId, archData->keyCount, true, false);
+    _player->ModifyCurrency(_archData->FragId, -int32(_archData->FragCount), false, true);
+    _player->DestroyItemCount(_archData->KeyId, _archData->KeyCount, true, false);
 
     if (_completedProjects.find(projectId) == _completedProjects.end())
     {
-        _completedProjects[projectId].first = time(NULL);
+        _completedProjects[projectId].first = time(nullptr);
         _completedProjects[projectId].second = 1;
 
         CharacterDatabase.PExecute("REPLACE INTO character_archaeology_completed VALUES (%u, %u, %u, 1);",
-            _player->GetGUID(), projectId, time(NULL));
+            _player->GetGUID(), projectId, time(nullptr));
     }
     else
     {
@@ -209,8 +207,13 @@ void Archaeology::CompleteProject(uint16 projectId)
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS, projectId, 1);
 
-    delete archData;
+    _archData.reset();
     ActivateBranch(project->branch, true);
+}
+
+void Archaeology::SetArchData(ArchData const& data)
+{
+    _archData = Trinity::make_unique<ArchData>(std::move(data));
 }
 
 void Archaeology::SendResearchHistory()
@@ -228,5 +231,5 @@ void Archaeology::SendResearchHistory()
         packet << uint32(itr->second.first);
     }
 
-    _player->GetSession()->SendPacket(&packet);
+    _player->SendDirectMessage(&packet);
 }

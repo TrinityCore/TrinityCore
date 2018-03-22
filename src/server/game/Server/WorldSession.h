@@ -24,17 +24,14 @@
 #define __WORLDSESSION_H
 
 #include "Common.h"
+#include "DatabaseEnvFwd.h"
+#include "LockedQueue.h"
+#include "ObjectGuid.h"
+#include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
-#include "AddonMgr.h"
-#include "DatabaseEnv.h"
-#include "World.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
-#include "Cryptography/BigNumber.h"
-#include "Opcodes.h"
-#include "AccountMgr.h"
-#include <unordered_set>
+#include <unordered_map>
 
+class BigNumber;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -47,13 +44,16 @@ class SpellCastTargets;
 class Unit;
 class Warden;
 class WorldPacket;
+class WorldSession;
 class WorldSocket;
+struct AddonInfo;
 struct AreaTableEntry;
 struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
 struct TradeStatusInfo;
+struct z_stream_s;
 
 namespace lfg
 {
@@ -297,7 +297,7 @@ class TC_GAME_API WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
+        void SendAreaTriggerMessage(char const* Text, ...) ATTR_PRINTF(2, 3);
         void SendQueryTimeResponse();
 
         void SendAuthResponse(uint8 code, bool queued, uint32 queuePos = 0);
@@ -404,8 +404,7 @@ class TC_GAME_API WorldSession
                 m_TutorialsChanged |= TUTORIALS_FLAG_CHANGED;
             }
         }
-        //used with item_page table
-        bool SendItemInfo(uint32 itemid, WorldPacket data);
+
         //auction
         void SendAuctionHello(ObjectGuid guid, Creature* unit);
         void SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
@@ -452,10 +451,7 @@ class TC_GAME_API WorldSession
             m_timeOutTime -= int32(diff);
         }
 
-        void ResetTimeOutTime()
-        {
-            m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
-        }
+        void ResetTimeOutTime();
 
         bool IsConnectionIdle() const
         {
@@ -1101,7 +1097,7 @@ class TC_GAME_API WorldSession
         {
             friend class World;
             public:
-                DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
+                DosProtection(WorldSession* s);
                 bool EvaluateOpcode(WorldPacket& p, time_t time) const;
             protected:
                 enum Policy
@@ -1132,7 +1128,7 @@ class TC_GAME_API WorldSession
         bool CanUseBank(ObjectGuid bankerGUID = ObjectGuid::Empty) const;
 
         // logging helper
-        void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
+        void LogUnexpectedOpcode(WorldPacket* packet, char const* status, const char *reason);
         void LogUnprocessedTail(WorldPacket* packet);
 
         // EnumData helpers
@@ -1160,7 +1156,7 @@ class TC_GAME_API WorldSession
         typedef std::list<AddonInfo> AddonsList;
 
         // Warden
-        Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config
+        Warden* _warden;                                    // Remains nullptr if Warden system is not enabled by config
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue

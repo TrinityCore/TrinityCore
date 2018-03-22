@@ -27,10 +27,14 @@ On his death the vault door opens.
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "uldaman.h"
-#include "Player.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "uldaman.h"
 
 enum Says
 {
@@ -58,11 +62,7 @@ enum Spells
 class boss_archaedas : public CreatureScript
 {
     public:
-
-        boss_archaedas()
-            : CreatureScript("boss_archaedas")
-        {
-        }
+        boss_archaedas() : CreatureScript("boss_archaedas") { }
 
         struct boss_archaedasAI : public ScriptedAI
         {
@@ -125,10 +125,10 @@ class boss_archaedas : public CreatureScript
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 // Being woken up from the altar, start the awaken sequence
-                if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
+                if (spell->Id == SPELL_ARCHAEDAS_AWAKEN)
                 {
                     Talk(SAY_AGGRO);
                     iAwakenTimer = 4000;
@@ -212,7 +212,7 @@ class boss_archaedas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_archaedasAI>(creature);
+            return GetUldamanAI<boss_archaedasAI>(creature);
         }
 };
 
@@ -226,11 +226,7 @@ EndScriptData */
 class npc_archaedas_minions : public CreatureScript
 {
     public:
-
-        npc_archaedas_minions()
-            : CreatureScript("npc_archaedas_minions")
-        {
-        }
+        npc_archaedas_minions() : CreatureScript("npc_archaedas_minions") { }
 
         struct npc_archaedas_minionsAI : public ScriptedAI
         {
@@ -276,10 +272,10 @@ class npc_archaedas_minions : public CreatureScript
                 bAmIAwake = true;
             }
 
-            void SpellHit(Unit * /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit * /*caster*/, SpellInfo const* spell) override
             {
                 // time to wake up, start animation
-                if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
+                if (spell->Id == SPELL_ARCHAEDAS_AWAKEN)
                 {
                     iAwakenTimer = 5000;
                     bWakingUp = true;
@@ -318,7 +314,7 @@ class npc_archaedas_minions : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_archaedas_minionsAI>(creature);
+            return GetUldamanAI<npc_archaedas_minionsAI>(creature);
         }
 };
 
@@ -332,11 +328,7 @@ EndScriptData */
 class npc_stonekeepers : public CreatureScript
 {
     public:
-
-        npc_stonekeepers()
-            : CreatureScript("npc_stonekeepers")
-        {
-        }
+        npc_stonekeepers() : CreatureScript("npc_stonekeepers") { }
 
         struct npc_stonekeepersAI : public ScriptedAI
         {
@@ -381,7 +373,7 @@ class npc_stonekeepers : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_stonekeepersAI>(creature);
+            return GetUldamanAI<npc_stonekeepersAI>(creature);
         }
 };
 
@@ -399,14 +391,12 @@ class go_altar_of_archaedas : public GameObjectScript
 
         struct go_altar_of_archaedasAI : public GameObjectAI
         {
-            go_altar_of_archaedasAI(GameObject* go) : GameObjectAI(go) { }
+            go_altar_of_archaedasAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* player) override
             {
-                InstanceScript* instance = player->GetInstanceScript();
-                if (!instance)
-                    return false;
-
                 player->CastSpell(player, SPELL_BOSS_OBJECT_VISUAL, false);
 
                 instance->SetGuidData(0, player->GetGUID());     // activate archaedas
@@ -416,7 +406,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_altar_of_archaedasAI(go);
+            return GetUldamanAI<go_altar_of_archaedasAI>(go);
         }
 };
 

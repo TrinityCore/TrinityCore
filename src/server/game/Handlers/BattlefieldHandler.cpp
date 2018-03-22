@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
+#include "Log.h"
+#include "Object.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Object.h"
-
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
 
 /**
  * @fn void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 acceptTime)
@@ -53,7 +53,7 @@ void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint3
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[0]);
-    data << uint32(time(NULL) + acceptTime); // Invite lasts until
+    data << uint32(time(nullptr) + acceptTime); // Invite lasts until
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[5]);
     SendPacket(&data);

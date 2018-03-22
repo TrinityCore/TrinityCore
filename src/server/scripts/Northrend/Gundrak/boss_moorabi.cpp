@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "gundrak.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "gundrak.h"
 
 enum Spells
 {
@@ -225,9 +225,7 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOJO_FRENZY_CAST_SPEED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });
             }
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)

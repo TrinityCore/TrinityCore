@@ -24,9 +24,12 @@ SDCategory:
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -61,11 +64,6 @@ class boss_mal_ganis : public CreatureScript
 {
 public:
     boss_mal_ganis() : CreatureScript("boss_mal_ganis") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_mal_ganisAI>(creature);
-    }
 
     struct boss_mal_ganisAI : public ScriptedAI
     {
@@ -244,6 +242,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetCullingOfStratholmeAI<boss_mal_ganisAI>(creature);
+    }
 };
 
 void AddSC_boss_mal_ganis()

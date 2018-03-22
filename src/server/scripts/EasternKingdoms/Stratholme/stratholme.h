@@ -19,6 +19,9 @@
 #ifndef DEF_STRATHOLME_H
 #define DEF_STRATHOLME_H
 
+#include "CreatureAIImpl.h"
+
+#define StratholmeScriptName "instance_stratholme"
 #define DataHeader "STR"
 
 enum STRDataTypes
@@ -99,5 +102,11 @@ enum STRMisc
     TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
     MAX_ENCOUNTER                       = 6
 };
+
+template <class AI, class T>
+inline AI* GetStratholmeAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, StratholmeScriptName);
+}
 
 #endif

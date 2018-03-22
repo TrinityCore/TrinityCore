@@ -16,10 +16,12 @@
 */
 
 #include "ScriptMgr.h"
-#include "Player.h"
-#include "CreatureGroups.h"
-#include "Vehicle.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "TemporarySummon.h"
 #include "vortex_pinnacle.h"
 
 #define MAX_ENCOUNTER 3
@@ -91,7 +93,7 @@ ObjectData const creatureData[] =
 class instance_vortex_pinnacle : public InstanceMapScript
 {
     public:
-        instance_vortex_pinnacle() : InstanceMapScript(SCScriptName, 657) { }
+        instance_vortex_pinnacle() : InstanceMapScript(VPScriptName, 657) { }
 
         struct instance_vortex_pinnacle_InstanceScript : public InstanceScript
         {
@@ -112,11 +114,11 @@ class instance_vortex_pinnacle : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                case NPC_HOWLING_GALE:
-                    creature->SetReactState(REACT_PASSIVE);
-                    break;
-                default:
-                    break;
+                    case NPC_HOWLING_GALE:
+                        creature->SetReactState(REACT_PASSIVE);
+                        break;
+                    default:
+                        break;
                 }
 
                 InstanceScript::OnCreatureCreate(creature);
@@ -211,7 +213,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     points[0]->CastSpell(points[2], SPELL_BEAM_C, true);
 
                     if (TempSummon* top = instance->SummonCreature(NPC_GROUNDING_FIELD, positionTop))
-                        top->ToCreature()->GetAI()->DoAction(ACTION_GROUNDING_FIELD_TOP);
+                        top->AI()->DoAction(ACTION_GROUNDING_FIELD_TOP);
                 }
             }
 

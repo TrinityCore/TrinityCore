@@ -18,9 +18,8 @@
 
 #ifndef TRINITYSERVER_MOVESPLINEFLAG_H
 #define TRINITYSERVER_MOVESPLINEFLAG_H
-#include "MovementTypedefs.h"
 
-#include <string>
+#include "MovementTypedefs.h"
 
 namespace Movement
 {
@@ -74,11 +73,11 @@ namespace Movement
         };
 
         inline uint32& raw() { return (uint32&)*this; }
-        inline const uint32& raw() const { return (const uint32&)*this; }
+        inline uint32 const& raw() const { return (uint32 const&)*this; }
 
         MoveSplineFlag() { raw() = 0; }
         MoveSplineFlag(uint32 f) { raw() = f; }
-        MoveSplineFlag(const MoveSplineFlag& f) { raw() = f.raw(); }
+        MoveSplineFlag(MoveSplineFlag const& f) { raw() = f.raw(); }
 
         // Constant interface
 

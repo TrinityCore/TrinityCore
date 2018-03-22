@@ -35,8 +35,8 @@ private:
     {
         delete[] vertices;
         delete[] indices;
-        vertices = NULL;
-        indices = NULL;
+        vertices = nullptr;
+        indices = nullptr;
     }
     std::string filename;
 public:

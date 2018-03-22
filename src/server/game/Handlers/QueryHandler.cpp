@@ -16,18 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "DBCStores.h"
 #include "Log.h"
-#include "World.h"
+#include "MapManager.h"
+#include "NPCHandler.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "UpdateMask.h"
-#include "NPCHandler.h"
-#include "MapManager.h"
-#include "CharacterCache.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -50,7 +52,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     data << uint8(nameData->Sex);
     data << uint8(nameData->Class);
 
-    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
+    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
     {
         data << uint8(1);                           // Name is declined
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
@@ -81,8 +83,8 @@ void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
 void WorldSession::SendQueryTimeResponse()
 {
     WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4+4);
-    data << uint32(time(NULL));
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(NULL));
+    data << uint32(time(nullptr));
+    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(nullptr));
     SendPacket(&data);
 }
 
@@ -103,7 +105,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         Title = creatureInfo->Title;
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
-        if (static_cast<int>(locale >= LOCALE_enUS))
+        if (locale != LOCALE_enUS)
         {
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(entry))
             {
@@ -144,7 +146,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << float(creatureInfo->ModMana);                         // dmg/mana modifier
         data << uint8(creatureInfo->RacialLeader);                    // RacialLeader
 
-        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(entry);
+        std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(entry);
         if (items)
             for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
                 data << (i < items->size() ? uint32((*items)[i]) : uint32(0));
@@ -180,7 +182,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
+    GameObjectTemplate const* info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
     {
         std::string Name;
@@ -192,12 +194,14 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         CastBarCaption = info->castBarCaption;
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
+        {
             if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(entry))
             {
                 ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, Name);
                 ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, CastBarCaption);
             }
+        }
 
         TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name.c_str(), entry);
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 150);
@@ -213,7 +217,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         data << float(info->size);                          // go size
         data << int32(info->RequiredLevel);                 // 4.x, Required level
 
-        GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
+        std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
         if (items)
             for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
                 data << (i < items->size() ? uint32((*items)[i]) : uint32(0));
@@ -396,7 +400,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
             std::string Text = pageText->Text;
 
             LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-            if (localeConstant >= LOCALE_enUS)
+            if (localeConstant != LOCALE_enUS)
                 if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
                     ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, Text);
 

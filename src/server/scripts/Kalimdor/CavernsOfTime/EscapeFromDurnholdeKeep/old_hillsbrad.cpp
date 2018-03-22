@@ -30,11 +30,13 @@ npc_taretha
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "old_hillsbrad.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 enum Erozion
 {
@@ -101,7 +103,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_erozionAI(creature);
+        return GetOldHillsbradAI<npc_erozionAI>(creature);
     }
 };
 
@@ -195,11 +197,6 @@ class npc_thrall_old_hillsbrad : public CreatureScript
 {
 public:
     npc_thrall_old_hillsbrad() : CreatureScript("npc_thrall_old_hillsbrad") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_thrall_old_hillsbradAI>(creature);
-    }
 
     struct npc_thrall_old_hillsbradAI : public npc_escortAI
     {
@@ -438,7 +435,7 @@ public:
                 case 106:
                     {
                         //trigger taretha to run down outside
-                        if (Creature* Taretha = instance->instance->GetCreature(instance->GetGuidData(DATA_TARETHA)))
+                        if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
                         {
                             if (Player* player = GetPlayerForEscort())
                                 ENSURE_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
@@ -556,6 +553,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetOldHillsbradAI<npc_thrall_old_hillsbradAI>(creature);
+    }
 };
 
 /*######
@@ -574,11 +575,6 @@ class npc_taretha : public CreatureScript
 {
 public:
     npc_taretha() : CreatureScript("npc_taretha") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_tarethaAI>(creature);
-    }
 
     struct npc_tarethaAI : public npc_escortAI
     {
@@ -648,6 +644,11 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetOldHillsbradAI<npc_tarethaAI>(creature);
+    }
 };
 
 /*######

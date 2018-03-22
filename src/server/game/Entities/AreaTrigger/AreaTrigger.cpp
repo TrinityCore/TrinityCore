@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
-#include "Unit.h"
 #include "SpellInfo.h"
-#include "Log.h"
-#include "AreaTrigger.h"
+#include "Unit.h"
+#include "UpdateData.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)
 {

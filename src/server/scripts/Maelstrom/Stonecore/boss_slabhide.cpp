@@ -16,7 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "stonecore.h"
 
@@ -265,8 +270,8 @@ class boss_slabhide : public CreatureScript
                             break;
                         case EVENT_LAND:
                         {
-                            Position pos = me->GetPosition();
-                            pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            Position pos(*me);
+                            me->UpdateGroundPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                             me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, pos);
                             break;
                         }
@@ -293,18 +298,16 @@ class boss_slabhide : public CreatureScript
             void DespawnAll()
             {
                 // Despawn stalactite triggers npcs
-                std::list<Creature*> listStalactiteTrigger;
+                std::vector<Creature*> listStalactiteTrigger;
                 me->GetCreatureListWithEntryInGrid(listStalactiteTrigger, NPC_STALACTITE_TRIGGER, 200.0f);
-                if (!listStalactiteTrigger.empty())
-                    for (std::list<Creature*>::const_iterator itr = listStalactiteTrigger.begin(); itr != listStalactiteTrigger.end(); ++itr)
-                        (*itr)->DespawnOrUnsummon();
+                for (Creature* creature : listStalactiteTrigger)
+                    creature->DespawnOrUnsummon();
 
                 // Despawn stalactite objects
-                std::list<GameObject*> listStalactite;
+                std::vector<GameObject*> listStalactite;
                 me->GetGameObjectListWithEntryInGrid(listStalactite, GO_STALACTITE, 200.0f);
-                if (!listStalactite.empty())
-                    for (std::list<GameObject*>::const_iterator itr = listStalactite.begin(); itr != listStalactite.end(); ++itr)
-                        (*itr)->Delete();
+                for (GameObject* go : listStalactite)
+                    go->Delete();
             }
 
             bool _isFlying;
@@ -312,7 +315,7 @@ class boss_slabhide : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_slabhideAI>(creature);
+            return GetStonecoreAI<boss_slabhideAI>(creature);
         }
 };
 
@@ -355,7 +358,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_lava_fissureAI>(creature);
+        return GetStonecoreAI<npc_lava_fissureAI>(creature);
     }
 };
 
@@ -401,7 +404,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_stalactite_triggerAI>(creature);
+        return GetStonecoreAI<npc_stalactite_triggerAI>(creature);
     }
 };
 
@@ -478,8 +481,8 @@ public:
         void ModDestHeight(SpellDestination& dest)
         {
             Unit* caster = GetCaster();
-            Position pos = caster->GetPosition();
-            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
+            Position pos(*caster);
+            caster->UpdateGroundPositionZ(pos.m_positionX, pos.m_positionX, pos.m_positionZ);
             dest.Relocate(pos);
         }
 
@@ -507,9 +510,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_CRYSTAL_STORM_TRIGGER))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_CRYSTAL_STORM_TRIGGER });
         }
 
         void HandleDummyEffect(SpellEffIndex /*eff*/)

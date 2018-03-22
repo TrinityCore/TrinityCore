@@ -15,13 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
-#include "Player.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -1242,9 +1248,7 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BALL_OF_FLAMES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BALL_OF_FLAMES });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1354,10 +1358,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_KINETIC_BOMB_EXPLOSION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_KINETIC_BOMB_VISUAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_KINETIC_BOMB_EXPLOSION, SPELL_KINETIC_BOMB_VISUAL });
             }
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
@@ -1461,9 +1462,7 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_PRISON_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHADOW_PRISON_DAMAGE });
             }
 
             void HandleDummyTick(AuraEffect const* aurEff)

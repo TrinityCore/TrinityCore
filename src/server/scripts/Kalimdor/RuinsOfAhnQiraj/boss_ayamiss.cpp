@@ -17,9 +17,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -208,7 +211,7 @@ class boss_ayamiss : public CreatureScript
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
-                                if (Creature* swarmer = me->GetMap()->GetCreature(*i))
+                                if (Creature* swarmer = ObjectAccessor::GetCreature(*me, *i))
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                         swarmer->AI()->AttackStart(target);
 
@@ -241,7 +244,7 @@ class boss_ayamiss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ayamissAI>(creature);
+            return GetAQ20AI<boss_ayamissAI>(creature);
         }
 };
 
@@ -295,7 +298,7 @@ class npc_hive_zara_larva : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_hive_zara_larvaAI>(creature);
+            return GetAQ20AI<npc_hive_zara_larvaAI>(creature);
         }
 };
 

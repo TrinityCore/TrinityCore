@@ -20,8 +20,8 @@
 
 #include "dbcfile.h"
 
-DBCFile::DBCFile(HANDLE mpq, const char* filename) :
-    _mpq(mpq), _filename(filename), _file(NULL), _data(NULL), _stringTable(NULL)
+DBCFile::DBCFile(HANDLE mpq, char const* filename) :
+    _mpq(mpq), _filename(filename), _file(nullptr), _data(nullptr), _stringTable(nullptr)
 {
 }
 
@@ -34,7 +34,7 @@ bool DBCFile::open()
     unsigned int na, nb, es, ss;
 
     DWORD readBytes = 0;
-    SFileReadFile(_file, header, 4, &readBytes, NULL);
+    SFileReadFile(_file, header, 4, &readBytes, nullptr);
     if (readBytes != 4)                                         // Number of records
         return false;
 
@@ -42,22 +42,22 @@ bool DBCFile::open()
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &na, 4, &readBytes, NULL);
+    SFileReadFile(_file, &na, 4, &readBytes, nullptr);
     if (readBytes != 4)                                         // Number of records
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &nb, 4, &readBytes, NULL);
+    SFileReadFile(_file, &nb, 4, &readBytes, nullptr);
     if (readBytes != 4)                                         // Number of fields
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &es, 4, &readBytes, NULL);
+    SFileReadFile(_file, &es, 4, &readBytes, nullptr);
     if (readBytes != 4)                                         // Size of a record
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &ss, 4, &readBytes, NULL);
+    SFileReadFile(_file, &ss, 4, &readBytes, nullptr);
     if (readBytes != 4)                                         // String size
         return false;
 
@@ -73,7 +73,7 @@ bool DBCFile::open()
 
     size_t data_size = _recordSize * _recordCount + _stringSize;
     readBytes = 0;
-    SFileReadFile(_file, _data, data_size, &readBytes, NULL);
+    SFileReadFile(_file, _data, data_size, &readBytes, nullptr);
     if (readBytes != data_size)
         return false;
 
@@ -83,7 +83,7 @@ bool DBCFile::open()
 DBCFile::~DBCFile()
 {
     delete [] _data;
-    if (_file != NULL)
+    if (_file != nullptr)
         SFileCloseFile(_file);
 }
 

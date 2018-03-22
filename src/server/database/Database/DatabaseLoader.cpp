@@ -16,9 +16,10 @@
  */
 
 #include "DatabaseLoader.h"
-#include "DBUpdater.h"
 #include "Config.h"
-
+#include "DatabaseEnv.h"
+#include "DBUpdater.h"
+#include "Log.h"
 #include <mysqld_error.h>
 
 DatabaseLoader::DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask)
@@ -178,8 +179,8 @@ bool DatabaseLoader::Process(std::queue<Predicate>& queue)
 }
 
 template TC_DATABASE_API
-DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(LoginDatabaseWorkerPool&, std::string const&);
+DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(DatabaseWorkerPool<LoginDatabaseConnection>&, std::string const&);
 template TC_DATABASE_API
-DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(CharacterDatabaseWorkerPool&, std::string const&);
+DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(DatabaseWorkerPool<CharacterDatabaseConnection>&, std::string const&);
 template TC_DATABASE_API
-DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(WorldDatabaseWorkerPool&, std::string const&);
+DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(DatabaseWorkerPool<WorldDatabaseConnection>&, std::string const&);

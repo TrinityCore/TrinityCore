@@ -26,7 +26,7 @@ char * wdtGetPlainName(char * FileName)
 {
     char * szTemp;
 
-    if ((szTemp = strrchr(FileName, '\\')) != NULL)
+    if ((szTemp = strrchr(FileName, '\\')) != nullptr)
         FileName = szTemp + 1;
     return FileName;
 }

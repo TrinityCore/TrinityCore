@@ -16,8 +16,15 @@
 */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "lost_city_of_the_tolvir.h"
+#include "Map.h"
+#include "TemporarySummon.h"
+#include "Weather.h"
 
 enum TimedEvents
 {

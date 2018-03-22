@@ -16,11 +16,13 @@
 */
 
 #include "Archaeology.h"
-#include "DBCStore.h"
-#include "Player.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameObjectData.h"
 #include "Language.h"
-#include <G3D/Quat.h>
-
+#include "Map.h"
+#include "Player.h"
+#include "Random.h"
 
 // use squared distances so we don't have to use the squareroot
 enum DigSiteDist
@@ -96,32 +98,32 @@ void Archaeology::UseSite()
     if (dist > DIST_CLOSE)
     {
         uint32 surveyGoID;
-        float angle = std::atan2(_site[position].y - _player->GetPositionY(), _site[position].x - _player->GetPositionX());
-        float pi = float(M_PI);
+        float angle = std::atan2(_site[position].Y - _player->GetPositionY(), _site[position].X - _player->GetPositionX());
+        static float const pi = float(M_PI);
 
         if (dist < DIST_MED)
         {
             surveyGoID = CLOSE_SURVEYBOT;     // within the med radius -> green light
-            angle += frand(-pi / 12, pi / 12);
+            angle += frand(-pi / 12.f, pi / 12.f);
         }
         else if (dist < DIST_FAR)
         {
             surveyGoID = MED_SURVEYBOT;       // within the far radius -> yellow light
-            angle += frand(-pi / 6, pi / 6);
+            angle += frand(-pi / 6.f, pi / 6.f);
         }
         else
         {
             surveyGoID = FAR_SURVEYBOT;       // outside far radius -> red light
-            angle += frand(-pi / 3, pi / 3);
+            angle += frand(-pi / 3.f, pi / 3.f);
         }
 
         float o      = _player->GetOrientation();
         float x      = _player->GetPositionX() + cos(o) * 2.0f;
         float y      = _player->GetPositionY() + sin(o) * 2.0f;
-        float z      = _player->GetPositionZ();
+        float z      = _player->GetPositionZ();        
         float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
 
-        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(angle, 0.f, 0.f);
+        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(angle, 0.f, 0.f);
         if (std::abs(z - ground) < 1.5f)
         {
             _player->SummonGameObject(surveyGoID, Position(x, y, ground, angle), rot, 4);
@@ -135,7 +137,7 @@ void Archaeology::UseSite()
     }
 
     // Spawn the correct Find Object Here
-    uint32 goId  = sArchaeologyMgr->GetSiteType(_site[position].entry);
+    uint32 goId  = sArchaeologyMgr->GetSiteType(_site[position].Entry);
     float o      = _player->GetOrientation();
     float x      = _player->GetPositionX() + cos(o) * 2.0f;
     float y      = _player->GetPositionY() + sin(o) * 2.0f;
@@ -143,14 +145,14 @@ void Archaeology::UseSite()
     float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
 
     // Spawn object
-    _player->SummonGameObject(goId, Position(x, y, ground, o), G3D::Quat(), 60);
-    (_site[position].state)++;
+    _player->SummonGameObject(goId, Position(x, y, ground, o), QuaternionData(), 60);
+    (_site[position].State)++;
 
-    if (_site[position].state >= DIGS_PER_SITE)
-         RegeneratePosition(position, GetContinent());
+    if (_site[position].State >= DIGS_PER_SITE)
+        RegeneratePosition(position, GetContinent());
     else
     {
-        CharacterDatabase.PExecute("UPDATE character_archaeology_sites SET finds = %u WHERE site= %u AND guid= %u", _site[position].state, position, _player->GetGUID());
+        CharacterDatabase.PExecute("UPDATE character_archaeology_sites SET finds = %u WHERE site= %u AND guid= %u", _site[position].State, position, _player->GetGUID());
         sArchaeologyMgr->SetSiteCoords(_site[position]);
     }
 }
@@ -183,32 +185,32 @@ uint32 Archaeology::GetNearestSite(float &distance)
     float pX = _player->GetPositionX();
     float pY = _player->GetPositionY();
 
-    float dist = (pX - _site[position].x) * (pX - _site[position].x) + (pY - _site[position].y) * (pY - _site[position].y);
+    float distSq = (pX - _site[position].X) * (pX - _site[position].X) + (pY - _site[position].Y) * (pY - _site[position].Y);
 
-    for (uint32 i = cont * CONTINENT_SITES + 1; i < (cont + 1) * CONTINENT_SITES; i++)
+    for (uint32 i = cont * CONTINENT_SITES + 1; i < (cont + 1) * CONTINENT_SITES; ++i)
     {
-        float dist2 = (pX -_site[i].x) * (pX -_site[i].x) + (pY - _site[i].y) * (pY - _site[i].y);
-        if (dist2 < dist)
+        float distSq2 = (pX -_site[i].X) * (pX -_site[i].X) + (pY - _site[i].Y) * (pY - _site[i].Y);
+        if (distSq2 < distSq)
         {
             position = i;
-            dist = dist2;
+            distSq = distSq2;
         }
     }
-    distance = dist;
+    distance = distSq;
 
     return position + 1;
 }
 
 void Archaeology::SetSite(uint32 position, uint16 entry, uint32 state)
 {
-    _site[position].entry = entry;
-    _site[position].state = state;
+    _site[position].Entry = entry;
+    _site[position].State = state;
     _player->SetUInt16Value(PLAYER_FIELD_RESEARCH_SITE_1 + (position / 2), position % 2, entry);
 
     if (entry == 0)
     {
-        _site[position].x = 0.f;
-        _site[position].y = 0.f;
+        _site[position].X = 0.f;
+        _site[position].Y = 0.f;
     }
     else
         sArchaeologyMgr->SetSiteCoords(_site[position]);
@@ -216,12 +218,12 @@ void Archaeology::SetSite(uint32 position, uint16 entry, uint32 state)
 
 void Archaeology::RegeneratePosition(uint32 position, Continent continent)
 {
-    if (_site[position].entry && sResearchSiteStore.LookupEntry(_site[position].entry) && _site[position].state < DIGS_PER_SITE)
+    if (_site[position].Entry && sResearchSiteStore.LookupEntry(_site[position].Entry) && _site[position].State < DIGS_PER_SITE)
         return;
 
     uint16 entry = sArchaeologyMgr->GetNewSite(continent, _site, _continentState[continent] == STATE_EXT, _player->getLevel());
     SetSite(position, entry);
-    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_sites values (%u, %u, %u, %u);", _player->GetGUID(), position, entry, _site[position].state);
+    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_sites values (%u, %u, %u, %u);", _player->GetGUID(), position, entry, _site[position].State);
 }
 
 void Archaeology::RegenerateContinent(Continent continent)

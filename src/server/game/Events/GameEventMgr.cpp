@@ -17,17 +17,21 @@
  */
 
 #include "GameEventMgr.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
-#include "PoolMgr.h"
+#include "BattlegroundMgr.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameObjectAI.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "BattlegroundMgr.h"
+#include "PoolMgr.h"
 #include "UnitAI.h"
-#include "GameObjectAI.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -141,7 +145,7 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         }
 
         // When event is started, set its worldstate to current time
-        sWorld->setWorldState(event_id, time(NULL));
+        sWorld->setWorldState(event_id, time(nullptr));
         return false;
     }
     else
@@ -182,7 +186,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 
     if (overwrite && !serverwide_evt)
     {
-        data.start = time(NULL) - data.length * MINUTE;
+        data.start = time(nullptr) - data.length * MINUTE;
         if (data.end <= data.start)
             data.end = data.start + data.length;
     }
@@ -844,7 +848,7 @@ void GameEventMgr::LoadFromDB()
                     newEntry.entry = data->id;
 
                 // check validity with event's npcflag
-                if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.Type, NULL, NULL, event_npc_flag))
+                if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.Type, nullptr, nullptr, event_npc_flag))
                     continue;
 
                 vendors.push_back(newEntry);

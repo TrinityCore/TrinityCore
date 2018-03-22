@@ -16,13 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
 #include "RandomMovementGenerator.h"
-#include "Map.h"
-#include "Util.h"
+#include "Creature.h"
 #include "CreatureGroups.h"
-#include "MoveSplineInit.h"
+#include "Map.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "Random.h"
+#include "Util.h"
 
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
 
@@ -170,7 +171,7 @@ template<>
 bool RandomMovementGenerator<Creature>::GetResetPos(Creature* creature, float& x, float& y, float& z)
 {
     float radius;
-    creature->GetRespawnPosition(x, y, z, NULL, &radius);
+    creature->GetRespawnPosition(x, y, z, nullptr, &radius);
 
     // use current if in range
     if (creature->IsWithinDist2d(x, y, radius))

@@ -17,8 +17,9 @@
 
 #include "RBAC.h"
 #include "AccountMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
-#include "QueryCallback.h"
+#include <sstream>
 
 namespace rbac
 {

@@ -17,6 +17,7 @@
  */
 
 #include "MMapManager.h"
+#include "Errors.h"
 #include "Log.h"
 #include "MMapFactory.h"
 #include "MapDefines.h"

@@ -24,17 +24,9 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "WorldPacket.h"
-
-#include "Item.h"
-#include "Player.h"
-#include "Spell.h"
-
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "temple_of_ahnqiraj.h"
 
 enum Spells
 {
@@ -63,11 +55,6 @@ class npc_anubisath_sentinel : public CreatureScript
 {
 public:
     npc_anubisath_sentinel() : CreatureScript("npc_anubisath_sentinel") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new aqsentinelAI(creature);
-    }
 
     struct aqsentinelAI : public ScriptedAI
     {
@@ -266,6 +253,11 @@ public:
             }
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<aqsentinelAI>(creature);
+    }
 };
 
 void AddSC_npc_anubisath_sentinel()

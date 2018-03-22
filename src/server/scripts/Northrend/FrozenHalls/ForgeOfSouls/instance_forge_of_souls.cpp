@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 
 

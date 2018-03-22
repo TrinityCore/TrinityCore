@@ -22,11 +22,13 @@ Comment: All titles related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class titles_commandscript : public CommandScript
 {
@@ -44,11 +46,11 @@ public:
             { "add",     rbac::RBAC_PERM_COMMAND_TITLES_ADD,     false, &HandleTitlesAddCommand,     "" },
             { "current", rbac::RBAC_PERM_COMMAND_TITLES_CURRENT, false, &HandleTitlesCurrentCommand, "" },
             { "remove",  rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,  false, &HandleTitlesRemoveCommand,  "" },
-            { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, NULL,       "", titlesSetCommandTable },
+            { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, nullptr,       "", titlesSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, NULL, "", titlesCommandTable },
+            { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, nullptr, "", titlesCommandTable },
         };
         return commandTable;
     }
@@ -133,12 +135,10 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-
-        char titleNameStr[80];
-        snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale, target->GetName().c_str());
+        std::string titleNameStr = Trinity::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale, target->GetName().c_str());
 
         target->SetTitle(titleInfo);
-        handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr.c_str(), tNameLink.c_str());
 
         return true;
     }
@@ -202,9 +202,7 @@ public:
         if (!*args)
             return false;
 
-        uint64 titles = 0;
-
-        sscanf((char*)args, UI64FMTD, &titles);
+        uint64 titles = atoull(args);
 
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -218,13 +216,11 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        uint64 titles2 = titles;
+        uint64 allValidTitleMask = 0;
+        for (CharTitlesEntry const* tEntry : sCharTitlesStore)
+            allValidTitleMask |= (uint64(1) << tEntry->bit_index);
 
-        for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
-            if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
-                titles2 &= ~(uint64(1) << tEntry->bit_index);
-
-        titles &= ~titles2;                                     // remove non-existing titles
+        titles &= allValidTitleMask;                // remove non-existing titles
 
         target->SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES, titles);
         handler->SendSysMessage(LANG_DONE);

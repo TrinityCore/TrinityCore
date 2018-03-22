@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "mana_tombs.h"
+#include "Map.h"
 
 class instance_mana_tombs : public InstanceMapScript
 {

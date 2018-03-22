@@ -18,10 +18,20 @@
 #ifndef DBUpdater_h__
 #define DBUpdater_h__
 
-#include "DatabaseEnv.h"
-
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <string>
-#include <boost/filesystem.hpp>
+
+template <class T>
+class DatabaseWorkerPool;
+
+namespace boost
+{
+    namespace filesystem
+    {
+        class path;
+    }
+}
 
 class TC_DATABASE_API UpdateException : public std::exception
 {
@@ -39,19 +49,6 @@ enum BaseLocation
 {
     LOCATION_REPOSITORY,
     LOCATION_DOWNLOAD
-};
-
-struct TC_DATABASE_API UpdateResult
-{
-    UpdateResult()
-        : updated(0), recent(0), archived(0) { }
-
-    UpdateResult(size_t const updated_, size_t const recent_, size_t const archived_)
-        : updated(updated_), recent(recent_), archived(archived_) { }
-
-    size_t updated;
-    size_t recent;
-    size_t archived;
 };
 
 class DBUpdaterUtil

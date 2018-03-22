@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ahnkahet.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -88,7 +90,7 @@ class boss_amanitar : public CreatureScript
                 for (uint8 i = 0; i < 30; ++i)
                 {
                     Position pos = me->GetRandomNearPosition(30.0f);
-                    pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), MAX_HEIGHT) + 2.0f;
+                    me->UpdateGroundPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
 
                     if (Creature* trigger = me->SummonCreature(NPC_TRIGGER, pos))
                     {
@@ -227,7 +229,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_amanitar_mushroomsAI(creature);
+        return GetAhnKahetAI<npc_amanitar_mushroomsAI>(creature);
     }
 };
 

@@ -24,10 +24,12 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "old_hillsbrad.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 
 #define MAX_ENCOUNTER      6
 
@@ -43,12 +45,7 @@ EndScriptData */
 class instance_old_hillsbrad : public InstanceMapScript
 {
 public:
-    instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_old_hillsbrad_InstanceMapScript(map);
-    }
+    instance_old_hillsbrad() : InstanceMapScript(OHScriptName, 560) { }
 
     struct instance_old_hillsbrad_InstanceMapScript : public InstanceScript
     {
@@ -72,7 +69,6 @@ public:
         Player* GetPlayerInMap()
         {
             Map::PlayerList const& players = instance->GetPlayers();
-
             if (!players.isEmpty())
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -83,13 +79,12 @@ public:
             }
 
             TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
-            return NULL;
+            return nullptr;
         }
 
         void UpdateQuestCredit()
         {
             Map::PlayerList const& players = instance->GetPlayers();
-
             if (!players.isEmpty())
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -234,6 +229,10 @@ public:
         }
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_old_hillsbrad_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_old_hillsbrad()

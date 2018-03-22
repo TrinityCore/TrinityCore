@@ -294,8 +294,8 @@ public:
     uint32 data4;
     uint32 data5;
     bool prepareLoadedData();
-    adt_MCIN* getMCIN() { return offsMCIN ? (adt_MCIN *)((uint8 *)&flags+offsMCIN) : NULL; }
-    adt_MH2O* getMH2O() { return offsMH2O ? (adt_MH2O *)((uint8 *)&flags+offsMH2O) : NULL; }
+    adt_MCIN* getMCIN() { return offsMCIN ? (adt_MCIN *)((uint8 *)&flags+offsMCIN) : nullptr; }
+    adt_MH2O* getMH2O() { return offsMH2O ? (adt_MH2O *)((uint8 *)&flags+offsMH2O) : nullptr; }
 };
 
 class ADT_file : public FileLoader{

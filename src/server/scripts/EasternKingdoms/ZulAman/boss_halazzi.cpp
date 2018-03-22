@@ -17,9 +17,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "zulaman.h"
 #include "SpellInfo.h"
+#include "zulaman.h"
 
 enum Spells
 {
@@ -139,7 +142,7 @@ class boss_halazzi : public CreatureScript
                     damage = 0;
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) override
+            void SpellHit(Unit*, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TRANSFORM_SPLIT2)
                     EnterPhase(PHASE_HUMAN);
@@ -320,7 +323,7 @@ class boss_halazzi : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_halazziAI>(creature);
+            return GetZulAmanAI<boss_halazziAI>(creature);
         }
 };
 
@@ -389,7 +392,7 @@ class npc_halazzi_lynx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_halazzi_lynxAI(creature);
+            return GetZulAmanAI<npc_halazzi_lynxAI>(creature);
         }
 };
 

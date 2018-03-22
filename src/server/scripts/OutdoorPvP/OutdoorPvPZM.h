@@ -114,17 +114,17 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
         uint32 m_TowerState;
 };
 
-enum ZM_GraveYardState
+enum ZM_GraveyardState
 {
     ZM_GRAVEYARD_N = 1,
     ZM_GRAVEYARD_A = 2,
     ZM_GRAVEYARD_H = 4
 };
 
-class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
+class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
 {
     public:
-        OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp);
+        OPvPCapturePointZM_Graveyard(OutdoorPvP* pvp);
 
         bool Update(uint32 diff) override;
 
@@ -144,10 +144,10 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso) override;
 
-        uint32 GetGraveYardState() const;
+        uint32 GetGraveyardState() const;
 
     private:
-        uint32 m_GraveYardState;
+        uint32 m_GraveyardState;
 
     protected:
         uint32 m_BothControllingFaction;
@@ -180,7 +180,7 @@ class OutdoorPvPZM : public OutdoorPvP
         void SetHordeTowersControlled(uint32 count);
 
     private:
-        OPvPCapturePointZM_GraveYard * m_GraveYard;
+        OPvPCapturePointZM_Graveyard * m_Graveyard;
 
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;

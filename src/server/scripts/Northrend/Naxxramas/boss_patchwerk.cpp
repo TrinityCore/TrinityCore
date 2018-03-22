@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -58,11 +59,6 @@ class boss_patchwerk : public CreatureScript
 {
 public:
     boss_patchwerk() : CreatureScript("boss_patchwerk") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_patchwerkAI>(creature);
-    }
 
     struct boss_patchwerkAI : public BossAI
     {
@@ -119,8 +115,8 @@ public:
                         // Hateful Strike targets the highest non-MT threat in melee range on 10man
                         // and the higher HP target out of the two highest non-MT threats in melee range on 25man
                         float MostThreat = 0.0f;
-                        Unit* secondThreatTarget = NULL;
-                        Unit* thirdThreatTarget = NULL;
+                        Unit* secondThreatTarget = nullptr;
+                        Unit* thirdThreatTarget = nullptr;
 
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
@@ -148,7 +144,7 @@ public:
                             }
                         }
 
-                        Unit* pHatefulTarget = NULL;
+                        Unit* pHatefulTarget = nullptr;
                         if (!thirdThreatTarget)
                             pHatefulTarget = secondThreatTarget;
                         else if (secondThreatTarget)
@@ -193,6 +189,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<boss_patchwerkAI>(creature);
+    }
 };
 
 void AddSC_boss_patchwerk()

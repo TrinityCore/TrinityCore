@@ -18,15 +18,13 @@
 #ifndef TRINITY_SMARTAI_H
 #define TRINITY_SMARTAI_H
 
-#include "Common.h"
-#include "Creature.h"
+#include "Define.h"
 #include "CreatureAI.h"
-#include "Unit.h"
-#include "Spell.h"
-
-#include "SmartScript.h"
-#include "SmartScriptMgr.h"
 #include "GameObjectAI.h"
+#include "Position.h"
+#include "SmartScript.h"
+
+struct WayPoint;
 
 enum SmartEscortState
 {
@@ -100,10 +98,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MoveInLineOfSight(Unit* who) override;
 
         // Called when hit by a spell
-        void SpellHit(Unit* unit, const SpellInfo* spellInfo) override;
+        void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
 
         // Called when spell hits a target
-        void SpellHitTarget(Unit* target, const SpellInfo* spellInfo) override;
+        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage) override;
@@ -142,7 +140,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnCharmed(bool apply) override;
 
         // Called when victim is in line of sight
-        bool CanAIAttack(const Unit* who) const override;
+        bool CanAIAttack(Unit const* who) const override;
 
         // Used in scripts to share variables
         void DoAction(int32 param = 0) override;
@@ -180,7 +178,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         bool GossipHello(Player* player) override;
         bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
+        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
         void QuestAccept(Player* player, Quest const* quest) override;
         void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void OnGameEvent(bool start, uint16 eventId) override;
@@ -262,7 +260,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         bool GossipHello(Player* player) override;
         bool OnReportUse(Player* player) override;
         bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
+        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
         void QuestAccept(Player* player, Quest const* quest) override;
         void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void Destroyed(Player* player, uint32 eventId) override;
@@ -271,7 +269,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void OnGameEvent(bool start, uint16 eventId) override;
         void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
-        void SpellHit(Unit* unit, const SpellInfo* spellInfo) override;
+        void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 

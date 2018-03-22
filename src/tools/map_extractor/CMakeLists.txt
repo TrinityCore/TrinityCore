@@ -9,37 +9,41 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE mapextractor_SRCS *.cpp *.h)
-
-include_directories (
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/dep/fmt
-  ${CMAKE_SOURCE_DIR}/dep/StormLib/src
-  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
-  ${CMAKE_SOURCE_DIR}/src/common
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES
 )
 
-include_directories(${include_Dirs})
+if (WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+endif()
 
 add_executable(mapextractor
-  ${mapextractor_SRCS}
+  ${PRIVATE_SOURCES}
 )
 
 target_link_libraries(mapextractor
-  common
-  fmt
-  g3dlib
-  ${BZIP2_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${Boost_LIBRARIES}
-  storm
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    common
+    storm)
+
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES
 )
 
-add_dependencies(mapextractor storm)
+target_include_directories(mapextractor
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+    
+set_target_properties(mapextractor
+  PROPERTIES
+    FOLDER
+      "tools")
 
 if( UNIX )
   install(TARGETS mapextractor DESTINATION bin)

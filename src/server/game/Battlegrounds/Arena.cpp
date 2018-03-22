@@ -20,10 +20,95 @@
 #include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "Guild.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
+
+void ArenaScore::AppendToPacket(WorldPacket& data, ByteBuffer& content)
+{
+    uint32 primaryTree = 0;
+    if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
+        primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
+
+    data.WriteBit(0);                   // Unk 1
+    data.WriteBit(0);                   // Unk 2
+    data.WriteBit(PlayerGuid[2]);
+    data.WriteBit(/*!IsArena*/ 0);      // IsArena
+    data.WriteBit(0);                   // Unk 4
+    data.WriteBit(0);                   // Unk 5
+    data.WriteBit(0);                   // Unk 6
+    data.WriteBit(PlayerGuid[3]);
+    data.WriteBit(PlayerGuid[0]);
+    data.WriteBit(PlayerGuid[5]);
+    data.WriteBit(PlayerGuid[1]);
+    data.WriteBit(PlayerGuid[6]);
+    data.WriteBit(TeamId);
+    data.WriteBit(PlayerGuid[7]);
+
+    content << uint32(HealingDone);     // healing done
+    content << uint32(DamageDone);      // damage done
+
+    content.WriteByteSeq(PlayerGuid[4]);
+    content << uint32(KillingBlows);
+
+    //if (unk5)
+    //  content << int32(RatingChange); // RatingChange
+
+    content.WriteByteSeq(PlayerGuid[5]);
+
+    //if (unk 6)
+    //    content << uint32();
+
+    //if (unk 2)
+    //    content << uint32();
+
+    content.WriteByteSeq(PlayerGuid[1]);
+    content.WriteByteSeq(PlayerGuid[6]);
+
+    content << int32(primaryTree);
+
+    BuildObjectivesBlock(data, content);
+
+    data.WriteBit(PlayerGuid[4]);
+
+    content.WriteByteSeq(PlayerGuid[0]);
+    content.WriteByteSeq(PlayerGuid[3]);
+
+    //if (unk 4)
+    //    content << uint32() unk
+
+    content.WriteByteSeq(PlayerGuid[7]);
+    content.WriteByteSeq(PlayerGuid[2]);
+}
+
+void ArenaScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& /*content*/)
+{
+    data.WriteBits(0, 24); // Objectives Count
+}
+
+void ArenaTeamScore::BuildRatingInfoBlock(WorldPacket& data)
+{
+    uint32 ratingLost = std::abs(std::min(RatingChange, 0));
+    uint32 ratingWon = std::max(RatingChange, 0);
+
+    // should be old rating, new rating, and client will calculate rating change itself
+    data << uint32(MatchmakerRating);
+    data << uint32(ratingLost);
+    data << uint32(ratingWon);
+}
+
+void ArenaTeamScore::BuildTeamInfoLengthBlock(WorldPacket& data)
+{
+    data.WriteBits(TeamName.length(), 8);
+}
+
+void ArenaTeamScore::BuildTeamInfoBlock(WorldPacket& data)
+{
+    data.WriteString(TeamName);
+}
 
 Arena::Arena()
 {
@@ -243,7 +328,7 @@ void Arena::EndBattleground(uint32 winner)
                         guildAwarded = true;
                         if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetBGTeam()))
                             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, NULL, player);
+                                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, nullptr, player);
                     }
 
                     winnerArenaTeam->MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);

@@ -16,11 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "MoveSplineInit.h"
-#include "SpellScript.h"
 #include "CombatAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum WoundedColdridgeMountaineer
 {
@@ -218,8 +221,7 @@ enum MilosGyro
     EVENT_MILO_DESPAWN            = 13
 };
 
-uint32 const pathSize = 24;
-G3D::Vector3 const kharanosPath[pathSize] =
+Position const kharanosPath[] =
 {
     { -6247.328f, 299.5365f, 390.266f   },
     { -6247.328f, 299.5365f, 390.266f   },
@@ -246,6 +248,7 @@ G3D::Vector3 const kharanosPath[pathSize] =
     { -5603.897f, -466.3438f, 409.8931f },
     { -5566.957f, -472.5642f, 399.0056f }
 };
+uint32 const pathSize = std::extent<decltype(kharanosPath)>::value;
 
 class npc_milos_gyro : public CreatureScript
 {

@@ -16,41 +16,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-#include <cstdio>
-#include <iostream>
-#include <vector>
-#include <list>
-#include <errno.h>
-#include <unordered_set>
-#include <unordered_map>
-
-#ifdef _WIN32
-    #include <Windows.h>
-    #include <sys/stat.h>
-    #include <direct.h>
-    #define mkdir _mkdir
-#else
-    #include <sys/stat.h>
-    #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
-#endif
-
-#undef min
-#undef max
-
-//#pragma warning(disable : 4505)
-//#pragma comment(lib, "Winmm.lib")
-
-#include <map>
-
-//From Extractor
 #include "adtfile.h"
 #include "wdtfile.h"
 #include "dbcfile.h"
 #include "wmo.h"
 #include "mpqfile.h"
-
 #include "vmapexport.h"
+#include "Banner.h"
+#include <sys/stat.h>
+
+#ifdef _WIN32
+    #include <direct.h>
+    #define mkdir _mkdir
+#endif
+
+#undef min
+#undef max
+
+#include <cstdio>
+#include <iostream>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include <errno.h>
 
 //------------------------------------------------------------------------------
 // Defines
@@ -59,8 +48,8 @@
 
 //-----------------------------------------------------------------------------
 
-HANDLE WorldMpq = NULL;
-HANDLE LocaleMpq = NULL;
+HANDLE WorldMpq = nullptr;
+HANDLE LocaleMpq = nullptr;
 
 uint32 CONF_TargetBuild = 15595;              // 4.3.4.15595
 
@@ -121,8 +110,8 @@ bool preciseVectorData = false;
 // Constants
 
 //static const char * szWorkDirMaps = ".\\Maps";
-const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP045";
+char const* szWorkDirWmo = "./Buildings";
+char const* szRawVMAPMagic = "VMAP045";
 
 bool LoadLocaleMPQFile(int locale)
 {
@@ -140,7 +129,7 @@ bool LoadLocaleMPQFile(int locale)
     }
 
     _tprintf(_T("Loading %s locale MPQs\n"), LocalesT[locale]);
-    char const* prefix = NULL;
+    char const* prefix = nullptr;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
         // Do not attempt to read older MPQ patch archives past this build, they were merged with base
@@ -202,7 +191,7 @@ void LoadCommonMPQFiles(uint32 build)
             _tprintf(_T("Loaded %s\n"), filename);
     }
 
-    char const* prefix = NULL;
+    char const* prefix = nullptr;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
         // Do not attempt to read older MPQ patch archives past this build, they were merged with base
@@ -240,7 +229,7 @@ void LoadCommonMPQFiles(uint32 build)
 
 // Local testing functions
 
-bool FileExists(const char* file)
+bool FileExists(char const* file)
 {
     if (FILE* n = fopen(file, "rb"))
     {
@@ -286,11 +275,11 @@ bool ExtractWmo()
 {
     bool success = false;
 
-    //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
+    //char const* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
 
     SFILE_FIND_DATA data;
-    HANDLE find = SFileFindFirstFile(WorldMpq, "*.wmo", &data, NULL);
-    if (find != NULL)
+    HANDLE find = SFileFindFirstFile(WorldMpq, "*.wmo", &data, nullptr);
+    if (find != nullptr)
     {
         do
         {
@@ -323,7 +312,7 @@ bool ExtractSingleWmo(std::string& fname)
     int p = 0;
     // Select root wmo files
     char const* rchr = strrchr(plain_name, '_');
-    if (rchr != NULL)
+    if (rchr != nullptr)
     {
         char cpy[4];
         memcpy(cpy, rchr, 4);
@@ -531,7 +520,9 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
-    bool success=true;
+    Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
+
+    bool success = true;
     const char *versionString = "V4.05 2018_03";
 
     // Use command line arguments, when some
@@ -553,7 +544,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n\n",versionString);
+    printf("Extract %s. Beginning work ....\n\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
@@ -601,7 +592,7 @@ int main(int argc, char ** argv)
         {
             map_info& m = map_ids[dbc->getRecord(x).getUInt(0)];
 
-            const char* map_name = dbc->getRecord(x).getString(1);
+            char const* map_name = dbc->getRecord(x).getString(1);
             size_t max_map_name_length = sizeof(m.name);
             if (strlen(map_name) >= max_map_name_length)
             {
@@ -628,11 +619,11 @@ int main(int argc, char ** argv)
     printf("\n");
     if (!success)
     {
-        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n",versionString, preciseVectorData);
+        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", versionString, preciseVectorData);
         getchar();
     }
 
-    printf("Extract %s. Work complete. No errors.\n",versionString);
+    printf("Extract %s. Work complete. No errors.\n", versionString);
     delete [] LiqType;
     return 0;
 }

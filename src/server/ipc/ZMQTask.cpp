@@ -27,7 +27,7 @@ ZMQTask::ZMQTask()
 ZMQTask::~ZMQTask()
 {
     delete _poller;
-    _poller = NULL;
+    _poller = nullptr;
     delete _inproc;
     delete _thread;
 }

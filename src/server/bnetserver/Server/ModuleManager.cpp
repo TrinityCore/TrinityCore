@@ -17,6 +17,7 @@
 
 #include "ModuleManager.h"
 #include "DatabaseEnv.h"
+#include "Util.h"
 
 Battlenet::ModuleManager::~ModuleManager()
 {

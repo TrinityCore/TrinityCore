@@ -16,38 +16,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Language.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "Player.h"
-#include "GameTime.h"
-#include "GossipDef.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
 #include "WorldSession.h"
-#include "Chat.h"
-#include "zlib.h"
-#include "ObjectAccessor.h"
-#include "Object.h"
-#include "Battleground.h"
-#include "OutdoorPvP.h"
 #include "AccountMgr.h"
-#include "DBCEnums.h"
-#include "ScriptMgr.h"
-#include "MapManager.h"
-#include "GameObjectAI.h"
-#include "Group.h"
-#include "Spell.h"
-#include "BattlegroundMgr.h"
+#include "AchievementMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
+#include "Chat.h"
+#include "CinematicMgr.h"
+#include "Common.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "WhoListStorage.h"
+#include "DBCEnums.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "GameTime.h"
+#include "GossipDef.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 #include "InstanceScript.h"
+#include "Language.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "OutdoorPvP.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "WhoListStorage.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <zlib.h>
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -74,7 +81,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
     }
 
     //this is spirit release confirm?
-    GetPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+    GetPlayer()->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
 }
@@ -103,8 +110,8 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != guid)
         return;
 
-    Creature* unit = NULL;
-    GameObject* go = NULL;
+    Creature* unit = nullptr;
+    GameObject* go = nullptr;
     if (guid.IsCreatureOrVehicle())
     {
         unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP);
@@ -394,7 +401,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    LogoutRequest(time(NULL));
+    LogoutRequest(time(nullptr));
 }
 
 void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
@@ -455,7 +462,7 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     else
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(NULL);     // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr);     // start toggle-off
     }
 
     //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
@@ -488,7 +495,7 @@ void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
     uint32 team = _player->GetTeam();
 
     std::vector<uint32> graveyardIds;
-    auto range = sObjectMgr->GraveYardStore.equal_range(zoneId);
+    auto range = sObjectMgr->GraveyardStore.equal_range(zoneId);
 
     for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
     {
@@ -580,7 +587,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
         return;
 
     // prevent resurrect before 30-sec delay after body release not finished
-    if (time_t(corpse->GetGhostTime() + _player->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(NULL)))
+    if (time_t(corpse->GetGhostTime() + _player->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(nullptr)))
         return;
 
     if (!corpse->IsWithinDistInMap(_player, CORPSE_RECLAIM_RADIUS, true))
@@ -631,7 +638,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     GetPlayer()->ResurrectUsingRequestData();
 }
 
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
+void WorldSession::SendAreaTriggerMessage(char const* Text, ...)
 {
     va_list ap;
     char szStr [1024];
@@ -744,7 +751,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                 case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
                 {
                     WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
-                    player->GetSession()->SendPacket(&data);
+                    player->SendDirectMessage(&data);
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", player->GetName().c_str(), at->target_mapId);
                     break;
                 }
@@ -1420,7 +1427,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
     {
         if (group->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* groupGuy = itr->GetSource();
                 if (!groupGuy)
@@ -1478,7 +1485,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
     {
         if (group->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* groupGuy = itr->GetSource();
                 if (!groupGuy)
@@ -1591,7 +1598,7 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
 
     WorldPacket data(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4);
-    data << uint32(time(NULL));
+    data << uint32(time(nullptr));
     SendPacket(&data);
 }
 
@@ -1736,7 +1743,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
             WorldPacket data(SMSG_DB_REPLY, 4 * 4);
             data << -int32(entry);
             data << uint32(store->GetHash());
-            data << uint32(time(NULL));
+            data << uint32(time(nullptr));
             data << uint32(0);
             SendPacket(&data);
             continue;
@@ -1775,7 +1782,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     recvPacket >> moveStop;
 
     Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
-    Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : NULL;
+    Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : nullptr;
     if (!spell || spell->m_spellInfo->Id != spellId || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
     {
         recvPacket.rfinish();
@@ -1858,12 +1865,12 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
         return;
     }
 
-    CUFProfile* profiles[MAX_CUF_PROFILES];
+    std::unique_ptr<CUFProfile> profiles[MAX_CUF_PROFILES];
     uint8 strlens[MAX_CUF_PROFILES];
 
     for (uint8 i = 0; i < count; ++i)
     {
-        profiles[i] = new CUFProfile;
+        profiles[i] = Trinity::make_unique<CUFProfile>();
         profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_SPEC_2            , recvPacket.ReadBit());
         profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_10_PLAYERS        , recvPacket.ReadBit());
         profiles[i]->BoolOptions.set(CUF_UNK_157                         , recvPacket.ReadBit());
@@ -1894,23 +1901,23 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        recvPacket >> profiles[i]->Unk146;
+        recvPacket >> profiles[i]->TopPoint;
         profiles[i]->ProfileName = recvPacket.ReadString(strlens[i]);
-        recvPacket >> profiles[i]->Unk152;
+        recvPacket >> profiles[i]->BottomOffset;
         recvPacket >> profiles[i]->FrameHeight;
         recvPacket >> profiles[i]->FrameWidth;
-        recvPacket >> profiles[i]->Unk150;
+        recvPacket >> profiles[i]->TopOffset;
         recvPacket >> profiles[i]->HealthText;
-        recvPacket >> profiles[i]->Unk147;
+        recvPacket >> profiles[i]->BottomPoint;
         recvPacket >> profiles[i]->SortBy;
-        recvPacket >> profiles[i]->Unk154;
-        recvPacket >> profiles[i]->Unk148;
+        recvPacket >> profiles[i]->LeftOffset;
+        recvPacket >> profiles[i]->LeftPoint;
 
-        GetPlayer()->SaveCUFProfile(i, profiles[i]);
+        GetPlayer()->SaveCUFProfile(i, std::move(profiles[i]));
     }
 
     for (uint8 i = count; i < MAX_CUF_PROFILES; ++i)
-        GetPlayer()->SaveCUFProfile(i, NULL);
+        GetPlayer()->SaveCUFProfile(i, nullptr);
 }
 
 void WorldSession::SendLoadCUFProfiles()
@@ -1925,7 +1932,7 @@ void WorldSession::SendLoadCUFProfiles()
     data.WriteBits(count, 20);
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
     {
-        CUFProfile* profile = player->GetCUFProfile(i);
+        CUFProfile const* profile = player->GetCUFProfile(i);
         if (!profile)
             continue;
 
@@ -1956,16 +1963,16 @@ void WorldSession::SendLoadCUFProfiles()
         data.WriteBit(profile->BoolOptions[CUF_DISPLAY_PETS]);
         data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_PVP]);
 
-        byteBuffer << uint16(profile->Unk154);
+        byteBuffer << uint16(profile->LeftOffset);
         byteBuffer << uint16(profile->FrameHeight);
-        byteBuffer << uint16(profile->Unk152);
-        byteBuffer << uint8(profile->Unk147);
-        byteBuffer << uint16(profile->Unk150);
-        byteBuffer << uint8(profile->Unk146);
+        byteBuffer << uint16(profile->BottomOffset);
+        byteBuffer << uint8(profile->BottomPoint);
+        byteBuffer << uint16(profile->TopOffset);
+        byteBuffer << uint8(profile->TopPoint);
         byteBuffer << uint8(profile->HealthText);
         byteBuffer << uint8(profile->SortBy);
         byteBuffer << uint16(profile->FrameWidth);
-        byteBuffer << uint8(profile->Unk148);
+        byteBuffer << uint8(profile->LeftPoint);
         byteBuffer.WriteString(profile->ProfileName);
     }
 

@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "obsidian_sanctum.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Enums
 {
@@ -322,7 +325,7 @@ struct dummy_dragonAI : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (!_canLoot)
-            me->SetLootRecipient(NULL);
+            me->SetLootRecipient(nullptr);
 
         uint32 spellId = 0;
 
@@ -653,7 +656,6 @@ class npc_acolyte_of_shadron : public CreatureScript
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
                 Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
                 if (PlayerList.isEmpty())
                     return;
 
@@ -736,8 +738,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
-
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 if (PlayerList.isEmpty())
                     return;
 
@@ -904,7 +905,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_flame_tsunamiAI(creature);
+        return GetObsidianSanctumAI<npc_flame_tsunamiAI>(creature);
     }
 };
 
@@ -958,7 +959,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_twilight_fissureAI(creature);
+        return GetObsidianSanctumAI<npc_twilight_fissureAI>(creature);
     }
 };
 
@@ -1012,7 +1013,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_twilight_whelpAI(creature);
+        return GetObsidianSanctumAI<npc_twilight_whelpAI>(creature);
     }
 };
 

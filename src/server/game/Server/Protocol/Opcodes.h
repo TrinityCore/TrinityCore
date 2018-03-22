@@ -23,7 +23,8 @@
 #ifndef _OPCODES_H
 #define _OPCODES_H
 
-#include "Common.h"
+#include "Define.h"
+#include <string>
 
 /// List of Opcodes
 enum Opcodes
@@ -1386,10 +1387,10 @@ enum Opcodes
 /// Player state
 enum SessionStatus
 {
-    STATUS_AUTHED = 0,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
-    STATUS_LOGGEDIN,                                        // Player in game (_player != NULL, m_GUID == _player->GetGUID(), inWorld())
-    STATUS_TRANSFER,                                        // Player transferring to another map (_player != NULL, m_GUID == _player->GetGUID(), !inWorld())
-    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player != NULL or _player == NULL && m_playerRecentlyLogout && m_playerLogout, m_GUID store last _player guid)
+    STATUS_AUTHED = 0,                                      // Player authenticated (_player == nullptr, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
+    STATUS_LOGGEDIN,                                        // Player in game (_player != nullptr, m_GUID == _player->GetGUID(), inWorld())
+    STATUS_TRANSFER,                                        // Player transferring to another map (_player != nullptr, m_GUID == _player->GetGUID(), !inWorld())
+    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player != nullptr or _player == nullptr && m_playerRecentlyLogout && m_playerLogout, m_GUID store last _player guid)
     STATUS_NEVER,                                           // Opcode not accepted from client (deprecated or server side only)
     STATUS_UNHANDLED                                        // Opcode not handled yet
 };
@@ -1407,11 +1408,9 @@ class WorldSession;
 
 typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
 
-#pragma pack(push, 1)
-
 struct OpcodeHandler
 {
-    OpcodeHandler() {}
+    OpcodeHandler() { }
     OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
         : Handler(_handler), Name(_name), Status(_status), ProcessingPlace(_processing) {}
 
@@ -1424,16 +1423,8 @@ struct OpcodeHandler
 class OpcodeTable
 {
     public:
-        OpcodeTable()
-        {
-            memset(_internalTable, 0, sizeof(_internalTable));
-        }
-
-        ~OpcodeTable()
-        {
-            for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
-                delete _internalTable[i];
-        }
+        OpcodeTable();
+        ~OpcodeTable();
 
         void Initialize();
 
@@ -1447,42 +1438,16 @@ class OpcodeTable
         void ValidateAndSetOpcode(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
 
         // Prevent copying this structure
-        OpcodeTable(OpcodeTable const&);
-        OpcodeTable& operator=(OpcodeTable const&);
+        OpcodeTable(OpcodeTable const&) = delete;
+        OpcodeTable& operator=(OpcodeTable const&) = delete;
 
         OpcodeHandler* _internalTable[NUM_OPCODE_HANDLERS];
 };
 
 extern OpcodeTable opcodeTable;
 
-#pragma pack(pop)
-
-void InitOpcodes();
-
 /// Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(uint32 id)
-{
-    uint32 opcode = uint32(id);
-    std::ostringstream ss;
-    ss << '[';
-
-    if (id < UNKNOWN_OPCODE)
-    {
-        if (OpcodeHandler const* handler = opcodeTable[uint32(id) & 0x7FFF])
-        {
-            ss << handler->Name;
-            if (opcode & COMPRESSED_OPCODE_MASK)
-                ss << "_COMPRESSED";
-        }
-        else
-            ss << "UNKNOWN OPCODE";
-    }
-    else
-        ss << "INVALID OPCODE";
-
-    ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
-    return ss.str();
-}
+std::string GetOpcodeNameForLogging(uint32 id);
 
 #endif
 /// @}

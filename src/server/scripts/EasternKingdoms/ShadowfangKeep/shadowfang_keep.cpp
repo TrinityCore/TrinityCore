@@ -28,13 +28,13 @@ npc_shadowfang_prisoner
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "ScriptedEscortAI.h"
-#include "shadowfang_keep.h"
+#include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "shadowfang_keep.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_shadowfang_prisoner
@@ -67,17 +67,9 @@ class npc_shadowfang_prisoner : public CreatureScript
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
-    }
-
     struct npc_shadowfang_prisonerAI : public npc_escortAI
     {
-        npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
+        npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature), instance(creature->GetInstanceScript()) { }
 
         InstanceScript* instance;
 
@@ -145,17 +137,16 @@ public:
         void JustEngagedWith(Unit* /*who*/) override { }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetShadowfangKeepAI<npc_shadowfang_prisonerAI>(creature);
+    }
 };
 
 class npc_arugal_voidwalker : public CreatureScript
 {
 public:
     npc_arugal_voidwalker() : CreatureScript("npc_arugal_voidwalker") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
-    }
 
     struct npc_arugal_voidwalkerAI : public ScriptedAI
     {
@@ -202,6 +193,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetShadowfangKeepAI<npc_arugal_voidwalkerAI>(creature);
+    }
 };
 
 enum ArugalSpells
@@ -317,7 +312,7 @@ class boss_archmage_arugal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_archmage_arugalAI>(creature);
+            return GetShadowfangKeepAI<boss_archmage_arugalAI>(creature);
         }
 };
 
@@ -338,7 +333,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
-                GetTarget()->CastSpell((Unit*)NULL, aurEff->GetAmount(), true);
+                GetTarget()->CastSpell((Unit*)nullptr, aurEff->GetAmount(), true);
             }
 
             void HandleUpdatePeriodic(AuraEffect* aurEff)

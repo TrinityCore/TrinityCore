@@ -16,11 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Vehicle.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "baradin_hold.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -202,7 +205,7 @@ class npc_eyestalk : public CreatureScript
         }
 };
 
-class FocusedFireTargetSelector : public std::unary_function<Unit *, bool>
+class FocusedFireTargetSelector
 {
     public:
         FocusedFireTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) { }
@@ -267,9 +270,7 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
             }
 
             bool Load() override
@@ -317,7 +318,7 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetInstanceScript() != NULL;
+                return GetCaster()->GetInstanceScript() != nullptr;
             }
 
             void HandleScript()
@@ -363,7 +364,7 @@ class spell_occuthar_occuthars_destruction : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (IsExpired())
-                        caster->CastSpell((Unit*)NULL, SPELL_OCCUTHARS_DESTUCTION, true, NULL, aurEff);
+                        caster->CastSpell((Unit*)nullptr, SPELL_OCCUTHARS_DESTUCTION, true, nullptr, aurEff);
 
                     caster->ToCreature()->DespawnOrUnsummon(500);
                 }

@@ -77,15 +77,12 @@ set (libzmq_STAT_SRCS
   src/zap_client.cpp
 )
 
-add_definitions(-DZMQ_USE_SELECT)
-add_definitions(-DZMQ_STATIC)
-
 if (WIN32)
-  add_definitions(-DZMQ_HAVE_WINDOWS)
+  set(ZMQ_PLATFORM -DZMQ_HAVE_WINDOWS)
 elseif (APPLE)
-  add_definitions(-DZMQ_HAVE_OSX)
+  set(ZMQ_PLATFORM -DZMQ_HAVE_OSX)
 elseif (UNIX)
-  add_definitions(-DZMQ_HAVE_LINUX)
+  set(ZMQ_PLATFORM -DZMQ_HAVE_LINUX)
 endif()
 
 add_library(libzmq STATIC ${libzmq_STAT_SRCS})
@@ -95,8 +92,21 @@ target_include_directories(libzmq
     ${CMAKE_CURRENT_SOURCE_DIR}/include
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    
+target_link_libraries(libzmq
+  PRIVATE
+    trinity-dependency-interface
+  PUBLIC
+    bzip2
+    zlib)
 
 set_target_properties(libzmq
     PROPERTIES
       FOLDER
         "dep")
+
+target_compile_definitions(libzmq
+  PUBLIC
+    -DZMQ_USE_SELECT
+    -DZMQ_STATIC
+    ${ZMQ_PLATFORM})

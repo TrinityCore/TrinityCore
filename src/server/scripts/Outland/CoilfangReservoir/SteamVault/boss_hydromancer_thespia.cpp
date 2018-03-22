@@ -114,7 +114,7 @@ class boss_hydromancer_thespia : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_thespiaAI>(creature);
+            return GetSteamVaultAI<boss_thespiaAI>(creature);
         }
 };
 
@@ -175,7 +175,7 @@ class npc_coilfang_waterelemental : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_coilfang_waterelementalAI(creature);
+            return GetSteamVaultAI<npc_coilfang_waterelementalAI>(creature);
         }
 };
 

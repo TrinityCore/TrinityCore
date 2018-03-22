@@ -18,7 +18,8 @@
 
 #include "HmacHash.h"
 #include "BigNumber.h"
-#include "Common.h"
+#include "Errors.h"
+#include <cstring>
 
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
 HMAC_CTX* HMAC_CTX_new()

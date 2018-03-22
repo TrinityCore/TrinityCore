@@ -17,12 +17,15 @@
  */
 
 #include "BattlegroundWS.h"
-#include "GameObject.h"
-#include "Object.h"
 #include "BattlegroundMgr.h"
+#include "DBCStores.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "Map.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "ObjectAccessor.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards
@@ -66,6 +69,13 @@ BattlegroundWS::BattlegroundWS()
     m_HonorWinKills = 0;
     m_HonorEndKills = 0;
     _minutesElapsed = 0;
+}
+
+void BattlegroundWGScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
+{
+    data.WriteBits(2, 24); // Objectives Count
+    content << uint32(FlagCaptures);
+    content << uint32(FlagReturns);
 }
 
 BattlegroundWS::~BattlegroundWS() { }
@@ -785,7 +795,7 @@ bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     return true;
 }
 
-WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveyard(Player* player)
 {
     //if status in progress, it returns main graveyards with spiritguides
     //else it will return the graveyard in the flagroom - this is especially good

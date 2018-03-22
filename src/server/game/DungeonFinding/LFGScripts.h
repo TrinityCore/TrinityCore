@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef LFGScripts_h__
+#define LFGScripts_h__
+
 /*
  * Interaction between core and LFGScripts
  */
@@ -56,3 +59,5 @@ class TC_GAME_API LFGGroupScript : public GroupScript
 /*keep private*/ void AddSC_LFGScripts();
 
 } // namespace lfg
+
+#endif // LFGScripts_h__

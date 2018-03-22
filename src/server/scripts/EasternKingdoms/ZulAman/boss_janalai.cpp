@@ -24,10 +24,14 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "zulaman.h"
-#include "GridNotifiers.h"
 #include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
+#include "zulaman.h"
 
 enum Yells
 {
@@ -112,10 +116,7 @@ class boss_janalai : public CreatureScript
 {
     public:
 
-        boss_janalai()
-            : CreatureScript("boss_janalai")
-        {
-        }
+        boss_janalai() : CreatureScript("boss_janalai") { }
 
         struct boss_janalaiAI : public ScriptedAI
         {
@@ -202,7 +203,7 @@ class boss_janalai : public CreatureScript
             void FireWall()
             {
                 uint8 WallNum;
-                Creature* wall = NULL;
+                Creature* wall = nullptr;
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     if (i == 0 || i == 2)
@@ -426,18 +427,14 @@ class boss_janalai : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_janalaiAI>(creature);
+            return GetZulAmanAI<boss_janalaiAI>(creature);
         }
 };
 
 class npc_janalai_firebomb : public CreatureScript
 {
     public:
-
-        npc_janalai_firebomb()
-            : CreatureScript("npc_janalai_firebomb")
-        {
-        }
+        npc_janalai_firebomb() : CreatureScript("npc_janalai_firebomb") { }
 
         struct npc_janalai_firebombAI : public ScriptedAI
         {
@@ -445,7 +442,7 @@ class npc_janalai_firebomb : public CreatureScript
 
             void Reset() override { }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
@@ -463,18 +460,14 @@ class npc_janalai_firebomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_janalai_firebombAI(creature);
+            return GetZulAmanAI<npc_janalai_firebombAI>(creature);
         }
 };
 
 class npc_janalai_hatcher : public CreatureScript
 {
     public:
-
-        npc_janalai_hatcher()
-            : CreatureScript("npc_janalai_hatcher")
-        {
-        }
+        npc_janalai_hatcher() : CreatureScript("npc_janalai_hatcher") { }
 
         struct npc_janalai_hatcherAI : public ScriptedAI
         {
@@ -594,18 +587,14 @@ class npc_janalai_hatcher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_janalai_hatcherAI>(creature);
+            return GetZulAmanAI<npc_janalai_hatcherAI>(creature);
         }
 };
 
 class npc_janalai_hatchling : public CreatureScript
 {
     public:
-
-        npc_janalai_hatchling()
-            : CreatureScript("npc_janalai_hatchling")
-        {
-        }
+        npc_janalai_hatchling() : CreatureScript("npc_janalai_hatchling") { }
 
         struct npc_janalai_hatchlingAI : public ScriptedAI
         {
@@ -659,7 +648,7 @@ class npc_janalai_hatchling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_janalai_hatchlingAI>(creature);
+            return GetZulAmanAI<npc_janalai_hatchlingAI>(creature);
         }
 };
 
@@ -667,11 +656,6 @@ class npc_janalai_egg : public CreatureScript
 {
 public:
     npc_janalai_egg(): CreatureScript("npc_janalai_egg") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_janalai_eggAI(creature);
-    }
 
     struct npc_janalai_eggAI : public ScriptedAI
     {
@@ -681,7 +665,7 @@ public:
 
         void UpdateAI(uint32 /*diff*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HATCH_EGG)
             {
@@ -690,6 +674,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetZulAmanAI<npc_janalai_eggAI>(creature);
+    }
 };
 
 void AddSC_boss_janalai()

@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDDS_H
 
 #include "Arena.h"
+#include "EventMap.h"
 
 enum BattlegroundDSObjectTypes
 {
@@ -109,4 +110,5 @@ class BattlegroundDS : public Arena
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
 };
+
 #endif

@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "hyjal.h"
 #include "hyjal_trash.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -46,11 +46,6 @@ class boss_anetheron : public CreatureScript
 {
 public:
     boss_anetheron() : CreatureScript("boss_anetheron") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_anetheronAI>(creature);
-    }
 
     struct boss_anetheronAI : public hyjal_trashAI
     {
@@ -177,17 +172,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<boss_anetheronAI>(creature);
+    }
 };
 
 class npc_towering_infernal : public CreatureScript
 {
 public:
     npc_towering_infernal() : CreatureScript("npc_towering_infernal") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_towering_infernalAI>(creature);
-    }
 
     struct npc_towering_infernalAI : public ScriptedAI
     {
@@ -261,6 +255,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<npc_towering_infernalAI>(creature);
+    }
 };
 
 class spell_anetheron_vampiric_aura : public SpellScriptLoader
@@ -274,9 +272,7 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_VAMPIRIC_AURA_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_VAMPIRIC_AURA_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

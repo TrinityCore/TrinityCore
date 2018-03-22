@@ -16,10 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
-#include "EventMap.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
 
 /*
 0  - Selin Fireheart
@@ -43,7 +48,7 @@ Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f }
 class instance_magisters_terrace : public InstanceMapScript
 {
     public:
-        instance_magisters_terrace() : InstanceMapScript("instance_magisters_terrace", 585) { }
+        instance_magisters_terrace() : InstanceMapScript(MGTScriptName, 585) { }
 
         struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
         {

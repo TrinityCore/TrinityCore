@@ -16,12 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 #include "blackrock_caverns.h"
-#include "SpellScript.h"
-#include "SpellAuras.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*#####
 # npc_fire_cyclone
@@ -722,9 +723,7 @@ class spell_chains_of_woe_1 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHAINS_OF_WOE_1))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_1 });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -759,9 +758,7 @@ class spell_chains_of_woe_4 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHAINS_OF_WOE_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_4 });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -804,11 +801,12 @@ class spell_nether_dragon_essence_1 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_NETHER_DRAGON_ESSENCE_2,
+                    SPELL_NETHER_DRAGON_ESSENCE_3,
+                    SPELL_NETHER_DRAGON_ESSENCE_4
+                });
             }
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)

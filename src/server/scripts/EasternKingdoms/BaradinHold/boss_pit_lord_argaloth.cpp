@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "baradin_hold.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "baradin_hold.h"
 
 /* TODO:
 - Fel Firestorm need completion
