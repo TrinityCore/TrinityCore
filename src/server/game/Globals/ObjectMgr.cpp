@@ -6404,7 +6404,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
     uint32 MapId = location.GetMapId();
 
     // search for zone associated closest graveyard
-    uint32 zoneId = sMapMgr->GetZoneId(conditionObject->GetPhaseShift(), MapId, x, y, z);
+    uint32 zoneId = sMapMgr->GetZoneId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
 
     if (!zoneId)
     {
