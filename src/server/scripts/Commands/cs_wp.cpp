@@ -25,6 +25,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Language.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WaypointManager.h"
@@ -667,7 +668,7 @@ public:
                 return false;
             }
 
-            wpCreature->CopyPhaseFrom(chr);
+            PhasingHandler::InheritPhaseShift(wpCreature, chr);
 
             wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
@@ -881,7 +882,7 @@ public:
                     return false;
                 }
 
-                wpCreature->CopyPhaseFrom(chr);
+                PhasingHandler::InheritPhaseShift(wpCreature, chr);
 
                 // Set "wpguid" column to the visual waypoint
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
@@ -945,7 +946,7 @@ public:
                 return false;
             }
 
-            creature->CopyPhaseFrom(chr);
+            PhasingHandler::InheritPhaseShift(creature, chr);
 
             creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetSpawnId(), map))
@@ -996,7 +997,7 @@ public:
                 return false;
             }
 
-            creature->CopyPhaseFrom(chr);
+            PhasingHandler::InheritPhaseShift(creature, chr);
 
             creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetSpawnId(), map))

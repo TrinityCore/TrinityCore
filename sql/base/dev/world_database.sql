@@ -3186,6 +3186,7 @@ CREATE TABLE `smart_scripts` (
   `event_param2` int(10) unsigned NOT NULL DEFAULT '0',
   `event_param3` int(10) unsigned NOT NULL DEFAULT '0',
   `event_param4` int(10) unsigned NOT NULL DEFAULT '0',
+  `event_param5` int(10) unsigned NOT NULL DEFAULT '0',
   `action_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `action_param1` int(10) unsigned NOT NULL DEFAULT '0',
   `action_param2` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3613,6 +3614,51 @@ CREATE TABLE `spelleffect_dbc` (
   `EffectSpellId` int(10) unsigned NOT NULL,
   `EffectIndex` int(10) unsigned NOT NULL,
   PRIMARY KEY (`Id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `terrain_phase_info`
+--
+
+DROP TABLE IF EXISTS `terrain_phase_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `terrain_phase_info` (
+  `Id` int(10) unsigned NOT NULL,
+  `TerrainSwapMap` int(10) unsigned NOT NULL,
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`,`TerrainSwapMap`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `terrain_swap_defaults`
+--
+
+DROP TABLE IF EXISTS `terrain_swap_defaults`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `terrain_swap_defaults` (
+  `MapId` int(10) unsigned NOT NULL,
+  `TerrainSwapMap` int(10) unsigned NOT NULL,
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`MapId`,`TerrainSwapMap`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `terrain_worldmap`
+--
+
+DROP TABLE IF EXISTS `terrain_worldmap`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `terrain_worldmap` (
+  `TerrainSwapMap` int(10) unsigned NOT NULL,
+  `WorldMapArea` int(10) unsigned NOT NULL,
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`TerrainSwapMap`,`WorldMapArea`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

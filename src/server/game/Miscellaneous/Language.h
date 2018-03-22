@@ -213,7 +213,13 @@ enum TrinityStrings
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
     LANG_GRID_POSITION                  = 178,
-    // 179-185 used in 6.x branch
+    LANG_PHASESHIFT_STATUS              = 179,
+    LANG_PHASESHIFT_PHASES              = 180,
+    LANG_PHASESHIFT_VISIBLE_MAP_IDS     = 181,
+    LANG_PHASESHIFT_UI_WORLD_MAP_AREA_SWAPS = 182,
+    LANG_PHASE_FLAG_COSMETIC            = 183,
+    LANG_PHASE_FLAG_PERSONAL            = 184,
+    //                                    185 not used
     LANG_TRANSPORT_POSITION             = 186,
     LANG_PARTIAL_GROUP_SUMMON           = 187,
     // Room for more level 1              188-199 not used
@@ -975,7 +981,7 @@ enum TrinityStrings
     LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
     LANG_COMMAND_LIST_FREEZE            = 5005,
     LANG_COMMAND_PERMA_FROZEN_PLAYER    = 5006,
-    LANG_INSTANCE_RAID_GROUP_ONLY       = 5007,
+    //                                  = 5007, unused
     LANG_INSTANCE_CLOSED                = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     LANG_NPCINFO_LINKGUID               = 5010,

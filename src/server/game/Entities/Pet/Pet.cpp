@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "SpellMgr.h"
 #include "Pet.h"
 #include "Formulas.h"
@@ -179,7 +180,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (!Create(guid, map, petEntry, petId))
         return false;
 
-    CopyPhaseFrom(owner);
+    PhasingHandler::InheritPhaseShift(this, owner);
 
     setPetType(petType);
     SetFaction(owner->GetFaction());

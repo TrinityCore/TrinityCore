@@ -21,6 +21,7 @@
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
@@ -402,7 +403,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_PHASEID:
         {
-            condMeets = object->IsInPhase(ConditionValue1);
+            condMeets = object->GetPhaseShift().HasPhase(ConditionValue1);
             break;
         }
         case CONDITION_TITLE:
@@ -430,7 +431,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_TERRAIN_SWAP:
         {
-            condMeets = object->IsInTerrainSwap(ConditionValue1);
+            condMeets = object->GetPhaseShift().HasVisibleMapId(ConditionValue1);
             break;
         }
         case CONDITION_REALM_ACHIEVEMENT:
@@ -1040,17 +1041,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
 
-        TC_LOG_INFO("misc", "Re-Loading `terrain_phase_info` Table for Conditions!");
-        sObjectMgr->LoadTerrainPhaseInfo();
-
-        TC_LOG_INFO("misc", "Re-Loading `terrain_swap_defaults` Table for Conditions!");
-        sObjectMgr->LoadTerrainSwapDefaults();
-
-        TC_LOG_INFO("misc", "Re-Loading `terrain_worldmap` Table for Conditions!");
-        sObjectMgr->LoadTerrainWorldMaps();
-
-        TC_LOG_INFO("misc", "Re-Loading `phase_area` Table for Conditions!");
-        sObjectMgr->LoadAreaPhases();
+        sObjectMgr->UnloadPhaseConditions();
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
@@ -1337,17 +1328,44 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
     std::list<uint32> sharedMasks;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        // check if effect is already a part of some shared mask
-        bool found = false;
-        for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+        // additional checks by condition type
+        if (conditionEffMask & (1 << i))
         {
-            if ((1<<i) & *itr)
+            switch (cond->ConditionType)
             {
-                found = true;
-                break;
+                case CONDITION_OBJECT_ENTRY_GUID:
+                {
+                    uint32 implicitTargetMask = GetTargetFlagMask(spellInfo->Effects[i].TargetA.GetObjectType()) | GetTargetFlagMask(spellInfo->Effects[i].TargetB.GetObjectType());
+                    if ((implicitTargetMask & TARGET_FLAG_UNIT_MASK) && cond->ConditionValue1 != TYPEID_UNIT && cond->ConditionValue1 != TYPEID_PLAYER)
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                            "target requires ConditionValue1 to be either TYPEID_UNIT (%u) or TYPEID_PLAYER (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
+                        return false;
+                    }
+
+                    if ((implicitTargetMask & TARGET_FLAG_GAMEOBJECT_MASK) && cond->ConditionValue1 != TYPEID_GAMEOBJECT)
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                            "target requires ConditionValue1 to be TYPEID_GAMEOBJECT (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_GAMEOBJECT));
+                        return false;
+                    }
+
+                    if ((implicitTargetMask & TARGET_FLAG_CORPSE_MASK) && cond->ConditionValue1 != TYPEID_CORPSE)
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                            "target requires ConditionValue1 to be TYPEID_CORPSE (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_CORPSE));
+                        return false;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
         }
-        if (found)
+
+        // check if effect is already a part of some shared mask
+        auto itr = std::find_if(sharedMasks.begin(), sharedMasks.end(), [i](uint32 mask) { return !!(mask & (1 << i)); });
+        if (itr != sharedMasks.end())
             continue;
 
         // build new shared mask with found effect
@@ -1361,14 +1379,14 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
         sharedMasks.push_back(sharedMask);
     }
 
-    for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+    for (uint32 effectMask : sharedMasks)
     {
         // some effect indexes should have same data
-        if (uint32 commonMask = *itr & conditionEffMask)
+        if (uint32 commonMask = effectMask & conditionEffMask)
         {
             uint8 firstEffIndex = 0;
             for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
-                if ((1<<firstEffIndex) & *itr)
+                if ((1 << firstEffIndex) & effectMask)
                     break;
 
             if (firstEffIndex >= MAX_SPELL_EFFECTS)
@@ -1381,7 +1399,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             if (sharedList)
             {
                 // we have overlapping masks in db
-                if (conditionEffMask != *itr)
+                if (conditionEffMask != effectMask)
                 {
                     TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
                         "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.", cond->ToString().c_str(), cond->SourceGroup);
@@ -1396,7 +1414,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                 bool assigned = false;
                 for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    if ((1<<i) & commonMask)
+                    if ((1 << i) & commonMask)
                     {
                         spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
                         assigned = true;
@@ -1417,24 +1435,32 @@ bool ConditionMgr::addToPhases(Condition* cond) const
 {
     if (!cond->SourceEntry)
     {
-        PhaseInfo& p = sObjectMgr->GetAreaPhasesForLoading();
-        for (auto phaseItr = p.begin(); phaseItr != p.end(); ++phaseItr)
+        if (PhaseInfoStruct const* phaseInfo = sObjectMgr->GetPhaseInfo(cond->SourceGroup))
         {
-            for (PhaseInfoStruct& phase : phaseItr->second)
+            bool found = false;
+            for (uint32 areaId : phaseInfo->Areas)
             {
-                if (phase.Id == cond->SourceGroup)
+                if (std::vector<PhaseAreaInfo>* phases = const_cast<std::vector<PhaseAreaInfo>*>(sObjectMgr->GetPhasesForArea(areaId)))
                 {
-                    phase.Conditions.push_back(cond);
-                    return true;
+                    for (PhaseAreaInfo& phase : *phases)
+                    {
+                        if (phase.PhaseInfo->Id == cond->SourceGroup)
+                        {
+                            phase.Conditions.push_back(cond);
+                            found = true;
+                        }
+                    }
                 }
             }
+            if (found)
+                return true;
         }
     }
-    else if (std::vector<PhaseInfoStruct>* phases = sObjectMgr->GetPhasesForAreaForLoading(cond->SourceEntry))
+    else if (std::vector<PhaseAreaInfo>* phases = const_cast<std::vector<PhaseAreaInfo>*>(sObjectMgr->GetPhasesForArea(cond->SourceEntry)))
     {
-        for (PhaseInfoStruct& phase : *phases)
+        for (PhaseAreaInfo& phase : *phases)
         {
-            if (phase.Id == cond->SourceGroup)
+            if (phase.PhaseInfo->Id == cond->SourceGroup)
             {
                 phase.Conditions.push_back(cond);
                 return true;
@@ -1809,6 +1835,14 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
+            break;
+        case CONDITION_SOURCE_TYPE_GRAVEYARD:
+            if (!sWorldSafeLocsStore.LookupEntry(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in WorldSafeLocs, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
         default:
             break;
     }

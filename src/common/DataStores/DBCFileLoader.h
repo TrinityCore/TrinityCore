@@ -22,7 +22,7 @@
 #include "Utilities/ByteConverter.h"
 #include <cassert>
 
-class TC_SHARED_API DBCFileLoader
+class TC_COMMON_API DBCFileLoader
 {
     public:
         DBCFileLoader();
@@ -44,6 +44,13 @@ class TC_SHARED_API DBCFileLoader
                 {
                     assert(field < file.fieldCount);
                     uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
+                    EndianConvert(val);
+                    return val;
+                }
+                int32 getInt(size_t field) const
+                {
+                    assert(field < file.fieldCount);
+                    int32 val = *reinterpret_cast<int32*>(offset + file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }

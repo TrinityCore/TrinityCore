@@ -2347,6 +2347,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // currently visible objects at player client
         GuidUnorderedSet m_clientGUIDs;
+        GuidUnorderedSet m_visibleTransports;
 
         bool HaveAtClient(Object const* u) const;
 
@@ -2359,8 +2360,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateVisibilityForPlayer();
         void UpdateVisibilityOf(WorldObject* target);
         void UpdateTriggerVisibility();
-
-        void SendUpdatePhasing();
 
         template<class T>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);

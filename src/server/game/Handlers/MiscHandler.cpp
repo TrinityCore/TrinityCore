@@ -732,15 +732,15 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                         player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_DIFFICULTY, player->GetDifficulty(entry->IsRaid()));
                     break;
                 case Map::CANNOT_ENTER_NOT_IN_RAID:
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
-                    {
-                        char const* mapName = entry->name;
-                        TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName().c_str(), mapName);
-                        // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
-                        player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_RAID_GROUP_ONLY), mapName);
-                    }
+                {
+                    WorldPacket data(SMSG_RAID_GROUP_ONLY, 4 + 4);
+                    data << uint32(0);
+                    data << uint32(2); // You must be in a raid group to enter this instance.
+                    player->SendDirectMessage(&data);
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance map %d", player->GetName().c_str(), at->target_mapId);
                     reviveAtTrigger = true;
                     break;
+                }
                 case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
                 {
                     WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
@@ -1601,54 +1601,6 @@ void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");
 
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
-}
-
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps)
-{
-    ObjectGuid guid = _player->GetGUID();
-
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-
-    data << uint32(worldMapAreaSwaps.size()) * 2;
-    for (auto mapSwap : worldMapAreaSwaps)
-        data << uint16(mapSwap);                    // WorldMapArea.dbc id (controls map display)
-
-    data.WriteByteSeq(guid[1]);
-
-    data << uint32(phaseIds.size() ? 0 : 8);  // flags (not phasemask)
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-
-    data << uint32(0);                          // Inactive terrain swaps
-    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-    //    data << uint16(0);
-
-    data << uint32(phaseIds.size()) * 2;        // Phase.dbc ids
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-        data << uint16(*itr);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-
-    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
-
-    data.WriteByteSeq(guid[5]);
-
-    SendPacket(&data);
 }
 
 // Battlefield and Battleground

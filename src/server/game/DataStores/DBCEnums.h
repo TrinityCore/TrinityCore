@@ -466,6 +466,23 @@ enum MountCapabilityFlags
     MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
+enum PhaseEntryFlags : uint16
+{
+    PHASE_FLAG_NORMAL   = 0x08,
+    PHASE_FLAG_COSMETIC = 0x10,
+    PHASE_FLAG_PERSONAL = 0x20
+};
+
+// PhaseUseFlags fields in different DBCs
+enum PhaseUseFlagsValues : uint8
+{
+    PHASE_USE_FLAGS_NONE            = 0x0,
+    PHASE_USE_FLAGS_ALWAYS_VISIBLE  = 0x1,
+    PHASE_USE_FLAGS_INVERSE         = 0x2,
+
+    PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
+};
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,

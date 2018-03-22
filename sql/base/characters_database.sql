@@ -498,6 +498,81 @@ LOCK TABLES `character_action` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_archaeology_completed`
+--
+
+DROP TABLE IF EXISTS `character_archaeology_completed`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_archaeology_completed` (
+  `guid` int(10) unsigned NOT NULL,
+  `project` smallint(5) unsigned NOT NULL,
+  `time` int(10) NOT NULL,
+  `count` int(10) NOT NULL,
+  PRIMARY KEY (`guid`,`project`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_archaeology_completed`
+--
+
+LOCK TABLES `character_archaeology_completed` WRITE;
+/*!40000 ALTER TABLE `character_archaeology_completed` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_archaeology_completed` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_archaeology_projects`
+--
+
+DROP TABLE IF EXISTS `character_archaeology_projects`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_archaeology_projects` (
+  `guid` int(10) unsigned NOT NULL,
+  `branch` tinyint(3) unsigned NOT NULL,
+  `project` mediumint(8) unsigned NOT NULL,
+  PRIMARY KEY (`guid`,`branch`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_archaeology_projects`
+--
+
+LOCK TABLES `character_archaeology_projects` WRITE;
+/*!40000 ALTER TABLE `character_archaeology_projects` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_archaeology_projects` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_archaeology_sites`
+--
+
+DROP TABLE IF EXISTS `character_archaeology_sites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_archaeology_sites` (
+  `guid` int(10) unsigned NOT NULL,
+  `site` tinyint(3) unsigned NOT NULL,
+  `type` smallint(5) unsigned NOT NULL,
+  `finds` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`guid`,`site`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*Data for the table `character_archaeology_sites` */
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_archaeology_sites`
+--
+
+LOCK TABLES `character_archaeology_sites` WRITE;
+/*!40000 ALTER TABLE `character_archaeology_sites` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_archaeology_sites` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_arena_stats`
 --
 
@@ -2876,7 +2951,8 @@ INSERT INTO `updates` VALUES
 ('2017_11_28_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','ARCHIVED','2017-11-28 00:00:00',0),
 ('2017_12_17_00_characters.sql','937E8F51DC74AC41FF8F213CE36C69DDEB878D6A','ARCHIVED','2017-12-17 00:00:00',0),
 ('2018_01_15_00_characters.sql','43C8E4549E1AA9610B377BC7139C88C63D0DC193','ARCHIVED','2018-01-15 00:00:00',0),
-('2018_02_16_00_characters.sql','F1254689CE8A0B0AF149E557830287FF583B8D91','ARCHIVED','2018-02-16 00:00:00',0);
+('2018_02_16_00_characters.sql','F1254689CE8A0B0AF149E557830287FF583B8D91','ARCHIVED','2018-02-16 00:00:00',0),
+('2018_03_16_00_characters.sql','722EAFB7F508882F584DCAE61F97F1A11EDE126E','ARCHIVED','2018-03-16 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

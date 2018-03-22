@@ -29,6 +29,7 @@
 #include "Language.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SmartAI.h"
@@ -1130,7 +1131,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                (*itr)->SetInPhase(e.action.ingamePhaseId.id, true, e.action.ingamePhaseId.apply == 1);
+            {
+                if (e.action.ingamePhaseId.apply == 1)
+                    PhasingHandler::AddPhase(*itr, e.action.ingamePhaseId.id, true);
+                else
+                    PhasingHandler::RemovePhase(*itr, e.action.ingamePhaseId.id, true);
+            }
 
             delete targets;
             break;
@@ -1142,11 +1148,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets)
                 break;
 
-            std::set<uint32> const& phases = GetPhasesForGroup(e.action.ingamePhaseGroup.groupId);
-
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                for (auto phase : phases)
-                    (*itr)->SetInPhase(phase, true, e.action.ingamePhaseGroup.apply == 1);
+            {
+                if (e.action.ingamePhaseGroup.apply == 1)
+                    PhasingHandler::AddPhaseGroup(*itr, e.action.ingamePhaseGroup.groupId, true);
+                else
+                    PhasingHandler::RemovePhaseGroup(*itr, e.action.ingamePhaseGroup.groupId, true);
+            }
 
             delete targets;
             break;
@@ -3424,6 +3432,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 if ((e.event.los.noHostile && !me->IsHostileTo(unit)) ||
                     (!e.event.los.noHostile && me->IsHostileTo(unit)))
                 {
+                    if (e.event.los.playerOnly && unit->GetTypeId() != TYPEID_PLAYER)
+                        return;
                     RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
                     ProcessAction(e, unit);
                 }
@@ -3444,6 +3454,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 if ((e.event.los.noHostile && !me->IsHostileTo(unit)) ||
                     (!e.event.los.noHostile && me->IsHostileTo(unit)))
                 {
+                    if (e.event.los.playerOnly && unit->GetTypeId() != TYPEID_PLAYER)
+                        return;
                     RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
                     ProcessAction(e, unit);
                 }

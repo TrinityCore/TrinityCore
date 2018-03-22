@@ -688,9 +688,9 @@ struct AreaTriggerEntry
     float   x;                                              // 2        m_x
     float   y;                                              // 3        m_y
     float   z;                                              // 4        m_z
-    //uint32                                                // 5
-    //uint32                                                // 6
-    //uint32                                                // 7
+    uint32  PhaseUseFlags;                                  // 5        PhaseUseFlags   
+    uint32  PhaseID;                                        // 6        PhaseID
+    uint32  PhaseGroupID;                                   // 7        PhaseGroupID
     float   radius;                                         // 8        m_radius
     float   box_x;                                          // 9        m_box_length
     float   box_y;                                          // 10       m_box_width
@@ -1601,7 +1601,7 @@ struct PhaseEntry
 {
     uint32    ID;                                           // 0
     char*     Name;                                         // 1
-    uint32    flag;                                         // 2
+    uint32    Flags;                                        // 2
 };
 
 struct PhaseGroupEntry
@@ -2734,5 +2734,5 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 #define TaxiMaskSize 114
 typedef uint8 TaxiMask[TaxiMaskSize];
 
-typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 #endif

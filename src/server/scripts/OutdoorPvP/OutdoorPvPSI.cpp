@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "OutdoorPvPSI.h"
 #include "WorldPacket.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "GameObject.h"
 #include "MapManager.h"
@@ -182,8 +183,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                             return true;
                         }
 
-                        go->CopyPhaseFrom(player);
-
+                        PhasingHandler::InheritPhaseShift(go, player);
                         go->SetRespawnTime(0);
 
                         if (!map->AddToMap(go))
@@ -213,8 +213,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                             return true;
                         }
 
-                        go->CopyPhaseFrom(player);
-
+                        PhasingHandler::InheritPhaseShift(go, player);
                         go->SetRespawnTime(0);
 
                         if (!map->AddToMap(go))
