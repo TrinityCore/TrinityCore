@@ -778,6 +778,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE)
     {
         uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000 * 8.125f);
+
+        // Sentinel
+        if (victim->GetVictim() && victim->GetVictim() != this)
+            if (AuraEffect* aurEff = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, 1916, EFFECT_1))
+                rage += CalculatePct(rage, aurEff->GetAmount());
+
         switch (cleanDamage->attackType)
         {
             case OFF_ATTACK:
