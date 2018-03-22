@@ -50,10 +50,7 @@ struct EnumName
 
 #define CREATE_NAMED_ENUM(VALUE) { VALUE, STRINGIZE(VALUE) }
 
-#define NPCFLAG_COUNT   24
-#define FLAGS_EXTRA_COUNT 21
-
-EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
+EnumName<NPCFlags, int32> const npcFlagTexts[] =
 {
     { UNIT_NPC_FLAG_AUCTIONEER,         LANG_NPCINFO_AUCTIONEER         },
     { UNIT_NPC_FLAG_BANKER,             LANG_NPCINFO_BANKER             },
@@ -80,6 +77,8 @@ EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
     { UNIT_NPC_FLAG_VENDOR_POISON,      LANG_NPCINFO_VENDOR_POISON      },
     { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     }
 };
+
+uint32 const NPCFLAG_COUNT = std::extent<decltype(npcFlagTexts)>::value;
 
 EnumName<Mechanics> const mechanicImmunes[MAX_MECHANIC] =
 {
@@ -153,7 +152,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_31)
 };
 
-EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
+EnumName<CreatureFlagsExtra> const flagsExtra[] =
 {
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_INSTANCE_BIND),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_CIVILIAN),
@@ -165,6 +164,7 @@ EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_TRIGGER),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_TAUNT),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE),
+    CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_SELL_VENDOR),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_WORLDEVENT),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_GUARD),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_CRIT),
@@ -177,6 +177,8 @@ EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK)
 };
+
+uint32 const FLAGS_EXTRA_COUNT = std::extent<decltype(flagsExtra)>::value;
 
 bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args)
 {
