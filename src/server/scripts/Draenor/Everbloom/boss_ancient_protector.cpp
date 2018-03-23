@@ -263,12 +263,6 @@ public:
 
         void AttackStart(Unit* /*who*/) override { }
         void UpdateAI(uint32 /*uiDiff*/) override { }
-
-    private:
-
-        uint32 GrowthTimer;
-        uint32 EnragedGrowthTimer;
-        uint32 DancingThornsTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
