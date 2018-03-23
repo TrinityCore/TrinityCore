@@ -2133,7 +2133,8 @@ bool Item::ItemContainerLoadLootFromDB()
                 Field* fields = item_result->Fetch();
 
                 // item_id, itm_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_type, rnd_prop, rnd_suffix, context, bonus_list_ids
-                loot_item.itemid = fields[0].GetUInt32();
+                loot_item.itemid = uint32(fields[0].GetInt32());
+                loot_item.type = ((fields[0].GetInt32() > 0) ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY);
                 loot_item.count = fields[1].GetUInt32();
                 loot_item.follow_loot_rules = fields[2].GetBool();
                 loot_item.freeforall = fields[3].GetBool();
