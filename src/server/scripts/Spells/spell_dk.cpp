@@ -140,6 +140,7 @@ enum DeathKnightSpells
     SPELL_DK_BONESTORM_HEAL                     = 196545,
     SPELL_DK_GLACIAL_ADVANCE                    = 194913,
     SPELL_DK_GLACIAL_ADVANCE_DAMAGE             = 195975,
+    SPELL_DK_RIME_BUFF                          = 59052,
 };
 
 // 70656 - Advantage (T10 4P Melee Bonus)
@@ -1284,6 +1285,9 @@ public:
                 caster->CastSpell(target, 155159, true);
             else
                 caster->CastSpell(target, SPELL_DK_FROST_FEVER, true);
+                
+            if (caster->HasAura(SPELL_DK_RIME_BUFF))
+                caster->RemoveAura(SPELL_DK_RIME_BUFF);
         }
 
         void Register() override
