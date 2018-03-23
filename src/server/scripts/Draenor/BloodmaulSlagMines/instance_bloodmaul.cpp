@@ -35,12 +35,12 @@ namespace Instances
             { 0,                                0,                              DoorType::DOOR_TYPE_ROOM    }  // EOF
         };
 
-        static const uint32 g_MinerEntry[] =
+        /*static const uint32 g_MinerEntry[] =
         {
             MobEntries::CapturedMinerAlliance,
             MobEntries::CapturedMinerHorde,
             MobEntries::CapturedMinerNeutral
-        };
+        };*/
 
         class instance_Bloodmaul : public InstanceMapScript
         {

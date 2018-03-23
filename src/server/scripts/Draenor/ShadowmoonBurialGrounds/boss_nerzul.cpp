@@ -293,7 +293,7 @@ public:
 
         InstanceScript* m_Instance;
         uint32 m_Diff;
-        uint32 l_Periodic = NULL;
+        uint32 l_Periodic = 0;
 
         void Reset() override
         {
