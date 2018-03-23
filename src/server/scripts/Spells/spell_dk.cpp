@@ -140,7 +140,10 @@ enum DeathKnightSpells
     SPELL_DK_BONESTORM_HEAL                     = 196545,
     SPELL_DK_GLACIAL_ADVANCE                    = 194913,
     SPELL_DK_GLACIAL_ADVANCE_DAMAGE             = 195975,
+    SPELL_DK_HOWLING_BLAST                      = 49184,
+    SPELL_DK_HOWLING_BLAST_AOE                  = 237680,
     SPELL_DK_RIME_BUFF                          = 59052,
+    SPELL_DK_NORTHREND_WINDS                    = 204088,
 };
 
 // 70656 - Advantage (T10 4P Melee Bonus)
@@ -1244,62 +1247,71 @@ public:
     }
 };
 
-
 // Howling Blast - 49184
-class spell_dk_howling_blast : public SpellScriptLoader
+class spell_dk_howling_blast : public SpellScript
 {
-public:
-    spell_dk_howling_blast() : SpellScriptLoader("spell_dk_howling_blast") { }
+    PrepareSpellScript(spell_dk_howling_blast);
 
-    class spell_dk_howling_blast_SpellScript : public SpellScript
+    ObjectGuid tar;
+
+    void HandleBeforeCast()
     {
-        PrepareSpellScript(spell_dk_howling_blast_SpellScript);
-
-        ObjectGuid tar;
-
-        void HandleBeforeCast()
-        {
-            Unit* target = GetExplTargetUnit();
-            Unit* caster = GetCaster();
-
-            if (!caster || !target)
-                return;
-
+        if (Unit* target = GetExplTargetUnit())
             tar = target->GetGUID();
-        }
+    }
 
-        void HandleOnHit()
-        {
-            Unit* target = GetHitUnit();
-            Unit* caster = GetCaster();
-
-            if (!caster || !target || !tar)
-                return;
-
-
-            if (target->GetGUID() != tar)
-                if (const SpellInfo* info = GetSpellInfo())
-                    SetHitDamage(int32(GetHitDamage()*info->GetEffect(EFFECT_0)->BasePoints / 100));
-
-            if (caster->HasAura(152281))
-                caster->CastSpell(target, 155159, true);
-            else
-                caster->CastSpell(target, SPELL_DK_FROST_FEVER, true);
-                
-            if (caster->HasAura(SPELL_DK_RIME_BUFF))
-                caster->RemoveAura(SPELL_DK_RIME_BUFF);
-        }
-
-        void Register() override
-        {
-            BeforeCast += SpellCastFn(spell_dk_howling_blast_SpellScript::HandleBeforeCast);
-            OnHit += SpellHitFn(spell_dk_howling_blast_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleOnHit()
     {
-        return new spell_dk_howling_blast_SpellScript();
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
+
+        if (!caster || !target || !tar)
+            return;
+
+        if (target->GetGUID() != tar)
+            if (const SpellInfo* info = GetSpellInfo())
+                SetHitDamage(int32(GetHitDamage()*info->GetEffect(EFFECT_0)->BasePoints / 100));
+
+        caster->CastSpell(target, SPELL_DK_FROST_FEVER, true);
+
+        if (!caster->HasAura(SPELL_DK_NORTHREND_WINDS))
+            caster->CastSpell(target, SPELL_DK_HOWLING_BLAST_AOE, true);
+
+        if (caster->HasAura(SPELL_DK_RIME_BUFF))
+            caster->RemoveAura(SPELL_DK_RIME_BUFF);
+    }
+
+    void Register() override
+    {
+        BeforeCast += SpellCastFn(spell_dk_howling_blast_SpellScript::HandleBeforeCast);
+        OnHit += SpellHitFn(spell_dk_howling_blast_SpellScript::HandleOnHit);
+    }
+};
+
+// Howling Blast AOE - 237680
+class spell_dk_howling_blast_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_dk_howling_blast_aoe);
+
+    ObjectGuid tar;
+
+    void HandleBeforeCast()
+    {
+        if (Unit* target = GetExplTargetUnit())
+            tar = target->GetGUID();
+    }
+
+    void HandleOnHit(SpellEffIndex effIndex)
+    {
+        if (Unit* target = GetHitUnit())
+            if (target->GetGUID() == tar)
+                PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        BeforeCast += SpellCastFn(spell_dk_howling_blast_aoe::HandleBeforeCast);
+        OnEffectHit += SpellEffectFn(spell_dk_howling_blast_aoe::HandleOnHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -2549,7 +2561,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_runic_power();
     new spell_dk_gorefiends_grasp();
     new spell_dk_heart_strike();
-    new spell_dk_howling_blast();
+    RegisterSpellScript(spell_dk_howling_blast);
+    RegisterSpellScript(spell_dk_howling_blast_aoe);
     new spell_dk_icebound_fortitude();
     new spell_dk_icy_touch();
     new spell_dk_marrowrend();
