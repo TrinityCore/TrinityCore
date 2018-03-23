@@ -140,6 +140,12 @@ class boss_grand_vizier_ertan : public CreatureScript
                 _DespawnAtEvade();
             }
 
+            void JustDied(Unit* /*killer*/) override
+            {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _JustDied();
+            }
+
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
