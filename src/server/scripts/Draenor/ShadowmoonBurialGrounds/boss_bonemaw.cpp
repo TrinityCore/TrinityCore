@@ -74,17 +74,6 @@ enum eBoneMawActions
     ActionInhaleDeactivate = 1,
 };
 
-static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-{
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 400.0f);
-    if (creatures.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
 Position const l_PositionBoneMaw = { 1851.256f, -558.721f, 199.027f, 1.991077f };
 Position const l_PositionAdds[2] =
 {
