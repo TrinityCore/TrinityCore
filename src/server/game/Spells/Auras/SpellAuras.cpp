@@ -1149,7 +1149,7 @@ bool Aura::CanBeSaved() const
         case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
-		case 57634: // Magma
+        case 57634: // Magma
             return false;
     }
 
