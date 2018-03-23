@@ -55,6 +55,7 @@ enum ShamanSpells
     SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE          = 55533,
     SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
     SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM          = 62132,
+    SPELL_SHAMAN_HEALING_RAIN_TRIGGERED         = 73921,
     SPELL_SHAMAN_HEALING_SURGE                  = 8004,
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_BURST_TRIGGERED           = 77451,
@@ -1641,6 +1642,82 @@ class spell_sha_earth_shock : public SpellScriptLoader
         }
 };
 
+// 73920 - Healing Rain
+class spell_sha_healing_rain : public SpellScriptLoader
+{
+    public:
+        spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
+
+        class spell_sha_healing_rain_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_healing_rain_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_TRIGGERED });
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                if (DynamicObject* dyn = GetTarget()->GetDynObject(aurEff->GetId()))
+                    GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_SHAMAN_HEALING_RAIN_TRIGGERED, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_healing_rain_AuraScript();
+        }
+};
+
+// 73921 - Healing Rain Triggered
+class spell_sha_healing_rain_triggered : public SpellScriptLoader
+{
+    public:
+        spell_sha_healing_rain_triggered() : SpellScriptLoader("spell_sha_healing_rain_triggered") { }
+
+        class spell_sha_healing_rain_triggered_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_healing_rain_triggered_SpellScript);
+
+            bool Load()
+            {
+                _targets = 0;
+                return true;
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitHeal() && _targets > 6)
+                    SetHitHeal(GetHitHeal() / _targets);
+            }
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                _targets = unitList.size();
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_triggered_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+
+            uint32 _targets;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_sha_healing_rain_triggered_SpellScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -1660,6 +1737,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flame_shock();
     new spell_sha_focused_insight();
     new spell_sha_glyph_of_healing_wave();
+    new spell_sha_healing_rain();
+    new spell_sha_healing_rain_triggered();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
     new spell_sha_item_lightning_shield();
