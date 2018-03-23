@@ -169,7 +169,7 @@ struct TC_GAME_API LootItem
     uint8   context;
     ConditionContainer conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
-    uint8   count             : 8;
+    uint32  count;
     bool    currency          : 1;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -246,7 +246,7 @@ struct TC_GAME_API Loot
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
     uint32 gold;
-    uint8 unlootedCount;
+    uint32 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
@@ -327,13 +327,13 @@ public:
     struct ResultValue
     {
         Item* item;
-        uint8 count;
+        uint32 count;
         LootType lootType;
     };
 
     typedef std::vector<ResultValue> OrderedStorage;
 
-    void Add(Item* item, uint8 count, LootType lootType);
+    void Add(Item* item, uint32 count, LootType lootType);
 
     OrderedStorage::const_iterator begin() const;
     OrderedStorage::const_iterator end() const;

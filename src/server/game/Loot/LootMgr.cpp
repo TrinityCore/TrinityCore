@@ -23,6 +23,7 @@
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
+#include <math.h>
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Random.h"
@@ -146,15 +147,15 @@ uint32 LootStore::LoadLootTable()
         Field* fields = result->Fetch();
 
         uint32 entry               = fields[0].GetUInt32();
-        uint32 item                = uint32(fields[1].GetInt32());
-        uint8  type                = fields[1].GetInt32() >= 0 ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY;
+        int32  item                = fields[1].GetInt32();
+        uint8  type                = item >= 0 ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY;
         uint32 reference           = fields[2].GetUInt32();
         float  chance              = fields[3].GetFloat();
         bool   needsquest          = fields[4].GetBool();
         uint16 lootmode            = fields[5].GetUInt16();
         uint8  groupid             = fields[6].GetUInt8();
-        uint8  mincount            = fields[7].GetUInt8();
-        uint8  maxcount            = fields[8].GetUInt8();
+        uint32 mincount            = fields[7].GetUInt32();
+        uint32 maxcount            = fields[8].GetUInt32();
 
         if (groupid >= 1 << 7)                                     // it stored in 7 bit field
         {
@@ -162,7 +163,7 @@ uint32 LootStore::LoadLootTable()
             return 0;
         }
 
-        LootStoreItem* storeitem = new LootStoreItem(item, type, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
+        LootStoreItem* storeitem = new LootStoreItem(std::abs(item), type, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
 
         if (!storeitem->IsValid(*this, entry))            // Validity checks
         {

@@ -39,15 +39,13 @@ LootItem::LootItem(LootStoreItem const& li)
 {
     itemid      = li.itemid;
     conditions  = li.conditions;
-    currency    = type == LOOT_ITEM_TYPE_CURRENCY;
+    currency    = li.type == LOOT_ITEM_TYPE_CURRENCY;
 
     if (currency)
     {
         freeforall = false;
         needs_quest = false;
         follow_loot_rules = false;
-        //randomSuffix = 0;
-        //randomPropertyId = 0;
         upgradeId = 0;
     }
     else
@@ -874,7 +872,7 @@ NotNormalLootItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, b
 // --------- AELootResult ---------
 //
 
-void AELootResult::Add(Item* item, uint8 count, LootType lootType)
+void AELootResult::Add(Item* item, uint32 count, LootType lootType)
 {
     auto itr = _byItem.find(item);
     if (itr != _byItem.end())
