@@ -50,7 +50,7 @@ enum Texts
 
 enum Actions
 {
-    ACTION_STORMS_EDGE,
+    ACTION_STORMS_EDGE = 1,
 };
 
 enum Events
@@ -117,12 +117,14 @@ class boss_grand_vizier_ertan : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void Reset() override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _Reset();
+                _JustEngagedWith();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                // Should have, but gets stuck in evade mode...
-                //me->AddUnitState(UNIT_STATE_ROOT);
+                SummonErtansVortexes();
+                DoCast(me, SPELL_STORMS_EDGE_AURA);
+                Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_STORMS_EDGE_SPAWN, 400);
                 events.ScheduleEvent(EVENT_STORMS_EDGE, 23000);
@@ -130,13 +132,12 @@ class boss_grand_vizier_ertan : public CreatureScript
                     events.ScheduleEvent(EVENT_SUMMON_TEMPEST, 17000);
             }
 
-            void JustEngagedWith(Unit* /*target*/) override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                _JustEngagedWith();
-
-                SummonErtansVortexes();
-                DoCast(me, SPELL_STORMS_EDGE_AURA);
-                Talk(SAY_AGGRO);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                summons.DespawnAll();
+                _EnterEvadeMode();
+                _DespawnAtEvade();
             }
 
             void UpdateAI(uint32 diff) override
@@ -161,7 +162,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                         {
                             DoCast(me, SPELL_STORMS_EDGE_VISUAL);
                             EntryCheckPredicate pred(NPC_ERTANS_VORTEX);
-                            summons.DoAction(ACTION_STORMS_EDGE, pred);
+                            summons.DoAction(ACTION_STORMS_EDGE, pred, 8);
                             Talk(SAY_STORMS_EDGE);
                             events.ScheduleEvent(EVENT_STORMS_EDGE_AURA, 3000);
                             events.ScheduleEvent(EVENT_STORMS_EDGE, 32000);
@@ -216,17 +217,27 @@ public:
     {
         npc_ertans_vortexAI(Creature* creature) : ScriptedAI(creature)
         {
-            currentPointId = 0;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _currentPointId = 0;
+        }
+
+        void IsSummonedBy(Unit* summoner) override
+        {
             DoCast(me, SPELL_CYCLONE_SHIELD);
+            DoZoneInCombat();
         }
 
         void DoAction(int32 action) override
         {
-            if (action != ACTION_STORMS_EDGE)
-                return;
-
-            me->GetMotionMaster()->MovePoint(POINT_NONE, ErtansVortexMiddlePoints[currentPointId]);
-            events.ScheduleEvent(EVENT_MOVE_POINT, 9000);
+            if (action == ACTION_STORMS_EDGE)
+            {
+                me->GetMotionMaster()->MovePoint(POINT_NONE, ErtansVortexMiddlePoints[_currentPointId]);
+                events.ScheduleEvent(EVENT_MOVE_POINT, 9000);
+            }
         }
 
         void MovementInform(uint32 movementType, uint32 pointId) override
@@ -235,18 +246,15 @@ public:
                 return;
 
             if (pointId < POINT_ERTANS_VORTEX_SE)
-                currentPointId = pointId + 1;
+                _currentPointId = pointId + 1;
             else
-                currentPointId = POINT_ERTANS_VORTEX_S;
+                _currentPointId = POINT_ERTANS_VORTEX_S;
 
             events.ScheduleEvent(EVENT_MOVE_POINT, 1);
         };
 
         void UpdateAI(uint32 diff) override
         {
-            if (events.Empty())
-                return;
-
             events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -254,7 +262,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_MOVE_POINT:
-                        me->GetMotionMaster()->MovePoint(currentPointId, ErtansVortexPoints[currentPointId]);
+                        me->GetMotionMaster()->MovePoint(_currentPointId, ErtansVortexPoints[_currentPointId]);
                         break;
                     default:
                         break;
@@ -264,7 +272,7 @@ public:
 
     private:
         EventMap events;
-        uint32 currentPointId;
+        uint32 _currentPointId;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
