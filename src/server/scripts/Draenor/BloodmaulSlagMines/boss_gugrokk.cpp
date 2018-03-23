@@ -80,9 +80,9 @@ namespace Instances { namespace Bloodmaul
 
             struct boss_gugrokkAI : public BossAI
             {
-                boss_gugrokkAI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossGugrokk)
+                boss_gugrokkAI(Creature* creature) : BossAI(creature, BossIds::BossGugrokk)
                 {
-                    m_Instance = p_Creature->GetInstanceScript();
+                    m_Instance = creature->GetInstanceScript();
                 }
 
                 InstanceScript* m_Instance;
@@ -141,12 +141,12 @@ namespace Instances { namespace Bloodmaul
                         Talk(eTalks::TalkSlay);
                 }
 
-                void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+                void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
                 {
-                    if (p_Target == nullptr)
+                    if (target == nullptr)
                         return;
 
-                    switch (p_SpellInfo->Id)
+                    switch (spellInfo->Id)
                     {
                         case eSpells::SpellMoltenBlast:
                         {
@@ -185,12 +185,12 @@ namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void UpdateAI(uint32 const p_Diff) override
+                void UpdateAI(uint32 const diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                         return;
@@ -238,9 +238,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new boss_gugrokkAI(p_Creature);
+                return new boss_gugrokkAI(creature);
             }
     };
 
@@ -252,7 +252,7 @@ namespace Instances { namespace Bloodmaul
 
             struct npc_gugrokk_magma_eruptionAI : public ScriptedAI
             {
-                npc_gugrokk_magma_eruptionAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                npc_gugrokk_magma_eruptionAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum eSpells
                 {
@@ -278,9 +278,9 @@ namespace Instances { namespace Bloodmaul
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 }
 
-                void UpdateAI(uint32 const p_Diff) override
+                void UpdateAI(uint32 const diff) override
                 {
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     switch (m_Events.ExecuteEvent())
                     {
@@ -308,9 +308,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new npc_gugrokk_magma_eruptionAI(p_Creature);
+                return new npc_gugrokk_magma_eruptionAI(creature);
             }
     };
 
@@ -322,7 +322,7 @@ namespace Instances { namespace Bloodmaul
 
             struct npc_gugrokk_unstable_slagAI : public ScriptedAI
             {
-                npc_gugrokk_unstable_slagAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                npc_gugrokk_unstable_slagAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum eSpells
                 {
@@ -361,9 +361,9 @@ namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void UpdateAI(uint32 const p_Diff) override
+                void UpdateAI(uint32 const diff) override
                 {
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     switch (m_Events.ExecuteEvent())
                     {
@@ -400,9 +400,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new npc_gugrokk_unstable_slagAI(p_Creature);
+                return new npc_gugrokk_unstable_slagAI(creature);
             }
     };
 }

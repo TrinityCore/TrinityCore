@@ -196,9 +196,9 @@ public:
             }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -336,29 +336,17 @@ public:
 };
 
 // Custom AT gul'dan trigger - 100000
-class at_tanaan_guldan_trigger : public AreaTriggerEntityScript
+struct at_tanaan_guldan_trigger : AreaTriggerAI
 {
-public:
+    at_tanaan_guldan_trigger(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    at_tanaan_guldan_trigger() : AreaTriggerEntityScript("at_tanaan_guldan_trigger") { }
+    int32 timeInterval;
 
-    struct at_tanaan_guldan_triggerAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_tanaan_guldan_triggerAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        int32 timeInterval;
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            if (Player* player = unit->ToPlayer())
-                if (player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_INCOMPLETE)
-                    player->KilledMonsterCredit(TanaanKillCredits::CreditEnterGuldanPrison);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_tanaan_guldan_triggerAI(areatrigger);
+        if (Player* player = unit->ToPlayer())
+            if (player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(TanaanKillCredits::CreditEnterGuldanPrison);
     }
 };
 
@@ -389,7 +377,7 @@ void AddSC_tanaan_intro_portal()
     new npc_generic_tanaan_guardian();
     new npc_iron_gronnling();
 
-    new at_tanaan_guldan_trigger();
+    RegisterAreaTriggerAI(at_tanaan_guldan_trigger);
 
     new gob_intact_portal();
     new gob_static_rune();

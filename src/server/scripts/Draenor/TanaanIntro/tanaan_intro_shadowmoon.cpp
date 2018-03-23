@@ -102,26 +102,26 @@ public:
             playerGuid = p_Guid;
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (m_SceneTimer)
             {
-                if (m_SceneTimer <= p_Diff)
+                if (m_SceneTimer <= diff)
                 {
                     if (!playerGuid.IsEmpty())
                     {
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
                         {
-                            l_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonQuianaMaladaar);
-                            l_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonLiadrinOlin);
+                            player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonQuianaMaladaar);
+                            player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonLiadrinOlin);
 
-                            l_Player->GetSceneMgr().PlaySceneByPackageId(l_Player->GetTeamId() == TEAM_ALLIANCE ? TanaanSceneObjects::SceneQuianaAndMaladaarEnter : TanaanSceneObjects::SceneLiadrinAndOlinEnter);
+                            player->GetSceneMgr().PlaySceneByPackageId(player->GetTeamId() == TEAM_ALLIANCE ? TanaanSceneObjects::SceneQuianaAndMaladaarEnter : TanaanSceneObjects::SceneLiadrinAndOlinEnter);
                         }
                     }
                     m_SceneTimer = 0;
                 }
                 else
-                    m_SceneTimer -= p_Diff;
+                    m_SceneTimer -= diff;
             }
         }
     };
@@ -146,11 +146,11 @@ public:
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, me, 20.0f);
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 20.0f);
 
-            for (Player* l_Player : l_PlayerList)
-                l_Player->KilledMonsterCredit(me->GetEntry());
+            for (Player* player : playerList)
+                player->KilledMonsterCredit(me->GetEntry());
         }
     };
 };
@@ -174,11 +174,11 @@ public:
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, me, 20.0f);
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 20.0f);
 
-            for (Player* l_Player : l_PlayerList)
-                l_Player->KilledMonsterCredit(me->GetEntry());
+            for (Player* player : playerList)
+                player->KilledMonsterCredit(me->GetEntry());
         }
     };
 };
@@ -234,21 +234,21 @@ public:
 };
 
 /// 79794 - Yrel
-class npc_tanaan_yrel_summon : public CreatureScript
+class npc_tanaan_yresummon : public CreatureScript
 {
 public:
-    npc_tanaan_yrel_summon() : CreatureScript("npc_tanaan_yrel_summon")
+    npc_tanaan_yresummon() : CreatureScript("npc_tanaan_yresummon")
     {
     }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_tanaan_yrel_summonAI(creature);
+        return new npc_tanaan_yresummonAI(creature);
     }
 
-    struct npc_tanaan_yrel_summonAI : public FollowerAI
+    struct npc_tanaan_yresummonAI : public FollowerAI
     {
-        npc_tanaan_yrel_summonAI(Creature* creature) : FollowerAI(creature)  { }
+        npc_tanaan_yresummonAI(Creature* creature) : FollowerAI(creature)  { }
 
         enum eEvents
         {
@@ -260,14 +260,14 @@ public:
         EventMap m_Events;
         ObjectGuid m_PlayerGuid;
 
-        void IsSummonedBy(Unit* p_Summoner) override
+        void IsSummonedBy(Unit* summoner) override
         {
-            if (!p_Summoner->ToPlayer())
+            if (!summoner->ToPlayer())
                 return;
 
-            m_PlayerGuid = p_Summoner->GetGUID();
+            m_PlayerGuid = summoner->GetGUID();
 
-            StartFollow(p_Summoner->ToPlayer(), 35);
+            StartFollow(summoner->ToPlayer(), 35);
 
             m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
         }
@@ -296,10 +296,10 @@ public:
                     me->SetFacingTo(1.664600f);
                     if (!m_PlayerGuid.IsEmpty())
                     {
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
                         {
-                            if (l_Player->HasQuest(TanaanQuests::QuestYrelTanaan) || l_Player->HasQuest(TanaanQuests::QuestYrelHorde))
-                                l_Player->KilledMonsterCredit(TanaanKillCredits::CreditEscortYrel);
+                            if (player->HasQuest(TanaanQuests::QuestYrelTanaan) || player->HasQuest(TanaanQuests::QuestYrelHorde))
+                                player->KilledMonsterCredit(TanaanKillCredits::CreditEscortYrel);
 
                             me->DespawnOrUnsummon();
                         }
@@ -311,10 +311,10 @@ public:
             }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
-            FollowerAI::UpdateAI(p_Diff);
+            m_Events.Update(diff);
+            FollowerAI::UpdateAI(diff);
 
             switch (m_Events.ExecuteEvent())
             {
@@ -342,12 +342,12 @@ public:
                 }
                 case eEvents::EventCheckSummoner:
                 {
-                    Player* l_Player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid);
+                    Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid);
 
-                    if (!l_Player || !l_Player->IsAlive())
+                    if (!player || !player->IsAlive())
                         me->DespawnOrUnsummon();
 
-                    if (!l_Player->HasQuest(TanaanQuests::QuestYrelTanaan) && !l_Player->HasQuest(TanaanQuests::QuestYrelHorde))
+                    if (!player->HasQuest(TanaanQuests::QuestYrelTanaan) && !player->HasQuest(TanaanQuests::QuestYrelHorde))
                         me->DespawnOrUnsummon();
 
                     break;
@@ -385,19 +385,19 @@ public:
 
     uint32 checkTimer;
 
-    void OnUpdate(GameObject* p_Object, uint32 p_Diff) override
+    void OnUpdate(GameObject* p_Object, uint32 diff) override
     {
-        if (checkTimer < p_Diff)
+        if (checkTimer < diff)
         {
-            checkTimer -= p_Diff;
+            checkTimer -= diff;
             return;
         }
 
-        std::list<Player*> l_PlayerList;
-        GetPlayerListInGrid(l_PlayerList, p_Object, 10.0f);
+        std::list<Player*> playerList;
+        GetPlayerListInGrid(playerList, p_Object, 10.0f);
         bool playerWithQuestInSight = false;
 
-        for (Player* player : l_PlayerList)
+        for (Player* player : playerList)
         {
             if (player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
             {
@@ -448,12 +448,12 @@ public:
             m_events.ScheduleEvent(EVENT_VOID_SHELL,        urand(10000, 20000));
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            m_events.Update(p_Diff);
+            m_events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -479,15 +479,15 @@ public:
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, me, 36.0f);
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 36.0f);
 
-            for (Player* l_Player : l_PlayerList)
+            for (Player* player : playerList)
             {
-                if (l_Player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || l_Player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
+                if (player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
                 {
-                    l_Player->KilledMonsterCredit(me->GetEntry());
-                    l_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneNerZhulReveal, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+                    player->KilledMonsterCredit(me->GetEntry());
+                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneNerZhulReveal, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
                 }
             }
         }
@@ -500,7 +500,7 @@ void AddSC_tanaan_intro_shadowmoon()
     new npc_tanaan_ungra();
     new npc_taskmaster_gurran();
     new npc_ankova_the_fallen();
-    new npc_tanaan_yrel_summon();
+    new npc_tanaan_yresummon();
     new npc_tanaan_yrel();
     new npc_maladaar_liadrin_tanaan_cave();
     new go_iron_cage_door();

@@ -140,13 +140,13 @@ namespace Instances
                         }
                     }
 
-                    void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+                    void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
                     {
-                        if (p_Target == nullptr)
+                        if (target == nullptr)
                             return;
 
                         /// Handling Earth Crush damages.
-                        if (p_SpellInfo->Id == uint32(Spells::EarthCrush3) && p_Target->GetEntry() == uint32(MobEntries::EarthCrushStalker))
+                        if (spellInfo->Id == uint32(Spells::EarthCrush3) && target->GetEntry() == uint32(MobEntries::EarthCrushStalker))
                         {
                             /*MS::ScriptUtils::ApplyOnEveryPlayer(me, [&](Unit* p_Me, Player* p_Plr)
                             {
@@ -157,27 +157,27 @@ namespace Instances
                         }
 
                         /// Handling fear after Ferocious Yell.
-                        if (p_SpellInfo->Id == uint32(Spells::FerociousYell))
+                        if (spellInfo->Id == uint32(Spells::FerociousYell))
                         {
-                            if (p_Target->GetAuraCount(uint32(Spells::WeakenedWill)) == 3)
+                            if (target->GetAuraCount(uint32(Spells::WeakenedWill)) == 3)
                             {
-                                p_Target->RemoveAura(uint32(Spells::WeakenedWill));
-                                me->AddAura(uint32(Spells::Fear), p_Target);
+                                target->RemoveAura(uint32(Spells::WeakenedWill));
+                                me->AddAura(uint32(Spells::Fear), target);
                             }
                             else
                             {
                                 if (Unit* l_Target = me->GetVictim())
-                                    p_Target->AddThreat(l_Target, 10000.0f);
+                                    target->AddThreat(l_Target, 10000.0f);
                             }
                         }
                     }
 
-                    void UpdateAI(const uint32 p_Diff) override
+                    void UpdateAI(const uint32 diff) override
                     {
                         if (!UpdateVictim())
                             return;
 
-                        events.Update(p_Diff);
+                        events.Update(diff);
 
                         if (me->HasUnitState(UNIT_STATE_CASTING))
                             return;
@@ -188,22 +188,22 @@ namespace Instances
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
                                 {
-                                    Position l_SummonPos;
-                                    GetPositionWithDistInOrientation(me, 4.0f, me->GetAngle(target), l_SummonPos);
-                                    m_LastEarthCrushStalkerPosition = l_SummonPos;
+                                    Position summonPos;
+                                    GetPositionWithDistInOrientation(me, 4.0f, me->GetAngle(target), summonPos);
+                                    m_LastEarthCrushStalkerPosition = summonPos;
 
                                     /// We summon the rock.
-                                    TempSummon* l_Summon = me->SummonCreature(uint32(MobEntries::EarthCrushStalker), l_SummonPos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4000);
-                                    if (l_Summon != nullptr)
+                                    TempSummon* summon = me->SummonCreature(uint32(MobEntries::EarthCrushStalker), summonPos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4000);
+                                    if (summon != nullptr)
                                     {
-                                        l_Summon->SetFacingToObject(target);
-                                        l_Summon->CastSpell(l_Summon, uint32(Spells::EarthCrush4), true);
+                                        summon->SetFacingToObject(target);
+                                        summon->CastSpell(summon, uint32(Spells::EarthCrush4), true);
 
                                         /// We launch foot kick.
                                         me->SetFacingToObject(target);
-                                        me->CastSpell(l_Summon, uint32(Spells::EarthCrush3), false);
+                                        me->CastSpell(summon, uint32(Spells::EarthCrush3), false);
 
-                                        l_Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                                     }
                                 }
                                 events.ScheduleEvent(uint32(Events::EarthCrush), urand(20000, 25000));
@@ -259,12 +259,12 @@ namespace Instances
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
         };
     }

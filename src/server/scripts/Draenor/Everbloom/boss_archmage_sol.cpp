@@ -67,7 +67,7 @@ public:
 
     struct boss_archmage_sol_AI : public BossAI
     {
-        boss_archmage_sol_AI(Creature* p_Creature) : BossAI(p_Creature, DATA_ARCHMAGE_SOL)
+        boss_archmage_sol_AI(Creature* creature) : BossAI(creature, DATA_ARCHMAGE_SOL)
         {
             casters.clear();
             introDone = false;
@@ -319,9 +319,9 @@ public:
             Creature* frozenRain;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_archmage_sol_AI(p_Creature);
+        return new boss_archmage_sol_AI(creature);
     }
 };
 
@@ -338,7 +338,7 @@ public:
 
     struct npc_frozen_rainAI : public Scripted_NoMovementAI
     {
-        npc_frozen_rainAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+        npc_frozen_rainAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
         void Reset() override
         {
@@ -346,15 +346,15 @@ public:
             DoCast(me, FrozenRainEnums::SPELL_FROZEN_RAIN_NPC);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_frozen_rainAI(p_Creature);
+        return new npc_frozen_rainAI(creature);
     }
 };
 

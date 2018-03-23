@@ -318,12 +318,12 @@ public:
             me->SetDisplayId(DISPLAYID_ELEMENTARY);
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -365,33 +365,22 @@ public:
 };
 
 /// Submerge - 172189
-class areatrigger_aqualir_submerge : public AreaTriggerEntityScript
+struct areatrigger_aqualir_submerge : AreaTriggerAI
 {
-public:
-    areatrigger_aqualir_submerge() : AreaTriggerEntityScript("areatrigger_aqualir_submerge") { }
+    areatrigger_aqualir_submerge(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct areatrigger_aqualir_submergeAI : AreaTriggerAI
+    Position bottom = { -867.21f, -1133.19f, 81.22f, 1.75f };
+
+    void OnUnitEnter(Unit* unit) override
     {
-        areatrigger_aqualir_submergeAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        if (unit->IsPlayer())
+            unit->ApplyMovementForce(at->GetGUID(), 7.0f, bottom);
+    }
 
-        Position bottom = { -867.21f, -1133.19f, 81.22f, 1.75f };
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            if (unit->IsPlayer())
-                unit->ApplyMovementForce(at->GetGUID(), 7.0f, bottom);
-        }
-
-        void OnUnitExit(Unit* unit) override
-        {
-            if (unit->IsPlayer())
-                unit->RemoveMovementForce(at->GetGUID());
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitExit(Unit* unit) override
     {
-        return new areatrigger_aqualir_submergeAI(areatrigger);
+        if (unit->IsPlayer())
+            unit->RemoveMovementForce(at->GetGUID());
     }
 };
 
@@ -405,7 +394,7 @@ enum GaraQuestLineEnum
     SPELL_TRACKING_QUEST_3  = 177296 ,  ///> Complete quest 37427
 
     SPELL_VOID_LANTERN      = 177305,
-    SPELL_SUMMON_GARA       = 177298, ///> Summon 88707
+    SPELsummon_GARA       = 177298, ///> Summon 88707
 
     //Creatures
     NPC_MOTHER_OMRA_BURIAL  = 88709,
@@ -481,7 +470,7 @@ class npc_gara : public CreatureScript
 public:
     npc_gara() : CreatureScript("npc_gara") { }
 
-    bool OnGossipHello(Player* player, Creature* p_Creature) override
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if(player->GetQuestStatus(37423) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_COMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_REWARDED)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -489,12 +478,12 @@ public:
         if (player->GetQuestStatus(37423) == QUEST_STATUS_REWARDED && player->GetQuestStatus(37424) != QUEST_STATUS_REWARDED && player->HasItemCount(ITEM_SHADOWBERRY, 1))
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Show Gara the Shadowberries.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-        player->PlayerTalkClass->SendGossipMenu(85645, p_Creature->GetGUID());
+        player->PlayerTalkClass->SendGossipMenu(85645, creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player * player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
+    bool OnGossipSelect(Player * player, Creature * creature, uint32 /*p_Sender*/, uint32 p_Action) override
     {
         if (player->getClass() != CLASS_HUNTER || player->GetSpecializationId() != TALENT_SPEC_HUNTER_BEASTMASTER)
             return false;
@@ -502,12 +491,12 @@ public:
         player->PlayerTalkClass->ClearMenus();
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            SendGossipMenuFor(player, TEXT_ID_GARA_GRAVE, p_Creature->GetGUID());
+            SendGossipMenuFor(player, TEXT_ID_GARA_GRAVE, creature->GetGUID());
             player->CastSpell(player, SPELL_TRACKING_QUEST_1);
         }
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 2)
         {
-            SendGossipMenuFor(player, TEXT_ID_GARA_BERRY, p_Creature->GetGUID());
+            SendGossipMenuFor(player, TEXT_ID_GARA_BERRY, creature->GetGUID());
             player->CastSpell(player, SPELL_TRACKING_QUEST_2);
         }
         return true;
@@ -1167,7 +1156,7 @@ void AddSC_shadowmoon_draenor()
 
     new spell_shadowmoon_claiming();
 
-    new areatrigger_aqualir_submerge();
+    RegisterAreaTriggerAI(areatrigger_aqualir_submerge);
 
     new npc_gara();
     new spell_use_effigy();

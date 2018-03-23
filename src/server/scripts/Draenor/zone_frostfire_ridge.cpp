@@ -130,11 +130,11 @@ public:
             waitTime = 1000;
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            if (waitTime > p_Diff)
+            if (waitTime > diff)
             {
-                waitTime -= p_Diff;
+                waitTime -= diff;
                 return;
             }
 
@@ -302,9 +302,9 @@ class npc_groog : public CreatureScript
                 m_Events.ScheduleEvent(EventRampage, 7000);
             }
 
-            void UpdateAI(uint32 p_Diff) override
+            void UpdateAI(uint32 diff) override
             {
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim())
                     return;
@@ -338,24 +338,24 @@ class spell_groog_rampage : public SpellScriptLoader
 
             void OnTick(AuraEffect const* /*aurEff*/)
             {
-                Unit* l_Caster = GetCaster();
+                Unit* caster = GetCaster();
 
-                if (!l_Caster)
+                if (!caster)
                     return;
 
                 PreventDefaultAction();
 
-                std::list<Player*> l_PlayerList;
-                l_Caster->GetPlayerListInGrid(l_PlayerList, 2.0f);
+                std::list<Player*> playerList;
+                caster->GetPlayerListInGrid(playerList, 2.0f);
 
-                l_Caster->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
+                caster->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
 
-                for (Player* l_Player : l_PlayerList)
+                for (Player* player : playerList)
                 {
-                    if (l_Player->HasUnitState(UNIT_STATE_ROOT))
+                    if (player->HasUnitState(UNIT_STATE_ROOT))
                         continue;
 
-                    l_Player->KnockbackFrom(l_Player->m_positionX, l_Player->m_positionY, 10.0f, 10.0f);
+                    player->KnockbackFrom(player->m_positionX, player->m_positionY, 10.0f, 10.0f);
                 }
             }
 

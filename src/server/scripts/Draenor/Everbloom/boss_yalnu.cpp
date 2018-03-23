@@ -77,7 +77,7 @@ public:
 
     struct boss_yalnu_pre_AI : public ScriptedAI
     {
-        boss_yalnu_pre_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        boss_yalnu_pre_AI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
@@ -115,9 +115,9 @@ public:
             bool introDone;
 
     };
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_yalnu_pre_AI(p_Creature);
+        return new boss_yalnu_pre_AI(creature);
     }
 };
 
@@ -433,9 +433,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_yalnu_AI(p_Creature);
+        return new boss_yalnu_AI(creature);
     }
 };
 
@@ -489,7 +489,7 @@ public:
 
     struct feral_lasherAI : public ScriptedAI
     {
-        feral_lasherAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        feral_lasherAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -569,9 +569,9 @@ public:
             uint32 lasherVenomTimer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new feral_lasherAI(p_Creature);
+        return new feral_lasherAI(creature);
     }
 };
 
@@ -616,7 +616,7 @@ public:
 
     struct swift_sproutlingAI : public ScriptedAI
     {
-        swift_sproutlingAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        swift_sproutlingAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -649,9 +649,9 @@ public:
         uint32 tendonRipTimer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new swift_sproutlingAI(p_Creature);
+        return new swift_sproutlingAI(creature);
     }
 };
 
@@ -668,7 +668,7 @@ public:
 
     struct mob_font_life_stalkerAI : public ScriptedAI
     {
-        mob_font_life_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        mob_font_life_stalkerAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -697,9 +697,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_font_life_stalkerAI(p_Creature);
+        return new mob_font_life_stalkerAI(creature);
     }
 };
 
@@ -758,7 +758,7 @@ public:
 
     struct entanglement_playerAI : public ScriptedAI
     {
-        entanglement_playerAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        entanglement_playerAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -786,9 +786,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new entanglement_playerAI(p_Creature);
+        return new entanglement_playerAI(creature);
     }
 };
 
@@ -800,7 +800,7 @@ public:
 
     struct entanglement_mobAI : public ScriptedAI
     {
-        entanglement_mobAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        entanglement_mobAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -828,9 +828,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new entanglement_mobAI(p_Creature);
+        return new entanglement_mobAI(creature);
     }
 };
 
@@ -891,7 +891,7 @@ public:
 
     struct kirin_tor_mageAI : public ScriptedAI
     {
-        kirin_tor_mageAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        kirin_tor_mageAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -1039,9 +1039,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new kirin_tor_mageAI(p_Creature);
+        return new kirin_tor_mageAI(creature);
     }
 };
 
@@ -1053,7 +1053,7 @@ public:
 
     struct lady_baihuAI : public ScriptedAI
     {
-        lady_baihuAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        lady_baihuAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -1154,9 +1154,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new lady_baihuAI(p_Creature);
+        return new lady_baihuAI(creature);
     }
 };
 

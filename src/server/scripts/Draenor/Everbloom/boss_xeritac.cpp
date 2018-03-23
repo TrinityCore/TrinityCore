@@ -62,7 +62,7 @@ public:
 
     struct xeri_tac_vehicleAI : public VehicleAI
     {
-        xeri_tac_vehicleAI(Creature* p_Creature) : VehicleAI(p_Creature) {}
+        xeri_tac_vehicleAI(Creature* creature) : VehicleAI(creature) {}
 
         void Reset() override
         {
@@ -136,9 +136,9 @@ public:
             uint32 chargeTimer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new xeri_tac_vehicleAI(p_Creature);
+        return new xeri_tac_vehicleAI(creature);
     }
 };
 
@@ -359,7 +359,7 @@ public:
 
     struct toxic_spiderlingAI : public ScriptedAI
     {
-        toxic_spiderlingAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        toxic_spiderlingAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -412,9 +412,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new toxic_spiderlingAI(p_Creature);
+        return new toxic_spiderlingAI(creature);
     }
 };
 
@@ -431,7 +431,7 @@ public:
 
     struct venom_sprayerAI : public ScriptedAI
     {
-        venom_sprayerAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+        venom_sprayerAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -493,9 +493,9 @@ public:
             uint32 checkGroundTimer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new venom_sprayerAI(p_Creature);
+        return new venom_sprayerAI(creature);
     }
 };
 
@@ -514,7 +514,7 @@ public:
 
     struct venom_crazedAI : public VehicleAI
     {
-        venom_crazedAI(Creature* p_Creature) : VehicleAI(p_Creature) {}
+        venom_crazedAI(Creature* creature) : VehicleAI(creature) {}
 
         void Reset() override
         {
@@ -570,9 +570,9 @@ public:
             uint32 swipeTimer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new venom_crazedAI(p_Creature);
+        return new venom_crazedAI(creature);
     }
 };
 

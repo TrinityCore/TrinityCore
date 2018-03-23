@@ -51,15 +51,15 @@ public:
             player->GetSceneMgr().PlaySceneByPackageId(BlazeOfGloryData::SceneId);
     }
 
-    void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestAccept(Player* p_Player, const Quest* quest) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
+        if (quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
             p_Player->GetSceneMgr().PlaySceneByPackageId(BlazeOfGloryData::SceneId);
     }
 
-    void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestReward(Player* p_Player, const Quest* quest) override
     {
-        if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
+        if (p_Player && quest && quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
             p_Player->GetSceneMgr().CancelSceneByPackageId(BlazeOfGloryData::SceneId);
     }
 
@@ -109,9 +109,9 @@ public:
     {
         npc_bleeding_hollow_sauvageAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SpellHit(Unit* p_Caster, const SpellInfo* p_SpellInfo) override
+        void SpellHit(Unit* p_Caster, const SpellInfo* spellInfo) override
         {
-            if (p_SpellInfo->Id == TanaanSpells::SpellArcaneBarrage)
+            if (spellInfo->Id == TanaanSpells::SpellArcaneBarrage)
             {
                 p_Caster->DealDamage(me, me->GetHealth());
                 me->DespawnOrUnsummon();
@@ -184,7 +184,7 @@ public:
         ActionStartEscort = 1
     };
 
-    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* p_Player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE ||
             p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_FAILED)
@@ -197,7 +197,7 @@ public:
             if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip) < 1)
                 p_Player->KilledMonsterCredit(TanaanKillCredits::CreditAriokGossip);
 
-            if (TempSummon* l_Ariok = p_Player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+            if (TempSummon* l_Ariok = p_Player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 if (l_Ariok->GetAI())
                     l_Ariok->AI()->SetGUID(p_Player->GetGUID());
         }
@@ -236,13 +236,13 @@ public:
             Talk(0);
         }
 
-        void IsSummonedBy(Unit* /*p_Summoner*/) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             m_IsSummoned = true;
             m_playerNeedObjective = true;
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!m_IsSummoned)
                 return;
@@ -252,31 +252,31 @@ public:
 
             if (m_playerNeedObjective)
             {
-                if (m_checkObjectiveTimer <= p_Diff)
+                if (m_checkObjectiveTimer <= diff)
                 {
                     if (GetClosestCreatureWithEntry(me, TanaanCreatures::NpcBleedingHollowBloodchosen, 55.0f))
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
-                            if (!l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
+                            if (!player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed))
                             {
-                                l_Player->KilledMonsterCredit(TanaanKillCredits::CreditAriokEscort);
+                                player->KilledMonsterCredit(TanaanKillCredits::CreditAriokEscort);
                                 m_playerNeedObjective = false;
                             }
 
                     m_checkObjectiveTimer = 2000;
                 }
-                else m_checkObjectiveTimer -= p_Diff;
+                else m_checkObjectiveTimer -= diff;
             }
 
-            if (m_checkMustDespawnTimer <= p_Diff)
+            if (m_checkMustDespawnTimer <= diff)
             {
-                if (Player* l_Player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
-                    if (l_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) != QUEST_STATUS_INCOMPLETE ||
-                        l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 3)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
+                    if (player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) != QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 3)
                         me->DespawnOrUnsummon();
 
                 m_checkMustDespawnTimer = 2000;
             }
-            else m_checkMustDespawnTimer -= p_Diff;
+            else m_checkMustDespawnTimer -= diff;
 
         }
     };
@@ -293,14 +293,14 @@ class npc_blood_ritual_orb : public CreatureScript
 public:
     npc_blood_ritual_orb() : CreatureScript("npc_blood_ritual_orb") { }
 
-    bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+    bool OnGossipHello(Player* p_Player, Creature* creature) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
         {
             if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) <= 2)
             {
                 p_Player->KilledMonsterCredit(TanaanKillCredits::CreditBloodOrb);
-                p_Creature->DestroyForPlayer(p_Player);
+                creature->DestroyForPlayer(p_Player);
 
                 if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 1)
                     p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneSneakyArmy);

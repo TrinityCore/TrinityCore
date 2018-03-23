@@ -51,7 +51,7 @@ enum WitherbarkEnums
     SPELL_AGITATED_WATER_1          = 177733,
     SPELL_PARCHED_GASP              = 164357,
     SPELL_BRITTLE_BARK              = 164275,
-    SPELL_SUMMON_AQUEOUS_GLOBULE    = 164437,
+    SPELsummon_AQUEOUS_GLOBULE    = 164437,
     SPELL_NOXIOUS_VINES             = 164712,
 };
 
@@ -63,7 +63,7 @@ public:
 
     struct boss_witherbarkAI : public BossAI
     {
-        boss_witherbarkAI(Creature* p_Creature) : BossAI(p_Creature, DATA_WITHERBARK)
+        boss_witherbarkAI(Creature* creature) : BossAI(creature, DATA_WITHERBARK)
         {
             DoCast(me, SPELL_PETRIFIED_BARK);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -150,7 +150,7 @@ public:
                 DoCast(me, SPELL_BRITTLE_BARK);
 
                 for (uint8 i = 0; i < 3; i++)
-                    me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELL_SUMMON_AQUEOUS_GLOBULE, true);
+                    me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELsummon_AQUEOUS_GLOBULE, true);
 
                 BrittleBark2WaveTimer = 15000;
             }
@@ -162,7 +162,7 @@ public:
                 if (BrittleBark2WaveTimer <= diff)
                 {
                     for (uint8 i = 3; i < 6; i++)
-                        me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELL_SUMMON_AQUEOUS_GLOBULE, true);
+                        me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELsummon_AQUEOUS_GLOBULE, true);
 
                     BrittleBark2WaveTimer = 0;
                 }
@@ -193,9 +193,9 @@ public:
             uint32 NoxiousVinesTimer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_witherbarkAI(p_Creature);
+        return new boss_witherbarkAI(creature);
     }
 };
 
@@ -212,12 +212,12 @@ public:
 
     struct mob_enchanted_waterAI : public Scripted_NoMovementAI
     {
-        mob_enchanted_waterAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        mob_enchanted_waterAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             instance = me->GetInstanceScript();
         }
 
-        void UpdateAI(const uint32 p_Diff) override
+        void UpdateAI(const uint32 diff) override
         {
             if (!me->IsInCombat())
             {
@@ -231,9 +231,9 @@ public:
             InstanceScript* instance;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_enchanted_waterAI(p_Creature);
+        return new mob_enchanted_waterAI(creature);
     }
 };
 
@@ -308,7 +308,7 @@ public:
 
     struct npc_aqueous_globule_witherbarkAI : public ScriptedAI
     {
-        npc_aqueous_globule_witherbarkAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        npc_aqueous_globule_witherbarkAI(Creature* creature) : ScriptedAI(creature)
         {
             DoCast(me, 164988);
         }
@@ -355,9 +355,9 @@ public:
             uint32 visualSpell;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_aqueous_globule_witherbarkAI(p_Creature);
+        return new npc_aqueous_globule_witherbarkAI(creature);
     }
 };
 
@@ -369,7 +369,7 @@ public:
 
     struct npc_unchecked_growthAI : public ScriptedAI
     {
-        npc_unchecked_growthAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        npc_unchecked_growthAI(Creature* creature) : ScriptedAI(creature)
         {
             DoCast(me, 164296);
         }
@@ -418,9 +418,9 @@ public:
             uint32 timer;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_unchecked_growthAI(p_Creature);
+        return new npc_unchecked_growthAI(creature);
     }
 };
 
@@ -487,7 +487,7 @@ public:
 
     struct npc_aqueous_globuleAI : public ScriptedAI
     {
-        npc_aqueous_globuleAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        npc_aqueous_globuleAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
@@ -545,9 +545,9 @@ public:
         uint32 checkBoss;
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_aqueous_globuleAI(p_Creature);
+        return new npc_aqueous_globuleAI(creature);
     }
 };
 
