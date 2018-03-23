@@ -2259,10 +2259,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             targetInfo.timeDelay = uint64(std::floor(dist / m_spellInfo->Speed * 1000.0f));
         else
             targetInfo.timeDelay = uint64(m_spellInfo->Speed * 1000.0f);
-
-        // Calculate minimum incoming time
-        if (!m_delayMoment || m_delayMoment > targetInfo.timeDelay)
-            m_delayMoment = targetInfo.timeDelay;
     }
     else
         targetInfo.timeDelay = 0ULL;
@@ -2281,6 +2277,10 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     }
     else
         targetInfo.reflectResult = SPELL_MISS_NONE;
+
+    // Calculate minimum incoming time
+    if (targetInfo.timeDelay && (!m_delayMoment || m_delayMoment > targetInfo.timeDelay))
+        m_delayMoment = targetInfo.timeDelay;
 
     // Add target to list
     m_UniqueTargetInfo.push_back(targetInfo);
