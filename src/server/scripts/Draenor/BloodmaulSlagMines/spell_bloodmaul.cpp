@@ -195,11 +195,10 @@ namespace Instances
 
                 void CheckTarget(std::list<WorldObject*>& unitList)
                 {
-                    Unit* caster = GetCaster();
-                    unitList.remove_if([caster](WorldObject* p_Obj) {
-                        return !(p_Obj->GetEntry() == uint32(MobEntries::CapturedMinerAlliance)
-                            || p_Obj->GetEntry() == uint32(MobEntries::CapturedMinerHorde)
-                            || p_Obj->GetEntry() == uint32(MobEntries::CapturedMinerNeutral));
+                    unitList.remove_if([](WorldObject* obj) {
+                        return !(obj->GetEntry() == uint32(MobEntries::CapturedMinerAlliance)
+                              || obj->GetEntry() == uint32(MobEntries::CapturedMinerHorde)
+                              || obj->GetEntry() == uint32(MobEntries::CapturedMinerNeutral));
                     });
                 }
 

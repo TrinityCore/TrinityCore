@@ -416,7 +416,8 @@ public:
             if (RendingChargeTimer <= diff)
             {
                 RendingChargeTimer = urand(20000, 22000);
-                if (chargeVictim = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                chargeVictim = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (chargeVictim)
                     DoCast(chargeVictim, SPELL_RENDING_CHARGE_1);
             }
             else

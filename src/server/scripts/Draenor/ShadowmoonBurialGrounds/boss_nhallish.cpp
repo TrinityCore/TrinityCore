@@ -666,7 +666,7 @@ public:
             if (!GetSpellInfo())
                 return false;
 
-            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+            //SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
             //spell->GetEffect(0)->TargetA = Targets::TARGET_DEST_CASTER;
             //spell->GetEffect(0)->TargetB = Targets::TARGET_DEST_DEST_RADIUS;
             //spell->GetEffect(0)->RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y

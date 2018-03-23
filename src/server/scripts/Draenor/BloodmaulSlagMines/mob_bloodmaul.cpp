@@ -1324,7 +1324,7 @@ namespace Instances { namespace Bloodmaul
                         if (targetList.empty())
                             return;
 
-                        targetList.remove_if([this, caster](Unit* unit) -> bool
+                        targetList.remove_if([caster](Unit* unit) -> bool
                         {
                             if (unit == nullptr || !caster->isInFront(unit, float(M_PI) / 6))
                                 return true;

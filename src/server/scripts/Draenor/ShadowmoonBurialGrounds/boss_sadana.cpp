@@ -1122,11 +1122,6 @@ public:
 
         void CorrectTargets(std::list<WorldObject*>& targets)
         {
-            if (!GetCaster())
-                return;
-
-            Unit* caster = GetCaster();
-
             if (targets.empty())
                 return;
 
