@@ -10,9 +10,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (127271, 0, 1, 0, 73, 0, 100, 0, 0, 0, 0, 0, 33, 127271, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, '');
 
 -- FULL `creature` of id 120573
-DELETE FROM `creature` WHERE (id = 120573);
+DELETE FROM `creature` WHERE guid = 21011271;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
-(210111895, 120573, 1669, 8701, 0, 1, 0, 0, 0, 0, 4880.14, 9823.22, -90.1795, 6.14956, 300, 0, 0, 87, 0, 0, 0, 0, 0, 0, 0, '', 0);
+(21011271, 120573, 1669, 8701, 0, 1, 0, 0, 0, 0, 4880.14, 9823.22, -90.1795, 6.14956, 300, 0, 0, 87, 0, 0, 0, 0, 0, 0, 0, '', 0);
 
 -- Table `creature_template`
 UPDATE `creature_template` SET `family` = 151, `type` = 1, `MovementType` = 1, `HealthModifier` = 2 WHERE (entry = 123089);
@@ -29,17 +29,17 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (121676, 0, 1, 0, 73, 0, 100, 0, 0, 0, 0, 0, 33, 121676, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, '');
 
 -- FULL `creature` of id 126852
-DELETE FROM `creature` WHERE (id = 126852);
+DELETE FROM `creature` WHERE guid = 21011272;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`, `PhaseId`, `PhaseGroup`) VALUES
-(1185990, 126852, 1669, 8701, 8914, 1, 0, 0, 5320.839844, 9730.352539, -94.511971, 0.85291, 32400, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0);
+(21011272, 126852, 1669, 8701, 8914, 1, 0, 0, 5320.839844, 9730.352539, -94.511971, 0.85291, 32400, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0);
 
 -- Table `creature_template`
-UPDATE `creature_template` SET `faction` = 14, `rank` = 2, `BaseAttackTime` = 2000, `RangeAttackTime` = 2000, `unit_flags` = 512, `unit_flags2` = 2048, `type` = 7, `MovementType` = 1, `mechanic_immune_mask` = -1 WHERE (entry = 126852);
+UPDATE `creature_template` SET `faction` = 14, `rank` = 2, `BaseAttackTime` = 2000, `RangeAttackTime` = 2000, `unit_flags` = 512, `unit_flags2` = 2048, `type` = 7, `MovementType` = 1 WHERE (entry = 126852);
 
 -- FULL `creature` of id 120764
-DELETE FROM `creature` WHERE (id = 120764);
+DELETE FROM `creature` WHERE guid = 21011273;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`, `PhaseId`, `PhaseGroup`) VALUES
-(120764, 120764, 1669, 8701, 8914, 1, 0, 0, 5379.442871, 9829.514648, -86.313545, 3.110257, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+(21011273, 120764, 1669, 8701, 8914, 1, 0, 0, 5379.442871, 9829.514648, -86.313545, 3.110257, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- Table `creature_template`
 UPDATE `creature_template` SET `BaseAttackTime` = 2800, `RangeAttackTime` = 2000, `unit_flags` = 512, `unit_flags2` = 2048, `type` = 3 WHERE (entry = 120764);

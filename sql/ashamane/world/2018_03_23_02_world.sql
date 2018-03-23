@@ -26,7 +26,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `BaseAttackTime` = 2000, `RangeAttackTime` = 2000, `unit_flags` = 64, `unit_flags2` = 2048, `type` = 7, `type_flags` = 2097260 WHERE (entry = 121546);
 
 -- FULL `creature` of id 121546
-DELETE FROM `creature` WHERE (id = 121546);
+DELETE FROM `creature` WHERE guid = 21011270;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`, `PhaseId`, `PhaseGroup`) VALUES
-(121546, 121546, 1669, 8701, 8706, 1, 0, 0, 5341.473145, 10374.401367, -34.34544, 6.140757, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+(21011270, 121546, 1669, 8701, 8706, 1, 0, 0, 5341.473145, 10374.401367, -34.34544, 6.140757, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0);
 
