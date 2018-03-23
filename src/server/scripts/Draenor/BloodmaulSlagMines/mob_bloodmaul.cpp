@@ -1173,7 +1173,7 @@ namespace Instances { namespace Bloodmaul
 
                 void MoveInLineOfSight(Unit* who) override
                 {
-                    if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDist2d(who, 5.f) && !who->HasAura(Spells::SpellDebuff))
+                    if (who->IsPlayer() && me->IsWithinDist2d(who, 5.f) && !who->HasAura(Spells::SpellDebuff))
                         me->CastSpell(who, Spells::SpellDebuff, true);
                 }
 

@@ -119,7 +119,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 30.0f) && introDone)
+            if (who->IsPlayer() && me->IsWithinDistInMap(who, 30.0f) && introDone)
             {
                 if (me->GetVictim())
                     return;
@@ -433,7 +433,7 @@ public:
     void OnUnitEnter(Unit* unit) override
     {
         if (Creature* archmage = GetClosestCreatureWithEntry(unit, NPC_ARCHMAGE_SOL, 100.0f))
-            if (unit->GetTypeId() == TYPEID_PLAYER && !unit->HasAura(SPELL_FROZEN_RAIN_DAMAGE))
+            if (unit->IsPlayer() && !unit->HasAura(SPELL_FROZEN_RAIN_DAMAGE))
                 archmage->CastSpell(unit, SPELL_FROZEN_RAIN_DAMAGE, true);
     }
 

@@ -1283,8 +1283,8 @@ class spell_dk_howling_blast : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_dk_howling_blast_SpellScript::HandleBeforeCast);
-        OnHit += SpellHitFn(spell_dk_howling_blast_SpellScript::HandleOnHit);
+        BeforeCast += SpellCastFn(spell_dk_howling_blast::HandleBeforeCast);
+        OnHit += SpellHitFn(spell_dk_howling_blast::HandleOnHit);
     }
 };
 
