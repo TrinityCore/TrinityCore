@@ -92,9 +92,9 @@ namespace Instances { namespace Bloodmaul
 
             struct boss_roltallAI : public BossAI
             {
-                boss_roltallAI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossRoltall)
+                boss_roltallAI(Creature* creature) : BossAI(creature, BossIds::BossRoltall)
                 {
-                    m_Instance = p_Creature->GetInstanceScript();
+                    m_Instance = creature->GetInstanceScript();
                 }
 
                 InstanceScript* m_Instance;
@@ -152,16 +152,16 @@ namespace Instances { namespace Bloodmaul
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
                 }
 
-                void SpellHit(Unit*, SpellInfo const* p_SpellInfo) override
+                void SpellHit(Unit*, SpellInfo const* spellInfo) override
                 {
-                    switch (p_SpellInfo->Id)
+                    switch (spellInfo->Id)
                     {
                         case eSpells::SpellFieryBoulderCasted:
                         {
                             if (m_FieryBoulderFlags >= eDatas::AllBoulderSpawn)
                                 break;
 
-                            Creature* l_FieryBoulder = nullptr;
+                            Creature* fieryBoulder = nullptr;
                             float triggerMinY = 0.0f;
                             float triggerMaxY = 0.0f;
 
@@ -178,7 +178,7 @@ namespace Instances { namespace Bloodmaul
                                     triggerMinY = s_FieryBoulderPos1.GetPositionY() - 1;
                                     triggerMaxY = s_FieryBoulderPos1.GetPositionY() - 1;
 
-                                    l_FieryBoulder = me->SummonCreature(l_BoulderEntry, s_FieryBoulderPos1);
+                                    fieryBoulder = me->SummonCreature(l_BoulderEntry, s_FieryBoulderPos1);
                                 }
                                 else if ((1 << l_Boulder) & eDatas::Boulder2Spawned && !(m_FieryBoulderFlags & eDatas::Boulder2Spawned))
                                 {
@@ -188,7 +188,7 @@ namespace Instances { namespace Bloodmaul
                                     triggerMinY = s_FieryBoulderPos2.GetPositionY() - 1;
                                     triggerMaxY = s_FieryBoulderPos2.GetPositionY() - 1;
 
-                                    l_FieryBoulder = me->SummonCreature(l_BoulderEntry, s_FieryBoulderPos2);
+                                    fieryBoulder = me->SummonCreature(l_BoulderEntry, s_FieryBoulderPos2);
                                 }
                                 else if ((1 << l_Boulder) & eDatas::Boulder3Spawned && !(m_FieryBoulderFlags & eDatas::Boulder3Spawned))
                                 {
@@ -198,10 +198,10 @@ namespace Instances { namespace Bloodmaul
                                     triggerMinY = s_FieryBoulderPos3.GetPositionY() - 1;
                                     triggerMaxY = s_FieryBoulderPos3.GetPositionY() - 1;
 
-                                    l_FieryBoulder = me->SummonCreature(l_BoulderEntry, s_FieryBoulderPos3);
+                                    fieryBoulder = me->SummonCreature(l_BoulderEntry, s_FieryBoulderPos3);
                                 }
                             }
-                            while (l_FieryBoulder == nullptr);  ///< Is this safe ?
+                            while (fieryBoulder == nullptr);  ///< Is this safe ?
 
                             std::list<Creature*> triggerList;
                             me->GetCreatureListWithEntryInGrid(triggerList, 68553, 10.0f);
@@ -216,11 +216,11 @@ namespace Instances { namespace Bloodmaul
                                 }
                             }
 
-                            if (l_FieryBoulder != nullptr)
+                            if (fieryBoulder != nullptr)
                             {
-                                l_FieryBoulder->CastSpell(l_FieryBoulder, eSpells::SpellFieryBoulderRockVisual, true);
-                                l_FieryBoulder->CastSpell(l_FieryBoulder, eSpells::SpellFieryBoulderFireVisual, true);
-                                l_FieryBoulder->CastSpell(l_FieryBoulder, eSpells::SpellFieryBoulderEarthquake, true);
+                                fieryBoulder->CastSpell(fieryBoulder, eSpells::SpellFieryBoulderRockVisual, true);
+                                fieryBoulder->CastSpell(fieryBoulder, eSpells::SpellFieryBoulderFireVisual, true);
+                                fieryBoulder->CastSpell(fieryBoulder, eSpells::SpellFieryBoulderEarthquake, true);
                             }
                             break;
                         }
@@ -257,12 +257,12 @@ namespace Instances { namespace Bloodmaul
                     Reset();
                 }
 
-                void UpdateAI(uint32 const p_Diff) override
+                void UpdateAI(uint32 const diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                         return;
@@ -331,9 +331,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new boss_roltallAI(p_Creature);
+                return new boss_roltallAI(creature);
             }
     };
 
@@ -364,7 +364,7 @@ namespace Instances { namespace Bloodmaul
 
             struct npc_fiery_boulderAI : public ScriptedAI
             {
-                npc_fiery_boulderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                npc_fiery_boulderAI(Creature* creature) : ScriptedAI(creature) { }
 
                 EventMap m_Events;
 
@@ -407,9 +407,9 @@ namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void UpdateAI(uint32 const p_Diff) override
+                void UpdateAI(uint32 const diff) override
                 {
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     switch (m_Events.ExecuteEvent())
                     {
@@ -444,9 +444,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new npc_fiery_boulderAI(p_Creature);
+                return new npc_fiery_boulderAI(creature);
             }
     };
 
@@ -469,11 +469,11 @@ namespace Instances { namespace Bloodmaul
                 {
                     if (Unit* caster = GetCaster())
                     {
-                        std::list<Unit*> l_TargetList;
-                        GetCaster()->GetAttackableUnitListInRange(l_TargetList, 15.0f);
+                        std::list<Unit*> targetList;
+                        GetCaster()->GetAttackableUnitListInRange(targetList, 15.0f);
 
-                        for (Unit* l_Unit : l_TargetList)
-                            caster->AddAura(eSpells::ScorchingAuraDebuff, l_Unit);
+                        for (Unit* unit : targetList)
+                            caster->AddAura(eSpells::ScorchingAuraDebuff, unit);
                     }
                 }
 
@@ -542,15 +542,15 @@ namespace Instances { namespace Bloodmaul
             {
                 if (Unit* caster = at->GetCaster())
                 {
-                    std::list<Unit*> l_TargetList;
-                    caster->GetAttackableUnitListInRange(l_TargetList, 4.0f);
+                    std::list<Unit*> targetList;
+                    caster->GetAttackableUnitListInRange(targetList, 4.0f);
 
-                    for (Unit* l_Unit : l_TargetList)
+                    for (Unit* unit : targetList)
                     {
-                        if (l_Unit->GetDistance(at) > 4.0f)
+                        if (unit->GetDistance(at) > 4.0f)
                             continue;
 
-                        caster->CastSpell(l_Unit, eSpells::SpellPeriodicDamage, true);
+                        caster->CastSpell(unit, eSpells::SpellPeriodicDamage, true);
                     }
                 }
             }

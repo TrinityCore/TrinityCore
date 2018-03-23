@@ -91,7 +91,7 @@ public:
 
     struct boss_nerzulAI : public BossAI
     {
-        boss_nerzulAI(Creature* p_Creature) : BossAI(p_Creature, eShadowmoonBurialGroundsDatas::DataBossNerzul)
+        boss_nerzulAI(Creature* creature) : BossAI(creature, eShadowmoonBurialGroundsDatas::DataBossNerzul)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -161,9 +161,9 @@ public:
             Talk(eNerzulTalks::TalkDeath);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             if (!UpdateVictim())
                 return;
@@ -238,9 +238,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_nerzulAI(p_Creature);
+        return new boss_nerzulAI(creature);
     }
 };
 
@@ -252,9 +252,9 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_Instance;
@@ -272,9 +272,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
+        return new shadowmoon_burial_grounds_creaturesAI(creature);
     }
 };
 
@@ -286,9 +286,9 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_Instance;
@@ -317,23 +317,23 @@ public:
             me->CastSpell(me, eNerzulSpells::SpellRitualOfBonesWeirdVisualPoop);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
-            if (m_Diff <= p_Diff)
+            if (m_Diff <= diff)
             {
                 me->SummonCreature(eNerzulCreatures::CreatureRitualOfBonesDarknessTrigger, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
                 m_Diff = l_Periodic;
             }
             else
-                m_Diff -= p_Diff;
+                m_Diff -= diff;
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
+        return new shadowmoon_burial_grounds_creaturesAI(creature);
     }
 };
 
@@ -345,9 +345,9 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_Instance;
@@ -357,9 +357,9 @@ public:
             // Orientation check
             if (TempSummon* l_Tempo = me->ToTempSummon())
             {
-                if (Unit* l_Summoner = l_Tempo->ToTempSummon())
+                if (Unit* summoner = l_Tempo->ToTempSummon())
                 {
-                    me->SetFacingTo(l_Summoner->GetOrientation());
+                    me->SetFacingTo(summoner->GetOrientation());
                 }
             }
 
@@ -372,9 +372,9 @@ public:
             me->CastSpell(me, eNerzulSpells::SpellRitualOfBonesWeirdVisualPoop);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             std::list<Player*> l_ListPlayer;
             me->GetPlayerListInGrid(l_ListPlayer, 100.0f);
@@ -397,9 +397,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
+        return new shadowmoon_burial_grounds_creaturesAI(creature);
     }
 };
 
@@ -411,9 +411,9 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
             m_HasOpened = false;
         }
 
@@ -430,9 +430,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
             
             if (m_Instance == nullptr)
                 return;
@@ -488,9 +488,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
+        return new shadowmoon_burial_grounds_creaturesAI(creature);
     }
 };
 
@@ -502,9 +502,9 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
             m_Intro = false;
         }
 
@@ -536,9 +536,9 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             if (uint32 eventId = events.ExecuteEvent())
             {
@@ -557,9 +557,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
+        return new shadowmoon_burial_grounds_creaturesAI(creature);
     }
 };
 

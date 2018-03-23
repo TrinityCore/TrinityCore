@@ -104,7 +104,7 @@ public:
 
     struct boss_bonemawAI : public BossAI
     {
-        boss_bonemawAI(Creature* p_Creature) : BossAI(p_Creature, eShadowmoonBurialGroundsDatas::DataBossBonemaw)
+        boss_bonemawAI(Creature* creature) : BossAI(creature, eShadowmoonBurialGroundsDatas::DataBossBonemaw)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -226,9 +226,9 @@ public:
             HandleDoorActivation();
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             if (!UpdateVictim())
                 return;
@@ -236,7 +236,7 @@ public:
             /// Inhale mechanismActionInhaleDeactivate
             if (m_InhaleActivated)
             {
-                if (m_InhaleDiff <= p_Diff)
+                if (m_InhaleDiff <= diff)
                 {
                     std::list<Player*> l_ListPlayers;
                     me->GetPlayerListInGrid(l_ListPlayers, 100.0f);
@@ -270,7 +270,7 @@ public:
                     m_InhaleDiff = 4 * TimeConstants::IN_MILLISECONDS;
                 }
                 else
-                    m_InhaleDiff -= p_Diff;
+                    m_InhaleDiff -= diff;
             }
 
             /// Fetid Spit mechanism - hardcoded.
@@ -286,7 +286,7 @@ public:
                 }
                 else
                 {
-                    if (m_PoolDiff <= p_Diff)
+                    if (m_PoolDiff <= diff)
                     {
                         m_HasVictimOut = true;
 
@@ -298,7 +298,7 @@ public:
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
-                        m_PoolDiff -= p_Diff;
+                        m_PoolDiff -= diff;
                 }
             }
 
@@ -403,9 +403,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_bonemawAI(p_Creature);
+        return new boss_bonemawAI(creature);
     }
 };
 
@@ -417,7 +417,7 @@ public:
 
     struct npc_shadowmoon_burial_grounds_creature_carrion_wormAI : public ScriptedAI
     {
-        npc_shadowmoon_burial_grounds_creature_carrion_wormAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        npc_shadowmoon_burial_grounds_creature_carrion_wormAI(Creature* creature) : ScriptedAI(creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -455,9 +455,9 @@ public:
             me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 p_Diff) override
+        void UpdateAI(const uint32 diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             if (!UpdateVictim())
                 return;
@@ -475,7 +475,7 @@ public:
                 }
                 else
                 {
-                    if (m_PoolDiff <= p_Diff)
+                    if (m_PoolDiff <= diff)
                     {
                         m_HasVictimOut = true;
 
@@ -487,7 +487,7 @@ public:
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
-                        m_PoolDiff -= p_Diff;
+                        m_PoolDiff -= diff;
                 }
             }
 
@@ -508,9 +508,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadowmoon_burial_grounds_creature_carrion_wormAI(p_Creature);
+        return new npc_shadowmoon_burial_grounds_creature_carrion_wormAI(creature);
     }
 };
 
@@ -522,9 +522,9 @@ public:
 
     struct npc_shadowmoon_burial_grounds_necrotic_pitchAI : public Scripted_NoMovementAI
     {
-        npc_shadowmoon_burial_grounds_necrotic_pitchAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        npc_shadowmoon_burial_grounds_necrotic_pitchAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
         }
 
         uint32 m_Timer;
@@ -544,11 +544,11 @@ public:
             m_Timer = 2 * TimeConstants::IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
-            if (m_Timer <= p_Diff)
+            if (m_Timer <= diff)
             {
                 std::list<Player*> l_ListPlayers;
                 me->GetPlayerListInGrid(l_ListPlayers, 1.12f);
@@ -566,14 +566,14 @@ public:
             }
             else
             {
-                m_Timer -= p_Diff;
+                m_Timer -= diff;
             }
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadowmoon_burial_grounds_necrotic_pitchAI(p_Creature);
+        return new npc_shadowmoon_burial_grounds_necrotic_pitchAI(creature);
     }
 };
 
@@ -632,9 +632,9 @@ public:
             TargetRestrict = 18748,
         };
 
-        void CorrectTargets(std::list<WorldObject*>& p_Targets)
+        void CorrectTargets(std::list<WorldObject*>& targets)
         {
-            if (p_Targets.empty())
+            if (targets.empty())
                 return;
 
             SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
@@ -646,7 +646,7 @@ public:
                 return;
 
             float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(caster);
-            p_Targets.remove_if([radius, caster, l_Restriction](WorldObject* p_Object) -> bool
+            targets.remove_if([radius, caster, l_Restriction](WorldObject* p_Object) -> bool
             {
                 if (p_Object == nullptr)
                     return true;

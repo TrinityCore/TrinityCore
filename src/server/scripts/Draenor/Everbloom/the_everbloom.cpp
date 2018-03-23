@@ -925,11 +925,11 @@ public:
 
     uint32 checkTimer;
 
-    void OnUpdate(GameObject* p_Object, uint32 p_Diff) override
+    void OnUpdate(GameObject* p_Object, uint32 diff) override
     {
-        if (checkTimer < p_Diff)
+        if (checkTimer < diff)
         {
-            checkTimer -= p_Diff;
+            checkTimer -= diff;
             return;
         }
 
@@ -954,11 +954,11 @@ public:
 
     uint32 checkTimer;
 
-    void OnUpdate(GameObject* p_Object, uint32 p_Diff) override
+    void OnUpdate(GameObject* p_Object, uint32 diff) override
     {
-        if (checkTimer < p_Diff)
+        if (checkTimer < diff)
         {
-            checkTimer -= p_Diff;
+            checkTimer -= diff;
             return;
         }
 

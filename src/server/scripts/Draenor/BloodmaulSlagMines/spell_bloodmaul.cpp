@@ -85,8 +85,8 @@ namespace Instances
                     if (!caster)
                         return;
 
-                    if (Unit* l_Unit = caster->SelectRandomPlayerInRange(30.0f, true))
-                        caster->CastSpell(l_Unit, uint32(Spells::VolcanicEruption), true);
+                    if (Unit* unit = caster->SelectRandomPlayerInRange(30.0f, true))
+                        caster->CastSpell(unit, uint32(Spells::VolcanicEruption), true);
                 }
 
                 void Register() override

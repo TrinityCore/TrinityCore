@@ -92,9 +92,9 @@ class playerScript_dam_explosion : public PlayerScript
 public:
     playerScript_dam_explosion() : PlayerScript("playerScript_dam_explosion") { }
 
-    void OnQuestReward(Player* player, const Quest* p_Quest) override
+    void OnQuestReward(Player* player, const Quest* quest) override
     {
-        if (player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
+        if (player && quest && quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
         {
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneKhadgarAtDam);
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneDamExplosion);
@@ -186,11 +186,11 @@ public:
     {
     }
 
-    bool OnQuestReward(Player* player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/) override
+    bool OnQuestReward(Player* player, Creature* /*creature*/, const Quest* quest, uint32 /*p_Option*/) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareAlly)
+        if (quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareAlly)
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersAlly);
-        else if (p_Quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareHorde)
+        else if (quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareHorde)
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersHorde);
 
         return false;
@@ -203,9 +203,9 @@ class npc_blackrock_follower : public CreatureScript
 public:
     npc_blackrock_follower() : CreatureScript("npc_blackrock_follower") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, const Quest* quest) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
+        if (quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
         {
             Position playerPosition = player->GetPosition();
 
@@ -225,14 +225,14 @@ public:
         return false;
     }
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_cordana_felsong_blackrockAI(p_Creature);
+        return new npc_cordana_felsong_blackrockAI(creature);
     }
 
     struct npc_cordana_felsong_blackrockAI : public ScriptedAI
     {
-        npc_cordana_felsong_blackrockAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        npc_cordana_felsong_blackrockAI(Creature* creature) : ScriptedAI(creature)
         {
             m_checkVictimTimer = 2000;
             m_Summoned = false;
@@ -247,19 +247,19 @@ public:
             //me->AddAura(TanaanSpells::SpellCoverOfElune, me);
         }
 
-        void IsSummonedBy(Unit* p_Summoner) override
+        void IsSummonedBy(Unit* summoner) override
         {
             m_Summoned = true;
 
-            if (p_Summoner->GetTypeId() != TYPEID_PLAYER)
+            if (summoner->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            m_PlayerGuid = p_Summoner->GetGUID();
+            m_PlayerGuid = summoner->GetGUID();
 
-            FollowSummoner(p_Summoner);
+            FollowSummoner(summoner);
         }
 
-        void FollowSummoner(Unit* p_Summoner)
+        void FollowSummoner(Unit* summoner)
         {
             float followAngle = 0.0f;
 
@@ -277,8 +277,8 @@ public:
                     break;
             }
 
-            if (Player* l_Player = p_Summoner->ToPlayer())
-                me->GetMotionMaster()->MoveFollow(l_Player, 0.05f, followAngle);
+            if (Player* player = summoner->ToPlayer())
+                me->GetMotionMaster()->MoveFollow(player, 0.05f, followAngle);
         }
 
         void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
@@ -342,14 +342,14 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_ogron_warcrusherAI(p_Creature);
+        return new npc_ogron_warcrusherAI(creature);
     }
 
     struct npc_ogron_warcrusherAI : public ScriptedAI
     {
-        npc_ogron_warcrusherAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        npc_ogron_warcrusherAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap m_Events;
 
@@ -366,25 +366,25 @@ public:
 
         void JustDied(Unit* p_Killer) override
         {
-            std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, me, 42.0f);
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 42.0f);
 
-            for (Player* l_Player : l_PlayerList)
+            for (Player* player : playerList)
             {
-                if (p_Killer == l_Player)
+                if (p_Killer == player)
                     continue;
 
-                if (l_Player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
-                    l_Player->KilledMonsterCredit(TanaanKillCredits::CreditOgronWarcrusher);
+                if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
+                    player->KilledMonsterCredit(TanaanKillCredits::CreditOgronWarcrusher);
             }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             switch (m_Events.ExecuteEvent())
             {
@@ -405,27 +405,27 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_blackrock_gruntAI(p_Creature);
+        return new npc_blackrock_gruntAI(creature);
     }
 
     struct npc_blackrock_gruntAI : public ScriptedAI
     {
-        npc_blackrock_gruntAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        npc_blackrock_gruntAI(Creature* creature) : ScriptedAI(creature) { }
 
         void JustDied(Unit* p_Killer) override
         {
-            std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, me, 3.0f);
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 3.0f);
 
-            for (Player* l_Player : l_PlayerList)
+            for (Player* player : playerList)
             {
-                if (p_Killer == l_Player)
+                if (p_Killer == player)
                     continue;
 
-                if (l_Player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
-                    l_Player->KilledMonsterCredit(TanaanKillCredits::CreditBlackrockGrunt);
+                if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
+                    player->KilledMonsterCredit(TanaanKillCredits::CreditBlackrockGrunt);
             }
         }
     };
@@ -437,9 +437,9 @@ class npc_tanaan_ganar : public CreatureScript
 public:
     npc_tanaan_ganar() : CreatureScript("npc_tanaan_ganar") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestTheProdigalFrostwolf)
+        if (quest->GetQuestId() == TanaanQuests::QuestTheProdigalFrostwolf)
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFreeGanar);
 
         return true;
@@ -477,7 +477,7 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* /*p_Target*/) override
+        void EnterCombat(Unit* /*target*/) override
         {
             /// TALK
 
@@ -485,9 +485,9 @@ public:
             m_Events.ScheduleEvent(eDatas::EventBurningBody, 10000);
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             if (m_Events.ExecuteEvent() == eDatas::EventBurningBody)
             {

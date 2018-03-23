@@ -36,14 +36,14 @@ namespace Instances { namespace Bloodmaul
                 LavaSpit = 1
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature)
+                mob_AI(Creature* creature) : ScriptedAI(creature)
                 {
                     me->AddAura(uint32(Spells::SubmergeVisual), me);
                 }
@@ -76,12 +76,12 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
@@ -108,9 +108,9 @@ namespace Instances { namespace Bloodmaul
         public:
             mob_CapturedMiner() : CreatureScript("mob_CapturedMiner") { }
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             enum eEvents
@@ -125,28 +125,28 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature)
+                mob_AI(Creature* creature) : ScriptedAI(creature)
                 {
                     me->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
                 }
 
                 EventMap m_Events;
 
-                void EnterCombat(Unit* p_Target) override
+                void EnterCombat(Unit* target) override
                 {
-                    me->getThreatManager().addThreat(p_Target, 1000.0f);
+                    me->getThreatManager().addThreat(target, 1000.0f);
 
                     m_Events.Reset();
 
                     m_Events.ScheduleEvent(eEvents::EventTraumaticStrike, 4000);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     switch (m_Events.ExecuteEvent())
                     {
@@ -179,14 +179,14 @@ namespace Instances { namespace Bloodmaul
                 BloodRage = 1
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
 
                 void Reset() override
                 {
@@ -203,12 +203,12 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::BloodRage), urand(10000, 12000));
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
@@ -246,14 +246,14 @@ namespace Instances { namespace Bloodmaul
                 FrighteningRoar
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
 
                 void Reset() override
                 {
@@ -266,12 +266,12 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::FrighteningRoar), urand(14000, 16000));
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
@@ -312,14 +312,14 @@ namespace Instances { namespace Bloodmaul
                 StoneBulwark = 1
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
 
                 void Reset() override
                 {
@@ -336,12 +336,12 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::StoneBulwark), urand(6000, 7000));
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
@@ -351,10 +351,10 @@ namespace Instances { namespace Bloodmaul
                         case uint32(Events::StoneBulwark):
                         {
                             Unit* l_Target = me;
-                            /*if (Unit* l_Unit = MS::ScriptUtils::SelectNearestFriendExcluededMe(me, 40.0f))
+                            /*if (Unit* unit = MS::ScriptUtils::SelectNearestFriendExcluededMe(me, 40.0f))
                             {
-                                if (l_Unit->IsInCombat())
-                                    l_Target = l_Unit;
+                                if (unit->IsInCombat())
+                                    l_Target = unit;
                             }*/
                             
                             me->CastSpell(l_Target, uint32(Spells::StoneBulwark));
@@ -407,15 +407,15 @@ namespace Instances { namespace Bloodmaul
                 NPC_ENSLAVED_MINER  = 75427
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             // Todo : more research on vehicle
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
 
                 bool eventStarted = false;
                 ObjectGuid slaveGuid;
@@ -475,9 +475,9 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::Subjugate), urand(15000, 17000));
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     uint32 eventId = events.ExecuteEvent();
 
@@ -621,14 +621,14 @@ namespace Instances { namespace Bloodmaul
                 ShockBola
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
 
                 void Reset() override
                 {
@@ -642,12 +642,12 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::SlaversRage), 6000);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
@@ -698,14 +698,14 @@ namespace Instances { namespace Bloodmaul
                 LumberingLeap
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_AI(p_Creature);
+                return new mob_AI(creature);
             }
 
             struct mob_AI : public ScriptedAI
             {
-                mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_AI(Creature* creature) : ScriptedAI(creature) { }
 
                 void Reset() override
                 {
@@ -740,12 +740,12 @@ namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(p_Diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
@@ -787,7 +787,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_bloodmaul_ogronAI : public ScriptedAI
             {
-                mob_bloodmaul_ogronAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_bloodmaul_ogronAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum eSpells
                 {
@@ -814,12 +814,12 @@ namespace Instances { namespace Bloodmaul
                     m_Events.ScheduleEvent(eEvents::EventMassiveStomp, 9000);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                         return;
@@ -842,9 +842,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_bloodmaul_ogronAI(p_Creature);
+                return new mob_bloodmaul_ogronAI(creature);
             }
     };
 
@@ -856,7 +856,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_bloodmaul_flamespeakerAI : public ScriptedAI
             {
-                mob_bloodmaul_flamespeakerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_bloodmaul_flamespeakerAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum eSpells
                 {
@@ -883,12 +883,12 @@ namespace Instances { namespace Bloodmaul
                     m_Events.ScheduleEvent(eEvents::EventExplodingFlames, 10000);
                 }
 
-                void UpdateAI(uint32 const p_Diff) override
+                void UpdateAI(uint32 const diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                         return;
@@ -913,9 +913,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_bloodmaul_flamespeakerAI(p_Creature);
+                return new mob_bloodmaul_flamespeakerAI(creature);
             }
     };
 
@@ -927,7 +927,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_bloodmaul_exploding_flamesAI : public ScriptedAI
             {
-                mob_bloodmaul_exploding_flamesAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_bloodmaul_exploding_flamesAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum eSpells
                 {
@@ -942,12 +942,12 @@ namespace Instances { namespace Bloodmaul
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 }
 
-                void UpdateAI(uint32 const p_Diff) override { }
+                void UpdateAI(uint32 const diff) override { }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_bloodmaul_exploding_flamesAI(p_Creature);
+                return new mob_bloodmaul_exploding_flamesAI(creature);
             }
     };
 
@@ -959,7 +959,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_molten_earth_elementalAI : public ScriptedAI
             {
-                mob_molten_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_molten_earth_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum Spells
                 {
@@ -983,12 +983,12 @@ namespace Instances { namespace Bloodmaul
                     m_Events.ScheduleEvent(Events::EventLavaArc, 3000);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                         return;
@@ -1013,9 +1013,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_molten_earth_elementalAI(p_Creature);
+                return new mob_molten_earth_elementalAI(creature);
             }
     };
 
@@ -1027,7 +1027,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_vengeful_magma_elementalAI : public ScriptedAI
             {
-                mob_vengeful_magma_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_vengeful_magma_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum Spells
                 {
@@ -1058,12 +1058,12 @@ namespace Instances { namespace Bloodmaul
                     m_Events.ScheduleEvent(Events::EventArmorDent, 3000);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                         return;
@@ -1088,9 +1088,9 @@ namespace Instances { namespace Bloodmaul
                 bool m_IsHC;
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_vengeful_magma_elementalAI(p_Creature);
+                return new mob_vengeful_magma_elementalAI(creature);
             }
     };
 
@@ -1102,7 +1102,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_magma_lordAI : public ScriptedAI
             {
-                mob_magma_lordAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_magma_lordAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum Spells
                 {
@@ -1119,7 +1119,7 @@ namespace Instances { namespace Bloodmaul
                     me->CastSpell(me, Spells::SpellPillarOfFlames, true);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
@@ -1131,9 +1131,9 @@ namespace Instances { namespace Bloodmaul
                 }
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_magma_lordAI(p_Creature);
+                return new mob_magma_lordAI(creature);
             }
     };
 
@@ -1145,7 +1145,7 @@ namespace Instances { namespace Bloodmaul
 
             struct mob_pillar_of_flameAI : public ScriptedAI
             {
-                mob_pillar_of_flameAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+                mob_pillar_of_flameAI(Creature* creature) : ScriptedAI(creature) { }
 
                 enum Spells
                 {
@@ -1177,12 +1177,12 @@ namespace Instances { namespace Bloodmaul
                         me->CastSpell(p_Who, Spells::SpellDebuff, true);
                 }
 
-                void UpdateAI(const uint32 p_Diff) override
+                void UpdateAI(const uint32 diff) override
                 {
                     if (!UpdateVictim())
                         return;
 
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                         return;
@@ -1208,9 +1208,9 @@ namespace Instances { namespace Bloodmaul
                 bool m_CanDamage;
             };
 
-            CreatureAI* GetAI(Creature* p_Creature) const override
+            CreatureAI* GetAI(Creature* creature) const override
             {
-                return new mob_pillar_of_flameAI(p_Creature);
+                return new mob_pillar_of_flameAI(creature);
             }
     };
 
@@ -1222,7 +1222,7 @@ namespace Instances { namespace Bloodmaul
 
         struct mob_lava_explosion_stalkerAI : public ScriptedAI
         {
-            mob_lava_explosion_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            mob_lava_explosion_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 explosionDone = false;
             }
@@ -1257,9 +1257,9 @@ namespace Instances { namespace Bloodmaul
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_lava_explosion_stalkerAI(p_Creature);
+            return new mob_lava_explosion_stalkerAI(creature);
         }
     };
 
@@ -1271,7 +1271,7 @@ namespace Instances { namespace Bloodmaul
 
         struct mob_lava_explosion_eventAI : public ScriptedAI
         {
-            mob_lava_explosion_eventAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            mob_lava_explosion_eventAI(Creature* creature) : ScriptedAI(creature) { }
 
             void MovementInform(uint32 p_Type, uint32 p_Id) override
             {
@@ -1283,9 +1283,9 @@ namespace Instances { namespace Bloodmaul
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_lava_explosion_eventAI(p_Creature);
+            return new mob_lava_explosion_eventAI(creature);
         }
     };
 
@@ -1306,11 +1306,11 @@ namespace Instances { namespace Bloodmaul
 
                 uint32 waitTime = 500;
 
-                void OnUpdate(uint32 p_diff)
+                void OnUpdate(uint32 diff)
                 {
-                    if (waitTime > p_diff)
+                    if (waitTime > diff)
                     {
-                        waitTime -= p_diff;
+                        waitTime -= diff;
                         return;
                     }
 
@@ -1318,13 +1318,13 @@ namespace Instances { namespace Bloodmaul
 
                     if (Unit* caster = GetCaster())
                     {
-                        std::list<Unit*> l_TargetList;
-                        caster->GetAttackableUnitListInRange(l_TargetList, 15.0f);
+                        std::list<Unit*> targetList;
+                        caster->GetAttackableUnitListInRange(targetList, 15.0f);
 
-                        if (l_TargetList.empty())
+                        if (targetList.empty())
                             return;
 
-                        l_TargetList.remove_if([this, caster](Unit* unit) -> bool
+                        targetList.remove_if([this, caster](Unit* unit) -> bool
                         {
                             if (unit == nullptr || !caster->isInFront(unit, float(M_PI) / 6))
                                 return true;
@@ -1332,8 +1332,8 @@ namespace Instances { namespace Bloodmaul
                             return false;
                         });
 
-                        for (Unit* l_Unit : l_TargetList)
-                            caster->CastSpell(l_Unit, eSpells::ChannelFlamesDoT, true);
+                        for (Unit* unit : targetList)
+                            caster->CastSpell(unit, eSpells::ChannelFlamesDoT, true);
                     }
                 }
 

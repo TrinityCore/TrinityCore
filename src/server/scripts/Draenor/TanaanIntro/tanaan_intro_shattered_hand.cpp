@@ -54,9 +54,9 @@ class playerScript_a_potential_ally : public PlayerScript
 public:
     playerScript_a_potential_ally() : PlayerScript("playerScript_a_potential_ally") { }
 
-    void OnQuestReward(Player* player, const Quest* p_Quest) override
+    void OnQuestReward(Player* player, const Quest* quest) override
     {
-        switch (p_Quest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestAPotentialAlly:
             case TanaanQuests::QuestAPotentialAllyHorde:
@@ -66,9 +66,9 @@ public:
         }
     }
 
-    void OnQuestAbandon(Player* player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* quest) override
     {
-        switch (p_Quest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestAPotentialAlly:
             case TanaanQuests::QuestAPotentialAllyHorde:
@@ -171,13 +171,13 @@ class npc_archmage_khadgar_bridge : public CreatureScript
 public:
     npc_archmage_khadgar_bridge() : CreatureScript("npc_archmage_khadgar_bridge") { }
 
-    bool OnQuestAccept(Player* player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
-        switch (p_Quest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestKargatharProvingGrounds:
             {
-                if (TempSummon* creature = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+                if (TempSummon* creature = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
                     creature->AI()->SetGUID(player->GetGUID());
                     player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBridgeDestruction);
@@ -209,12 +209,12 @@ public:
         // TODO : GossipSelect
         void MoveInLineOfSight(Unit* p_Who) override
         {
-            if (Player* l_Player = p_Who->ToPlayer())
+            if (Player* player = p_Who->ToPlayer())
             {
-                if (l_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
+                if (player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) >= 3)
-                        l_Player->KilledMonsterCredit(TanaanKillCredits::CreditFindKhadgarAtBridge);
+                    if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) >= 3)
+                        player->KilledMonsterCredit(TanaanKillCredits::CreditFindKhadgarAtBridge);
                 }
             }
         }
@@ -322,15 +322,15 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* /*p_Target*/) override
+        void EnterCombat(Unit* /*target*/) override
         {
             m_Events.ScheduleEvent(eDatas::EventChomp, 3000);
             m_Events.ScheduleEvent(eDatas::EventImpactSplit, 10000);
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             if (m_Events.ExecuteEvent() == EventChomp)
             {
@@ -399,10 +399,10 @@ public:
                 me->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
-            UpdateOperations(p_Diff);
+            m_Events.Update(diff);
+            UpdateOperations(diff);
 
             std::list<ObjectGuid> guidsToRemove;
 
@@ -560,9 +560,9 @@ public:
             }
         }
 
-        void IsSummonedBy(Unit* p_Summoner) override
+        void IsSummonedBy(Unit* summoner) override
         {
-            kargathGuid = p_Summoner->GetGUID();
+            kargathGuid = summoner->GetGUID();
 
             // Si il est déjà au sol, on ne le fait pas sauter, il passe directement à l'attaque sur un PNJ
             if (me->GetPositionZ() < 10.0f)
@@ -662,14 +662,14 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* /*p_Target*/) override
+        void EnterCombat(Unit* /*target*/) override
         {
             m_Events.ScheduleEvent(eDatas::EventWhipSplash, Seconds(3));
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             if (m_Events.ExecuteEvent() == eDatas::EventWhipSplash)
             {

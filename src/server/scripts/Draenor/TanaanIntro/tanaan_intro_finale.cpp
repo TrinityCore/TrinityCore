@@ -41,9 +41,9 @@ public:
         player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
     }
 
-    void OnQuestAbandon(Player* player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* quest) override
     {
-        if (player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
+        if (player && quest && quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
         {
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneShootingGallery);
             player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
@@ -99,9 +99,9 @@ public:
         TanaanSpells::SpellIronBastionProgressF
     };
 
-    void OnQuestReward(Player* player, const Quest* p_Quest) override
+    void OnQuestReward(Player* player, const Quest* quest) override
     {
-        if (player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
+        if (player && quest && (quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
         {
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
 
@@ -112,9 +112,9 @@ public:
         }
     }
 
-    void OnQuestAbandon(Player* player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* quest) override
     {
-        if (player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
+        if (player && quest && (quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
     }
 
@@ -156,11 +156,11 @@ public:
             player->EnvironmentalDamage(DAMAGE_FIRE, urand(11230, 14320));
     }
 
-    void OnUpdate(Player* player, uint32 p_Diff) override
+    void OnUpdate(Player* player, uint32 diff) override
     {
-        if (m_timer > p_Diff)
+        if (m_timer > diff)
         {
-            m_timer -= p_Diff;
+            m_timer -= diff;
             return;
         }
 
@@ -225,19 +225,19 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
 public:
     npc_thaelin_darkanvil_tanaan() : CreatureScript("npc_thaelin_darkanvil_tanaan") { }
 
-    bool OnGossipHello(Player* player, Creature* p_Creature) override
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) == QUEST_STATUS_INCOMPLETE)
         {
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, 1, p_Creature->GetGUID());
+            SendGossipMenuFor(player, 1, creature->GetGUID());
             return true;
         }
 
         return false;
     }
 
-    bool OnGossipSelect(Player* player, Creature* p_Creature, uint32 /*sender*/, uint32 p_Action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 p_Action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -252,7 +252,7 @@ public:
             player->KilledMonsterCredit(TanaanKillCredits::CreditSpeakWithThaelin);
             CloseGossipMenuFor(player);
 
-            player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+            player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
             player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockThaelinLow);
         }
 
@@ -285,10 +285,10 @@ public:
             m_Events.Reset();
         }
 
-        void IsSummonedBy(Unit* p_Summoner) override
+        void IsSummonedBy(Unit* summoner) override
         {
             m_Summoned = true;
-            m_PlayerGuid = p_Summoner->GetGUID();
+            m_PlayerGuid = summoner->GetGUID();
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -296,8 +296,8 @@ public:
             /// TALK
             Talk(0);
 
-            if (Player* l_Player = p_Summoner->ToPlayer())
-                me->GetMotionMaster()->MoveFollow(l_Player, 0, 1.0f);
+            if (Player* player = summoner->ToPlayer())
+                me->GetMotionMaster()->MoveFollow(player, 0, 1.0f);
 
             m_Events.ScheduleEvent(eEvents::EventCheckTalk,     5000);
             m_Events.ScheduleEvent(eEvents::EventCheckSummoner, 500);
@@ -351,8 +351,8 @@ public:
                         me->SetFacingTo(2.5f);
                         me->DespawnOrUnsummon();
 
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
-                            l_Player->KilledMonsterCredit(TanaanKillCredits::CreditEscortThaelin);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
+                            player->KilledMonsterCredit(TanaanKillCredits::CreditEscortThaelin);
 
                         break;
                     }
@@ -361,9 +361,9 @@ public:
             }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             if (!m_Summoned)
                 return;
@@ -428,7 +428,7 @@ public:
     {
         npc_tanaan_goglukAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SetPassengersFightingOrDespawn(uint8 p_Seat, bool p_Despawn, Vehicle* p_Vehicle, Unit* p_Target = nullptr)
+        void SetPassengersFightingOrDespawn(uint8 p_Seat, bool p_Despawn, Vehicle* p_Vehicle, Unit* target = nullptr)
         {
             if (Unit* l_Passenger = p_Vehicle->GetPassenger(p_Seat))
             {
@@ -438,7 +438,7 @@ public:
                     {
                         if (!p_Despawn)
                         {
-                            l_Creature->SetInCombatWith(p_Target);
+                            l_Creature->SetInCombatWith(target);
                             l_Creature->AI()->DoAction(1);
                         }
                         else
@@ -529,9 +529,9 @@ public:
             }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 diff) override
         {
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             switch (m_Events.ExecuteEvent())
             {
@@ -560,21 +560,21 @@ public:
     {
     }
 
-    bool OnQuestAccept(Player* player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
+        if (quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
         {
             // On enlève Thaelin avant le début de la cinématique, pour qu'il revienne correctement après coté client
             player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalThaelinCanon);
 
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneShootingGallery, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
         }
-        else if (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
+        else if (quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
         {
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
 
-            if (p_Creature->GetAI())
-                p_Creature->GetAI()->SetGUID(player->GetGUID());
+            if (creature->GetAI())
+                creature->GetAI()->SetGUID(player->GetGUID());
         }
 
         return false;

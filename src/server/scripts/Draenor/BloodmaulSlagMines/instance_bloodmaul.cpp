@@ -105,57 +105,57 @@ namespace Instances
                         m_MinerSpawnGuids.reserve(3);
                     }
 
-                    void OnCreatureCreate(Creature* p_Creature) override
+                    void OnCreatureCreate(Creature* creature) override
                     {
-                        switch (p_Creature->GetEntry())
+                        switch (creature->GetEntry())
                         {
                             case uint32(MobEntries::SlaveWatcherCrushto):
-                                m_slaveWatcherCrushtoGuid = p_Creature->GetGUID();
+                                m_slaveWatcherCrushtoGuid = creature->GetGUID();
                                 break;
                             case uint32(MobEntries::MinesBat):
-                                p_Creature->SetDisableGravity(true);
-                                p_Creature->SetCanFly(true);
-                                p_Creature->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                                creature->SetDisableGravity(true);
+                                creature->SetCanFly(true);
+                                creature->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                                 break;
                             case uint32(MobEntries::AllianceMinerSpawn):
-                                m_MinerSpawnGuids[TEAM_ALLIANCE] = p_Creature->GetGUID();
+                                m_MinerSpawnGuids[TEAM_ALLIANCE] = creature->GetGUID();
                                 break;
                             case uint32(MobEntries::HordeMinerSpawn):
-                                m_MinerSpawnGuids[TEAM_HORDE] = p_Creature->GetGUID();
+                                m_MinerSpawnGuids[TEAM_HORDE] = creature->GetGUID();
                                 break;
                             case uint32(MobEntries::NeutralMinerSpawn):
-                                m_MinerSpawnGuids[TEAM_NEUTRAL] = p_Creature->GetGUID();
+                                m_MinerSpawnGuids[TEAM_NEUTRAL] = creature->GetGUID();
                                 break;
                             case uint32(MobEntries::EarthCrushStalker):
-                                p_Creature->setFaction(2102);
-                                p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                                creature->setFaction(2102);
+                                creature->SetReactState(ReactStates::REACT_PASSIVE);
                                 break;
                             case uint32(MobEntries::BloodmaulWarder):
                             {
                                 static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.f };
 
-                                if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
-                                    m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
+                                if (k_CrushtoPosition.GetExactDist2d(creature) < 50.0f)
+                                    m_NearestWarderGuids.emplace_back(creature->GetGUID());
                                 break;
                             }
                             case uint32(MobEntries::MoltenEarthElemental):
-                                /*if (Unit* l_Unit = MS::ScriptUtils::SelectNearestCreatureWithEntry(p_Creature, uint32(MobEntries::BloodmaulWarder), 50.0f))
-                                    p_Creature->Attack(l_Unit, false);*/
+                                /*if (Unit* unit = MS::ScriptUtils::SelectNearestCreatureWithEntry(creature, uint32(MobEntries::BloodmaulWarder), 50.0f))
+                                    creature->Attack(unit, false);*/
                                 break;
                             case uint32(MobEntries::Gogduh):
-                                m_gogduhGuid = p_Creature->GetGUID();
+                                m_gogduhGuid = creature->GetGUID();
                                 break;
                             case uint32(MobEntries::Gugrokk):
-                                m_GugrokkGuid = p_Creature->GetGUID();
+                                m_GugrokkGuid = creature->GetGUID();
                                 break;
                             case uint32(MobEntries::LavaExplosionStalker):
                             {
-                                if (p_Creature->GetPositionY() < -50)
-                                    m_explosionStalkerGuid = p_Creature->GetGUID();
-                                else if (p_Creature->GetPositionY() < 0)
-                                    m_rightStalkerGuid.push_back(p_Creature->GetGUID());
+                                if (creature->GetPositionY() < -50)
+                                    m_explosionStalkerGuid = creature->GetGUID();
+                                else if (creature->GetPositionY() < 0)
+                                    m_rightStalkerGuid.push_back(creature->GetGUID());
                                 else
-                                    m_leftStalkerGuid.push_back(p_Creature->GetGUID());
+                                    m_leftStalkerGuid.push_back(creature->GetGUID());
                             }
                             default:
                                 break;
@@ -328,35 +328,35 @@ namespace Instances
                                 {
                                     /*if (Creature* l_Spawn = ObjectAccessor::GetCreature(m_MinerSpawnGuids[i]))
                                     {
-                                        if (TempSummon* l_Summon = l_Spawn->SummonCreature(g_MinerEntry[i], l_Spawn->GetPosition()))
+                                        if (TempSummon* summon = l_Spawn->SummonCreature(g_MinerEntry[i], l_Spawn->GetPosition()))
                                         {
                                             bool mustAttackBoss = false;
 
                                             if (i == TEAM_ALLIANCE && playersTeamId == TEAM_ALLIANCE)
                                             {
-                                                l_Summon->setFaction(FACTION_A);
+                                                summon->setFaction(FACTION_A);
                                                 mustAttackBoss = true;
                                             }
                                             else if (i == TEAM_HORDE && playersTeamId == TEAM_HORDE)
                                             {
-                                                l_Summon->setFaction(FACTION_H);
+                                                summon->setFaction(FACTION_H);
                                                 mustAttackBoss = true;
                                             }
 
                                             if (mustAttackBoss)
                                             {
-                                                l_Summon->AddAura(150816, l_Summon); // Soulevement des mineurs
+                                                summon->AddAura(150816, summon); // Soulevement des mineurs
                                                 if (Creature* boss = instance->GetCreature(m_slaveWatcherCrushtoGuid))
-                                                    l_Summon->AI()->AttackStart(boss);
+                                                    summon->AI()->AttackStart(boss);
                                             }
                                             else
                                             {
-                                                if (Player* l_Plr = MS::ScriptUtils::SelectRandomPlayerIncludedTank(l_Summon, 200.0f, false))
-                                                    l_Summon->AI()->AttackStart(l_Plr);
+                                                if (Player* l_Plr = MS::ScriptUtils::SelectRandomPlayerIncludedTank(summon, 200.0f, false))
+                                                    summon->AI()->AttackStart(l_Plr);
                                             }
 
-                                            l_Summon->SetHealth(l_Summon->GetMaxHealth() / 2.0f);
-                                            m_CapturedMinerGuids.emplace_back(l_Summon->GetGUID());
+                                            summon->SetHealth(summon->GetMaxHealth() / 2.0f);
+                                            m_CapturedMinerGuids.emplace_back(summon->GetGUID());
                                         }
                                     }*/
                                 }
@@ -389,8 +389,8 @@ namespace Instances
                                 {
                                     /*for (auto l_Guid : m_CapturedMinerGuids)
                                     {
-                                        if (Creature* l_Summon = ObjectAccessor::GetCreature(l_Guid))
-                                            l_Summon->GetMotionMaster()->MoveChase(l_Plr);
+                                        if (Creature* summon = ObjectAccessor::GetCreature(l_Guid))
+                                            summon->GetMotionMaster()->MoveChase(l_Plr);
                                     }*/
                                 }
                                 break;
@@ -426,21 +426,21 @@ namespace Instances
                             playersTeamId = p_Player->GetTeamId();
                     }
 
-                    void Update(uint32 p_Diff) override
+                    void Update(uint32 diff) override
                     {
-                        CheckPositionZForPlayers(p_Diff);
-                        /*ScheduleBeginningTimeUpdate(p_Diff);
-                        ScheduleChallengeStartup(p_Diff);
-                        ScheduleChallengeTimeUpdate(p_Diff);*/
+                        CheckPositionZForPlayers(diff);
+                        /*ScheduleBeginningTimeUpdate(diff);
+                        ScheduleChallengeStartup(diff);
+                        ScheduleChallengeTimeUpdate(diff);*/
 
                         if (!m_CanUpdate)
                             return;
 
-                        m_BeginningTime += p_Diff;
+                        m_BeginningTime += diff;
 
                         if (m_openRoltallTimer)
                         {
-                            if (m_openRoltallTimer <= p_Diff)
+                            if (m_openRoltallTimer <= diff)
                             {
                                 DoUseDoorOrButton(m_roltallEntranceWall, 24 * 60 * 60 * 1000);
                                 DoUseDoorOrButton(m_roltallBridge, 24 * 60 * 60 * 1000);
@@ -448,16 +448,16 @@ namespace Instances
                                 m_openRoltallTimer = 0;
                             }
                             else
-                                m_openRoltallTimer -= p_Diff;
+                                m_openRoltallTimer -= diff;
                         }
                     }
 
-                    void CheckPositionZForPlayers(uint32 p_Diff)
+                    void CheckPositionZForPlayers(uint32 diff)
                     {
                         if (!m_CheckZPosTimer)
                             return;
 
-                        if (m_CheckZPosTimer <= p_Diff)
+                        if (m_CheckZPosTimer <= diff)
                         {
                             Map::PlayerList const& playerList = instance->GetPlayers();
                             for (Map::PlayerList::const_iterator l_Iter = playerList.begin(); l_Iter != playerList.end(); ++l_Iter)
@@ -472,7 +472,7 @@ namespace Instances
                             m_CheckZPosTimer = 1000;
                         }
                         else
-                            m_CheckZPosTimer -= p_Diff;
+                            m_CheckZPosTimer -= diff;
                     }
                 };
 

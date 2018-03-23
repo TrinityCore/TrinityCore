@@ -172,7 +172,7 @@ public:
 
     struct boss_sadana_bloodfuryAI : public BossAI
     {
-        boss_sadana_bloodfuryAI(Creature* p_Creature) : BossAI(p_Creature, eShadowmoonBurialGroundsDatas::DataBossSadana)
+        boss_sadana_bloodfuryAI(Creature* creature) : BossAI(creature, eShadowmoonBurialGroundsDatas::DataBossSadana)
         {
             m_Instance = me->GetInstanceScript();
 
@@ -380,12 +380,12 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {     
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+            events.Update(diff);
 
             /// Dark Communion - (needs to be above then unit_state_casting so it can still work with the cast itself)
             if (!m_CommunionGuid.IsEmpty() && m_CommunionInRange)
@@ -543,9 +543,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_sadana_bloodfuryAI(p_Creature);
+        return new boss_sadana_bloodfuryAI(creature);
     }
 };
 
@@ -662,12 +662,12 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
             if (m_Activation) // Creature is activated;
                 return;
 
-            events.Update(p_Diff);
+            events.Update(diff);
 
             switch (events.ExecuteEvent())
             {
@@ -732,9 +732,9 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             switch (events.ExecuteEvent())
             {
@@ -921,14 +921,14 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            events.Update(p_Diff);
+            events.Update(diff);
 
             // Lunar Purity
             if (m_ReadyForAction)
             {
-                if (m_ActionDiff <= p_Diff)
+                if (m_ActionDiff <= diff)
                 {
                     std::list<Player*> playerList;
                     me->GetPlayerListInGrid(playerList, 1.2f);
@@ -944,7 +944,7 @@ public:
                     m_ActionDiff = 2 * TimeConstants::IN_MILLISECONDS;
                 }
                 else
-                    m_ActionDiff -= p_Diff;
+                    m_ActionDiff -= diff;
             }
         }
 
