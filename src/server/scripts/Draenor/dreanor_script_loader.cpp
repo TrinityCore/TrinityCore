@@ -31,6 +31,33 @@ void AddSC_tanaan_intro_finale();
 
 void AddSC_spells_garrison();
 
+// Bloodmaul Slag Mines
+void AddSC_areatrigger_Bloodmaul();
+void AddSC_boss_forgemaster_gogduh();
+void AddSC_boss_gugrokk();
+void AddSC_boss_roltall();
+void AddSC_boss_SlaveWatcherCrushto();
+void AddSC_mob_Bloodmaul();
+void AddSC_spell_Bloodmaul();
+void AddSC_instance_Bloodmaul();
+
+// Everbloom
+void AddSC_boss_ancient_protectors();
+void AddSC_boss_sol();
+void AddSC_boss_witherbark();
+void AddSC_boss_xeritac();
+void AddSC_boss_yalnu();
+void AddSC_the_everbloom();
+void AddSC_instance_everbloom();
+
+// Shadowmoon Burial Grounds
+void AddSC_bonemaw();
+void AddSC_nerzul();
+void AddSC_nhalish();
+void AddSC_sadana();
+void AddSC_shadowmoon_burial_grounds();
+void AddSC_instance_shadowmoon_burial_grounds();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddDraenorScripts()
@@ -48,4 +75,31 @@ void AddDraenorScripts()
     AddSC_tanaan_intro_finale();
 
     AddSC_spells_garrison();
+
+    // Bloodmaul Slag Mines
+    AddSC_areatrigger_Bloodmaul();
+    AddSC_boss_forgemaster_gogduh();
+    AddSC_boss_gugrokk();
+    AddSC_boss_roltall();
+    AddSC_boss_SlaveWatcherCrushto();
+    AddSC_mob_Bloodmaul();
+    AddSC_spell_Bloodmaul();
+    AddSC_instance_Bloodmaul();
+
+    // Everbloom
+    AddSC_boss_ancient_protectors();
+    AddSC_boss_sol();
+    AddSC_boss_witherbark();
+    AddSC_boss_xeritac();
+    AddSC_boss_yalnu();
+    AddSC_the_everbloom();
+    AddSC_instance_everbloom();
+
+    // Shadowmoon Burial Grounds
+    AddSC_bonemaw();
+    AddSC_nerzul();
+    AddSC_nhalish();
+    AddSC_sadana();
+    AddSC_shadowmoon_burial_grounds();
+    AddSC_instance_shadowmoon_burial_grounds();
 }
