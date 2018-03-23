@@ -79,9 +79,9 @@ public:
                 me->Attack(victim, false);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case 2:
                     DoCast(me, SPELL_EJECT_ALL_PASSENGERS);
@@ -176,12 +176,12 @@ public:
             _JustReachedHome();
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
@@ -192,9 +192,9 @@ public:
                 DoCast(me, SPELL_DESPAWN_AREA_TRIGGERS);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case 1:
                 {
@@ -585,7 +585,7 @@ class spell_gaseous_volley : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gaseous_volley_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastSpell((Unit*)NULL, SPELL_GASEOUS_VOLLEY_MISSILE, true);
             }
@@ -616,7 +616,7 @@ public:
     {
         PrepareAuraScript(spell_toxic_blood_AuraScript);
 
-        void HandleTriggerSpell(AuraEffect const* aurEff)
+        void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
         {
             if (GetTarget())
             {

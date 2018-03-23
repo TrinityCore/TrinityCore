@@ -376,16 +376,16 @@ namespace Instances { namespace Bloodmaul
                     m_Events.ScheduleEvent(eEvents::EventMovePoint, 2 * TimeConstants::IN_MILLISECONDS);
                 }
 
-                void MovementInform(uint32 p_Type, uint32 p_ID) override
+                void MovementInform(uint32 type, uint32 id) override
                 {
-                    if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    if (type != MovementGeneratorType::POINT_MOTION_TYPE)
                         return;
 
                     bool l_Despawn = false;
 
                     if (IsHeroic())
                     {
-                        if (p_ID == eMoves::FirstMove)  ///< Only in Heroic
+                        if (id == eMoves::FirstMove)  ///< Only in Heroic
                         {
                             float l_X = me->GetPositionX() + ((65.0f) * cos(me->GetOrientation() + M_PI));
                             float l_Y = me->GetPositionY() + ((65.0f) * sin(me->GetOrientation() + M_PI));
@@ -393,10 +393,10 @@ namespace Instances { namespace Bloodmaul
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(eMoves::SecondMove, l_X, l_Y, s_PositionZ);
                         }
-                        else if (p_ID == eMoves::SecondMove)
+                        else if (id == eMoves::SecondMove)
                             l_Despawn = true;
                     }
-                    else if (p_ID == eMoves::FirstMove)
+                    else if (id == eMoves::FirstMove)
                         l_Despawn = true;
 
                     if (l_Despawn)

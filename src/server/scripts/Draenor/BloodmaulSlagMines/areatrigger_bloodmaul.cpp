@@ -45,9 +45,9 @@ namespace Instances
                 {
                     for (auto l_Guid : m_Targets)
                     {
-                        Unit* l_Target = ObjectAccessor::GetUnit(*at, l_Guid);
-                        if (l_Target)
-                            l_Target->RemoveAura(uint32(Spells::SuppresionFieldEffect));
+                        Unit* target = ObjectAccessor::GetUnit(*at, l_Guid);
+                        if (target)
+                            target->RemoveAura(uint32(Spells::SuppresionFieldEffect));
                     }
                 }
             }
@@ -108,11 +108,11 @@ namespace Instances
 
             AreaTrigger_at_SpawnSlagna() : AreaTriggerScript("at_SpawnSlagna") { }
 
-            bool OnTrigger(Player* p_Player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
+            bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
             {
-                if (p_Player->GetInstanceScript())
+                if (player->GetInstanceScript())
                 {
-                    p_Player->GetInstanceScript()->SetData(uint32(Data::SpawnSlagna), 0);
+                    player->GetInstanceScript()->SetData(uint32(Data::SpawnSlagna), 0);
                     return true;
                 }
 

@@ -51,29 +51,29 @@ public:
             player->GetSceneMgr().PlaySceneByPackageId(BlazeOfGloryData::SceneId);
     }
 
-    void OnQuestAccept(Player* p_Player, const Quest* quest) override
+    void OnQuestAccept(Player* player, const Quest* quest) override
     {
         if (quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
-            p_Player->GetSceneMgr().PlaySceneByPackageId(BlazeOfGloryData::SceneId);
+            player->GetSceneMgr().PlaySceneByPackageId(BlazeOfGloryData::SceneId);
     }
 
-    void OnQuestReward(Player* p_Player, const Quest* quest) override
+    void OnQuestReward(Player* player, const Quest* quest) override
     {
-        if (p_Player && quest && quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
-            p_Player->GetSceneMgr().CancelSceneByPackageId(BlazeOfGloryData::SceneId);
+        if (player && quest && quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
+            player->GetSceneMgr().CancelSceneByPackageId(BlazeOfGloryData::SceneId);
     }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 p_SceneInstanceID, std::string p_Event) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, BlazeOfGloryData::SceneId))
+        if (!player->GetSceneMgr().HasScene(p_SceneInstanceID, BlazeOfGloryData::SceneId))
             return;
 
-        if (p_Event == "Visual" && p_Player->HasQuest(TanaanQuests::QuestBlazeOfGlory))
-            p_Player->AddAura(BlazeOfGloryData::SpellTrailOfFlameVisual, p_Player);
+        if (p_Event == "Visual" && player->HasQuest(TanaanQuests::QuestBlazeOfGlory))
+            player->AddAura(BlazeOfGloryData::SpellTrailOfFlameVisual, player);
         else if (p_Event == "Clear")
-            p_Player->RemoveAura(BlazeOfGloryData::SpellTrailOfFlameVisual);
+            player->RemoveAura(BlazeOfGloryData::SpellTrailOfFlameVisual);
         else if (p_Event == "Credit")
-            p_Player->KilledMonsterCredit(81760);
+            player->KilledMonsterCredit(81760);
     }
 };
 
@@ -83,19 +83,19 @@ class playerScript_tanaan_holdout : public PlayerScript
 public:
     playerScript_tanaan_holdout() : PlayerScript("playerScript_tanaan_holdout") { }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceID) override
+    void OnSceneComplete(Player* player, uint32 p_SceneInstanceID) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneHoldout))
+        if (!player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneHoldout))
             return;
 
         // Set les bonnes phases
-        p_Player->AddAura(TanaanPhases::PhaseAfterBlazeGlobal, p_Player);
-        p_Player->AddAura(TanaanPhases::PhaseAfterBlazeAriok, p_Player);
+        player->AddAura(TanaanPhases::PhaseAfterBlazeGlobal, player);
+        player->AddAura(TanaanPhases::PhaseAfterBlazeAriok, player);
 
-        if (p_Player->GetTeamId() == TEAM_ALLIANCE)
-            p_Player->AddAura(TanaanPhases::PhaseAfterBlazeAlliance, p_Player);
+        if (player->GetTeamId() == TEAM_ALLIANCE)
+            player->AddAura(TanaanPhases::PhaseAfterBlazeAlliance, player);
         else
-            p_Player->AddAura(TanaanPhases::PhaseAfterBlazeHorde, p_Player);
+            player->AddAura(TanaanPhases::PhaseAfterBlazeHorde, player);
     }
 };
 
@@ -131,39 +131,39 @@ class go_bleeding_hollow_cage : public GameObjectScript
 public:
     go_bleeding_hollow_cage() : GameObjectScript("go_bleeding_hollow_cage") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* player, GameObject* gameObject) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestBledDryAlly) == QUEST_STATUS_INCOMPLETE || p_Player->GetQuestStatus(TanaanQuests::QuestBledDryHorde) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(TanaanQuests::QuestBledDryAlly) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(TanaanQuests::QuestBledDryHorde) == QUEST_STATUS_INCOMPLETE)
         {
             /// Eastern Cage
-            if (p_Gameobject->GetEntry() == TanaanGameObjects::GobEasternCage)
+            if (gameObject->GetEntry() == TanaanGameObjects::GobEasternCage)
             {
-                if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEasternCageOpened) >= 1)
+                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEasternCageOpened) >= 1)
                     return true;
 
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseEasternCageAlly);
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseEasternCageHorde);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseEasternCageAlly);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseEasternCageHorde);
 
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditEasternAllianceCage);
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditEasternHordeCage);
+                player->KilledMonsterCredit(TanaanKillCredits::CreditEasternAllianceCage);
+                player->KilledMonsterCredit(TanaanKillCredits::CreditEasternHordeCage);
 
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneEasterCage);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneEasterCage);
 
                 return false;
             }
             /// Southest Cage
-            else if (p_Gameobject->GetEntry() == TanaanGameObjects::GobSouthernCage)
+            else if (gameObject->GetEntry() == TanaanGameObjects::GobSouthernCage)
             {
-                if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjSouthernCageOpened) >= 1)
+                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjSouthernCageOpened) >= 1)
                     return true;
 
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseSouthernCageAlly);
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseSouthernCageHorde);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseSouthernCageAlly);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseSouthernCageHorde);
 
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditSouthernAllianceCage);
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditSouthernHordeCage);
+                player->KilledMonsterCredit(TanaanKillCredits::CreditSouthernAllianceCage);
+                player->KilledMonsterCredit(TanaanKillCredits::CreditSouthernHordeCage);
 
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneSouthernCage);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneSouthernCage);
 
                 return false;
             }
@@ -184,22 +184,22 @@ public:
         ActionStartEscort = 1
     };
 
-    bool OnGossipSelect(Player* p_Player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE ||
-            p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_FAILED)
+        if (player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE ||
+            player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_FAILED)
         {
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAriok);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAriok);
 
-            if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip))
+            if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip))
                 return true;
 
-            if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip) < 1)
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditAriokGossip);
+            if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip) < 1)
+                player->KilledMonsterCredit(TanaanKillCredits::CreditAriokGossip);
 
-            if (TempSummon* l_Ariok = p_Player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+            if (TempSummon* l_Ariok = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 if (l_Ariok->GetAI())
-                    l_Ariok->AI()->SetGUID(p_Player->GetGUID());
+                    l_Ariok->AI()->SetGUID(player->GetGUID());
         }
 
         return true;
@@ -223,14 +223,14 @@ public:
             m_checkMustDespawnTimer = 2000;
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 /*p_Index*/) override
+        void SetGUID(ObjectGuid guid, int32 /*p_Index*/) override
         {
-            m_PlayerGuid = p_Guid;
+            m_PlayerGuid = guid;
 
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            if (Player* p_Followed = ObjectAccessor::GetPlayer(*me, p_Guid))
+            if (Player* p_Followed = ObjectAccessor::GetPlayer(*me, guid))
                 me->GetMotionMaster()->MoveFollow(p_Followed, 0.2f, 5.23f);
 
             Talk(0);
@@ -293,25 +293,25 @@ class npc_blood_ritual_orb : public CreatureScript
 public:
     npc_blood_ritual_orb() : CreatureScript("npc_blood_ritual_orb") { }
 
-    bool OnGossipHello(Player* p_Player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
         {
-            if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) <= 2)
+            if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) <= 2)
             {
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditBloodOrb);
-                creature->DestroyForPlayer(p_Player);
+                player->KilledMonsterCredit(TanaanKillCredits::CreditBloodOrb);
+                creature->DestroyForPlayer(player);
 
-                if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 1)
-                    p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneSneakyArmy);
+                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 1)
+                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneSneakyArmy);
 
-                if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 3)
+                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) == 3)
                 {
-                    p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneKilRoggRevealed);
+                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneKilRoggRevealed);
 
-                    p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeGlobal);
-                    p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAlliance);
-                    p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeHorde);
+                    player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeGlobal);
+                    player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAlliance);
+                    player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeHorde);
                 }
             }
         }

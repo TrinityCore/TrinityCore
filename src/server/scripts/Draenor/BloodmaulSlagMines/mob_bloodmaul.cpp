@@ -56,15 +56,15 @@ namespace Instances { namespace Bloodmaul
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6 | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE);
                 }
 
-                void SetData(uint32 p_Type, uint32) override
+                void SetData(uint32 type, uint32) override
                 {
-                    if (p_Type == uint32(Data::SpawnSlagna))
+                    if (type == uint32(Data::SpawnSlagna))
                     {
                         me->RemoveAura(uint32(Spells::SubmergeVisual));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6 | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE);
 
-                        if (Unit* l_Target = me->SelectNearestPlayer(20.0f))
-                            AttackStart(l_Target);
+                        if (Unit* target = me->SelectNearestPlayer(20.0f))
+                            AttackStart(target);
                     }
                 }
 
@@ -350,14 +350,14 @@ namespace Instances { namespace Bloodmaul
                     {
                         case uint32(Events::StoneBulwark):
                         {
-                            Unit* l_Target = me;
+                            Unit* target = me;
                             /*if (Unit* unit = MS::ScriptUtils::SelectNearestFriendExcluededMe(me, 40.0f))
                             {
                                 if (unit->IsInCombat())
-                                    l_Target = unit;
+                                    target = unit;
                             }*/
                             
-                            me->CastSpell(l_Target, uint32(Spells::StoneBulwark));
+                            me->CastSpell(target, uint32(Spells::StoneBulwark));
 
                             events.ScheduleEvent(uint32(Events::StoneBulwark), urand(3000, 35000));
                             break;
@@ -449,7 +449,7 @@ namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void DoAction(const int32 action) override
+                void DoAction(const int32 /*action*/) override
                 {
                     if (me->GetEntry() != MobEntries::BloodmaulOverseer)
                         return;
@@ -569,12 +569,12 @@ namespace Instances { namespace Bloodmaul
                     return false;
                 }
 
-                void MovementInform(uint32 p_Type, uint32 p_Id) override
+                void MovementInform(uint32 type, uint32 id) override
                 {
-                    if (p_Type != POINT_MOTION_TYPE)
+                    if (type != POINT_MOTION_TYPE)
                         return;
 
-                    switch (p_Id)
+                    switch (id)
                     {
                         case 1:
                         {
@@ -721,9 +721,9 @@ namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::LumberingLeap), urand(15000, 17000));
                 }
 
-                void MovementInform(uint32 p_Type, uint32 p_Id) override
+                void MovementInform(uint32 type, uint32 /*id*/) override
                 {
-                    switch (p_Type)
+                    switch (type)
                     {
                         case EFFECT_MOTION_TYPE:
                             if (Player* l_Plr = ObjectAccessor::FindPlayer(m_TargetGUID))
@@ -901,8 +901,8 @@ namespace Instances { namespace Bloodmaul
                             m_Events.ScheduleEvent(eEvents::EventChannelFlames, 30000);
                             break;
                         case eEvents::EventExplodingFlames:
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                                me->CastSpell(l_Target, eSpells::SpellExplodingFlames, false);
+                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, eSpells::SpellExplodingFlames, false);
                             m_Events.ScheduleEvent(eEvents::EventExplodingFlames, 20000);
                             break;
                         default:
@@ -942,7 +942,7 @@ namespace Instances { namespace Bloodmaul
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 }
 
-                void UpdateAI(uint32 const diff) override { }
+                void UpdateAI(uint32 const /*diff*/) override { }
             };
 
             CreatureAI* GetAI(Creature* creature) const override
@@ -1119,7 +1119,7 @@ namespace Instances { namespace Bloodmaul
                     me->CastSpell(me, Spells::SpellPillarOfFlames, true);
                 }
 
-                void UpdateAI(const uint32 diff) override
+                void UpdateAI(const uint32 /*diff*/) override
                 {
                     if (!UpdateVictim())
                         return;
@@ -1171,10 +1171,10 @@ namespace Instances { namespace Bloodmaul
                     me->DespawnOrUnsummon(6000);
                 }
 
-                void MoveInLineOfSight(Unit* p_Who) override
+                void MoveInLineOfSight(Unit* who) override
                 {
-                    if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDist2d(p_Who, 5.f) && !p_Who->HasAura(Spells::SpellDebuff))
-                        me->CastSpell(p_Who, Spells::SpellDebuff, true);
+                    if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDist2d(who, 5.f) && !who->HasAura(Spells::SpellDebuff))
+                        me->CastSpell(who, Spells::SpellDebuff, true);
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -1234,7 +1234,7 @@ namespace Instances { namespace Bloodmaul
                 SPELL_EXPLOSION = 152864,
             };
 
-            void DoAction(const int32 action) override
+            void DoAction(const int32 /*action*/) override
             {
                 if (explosionDone)
                     return;
@@ -1273,12 +1273,12 @@ namespace Instances { namespace Bloodmaul
         {
             mob_lava_explosion_eventAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id) override
+            void MovementInform(uint32 type, uint32 id) override
             {
-                if (p_Type != POINT_MOTION_TYPE)
+                if (type != POINT_MOTION_TYPE)
                     return;
 
-                if (p_Id == 1)
+                if (id == 1)
                     me->Kill(me);
             }
         };

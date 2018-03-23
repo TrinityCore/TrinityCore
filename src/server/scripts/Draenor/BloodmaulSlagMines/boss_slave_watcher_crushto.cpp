@@ -102,9 +102,9 @@ namespace Instances
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     }
 
-                    void KilledUnit(Unit* p_Who) override
+                    void KilledUnit(Unit* who) override
                     {
-                        if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        if (who->IsPlayer())
                             Talk(eTalks::TalkSlay);
                     }
 
@@ -124,9 +124,9 @@ namespace Instances
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     }
 
-                    void MovementInform(uint32 p_Type, uint32 p_Id) override
+                    void MovementInform(uint32 type, uint32 /*id*/) override
                     {
-                        switch (p_Type)
+                        switch (type)
                         {
                             case EFFECT_MOTION_TYPE:
                                 if (Player* l_Plr = ObjectAccessor::FindPlayer(m_TargetGUID))
@@ -166,8 +166,8 @@ namespace Instances
                             }
                             else
                             {
-                                if (Unit* l_Target = me->GetVictim())
-                                    target->AddThreat(l_Target, 10000.0f);
+                                if (Unit* target = me->GetVictim())
+                                    target->AddThreat(target, 10000.0f);
                             }
                         }
                     }

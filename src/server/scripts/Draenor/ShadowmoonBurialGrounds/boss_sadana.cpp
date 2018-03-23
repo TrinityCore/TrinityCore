@@ -150,13 +150,13 @@ Position const g_PositionDefiledSpiritsMovement[8] =
 
 static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 {
-    std::list<Creature*> l_CreaturesList;
-    GetCreatureListWithEntryInGrid(l_CreaturesList, p_Object, p_Entry, 2000.0f);
+    std::list<Creature*> creaturesList;
+    GetCreatureListWithEntryInGrid(creaturesList, p_Object, p_Entry, 2000.0f);
 
-    if (l_CreaturesList.empty())
+    if (creaturesList.empty())
         return;
 
-    for (std::list<Creature*>::iterator iter = l_CreaturesList.begin(); iter != l_CreaturesList.end(); ++iter)
+    for (std::list<Creature*>::iterator iter = creaturesList.begin(); iter != creaturesList.end(); ++iter)
         (*iter)->DespawnOrUnsummon();
 }
 
@@ -251,19 +251,19 @@ public:
             HandleDoorCombatActivation();
         }
 
-        void JustSummoned(Creature* p_Summon) override
+        void JustSummoned(Creature* summon) override
         {
-            if (p_Summon)
+            if (summon)
             {
-                switch (p_Summon->GetEntry())
+                switch (summon->GetEntry())
                 {
                     case eSadanaCreatures::CreatureShadowRune:
-                        p_Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-                        p_Summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                        summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                         break;
                     case eSadanaCreatures::CreatureEclipseTrigger:
-                        p_Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-                        p_Summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                        summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                         break;             
                 }
             }
@@ -314,7 +314,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
 
@@ -341,9 +341,9 @@ public:
             events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void KilledUnit(Unit* p_Who) override
+        void KilledUnit(Unit* who) override
         {
-            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 if (roll_chance_i(50))
                     Talk(eSadanaTalks::TalkKill01);
@@ -352,7 +352,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -390,15 +390,15 @@ public:
             /// Dark Communion - (needs to be above then unit_state_casting so it can still work with the cast itself)
             if (!m_CommunionGuid.IsEmpty() && m_CommunionInRange)
             {
-                if (Creature* l_Creature = ObjectAccessor::GetCreature(*me, m_CommunionGuid))
+                if (Creature* creature = ObjectAccessor::GetCreature(*me, m_CommunionGuid))
                 {
-                    l_Creature->UpdatePosition(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ(), l_Creature->GetOrientation(), true);
+                    creature->UpdatePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), true);
            
-                    if (me->IsWithinDistInMap(l_Creature, 4.0f))
+                    if (me->IsWithinDistInMap(creature, 4.0f))
                     {           
                         m_CommunionInRange = false;
 
-                        l_Creature->DespawnOrUnsummon();
+                        creature->DespawnOrUnsummon();
                         me->CastSpell(me, eSadanaSpells::SpellDarkCommunionBuff, false);
                     }
                 }
@@ -431,10 +431,10 @@ public:
               
                     for (uint8 l_I = 0; l_I < 2; l_I++)
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eSadanaSpells::SpellDaggerFallGroundMarker))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eSadanaSpells::SpellDaggerFallGroundMarker))
                         {
-                            if (Creature* l_Dagger = me->SummonCreature(eSadanaCreatures::CreatureDaggerFall, l_Target->GetPositionX(), l_Target->GetPositionY(), DaggerFallAltitude, l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                                l_Target->CastSpell(l_Target, eSadanaSpells::SpellDaggerFallGroundMarker);     
+                            if (Creature* l_Dagger = me->SummonCreature(eSadanaCreatures::CreatureDaggerFall, target->GetPositionX(), target->GetPositionY(), DaggerFallAltitude, target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                                target->CastSpell(target, eSadanaSpells::SpellDaggerFallGroundMarker);     
                         }
                     }
 
@@ -593,9 +593,9 @@ public:
             me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eSadanaActions::ActionActivateDefiledSpirit:
                 {
@@ -620,7 +620,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 id) override
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == m_MovementIndentifier)
             {
@@ -638,7 +638,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             if (m_Instance != nullptr)
             {
@@ -722,9 +722,9 @@ public:
             events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 4 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
-            switch (p_Id)
+            switch (id)
             {
                 case eSadanaMovements::MovementDaggerFallReachedAlttitude: /// Damage starts ticking once dagger is in player's alttitude.
                     events.ScheduleEvent(eSadanaEvents::EventDaggerFallActivation, 1 * TimeConstants::IN_MILLISECONDS);
@@ -814,9 +814,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eSadanaActions::ActionActivateLunarTriggersActivate:
                 {
@@ -908,9 +908,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eSadanaActions::ActionActivateLunarTriggersActivate:
                     m_ReadyForAction = true;
@@ -1019,12 +1019,12 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         return;
 
-                    l_Target->ToCreature()->DespawnOrUnsummon();
+                    target->ToCreature()->DespawnOrUnsummon();
 
                     if (InstanceScript* l_Instance = caster->GetInstanceScript())
                     {
@@ -1088,7 +1088,7 @@ public:
             GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         }
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
 

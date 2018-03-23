@@ -177,9 +177,9 @@ public:
             }
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eBoneMawActions::ActionInhaleDeactivate:
                     m_InhaleActivated = false;
@@ -187,7 +187,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
 
@@ -209,10 +209,10 @@ public:
             events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
 
             if (me->GetMap()->IsHeroic())
-            events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             summons.DespawnAll();
@@ -274,9 +274,9 @@ public:
             }
 
             /// Fetid Spit mechanism - hardcoded.
-            if (Unit* l_Target = me->GetVictim())
+            if (Unit* tyar = me->GetVictim())
             {
-                if (me->IsWithinMeleeRange(l_Target))
+                if (me->IsWithinMeleeRange(target))
                 {
                     if (m_HasVictimOut)
                     {
@@ -292,7 +292,7 @@ public:
 
                         events.CancelEvent(eBoneMawEvents::EventFetidSpit);
 
-                        if (Unit* l_Target = me->GetVictim())
+                        if (Unit* target = me->GetVictim())
                             DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
 
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
@@ -308,8 +308,8 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eBoneMawEvents::EventFetidSpit:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellFetidSpitDamage);
+                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        me->CastSpell(target, eBoneMawSpells::SpellFetidSpitDamage);
 
                     events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -320,8 +320,8 @@ public:
                     events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventBodySlam:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellBodySlam);
+                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        me->CastSpell(target, eBoneMawSpells::SpellBodySlam);
 
                     events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -374,8 +374,8 @@ public:
                 }
                 case eBoneMawEvents::EventCorpseBreath:
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellCorpseBreathPeriodic);
+                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        me->CastSpell(target, eBoneMawSpells::SpellCorpseBreathPeriodic);
 
                     events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -391,8 +391,8 @@ public:
                 }
                 case eBoneMawEvents::EventNecroticPitch:
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellNecroticPitchTriggerMissile);
+                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        me->CastSpell(target, eBoneMawSpells::SpellNecroticPitchTriggerMissile);
 
                     events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 25 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -445,12 +445,12 @@ public:
             me->AddAura(eBoneMawSpells::SpellVisualSubmerge, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
         }
@@ -463,9 +463,9 @@ public:
                 return;
 
             /// Fetid Spit mechanism - hardcoded.
-            if (Unit* l_Target = me->GetVictim())
+            if (Unit* target = me->GetVictim())
             {
-                if (me->IsWithinMeleeRange(l_Target))
+                if (me->IsWithinMeleeRange(target))
                 {
                     if (m_HasVictimOut)
                     {
@@ -481,7 +481,7 @@ public:
 
                         events.CancelEvent(eBoneMawEvents::EventFetidSpit);
 
-                        if (Unit* l_Target = me->GetVictim())
+                        if (Unit* target = me->GetVictim())
                             DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
 
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
@@ -497,8 +497,8 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eBoneMawEvents::EventFetidSpit:
-                    if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellFetidSpitDamage);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        me->CastSpell(target, eBoneMawSpells::SpellFetidSpitDamage);
 
                     events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -690,9 +690,9 @@ public:
             {
                 if (caster->IsAIEnabled)
                 {
-                    if (Unit* l_Target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     {
-                        caster->CastSpell(l_Target, eBoneMawSpells::SpellCorpseBreathDamage);
+                        caster->CastSpell(target, eBoneMawSpells::SpellCorpseBreathDamage);
                     }
                 }
             }
@@ -702,7 +702,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     if (InstanceScript* l_Instance = caster->GetInstanceScript())
                     {
@@ -735,9 +735,9 @@ public:
     {
         PrepareSpellScript(spell_shadowmoon_burial_grounds_necrotic_pitch_SpellScript);
 
-        void HandleTriggerMissile(SpellEffIndex p_EffIndex)
+        void HandleTriggerMissile(SpellEffIndex effectIndex)
         {
-            PreventHitDefaultEffect(p_EffIndex);
+            PreventHitDefaultEffect(effectIndex);
 
             if (!GetCaster())
                 return;
@@ -772,7 +772,7 @@ public:
     {
         PrepareSpellScript(spell_shadowmoon_burial_grounds_drowned_SpellScript);
 
-        void HandleScript(SpellEffIndex /*p_EffIndex*/)
+        void HandleScript(SpellEffIndex /*effectIndex*/)
         {
             if (!GetCaster())
                 return;

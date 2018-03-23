@@ -95,31 +95,31 @@ public:
             school = 0;
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             _EnterCombat();
             Talk(eArchmageTalks::KirinTorMageAggro);
             DoCast(me, SPELL_LIVING_ORGANISM);
         }
 
-        void KilledUnit(Unit* p_Attacker) override
+        void KilledUnit(Unit* attacker) override
         {
-            if (p_Attacker->GetTypeId() == TypeID::TYPEID_PLAYER)
+            if (attacker->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 if (roll_chance_i(50))
                     Talk(eArchmageTalks::KirinTorMageKill01);
             }
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(eArchmageTalks::KirinTorMageDeath);
         }
 
-        void MoveInLineOfSight(Unit* p_Who) override
+        void MoveInLineOfSight(Unit* who) override
         {
-            if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 30.0f) && introDone)
+            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 30.0f) && introDone)
             {
                 if (me->GetVictim())
                     return;
@@ -128,8 +128,8 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_BARRIER);
                 DoCast(me, SPELL_DESPAWN_AREA_TRIGGERS);
 
-                if (me->CanStartAttack(p_Who, false))
-                    AttackStart(p_Who);
+                if (me->CanStartAttack(who, false))
+                    AttackStart(who);
 
                 Talk(eArchmageTalks::KirinTorMageIntro);
             }
@@ -342,13 +342,7 @@ public:
 
         void Reset() override
         {
-            events.Reset();
             DoCast(me, FrozenRainEnums::SPELL_FROZEN_RAIN_NPC);
-        }
-
-        void UpdateAI(uint32 const diff) override
-        {
-            events.Update(diff);
         }
     };
 
@@ -367,7 +361,7 @@ public:
     {
         PrepareSpellScript(spell_firebloom_target_SpellScript);
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* target = GetHitUnit())
                 GetCaster()->CastSpell(target->GetPosition(), SPELL_FIREBLOOM_TARGET, false);
@@ -403,7 +397,7 @@ public:
     {
         PrepareAuraScript(aura_archmage_barrier_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
             for (uint8 i = 0; i < 5; i++)

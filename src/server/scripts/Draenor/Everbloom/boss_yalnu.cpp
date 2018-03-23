@@ -84,12 +84,12 @@ public:
             introDone = false;
         }
 
-        void MoveInLineOfSight(Unit* p_Who) override
+        void MoveInLineOfSight(Unit* who) override
         {
-            if (!me->IsHostileTo(p_Who))
+            if (!me->IsHostileTo(who))
                 return;
 
-            if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 50.0f) && !introDone)
+            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 50.0f) && !introDone)
             {
                 introDone = true;
                 me->PlayOneShotAnimKitId(ANIMKIT_PRE);
@@ -98,8 +98,8 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override {}
-        void AttackStart(Unit* target) override {}
+        void UpdateAI(uint32 const /*diff*/) override {}
+        void AttackStart(Unit* /*target*/) override {}
 
         void MovementInform(uint32 type, uint32 id) override
         {
@@ -170,7 +170,7 @@ public:
                 instance->SetBossState(DATA_YALNU, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             me->setActive(true);
             DoZoneInCombat();
@@ -178,7 +178,7 @@ public:
                 instance->SetBossState(DATA_YALNU, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             summons.DespawnAll();
 
@@ -218,21 +218,21 @@ public:
             return false;
         }
 
-        void MoveInLineOfSight(Unit* p_Who) override
+        void MoveInLineOfSight(Unit* who) override
         {
             if (introDone == 2)
             {
-                if (me->CanStartAttack(p_Who, false))
+                if (me->CanStartAttack(who, false))
                 {
-                    AttackStart(p_Who);
+                    AttackStart(who);
                     return;
                 }
             }
 
-            if (!me->IsHostileTo(p_Who))
+            if (!me->IsHostileTo(who))
                 return;
 
-            if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 10.0f) && introDone == 0)
+            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f) && introDone == 0)
             {
                 introDone = 1;
                 if (Creature* growWeapon = GetClosestCreatureWithEntry(me, NPC_GROW_WEAPON, 100.0f))
@@ -503,9 +503,9 @@ public:
             DoCast(me, SPELL_GENESIS_LASHER);
         }
 
-        void MoveInLineOfSight(Unit* p_Who) override
+        void MoveInLineOfSight(Unit* who) override
         {
-            if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 1.5f) && !trampled && !sprouts)
+            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 1.5f) && !trampled && !sprouts)
             {
                 trampled = true;
                 DoCast(me, SPELL_GENESIS_TRAMPLED);
@@ -518,7 +518,7 @@ public:
             if (trampled || !sprouts)
                 return;
 
-            ScriptedAI::MoveInLineOfSight(p_Who);
+            ScriptedAI::MoveInLineOfSight(who);
         }
 
         void AttackStart(Unit* target) override
@@ -623,7 +623,7 @@ public:
             tendonRipTimer = 6000;
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             me->SetObjectScale(1.0f);
         }
@@ -712,7 +712,7 @@ public:
     {
         PrepareAuraScript(spell_font_life_AuraScript);
 
-        void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
         {
             switch (urand(0, 2))
             {
@@ -766,9 +766,9 @@ public:
             DoCast(me, SPELL_ENTANGLEMENT_VISUAL);
         }
 
-        void AttackStart(Unit* victim) override { }
+        void AttackStart(Unit* /*victim*/) override { }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(const uint32 /*diff*/) override
         {
             if (!attack)
             {
@@ -808,9 +808,9 @@ public:
             DoCast(me, SPELL_ENTANGLEMENT_VISUAL);
         }
 
-        void AttackStart(Unit* victim) override { }
+        void AttackStart(Unit* /*victim*/) override { }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(const uint32 /*diff*/) override
         {
             if (!attack)
             {
@@ -875,12 +875,12 @@ class spell_entanglement_missile : public SpellScriptLoader
 
 enum MageEnums
 {
-    SPELL_FROSTBOLT = 170028,
-    SPELL_FIREBALL = 168666,
-    SPELL_ARCANE_BLAST = 170035,
-    SPELL_ICE_COMET = 170032,
-    SPELL_FLAMESTRIKE = 169094,
-    SPELL_ARCANE_ORB = 170040,
+    SPELL_FROSTBOLT     = 170028,
+    SPELL_FIREBALL      = 168666,
+    SPELL_ARCANE_BLAST  = 170035,
+    SPELL_ICE_COMET     = 170032,
+    SPELL_FLAMESTRIKE   = 169094,
+    SPELL_ARCANE_ORB    = 170040,
 };
 
 /// Kirin Tor Mage - 84329
@@ -897,17 +897,17 @@ public:
         {
             school = urand(0, 2);
 
-            frostboltTimer = 500;
-            fireballTimer = 500;
-            arcaneBlastTimer = 500;
-            iceCometTimer = 24000;
-            flamestrikeTimer = 17000;
-            arcaneOrbTimer = 26000;
+            frostboltTimer      = 500;
+            fireballTimer       = 500;
+            arcaneBlastTimer    = 500;
+            iceCometTimer       = 24000;
+            flamestrikeTimer    = 17000;
+            arcaneOrbTimer      = 26000;
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case 1:
                     switch (me->GetGUID().GetCounter())
@@ -1192,7 +1192,7 @@ public:
 
 enum ArcaneOrbEnums
 {
-    SPELL_ARCANE_ORB_DAMAGE            = 170077,
+    SPELL_ARCANE_ORB_DAMAGE = 170077,
 };
 
 class at_arcane_orb : public AreaTriggerAI

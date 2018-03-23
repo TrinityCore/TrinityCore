@@ -281,7 +281,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(player, 0.05f, followAngle);
         }
 
-        void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& p_Damage) override
         {
             if (p_Damage >= me->GetHealth())
                 me->SetFullHealth();
@@ -364,14 +364,14 @@ public:
             m_Events.ScheduleEvent(EventAddaura, 3000);
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* killer) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 42.0f);
 
             for (Player* player : playerList)
             {
-                if (p_Killer == player)
+                if (killer == player)
                     continue;
 
                 if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
@@ -414,14 +414,14 @@ public:
     {
         npc_blackrock_gruntAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* killer) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 3.0f);
 
             for (Player* player : playerList)
             {
-                if (p_Killer == player)
+                if (killer == player)
                     continue;
 
                 if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
@@ -491,8 +491,8 @@ public:
 
             if (m_Events.ExecuteEvent() == eDatas::EventBurningBody)
             {
-                if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                    me->AddAura(eDatas::SpellBurningBody, l_Target);
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    me->AddAura(eDatas::SpellBurningBody, target);
                 m_Events.ScheduleEvent(eDatas::EventBurningBody, 20000);
             }
             else if (m_Events.ExecuteEvent() == eDatas::EventBurningRadiance)
@@ -515,7 +515,7 @@ class gob_powder_keg : public GameObjectScript
 public:
     gob_powder_keg() : GameObjectScript("gob_powder_keg") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*gameObject*/) override
     {
         if (player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
         {
@@ -536,7 +536,7 @@ class gob_makeshift_plunger : public GameObjectScript
 public:
     gob_makeshift_plunger() : GameObjectScript("gob_makeshift_plunger") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*gameObject*/) override
     {
         if (player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
         {

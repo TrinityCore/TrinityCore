@@ -229,7 +229,7 @@ public:
     {
         if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) == QUEST_STATUS_INCOMPLETE)
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIaction_INFO_DEF + 1);
             SendGossipMenuFor(player, 1, creature->GetGUID());
             return true;
         }
@@ -237,11 +237,11 @@ public:
         return false;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 p_Action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIaction_INFO_DEF + 1)
         {
             if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) != QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjTopOfTheTank) >= 1)
             {
@@ -303,15 +303,15 @@ public:
             m_Events.ScheduleEvent(eEvents::EventCheckSummoner, 500);
         }
 
-        void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& p_Damage) override
         {
             if (p_Damage >= me->GetHealth())
                 me->SetFullHealth();
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        void MovementInform(uint32 type, uint32 id) override
         {
-            if (p_Type == FOLLOW_MOTION_TYPE)
+            if (type == FOLLOW_MOTION_TYPE)
             {
                 if (Player* escortedPlayer = ObjectAccessor::FindPlayer(m_PlayerGuid))
                 {
@@ -327,9 +327,9 @@ public:
                     me->SetSpeed(MOVE_RUN, escortedPlayer->GetSpeed(MOVE_RUN));
                 }
             }
-            else if (p_Type == POINT_MOTION_TYPE)
+            else if (type == POINT_MOTION_TYPE)
             {
-                switch (p_Id)
+                switch (id)
                 {
                     case 1:
                         me->GetMotionMaster()->MovePoint(2, 4073.19f, -2012.47f, 72.41f);
@@ -380,16 +380,16 @@ public:
                 {
                     if (Player* l_EscortedPlayer = ObjectAccessor::FindPlayer(m_PlayerGuid))
                     {
-                        if (Unit* l_Target = l_EscortedPlayer->GetVictim())
+                        if (Unit* target = l_EscortedPlayer->GetVictim())
                         {
-                            if (!me->IsWithinMeleeRange(l_Target))
+                            if (!me->IsWithinMeleeRange(target))
                             {
                                 Position l_Pos = l_EscortedPlayer->GetPosition();
                                 me->GetMotionMaster()->MoveCharge(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, me->GetSpeed(MOVE_RUN));
                                 return;
                             }
 
-                            me->Attack(l_Target, true);
+                            me->Attack(target, true);
                             DoMeleeAttackIfReady();
                             return;
                         }
@@ -432,35 +432,35 @@ public:
         {
             if (Unit* l_Passenger = p_Vehicle->GetPassenger(p_Seat))
             {
-                if (Creature* l_Creature = l_Passenger->ToCreature())
+                if (Creature* creature = l_Passenger->ToCreature())
                 {
-                    if (l_Creature->GetAI())
+                    if (creature->GetAI())
                     {
                         if (!p_Despawn)
                         {
-                            l_Creature->SetInCombatWith(target);
-                            l_Creature->AI()->DoAction(1);
+                            creature->SetInCombatWith(target);
+                            creature->AI()->DoAction(1);
                         }
                         else
-                            l_Creature->DespawnOrUnsummon();
+                            creature->DespawnOrUnsummon();
                     }
                 }
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* attacker) override
         {
             if (me->IsVehicle())
             {
                 if (Vehicle* l_Vehicle = me->GetVehicleKit())
                 {
-                    SetPassengersFightingOrDespawn(0, false, l_Vehicle, p_Attacker);
-                    SetPassengersFightingOrDespawn(1, false, l_Vehicle, p_Attacker);
+                    SetPassengersFightingOrDespawn(0, false, l_Vehicle, attacker);
+                    SetPassengersFightingOrDespawn(1, false, l_Vehicle, attacker);
                 }
             }
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             if (me->IsVehicle())
             {
@@ -514,7 +514,7 @@ public:
             EventMachineGun = 2
         };
 
-        void DoAction(int32 const /*p_Action*/) override
+        void DoAction(int32 const /*action*/) override
         {
             switch (me->GetEntry())
             {
@@ -536,13 +536,13 @@ public:
             switch (m_Events.ExecuteEvent())
             {
                 case eEvents::EventCannonBarrage:
-                    if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, TanaanSpells::SpellCannonBarrage, false);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        me->CastSpell(target, TanaanSpells::SpellCannonBarrage, false);
                     m_Events.ScheduleEvent(eEvents::EventCannonBarrage, 80000);
                     break;
                 case eEvents::EventMachineGun:
-                    if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, TanaanSpells::SpellMachineGun, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        me->CastSpell(target, TanaanSpells::SpellMachineGun, true);
                     m_Events.ScheduleEvent(eEvents::EventMachineGun, 8000);
                     break;
                 default:
@@ -589,7 +589,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*gameObject*/) override
     {
         if (player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
         {
@@ -626,7 +626,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*gameObject*/) override
     {
         if (player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) >= 200)
         {
