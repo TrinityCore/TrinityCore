@@ -269,16 +269,16 @@ namespace Instances
                                 }
                                 else if (state == EncounterState::DONE)
                                 {
-                                    for (ObjectGuid l_Guid : m_CapturedMinerGuids)
+                                    /*for (ObjectGuid l_Guid : m_CapturedMinerGuids)
                                     {
-                                        /*if (Creature* l_CapturedMiner = ObjectAccessor::GetCreature(l_Guid))
+                                        if (Creature* l_CapturedMiner = ObjectAccessor::GetCreature(l_Guid))
                                         {
                                             //if (l_CapturedMiner->AI())
                                             //    l_CapturedMiner->AI()->Talk(uint32(Talks::CapturedMinerReleased));
                                             l_CapturedMiner->CombatStop();
                                             l_CapturedMiner->SetReactState(ReactStates::REACT_PASSIVE);
-                                        }*/
-                                    }
+                                        }
+                                    }*/
 
                                     CheckRoltallSpawn((BossIds)id);
                                 }

@@ -645,7 +645,7 @@ public:
             if (caster == nullptr)
                 return;
 
-            float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(caster);
+            //float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(caster);
             targets.remove_if([caster/*, l_Restriction*/](WorldObject* p_Object) -> bool
             {
                 if (p_Object == nullptr)
