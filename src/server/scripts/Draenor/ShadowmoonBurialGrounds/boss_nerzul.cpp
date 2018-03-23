@@ -119,7 +119,7 @@ public:
             DespawnCreaturesInArea(eNerzulCreatures::CreatureRitualOfBonesDarknessTrigger, me);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
 
@@ -138,9 +138,9 @@ public:
             events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
         }
 
-        void KilledUnit(Unit* p_Who) override
+        void KilledUnit(Unit* who) override
         {
-            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 switch (urand(0, 1))
                 {
@@ -154,7 +154,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -176,16 +176,16 @@ public:
                 switch (eventId)
                 {
                     case eNerzulEvents::EventMalevolance:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            me->CastSpell(l_Target, eNerzulSpells::SpellMalevolance);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            me->CastSpell(target, eNerzulSpells::SpellMalevolance);
 
                         Talk(eNerzulTalks::TalkSpell01);
 
                         events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
                         break;
                     case eNerzulEvents::EventOmenOfDeath:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            me->CastSpell(l_Target, eNerzulSpells::SpellOmenOfDeathSummon);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            me->CastSpell(target, eNerzulSpells::SpellOmenOfDeathSummon);
 
                         Talk(eNerzulTalks::TalkSpell03);
 
@@ -449,9 +449,9 @@ public:
             }
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eShadowmoonBurialGroundsActions::ActionCountVoidSpawnNearNerzulGate:
                 {
@@ -523,9 +523,9 @@ public:
            // me->CastSpell(me, eNerzulSpells::);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eNerzulActions::ActionNerzulPropIntroduction:
                     if (!m_Intro)

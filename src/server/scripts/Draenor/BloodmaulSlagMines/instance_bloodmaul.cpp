@@ -85,8 +85,8 @@ namespace Instances
 
                     uint8 playersTeamId;
 
-                    instance_BloodmaulInstanceMapScript(Map* p_Map)
-                        : InstanceScript(p_Map),
+                    instance_BloodmaulInstanceMapScript(Map* map)
+                        : InstanceScript(map),
                         m_BeginningTime(0),
                         m_CanUpdate(false),
                         m_CreatureKilled(0),
@@ -162,21 +162,21 @@ namespace Instances
                         }
                     }
 
-                    void OnGameObjectCreate(GameObject* p_GameObject) override
+                    void OnGameObjectCreate(GameObject* gameObject) override
                     {
-                        switch (p_GameObject->GetEntry())
+                        switch (gameObject->GetEntry())
                         {
                             case GameObjects::RoltallExitWall:
-                                AddDoor(p_GameObject, true);
+                                AddDoor(gameObject, true);
                                 break;
                             case GameObjects::RoltallBridge:
-                                m_roltallBridge = p_GameObject->GetGUID();
+                                m_roltallBridge = gameObject->GetGUID();
                                 break;
                             case GameObjects::RoltallEntranceWall:
-                                m_roltallEntranceWall = p_GameObject->GetGUID();
+                                m_roltallEntranceWall = gameObject->GetGUID();
                                 break;
                             /*case GameObjects::ChallengeDoor:
-                                m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                m_ChallengeDoorGuid = gameObject->GetGUID();
                                 break;*/
                             default:
                                 break;
@@ -204,8 +204,8 @@ namespace Instances
                                     std::advance(l_Itr, m_OgreMageDeads);
                                     if (Creature* l_Warder = ObjectAccessor::GetCreature(*unit, *l_Itr))
                                     {
-                                        /*l_Warder->GetMotionMaster()->MoveChase(p_Player);
-                                        l_Warder->Attack(p_Player, true);*/
+                                        /*l_Warder->GetMotionMaster()->MoveChase(player);
+                                        l_Warder->Attack(player, true);*/
 
                                         if (l_Warder->AI())
                                             l_Warder->AI()->Talk(uint32(Talks::WarderAttack));
@@ -249,16 +249,16 @@ namespace Instances
                             m_ConditionCompleted = true;*/
                     }
 
-                    bool SetBossState(uint32 p_ID, EncounterState p_State) override
+                    bool SetBossState(uint32 id, EncounterState state) override
                     {
-                        if (!InstanceScript::SetBossState(p_ID, p_State))
+                        if (!InstanceScript::SetBossState(id, state))
                             return false;
 
-                        switch (p_ID)
+                        switch (id)
                         {
                             case BossIds::BossSlaveWatcherCrushto:
                             {
-                                if (p_State == EncounterState::NOT_STARTED)
+                                if (state == EncounterState::NOT_STARTED)
                                 {
                                     /*for (ObjectGuid l_Guid : m_CapturedMinerGuids)
                                     {
@@ -269,7 +269,7 @@ namespace Instances
                                     m_CapturedMinerGuids.clear();
                                     m_OgreMageDeads = 0;
                                 }
-                                else if (p_State == EncounterState::DONE)
+                                else if (state == EncounterState::DONE)
                                 {
                                     for (ObjectGuid l_Guid : m_CapturedMinerGuids)
                                     {
@@ -282,22 +282,22 @@ namespace Instances
                                         }*/
                                     }
 
-                                    CheckRoltallSpawn((BossIds)p_ID);
+                                    CheckRoltallSpawn((BossIds)id);
                                 }
                                 break;
                             }
                             case BossIds::BossForgemasterGogduh:
                             {
-                                if (p_State == EncounterState::DONE)
-                                    CheckRoltallSpawn((BossIds)p_ID);
+                                if (state == EncounterState::DONE)
+                                    CheckRoltallSpawn((BossIds)id);
 
                                 break;
                             }
                             case BossIds::BossGugrokk:
                             {
-                                if (p_State == EncounterState::NOT_STARTED)
+                                if (state == EncounterState::NOT_STARTED)
                                     m_UnstableSlagKilled = 0;
-                                else if (p_State == EncounterState::DONE && m_UnstableSlagKilled == 0 && instance->IsHeroic())
+                                else if (state == EncounterState::DONE && m_UnstableSlagKilled == 0 && instance->IsHeroic())
                                     DoCompleteAchievement(eAchievements::IsDraenorOnFire);
                                 break;
                             }
@@ -318,9 +318,9 @@ namespace Instances
                         m_openRoltallTimer = 10000;
                     }
 
-                    void SetData(uint32 p_Type, uint32 p_Data) override
+                    void SetData(uint32 type, uint32 /*data*/) override
                     {
-                        switch (p_Type)
+                        switch (type)
                         {
                             case uint32(Data::RaiseTheMiners):
                             {
@@ -380,12 +380,12 @@ namespace Instances
                         }
                     }
 
-                    void SetGuidData(uint32 p_Type, ObjectGuid p_Data) override
+                    void SetGuidData(uint32 type, ObjectGuid data) override
                     {
-                        switch (p_Type)
+                        switch (type)
                         {
                             case uint32(Data::RaiseTheMinersChangeTarget):
-                                if (Player* l_Plr = ObjectAccessor::FindPlayer(p_Data))
+                                if (Player* l_Plr = ObjectAccessor::FindPlayer(data))
                                 {
                                     /*for (auto l_Guid : m_CapturedMinerGuids)
                                     {
@@ -397,9 +397,9 @@ namespace Instances
                         }
                     }
 
-                    ObjectGuid GetGuidData(uint32 p_Type) const override
+                    ObjectGuid GetGuidData(uint32 type) const override
                     {
-                        switch (p_Type)
+                        switch (type)
                         {
                             case (uint32)MobEntries::Gogduh:
                                 return m_gogduhGuid;
@@ -414,16 +414,16 @@ namespace Instances
                         return ObjectGuid::Empty;
                     }
 
-                    void OnPlayerEnter(Player* p_Player) override
+                    void OnPlayerEnter(Player* player) override
                     {
-                        if (!p_Player->IsInWorld())
+                        if (!player->IsInWorld())
                             return;
 
-                        InstanceScript::OnPlayerEnter(p_Player);
+                        InstanceScript::OnPlayerEnter(player);
                         m_CanUpdate = true;
 
                         if (playersTeamId == TEAM_NEUTRAL)
-                            playersTeamId = p_Player->GetTeamId();
+                            playersTeamId = player->GetTeamId();
                     }
 
                     void Update(uint32 diff) override
@@ -476,9 +476,9 @@ namespace Instances
                     }
                 };
 
-                InstanceScript* GetInstanceScript(InstanceMap* p_Map) const
+                InstanceScript* GetInstanceScript(InstanceMap* map) const
                 {
-                    return new instance_BloodmaulInstanceMapScript(p_Map);
+                    return new instance_BloodmaulInstanceMapScript(map);
                 }
         };
     }

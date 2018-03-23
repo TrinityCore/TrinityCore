@@ -92,14 +92,14 @@ public:
             m_SceneTimer = 0;
         }
 
-        void SetData(uint32 /*p_Id*/, uint32 p_Value) override
+        void SetData(uint32 /*id*/, uint32 p_Value) override
         {
             m_SceneTimer = (uint16)p_Value;
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 /*p_Id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) override
         {
-            playerGuid = p_Guid;
+            playerGuid = guid;
         }
 
         void UpdateAI(uint32 diff) override
@@ -144,7 +144,7 @@ public:
     {
         npc_tanaan_ungraAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 20.0f);
@@ -172,7 +172,7 @@ public:
     {
         npc_taskmaster_gurranAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 20.0f);
@@ -272,12 +272,12 @@ public:
             m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        void MovementInform(uint32 type, uint32 id) override
         {
-            if (p_Type != POINT_MOTION_TYPE)
+            if (type != POINT_MOTION_TYPE)
                 return;
 
-            switch (p_Id)
+            switch (id)
             {
                 case 1:
                     me->GetMotionMaster()->MovePoint(2, 4540.006f, -2501.200f, 20.08f);
@@ -477,7 +477,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 36.0f);

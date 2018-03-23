@@ -89,12 +89,12 @@ class playerScript_frostridge_hill_to_garrison : public PlayerScript
 public:
     playerScript_frostridge_hill_to_garrison() : PlayerScript("playerScript_frostridge_hill_to_garrison") { }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 p_SceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, SCENE_TOP_OF_HILL_TO_GARRISON))
+        if (!player->GetSceneMgr().HasScene(p_SceneInstanceId, SCENE_TOP_OF_HILL_TO_GARRISON))
             return;
 
-        p_Player->KilledMonsterCredit(NPC_OF_WOLFES_AND_WARRIOR_KILL_CREDIT);
+        player->KilledMonsterCredit(NPC_OF_WOLFES_AND_WARRIOR_KILL_CREDIT);
     }
 };
 

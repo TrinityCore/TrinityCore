@@ -23,26 +23,26 @@
 #include "SpellScript.h"
 #include "the_everbloom.h"
 
-static void StartAncientProtectors(InstanceScript* p_Instance)
+static void StartAncientProtectors(InstanceScript* instance)
 {
-    if (!p_Instance)
+    if (!instance)
         return;
 
-    if (Creature* l_Gola = p_Instance->GetCreature(DATA_LIFE_WARDEN_GOLA))
+    if (Creature* l_Gola = instance->GetCreature(DATA_LIFE_WARDEN_GOLA))
         l_Gola->SetInCombatWithZone();
 
-    if (Creature* l_Dulhu = p_Instance->GetCreature(DATA_DULHU))
+    if (Creature* l_Dulhu = instance->GetCreature(DATA_DULHU))
         l_Dulhu->SetInCombatWithZone();
 
-   if (Creature* l_Telu = p_Instance->GetCreature(DATA_EARTHSHAPER_TELU))
+   if (Creature* l_Telu = instance->GetCreature(DATA_EARTHSHAPER_TELU))
         l_Telu->SetInCombatWithZone();
 }
 
 enum LifeWardenGolaEnums
 {
     SPELL_BOTANI_WATER_COSMETIC_CHANNEL = 173380,
-    SPELL_WATER_BOLT = 168092,
-    SPELL_REVITALIZING_WATERS = 168082,
+    SPELL_WATER_BOLT                    = 168092,
+    SPELL_REVITALIZING_WATERS           = 168082,
 };
 
 /// Life Warden Gola - 83892
@@ -77,7 +77,7 @@ public:
             StartAncientProtectors(instance);
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             events.Reset();
             summons.DespawnAll();
@@ -94,13 +94,13 @@ public:
             DoCast(me, SPELL_BOTANI_WATER_COSMETIC_CHANNEL);
         }
 
-        void AttackStart(Unit* pWho) override
+        void AttackStart(Unit* who) override
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
-                DoStartNoMovement(pWho);
+            if (me->Attack(who, true))
+                DoStartNoMovement(who);
         }
 
         void UpdateAI(const uint32 diff) override
@@ -138,11 +138,11 @@ public:
 
 enum EarthshaperTeluEnums
 {
-    SPELL_BOTANI_NATURE_COSMETIC_CHANNEL = 172325,
-    SPELL_NATURE_WRATH = 168040,
-    SPELL_BRIARSKIN = 168041,
-    SPELL_BRAMBLE_PATCH_1 = 177497,
-    SPELL_BRAMBLE_PATCH_2 = 167977,
+    SPELL_BOTANI_NATURE_COSMETIC_CHANNEL    = 172325,
+    SPELL_NATURE_WRATH                      = 168040,
+    SPELL_BRIARSKIN                         = 168041,
+    SPELL_BRAMBLE_PATCH_1                   = 177497,
+    SPELL_BRAMBLE_PATCH_2                   = 167977,
 };
 
 /// Earthshaper Telu - 83893
@@ -171,14 +171,14 @@ public:
             BramblePatchTimer = 12000;
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             me->RemoveAurasDueToSpell(SPELL_BOTANI_NATURE_COSMETIC_CHANNEL);
             _EnterCombat();
             StartAncientProtectors(instance);
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             events.Reset();
             summons.DespawnAll();
@@ -195,13 +195,13 @@ public:
             DoCast(me, SPELL_BOTANI_NATURE_COSMETIC_CHANNEL);
         }
 
-        void AttackStart(Unit* pWho) override
+        void AttackStart(Unit* who) override
         {
-            if (!pWho)
+            if (!who)
                 return;
 
-            if (me->Attack(pWho, true))
-                DoStartNoMovement(pWho);
+            if (me->Attack(who, true))
+                DoStartNoMovement(who);
         }
 
         void UpdateAI(const uint32 diff) override
@@ -261,8 +261,8 @@ public:
             DoCast(me, SPELL_BRAMBLE_PATCH_VISUAL);
         }
 
-        void AttackStart(Unit* pWho) override { }
-        void UpdateAI(uint32 uiDiff) override { }
+        void AttackStart(Unit* /*who*/) override { }
+        void UpdateAI(uint32 /*uiDiff*/) override { }
 
     private:
 
@@ -288,7 +288,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex]);
         }
 
         void Register() override
@@ -329,15 +329,15 @@ public:
 
 enum DulhuEnums
 {
-    SPELL_READY_UNARMED = 173366,
-    SPELL_RENDING_CHARGE_1 = 168186,
-    SPELL_RENDING_CHARGE_2 = 168187,
-    SPELL_NOXIOUS_ERUPTION = 175997,
-    SPELL_GRASPING_VINE_1 = 168375,
-    SPELL_GRASPING_VINE_2 = 168376,
-    SPELL_GRASPING_VINE_3 = 168377,
-    SPELL_GRASPING_VINE_4 = 168378,
-    SPELL_SLASH = 168383,
+    SPELL_READY_UNARMED     = 173366,
+    SPELL_RENDING_CHARGE_1  = 168186,
+    SPELL_RENDING_CHARGE_2  = 168187,
+    SPELL_NOXIOUS_ERUPTION  = 175997,
+    SPELL_GRASPING_VINE_1   = 168375,
+    SPELL_GRASPING_VINE_2   = 168376,
+    SPELL_GRASPING_VINE_3   = 168377,
+    SPELL_GRASPING_VINE_4   = 168378,
+    SPELL_SLASH             = 168383,
 };
 
 /// Dulhu - 83894
@@ -368,7 +368,7 @@ public:
             GraspingVineTimer = 22000;
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             StartAncientProtectors(instance);
@@ -380,7 +380,7 @@ public:
             DoCast(me, SPELL_READY_UNARMED);     
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -461,7 +461,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex]);
         }
 
         void Register() override
@@ -485,7 +485,7 @@ public:
     {
         PrepareAuraScript(aura_grasping_vine_AuraScript);
 
-        void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* target = GetTarget())
                 GetCaster()->CastSpell(target, SPELL_GRASPING_VINE_3);
@@ -515,7 +515,7 @@ public:
         void HandleDummy(SpellEffIndex effIndex)
         {
             if (Unit* target = GetHitUnit())
-                target->CastSpell(GetCaster(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+                target->CastSpell(GetCaster(), GetSpellValue()->EffectBasePoints[effIndex]);
 
             GetCaster()->CastSpell(GetCaster(), SPELL_SLASH);
         }

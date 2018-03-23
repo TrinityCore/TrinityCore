@@ -50,7 +50,7 @@ public:
     {
         if (Creature* rune = GetClosestCreatureWithEntry(unit, NPC_SHADOW_RUNE, 5.0f))
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER && rune->HasAura(SPELL_SHADOW_RUNE_1))
+            if (unit->IsPlayer() && rune->HasAura(SPELL_SHADOW_RUNE_1))
             {
                 rune->RemoveAurasDueToSpell(SPELL_SHADOW_RUNE_1);
                 rune->CastSpell(rune, SPELL_SHADOW_RUNE, true);
@@ -68,7 +68,7 @@ public:
     {
         if (Creature* rune = GetClosestCreatureWithEntry(unit, NPC_SHADOW_RUNE, 5.0f))
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER && rune->HasAura(SPELL_SHADOW_RUNE_2))
+            if (unit->IsPlayer() && rune->HasAura(SPELL_SHADOW_RUNE_2))
             {
                 rune->RemoveAurasDueToSpell(SPELL_SHADOW_RUNE_2);
                 rune->CastSpell(rune, SPELL_SHADOW_RUNE, true);
@@ -86,7 +86,7 @@ public:
     {
         if (Creature* rune = GetClosestCreatureWithEntry(unit, NPC_SHADOW_RUNE, 5.0f))
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER && rune->HasAura(SPELL_SHADOW_RUNE_3))
+            if (unit->IsPlayer() && rune->HasAura(SPELL_SHADOW_RUNE_3))
             {
                 rune->RemoveAurasDueToSpell(SPELL_SHADOW_RUNE_3);
                 rune->CastSpell(rune, SPELL_SHADOW_RUNE, true);
@@ -248,7 +248,7 @@ public:
             targets.remove_if(ExhumeTargetSelector());
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             GetHitUnit()->CastSpell(GetHitUnit(), SPELL_EXHUME_THE_CRYPTS_2);
         }
@@ -552,12 +552,12 @@ class playerScript_nerzhul_scene : public PlayerScript
 public:
     playerScript_nerzhul_scene() : PlayerScript("playerScript_nerzhul_scene") { }
 
-    void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceID) override
+    void OnSceneCancel(Player* player, uint32 p_SceneInstanceID) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, SCENE_NERZHUL))
+        if (!player->GetSceneMgr().HasScene(p_SceneInstanceID, SCENE_NERZHUL))
             return;
 
-        if (Creature* nerzhul = p_Player->FindNearestCreature(NPC_NERZHUL_FLY, 100.0f))
+        if (Creature* nerzhul = player->FindNearestCreature(NPC_NERZHUL_FLY, 100.0f))
             nerzhul->AI()->SetData(1, 1);
     }
 };

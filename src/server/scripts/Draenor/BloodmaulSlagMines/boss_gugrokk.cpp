@@ -137,7 +137,7 @@ namespace Instances { namespace Bloodmaul
 
                 void KilledUnit(Unit* p_Killed) override
                 {
-                    if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    if (p_Killed->IsPlayer())
                         Talk(eTalks::TalkSlay);
                 }
 
@@ -168,11 +168,11 @@ namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void JustSummoned(Creature* p_Summon) override
+                void JustSummoned(Creature* summon) override
                 {
-                    BossAI::JustSummoned(p_Summon);
+                    BossAI::JustSummoned(summon);
 
-                    if (p_Summon->GetEntry() == eCreatures::NpcUnstableSlag && p_Summon->AI())
+                    if (summon->GetEntry() == eCreatures::NpcUnstableSlag && summon->AI())
                     {
                         std::list<Creature*> l_SLGList;
                         me->GetCreatureListWithEntryInGrid(l_SLGList, MobEntries::SLGGenricMoPLargeAoI, 150.0f);
@@ -180,8 +180,8 @@ namespace Instances { namespace Bloodmaul
                         if (l_SLGList.empty())
                             return;
 
-                        l_SLGList.sort(Trinity::ObjectDistanceOrderPred(p_Summon, false));
-                        p_Summon->AI()->SetGUID(l_SLGList.front()->GetGUID());
+                        l_SLGList.sort(Trinity::ObjectDistanceOrderPred(summon, false));
+                        summon->AI()->SetGUID(l_SLGList.front()->GetGUID());
                     }
                 }
 
@@ -221,8 +221,8 @@ namespace Instances { namespace Bloodmaul
                             m_Events.ScheduleEvent(eEvents::EventFlameBuffet, 12 * TimeConstants::IN_MILLISECONDS);
                             break;
                         case eEvents::EventMoltenBlast:
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                                me->CastSpell(l_Target, eSpells::SpellMoltenBlast, false);
+                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, eSpells::SpellMoltenBlast, false);
                             m_Events.ScheduleEvent(eEvents::EventMoltenBlast, 16 * TimeConstants::IN_MILLISECONDS);
                             break;
                         case eEvents::EventSummonUnstableSlag:
@@ -350,9 +350,9 @@ namespace Instances { namespace Bloodmaul
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 0.7f);
                 }
 
-                void SetGUID(ObjectGuid p_GUID, int32 p_ID) override
+                void SetGUID(ObjectGuid guid, int32 /*id*/) override
                 {
-                    m_FollowingSLG = p_GUID;
+                    m_FollowingSLG = guid;
 
                     if (Creature* l_SLG = ObjectAccessor::GetCreature(*me, m_FollowingSLG))
                     {
@@ -385,8 +385,8 @@ namespace Instances { namespace Bloodmaul
                             me->CastSpell(me, eSpells::SpellEmpoweredFlames, true);
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                            if (Unit* l_Target = me->SelectNearestPlayer(60.0f))
-                                AttackStart(l_Target);
+                            if (Unit* target = me->SelectNearestPlayer(60.0f))
+                                AttackStart(target);
 
                             m_FollowingSLG = ObjectGuid::Empty;
                             break;

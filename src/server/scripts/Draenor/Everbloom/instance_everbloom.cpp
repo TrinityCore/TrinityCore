@@ -53,47 +53,47 @@ public:
             m_CountGUID = 0;
         }
 
-        void OnCreatureCreate(Creature* l_Creature) override
+        void OnCreatureCreate(Creature* creature) override
         {
-            switch (l_Creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_WITHERBARK:
-                    m_WitherbarkGUID = l_Creature->GetGUID();
+                    m_WitherbarkGUID = creature->GetGUID();
                     break;
                 case NPC_EARTHSHAPER_TELU:
-                    m_TaluGUID = l_Creature->GetGUID();
+                    m_TaluGUID = creature->GetGUID();
                     break;
                 case NPC_LIFE_WARDEN_GOLA:
-                    m_GolaGUID = l_Creature->GetGUID();
+                    m_GolaGUID = creature->GetGUID();
                     break;
                 case NPC_DULHU:
-                    m_DulhuGUID = l_Creature->GetGUID();
+                    m_DulhuGUID = creature->GetGUID();
                     break;
                 case NPC_ARCHMAGE_SOL:
-                    m_ArchmagesolGUID = l_Creature->GetGUID();
+                    m_ArchmagesolGUID = creature->GetGUID();
                     break;
                 case NPC_XERITAC:
-                    m_XeritacGUID = l_Creature->GetGUID();
+                    m_XeritacGUID = creature->GetGUID();
                     break;
                 case NPC_YALNU:
-                    m_YalnuGUID = l_Creature->GetGUID();
+                    m_YalnuGUID = creature->GetGUID();
                     break;
                 case NPC_SLG_GENERIC_MOP:
-                    m_portalVisualCreatureGuid.push_back(l_Creature->GetGUID());
+                    m_portalVisualCreatureGuid.push_back(creature->GetGUID());
                     break;
             }
         }
 
         void OnUnitDeath(Unit* unit) override
         {
-            Creature* l_Creature = unit->ToCreature();
-            if (!l_Creature)
+            Creature* creature = unit->ToCreature();
+            if (!creature)
                 return;
 
-            /*switch (l_Creature->GetEntry())
+            /*switch (creature->GetEntry())
             {
                 case NPC_YALNU:
-                    if (l_Creature->GetMap()->IsHeroic())
+                    if (creature->GetMap()->IsHeroic())
                     {
                         instance->DoCompleteAchievement(eEverbloomAchievements::AchivementTheEverbloomHeroic);
                     }
@@ -105,9 +105,9 @@ public:
             }*/
         }
 
-        ObjectGuid GetGuidData(uint32 p_Identifier) const override
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
-            switch (p_Identifier)
+            switch (identifier)
             {
                 case DATA_EARTHSHAPER_TELU:
                     return m_TaluGUID;
@@ -129,12 +129,12 @@ public:
             return ObjectGuid::Empty;
         }
 
-        bool SetBossState(uint32 p_ID, EncounterState p_State) override
+        bool SetBossState(uint32 id, EncounterState state) override
         {
-            if (!InstanceScript::SetBossState(p_ID, p_State))
+            if (!InstanceScript::SetBossState(id, state))
                 return false;
 
-            switch (p_ID)
+            switch (id)
             {
                 case DATA_ARCHMAGE_SOL:
                 {

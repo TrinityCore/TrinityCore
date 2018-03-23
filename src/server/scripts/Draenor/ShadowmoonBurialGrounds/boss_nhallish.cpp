@@ -80,7 +80,7 @@ enum eNhallishTalks
     TalkSpell01,   ///< None escape the void! [43204]
     TalkSpell02,   ///< You cannot flee! [43205]
     TalkSpell03,   ///< *Nhallish laughs* [43206]
-    TalkSpell04   ///< Flee... flee from your your formal masters! [43207]
+    TalkSpell04,   ///< Flee... flee from your your formal masters! [43207]
 };
 
 enum eNhalishActions
@@ -151,14 +151,14 @@ public:
             }
         }
 
-        void JustSummoned(Creature* p_Summon) override
+        void JustSummoned(Creature* summon) override
         {
-            if (p_Summon)
+            if (summon)
             {
-                switch (p_Summon->GetEntry())
+                switch (summon->GetEntry())
                 {
                     case eNhalishCreatures::CreatureDistrubedSouls:
-                        p_Summon->CastSpell(p_Summon, eShadowmoonBurialGroundsSpells::SpellVortexVisual);
+                        summon->CastSpell(summon, eShadowmoonBurialGroundsSpells::SpellVortexVisual);
                         break;
                 }
             }
@@ -189,9 +189,9 @@ public:
             }
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eNhalishActions::ActionActivateVortex:
                     m_Vortex = true;
@@ -206,7 +206,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
 
@@ -230,20 +230,20 @@ public:
             events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void KilledUnit(Unit* p_Who) override
+        void KilledUnit(Unit* who) override
         {
-            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 if (roll_chance_i(50))
                     Talk(eNhallishTalks::TalkKill01);
                 else
                     Talk(eNhallishTalks::TalkKill02);
 
-                p_Who->RemovePhase(50); // Sets dead target back to normal phase.
+                who->RemovePhase(50); // Sets dead target back to normal phase.
             }
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -272,13 +272,13 @@ public:
             // Distrubed Spirits RP moment.
             for (int i = 0; i < 10; i++)
             {
-               Creature* l_Creature = me->SummonCreature(eNhalishCreatures::CreatureDistrubedSouls, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10 * TimeConstants::IN_MILLISECONDS);
+               Creature* creature = me->SummonCreature(eNhalishCreatures::CreatureDistrubedSouls, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10 * TimeConstants::IN_MILLISECONDS);
 
-               if (l_Creature)
+               if (creature)
                {
-                   l_Creature->setFaction(35);
-                   l_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                   l_Creature->GetMotionMaster()->MoveRandom(15.0f);
+                   creature->setFaction(35);
+                   creature->SetReactState(ReactStates::REACT_PASSIVE);
+                   creature->GetMotionMaster()->MoveRandom(15.0f);
 
                    if (roll_chance_i(25))
                    {
@@ -388,8 +388,8 @@ public:
                     events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 65 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNhalishEvents::EventVoidBlast:
-                    if (Unit* l_Target = me->GetVictim())
-                        me->CastSpell(l_Target, eNhalishSpells::SpellVoidBlastSpellAuraDummy);
+                    if (Unit* target = me->GetVictim())
+                        me->CastSpell(target, eNhalishSpells::SpellVoidBlastSpellAuraDummy);
 
                     events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 12 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -419,7 +419,7 @@ public:
 
     shadowmoon_burial_grounds_soul() : CreatureScript("shadowmoon_burial_grounds_soul") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* /*player*/, Creature* creature) override
     {   
         if (shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI* linkAI = CAST_AI(shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI, creature->GetAI()))
         {
@@ -475,9 +475,9 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 /*p_Param*/) override
+        void SetGUID(ObjectGuid guid, int32 /*p_Param*/) override
         {
-            m_victimGUID = p_Guid;
+            m_victimGUID = guid;
 
             if (!m_victimGUID.IsEmpty())
             {
@@ -491,7 +491,7 @@ public:
             events.ScheduleEvent(eNhalishEvents::EventRandomMovement, 1 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             m_HasDied = true;
 
@@ -673,9 +673,9 @@ public:
             return true;
         }
 
-        void HandleTriggerMissile(SpellEffIndex p_EffIndex)
+        void HandleTriggerMissile(SpellEffIndex effectIndex)
         {
-            PreventHitDefaultEffect(p_EffIndex);
+            PreventHitDefaultEffect(effectIndex);
 
             if (!GetCaster())
                 return;
@@ -718,9 +718,9 @@ public:
             {
                 if (caster->IsAIEnabled)
                 {
-                    if (Unit* l_Target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     {
-                        caster->CastSpell(l_Target, eNhalishSpells::SpellVoidBlastDot);
+                        caster->CastSpell(target, eNhalishSpells::SpellVoidBlastDot);
                     }
                 }
             }
@@ -730,7 +730,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     if (InstanceScript* l_Instance = caster->GetInstanceScript())
                     {
@@ -782,7 +782,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     caster->GetAI()->DoAction(eNhalishActions::ActionDeactivateVortex);
                 }
@@ -823,7 +823,7 @@ public:
             return true;
         }
 
-        void HandleForceCast(SpellEffIndex effIndex)
+        void HandleForceCast(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
                 return;
@@ -892,8 +892,8 @@ public:
             if (!GetCaster()->IsAIEnabled)
                 return;
 
-            if (Unit* l_Target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                GetCaster()->CastSpell(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), eNhalishSpells::SpellTeleportSelf, true);
+            if (Unit* target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                GetCaster()->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), eNhalishSpells::SpellTeleportSelf, true);
         }
 
         void Register() override

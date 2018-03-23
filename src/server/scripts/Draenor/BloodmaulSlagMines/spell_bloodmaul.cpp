@@ -42,11 +42,11 @@ namespace Instances
                 void HandleDummy(SpellEffIndex /*effIndex*/)
                 {
                     Unit* caster = GetCaster();
-                    Unit* l_Target = GetHitUnit();
-                    if (!caster || !l_Target)
+                    Unit* target = GetHitUnit();
+                    if (!caster || !target)
                         return;
 
-                    l_Target->CastSpell(l_Target, uint32(Spells::LavaExplosion), true);
+                    target->CastSpell(target, uint32(Spells::LavaExplosion), true);
                 }
 
                 void Register() override
@@ -277,12 +277,12 @@ namespace Instances
                 void HandleDummy(SpellEffIndex /*effIndex*/)
                 {
                     Unit* caster = GetCaster();
-                    Unit* l_Target = GetHitUnit();
-                    if (caster && l_Target)
+                    Unit* target = GetHitUnit();
+                    if (caster && target)
                     {
-                        caster->CastSpell(l_Target, uint32(Spells::ChainGrip), true);
-                        l_Target->GetMotionMaster()->MoveJump(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation(), 25.0f, 2.0f);
-                        caster->CastSpell(l_Target, uint32(Spells::ViciousSlash), false);
+                        caster->CastSpell(target, uint32(Spells::ChainGrip), true);
+                        target->GetMotionMaster()->MoveJump(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation(), 25.0f, 2.0f);
+                        caster->CastSpell(target, uint32(Spells::ViciousSlash), false);
                     }
                 }
 

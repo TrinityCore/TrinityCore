@@ -51,7 +51,7 @@ enum WitherbarkEnums
     SPELL_AGITATED_WATER_1          = 177733,
     SPELL_PARCHED_GASP              = 164357,
     SPELL_BRITTLE_BARK              = 164275,
-    SPELsummon_AQUEOUS_GLOBULE    = 164437,
+    SPELsummon_AQUEOUS_GLOBULE      = 164437,
     SPELL_NOXIOUS_VINES             = 164712,
 };
 
@@ -217,7 +217,7 @@ public:
             instance = me->GetInstanceScript();
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(const uint32 /*diff*/) override
         {
             if (!me->IsInCombat())
             {
@@ -284,7 +284,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex]);
         }
 
         void Register() override
@@ -318,7 +318,7 @@ public:
             visualSpell = 1000;
         }
 
-        void AttackStart(Unit* pWho) override { }
+        void AttackStart(Unit* /*who*/) override { }
 
         void UpdateAI(const uint32 diff) override
         {
@@ -379,7 +379,7 @@ public:
             timer = 1000;
         }
 
-        void AttackStart(Unit* pWho) override { }
+        void AttackStart(Unit* /*who*/) override { }
 
         void UpdateAI(const uint32 diff) override
         {
@@ -495,7 +495,7 @@ public:
             checkBoss = 200;
         }
 
-        void AttackStart(Unit* pWho) override { }
+        void AttackStart(Unit* /*who*/) override { }
 
         void UpdateAI(const uint32 diff) override
         {

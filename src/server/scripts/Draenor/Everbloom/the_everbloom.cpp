@@ -40,7 +40,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0], true);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex], true);
         }
 
         void Register() override
@@ -93,7 +93,7 @@ public:
             DoCast(me, SPELL_MOD_SCALE);
         }
 
-        void EnterCombat(Unit* pAttacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             me->RemoveAurasDueToSpell(SPELL_REVITALIZING_GROWTH);
         }
@@ -187,7 +187,7 @@ public:
             DoCast(me, SPELL_MOD_SCALE);
         }
 
-        void EnterCombat(Unit* pAttacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             me->RemoveAurasDueToSpell(SPELL_REVITALIZING_GROWTH);
         }
@@ -274,13 +274,13 @@ public:
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 373);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
             me->HandleEmoteCommand(449);
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 /*uiDiff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -413,7 +413,7 @@ public:
     {
         PrepareSpellScript(spell_growth_SpellScript);
 
-        void HandleEffect(SpellEffIndex effIndex)
+        void HandleEffect(SpellEffIndex /*effIndex*/)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_GROWTH_2);
             if (!spellInfo)
@@ -448,7 +448,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex]);
         }
 
         void Register() override
@@ -562,7 +562,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex]);
         }
 
         void Register() override
@@ -687,7 +687,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0]);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex]);
         }
 
         void Register() override
@@ -739,7 +739,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0], true);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex], true);
         }
 
         void Register() override
@@ -793,7 +793,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[EFFECT_0], true);
+            GetCaster()->CastSpell(GetHitUnit(), GetSpellValue()->EffectBasePoints[effIndex], true);
         }
 
         void Register() override
@@ -817,7 +817,7 @@ public:
     {
         PrepareAuraScript(aura_glowbulb_pollen_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
             GetCaster()->CastSpell(GetCaster(), 170017);
@@ -852,7 +852,7 @@ public:
     {
         PrepareAuraScript(aura_barrier_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
             for (uint8 i = 0; i < 4; i++)
