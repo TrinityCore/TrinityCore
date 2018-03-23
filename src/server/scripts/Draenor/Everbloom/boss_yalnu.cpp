@@ -89,7 +89,7 @@ public:
             if (!me->IsHostileTo(who))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 50.0f) && !introDone)
+            if (who->IsPlayer() && me->IsWithinDistInMap(who, 50.0f) && !introDone)
             {
                 introDone = true;
                 me->PlayOneShotAnimKitId(ANIMKIT_PRE);
@@ -211,7 +211,7 @@ public:
                 HostileReference* ref = (*itr);
                 if (Unit* target = ref->getTarget())
                 {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         return true;
                 }
             }
@@ -232,7 +232,7 @@ public:
             if (!me->IsHostileTo(who))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f) && introDone == 0)
+            if (who->IsPlayer() && me->IsWithinDistInMap(who, 10.0f) && introDone == 0)
             {
                 introDone = 1;
                 if (Creature* growWeapon = GetClosestCreatureWithEntry(me, NPC_GROW_WEAPON, 100.0f))
@@ -505,7 +505,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 1.5f) && !trampled && !sprouts)
+            if (who->IsPlayer() && me->IsWithinDistInMap(who, 1.5f) && !trampled && !sprouts)
             {
                 trampled = true;
                 DoCast(me, SPELL_GENESIS_TRAMPLED);

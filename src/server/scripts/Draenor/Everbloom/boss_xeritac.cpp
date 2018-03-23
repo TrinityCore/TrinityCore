@@ -671,7 +671,7 @@ public:
             return;
         }
 
-        if (unit->GetTypeId() == TYPEID_PLAYER)
+        if (unit->IsPlayer())
         {
             if (!unit->HasAura(SPELL_TOXIC_GAS_DAMAGE))
             {
@@ -684,7 +684,7 @@ public:
 
     void OnUnitExit(Unit* unit) override
     {
-        if (unit->GetTypeId() == TYPEID_PLAYER)
+        if (unit->IsPlayer())
             unit->RemoveAurasDueToSpell(SPELL_TOXIC_GAS_DAMAGE);
     }
 };

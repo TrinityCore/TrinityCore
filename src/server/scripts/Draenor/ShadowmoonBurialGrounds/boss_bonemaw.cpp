@@ -274,7 +274,7 @@ public:
             }
 
             /// Fetid Spit mechanism - hardcoded.
-            if (Unit* tyar = me->GetVictim())
+            if (Unit* target = me->GetVictim())
             {
                 if (me->IsWithinMeleeRange(target))
                 {
