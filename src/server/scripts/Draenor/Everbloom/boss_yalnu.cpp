@@ -952,7 +952,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* victim)
+        void AttackStart(Unit* victim) override
         {
             if (victim)
                 me->Attack(victim, true);

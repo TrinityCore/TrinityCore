@@ -90,13 +90,11 @@ namespace Instances
                         m_BeginningTime(0),
                         m_CanUpdate(false),
                         m_CreatureKilled(0),
-                        m_CapturedMinerGuids(),
                         m_OgreMageDeads(0),
-                        m_NearestWarderGuids(),
+                        m_openRoltallTimer(0),
                         m_SlagnaSpawned(false),
                         m_UnstableSlagKilled(0),
                         m_CheckZPosTimer(1000),
-                        m_openRoltallTimer(0),
                         playersTeamId(TEAM_NEUTRAL)
                     {
                         SetBossNumber(MaxEncounter::Number);

@@ -177,9 +177,9 @@ public:
         {
             case TanaanQuests::QuestKargatharProvingGrounds:
             {
-                if (TempSummon* creature = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+                if (TempSummon* summon = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    creature->AI()->SetGUID(player->GetGUID());
+                    summon->AI()->SetGUID(player->GetGUID());
                     player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBridgeDestruction);
                 }
 
