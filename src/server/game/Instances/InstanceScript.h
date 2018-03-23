@@ -228,6 +228,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 
+        // Play scene by packageId on all players in instance
+        void DoPlayScenePackageIdOnPlayers(uint32 scenePackageId);
+
+        // Remove all movement forces related to forceGuid
+        void DoRemoveForcedMovementsOnPlayers(ObjectGuid forceGuid);
+
         void DoSetAlternatePowerOnPlayers(int32 value);
 
         void DoModifyPlayerCurrencies(uint32 id, int32 value);
