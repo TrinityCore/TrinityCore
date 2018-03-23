@@ -211,11 +211,19 @@ public:
             else if (me->HasAura(SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA))
                 DoCast(who, SPELL_SLIPSTREAM_SECOND);
             else if (me->HasAura(SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_THIRD);
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetCreature(DATA_SLIPSTREAM_3) == me)
+                        who->CastSpell(who, SPELL_SLIPSTREAM_LAST, true);
+                    else
+                        DoCast(who, SPELL_SLIPSTREAM_THIRD);
+                }
+            }
             else if (me->HasAura(SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA))
                 DoCast(who, SPELL_SLIPSTREAM_FORTH);
             else if (me->HasAura(SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_LAST);
+                who->CastSpell(who, SPELL_SLIPSTREAM_LAST, true);
         }
     };
 
@@ -407,6 +415,12 @@ public:
     {
         npc_skyfallAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _deadStarsCounter = 0;
             me->SetDisableGravity(true);
         }
 
@@ -423,11 +437,21 @@ public:
             DoCast(me, SPELL_SKYFALL);
         }
 
+        void DoAction(int32 action) override
+        {
+            if (action == ACTION_SKYFALL_STAR_DEAD)
+            {
+                _deadStarsCounter++;
+                if (_deadStarsCounter == 8)
+                    me->DespawnOrUnsummon();
+            }
+        }
+
         void UpdateAI(uint32 /*diff*/) override
         {
-            if (!me->FindNearestCreature(NPC_SKYFALL, 100.0f))
-                me->DespawnOrUnsummon();
         }
+
+        uint8 _deadStarsCounter;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -463,6 +487,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            if (Creature* skyfall = me->FindNearestCreature(NPC_SKYFALL, 100.0f, true))
+                skyfall->AI()->DoAction(ACTION_SKYFALL_STAR_DEAD);
             me->DespawnOrUnsummon();
         }
 
@@ -756,7 +782,7 @@ public:
             if (!instance)
                 return;
 
-            Creature* slipstream = GetCaster()->FindNearestCreature(NPC_SLIPSTREAM, 10.0f); // GetCaster()->GetTransport(); won't work :(
+            Creature* slipstream = GetCaster()->GetVehicleCreatureBase();
             if (!slipstream)
                 return;
 
@@ -780,7 +806,7 @@ public:
                 case SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA:
                     target = instance->GetCreature(DATA_SLIPSTREAM_8);
                     break;
-                case SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA: // it won't
+                case SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA:
                     target = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f);
                     break;
                 default:
@@ -802,7 +828,6 @@ public:
 
 
 // 85084 - Howling Gale
-// TO-DO: Fix OnEffectProc.
 class spell_howling_gale : public SpellScriptLoader
 {
 public:
@@ -1002,7 +1027,7 @@ void AddSC_vortex_pinnacle()
     new spell_lurk_ressurect();
     new spell_lurk_search_victim();
     new spell_slipstream();
-//  new spell_howling_gale(); // needs proc fix
+    new spell_howling_gale();
     new spell_grounding_field();
     new spell_skyfall();
     new spell_arcane_barrage();

@@ -24,6 +24,7 @@
 
 enum Spells
 {
+    // Asaad
     SPELL_SUMMON_SKYFALL_STAR               = 96260, // summons 52019
     SPELL_CHAIN_LIGHTNING                   = 87622,
     SPELL_SOTS_TARGETING                    = 86632,
@@ -182,19 +183,18 @@ class boss_asaad : public CreatureScript
                 stormTargetGUIDs.clear();
 
                 me->SetReactState(REACT_AGGRESSIVE);
-
-                events.ScheduleEvent(EVENT_SUMMON_SKYFALL_STAR, 11000);
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
-                events.ScheduleEvent(EVENT_SOTS, 18000);
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_STATIC_CLING, 10800);
             }
 
             void JustEngagedWith(Unit* /*target*/) override
             {
                 _JustEngagedWith();
-
                 Talk(SAY_AGGRO);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                events.ScheduleEvent(EVENT_SUMMON_SKYFALL_STAR, 11000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
+                events.ScheduleEvent(EVENT_SOTS, 18000);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_STATIC_CLING, 10800);
 
                 // Spawn Storm Targets
                 for (uint32 i = 0; i < StormTargetPositions; ++i)
@@ -256,8 +256,16 @@ class boss_asaad : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _JustDied();
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                summons.DespawnAll();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _EnterEvadeMode();
+                _DespawnAtEvade();
             }
 
             void UpdateAI(uint32 diff) override
@@ -279,7 +287,7 @@ class boss_asaad : public CreatureScript
                             events.ScheduleEvent(EVENT_STATIC_CLING, 16000);
                             break;
                         case EVENT_SUMMON_SKYFALL_STAR:
-                            DoCast(me, SPELL_SUMMON_SKYFALL_STAR);
+                            DoCast(me, SPELL_SUMMON_SKYFALL_STAR, true);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
@@ -384,14 +392,12 @@ public:
 
     struct npc_storm_targetAI : public ScriptedAI
     {
-        npc_storm_targetAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_storm_targetAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
         void DoAction(int32 action) override
         {
-            if (action != ACTION_SOTS_TARGET)
-                return;
-
-            _events.ScheduleEvent(EVENT_SOTS_SUMMON, 400);
+            if (action == ACTION_SOTS_TARGET)
+                _events.ScheduleEvent(EVENT_SOTS_SUMMON, 400);
         }
 
         void JustSummoned(Creature* creature) override
@@ -799,6 +805,94 @@ public:
     }
 };
 
+class AboveGroundCheck
+{
+    public:
+        AboveGroundCheck() { }
+
+        bool operator()(WorldObject* object)
+        {
+            if (Unit* target = object->ToUnit())
+                return (target->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)
+                    || target->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)
+                    || target->HasUnitMovementFlag(MOVEMENTFLAG_PITCH_UP));
+
+            return false;
+        }
+};
+
+class spell_supremacy_of_the_storm_visual : public SpellScriptLoader
+{
+public:
+    spell_supremacy_of_the_storm_visual() : SpellScriptLoader("spell_supremacy_of_the_storm_visual") { }
+
+    class spell_supremacy_of_the_storm_visual_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_supremacy_of_the_storm_visual_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            InstanceScript* instance = GetCaster()->GetInstanceScript();
+            if (!instance)
+                return;
+
+            Creature* asaad = instance->GetCreature(DATA_ASAAD);
+            if (!asaad)
+                return;
+
+            Creature* stormTargetA = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
+            Creature* stormTargetB = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
+            Creature* stormTargetC = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
+
+            if (!stormTargetA || !stormTargetB || !stormTargetC)
+                return;
+
+            targets.remove_if(TargetInTriangleCheck(false, stormTargetA->GetPosition(), stormTargetB->GetPosition(), stormTargetC->GetPosition()));
+
+            // Hitting 5 dummy npc's per hit
+            if (!targets.empty() && targets.size() > 5)
+                Trinity::Containers::RandomResize(targets, 5);
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_supremacy_of_the_storm_visual_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_supremacy_of_the_storm_visual_SpellScript();
+    }
+};
+
+class spell_static_cling : public SpellScriptLoader
+{
+public:
+    spell_static_cling() : SpellScriptLoader("spell_static_cling") { }
+
+    class spell_static_cling_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_static_cling_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            targets.remove_if(AboveGroundCheck());
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_static_cling_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_static_cling_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_static_cling_SpellScript();
+    }
+};
+
 void AddSC_boss_asaad()
 {
     new boss_asaad();
@@ -810,4 +904,6 @@ void AddSC_boss_asaad()
     new spell_storm_rune_beam();
     new spell_grounding_field_visual_beams();
     new spell_supremacy_of_the_storm();
+    new spell_supremacy_of_the_storm_visual();
+    new spell_static_cling();
 }

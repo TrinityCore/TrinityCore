@@ -69,6 +69,9 @@ enum Misc
     SPELL_BEAM_C                = 87723,
     ACTION_GROUNDING_FIELD_TOP  = 1,
 
+    // Skyfall
+    ACTION_SKYFALL_STAR_DEAD    = 2,
+
     // Zephyr
     NPC_ZEPHYR                  = 45991,
     EVENT_SUMMON_ZEPHYRS        = 1,

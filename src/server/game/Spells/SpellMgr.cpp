@@ -4148,6 +4148,27 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
     });
+
+    // Slipstream
+    ApplySpellFix({
+        84980,
+        84988,
+        85394,
+        85397,
+        85016
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2 seconds
+        spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+        spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+    });
+
+    // Summon Skyfall Star
+    ApplySpellFix({ 96260 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
     // ENDOF THE VORTEX PINNACLE SPELLS
 
     //

@@ -107,10 +107,6 @@ const Position TwisterSpawnPoints[POINT_TWISTER_MAX] = {
     { -1204.863f, 40.49826f, 734.2564f },
 };
 
-// TO-DO:
-// - Fix hovering with disabled gravity. Altairus falls down every time position is updated.
-// - Add argument to MoveRandom() to manually set i_nextMoveTime in "RandomMovementGenerator.h". This npc needs i_nextMoveTime = 1000.
-
 class boss_altairus : public CreatureScript
 {
     public:
@@ -120,13 +116,14 @@ class boss_altairus : public CreatureScript
         {
             boss_altairusAI(Creature* creature) : BossAI(creature, DATA_ALTAIRUS)
             {
-                //me->SetHover(true);
-                //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                // me->SetHover(true);
+                // me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
             }
 
             void JustEngagedWith(Unit* /*target*/) override
             {
                 _JustEngagedWith();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_CALL_THE_WIND, 6000);
                 events.ScheduleEvent(EVENT_CHILLING_BREATH, 15000);
                 events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
@@ -136,7 +133,25 @@ class boss_altairus : public CreatureScript
                 if (IsHeroic())
                     for (int8 i = 0; i < POINT_TWISTER_MAX; i++)
                         if (Creature* twister = me->SummonCreature(NPC_TWISTER, TwisterSpawnPoints[i]))
+                        {
+                            twister->SetHover(true);
                             twister->GetMotionMaster()->MoveRandom(10.0f);
+                        }
+
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                summons.DespawnAll();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _EnterEvadeMode();
+                _DespawnAtEvade();
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void CheckPlatform()
@@ -146,7 +161,7 @@ class boss_altairus : public CreatureScript
                 if (!playerList.isEmpty())
                     for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if (Player* player = itr->GetSource())
-                            if (player->GetDistance2d(platform.m_positionX, platform.m_positionY) > 25.0f)
+                            if (player->GetDistance2d(platform.m_positionX, platform.m_positionY) > 30.0f)
                                 me->CastSpell(player, SPELL_LIGHTNING_BLAST, true);
             }
 
