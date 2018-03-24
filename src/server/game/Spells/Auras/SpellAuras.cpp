@@ -1149,7 +1149,6 @@ bool Aura::CanBeSaved() const
         case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
-        case 57634: // Magma
             return false;
     }
 
@@ -1160,6 +1159,11 @@ bool Aura::CanBeSaved() const
     // don't save permanent auras triggered by items, they'll be recasted on login if necessary
     if (GetCastItemGUID() && IsPermanent())
         return false;
+
+    // don't save liquid auras
+    for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
+        if (liquid->SpellId && liquid->SpellId == GetId())
+            return false;
 
     return true;
 }
