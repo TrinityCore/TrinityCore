@@ -70,6 +70,45 @@ struct GameobjectDisplayInfoLoadInfo
     }
 };
 
+struct LiquidMaterialLoadInfo
+{
+    static DB2FileLoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_BYTE, "LVF" },
+            { true, FT_BYTE, "Flags" },
+        };
+        static char const* types = "bb";
+        static uint8 const arraySizes[2] = { 1, 1 };
+        static DB2Meta meta(-1, 2, 0x62BE0340, types, arraySizes, -1);
+        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
+        return &loadInfo;
+    }
+};
+
+struct LiquidObjectLoadInfo
+{
+    static DB2FileLoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_FLOAT, "FlowDirection" },
+            { false, FT_FLOAT, "FlowSpeed" },
+            { true, FT_SHORT, "LiquidTypeID" },
+            { false, FT_BYTE, "Fishable" },
+            { false, FT_BYTE, "Reflection" },
+        };
+        static char const* types = "ffhbb";
+        static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
+        static DB2Meta meta(-1, 5, 0xACC168A6, types, arraySizes, -1);
+        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
+        return &loadInfo;
+    }
+};
+
 struct LiquidTypeLoadInfo
 {
     static DB2FileLoadInfo const* Instance()
