@@ -62,6 +62,7 @@ public:
                 {
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                    possessedTarget->SetObjectScale(1.0f);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetVisible(true);
                     _invisible = false;
@@ -113,6 +114,7 @@ public:
                             me->CastStop();
                             DoCast(possessTarget, SPELL_POSSESS);
                             DoCast(possessTarget, SPELL_POSSESSED);
+                            possessTarget->SetObjectScale(1.5f);
                             me->SetReactState(REACT_PASSIVE);
                             me->SetVisible(false);
                             _invisible = true;
