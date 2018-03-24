@@ -55,8 +55,6 @@ struct boss_baroness_anastari : public BossAI
 
     }
 
-    bool _invisible;
-
     EventMap _events;
     ObjectGuid _possessedTargetGuid;
 
