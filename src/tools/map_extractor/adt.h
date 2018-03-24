@@ -174,20 +174,25 @@ public:
     }
 };
 
-#define ADT_LIQUID_HEADER_FULL_LIGHT   0x01
-#define ADT_LIQUID_HEADER_NO_HIGHT     0x02
+enum class LiquidVertexFormatType : uint16
+{
+    HeightDepth             = 0,
+    HeightTextureCoord      = 1,
+    Depth                   = 2,
+};
 
-struct adt_liquid_header{
-    uint16 liquidType;             // Index from LiquidType.dbc
-    uint16 formatFlags;
-    float  heightLevel1;
-    float  heightLevel2;
-    uint8  xOffset;
-    uint8  yOffset;
-    uint8  width;
-    uint8  height;
-    uint32 offsData2a;
-    uint32 offsData2b;
+struct adt_liquid_instance
+{
+    uint16 LiquidType;              // Index from LiquidType.db2
+    LiquidVertexFormatType LiquidVertexFormat;
+    float MinHeightLevel;
+    float MaxHeightLevel;
+    uint8 OffsetX;
+    uint8 OffsetY;
+    uint8 Width;
+    uint8 Height;
+    uint32 OffsetExistsBitmap;
+    uint32 OffsetVertexData;
 };
 
 //
@@ -203,63 +208,83 @@ public:
     uint32 size;
 
     struct adt_LIQUID{
-        uint32 offsData1;
+        uint32 OffsetInstances;
         uint32 used;
-        uint32 offsData2;
+        uint32 OffsetAttributes;
     } liquid[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 
     bool   prepareLoadedData();
 
-    adt_liquid_header *getLiquidData(int x, int y)
+    adt_liquid_instance const* GetLiquidInstance(int32 x, int32 y) const
     {
-        if (liquid[x][y].used && liquid[x][y].offsData1)
-            return (adt_liquid_header *)((uint8*)this + 8 + liquid[x][y].offsData1);
-        return 0;
+        if (liquid[x][y].used && liquid[x][y].OffsetInstances)
+            return (adt_liquid_instance *)((uint8*)this + 8 + liquid[x][y].OffsetInstances);
+        return nullptr;
     }
 
-    float *getLiquidHeightMap(adt_liquid_header *h)
+    float GetLiquidHeight(adt_liquid_instance const* h, int32 pos) const
     {
-        if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
-            return 0;
-        if (h->offsData2b)
-            return (float *)((uint8*)this + 8 + h->offsData2b);
-        return 0;
-    }
+        if (!h->OffsetVertexData)
+            return 0.0f;
 
-    uint8 *getLiquidLightMap(adt_liquid_header *h)
-    {
-        if (h->formatFlags&ADT_LIQUID_HEADER_FULL_LIGHT)
-            return 0;
-        if (h->offsData2b)
+        switch (h->LiquidVertexFormat)
         {
-            if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
-                return (uint8 *)((uint8*)this + 8 + h->offsData2b);
-            return (uint8 *)((uint8*)this + 8 + h->offsData2b + (h->width+1)*(h->height+1)*4);
+            case LiquidVertexFormatType::HeightDepth:
+            case LiquidVertexFormatType::HeightTextureCoord:
+                return ((float const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
+            case LiquidVertexFormatType::Depth:
+                return 0.0f;
+            default:
+                break;
+        }
+
+        return 0.0f;
+    }
+
+    int8 GetLiquidDepth(adt_liquid_instance const* h, int32 pos) const
+    {
+        if (!h->OffsetVertexData)
+            return -1;
+
+        switch (h->LiquidVertexFormat)
+        {
+            case LiquidVertexFormatType::HeightDepth:
+                return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->Width + 1) * (h->Height + 1) * 4))[pos];
+            case LiquidVertexFormatType::HeightTextureCoord:
+                return 0;
+            case LiquidVertexFormatType::Depth:
+                return ((int8 const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
+            default:
+                break;
         }
         return 0;
     }
 
-    uint32 *getLiquidFullLightMap(adt_liquid_header *h)
+    uint16 const* GetLiquidTextureCoordMap(adt_liquid_instance const* h, int32 pos) const
     {
-        if (!(h->formatFlags&ADT_LIQUID_HEADER_FULL_LIGHT))
-            return 0;
-        if (h->offsData2b)
+        if (!h->OffsetVertexData)
+            return nullptr;
+
+        switch (h->LiquidVertexFormat)
         {
-            if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
-                return (uint32 *)((uint8*)this + 8 + h->offsData2b);
-            return (uint32 *)((uint8*)this + 8 + h->offsData2b + (h->width+1)*(h->height+1)*4);
+            case LiquidVertexFormatType::HeightDepth:
+            case LiquidVertexFormatType::Depth:
+                return nullptr;
+            case LiquidVertexFormatType::HeightTextureCoord:
+                return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 4 * ((h->Width + 1) * (h->Height + 1) + pos));
+            default:
+                break;
         }
-        return 0;
+        return nullptr;
     }
 
-    uint64 getLiquidShowMap(adt_liquid_header *h)
+    uint64 GetLiquidExistsBitmap(adt_liquid_instance const* h) const
     {
-        if (h->offsData2a)
-            return *((uint64 *)((uint8*)this + 8 + h->offsData2a));
+        if (h->OffsetExistsBitmap)
+            return *((uint64 *)((uint8*)this + 8 + h->OffsetExistsBitmap));
         else
             return 0xFFFFFFFFFFFFFFFFuLL;
     }
-
 };
 
 //
