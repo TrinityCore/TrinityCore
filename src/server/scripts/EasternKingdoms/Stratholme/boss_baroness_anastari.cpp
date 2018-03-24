@@ -53,7 +53,7 @@ public:
         boss_baroness_anastariAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
         void Initialize()
