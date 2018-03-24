@@ -28,8 +28,8 @@ enum Spells
     SPELL_BANSHEEWAIL           = 16565,
     SPELL_BANSHEECURSE          = 16867,
     SPELL_SILENCE               = 18327,
-    SPELL_POSSESS               = 17244,
-    SPELL_POSSESSED             = 17246
+    SPELL_POSSESS               = 17244, // The charm
+    SPELL_POSSESSED             = 17246  // The damage buff
 };
 
 enum BaronessAnastariEvents
@@ -70,7 +70,6 @@ struct boss_baroness_anastari : public BossAI
             {
                 possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
                 possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                possessedTarget->SetObjectScale(1.0f);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetVisible(true);
                 _invisible = false;
@@ -124,7 +123,6 @@ struct boss_baroness_anastari : public BossAI
                         me->CastStop();
                         DoCast(possessTarget, SPELL_POSSESS);
                         DoCast(possessTarget, SPELL_POSSESSED);
-                        possessTarget->SetObjectScale(1.5f);
                         me->SetReactState(REACT_PASSIVE);
                         me->SetVisible(false);
                         _invisible = true;
@@ -140,7 +138,6 @@ struct boss_baroness_anastari : public BossAI
                 {
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                    possessedTarget->SetObjectScale(1.0f);
                     me->SetVisible(true);
                     _invisible = false;
                     _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
