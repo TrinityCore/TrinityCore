@@ -47,10 +47,9 @@ class boss_baroness_anastari : public CreatureScript
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
-    class boss_baroness_anastariAI : public ScriptedAI
+    struct boss_baroness_anastariAI : public BossAI
     {
-    public:
-        boss_baroness_anastariAI(Creature* creature) : ScriptedAI(creature)
+        boss_baroness_anastariAI(Creature* creature) : BossAI(creature, TYPE_BARONESS)
         {
             Initialize();
             instance = me->GetInstanceScript();
