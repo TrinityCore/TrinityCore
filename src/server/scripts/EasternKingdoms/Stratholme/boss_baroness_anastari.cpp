@@ -45,15 +45,7 @@ enum BaronessAnastariEvents
 
 struct boss_baroness_anastari : public BossAI
 {
-    boss_baroness_anastari(Creature* creature) : BossAI(creature, TYPE_BARONESS)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-
-    }
+    boss_baroness_anastari(Creature* creature) : BossAI(creature, TYPE_BARONESS) { }
 
     EventMap _events;
     ObjectGuid _possessedTargetGuid;
@@ -73,7 +65,6 @@ struct boss_baroness_anastari : public BossAI
             }
         }
         _events.Reset();
-        Initialize();
     }
 
     void JustEngagedWith(Unit* /*who*/) override
