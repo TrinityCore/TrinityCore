@@ -29413,7 +29413,7 @@ void Player::UpdateShop(uint32 diff)
         uint32 id       = fields[0].GetUInt32();
         uint8  type     = fields[1].GetUInt8();
         uint32 itemId   = fields[2].GetUInt32();
-        uint32 itemCount= fields[3].GetUInt32();
+        int32  itemCount= fields[3].GetInt32();
 
         bool delivered = false;
 
@@ -29421,14 +29421,22 @@ void Player::UpdateShop(uint32 diff)
         {
             case 0: // ITEM
             {
-                delivered = AddItem(itemId, itemCount);
-
-                if (delivered)
+                if (itemCount < 0)
                 {
-                    WorldPackets::Loot::DisplayToast displayToast;
-                    displayToast.EntityId = itemId;
-                    displayToast.Quantity = itemCount;
-                    SendDirectMessage(displayToast.Write());
+                    DestroyItemCount(itemId, -itemCount, true, false);
+                    delivered = true;
+                }
+                else
+                {
+                    delivered = AddItem(itemId, itemCount);
+
+                    if (delivered)
+                    {
+                        WorldPackets::Loot::DisplayToast displayToast;
+                        displayToast.EntityId = itemId;
+                        displayToast.Quantity = itemCount;
+                        SendDirectMessage(displayToast.Write());
+                    }
                 }
 
                 break;
@@ -29457,7 +29465,7 @@ void Player::UpdateShop(uint32 diff)
                 break;
             case 4: // APPEARANCE
             {
-                GetSession()->GetCollectionMgr()->AddItemAppearance(itemId, itemCount);
+                GetSession()->GetCollectionMgr()->AddItemAppearance(itemId, uint32(itemCount));
                 delivered = true;
                 break;
             }

@@ -1,7 +1,7 @@
 --
 SET @GUID:=21011146;
 DELETE FROM `linked_respawn` WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id` = 17256); -- Delete Linked respawn from channelers
-DELETE FROM `creature` WHERE `id` IN(17256,17474) AND `map`=544;
+DELETE FROM `creature` WHERE (`id` IN(17256,17474) AND `map`=544) OR `guid` BETWEEN @GUID AND @GUID+11;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`,`VerifiedBuild`) VALUES
 (@GUID,17474,544,0,0,16,15435,0,11.2283,2.97198,-0.320875,1.14748,7200,15,0,3965,0,1,0,0,0,0),
 (@GUID+1,17474,544,0,0,16,15435,0,10.2283,1.97198,-0.320875,1.41097,7200,15,0,3965,0,1,0,0,0,0),
