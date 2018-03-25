@@ -53,7 +53,61 @@
 
 21:32:49.629 -- ihr habt den mechanischen
 21:32:51.891 -- vanessa despawn
-21:32:51.891
+
+21:33:21.937 -- foe reaper aggro
+21:33:24.745 -- spirit strike
+21:33:27.818 -- spirit strike
+21:33:31.016 -- spirit strike
+21:33:34.230
+
+21:33:53.215 -- reaper dead
+
+21:33:55.789 -- cancel nightmare aura mechanical
+21:33:55.836 -- despawn platters
+
+21:33:55.992 -- der alptraum wandelt sich
+21:33:56.834 -- reaper despawn
+21:33:58.441 -- spawn ripsnarl and vanessa
+
+21:34:00.656 -- ripsnarl wasnt always
+21:34:07.895 -- his name was james harrington
+21:34:12.497 -- cancel nightmare aura
+21:34:12.699 -- announce nightmare
+21:34:12.887 -- open door
+
+
+21:34:14.899 -- vanessa casts adrenaline
+21:34:15.227 -- despawn vanessa and ripsnarl
+
+21:34:12.887 -- spawn emme harrington
+21:34:12.887 -- emme casts group taunt 
+21:34:24.524 -- group taunt 2
+
+
+21:34:16.303 -- rette emme harrington
+
+21:34:35.164 -- emme casts adrenaline
+21:34:35.164 -- despawn emme
+
+21:34:39.173 -- announce save erik
+21:34:40.982 -- spawn worgen and erik
+21:34:59.625 -- erik despawn
+
+21:34:59.827 -- spawn calissa
+21:35:03.259 -- announce save
+
+21:35:15.287 -- james, please, I love you
+21:35:16.504
+
+21:35:24.897 -- announce calissa dies
+
+21:35:27.190 -- ripsnarl death
+21:35:27.096 -- cancel nightmare elixir
+21:35:27.346 -- announce
+
+21:35:29.530 -- despawn both
+
+21:35:31.527 -- spawn boss
 */
 
 
@@ -82,6 +136,10 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_deadmines_glubtok_nightmare' W
 UPDATE `creature_template` SET `unit_flags`= 33600, `ScriptName`= 'npc_deadmines_helix_nightmare' WHERE `entry`= 49674;
 -- Lightning Platters
 UPDATE `creature_template` SET `InhabitType`= 4, `flags_extra`= 128 WHERE `entry` IN (49520, 49521);
+-- Foe Reaper 5000 Illusion
+UPDATE `creature_template` SET `ScriptName`= 'npc_deadmines_foe_reaper_5000_nightmare' WHERE `entry`= 49681;
+-- James Harrington
+UPDATE `creature_template` SET `VehicleId`= 1403 WHERE `entry`= 49539;
 
 -- Template Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (49564, 51594, 49671, 49670, 92201);
@@ -102,7 +160,7 @@ INSERT INTO `gossip_menu_option` (`MenuId`, `OptionID`, `OptionIcon`, `OptionTex
 (12504, 0, 0, 'Continue reading... <Note: This will alert Vanessa to your presence!>', 49641, 1, 1, 12505);
 
 -- Texts
-DELETE FROM `creature_text` WHERE `CreatureID` IN (49429, 49564, 49454, 49671, 49674);
+DELETE FROM `creature_text` WHERE `CreatureID` IN (49429, 49564, 49454, 49671, 49674, 49539, 49536, 49541);
 DELETE FROM `creature_text` WHERE `CreatureID`= 45979 AND `GroupID` NOT IN (0, 1, 2, 3);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `Comment`) VALUES
 -- Vanessa VanCleef Intro
@@ -120,9 +178,18 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- General Purpose Bunny JMF
 (45979, 4, 0, 'The Nightmare Elixir takes hold!', 41, 0, 100, 0, 0, 0, 49705, 'General Purpose Bunny JMF to Steam Valve'),
 (45979, 5, 0, 'The nightmare shifts!', 41, 0, 100, 0, 0, 0, 49707, 'General Purpose Bunny JMF to Player'),
+(45979, 6, 0, 'Save Emme Harrington!', 41, 0, 100, 0, 0, 0, 49711, 'General Purpose Bunny JMF to Player'),
+(45979, 7, 0, 'Save Erik Harrington!', 41, 0, 100, 0, 0, 0, 49712, 'General Purpose Bunny JMF'),
+(45979, 8, 0, 'Save Calissa Harrington!', 41, 0, 100, 0, 0, 0, 49713, 'General Purpose Bunny JMF'),
+(45979, 9, 0, 'The Nightmare Elixir wears off!', 41, 0, 100, 0, 0, 0, 49714, 'General Purpose Bunny JMF'),
 -- Helix Gearbreaker
 (49674, 0, 0, 'You have entered Helix''s nightmare!', 41, 0, 100, 0, 0, 0, 49708, 'Helix Gearbreaker to Player'),
 (49674, 1, 0, 'Nightmare spiders appear in the darkness!  Kill Helix before his nightmare overwhelms you!', 41, 0, 100, 0, 0, 0, 50871, 'Helix Geabreaker to Player'),
+-- James Harrington
+(49539, 0, 0, 'Calissa...I am so sorry...', 12, 0, 100, 0, 0, 0, 49761, 'James Harrington'),
+-- Calissa Harrington
+(49536, 0, 0, 'James...please...I love you...', 12, 0, 100, 0, 0, 0, 49762, 'Calissa Harrington'),
+(49536, 1, 0, 'Calissa is dying!', 41, 0, 100, 0, 0, 0, 49763, 'Calissa Harrington'),
 -- Vanessa VanCleef Nightmare
 (49671, 0, 0, 'Poor Glubtok.  When his powers manifested, his own ogre mound was the first to burn.', 12, 0, 100, 1, 0, 24602, 49715, 'Vanessa van Cleef to Steam Valve'),
 (49671, 1, 0, 'Deep within his soul, the one thing he feared most of all was...himself.', 12, 0, 100, 1, 0, 24603, 49716, 'Vanessa van Cleef to Steam Valve'),
@@ -132,7 +199,22 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (49671, 5, 0, 'You never know what skitters in the darkness.', 12, 0, 100, 1, 0, 24605, 49724, 'Vanessa van Cleef to Player'),
 (49671, 6, 0, 'Can you imagine the life of a machine?', 12, 0, 100, 1, 0, 24606, 49725, 'Vanessa van Cleef to Player'),
 (49671, 7, 0, 'A simple spark can mean the difference between life...and death.', 12, 0, 100, 1, 0, 24607, 49726, 'Vanessa van Cleef to Player'),
-(49671, 8, 0, 'You have entered the mechanical nightmare!', 41, 0, 100, 0, 0, 0, 49709, 'Vanessa van Cleef to Player');
+(49671, 8, 0, 'You have entered the mechanical nightmare!', 41, 0, 100, 0, 0, 0, 49709, 'Vanessa van Cleef to Player'),
+(49671, 9, 0, 'Ripsnarl wasn''t always a bloodthirsty savage.  Once, he even had a family.', 12, 0, 100, 1, 0, 24608, 49742, 'Vanessa van Cleef to Player'),
+(49671, 10, 0, 'He was called James Harrington.  A tragedy in three parts.', 12, 0, 100, 1, 0, 24609, 49745, 'Vanessa van Cleef to Player'),
+(49671, 11, 0, 'You have entered Ripsnarl''s nightmare!', 41, 0, 100, 0, 0, 0, 49710, 'Vanessa van Cleef to Player'),
+-- Vanessa VanCleef
+(49541, 0, 0, 'I will not share my father''s fate!  Your tale ends here!', 14, 0, 100, 0, 0, 24599, 49748, 'Vanessa van Cleef to Player'),
+(49541, 1, 0, 'The first of many.', 14, 0, 100, 0, 0, 24620, 49749, 'Vanessa van Cleef'),
+(49541, 2, 0, 'Did you really think I would come to this fight alone?', 14, 0, 100, 0, 0, 24620, 49750, 'Vanessa van Cleef'),
+(49541, 3, 0, 'Fools!  This entire ship is rigged with explosives!  Enjoy your fiery deaths!', 14, 0, 100, 0, 0, 24621, 49751, 'Vanessa van Cleef'),
+(49541, 4, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 0, 100, 0, 0, 0, 49755, 'Vanessa van Cleef'),
+(49541, 5, 0, 'You didn''t honestly think I would only plant ONE set of explosives, did you?', 14, 0, 100, 0, 0, 24622, 50706, 'Vanessa van Cleef'),
+(49541, 6, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 0, 100, 0, 0, 0, 49756, 'Vanessa van Cleef'),
+(49541, 7, 0, 'ENOUGH!  I will not give you the pleasure!', 14, 0, 100, 274, 0, 24610, 49753, 'Vanessa van Cleef'),
+(49541, 8, 0, 'If I''m going to die, I''m taking you all with me!', 14, 0, 100, 15, 0, 24611, 49752, 'Vanessa van Cleef'),
+(49541, 9, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it!  RUN!', 41, 0, 100, 0, 0, 0, 49757, 'Vanessa van Cleef'),
+(49541, 10, 0, 'MY FATE IS MY OWN!', 14, 0, 100, 397, 0, 24612, 49754, 'Vanessa van Cleef');
 
 UPDATE `creature_template` SET `npcflag`= 16777216 WHERE `entry`= 49520;
 
@@ -177,36 +259,29 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 1, 2, 60, 0, 100, 1, 3200, 3200, 0, 0, 11, 92201, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 3200 and 3200 ms) - Self: Cast spell Icicle (92201) on Self // "),
 (@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 92202, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Cast spell Icicle (92202) on Self // ");
 
+-- Creature Emme Harrington 49534 SAI
+SET @ENTRY := 49534;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 0, 1, 1, 5000, 5000, 11, 92308, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 5000 and 5000 ms (for the first time, timer between 1 and 1 ms) - Self: Cast spell Group Taunt (92308) on Self // ");
 
+-- Creature Erik Harrington 49535 SAI
+SET @ENTRY := 49535;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 0, 1, 1, 5000, 5000, 11, 92308, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 5000 and 5000 ms (for the first time, timer between 1 and 1 ms) - Self: Cast spell Group Taunt (92308) on Self // ");
 
-/*
-(49454, @GROUP_ID+0, @ID+, 'Aktiviert die Dampfventile, um Euch zu befreien!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa''s Trap Bunny to Player'),
-(49536, @GROUP_ID+0, @ID+, 'James... bitte... Ich liebe dich...', 12, 0, 100, 0, 0, 0, UNKNOWN, 'Calissa Harrington'),
-(49536, @GROUP_ID+1, @ID+, 'Calissa stirbt!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Calissa Harrington'),
-(49539, @GROUP_ID+0, @ID+, 'Calissa... Es tut mir so leid...', 12, 0, 100, 0, 0, 0, UNKNOWN, 'James Harrington'),
-(49541, @GROUP_ID+0, @ID+, 'Ich werde meines Vaters Schicksal nicht teilen! Eure Geschichte endet hier!', 14, 0, 100, 0, 0, 24599, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49541, @GROUP_ID+1, @ID+, 'Habt Ihr wirklich gedacht, ich würde allein zu diesem Kampf erscheinen?', 14, 0, 100, 0, 0, 24620, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+2, @ID+, 'Narren! Hahahah! Das ganze Schiff ist mit Sprengstoff gespickt! Erfreut Euch an Eurem feurigen Tod!', 14, 0, 100, 0, 0, 24621, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+3, @ID+, 'Vanessa hat Sprengladungen auf dem Schiff detonieren lassen! Los, schnell zu den Seilen an Steuerbord!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+4, @ID+, 'Ha! Ihr hattet doch nicht wirklich gedacht, dass ich nur EINE Reihe Sprengstoff legen würde, oder?', 14, 0, 100, 0, 0, 24622, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+5, @ID+, 'Vanessa lässt weitere Sprengsätze detonieren! Los, schnell zu den Seilen an Steuerbord!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+6, @ID+, 'GENUG! Diese Freude werde ich Euch nicht machen!', 14, 0, 100, 274, 0, 24610, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+7, @ID+, 'Wenn ich schon sterbe, werde ich Euch alle mitnehmen!', 14, 0, 100, 15, 0, 24611, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+8, @ID+, 'Vanessa zieht ein letztes Fass mit Bergbausprengstoff hervor und entzündet es! RENNT!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef'),
-(49541, @GROUP_ID+9, @ID+, 'ÜBER MEIN SCHICKSAL ENTSCHEIDE NUR ICH!', 14, 0, 100, 397, 0, 24612, UNKNOWN, 'Vanessa van Cleef'),
-(49564, @GROUP_ID+0, @ID+, 'Eine Notiz fällt zu Boden!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Eine Nachricht von Vanessa to Player'),
-(49671, @GROUP_ID+0, @ID+, 'Armer Glubtok. Als sich seine Kräfte manifestierten, war sein Ogerhort der erste, der brannte.', 12, 0, 100, 1, 0, 24602, UNKNOWN, 'Vanessa van Cleef to Dampfventil'),
-(49671, @GROUP_ID+1, @ID+, 'In den Tiefen seiner Seele war das, was er am meisten fürchtete... er selbst.', 12, 0, 100, 1, 0, 24603, UNKNOWN, 'Vanessa van Cleef to Dampfventil'),
-(49671, @GROUP_ID+2, @ID+, 'Ihr habt Glubtoks Alptraum betreten!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef to Dampfventil'),
-(49671, @GROUP_ID+3, @ID+, 'Geht zum Schiff zurück!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef to Dampfventil'),
-(49671, @GROUP_ID+4, @ID+, 'Die meisten Schurken bevorzugen die Schatten, Helix jedoch nicht.', 12, 0, 100, 1, 0, 24604, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+5, @ID+, 'Man weiß nie, was in der Dunkelheit rumkriecht.', 12, 0, 100, 1, 0, 24605, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+6, @ID+, 'Könnt Ihr Euch das Leben einer Maschine vorstellen?', 12, 0, 100, 1, 0, 24606, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+7, @ID+, 'Ein einzelner Funke... kann den Unterschied zwischen Leben und Tod ausmachen.', 12, 0, 100, 1, 0, 24607, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+8, @ID+, 'Ihr habt den mechanischen Alptraum betreten!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+9, @ID+, 'Knurrreißer war nicht immer ein blutrünstiger Wilder. Er hatte früher sogar mal eine Familie.', 12, 0, 100, 1, 0, 24608, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+10, @ID+, 'Sein Name war James Harrington. Eine Tragödie in drei Akten.', 12, 0, 100, 1, 0, 24609, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49671, @GROUP_ID+11, @ID+, 'Ihr habt Knurrreißers Alptraum betreten!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Vanessa van Cleef to Player'),
-(49674, @GROUP_ID+0, @ID+, 'Ihr habt Helix'' Alptraum betreten!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Helix Ritzelbrecher to Player'),
-(49674, @GROUP_ID+1, @ID+, 'Alptraumspinnen erscheinen in der Finsternis! Tötet Helix, bevor sein Alptraum Euch überwältigt!', 41, 0, 100, 0, 0, 0, UNKNOWN, 'Helix Ritzelbrecher to Player');
-*/
+-- Creature Calissa Harrington 49536 SAI
+SET @ENTRY := 49536;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 1, 15400, 15400, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 15400 and 15400 ms) - Self: Talk 0 // "),
+(@ENTRY, 0, 1, 0, 60, 0, 100, 1, 25000, 25000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 25000 and 25000 ms) - Self: Talk 1 // "),
+(@ENTRY, 0, 2, 0, 60, 0, 100, 1, 16700, 16700, 0, 0, 1, 0, 0, 0, 0, 0, 0, 11, 49539, 10, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 16700 and 16700 ms) - Creature James Harrington (49539) in 10 yd: Talk 0 // ");
+
+-- Creature James Harrington 49539 SAI
+SET @ENTRY := 49539;
+UPDATE `creature_template` SET `AIName`="0" WHERE `entry`= @ENTRY;

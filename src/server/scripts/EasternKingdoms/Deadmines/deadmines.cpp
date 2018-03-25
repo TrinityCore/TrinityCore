@@ -283,6 +283,9 @@ enum VanessaVanCleef
     SAY_MECHANICAL_INTRO_1              = 6,
     SAY_MECHANICAL_INTRO_2              = 7,
     SAY_ANNOUNCE_MECHANICAL_NIGHTMARE   = 8,
+    SAY_RIPSNARL_INTRO_1                = 9,
+    SAY_RIPSNARL_INTRO_2                = 10,
+    SAY_ANNOUNCE_RIPSNARL_NIGHTMARE     = 11,
 
     EVENT_TALK_GLUBTOKS_NIGHTMARE_1 = 1,
     EVENT_TALK_GLUBTOKS_NIGHTMARE_2,
@@ -296,11 +299,17 @@ enum VanessaVanCleef
     EVENT_TALK_MECHANICAL_NIGHTMARE_2,
     EVENT_CANCEL_NIGHTMARE_AURA_HELIX,
     EVENT_ANNOUNCE_ENTERED_MECHANICAL_NIGHTMARE,
+    EVENT_TALK_RIPSNARL_NIGHTMARE_1,
+    EVENT_TALK_RIPSNARL_NIGHTMARE_2,
+    EVENT_CANCEL_NIGHTMARE_AURA_MECHANICAL,
+    EVENT_ANNOUNCE_ENTERED_RIPSNARL_NIGHTMARE,
+    EVENT_ADRENALINE,
 
     SPELL_CANCEL_NIGHTMARE_AURA         = 92583,
     SPELL_NIGHTMARE_AURA_GLUBTOK        = 92565,
     SPELL_NIGHTMARE_AURA_HELIX          = 92566,
     SPELL_NIGHTMARE_AURA_MECHANICAL     = 92567,
+    SPELL_NIGHTMARE_AURA_RIPSNARL       = 92568,
 };
 
 class npc_deadmines_vanessa_van_cleef_nightmare : public CreatureScript
@@ -320,7 +329,8 @@ class npc_deadmines_vanessa_van_cleef_nightmare : public CreatureScript
                     _events.ScheduleEvent(EVENT_TALK_HELIX_NIGHTMARE_1, Seconds(1));
                 else if (_instance->GetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER) == NIGHTMARE_STAGE_FOE_REAPER)
                     _events.ScheduleEvent(EVENT_TALK_MECHANICAL_NIGHTMARE_1, Seconds(1));
-
+                else if (_instance->GetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER) == NIGHTMARE_STAGE_RIPSNARL)
+                    _events.ScheduleEvent(EVENT_TALK_RIPSNARL_NIGHTMARE_1, Seconds(2) + Milliseconds(200));
             }
 
             void UpdateAI(uint32 diff) override
@@ -385,6 +395,29 @@ class npc_deadmines_vanessa_van_cleef_nightmare : public CreatureScript
                             if (Creature* reaper = me->FindNearestCreature(NPC_FOE_REAPER_5000_NIGHTMARE, 20.0f, true))
                                 reaper->DespawnOrUnsummon(Seconds(2) + Milliseconds(200));
                             me->DespawnOrUnsummon(Seconds(2) + Milliseconds(200));
+                            break;
+                        case EVENT_TALK_RIPSNARL_NIGHTMARE_1:
+                            Talk(SAY_RIPSNARL_INTRO_1);
+                            _events.ScheduleEvent(EVENT_TALK_RIPSNARL_NIGHTMARE_2, Seconds(7) + Milliseconds(150));
+                            break;
+                        case EVENT_TALK_RIPSNARL_NIGHTMARE_2:
+                            Talk(SAY_RIPSNARL_INTRO_2);
+                            _events.ScheduleEvent(EVENT_CANCEL_NIGHTMARE_AURA_MECHANICAL, Seconds(4) + Milliseconds(600));
+                            break;
+                        case EVENT_CANCEL_NIGHTMARE_AURA_MECHANICAL:
+                            DoCastAOE(SPELL_CANCEL_NIGHTMARE_AURA, true);
+                            DoCastAOE(SPELL_NIGHTMARE_AURA_RIPSNARL, true);
+                            _events.ScheduleEvent(EVENT_ANNOUNCE_ENTERED_RIPSNARL_NIGHTMARE, Milliseconds(200));
+                            break;
+                        case EVENT_ANNOUNCE_ENTERED_RIPSNARL_NIGHTMARE:
+                            Talk(SAY_ANNOUNCE_RIPSNARL_NIGHTMARE);
+                            _events.ScheduleEvent(EVENT_ADRENALINE, Seconds(2));
+                            break;
+                        case EVENT_ADRENALINE:
+                            DoCastAOE(SPELL_ADRENALINE, true);
+                            if (Creature* reaper = me->FindNearestCreature(NPC_RIPSNARL_NIGHTMARE, 20.0f, true))
+                                reaper->DespawnOrUnsummon(Milliseconds(300));
+                            me->DespawnOrUnsummon(Milliseconds(300));
                             break;
                         default:
                             break;
@@ -559,6 +592,60 @@ class npc_deadmines_helix_nightmare : public CreatureScript
         }
 };
 
+class npc_deadmines_foe_reaper_5000_nightmare : public CreatureScript
+{
+    public:
+        npc_deadmines_foe_reaper_5000_nightmare() : CreatureScript("npc_deadmines_foe_reaper_5000_nightmare") { }
+
+        struct npc_deadmines_foe_reaper_5000_nightmareAI : public ScriptedAI
+        {
+            npc_deadmines_foe_reaper_5000_nightmareAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                _events.ScheduleEvent(EVENT_SPIRIT_STRIKE, Seconds(2) + Milliseconds(800));
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                me->DespawnOrUnsummon(Seconds(3) + Milliseconds(600));
+                _instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_RIPSNARL);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SPIRIT_STRIKE:
+                            DoCastVictim(SPELL_SPIRIT_STRIKE);
+                            _events.Repeat(Seconds(3) + Milliseconds(100));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        private:
+            EventMap _events;
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetDeadminesAI<npc_deadmines_foe_reaper_5000_nightmareAI>(creature);
+        }
+};
+
+enum RipsnarlNightmare
+{
+    SPELL_GROUP_TAUNT   = 92308,
+};
+
 enum DefiasCannon
 {
     // GroupID 0 and 1 are used by Foe Reaper 5000
@@ -697,6 +784,7 @@ void AddSC_deadmines()
     new npc_deadmines_vanessa_van_cleef_nightmare();
     new npc_deadmines_glubtok_nightmare();
     new npc_deadmines_helix_nightmare();
+    new npc_deadmines_foe_reaper_5000_nightmare();
     new go_deadmines_defias_cannon();
     new spell_deadmines_on_fire();
     new spell_deadmines_ride_magma_vehicle();

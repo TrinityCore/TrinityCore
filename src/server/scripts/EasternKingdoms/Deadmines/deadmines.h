@@ -47,6 +47,10 @@ enum DMDataTypes
     DATA_VANESSA_ANCHOR_BUNNY           = 18,
     DATA_ACTIVATED_VENT                 = 19,
     DATA_FOUNDRY_DOOR                   = 20,
+    DATA_VANESSA_VAN_CLEEF_NIGHTMARE    = 21,
+    DATA_EMME_HARRINGTON                = 22,
+    DATA_ERIK_HARRINGTON                = 23,
+    DATA_CALISSA_HARRINGTON             = 24
 };
 
 enum DMCreatures
@@ -107,24 +111,27 @@ enum DMCreatures
     NPC_ROTTEN_LOAF                     = 48299,
     NPC_BUN                             = 48301,
     NPC_ROTTEN_BUN                      = 48302,
-
     NPC_A_NOTE_FROM_VANESSA             = 49564,
     NPC_VANESSA_VAN_CLEEF_INTRO         = 49429,
     NPC_VANESSAS_TRAP_BUNNY             = 49454,
     NPC_VANESSA_ANCHOR_BUNNY_JMF        = 51624,
     NPC_STEAM_VALVE                     = 49457,
-
     NPC_VANESSA_VANCLEEF_NIGHTMARE      = 49671,
     NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY    = 51594,
     NPC_GLUBTOK_NIGHTMARE               = 49670,
-
     NPC_HELIX_GEARBREAKER_NIGHTMARE     = 49674,
     NPC_NIGHTMARE_SKITTERLING           = 49493,
     NPC_DARKWEB_DEVOURER                = 49494,
     NPC_CHATTERING_HORROR               = 49495,
-
     NPC_FOE_REAPER_5000_NIGHTMARE       = 49681,
     NPC_VANESSA_LIGHTNING_PLATTER       = 49520,
+    NPC_RIPSNARL_NIGHTMARE              = 49682,
+    NPC_EMME_HARRINGTON                 = 49534,
+    NPC_ERIK_HARRINGTON                 = 49535,
+    NPC_ENRAGED_WORGEN                  = 49532,
+    NPC_JAMES_HARRINGTON                = 49539,
+    NPC_CALISSA_HARRINGTON              = 49536,
+
 }; 
 
 enum DMGameObjects
@@ -147,18 +154,25 @@ enum DMActions
 enum DMSpells
 {
     // -- Admiral Ripsnarl Encounter
-    SPELL_FOG                       = 88768,
+    SPELL_FOG                               = 88768,
 
     // -- Vanessa VanCleef Encounter
-    SPELL_RIDE_MAGMA_VEHICLE        = 92378,
-    SPELL_MOLTEN_MAGMA              = 92424,
-    SPELL_FORCE_MAGMA_TRAP_THROW    = 92489,
-
-    // Vanessas Anchor Bunny JMF
-    SPELL_ROPE_BEAM                 = 43785,
-
-    // Steam Valve
-    SPELL_STEAM_VENT                = 92399,
+    SPELL_RIDE_MAGMA_VEHICLE                = 92378,
+    SPELL_MOLTEN_MAGMA                      = 92424,
+    SPELL_FORCE_MAGMA_TRAP_THROW            = 92489,
+    SPELL_ROPE_BEAM                         = 43785,
+    SPELL_STEAM_VENT                        = 92399,
+    SPELL_ADRENALINE                        = 92604,
+    SPELL_NIGHTMARE_SLOW                    = 92559,
+    SPELL_NIGHTMARE_AURA                    = 92563,
+    SPELL_CANCEL_NIGHTMARE_AURA_GLUBTOK     = 92584,
+    SPELL_CANCEL_NIGHTMARE_AURA_HELIX       = 92585,
+    SPELL_CANCEL_NIGHTMARE_AURA_MECHANICAL  = 92586,
+    SPELL_CANCEL_NIGHTMARE_AURA_RIPSNARL    = 92587,
+    SPELL_SUMMON_ICICLE                     = 92189,
+    SPELL_OFF_LINE                          = 88348,
+    SPELL_NIGHTMARES_END                    = 92603,
+    SPELL_CANCEL_NIGHTMARE_ELIXIR           = 92609,
 };
 
 enum DMVanessasNightmareStages
@@ -168,10 +182,12 @@ enum DMVanessasNightmareStages
     NIGHTMARE_STAGE_GLUBTOK         = 4,
     NIGHTMARE_STAGE_HELIX           = 5,
     NIGHTMARE_STAGE_FOE_REAPER      = 6,
-    NIGHTMARE_STAGE_RIPSNARL        = 7
+    NIGHTMARE_STAGE_RIPSNARL        = 7,
+    NIGHTMARE_STAGE_DONE            = 8
 };
 
 Position const captainCookieSpawnPos = { -88.13194f, -819.3299f, 39.23453f };
+Position const bossVanessaVanCleefSpawnPos = { -79.44965f, -819.8351f, 39.89838f, 0.01745329f };
 
 Position const noteFromVanessaSpawnPos = { -74.36111f, -820.0139f, 40.37145f, 4.014257f };
 Position const vanessaVanCleefSpawnPos = { -75.58507f, -819.9636f, 47.06727f, 6.178465f };
@@ -181,6 +197,7 @@ Position const vanessaVanCleefNightmareSpawnPos[] =
     { -230.717f, -563.0139f, 51.31293f, 1.047198f },
     { -172.809f, -576.9114f, 19.39756f, 4.817109f },
     { -159.3924f, -580.5174f, 19.39817f, 6.195919f },
+    { -98.5816f, -662.6632f, 7.498006f,  3.490659f }
 };
 
 Position const GlubtokNightmareIntroSpawnPos = { -229.3403f, -560.3629f, 51.31293f, 5.742133f };
@@ -191,6 +208,27 @@ Position const GeneralPurposeBunnyPos = { -205.4688f, -567.2049f, 21.06016f };
 
 Position const FoeReaperNightmareIntroSpawnPos = { -155.4705f, -580.6945f, 19.39779f };
 Position const FoeReaperNightmareSpawnPos = { -101.4549f, -663.6493f, 7.505813f, 1.850049f };
+
+Position const RipsnarlNightmareIntroSpawnPos = { -101.2135f, -663.4531f, 7.504823f, 1.867502f };
+Position const EmmeHarringtonSpawnPos = { -98.63194f, -721.6268f, 8.547067f, 1.53589f };
+Position const EnragedWorgenEmmeSpawnPos[] =
+{
+    {-97.79166f, -717.8542f, 8.668088f, 4.520403f },
+    { -94.40278f, -719.7274f, 8.598646f,  3.560472f },
+    { -101.9167f, -718.7552f, 8.726379f,  5.51524f },
+};
+
+Position const ErikHarringtonSpawnPos = { 5.239583f, -763.0868f, 9.800426f, 2.007129f };
+
+Position const EnragedWorgenErikSpawnPos[] =
+{
+    { 3.326038f, -760.3063f, 9.713999f, 5.31516f },
+    { 8.798013f, -762.2252f, 9.625132f, 3.379143f },
+    { 4.232807f, -766.6125f, 9.804724f, 1.292649f }
+};
+
+Position const CalissaHarringtonSpawnPos = { -83.86406f, -775.2837f, 28.37906f, 1.710423f };
+Position const JamesHarringtonSpawnPos = { -83.16319f, -774.9636f, 26.90351f, 1.710423f };
 
 Position const glubtokNightmareFireBunnyPos[] =
 {

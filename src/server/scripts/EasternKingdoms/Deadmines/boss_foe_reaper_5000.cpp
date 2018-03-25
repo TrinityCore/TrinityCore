@@ -46,7 +46,6 @@ enum Spells
     // Foe Reaper 5000
     SPELL_ENERGIZE                      = 89132,
     SPELL_ON_LINE                       = 89198,
-    SPELL_OFF_LINE                      = 88348,
     SPELL_RED_EYES                      = 24263,
     SPELL_ON_LINE_2                     = 89121,
     SPELL_REAPER_STRIKE                 = 88490,

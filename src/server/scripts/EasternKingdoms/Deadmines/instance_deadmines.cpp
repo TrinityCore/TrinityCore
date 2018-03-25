@@ -25,9 +25,11 @@
 enum EventIds
 {
     EVENT_SUMMON_CAPTAIN_COOKIE = 1,
+    EVENT_SUMMON_NOTE_FROM_VANESSA,
     EVENT_CAST_NIGHTMARE_AURA_1,
     EVENT_CAST_NIGHTMARE_AURA_2,
     EVENT_CAST_NIGHTMARE_AURA_3,
+    EVENT_CAST_NIGHTMARE_AURA_4,
     EVENT_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD,
     EVENT_SETUP_GLUBTOKS_NIGHTMARE,
     EVENT_SUMMON_ICICLES,
@@ -38,6 +40,17 @@ enum EventIds
     EVENT_DESPAWN_NIGHTMARE_SPIDERS,
     EVENT_SETUP_MECHANICAL_NIGHTMARE,
     EVENT_SUMMON_FOE_REAPER,
+    EVENT_DESPAWN_LIGHTNING_PLATTERS,
+    EVENT_SETUP_RIPSNARL_NIGHTMARE,
+    EVENT_NIGHTMARE_SHIFTS_2,
+    EVENT_OPEN_IRON_CLAD_DOOR,
+    EVENT_SUMMON_ERIK_HARRINGTON,
+    EVENT_SUMMON_JAMES_HARRINGTON,
+    EVENT_ANNOUNCE_SAVE_EMME_HARRINGTON,
+    EVENT_ANNOUNCE_SAVE_ERIK_HARRINGTON,
+    EVENT_ANNOUNCE_SAVE_CALISSA_HARRINGTON,
+    EVENT_ANNOUNCE_ELIXIR_WEARS_OFF,
+    EVENT_SUMMON_VANESSA_VANCLEEF_BOSS,
 };
 
 enum TextsIds
@@ -47,36 +60,30 @@ enum TextsIds
     SAY_ANNOUNCE_SHADOWY_FIGURE                 = 3,
     SAY_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD    = 4,
     SAY_ANNOUNCE_NIGHTMARE_SHIFTS               = 5,
-};
-
-enum Spells
-{
-    SPELL_NIGHTMARE_SLOW                    = 92559,
-    SPELL_NIGHTMARE_AURA                    = 92563,
-
-    SPELL_CANCEL_NIGHTMARE_AURA_GLUBTOK     = 92584,
-    SPELL_CANCEL_NIGHTMARE_AURA_HELIX       = 92585,
-    SPELL_CANCEL_NIGHTMARE_AURA_MECHANICAL  = 92586,
-    SPELL_CANCEL_NIGHTMARE_AURA_RIPSNARL    = 92587,
-
-    SPELL_SUMMON_ICICLE                     = 92189,
-    SPELL_OFF_LINE                          = 88348
+    SAY_ANNOUNCE_SAVE_EMME_HARRINGTON           = 6,
+    SAY_ANNOUNCE_SAVE_ERIK_HARRINGTON           = 7,
+    SAY_ANNOUNCE_SAVE_CALISSA_HARRINGTON        = 8,
+    SAY_ANNOUNCE_NIGHTMARE_ELIXIR_WEARS_OFF     = 9,
 };
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GLUBTOK,                     DATA_GLUBTOK                },
-    { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER      },
-    { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000        },
-    { BOSS_ADMIRAL_RIPSNARL,            DATA_ADMIRAL_RIPSNARL       },
-    { BOSS_CAPTAIN_COOKIE,              DATA_CAPTAIN_COOKIE         },
-    { BOSS_VANESSA_VAN_CLEEF,           DATA_VANESSA_VAN_CLEEF      },
-    { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF          },
-    { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY       },
-    { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER       },
-    { NPC_VANESSAS_TRAP_BUNNY,          DATA_VANESSAS_TRAP_BUNNY    },
-    { NPC_VANESSA_ANCHOR_BUNNY_JMF,     DATA_VANESSA_ANCHOR_BUNNY   },
-    { 0,                                0                           } // END
+    { BOSS_GLUBTOK,                     DATA_GLUBTOK                        },
+    { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER              },
+    { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000                },
+    { BOSS_ADMIRAL_RIPSNARL,            DATA_ADMIRAL_RIPSNARL               },
+    { BOSS_CAPTAIN_COOKIE,              DATA_CAPTAIN_COOKIE                 },
+    { BOSS_VANESSA_VAN_CLEEF,           DATA_VANESSA_VAN_CLEEF              },
+    { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF                  },
+    { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY               },
+    { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER               },
+    { NPC_VANESSAS_TRAP_BUNNY,          DATA_VANESSAS_TRAP_BUNNY            },
+    { NPC_VANESSA_ANCHOR_BUNNY_JMF,     DATA_VANESSA_ANCHOR_BUNNY           },
+    { NPC_VANESSA_VANCLEEF_NIGHTMARE,   DATA_VANESSA_VAN_CLEEF_NIGHTMARE    },
+    { NPC_EMME_HARRINGTON,              DATA_EMME_HARRINGTON                },
+    { NPC_ERIK_HARRINGTON,              DATA_ERIK_HARRINGTON                },
+    { NPC_CALISSA_HARRINGTON,           DATA_CALISSA_HARRINGTON             },
+    { 0,                                0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -112,7 +119,9 @@ class instance_deadmines : public InstanceMapScript
                 _foeReaper5000Intro = 0;
                 _ironCladDoorState = 0;
                 _vanessaVanCleefEncounterState = 0;
+                _deadPlayers = 0;
                 _activatedVentCounter = 0;
+                _deadEnragedWorgen = 0;
                 _firstCookieSpawn = true;
             }
 
@@ -222,6 +231,20 @@ class instance_deadmines : public InstanceMapScript
                     case NPC_GENERAL_PURPOSE_DUMMY_JMF:
                         if (_vanessaVanCleefEncounterState == NIGHTMARE_STAGE_HELIX)
                             _helixNightmareGuidSet.insert(creature->GetGUID());
+                        else
+                            _generalPurposeBunnyJMFGuidSet.insert(creature->GetGUID());
+                        break;
+                    case NPC_FOE_REAPER_5000_NIGHTMARE:
+                    case NPC_VANESSA_LIGHTNING_PLATTER:
+                        _mechanicalNightmareGuidSet.insert(creature->GetGUID());
+                        break;
+                    case NPC_RIPSNARL_NIGHTMARE:
+                    case NPC_EMME_HARRINGTON:
+                    case NPC_ERIK_HARRINGTON:
+                    case NPC_CALISSA_HARRINGTON:
+                    case NPC_JAMES_HARRINGTON:
+                    case NPC_ENRAGED_WORGEN:
+                        _ripsnarlNightareGuidSet.insert(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -261,6 +284,10 @@ class instance_deadmines : public InstanceMapScript
                             if (instance->IsHeroic())
                                 instance->SummonCreature(NPC_A_NOTE_FROM_VANESSA, noteFromVanessaSpawnPos);
                         break;
+                    case DATA_VANESSA_VAN_CLEEF:
+                        if (state == FAIL)
+                            ResetVanessasNightmare();
+                        break;
                     default:
                         break;
                 }
@@ -269,7 +296,112 @@ class instance_deadmines : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
+                if (unit->GetTypeId() == TYPEID_PLAYER && _vanessaVanCleefEncounterState != NOT_STARTED && _vanessaVanCleefEncounterState != NIGHTMARE_STAGE_DONE)
+                {   
+                    _deadPlayers++;
+                    if (_deadPlayers == instance->GetPlayersCountExceptGMs())
+                        ResetVanessasNightmare();
+                }
+                else
+                {
+                    switch (unit->GetEntry())
+                    {
+                        case NPC_ENRAGED_WORGEN:
+                            _deadEnragedWorgen++;
+                            unit->ToCreature()->DespawnOrUnsummon(Seconds(5));
+                            if (_deadEnragedWorgen == 3)
+                            {
+                                if (Creature* emme = GetCreature(DATA_EMME_HARRINGTON))
+                                {
+                                    emme->CastSpell(emme, SPELL_ADRENALINE, true);
+                                    emme->DespawnOrUnsummon();
+                                    _deadEnragedWorgen = 0;
+                                    events.ScheduleEvent(EVENT_ANNOUNCE_SAVE_ERIK_HARRINGTON, Seconds(4));
+                                }
+                                else if (Creature* erik = GetCreature(DATA_ERIK_HARRINGTON))
+                                {
+                                    erik->CastSpell(emme, SPELL_ADRENALINE, true);
+                                    erik->DespawnOrUnsummon();
+                                    events.ScheduleEvent(EVENT_SUMMON_JAMES_HARRINGTON, Milliseconds(200));
+                                }
+                            }
+                            break;
+                        case NPC_JAMES_HARRINGTON:
+                            if (Creature* dummy = unit->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                            {
+                                dummy->CastSpell(dummy, SPELL_CANCEL_NIGHTMARE_AURA_RIPSNARL, true);
+                                dummy->CastSpell(dummy, SPELL_CANCEL_NIGHTMARE_ELIXIR, true);
+                            }
+                            unit->ToCreature()->DespawnOrUnsummon(Seconds(2) + Milliseconds(300));
+                            SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_DONE);
+                            events.ScheduleEvent(EVENT_ANNOUNCE_ELIXIR_WEARS_OFF, Milliseconds(250));
+                            break;
+                        case NPC_EMME_HARRINGTON:
+                        case NPC_ERIK_HARRINGTON:
+                        case NPC_CALISSA_HARRINGTON:
+                            unit->CastSpell(unit, SPELL_NIGHTMARES_END, true);
+                            ResetVanessasNightmare();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 
+            void ResetVanessasNightmare()
+            {
+                SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NOT_STARTED);
+                events.Reset();
+                events.ScheduleEvent(EVENT_SUMMON_NOTE_FROM_VANESSA, Seconds(30));
+                _deadPlayers = 0;
+                _activatedVentCounter = 0;
+                _deadEnragedWorgen = 0;
+
+                if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                    trapBunny->DespawnOrUnsummon(0, Seconds(30));
+
+                if (Creature* anchorBunny = GetCreature(DATA_VANESSA_ANCHOR_BUNNY))
+                    anchorBunny->DespawnOrUnsummon(0, Seconds(30));
+
+                if (!_steamValveGuidSet.empty())
+                    for (auto itr = _steamValveGuidSet.begin(); itr != _steamValveGuidSet.end(); itr++)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->DespawnOrUnsummon();
+
+                if (!_glubtokNightmareGuidSet.empty())
+                    for (auto itr = _glubtokNightmareGuidSet.begin(); itr != _glubtokNightmareGuidSet.end(); itr++)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->DespawnOrUnsummon();
+
+                if (!_helixNightmareGuidSet.empty())
+                    for (auto itr = _helixNightmareGuidSet.begin(); itr != _helixNightmareGuidSet.end(); itr++)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->DespawnOrUnsummon();
+
+                if (!_mechanicalNightmareGuidSet.empty())
+                    for (auto itr = _mechanicalNightmareGuidSet.begin(); itr != _mechanicalNightmareGuidSet.end(); itr++)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->DespawnOrUnsummon();
+
+                if (!_ripsnarlNightareGuidSet.empty())
+                    for (auto itr = _ripsnarlNightareGuidSet.begin(); itr != _ripsnarlNightareGuidSet.end(); itr++)
+                        if (Creature* creature = instance->GetCreature(*itr))
+                            creature->DespawnOrUnsummon();
+
+                if (Creature* vanessa = GetCreature(DATA_VANESSA_VAN_CLEEF_NIGHTMARE))
+                    vanessa->DespawnOrUnsummon();
+
+                _steamValveGuidSet.clear();
+                _glubtokNightmareGuidSet.clear();
+                _helixNightmareGuidSet.clear();
+                _mechanicalNightmareGuidSet.clear();
+                _ripsnarlNightareGuidSet.clear();
+
+                if (GameObject* foundryDoor = GetGameObject(DATA_FOUNDRY_DOOR))
+                    foundryDoor->SetGoState(GO_STATE_ACTIVE);
+
+                if (GameObject* foundryDoor = GetGameObject(DATA_IRON_CLAD_DOOR))
+                    foundryDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -316,15 +448,17 @@ class instance_deadmines : public InstanceMapScript
                         {
                             case IN_PROGRESS:
                                 instance->SummonCreature(NPC_VANESSA_VAN_CLEEF_INTRO, vanessaVanCleefSpawnPos);
+                                if (GameObject* foundryDoor = GetGameObject(DATA_FOUNDRY_DOOR))
+                                    foundryDoor->SetGoState(GO_STATE_READY);
+
+                                if (GameObject* foundryDoor = GetGameObject(DATA_IRON_CLAD_DOOR))
+                                    foundryDoor->SetGoState(GO_STATE_READY);
+
                                 break;
                             case NIGHTMARE_STATE_PREPARE_TRAP:
                                 if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
                                     if (Creature* anchorBunny = GetCreature(DATA_VANESSA_ANCHOR_BUNNY))
-                                    {
-                                        trapBunny->Respawn();
-                                        anchorBunny->Respawn();
                                         anchorBunny->CastSpell(trapBunny, SPELL_ROPE_BEAM, true);
-                                    }
                                 break;
                             case NIGHTMARE_STAGE_MAGMA_TRAP:
                                 if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
@@ -340,6 +474,9 @@ class instance_deadmines : public InstanceMapScript
                                 break;
                             case NIGHTMARE_STAGE_FOE_REAPER:
                                 events.ScheduleEvent(EVENT_DESPAWN_NIGHTMARE_SPIDERS, Seconds(2));
+                                break;
+                            case NIGHTMARE_STAGE_RIPSNARL:
+                                events.ScheduleEvent(EVENT_CAST_NIGHTMARE_AURA_4, Seconds(2) + Milliseconds(500));
                                 break;
                             default:
                                 break;
@@ -410,6 +547,9 @@ class instance_deadmines : public InstanceMapScript
                                         bunny->AI()->Talk(SAY_ANNOUNCE_SHADOWY_FIGURE);
                                     _firstCookieSpawn = false;
                                 }
+                            break;
+                        case EVENT_SUMMON_NOTE_FROM_VANESSA:
+                            instance->SummonCreature(NPC_A_NOTE_FROM_VANESSA, noteFromVanessaSpawnPos);
                             break;
                         case EVENT_CAST_NIGHTMARE_AURA_1:
                             if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
@@ -523,6 +663,95 @@ class instance_deadmines : public InstanceMapScript
                                 reaper->RemoveAurasDueToSpell(SPELL_OFF_LINE);
                             }
                             break;
+                        case EVENT_CAST_NIGHTMARE_AURA_4:
+                            if (GameObject* door = GetGameObject(DATA_IRON_CLAD_DOOR))
+                                if (Creature* purposeBunny = door->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                {
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_CANCEL_NIGHTMARE_AURA_MECHANICAL, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_AURA, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_SLOW, true);
+                                }
+                            events.ScheduleEvent(EVENT_DESPAWN_LIGHTNING_PLATTERS, Milliseconds(50));
+                            break;
+                        case EVENT_DESPAWN_LIGHTNING_PLATTERS:
+                            for (auto itr = _mechanicalNightmareGuidSet.begin(); itr != _mechanicalNightmareGuidSet.end(); itr++)
+                                if (Creature* creature = instance->GetCreature(*itr))
+                                    if (creature->GetEntry() != NPC_FOE_REAPER_5000_NIGHTMARE)
+                                        creature->DespawnOrUnsummon();
+                            events.ScheduleEvent(EVENT_NIGHTMARE_SHIFTS_2, Milliseconds(150));
+                            events.ScheduleEvent(EVENT_SETUP_RIPSNARL_NIGHTMARE, Seconds(2) + Milliseconds(600));
+                            break;
+                        case EVENT_SETUP_RIPSNARL_NIGHTMARE:
+                            instance->SummonCreature(NPC_RIPSNARL_NIGHTMARE, RipsnarlNightmareIntroSpawnPos);
+                            instance->SummonCreature(NPC_VANESSA_VANCLEEF_NIGHTMARE, vanessaVanCleefNightmareSpawnPos[3]);
+                            events.ScheduleEvent(EVENT_OPEN_IRON_CLAD_DOOR, Seconds(14) + Milliseconds(400));
+                            break;
+                        case EVENT_NIGHTMARE_SHIFTS_2:
+                            if (GameObject* door = GetGameObject(DATA_IRON_CLAD_DOOR))
+                                if (Creature* purposeBunny = door->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                    purposeBunny->AI()->Talk(SAY_ANNOUNCE_NIGHTMARE_SHIFTS);
+                            break;
+                        case EVENT_OPEN_IRON_CLAD_DOOR:
+                            if (GameObject* door = GetGameObject(DATA_IRON_CLAD_DOOR))
+                                door->SetGoState(GO_STATE_ACTIVE);
+
+                            instance->SummonCreature(NPC_EMME_HARRINGTON, EmmeHarringtonSpawnPos);
+                            for (uint8 i = 0; i < 3; i++)
+                                instance->SummonCreature(NPC_ENRAGED_WORGEN, EnragedWorgenEmmeSpawnPos[i]);
+
+                            events.ScheduleEvent(EVENT_ANNOUNCE_SAVE_EMME_HARRINGTON, Seconds(3) + Milliseconds(500));
+                            break;
+                        case EVENT_ANNOUNCE_SAVE_EMME_HARRINGTON:
+                            if (GameObject* door = GetGameObject(DATA_IRON_CLAD_DOOR))
+                                if (Creature* purposeBunny = door->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 20.0f, true))
+                                    purposeBunny->AI()->Talk(SAY_ANNOUNCE_SAVE_EMME_HARRINGTON);
+                            break;
+                        case EVENT_ANNOUNCE_SAVE_ERIK_HARRINGTON:
+                            for (auto itr = _generalPurposeBunnyJMFGuidSet.begin(); itr != _generalPurposeBunnyJMFGuidSet.end(); itr++)
+                                if (Creature* purposeBunny = instance->GetCreature(*itr))
+                                    if (purposeBunny->GetDistance(EmmeHarringtonSpawnPos) <= 40.0f)
+                                    {
+                                        purposeBunny->AI()->Talk(SAY_ANNOUNCE_SAVE_ERIK_HARRINGTON);
+                                        events.ScheduleEvent(EVENT_SUMMON_ERIK_HARRINGTON, Seconds(1) + Milliseconds(800));
+                                        break;
+                                    }
+                            break;
+                        case EVENT_SUMMON_ERIK_HARRINGTON:
+                            instance->SummonCreature(NPC_ERIK_HARRINGTON, ErikHarringtonSpawnPos);
+                            for (uint8 i = 0; i < 3; i++)
+                                instance->SummonCreature(NPC_ENRAGED_WORGEN, EnragedWorgenErikSpawnPos[i]);
+                            break;
+                        case EVENT_SUMMON_JAMES_HARRINGTON:
+                            if (Creature* james = instance->SummonCreature(NPC_JAMES_HARRINGTON, JamesHarringtonSpawnPos))
+                                if (Creature* calissa = instance->SummonCreature(NPC_CALISSA_HARRINGTON, CalissaHarringtonSpawnPos))
+                                {
+                                    james->SetReactState(REACT_PASSIVE);
+                                    calissa->CastSpell(james, VEHICLE_SPELL_RIDE_HARDCODED, true);
+                                    calissa->SetInCombatWith(james);
+                                }
+                            events.ScheduleEvent(EVENT_ANNOUNCE_SAVE_CALISSA_HARRINGTON, Seconds(3) + Milliseconds(400));
+                            break;
+                        case EVENT_ANNOUNCE_SAVE_CALISSA_HARRINGTON:
+                            for (auto itr = _generalPurposeBunnyJMFGuidSet.begin(); itr != _generalPurposeBunnyJMFGuidSet.end(); itr++)
+                                if (Creature* purposeBunny = instance->GetCreature(*itr))
+                                    if (purposeBunny->GetDistance(CalissaHarringtonSpawnPos) <= 100.0f)
+                                    {
+                                        purposeBunny->AI()->Talk(SAY_ANNOUNCE_SAVE_CALISSA_HARRINGTON);
+                                        break;
+                                    }
+                            break;
+                        case EVENT_ANNOUNCE_ELIXIR_WEARS_OFF:
+                            if (Creature* calissa = GetCreature(DATA_ADMIRAL_RIPSNARL))
+                                if (Creature* purposeBunny = calissa->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 100.0f, true))
+                                {
+                                    purposeBunny->AI()->Talk(SAY_ANNOUNCE_NIGHTMARE_ELIXIR_WEARS_OFF);
+                                    calissa->DespawnOrUnsummon(Seconds(2) + Milliseconds(200));
+                                }
+                            events.ScheduleEvent(EVENT_SUMMON_VANESSA_VANCLEEF_BOSS, Seconds(2));
+                            break;
+                        case EVENT_SUMMON_VANESSA_VANCLEEF_BOSS:
+                            instance->SummonCreature(BOSS_VANESSA_VAN_CLEEF, bossVanessaVanCleefSpawnPos);
+                            break;
                         default:
                             break;
                     }
@@ -532,14 +761,19 @@ class instance_deadmines : public InstanceMapScript
         protected:
             EventMap events;
             uint8 _activatedVentCounter;
+            uint8 _deadPlayers;
+            uint8 _deadEnragedWorgen;
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
             uint32 _ironCladDoorState;
             uint32 _vanessaVanCleefEncounterState;
             GuidSet _generalPurposeBunnyJMF2GuidSet;
+            GuidSet _generalPurposeBunnyJMFGuidSet;
             GuidSet _steamValveGuidSet;
             GuidSet _glubtokNightmareGuidSet;
             GuidSet _helixNightmareGuidSet;
+            GuidSet _mechanicalNightmareGuidSet;
+            GuidSet _ripsnarlNightareGuidSet;
             bool _firstCookieSpawn;
         };
 

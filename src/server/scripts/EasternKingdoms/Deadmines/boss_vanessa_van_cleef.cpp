@@ -26,6 +26,9 @@
 enum Texts
 {
     // Vanessa VanCleef
+    SAY_AGGRO                       = 0,
+
+    // Vanessa VanCleef Intro
     SAY_ANNOUNCE_NOISE_FROM_ABOVE   = 0,
     SAY_INTRO_1                     = 1,
     SAY_INTRO_2                     = 2,
@@ -90,16 +93,14 @@ class boss_vanessa_van_cleef : public CreatureScript
             void Reset() override
             {
                 _Reset();
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-
+                instance->SetBossState(DATA_VANESSA_VAN_CLEEF, NOT_STARTED);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
+                Talk(SAY_AGGRO);
                 _JustEngagedWith();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -157,6 +158,7 @@ class npc_vanessa_vanessa_van_cleef : public CreatureScript
 
             void Reset() override
             {
+                _instance->SetBossState(DATA_VANESSA_VAN_CLEEF, IN_PROGRESS);
                 _events.ScheduleEvent(EVENT_ANNOUNCE_NOISE_FROM_ABOVE, Seconds(2) + Milliseconds(500));
             }
 
