@@ -230,14 +230,15 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
     object->GetPhaseShift().ClearPhases();
     object->GetSuppressedPhaseShift().ClearPhases();
 
-    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(object->GetAreaId());
+    uint32 areaId = object->GetAreaId();
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
     while (areaEntry)
     {
         if (std::vector<PhaseAreaInfo> const* newAreaPhases = sObjectMgr->GetPhasesForArea(areaEntry->ID))
         {
             for (PhaseAreaInfo const& phaseArea : *newAreaPhases)
             {
-                if (phaseArea.SubAreaExclusions.find(areaEntry->ID) != phaseArea.SubAreaExclusions.end())
+                if (phaseArea.SubAreaExclusions.find(areaId) != phaseArea.SubAreaExclusions.end())
                     continue;
 
                 uint32 phaseId = phaseArea.PhaseInfo->Id;
