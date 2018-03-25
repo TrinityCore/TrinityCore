@@ -52,11 +52,11 @@ struct boss_baroness_anastari : public BossAI
 
     void Reset() override
     {
-        if (me->IsVisible())
+        if (!me->IsVisible())
         {
             Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid);
 
-            if (possessedTarget && possessedTarget->IsAlive())
+            if (possessedTarget->IsAlive())
             {
                 possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
                 possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
