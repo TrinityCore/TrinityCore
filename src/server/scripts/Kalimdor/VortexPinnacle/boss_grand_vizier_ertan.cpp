@@ -219,9 +219,9 @@ class npc_ertans_vortex : public CreatureScript
 public:
     npc_ertans_vortex() : CreatureScript("npc_ertans_vortex") { }
 
-    struct npc_ertans_vortexAI : public ScriptedAI
+    struct npc_ertans_vortexAI : public PassiveAI
     {
-        npc_ertans_vortexAI(Creature* creature) : ScriptedAI(creature)
+        npc_ertans_vortexAI(Creature* creature) : PassiveAI(creature)
         {
             Initialize();
         }
@@ -231,10 +231,9 @@ public:
             _currentPointId = 0;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
-            DoCast(me, SPELL_CYCLONE_SHIELD);
-            DoZoneInCombat();
+            DoCast(me, SPELL_CYCLONE_SHIELD, true);
         }
 
         void DoAction(int32 action) override
