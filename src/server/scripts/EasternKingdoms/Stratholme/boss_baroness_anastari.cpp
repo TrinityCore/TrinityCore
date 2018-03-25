@@ -54,14 +54,15 @@ struct boss_baroness_anastari : public BossAI
     {
         if (!me->IsVisible())
         {
-            Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid);
-
-            if (possessedTarget->IsAlive())
+            if (Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid))
             {
-                possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->SetVisible(true);
+                if (possessedTarget->IsAlive())
+                {
+                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetVisible(true);
+                }
             }
         }
         _events.Reset();
