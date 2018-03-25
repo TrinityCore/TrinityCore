@@ -4126,15 +4126,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(84); // To-do: Enum this radius entry - EFFECT_RADIUS_17_YARDS.
     });
 
-    // Cyclone Shield
-    ApplySpellFix({
-        86292,
-        93991,
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
-    });
-
     // Upwind of Altairus
     ApplySpellFix({ 88282 }, [](SpellInfo* spellInfo)
     {
@@ -4221,6 +4212,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+    });
+
+    // Vanessa VanCleef
+    // Spark
+    ApplySpellFix({ 95520 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
     });
 
     // END OF DEADMINES SPELLS
