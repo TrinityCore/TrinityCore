@@ -130,6 +130,8 @@ class boss_vanessa_van_cleef : public CreatureScript
                 {
                     switch (eventId)
                     {
+                        case 0:
+                            break;
                         default:
                             break;
                     }
@@ -231,7 +233,7 @@ class npc_vanessa_vanessa_van_cleef : public CreatureScript
                             _events.ScheduleEvent(EVENT_MAGMA_TRAP, Milliseconds(800));
                             break;
                         case EVENT_MAGMA_TRAP:
-                            _instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_GLUBTOK);
+                            _instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_MAGMA_TRAP);
                             break;
                         default:
                             break;

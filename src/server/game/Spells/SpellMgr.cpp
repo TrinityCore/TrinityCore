@@ -4126,6 +4126,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(84); // To-do: Enum this radius entry - EFFECT_RADIUS_17_YARDS.
     });
 
+    // Cyclone Shield
+    ApplySpellFix({
+        86292,
+        93991,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
     // Upwind of Altairus
     ApplySpellFix({ 88282 }, [](SpellInfo* spellInfo)
     {

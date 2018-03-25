@@ -901,7 +901,7 @@ class spell_helix_ride_face_timer_aura: public SpellScriptLoader
                         if (Unit* vehicle = owner->GetVehicleBase())
                         {
                             if (owner->GetMap() && owner->GetMap()->IsHeroic())
-                                if (vehicle->GetTypeId() == TYPEID_PLAYER)
+                                if (vehicle->GetTypeId() == TYPEID_PLAYER && owner->GetEntry() == BOSS_HELIX_GEARBREAKER)
                                 {
                                     owner->CastSpell(vehicle, SPELL_CHEST_BOMB, true);
                                     owner->CastSpell(vehicle, SPELL_HELIX_CHEST_BOMB_EMOTE, true);
@@ -909,7 +909,7 @@ class spell_helix_ride_face_timer_aura: public SpellScriptLoader
 
                             if (Creature* oaf = instance->GetCreature(DATA_LUMBERING_OAF))
                             {
-                                if (oaf->IsAlive())
+                                if (oaf->IsAlive() && owner->GetEntry() == BOSS_HELIX_GEARBREAKER)
                                 {
                                     owner->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
                                     if (Creature* creature = owner->ToCreature())

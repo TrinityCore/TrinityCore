@@ -24,14 +24,43 @@
 
 enum EventIds
 {
-    EVENT_SUMMON_CAPTAIN_COOKIE = 1
+    EVENT_SUMMON_CAPTAIN_COOKIE = 1,
+    EVENT_CAST_NIGHTMARE_AURA_1,
+    EVENT_CAST_NIGHTMARE_AURA_2,
+    EVENT_CAST_NIGHTMARE_AURA_3,
+    EVENT_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD,
+    EVENT_SETUP_GLUBTOKS_NIGHTMARE,
+    EVENT_SUMMON_ICICLES,
+    EVENT_SUMMON_GLUBTOK,
+    EVENT_ANNOUNCE_NIGHTMARE_SHIFTS,
+    EVENT_DESPAWN_NIGHTMARE_FIRE,
+    EVENT_SETUP_HELIX_NIGHTMARE,
+    EVENT_DESPAWN_NIGHTMARE_SPIDERS,
+    EVENT_SETUP_MECHANICAL_NIGHTMARE,
+    EVENT_SUMMON_FOE_REAPER,
 };
 
 enum TextsIds
 {
     // Id's 0 - 1 used by Foe Reaper 5000
     // Id 2 used by Defias Cannon
-    SAY_ANNOUNCE_SHADOWY_FIGURE = 3
+    SAY_ANNOUNCE_SHADOWY_FIGURE                 = 3,
+    SAY_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD    = 4,
+    SAY_ANNOUNCE_NIGHTMARE_SHIFTS               = 5,
+};
+
+enum Spells
+{
+    SPELL_NIGHTMARE_SLOW                    = 92559,
+    SPELL_NIGHTMARE_AURA                    = 92563,
+
+    SPELL_CANCEL_NIGHTMARE_AURA_GLUBTOK     = 92584,
+    SPELL_CANCEL_NIGHTMARE_AURA_HELIX       = 92585,
+    SPELL_CANCEL_NIGHTMARE_AURA_MECHANICAL  = 92586,
+    SPELL_CANCEL_NIGHTMARE_AURA_RIPSNARL    = 92587,
+
+    SPELL_SUMMON_ICICLE                     = 92189,
+    SPELL_OFF_LINE                          = 88348
 };
 
 ObjectData const creatureData[] =
@@ -53,6 +82,7 @@ ObjectData const creatureData[] =
 ObjectData const gameobjectData[] =
 {
     { GO_IRON_CLAD_DOOR,                DATA_IRON_CLAD_DOOR     },
+    { GO_FOUNDRY_DOOR,                  DATA_FOUNDRY_DOOR       },
     { 0,                                0                       } // END
 };
 
@@ -179,6 +209,20 @@ class instance_deadmines : public InstanceMapScript
                     case NPC_STEAM_VALVE:
                         _steamValveGuidSet.insert(creature->GetGUID());
                         break;
+                    case NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY:
+                    case NPC_GLUBTOK_NIGHTMARE:
+                        _glubtokNightmareGuidSet.insert(creature->GetGUID());
+                        break;
+                    case NPC_HELIX_GEARBREAKER_NIGHTMARE:
+                    case NPC_NIGHTMARE_SKITTERLING:
+                    case NPC_DARKWEB_DEVOURER:
+                    case NPC_CHATTERING_HORROR:
+                        _helixNightmareGuidSet.insert(creature->GetGUID());
+                        break;
+                    case NPC_GENERAL_PURPOSE_DUMMY_JMF:
+                        if (_vanessaVanCleefEncounterState == NIGHTMARE_STAGE_HELIX)
+                            _helixNightmareGuidSet.insert(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -276,11 +320,26 @@ class instance_deadmines : public InstanceMapScript
                             case NIGHTMARE_STATE_PREPARE_TRAP:
                                 if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
                                     if (Creature* anchorBunny = GetCreature(DATA_VANESSA_ANCHOR_BUNNY))
+                                    {
+                                        trapBunny->Respawn();
+                                        anchorBunny->Respawn();
                                         anchorBunny->CastSpell(trapBunny, SPELL_ROPE_BEAM, true);
+                                    }
                                 break;
-                            case NIGHTMARE_STAGE_GLUBTOK:
+                            case NIGHTMARE_STAGE_MAGMA_TRAP:
                                 if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
                                     trapBunny->CastSpell(trapBunny, SPELL_RIDE_MAGMA_VEHICLE, true);
+                                break;
+                            case NIGHTMARE_STAGE_GLUBTOK:
+                                events.ScheduleEvent(EVENT_CAST_NIGHTMARE_AURA_1, Seconds(4));
+                                events.ScheduleEvent(EVENT_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD, Seconds(4) + Milliseconds(200));
+                                break;
+                            case NIGHTMARE_STAGE_HELIX:
+                                events.CancelEvent(EVENT_SUMMON_ICICLES);
+                                events.ScheduleEvent(EVENT_CAST_NIGHTMARE_AURA_2, Seconds(2) + Milliseconds(900));
+                                break;
+                            case NIGHTMARE_STAGE_FOE_REAPER:
+                                events.ScheduleEvent(EVENT_DESPAWN_NIGHTMARE_SPIDERS, Seconds(2));
                                 break;
                             default:
                                 break;
@@ -289,8 +348,15 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_ACTIVATED_VENT:
                         _activatedVentCounter++;
                         if (_activatedVentCounter == 4)
+                        {
+                            for (auto itr = _steamValveGuidSet.begin(); itr != _steamValveGuidSet.end(); itr++)
+                                if (Creature* valve = instance->GetCreature((*itr)))
+                                    valve->DespawnOrUnsummon(Seconds(10));
+
+                            SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_GLUBTOK);
                             if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
                                 trapBunny->AI()->DoAction(ACTION_EJECT_PLAYERS);
+                        }
                         break;
                     default:
                         break;
@@ -345,6 +411,118 @@ class instance_deadmines : public InstanceMapScript
                                     _firstCookieSpawn = false;
                                 }
                             break;
+                        case EVENT_CAST_NIGHTMARE_AURA_1:
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                if (Creature* purposeBunny = trapBunny->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                {
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_AURA, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_SLOW, true);
+                                }
+                            break;
+                        case EVENT_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD:
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                if (Creature* purposeBunny = trapBunny->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                    purposeBunny->AI()->Talk(SAY_ANNOUNCE_NIGHTMARE_ELIXIR_TAKES_HOLD);
+
+                            events.ScheduleEvent(EVENT_SETUP_GLUBTOKS_NIGHTMARE, Milliseconds(600));
+                            break;
+                        case EVENT_SETUP_GLUBTOKS_NIGHTMARE:
+                            instance->SummonCreature(NPC_VANESSA_VANCLEEF_NIGHTMARE, vanessaVanCleefNightmareSpawnPos[0]);
+                            instance->SummonCreature(NPC_GLUBTOK_NIGHTMARE, GlubtokNightmareIntroSpawnPos);
+
+                            for (uint8 i = 0; i < 32; i++)
+                                instance->SummonCreature(NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY, glubtokNightmareFireBunnyPos[i]);
+
+                            events.ScheduleEvent(EVENT_SUMMON_GLUBTOK, Seconds(14) + Milliseconds(400));
+                            events.ScheduleEvent(EVENT_SUMMON_ICICLES, Seconds(14));
+                            break;
+                        case EVENT_SUMMON_ICICLES:
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                if (Creature* purposeBunny = trapBunny->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                {
+                                    std::list<Player*> playerList;
+                                    purposeBunny->GetPlayerListInGrid(playerList, 100.0f);
+                                    if (!playerList.empty())
+                                        if (Player* target = Trinity::Containers::SelectRandomContainerElement(playerList))
+                                            purposeBunny->CastSpell(target, SPELL_SUMMON_ICICLE, true);
+                                }
+
+                            events.Repeat(Seconds(3) - Milliseconds(600));
+                            break;
+                        case EVENT_SUMMON_GLUBTOK:
+                            if (Creature* glubtok = instance->SummonCreature(NPC_GLUBTOK_NIGHTMARE, GlubtokNightmareSpawnPos))
+                                glubtok->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                            break;
+                        case EVENT_CAST_NIGHTMARE_AURA_2:
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                if (Creature* purposeBunny = trapBunny->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                {
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_CANCEL_NIGHTMARE_AURA_GLUBTOK, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_AURA, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_SLOW, true);
+                                }
+
+                            events.ScheduleEvent(EVENT_ANNOUNCE_NIGHTMARE_SHIFTS, Milliseconds(200));
+                            events.ScheduleEvent(EVENT_DESPAWN_NIGHTMARE_FIRE, Milliseconds(400));
+                            break;
+                        case EVENT_ANNOUNCE_NIGHTMARE_SHIFTS:
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                if (Creature* purposeBunny = trapBunny->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                    purposeBunny->AI()->Talk(SAY_ANNOUNCE_NIGHTMARE_SHIFTS);
+                            break;
+                        case EVENT_DESPAWN_NIGHTMARE_FIRE:
+                            for (auto itr = _glubtokNightmareGuidSet.begin(); itr != _glubtokNightmareGuidSet.end(); itr++)
+                                if (Creature* creature = instance->GetCreature(*itr))
+                                    if (creature->GetEntry() == NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY)
+                                        creature->DespawnOrUnsummon();
+
+                            events.ScheduleEvent(EVENT_SETUP_HELIX_NIGHTMARE, Seconds(2) + Milliseconds(800));
+                            break;
+                        case EVENT_SETUP_HELIX_NIGHTMARE:
+                            instance->SummonCreature(NPC_VANESSA_VANCLEEF_NIGHTMARE, vanessaVanCleefNightmareSpawnPos[1]);
+                            instance->SummonCreature(NPC_HELIX_GEARBREAKER_NIGHTMARE, HelixNightmareSpawnPos);
+                            break;
+                        case EVENT_DESPAWN_NIGHTMARE_SPIDERS:
+                            for (auto itr = _helixNightmareGuidSet.begin(); itr != _helixNightmareGuidSet.end(); itr++)
+                                if (Creature* creature = instance->GetCreature(*itr))
+                                    if (creature->GetEntry() != NPC_HELIX_GEARBREAKER_NIGHTMARE)
+                                        creature->DespawnOrUnsummon();
+                            events.ScheduleEvent(EVENT_ANNOUNCE_NIGHTMARE_SHIFTS, Milliseconds(100));
+                            events.ScheduleEvent(EVENT_CAST_NIGHTMARE_AURA_3, Milliseconds(200));
+                            break;
+                        case EVENT_CAST_NIGHTMARE_AURA_3:
+                            if (Creature* trapBunny = GetCreature(DATA_VANESSAS_TRAP_BUNNY))
+                                if (Creature* purposeBunny = trapBunny->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                                {
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_CANCEL_NIGHTMARE_AURA_HELIX, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_AURA, true);
+                                    purposeBunny->CastSpell(purposeBunny, SPELL_NIGHTMARE_SLOW, true);
+                                }
+                            events.ScheduleEvent(EVENT_SETUP_MECHANICAL_NIGHTMARE, Seconds(2) + Milliseconds(400));
+                            break;
+                        case EVENT_SETUP_MECHANICAL_NIGHTMARE:
+                            if (GameObject* door = GetGameObject(DATA_FOUNDRY_DOOR))
+                                door->SetGoState(GO_STATE_ACTIVE);
+                            instance->SummonCreature(NPC_FOE_REAPER_5000_NIGHTMARE, FoeReaperNightmareIntroSpawnPos);
+                            instance->SummonCreature(NPC_VANESSA_VANCLEEF_NIGHTMARE, vanessaVanCleefNightmareSpawnPos[2]);
+                            for (uint8 i = 0; i < 6; i++)
+                                if (Creature* platter = instance->SummonCreature(NPC_VANESSA_LIGHTNING_PLATTER, LightningPlatterPos[i]))
+                                {
+                                    Position const pos = LightningPlatterCenterPos[i];
+                                    float dist = platter->GetPosition().GetExactDist2d(pos);
+                                    bool clockwise = RAND(0, 1) == 1;
+                                    platter->SetSpeed(MOVE_RUN, 0.25f);
+                                    platter->GetMotionMaster()->MoveCirclePath(pos.GetPositionX(), pos.GetPositionY(), platter->GetPositionZ(), dist, clockwise, 10);
+                                }
+                            events.ScheduleEvent(EVENT_SUMMON_FOE_REAPER, Seconds(9) + Milliseconds(500));
+                            break;
+                        case EVENT_SUMMON_FOE_REAPER:
+                            if (Creature* reaper = instance->SummonCreature(NPC_FOE_REAPER_5000_NIGHTMARE, FoeReaperNightmareSpawnPos))
+                            {
+                                reaper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                                reaper->RemoveAurasDueToSpell(SPELL_OFF_LINE);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -360,6 +538,8 @@ class instance_deadmines : public InstanceMapScript
             uint32 _vanessaVanCleefEncounterState;
             GuidSet _generalPurposeBunnyJMF2GuidSet;
             GuidSet _steamValveGuidSet;
+            GuidSet _glubtokNightmareGuidSet;
+            GuidSet _helixNightmareGuidSet;
             bool _firstCookieSpawn;
         };
 
