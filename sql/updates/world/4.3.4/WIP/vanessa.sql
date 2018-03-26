@@ -1,47 +1,15 @@
 /*
-21:33:55.992 -- der alptraum wandelt sich
-21:33:56.834 -- reaper despawn
-21:33:58.441 -- spawn ripsnarl and vanessa
-
-21:34:00.656 -- ripsnarl wasnt always
-21:34:07.895 -- his name was james harrington
-21:34:12.497 -- cancel nightmare aura
-21:34:12.699 -- announce nightmare
-21:34:12.887 -- open door
-
-
-21:34:14.899 -- vanessa casts adrenaline
-21:34:15.227 -- despawn vanessa and ripsnarl
-
-21:34:12.887 -- spawn emme harrington
-21:34:12.887 -- emme casts group taunt 
-21:34:24.524 -- group taunt 2
-
-
-21:34:16.303 -- rette emme harrington
-
-21:34:35.164 -- emme casts adrenaline
-21:34:35.164 -- despawn emme
-
-21:34:39.173 -- announce save erik
-21:34:40.982 -- spawn worgen and erik
-21:34:59.625 -- erik despawn
-
-21:34:59.827 -- spawn calissa
-21:35:03.259 -- announce save
-
-21:35:15.287 -- james, please, I love you
-21:35:16.504
-
-21:35:24.897 -- announce calissa dies
-
-21:35:27.190 -- ripsnarl death
-21:35:27.096 -- cancel nightmare elixir
-21:35:27.346 -- announce
-
-21:35:29.530 -- despawn both
-
 21:35:31.527 -- spawn boss
+21:35:37.564 -- aggro
+21:35:48.422 -- deflection 1
+21:35:49.607 -- deadly blades 1
+
+21:36:24.349 -- announce sprengstoff
+
+
+
+21:36:43.428 -- # 2
+
 */
 
 
@@ -172,11 +140,13 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_deadmines_ride_magma_vehicle',
-'spell_deadmines_magma_trap_throw_to_location');
+'spell_deadmines_magma_trap_throw_to_location',
+'spell_vanessa_backslash_targeting');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (92378, 'spell_deadmines_ride_magma_vehicle'),
-(92438, 'spell_deadmines_magma_trap_throw_to_location');
+(92438, 'spell_deadmines_magma_trap_throw_to_location'),
+(92620, 'spell_vanessa_backslash_targeting');
 
 -- Spellclick spells
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (49457);

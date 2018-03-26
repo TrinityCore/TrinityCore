@@ -182,7 +182,7 @@ class npc_deadmines_vanessas_trap_bunny : public CreatureScript
                         for (uint8 i = 0; i < 5; i++)
                             if (Unit* passenger = vehicle->GetPassenger(i))
                             {
-                                passenger->ExitVehicle();
+                                passenger->ExitVehicle(&trapBunnyMoveDownPos);
                                 DoCast(passenger, SPELL_FORCE_MAGMA_TRAP_THROW, true);
                             }
                 }

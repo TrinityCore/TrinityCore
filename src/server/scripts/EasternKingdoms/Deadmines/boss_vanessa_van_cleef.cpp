@@ -27,6 +27,8 @@ enum Texts
 {
     // Vanessa VanCleef
     SAY_AGGRO                       = 0,
+    SAY_SLAY                        = 1,
+    SAY_SUMMON_DEFIAS_SUPPORT       = 2,
 
     // Vanessa VanCleef Intro
     SAY_ANNOUNCE_NOISE_FROM_ABOVE   = 0,
@@ -44,6 +46,11 @@ enum Texts
 enum Spells
 {
     // Vanessa VanCleef
+    SPELL_DEFLECTION                = 92614,
+    SPELL_DEADLY_BLADES             = 92622,
+    SPELL_BACK_SLASH                = 92619,
+
+    // Vanessa VanCleef Nightmare
     SPELL_SITTING                   = 89279,
     SPELL_NOXIOUS_CONCOCTION        = 92100,
     SPELL_NIGHTMARE_ELIXIR          = 92113,
@@ -53,8 +60,12 @@ enum Spells
 
 enum Events
 {
+    // Vanessa VanCleef
+    EVENT_DEFLECTION = 1,
+    EVENT_DEADLY_BLADES,
+
     // Vanessa VanCleef Intro
-    EVENT_ANNOUNCE_NOISE_FROM_ABOVE = 1,
+    EVENT_ANNOUNCE_NOISE_FROM_ABOVE,
     EVENT_TALK_INTRO_1,
     EVENT_JUMP_ON_DECK,
     EVENT_MOVE_TO_INTRO_POS,
@@ -72,10 +83,6 @@ enum Events
 
     // A Note from Vanessa VanCleef
     EVENT_TALK_NOTE_FALLS_TO_THE_GROUND,
-};
-
-enum Phases
-{
 };
 
 Position const vanessaIntroJumpPos = { -64.5677f,  -820.161f,  41.123f   };
@@ -100,6 +107,7 @@ class boss_vanessa_van_cleef : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                events.ScheduleEvent(EVENT_DEFLECTION, Seconds(11));
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -117,6 +125,12 @@ class boss_vanessa_van_cleef : public CreatureScript
                 _DespawnAtEvade();
             }
 
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
@@ -131,7 +145,9 @@ class boss_vanessa_van_cleef : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case 0:
+                        case EVENT_DEFLECTION:
+                            if (me->HealthAbovePct(25))
+                                DoCastSelf(SPELL_DEFLECTION);
                             break;
                         default:
                             break;

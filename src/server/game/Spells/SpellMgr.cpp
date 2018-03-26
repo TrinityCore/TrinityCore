@@ -4221,6 +4221,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
     });
 
+    // Magma Trap Throw To Location
+    ApplySpellFix({ 92438 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MiscValue = 200;
+    });
     // END OF DEADMINES SPELLS
 
     //
