@@ -93,7 +93,6 @@ class boss_vanessa_van_cleef : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                instance->SetBossState(DATA_VANESSA_VAN_CLEEF, NOT_STARTED);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -114,6 +113,7 @@ class boss_vanessa_van_cleef : public CreatureScript
                 _EnterEvadeMode();
                 summons.DespawnAll();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, FAIL);
                 _DespawnAtEvade();
             }
 

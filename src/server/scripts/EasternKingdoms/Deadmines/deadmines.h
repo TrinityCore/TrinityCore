@@ -169,6 +169,7 @@ enum DMSpells
     SPELL_CANCEL_NIGHTMARE_AURA_HELIX       = 92585,
     SPELL_CANCEL_NIGHTMARE_AURA_MECHANICAL  = 92586,
     SPELL_CANCEL_NIGHTMARE_AURA_RIPSNARL    = 92587,
+    SPELL_SPIRIT_STRIKE                     = 59304,
     SPELL_SUMMON_ICICLE                     = 92189,
     SPELL_OFF_LINE                          = 88348,
     SPELL_NIGHTMARES_END                    = 92603,
@@ -177,13 +178,15 @@ enum DMSpells
 
 enum DMVanessasNightmareStages
 {
-    NIGHTMARE_STATE_PREPARE_TRAP    = 2,
-    NIGHTMARE_STAGE_MAGMA_TRAP      = 3,
-    NIGHTMARE_STAGE_GLUBTOK         = 4,
-    NIGHTMARE_STAGE_HELIX           = 5,
-    NIGHTMARE_STAGE_FOE_REAPER      = 6,
-    NIGHTMARE_STAGE_RIPSNARL        = 7,
-    NIGHTMARE_STAGE_DONE            = 8
+    // IN_PROGRESS = 1,
+    // FAIL = 2,
+    NIGHTMARE_STATE_PREPARE_TRAP    = 3,
+    NIGHTMARE_STAGE_MAGMA_TRAP      = 4,
+    NIGHTMARE_STAGE_GLUBTOK         = 5,
+    NIGHTMARE_STAGE_HELIX           = 6,
+    NIGHTMARE_STAGE_FOE_REAPER      = 7,
+    NIGHTMARE_STAGE_RIPSNARL        = 8,
+    NIGHTMARE_STAGE_DONE            = 9
 };
 
 Position const captainCookieSpawnPos = { -88.13194f, -819.3299f, 39.23453f };

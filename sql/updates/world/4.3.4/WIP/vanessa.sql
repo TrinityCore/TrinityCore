@@ -1,70 +1,4 @@
 /*
-0x280000003457D30 --ascee guid
-21:30:42.067 -- setting up trap
-21:30:42.878 -- magma trap vehicle
--- Trap Bunny
-21:30:46.092 -- spawn vents
-21:30:48.900 -- move down to  -205.7569 Y: -579.0972 Z: 35.98623
-21:30:48.900 -- click me
-21:30:49.103 -- "aktiviert die ventile um euch zu befreien"
-21:30:49.695 -- spellclick  steam vent  92399 (Steam Vent)
-21:30:50.897 -- fall down
-21:30:50.897 -- magma trap throw
-21:31:00.990 -- vents despawn
-21:30:54.937 -- nightmare slow
-21:30:55.140 -- announce the nightmare elixir
-21:30:55.779 -- spawn vanessa and glubtok fire bunnies  0xF130C207000044F2    48143 (Forgotten Aura)
-21:30:55.779 -- glubtok spawn (with Forgotten Aura 48143) and 69676 (Cosmetic - Alpha State 50%)
-21:30:55.779 -- fire bunnies activate
-21:30:56.747 -- poor glubtok- when his power manifested
-21:31:05.171 -- fear himself
-21:31:09.788 -- nightmare auras
-21:31:09.991 -- you have entered glubtoks nighmare!
-21:31:10.194 -- summon real glubtok to battle
-21:31:14.811 -- get back tot he ship
-21:31:17.323 -- despawn vanessa
-21:31:17.323 -- glubtok despawn????
-21:31:41.066 -- glubtok death
-21:31:43.952 -- nightmare aura  92563
-21:31:44.155 -- the nightmare shifts
-21:31:44.342 -- despawn fires
-21:31:47.166 -- helix summoned
-21:31:48.211 -- die meisten schurken -
-21:31:54.217 -- but you never know
-21:31:58.819 -- cancel nightmare aura
-21:31:58.819 -- nightmare aura helix
-21:32:02.548 -- despawn vanessa
-21:32:05.044 -- helix says: ihr habt helix' apltraum betreten
-21:32:05.652 -- nightmare skitterling spawns
-21:32:07.462 -- nightmare spiders spawn announcement
-21:32:36.634 -- helix death 
-21:32:38.646 -- spiders despawn
-21:32:38.740 -- announce nightmare changes
-21:32:38.990 -- nightmare aura + nightmare slow
-21:32:42.188 -- helix despawn
-
-
-21:32:41.376 -- open foundry door + vanessa spawns
-21:32:42.406 -- könnt ihr euch?
-21:32:46.010 -- ein einzelner funke
-21:32:49.410 -- cancel nightmare aura
-21:32:49.426 -- nightmare aura foe reaper
-21:32:49.816 -- real foe reaper
-
-21:32:49.629 -- ihr habt den mechanischen
-21:32:51.891 -- vanessa despawn
-
-21:33:21.937 -- foe reaper aggro
-21:33:24.745 -- spirit strike
-21:33:27.818 -- spirit strike
-21:33:31.016 -- spirit strike
-21:33:34.230
-
-21:33:53.215 -- reaper dead
-
-21:33:55.789 -- cancel nightmare aura mechanical
-21:33:55.836 -- despawn platters
-
 21:33:55.992 -- der alptraum wandelt sich
 21:33:56.834 -- reaper despawn
 21:33:58.441 -- spawn ripsnarl and vanessa
@@ -113,7 +47,7 @@
 
 -- Template Updates
 -- Vanessa VanCleef
-UPDATE `creature_template` SET `ScriptName`= 'boss_vanessa_van_cleef' WHERE `entry`= 49541;
+UPDATE `creature_template` SET `ScriptName`= 'boss_vanessa_van_cleef', `DamageModifier`= 121.2, `mechanic_immune_mask`= 617299839, `mingold`= 19000, `maxgold`= 20000 WHERE `entry`= 49541;
 -- Vanessa VanCleef (Intro)
 UPDATE `creature_template` SET `ScriptName`= 'npc_vanessa_vanessa_van_cleef' WHERE `entry`= 49429;
 -- A Note from Vanessa
@@ -131,15 +65,18 @@ UPDATE `creature_template` SET `flags_extra`= 131 WHERE `entry`= 51594;
 -- Collapsing Icicle
 UPDATE `creature_template` SET `unit_flags`= 33587200, `flags_extra`= 131 WHERE `entry` IN (49481, 57866);
 -- Glubtok Nightmare Illusion
-UPDATE `creature_template` SET `ScriptName`= 'npc_deadmines_glubtok_nightmare' WHERE `entry`= 49670;
+UPDATE `creature_template` SET `ScriptName`= '' WHERE `entry`= 49670;
 -- Helix Gearbreaker Illusion
-UPDATE `creature_template` SET `unit_flags`= 33600, `ScriptName`= 'npc_deadmines_helix_nightmare' WHERE `entry`= 49674;
+UPDATE `creature_template` SET `unit_flags`= 33600, `DamageModifier`= 10, `mechanic_immune_mask`= 617299839, `ScriptName`= 'npc_deadmines_helix_nightmare' WHERE `entry`= 49674;
 -- Lightning Platters
 UPDATE `creature_template` SET `InhabitType`= 4, `flags_extra`= 128 WHERE `entry` IN (49520, 49521);
 -- Foe Reaper 5000 Illusion
-UPDATE `creature_template` SET `ScriptName`= 'npc_deadmines_foe_reaper_5000_nightmare' WHERE `entry`= 49681;
+UPDATE `creature_template` SET `DamageModifier`= 42.2, `mechanic_immune_mask`= 617299839 WHERE `entry` = 49681;
 -- James Harrington
 UPDATE `creature_template` SET `VehicleId`= 1403 WHERE `entry`= 49539;
+-- Enraged Worgen
+UPDATE `creature_template` SET `DamageModifier`= 35 WHERE `entry`= 49532;
+
 
 -- Template Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (49564, 51594, 49671, 49670, 92201);
@@ -215,6 +152,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (49541, 8, 0, 'If I''m going to die, I''m taking you all with me!', 14, 0, 100, 15, 0, 24611, 49752, 'Vanessa van Cleef'),
 (49541, 9, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it!  RUN!', 41, 0, 100, 0, 0, 0, 49757, 'Vanessa van Cleef'),
 (49541, 10, 0, 'MY FATE IS MY OWN!', 14, 0, 100, 397, 0, 24612, 49754, 'Vanessa van Cleef');
+UPDATE `creature_text` SET `TextRange`= 3 WHERE `CreatureID` IN (45979, 49539, 49536);
+
 
 UPDATE `creature_template` SET `npcflag`= 16777216 WHERE `entry`= 49520;
 
@@ -264,14 +203,14 @@ SET @ENTRY := 49534;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 60, 0, 100, 0, 1, 1, 5000, 5000, 11, 92308, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 5000 and 5000 ms (for the first time, timer between 1 and 1 ms) - Self: Cast spell Group Taunt (92308) on Self // ");
+(@ENTRY, 0, 0, 0, 60, 0, 100, 0, 100, 100, 5000, 5000, 11, 92308, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 5000 and 5000 ms (for the first time, timer between 100 and 100 ms) - Self: Cast spell Group Taunt (92308) on Self // ");
 
 -- Creature Erik Harrington 49535 SAI
 SET @ENTRY := 49535;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 60, 0, 100, 0, 1, 1, 5000, 5000, 11, 92308, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 5000 and 5000 ms (for the first time, timer between 1 and 1 ms) - Self: Cast spell Group Taunt (92308) on Self // ");
+(@ENTRY, 0, 0, 0, 60, 0, 100, 0, 100, 100, 5000, 5000, 11, 92308, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 5000 and 5000 ms (for the first time, timer between 100 and 100 ms) - Self: Cast spell Group Taunt (92308) on Self // ");
 
 -- Creature Calissa Harrington 49536 SAI
 SET @ENTRY := 49536;
@@ -282,6 +221,17 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 1, 0, 60, 0, 100, 1, 25000, 25000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 25000 and 25000 ms) - Self: Talk 1 // "),
 (@ENTRY, 0, 2, 0, 60, 0, 100, 1, 16700, 16700, 0, 0, 1, 0, 0, 0, 0, 0, 0, 11, 49539, 10, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 16700 and 16700 ms) - Creature James Harrington (49539) in 10 yd: Talk 0 // ");
 
--- Creature James Harrington 49539 SAI
-SET @ENTRY := 49539;
-UPDATE `creature_template` SET `AIName`="0" WHERE `entry`= @ENTRY;
+-- Creature Glubtok 49670 SAI
+SET @ENTRY := 49670;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 0, 0, 100, 0, 4500, 4500, 3600, 3600, 11, 59304, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 4500 and 4500 ms (and later repeats every 3600 and 3600 ms) - Self: Cast spell Spirit Strike (59304) on Victim // ");
+
+-- Creature Foe Reaper 5000 49681 SAI
+SET @ENTRY := 49681;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 0, 0, 100, 0, 2600, 2600, 3600, 3600, 11, 59304, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 2600 and 2600 ms (and later repeats every 3600 and 3600 ms) - Self: Cast spell Spirit Strike (59304) on Victim // ");
+

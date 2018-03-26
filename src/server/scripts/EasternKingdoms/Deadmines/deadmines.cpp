@@ -435,60 +435,6 @@ class npc_deadmines_vanessa_van_cleef_nightmare : public CreatureScript
         }
 };
 
-enum GlubtokNightmare
-{
-    EVENT_SPIRIT_STRIKE = 1,
-    SPELL_SPIRIT_STRIKE = 59304,
-};
-
-class npc_deadmines_glubtok_nightmare : public CreatureScript
-{
-    public:
-        npc_deadmines_glubtok_nightmare() : CreatureScript("npc_deadmines_glubtok_nightmare") { }
-
-        struct npc_deadmines_glubtok_nightmareAI : public ScriptedAI
-        {
-            npc_deadmines_glubtok_nightmareAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.ScheduleEvent(EVENT_SPIRIT_STRIKE, Seconds(4) + Milliseconds(500));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->DespawnOrUnsummon(Seconds(4));
-                _instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_HELIX);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SPIRIT_STRIKE:
-                            DoCastVictim(SPELL_SPIRIT_STRIKE);
-                            _events.Repeat(Seconds(3) + Milliseconds(600));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDeadminesAI<npc_deadmines_glubtok_nightmareAI>(creature);
-        }
-};
 
 enum HelixNightmare
 {
@@ -500,6 +446,7 @@ enum HelixNightmare
     SPELL_PESTILENCE            = 91939,
     SPELL_SHADOW_FOG            = 92792,
 
+    EVENT_SPIRIT_STRIKE = 1,
     EVENT_TALK_NIGHTMARE = 3,
     EVENT_MAKE_ATTACKABLE,
     EVENT_RIDE_PLAYER,
@@ -528,12 +475,6 @@ class npc_deadmines_helix_nightmare : public CreatureScript
             {
                 _events.ScheduleEvent(EVENT_SPIRIT_STRIKE, Seconds(4) + Milliseconds(400));
                 _events.ScheduleEvent(EVENT_RIDE_PLAYER, Seconds(2) + Milliseconds(500));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->DespawnOrUnsummon(Seconds(5) + Milliseconds(500));
-                _instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_FOE_REAPER);
             }
 
             void UpdateAI(uint32 diff) override
@@ -592,60 +533,6 @@ class npc_deadmines_helix_nightmare : public CreatureScript
         }
 };
 
-class npc_deadmines_foe_reaper_5000_nightmare : public CreatureScript
-{
-    public:
-        npc_deadmines_foe_reaper_5000_nightmare() : CreatureScript("npc_deadmines_foe_reaper_5000_nightmare") { }
-
-        struct npc_deadmines_foe_reaper_5000_nightmareAI : public ScriptedAI
-        {
-            npc_deadmines_foe_reaper_5000_nightmareAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.ScheduleEvent(EVENT_SPIRIT_STRIKE, Seconds(2) + Milliseconds(800));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->DespawnOrUnsummon(Seconds(3) + Milliseconds(600));
-                _instance->SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NIGHTMARE_STAGE_RIPSNARL);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SPIRIT_STRIKE:
-                            DoCastVictim(SPELL_SPIRIT_STRIKE);
-                            _events.Repeat(Seconds(3) + Milliseconds(100));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDeadminesAI<npc_deadmines_foe_reaper_5000_nightmareAI>(creature);
-        }
-};
-
-enum RipsnarlNightmare
-{
-    SPELL_GROUP_TAUNT   = 92308,
-};
-
 enum DefiasCannon
 {
     // GroupID 0 and 1 are used by Foe Reaper 5000
@@ -675,6 +562,7 @@ class go_deadmines_defias_cannon : public GameObjectScript
                             bunny->AI()->Talk(SAY_ANNOUNCE_CANNON_LOADED);
 
                         _instance->SetData(DATA_BROKEN_DOOR, DONE);
+                        cannon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                 }
                 return true;
@@ -782,9 +670,7 @@ void AddSC_deadmines()
     new npc_deadmines_vanessas_trap_bunny();
     new npc_deadmines_steam_valve();
     new npc_deadmines_vanessa_van_cleef_nightmare();
-    new npc_deadmines_glubtok_nightmare();
     new npc_deadmines_helix_nightmare();
-    new npc_deadmines_foe_reaper_5000_nightmare();
     new go_deadmines_defias_cannon();
     new spell_deadmines_on_fire();
     new spell_deadmines_ride_magma_vehicle();
