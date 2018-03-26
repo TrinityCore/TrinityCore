@@ -216,6 +216,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_FORCE_MOVEMENT               = 0x00000040,
     UNIT_FLAG2_DISARM_OFFHAND               = 0x00000080,
     UNIT_FLAG2_DISABLE_PRED_STATS           = 0x00000100,   // Player has disabled predicted stats (Used by raid frames)
+    UNIT_FLAG2_ALLOW_CHANGING_TALENTS       = 0x00000200,   // Allows changing talents outside rest area
     UNIT_FLAG2_DISARM_RANGED                = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
     UNIT_FLAG2_REGENERATE_POWER             = 0x00000800,
     UNIT_FLAG2_RESTRICT_PARTY_INTERACTION   = 0x00001000,   // Restrict interaction to party or raid
