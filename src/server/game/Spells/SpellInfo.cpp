@@ -3442,7 +3442,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Starfall
             if (spellInfo->SpellFamilyFlags[2] == 0x00000100)
                 return false;
-            break
+            break;
         case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo->SpellIconID == 1933) // Ebon Plague
                 return false;
