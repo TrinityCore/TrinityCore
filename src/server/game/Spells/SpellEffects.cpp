@@ -1834,6 +1834,9 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         return;
     }
 
+    if (reqSkillValue == 0)
+        reqSkillValue = skillValue;
+
     if (gameObjTarget)
         SendLoot(guid, LOOT_SKINNING);
     else if (itemTarget)
