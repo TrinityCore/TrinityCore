@@ -20,6 +20,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedEscortAI.h"
 #include "SpellMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Item.h"
 #include "GameObject.h"
@@ -542,10 +543,10 @@ public:
     {
         if (player->GetQuestStatus(14122) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature *t = player->SummonCreature(35486, player->GetPositionX(), player->GetPositionY(),  player->GetPositionZ(),  player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS))
-                t->SetInPhase(180, true, true);
+            if (Creature *t = player->SummonCreature(35486, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
+                PhasingHandler::AddPhase(t, 180);
             if (Creature *t = player->SummonCreature(850000, go->GetPositionX(), go->GetPositionY(),  go->GetPositionZ(),  player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS))
-                t->SetInPhase(180, true, true);
+                PhasingHandler::AddPhase(t, 180);
             return true;
         }
         return true;
@@ -801,7 +802,7 @@ public:
 
         void Reset() override
         {
-            me->SetInPhase(180, true, true);
+            PhasingHandler::AddPhase(me, 180);
             const Player *pl  = me->SelectNearestPlayer(50);
             if (pl)
                 _playerGUID = pl->GetGUID();
@@ -1372,7 +1373,7 @@ public:
             if (!_scriptetre)
                 return;
             m_ty = 600000;
-            me->SetInPhase(180, true, true);
+            PhasingHandler::AddPhase(me, 180);
         }
 
         void DoAction(const int32 param) override

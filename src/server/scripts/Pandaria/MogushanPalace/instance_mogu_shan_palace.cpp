@@ -16,11 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "PhasingHandler.h"
+#include "ScriptMgr.h"
 #include "VMapFactory.h"
 #include "mogu_shan_palace.h"
-#include "GameObject.h"
 
 class instance_mogu_shan_palace : public InstanceMapScript
 {
@@ -106,9 +107,9 @@ public:
                     if (GameObject* chest = instance->GetGameObject(trialChestGUID))
                     {
                         if (state == DONE)
-                            chest->ClearPhases();
+                            PhasingHandler::ResetPhaseShift(chest);
                         else
-                            chest->SetInPhase(176, true, true);
+                            PhasingHandler::AddPhase(chest, 176);
                     }
                     break;
                 case DATA_GEKKAN:
@@ -132,7 +133,7 @@ public:
                     break;
                 case GO_TRIAL_CHEST:
                     trialChestGUID = go->GetGUID();
-                    go->SetInPhase(176, true, true);
+                    PhasingHandler::AddPhase(go, 176);
                     break;
                 case GO_DOOR_AFTER_TRIAL:
                     doorAfterTrialGUID = go->GetGUID();

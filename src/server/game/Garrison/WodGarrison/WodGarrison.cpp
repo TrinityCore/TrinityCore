@@ -209,7 +209,7 @@ void WodGarrison::Leave() const
     {
         if (_owner->GetMapId() == _siteLevel->MapID)
         {
-            uint32 futureAreaId = sMapMgr->GetAreaId(map->ParentMapID, _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            uint32 futureAreaId = sMapMgr->GetAreaId(_owner->GetPhaseShift(), map->ParentMapID, _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 
             // This check prevent infinite teleport if new map don't exactly overlap current map area
             if (AreaTableEntry const* futureArea = sAreaTableStore.LookupEntry(futureAreaId))

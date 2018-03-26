@@ -16,9 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameObject.h"
+#include "PhasingHandler.h"
 #include "shadopan_monastery.h"
 #include "InstanceScript.h"
-#include "GameObject.h"
 
 Position snowdriftCenterPos = {3659.08f, 3015.38f, 804.74f};
 
@@ -152,7 +153,7 @@ public:
                     HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SNOWDRIFT_POSSESSIONS:
-                    go->SetInPhase(50, true, true);
+                    PhasingHandler::AddPhase(go, 50);
                     snowdriftPossessionsGUID = go->GetGUID();
                     break;
                 case GO_SNOWDRIFT_FIRE_WALL:
@@ -235,7 +236,7 @@ public:
                             break;
                         case DONE:
                             if (GameObject* possessions = instance->GetGameObject(snowdriftPossessionsGUID))
-                                possessions->ClearPhases(true);
+                                PhasingHandler::ResetPhaseShift(possessions);
 
                             HandleGameObject(snowdriftEntranceGUID, true);
                             HandleGameObject(snowdriftFirewallGUID, true);

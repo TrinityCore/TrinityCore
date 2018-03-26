@@ -16,6 +16,7 @@
  */
 
 #include "GameObject.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "tanaan_intro.h"
 #include "WorldSession.h"
@@ -85,9 +86,9 @@ public:
 
         if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_REWARDED)
         {
-            std::set<uint32> phaseId, terrainswap, inactiveTerrainSwap;
-            terrainswap.insert((uint32)TanaanZones::TerrainSwapID);
-            player->GetSession()->SendSetPhaseShift(phaseId, terrainswap, inactiveTerrainSwap);
+            PhaseShift phaseShift;
+            phaseShift.AddUiWorldMapAreaIdSwap((uint32)TanaanZones::TerrainSwapID);
+            PhasingHandler::SendToPlayer(player, phaseShift);
         }
     }
 

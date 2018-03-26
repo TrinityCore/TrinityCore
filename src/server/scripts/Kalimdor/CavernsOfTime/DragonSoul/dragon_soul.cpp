@@ -18,6 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "dragon_soul.h"
+#include "PhasingHandler.h"
 #include "GameObject.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
@@ -1270,8 +1271,8 @@ class npc_dragon_soul_thrall : public CreatureScript
                     {
                         if (Creature* pUltraxion = pCreature->SummonCreature(NPC_ULTRAXION, ultraxionPos[0], TEMPSUMMON_MANUAL_DESPAWN, 1000000))
                         {
-                            pUltraxion->SetInPhase(169, false, true);
-                            pUltraxion->SetInPhase(173, true, true);
+                            PhasingHandler::RemovePhase(pUltraxion, 169);
+                            PhasingHandler::AddPhase(pUltraxion, 173);
                         }
                         pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     }

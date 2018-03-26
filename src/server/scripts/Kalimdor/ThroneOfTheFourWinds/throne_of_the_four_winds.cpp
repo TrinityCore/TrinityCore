@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameObject.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "throne_of_the_four_winds.h"
-#include "GameObject.h"
 
 enum SlipstreamEnums
 {
@@ -134,13 +135,13 @@ public:
                 { // Activate Slipstream
 
                     if (linkedSlipstreamObject)
-                        linkedSlipstreamObject->ClearPhases(true);
+                        PhasingHandler::ResetPhaseShift(linkedSlipstreamObject);
 
                 }else
                 { // Deactivate Slipstream
 
                     if (linkedSlipstreamObject)
-                        linkedSlipstreamObject->SetInPhase(50, true, true);
+                        PhasingHandler::AddPhase(linkedSlipstreamObject, 50);
                 }
 
                 isActive = !isActive;

@@ -25,12 +25,11 @@
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
+#include "PhaseShift.h"
 #include "Position.h"
 #include "SharedDefines.h"
-
 #include "UpdateFields.h"
 #include <list>
-#include <set>
 #include <unordered_map>
 
 class AreaTrigger;
@@ -415,24 +414,15 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        virtual bool SetInPhase(uint32 id, bool update, bool apply);
-        bool AddPhase(uint32 id, bool update = true) { return SetInPhase(id, update, true); }
-        bool RemovePhase(uint32 id, bool update = true) { return SetInPhase(id, update, false); }
-        void AddPhases(std::initializer_list<uint32> const& phases, bool update = true);
-        void RemovePhases(std::initializer_list<uint32> const& phases, bool update = true);
-        void CopyPhaseFrom(WorldObject* obj, bool update = false);
-        void UpdateAreaAndZonePhase();
-        void ClearPhases(bool update = false);
-        void RebuildTerrainSwaps();
-        void RebuildWorldMapAreaSwaps();
-        bool HasInPhaseList(uint32 phase);
-        bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
-        bool IsInPhase(std::set<uint32> const& phases) const;
-        bool IsInPhase(WorldObject const* obj) const;
-        bool IsInTerrainSwap(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }
-        std::set<uint32> const& GetPhases() const { return _phases; }
-        std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
-        std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
+        bool IsInPhase(WorldObject const* obj) const
+        {
+            return GetPhaseShift().CanSee(obj->GetPhaseShift());
+        }
+
+        PhaseShift& GetPhaseShift() { return _phaseShift; }
+        PhaseShift const& GetPhaseShift() const { return _phaseShift; }
+        PhaseShift& GetSuppressedPhaseShift() { return _suppressedPhaseShift; }
+        PhaseShift const& GetSuppressedPhaseShift() const { return _suppressedPhaseShift; }
         int32 GetDBPhase() const { return _dbPhase; }
 
         void SetVisibleBySummonerOnly(bool visibleBySummonerOnly) { m_visibleBySummonerOnly = visibleBySummonerOnly; }
@@ -639,9 +629,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
-        std::set<uint32> _phases;
-        std::set<uint32> _terrainSwaps;
-        std::set<uint32> _worldMapAreaSwaps;
+        PhaseShift _phaseShift;
+        PhaseShift _suppressedPhaseShift;                   // contains phases for current area but not applied due to conditions
         int32 _dbPhase;
         bool m_visibleBySummonerOnly;
 

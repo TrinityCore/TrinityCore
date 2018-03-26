@@ -23,6 +23,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Log.h"
 
@@ -1971,8 +1972,8 @@ public:
                         {
                             if ((*itr)->ToPlayer()->GetQuestStatus(QUEST_AN_ANCIENT_EVIL) == QUEST_STATUS_COMPLETE)
                             {
-                                (*itr)->SetInPhase(DB_PHASE_AFTER_FIGHT, true, true);
-                                (*itr)->SetInPhase(DB_PHASE_FIGHT, true, false);
+                                PhasingHandler::RemovePhase(*itr, DB_PHASE_FIGHT);
+                                PhasingHandler::AddPhase(*itr, DB_PHASE_AFTER_FIGHT);
                             }
                         }
                         break;
@@ -2064,7 +2065,7 @@ public:
             Initialize();
             me->setActive(true);
             me->SetReactState(REACT_PASSIVE);
-            me->SetInPhase(543, true, true);
+            PhasingHandler::AddPhase(me, 543);
         }
 
         void EnterCombat(Unit* /*who*/) override

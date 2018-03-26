@@ -23,6 +23,11 @@
 #include "SpellScript.h"
 #include "tomb_of_sargeras.h"
 
+enum Spells
+{
+    SPELL_FEIGN_DEATH = 35356
+};
+
 void AddSC_tomb_of_sargeras()
 {
 }

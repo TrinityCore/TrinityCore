@@ -16,6 +16,7 @@
  */
 
 #include "MotionMaster.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "tanaan_intro.h"
 #include "WorldSession.h"
@@ -129,9 +130,9 @@ public:
 
     void SwitchPhaseMapAfterDamExplosion(Player* player)
     {
-        std::set<uint32> l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap;
-        l_Terrainswap.insert((uint32)TanaanZones::TerrainSwapID);
-        player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap);
+        PhaseShift phaseShift;
+        phaseShift.AddUiWorldMapAreaIdSwap((uint32)TanaanZones::TerrainSwapID);
+        PhasingHandler::SendToPlayer(player, phaseShift);
     }
 };
 

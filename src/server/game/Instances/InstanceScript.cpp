@@ -33,6 +33,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ScriptMgr.h"
@@ -942,7 +943,7 @@ void InstanceScript::UpdatePhasing()
     Map::PlayerList const& players = instance->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource())
-            player->SendUpdatePhasing();
+            PhasingHandler::SendToPlayer(player);
 }
 
 std::string InstanceScript::GetBossStateName(uint8 state)

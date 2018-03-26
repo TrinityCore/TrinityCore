@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
@@ -180,7 +181,7 @@ public:
     void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
     {
         if (triggerName == "invisibledalaran")
-            player->SetInPhase(PHASE_DALARAN_KARAZHAN, true, false);
+            PhasingHandler::AddPhase(player, PHASE_DALARAN_KARAZHAN);
     }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override

@@ -25,6 +25,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "PetPackets.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -165,7 +166,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, petEntry))
         return false;
 
-    CopyPhaseFrom(owner);
+    PhasingHandler::InheritPhaseShift(this, owner);
 
     setPetType(petType);
     setFaction(owner->getFaction());

@@ -23,6 +23,7 @@
 #include "Garrison.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -748,7 +749,8 @@ public:
         {
             if (!GetCaster()->IsPlayer())
                 return;
-            GetCaster()->AddPhase(8);
+
+            PhasingHandler::AddPhase(GetCaster(), 8);
             GetCaster()->SummonCreature(NPC_GARA_VOID_PET, GetCaster()->GetPosition());
         }
 
@@ -756,7 +758,7 @@ public:
         {
             if (!GetCaster()->IsPlayer())
                 return;
-            GetCaster()->RemovePhase(8);
+            PhasingHandler::RemovePhase(GetCaster(), 8);
         }
 
         void Register() override

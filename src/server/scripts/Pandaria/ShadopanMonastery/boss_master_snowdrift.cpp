@@ -451,7 +451,7 @@ class npc_snowdrift_novice : public CreatureScript
                 {
                     float x, y;
                     me->GetPositionWithDistInOrientation(40.0f, 4.0f, x, y);
-                    me->GetMotionMaster()->MoveJump(x, y, me->GetMap()->GetHeight(x, y, me->GetPositionZ()), 20, 10, POINT_NOVICE_JUMP);
+                    me->GetMotionMaster()->MoveJump(x, y, me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, me->GetPositionZ()), 20, 10, POINT_NOVICE_JUMP);
                     jumpDone = true;
                 }
             }
@@ -550,7 +550,7 @@ class npc_snowdrift_miniboss : public CreatureScript
                 {
                     float x, y;
                     me->GetPositionWithDistInOrientation(30.0f, 4.23f, x, y);
-                    me->GetMotionMaster()->MoveJump(x, y, me->GetMap()->GetHeight(x, y, me->GetPositionZ()), 20, 10, POINT_MINIBOSS_JUMP);
+                    me->GetMotionMaster()->MoveJump(x, y, me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, me->GetPositionZ()), 20, 10, POINT_MINIBOSS_JUMP);
                     jumpDone = true;
 
                     if (me->GetEntry() == NPC_FLAGRANT_LOTUS)

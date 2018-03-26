@@ -386,7 +386,7 @@ public:
                 {
                     checkGroundTimer = 500;
                     float ground = me->GetPositionZ();
-                    me->GetMap()->GetWaterOrGroundLevel(me->GetPhases(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), &ground);
+                    me->GetMap()->GetWaterOrGroundLevel(me->GetPhaseShift(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), &ground);
                     bool isInAir = G3D::fuzzyGt(me->GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(me->GetPositionZ(), ground - 0.05f);
                     if (!isInAir)
                     {
@@ -459,7 +459,7 @@ public:
                 {
                     checkGroundTimer = 500;
                     float ground = me->GetPositionZ();
-                    me->GetMap()->GetWaterOrGroundLevel(me->GetPhases(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), &ground);
+                    me->GetMap()->GetWaterOrGroundLevel(me->GetPhaseShift(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), &ground);
                     bool isInAir = G3D::fuzzyGt(me->GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(me->GetPositionZ(), ground - 0.05f);
                     if (!isInAir)
                     {

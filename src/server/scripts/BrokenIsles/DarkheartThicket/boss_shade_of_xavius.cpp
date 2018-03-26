@@ -24,6 +24,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -370,7 +371,7 @@ public:
             if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, caster->GetPositionX() + deltaX - 75, caster->GetPositionY() + deltaY - 75, caster->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000))
             {
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster);
+                PhasingHandler::InheritPhaseShift(tempSumm, caster);
                 tempSumm->SetName(caster->GetName());
                 caster->CastSpell(tempSumm, SPELL_AN_TRIGGERMISSILE, false);
             }

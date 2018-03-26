@@ -418,7 +418,7 @@ public:
                 {
                     float x, y;
                     me->GetPositionWithDistInOrientation(5.0f, me->GetOrientation(), x, y);
-                    me->GetMotionMaster()->MovePoint(0, x, y, me->GetMap()->GetHeight(0, x, y, me->GetPositionZ()));
+                    me->GetMotionMaster()->MovePoint(0, x, y, me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, me->GetPositionZ()));
 
                     me->CastSpell(me, 120867, false);
                     events.ScheduleEvent(EVENT_APPLAUSE + urand(0, 1), 500 + urand(500, 1500));
@@ -428,7 +428,7 @@ public:
                 {
                     float x, y;
                     me->GetPositionWithDistInOrientation(-5.0f, me->GetOrientation(), x, y);
-                    me->GetMotionMaster()->MovePoint(1, x, y, me->GetMap()->GetHeight(0, x, y, me->GetPositionZ()));
+                    me->GetMotionMaster()->MovePoint(1, x, y, me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, me->GetPositionZ()));
 
                     me->RemoveAura(120867);
                     me->CastSpell(me, 121569, false);
@@ -441,7 +441,7 @@ public:
 
                     float x, y;
                     me->GetPositionWithDistInOrientation(30.0f, me->GetOrientation(), x, y);
-                    me->GetMotionMaster()->MovePoint(0, x, y, me->GetMap()->GetHeight(0, x, y, me->GetPositionZ()));
+                    me->GetMotionMaster()->MovePoint(0, x, y, me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, me->GetPositionZ()));
 
                     me->RemoveAura(121569);
                     events.Reset();

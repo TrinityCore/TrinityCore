@@ -1,6 +1,7 @@
 #include "blackwing_descent.h"
-#include "ScriptMgr.h"
 #include "GameObject.h"
+#include "PhasingHandler.h"
+#include "ScriptMgr.h"
 
 #define MAX_ENCOUNTER 6
 
@@ -299,7 +300,7 @@ public:
 
                 case DATA_ATRAMEDES:
                     if(GameObject* onyxiaPlatform = instance->GetGameObject(gobOnyxiaPlatform))
-                        onyxiaPlatform->ClearPhases(true);
+                        PhasingHandler::ResetPhaseShift(onyxiaPlatform);
                     break;
                 }
             }

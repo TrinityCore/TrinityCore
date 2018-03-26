@@ -16,11 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "PhasingHandler.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
-#include "GameObject.h"
 
 DoorData const doorData[] =
 {
@@ -111,14 +112,14 @@ public:
         void OnPlayerEnter(Player* player) override
         {
             if (GetData(DATA_BRASIER_CLICKED) == NOT_STARTED)
-                player->ClearPhases(true);
+                PhasingHandler::ResetPhaseShift(player);
             else
-                player->SetInPhase(50, true, true);
+                PhasingHandler::AddPhase(player, 50);
         }
 
         void OnPlayerLeave(Player* player)
         {
-            player->ClearPhases(true);
+            PhasingHandler::ResetPhaseShift(player);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -320,7 +321,7 @@ public:
                         if (Player* player = it->GetSource())
                         {
                             player->SendCinematicStart(CINEMATIC_SETTING_SUN);
-                            player->SetInPhase(50, true, true);
+                            PhasingHandler::AddPhase(player, 50);
                             player->NearTeleportTo(1370.0f, 2283.6f, 402.328f, 2.70f);
                         }
                     }
