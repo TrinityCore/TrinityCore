@@ -20,6 +20,7 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -115,7 +116,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     Relocate(pos);
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
-    CopyPhaseFrom(creator);
+    PhasingHandler::InheritPhaseShift(this, creator);
 
     SetEntry(conversationEntry);
     SetObjectScale(1.0f);

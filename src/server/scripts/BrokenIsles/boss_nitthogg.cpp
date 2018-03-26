@@ -15,14 +15,15 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "AreaTriggerAI.h"
+#include "AreaTrigger.h"
+#include "GridNotifiers.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
 #include "SpellMgr.h"
-#include "AreaTriggerAI.h"
-#include "AreaTrigger.h"
 
 enum Spells
 {
@@ -161,7 +162,7 @@ public:
                     {
                         tempSumm->setFaction(me->getFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, me->GetGUID());
-                        tempSumm->CopyPhaseFrom(me);
+                        PhasingHandler::InheritPhaseShift(tempSumm, me);
                         tempSumm->SetLevel(me->getLevel());
                         tempSumm->SetName(me->GetName());
                         tempSumm->CastSpell(tempSumm, SPELL_CRACKLING_JOLT_TARGET_PICKER, true, nullptr, nullptr, me->GetGUID()); //If any of you knows how to make the game think Nithogg launched the spell, please tell me

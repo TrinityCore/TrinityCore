@@ -28,6 +28,7 @@ EndScriptData */
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ReputationMgr.h"
@@ -831,9 +832,18 @@ public:
         if (!*args)
             return false;
 
-        uint32 phaseId = uint32(atoul(args));
+        char* phaseText = strtok((char*)args, " ");
+        if (!phaseText)
+            return false;
 
-        if (!sPhaseStore.LookupEntry(phaseId))
+        uint32 phaseId = uint32(strtoul(phaseText, nullptr, 10));
+        uint32 visibleMapId = 0;
+
+        char* visibleMapIdText = strtok(nullptr, " ");
+        if (visibleMapIdText)
+            visibleMapId = uint32(strtoul(visibleMapIdText, nullptr, 10));
+
+        if (phaseId && !sPhaseStore.LookupEntry(phaseId))
         {
             handler->SendSysMessage(LANG_PHASE_NOTFOUND);
             handler->SetSentErrorMessage(true);
@@ -841,13 +851,30 @@ public:
         }
 
         Unit* target = handler->getSelectedUnit();
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
 
-        target->SetInPhase(phaseId, true, !target->IsInPhase(phaseId));
+        if (visibleMapId)
+        {
+            MapEntry const* visibleMap = sMapStore.LookupEntry(visibleMapId);
+            if (!visibleMap || visibleMap->ParentMapID != int32(target->GetMapId()))
+            {
+                handler->SendSysMessage(LANG_PHASE_NOTFOUND);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
 
-        if (target->GetTypeId() == TYPEID_PLAYER)
-            target->ToPlayer()->SendUpdatePhasing();
+            if (!target->GetPhaseShift().HasVisibleMapId(visibleMapId))
+                PhasingHandler::AddVisibleMapId(target, visibleMapId);
+            else
+                PhasingHandler::RemoveVisibleMapId(target, visibleMapId);
+        }
+
+        if (phaseId)
+        {
+            if (!target->GetPhaseShift().HasPhase(phaseId))
+                PhasingHandler::AddPhase(target, phaseId, true);
+            else
+                PhasingHandler::RemovePhase(target, phaseId, true);
+        }
 
         return true;
     }

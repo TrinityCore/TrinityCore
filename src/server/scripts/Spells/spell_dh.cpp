@@ -30,6 +30,7 @@
 #include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
@@ -863,7 +864,7 @@ public:
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                    tempSumm->CopyPhaseFrom(caster, true);
+                    PhasingHandler::InheritPhaseShift(tempSumm, caster);
                     caster->CastSpell(tempSumm, SPELL_DH_CONSUME_SOUL_MISSILE, true);
                 }
                 at->SetDuration(0);
@@ -2886,7 +2887,7 @@ struct at_dh_sigil_of_misery : AreaTriggerAI
         {
             tempSumm->setFaction(caster->getFaction());
             tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            tempSumm->CopyPhaseFrom(caster, true);
+            PhasingHandler::InheritPhaseShift(tempSumm, caster);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_TRIGGER, true);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_EXPLOSION, true);
         }
@@ -2909,7 +2910,7 @@ struct at_dh_sigil_of_flame : AreaTriggerAI
         {
             tempSumm->setFaction(caster->getFaction());
             tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            tempSumm->CopyPhaseFrom(caster, true);
+            PhasingHandler::InheritPhaseShift(tempSumm, caster);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_TRIGGER, true);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_EXPLOSION, true);
         }
@@ -2937,7 +2938,7 @@ struct at_dh_sigil_of_chains : AreaTriggerAI
 
         tempSumm->setFaction(caster->getFaction());
         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-        tempSumm->CopyPhaseFrom(caster, true);
+        PhasingHandler::InheritPhaseShift(tempSumm, caster);
         caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION, true);
 
         GuidUnorderedSet const objects = at->GetInsideUnits();
@@ -3049,7 +3050,7 @@ struct at_dh_sigil_of_silence : AreaTriggerAI
         {
             tempSumm->setFaction(caster->getFaction());
             tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            tempSumm->CopyPhaseFrom(caster, true);
+            PhasingHandler::InheritPhaseShift(tempSumm, caster);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_TRIGGER, true);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_EXPLOSION, true);
         }

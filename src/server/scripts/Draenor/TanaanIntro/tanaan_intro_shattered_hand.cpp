@@ -17,6 +17,7 @@
 
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "tanaan_intro.h"
 #include "TemporarySummon.h"
@@ -508,7 +509,9 @@ public:
 
         void Reset() override
         {
-            me->AddPhases({ 180, 183, 184 });
+            PhasingHandler::AddPhase(me, 180);
+            PhasingHandler::AddPhase(me, 183);
+            PhasingHandler::AddPhase(me, 184);
         }
 
         void JustReachedHome() override
@@ -540,7 +543,7 @@ public:
 
             for (Player* player : playerList)
             {
-                if (!player->HasQuest(TanaanQuests::QuestKillYourHundred) || !player->IsInPhase(me->GetPhases()))
+                if (!player->HasQuest(TanaanQuests::QuestKillYourHundred) || !player->IsInPhase(me))
                     continue;
 
                 if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAddHidden) == 99)

@@ -394,7 +394,7 @@ class boss_shannox : public CreatureScript
                             for (uint8 i = 0; i < 60; ++i)
                             {
                                 pos = me->GetNearPosition(15.0f + i * 0.75f, (M_PI * i) / 10);
-                                pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, MAX_HEIGHT);
+                                pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, MAX_HEIGHT);
                                 me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_MAGMA_RUPTURE_MISSILE, true);
                             }
                             break;
@@ -821,7 +821,7 @@ class npc_shannox_spear_of_shannox : public CreatureScript
                             for (uint8 i = 0; i < 60; ++i)
                             {
                                 pos = me->GetNearPosition(15.0f + i * 0.75f, (M_PI * i) / 10);
-                                pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, MAX_HEIGHT);
+                                pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, MAX_HEIGHT);
                                 pShannox->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_MAGMA_RUPTURE_MISSILE, true);
                             }
                         }

@@ -118,7 +118,7 @@ public:
                 Position wolfPos = me->GetPosition();
                 GetPositionWithDistInFront(me, 2.5f, wolfPos);
 
-                float z = me->GetMap()->GetHeight(wolfPos.GetPositionX(), wolfPos.GetPositionY(), wolfPos.GetPositionZ());
+                float z = me->GetMap()->GetHeight(me->GetPhaseShift(), wolfPos.GetPositionX(), wolfPos.GetPositionY(), wolfPos.GetPositionZ());
                 wolfPos.m_positionZ = z;
 
                 if (Creature* wolf = me->SummonCreature(NPC_WOLF, wolfPos))

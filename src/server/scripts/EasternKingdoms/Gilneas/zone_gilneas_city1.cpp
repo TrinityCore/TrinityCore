@@ -2543,7 +2543,7 @@ public:
             {
                 Player* player = (*itr);
                 bool isOutdoor;
-                player->GetMap()->GetAreaId(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), &isOutdoor);
+                player->GetMap()->GetAreaId(player->GetPhaseShift(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), &isOutdoor);
                 if (isOutdoor)
                 {
                     pList.remove(player);

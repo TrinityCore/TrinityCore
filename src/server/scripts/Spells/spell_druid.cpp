@@ -18,6 +18,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
@@ -1876,7 +1877,7 @@ public:
         SpellCastResult CheckCast()
         {
             Unit* caster = GetCaster();
-            if (!caster->GetMap()->IsOutdoors(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()))
+            if (!caster->GetMap()->IsOutdoors(caster->GetPhaseShift(), caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()))
                 return SPELL_FAILED_ONLY_OUTDOORS;
 
             return SPELL_CAST_OK;
@@ -1904,7 +1905,7 @@ public:
                 {
                     caster->CastSpell(caster, SPELL_DRUID_AQUATIC_FORM, true);
                 }
-                else if (caster->GetMap()->IsOutdoors(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()))
+                else if (caster->GetMap()->IsOutdoors(caster->GetPhaseShift(), caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()))
                 {
                     caster->CastSpell(caster, SPELL_DRUID_TRAVEL_FORM, true);
                 }
@@ -2119,7 +2120,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster, true);
+                PhasingHandler::InheritPhaseShift(tempSumm, caster);
 
                 if (caster->IsValidAttackTarget(unit))
                 {

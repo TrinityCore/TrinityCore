@@ -16,21 +16,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CellImpl.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Item.h"
+#include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "SpellMgr.h"
-#include "Player.h"
-#include "GameObject.h"
-#include "GridNotifiers.h"
-#include "CellImpl.h"
-#include "GridNotifiersImpl.h"
-#include "Creature.h"
-#include "Vehicle.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
-#include "Item.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Vehicle.h"
 #include "WorldSession.h"
 
 #define SAY_D_A "Ecrouabouille, what are you doing sitting there? You do not recognize the one who is lying?"
@@ -159,7 +160,7 @@ public:
                     me->Say(SAY_D_E, LANG_UNIVERSAL, player);
                     me->CastSpell(player, 54732, true);
                     player->RemoveAurasDueToSpell(SPELL_DEAD_STILL);
-                    player->ClearPhases(true);
+                    PhasingHandler::ResetPhaseShift(player);
                     break;
                 case 1 :
                     me->Say(SAY_D_F, LANG_UNIVERSAL, player);
@@ -928,9 +929,9 @@ public:
         if (player->GetQuestStatus(14245) != QUEST_STATUS_NONE)
         {
             player->CastSpell(player, 68935, true);
-           if (Creature *t = player->SummonCreature(9100000, go->GetPositionX(), go->GetPositionY(),  go->GetPositionZ() + 2,  go->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS))
+            if (Creature *t = player->SummonCreature(9100000, go->GetPositionX(), go->GetPositionY(),  go->GetPositionZ() + 2,  go->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS))
             {
-                t->SetInPhase(171, true, true);
+                PhasingHandler::AddPhase(t, 171);
                 t->CastSpell(t, 71093, true);
                 t->CastSpell(t, 71095, true);
                 t->CastSpell(t, 71096, true);
@@ -986,14 +987,13 @@ public:
                 if (Unit *p = me->ToTempSummon()->GetSummoner())
                     if (Player* player = p->ToPlayer())
                     {
-                        std::set<uint32> terrainswap;
-                        std::set<uint32> phaseId;
-                        std::set<uint32> worldMapAreaSwap;
-                        terrainswap.insert(661);
-                        phaseId.insert(180);
                         player->CastSpell(p->ToPlayer(), 68750, true);
                         player->KilledMonsterCredit(38024);
-                        player->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapAreaSwap);
+
+                        PhaseShift phaseShift;
+                        phaseShift.AddPhase(180, PhaseFlags::None, nullptr);
+                        phaseShift.AddUiWorldMapAreaIdSwap(661);
+                        PhasingHandler::SendToPlayer(player, phaseShift);
                     }
                 me->DespawnOrUnsummon();
                 mui_talk = 6000;
@@ -2041,26 +2041,27 @@ public:
     {
         if (player->GetQuestStatus(25207) == QUEST_STATUS_INCOMPLETE)
         {
-            if (player->IsInPhase(32768))
+            if (player->GetPhaseShift().HasPhase(32768))
                 return false;
+
             player->CastSpell(player, 69077, true);
             player->AddAura(90418, player);
             player->KilledMonsterCredit(39393);
             if (Creature *t = player->SummonCreature(41505, 2477.0f, 2082.0f,  14.0f,  go->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10*IN_MILLISECONDS))
             {
-                t->SetInPhase(32768, true, true);
+                PhasingHandler::AddPhase(t, 32768);
                 t->CastSpell(t, 93569, true);
                 t->CastSpell(t, 71094, true);
             }
             if (Creature *t = player->SummonCreature(41505, 2499.28f, 2091.48f,  17.0f,  go->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10*IN_MILLISECONDS))
             {
-                t->SetInPhase(32768, true, true);
+                PhasingHandler::AddPhase(t, 32768);
                 t->CastSpell(t, 93569, true);
                 t->CastSpell(t, 71094, true);
             }
             if (Creature *t = player->SummonCreature(41505, 2450.424f, 2068.89f,  28.0f,  go->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10*IN_MILLISECONDS))
             {
-                t->SetInPhase(32768, true, true);
+                PhasingHandler::AddPhase(t, 32768);
                 t->SetCanFly(true);
                 t->CastSpell(t, 93569, true);
                 t->CastSpell(t, 71094, true);

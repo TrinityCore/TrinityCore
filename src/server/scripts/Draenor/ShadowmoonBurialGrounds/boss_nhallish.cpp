@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "shadowmoon_burial_grounds.h"
 #include "GameObject.h"
+#include "PhasingHandler.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 
@@ -185,7 +186,7 @@ public:
 
             for (auto itr : l_ListVisibility)
             {
-                itr->RemovePhase(50);
+                PhasingHandler::RemovePhase(itr, 50);
             }
         }
 
@@ -239,7 +240,7 @@ public:
                 else
                     Talk(eNhallishTalks::TalkKill02);
 
-                who->RemovePhase(50); // Sets dead target back to normal phase.
+                PhasingHandler::RemovePhase(who, 50); // Sets dead target back to normal phase.
             }
         }
 
@@ -266,7 +267,7 @@ public:
 
             for (auto itr : l_ListVisibility)
             {
-                itr->RemovePhase(50);
+                PhasingHandler::RemovePhase(itr, 50);
             }
 
             // Distrubed Spirits RP moment.
@@ -438,7 +439,7 @@ public:
                             victim->RemoveAura(eNhalishSpells::SpellSoulShred);
                         }
 
-                        victim->AddPhase(50);
+                        PhasingHandler::AddPhase(victim, 50);
 
                         creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                     }
@@ -846,8 +847,8 @@ public:
                             uint32 m_phaseId = 50 + linkAI->m_PhaseCounter;
 
                             /// Sets new phase value
-                            GetHitUnit()->AddPhase(m_phaseId);
-                            Soul->AddPhase(m_phaseId);
+                            PhasingHandler::AddPhase(GetHitUnit(), m_phaseId);
+                            PhasingHandler::AddPhase(Soul, m_phaseId);
 
                             if (Soul->IsAIEnabled)
                             {

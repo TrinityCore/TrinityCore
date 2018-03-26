@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
@@ -322,7 +323,7 @@ class spell_throw_bomb : public SpellScriptLoader
 
                 if (GameObject * pGobject = pTrigger->FindNearestGameObject(GOB_BOULES_DE_CANONS, 50.0f))
                 {
-                    if (pGobject->HasInPhaseList(50)) // Gob en attente de respawn
+                    if (pGobject->GetPhaseShift().HasPhase(50)) // Gob en attente de respawn
                     {
                         return;
                     }
@@ -332,8 +333,8 @@ class spell_throw_bomb : public SpellScriptLoader
 
                         pCaster->KilledMonsterCredit(NPC_BOMBE_TRIGGER);
 
-                        pGobject->SetInPhase(50, true, true);
-                        cTrigger->SetInPhase(50, true, true);
+                        PhasingHandler::AddPhase(pGobject, 50);
+                        PhasingHandler::AddPhase(cTrigger, 50);
                     }
                 }
             }
@@ -387,8 +388,8 @@ class npc_throw_bomb_bunny : public CreatureScript
                     {
                         if (GameObject * pGobject = me->FindNearestGameObject(GOB_BOULES_DE_CANONS, 50.0f))
                         {
-                            pGobject->ClearPhases(true);
-                            me->ClearPhases(true);
+                            PhasingHandler::ResetPhaseShift(pGobject);
+                            PhasingHandler::ResetPhaseShift(me);
                         }
 
                         StartRespawnTimer = false;

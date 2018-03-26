@@ -27,6 +27,7 @@
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -3297,7 +3298,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster, true);
+                PhasingHandler::InheritPhaseShift(tempSumm, caster);
                 tempSumm->CastCustomSpell(SPELL_SHAMAN_EARTHQUAKE_DAMAGE, SPELLVALUE_BASE_POINT0, caster->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_NORMAL, false) * 0.3, caster, TRIGGERED_FULL_MASK);
             }
 

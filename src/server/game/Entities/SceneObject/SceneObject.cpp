@@ -20,6 +20,7 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -108,7 +109,7 @@ bool SceneObject::Create(ObjectGuid::LowType lowGuid, uint32 SceneId, Map* map, 
     Relocate(pos);
 
     Object::_Create(ObjectGuid::Create<HighGuid::SceneObject>(GetMapId(), SceneId, lowGuid));
-    CopyPhaseFrom(creator);
+    PhasingHandler::InheritPhaseShift(this, creator);
 
     SetEntry(SceneId);
     SetObjectScale(1.0f);

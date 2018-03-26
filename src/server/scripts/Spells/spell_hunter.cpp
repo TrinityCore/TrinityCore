@@ -33,6 +33,7 @@
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "PetPackets.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
@@ -2626,7 +2627,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster, true);
+                PhasingHandler::InheritPhaseShift(tempSumm, caster);
                 caster->CastSpell(tempSumm, SPELL_HUNTER_FLARE_EFFECT, true);
             }
         }
@@ -2679,7 +2680,7 @@ public:
                     {
                         tempSumm->setFaction(caster->getFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                        tempSumm->CopyPhaseFrom(caster, true);
+                        PhasingHandler::InheritPhaseShift(tempSumm, caster);
                         caster->CastSpell(tempSumm, SPELL_HUNTER_EXPLOSIVE_TRAP_DAMAGE, true);
                         at->Remove();
                     }
@@ -2703,7 +2704,7 @@ public:
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                    tempSumm->CopyPhaseFrom(caster, true);
+                    PhasingHandler::InheritPhaseShift(tempSumm, caster);
                     caster->CastSpell(tempSumm, SPELL_HUNTER_EXPLOSIVE_TRAP_DAMAGE, true);
                     at->Remove();
                 }
@@ -2826,7 +2827,7 @@ public:
                     {
                         tempSumm->setFaction(caster->getFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                        tempSumm->CopyPhaseFrom(caster, true);
+                        PhasingHandler::InheritPhaseShift(tempSumm, caster);
                         caster->CastSpell(tempSumm, SPELL_HUNTER_ACTIVATE_TAR_TRAP, true);
                         at->Remove();
                     }
@@ -2849,7 +2850,7 @@ public:
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                    tempSumm->CopyPhaseFrom(caster, true);
+                    PhasingHandler::InheritPhaseShift(tempSumm, caster);
                     caster->CastSpell(tempSumm, SPELL_HUNTER_ACTIVATE_TAR_TRAP, true);
                     at->Remove();
                 }

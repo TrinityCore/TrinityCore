@@ -26,6 +26,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
@@ -906,8 +907,8 @@ public:
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if ((*itr)->GetQuestStatus(QUEST_PUSH_THEM_OUT) == QUEST_STATUS_REWARDED)
                         {
-                            if ((*itr)->HasInPhaseList(262144))
-                                (*itr)->SetInPhase(262144, true, true);
+                            if ((*itr)->GetPhaseShift().HasPhase(262144))
+                                PhasingHandler::RemovePhase((*itr), 262144);
                         }
 
                     if (playerList.size() && !m_playerIsInvited && !m_battleIsStarted)
@@ -1909,8 +1910,8 @@ public:
                     std::list<Player*> playerList = me->SelectNearestPlayers(200.0f, true);
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if ((*itr)->GetQuestStatus(QUEST_PUSH_THEM_OUT) == QUEST_STATUS_REWARDED)
-                            if ((*itr)->HasInPhaseList(262144))
-                                (*itr)->SetInPhase(262144, true, true);
+                            if ((*itr)->GetPhaseShift().HasPhase(262144))
+                                PhasingHandler::RemovePhase(*itr, 262144);
 
                     m_events.ScheduleEvent(EVENT_CHECK_PLAYER_FOR_PHASE, 2500);
                     break;

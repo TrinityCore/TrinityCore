@@ -17,6 +17,7 @@
 
 #include "PartyPackets.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Realm.h"
 #include "SpellAuraEffects.h"
@@ -625,16 +626,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     }
 
     // Phases
-    std::set<uint32> const& phases = player->GetPhases();
-    MemberStats.Phases.PhaseShiftFlags = 0x08 | (phases.size() ? 0x10 : 0);
-    MemberStats.Phases.PersonalGUID = ObjectGuid::Empty;
-    for (uint32 phaseId : phases)
-    {
-        WorldPackets::Party::PartyMemberPhase phase;
-        phase.Id = phaseId;
-        phase.Flags = 1;
-        MemberStats.Phases.List.push_back(phase);
-    }
+    PhasingHandler::FillPartyMemberPhase(&MemberStats.Phases, player->GetPhaseShift());
 
     // Pet
     if (player->GetPet())

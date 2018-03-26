@@ -22,6 +22,7 @@
 #include "DB2CascFileSource.h"
 #include "DB2Meta.h"
 #include "DBFilesClientList.h"
+#include "ExtractorDB2LoadInfo.h"
 #include "StringFormat.h"
 #include "adt.h"
 #include "wdt.h"
@@ -44,138 +45,29 @@ typedef struct
     uint32 id;
 } map_id;
 
+struct LiquidMaterialEntry
+{
+    int8 LVF;
+};
+
+struct LiquidObjectEntry
+{
+    int16 LiquidTypeID;
+};
+
+struct LiquidTypeEntry
+{
+    uint8 SoundBank;
+    uint8 MaterialID;
+};
+
 std::vector<map_id> map_ids;
-std::vector<uint16> LiqType;
+std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
+std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
+std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
 std::set<std::string> CameraFileNames;
 boost::filesystem::path input_path;
 boost::filesystem::path output_path;
-
-struct CinematicCameraLoadInfo
-{
-    static DB2FileLoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_INT, "SoundID" },
-            { false, FT_FLOAT, "OriginX" },
-            { false, FT_FLOAT, "OriginY" },
-            { false, FT_FLOAT, "OriginZ" },
-            { false, FT_FLOAT, "OriginFacing" },
-            { false, FT_INT, "ModelFileDataID" },
-        };
-        static char const* types = "iffi";
-        static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
-        static DB2Meta const meta(-1, 4, 0x0062B0F4, types, arraySizes, -1);
-        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
-        return &loadInfo;
-    }
-};
-
-struct LiquidTypeLoadInfo
-{
-    static DB2FileLoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_STRING, "Name" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture1" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture2" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture3" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture4" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture5" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture6" },
-            { false, FT_INT, "SpellID" },
-            { false, FT_FLOAT, "MaxDarkenDepth" },
-            { false, FT_FLOAT, "FogDarkenIntensity" },
-            { false, FT_FLOAT, "AmbDarkenIntensity" },
-            { false, FT_FLOAT, "DirDarkenIntensity" },
-            { false, FT_FLOAT, "ParticleScale" },
-            { false, FT_INT, "Color1" },
-            { false, FT_INT, "Color2" },
-            { false, FT_FLOAT, "Float1" },
-            { false, FT_FLOAT, "Float2" },
-            { false, FT_FLOAT, "Float3" },
-            { false, FT_FLOAT, "Float4" },
-            { false, FT_FLOAT, "Float5" },
-            { false, FT_FLOAT, "Float6" },
-            { false, FT_FLOAT, "Float7" },
-            { false, FT_FLOAT, "Float8" },
-            { false, FT_FLOAT, "Float9" },
-            { false, FT_FLOAT, "Float10" },
-            { false, FT_FLOAT, "Float11" },
-            { false, FT_FLOAT, "Float12" },
-            { false, FT_FLOAT, "Float13" },
-            { false, FT_FLOAT, "Float14" },
-            { false, FT_FLOAT, "Float15" },
-            { false, FT_FLOAT, "Float16" },
-            { false, FT_FLOAT, "Float17" },
-            { false, FT_FLOAT, "Float18" },
-            { false, FT_INT, "Int1" },
-            { false, FT_INT, "Int2" },
-            { false, FT_INT, "Int3" },
-            { false, FT_INT, "Int4" },
-            { false, FT_SHORT, "Flags" },
-            { false, FT_SHORT, "LightID" },
-            { false, FT_BYTE, "Type" },
-            { false, FT_BYTE, "ParticleMovement" },
-            { false, FT_BYTE, "ParticleTexSlots" },
-            { false, FT_BYTE, "MaterialID" },
-            { false, FT_BYTE, "DepthTexCount1" },
-            { false, FT_BYTE, "DepthTexCount2" },
-            { false, FT_BYTE, "DepthTexCount3" },
-            { false, FT_BYTE, "DepthTexCount4" },
-            { false, FT_BYTE, "DepthTexCount5" },
-            { false, FT_BYTE, "DepthTexCount6" },
-            { false, FT_INT, "SoundID" },
-        };
-        static char const* types = "ssifffffifihhbbbbbi";
-        static uint8 const arraySizes[19] = { 1, 6, 1, 1, 1, 1, 1, 1, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
-        static DB2Meta const meta(-1, 19, 0x3313BBF3, types, arraySizes, -1);
-        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
-        return &loadInfo;
-    }
-};
-
-struct MapLoadInfo
-{
-    static DB2FileLoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_STRING_NOT_LOCALIZED, "Directory" },
-            { false, FT_STRING, "MapName" },
-            { false, FT_STRING, "MapDescription0" },
-            { false, FT_STRING, "MapDescription1" },
-            { false, FT_STRING, "ShortDescription" },
-            { false, FT_STRING, "LongDescription" },
-            { false, FT_INT, "Flags1" },
-            { false, FT_INT, "Flags2" },
-            { false, FT_FLOAT, "MinimapIconScale" },
-            { false, FT_FLOAT, "CorpsePosX" },
-            { false, FT_FLOAT, "CorpsePosY" },
-            { false, FT_SHORT, "AreaTableID" },
-            { false, FT_SHORT, "LoadingScreenID" },
-            { true, FT_SHORT, "CorpseMapID" },
-            { false, FT_SHORT, "TimeOfDayOverride" },
-            { true, FT_SHORT, "ParentMapID" },
-            { true, FT_SHORT, "CosmeticParentMapID" },
-            { false, FT_SHORT, "WindSettingsID" },
-            { false, FT_BYTE, "InstanceType" },
-            { false, FT_BYTE, "unk5" },
-            { false, FT_BYTE, "ExpansionID" },
-            { false, FT_BYTE, "MaxPlayers" },
-            { false, FT_BYTE, "TimeOffset" },
-        };
-        static char const* types = "ssssssiffhhhhhhhbbbbb";
-        static uint8 const arraySizes[21] = { 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta const meta(-1, 21, 0xF568DF12, types, arraySizes, -1);
-        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
-        return &loadInfo;
-    }
-};
 
 // **************************************************
 // Extractor options
@@ -372,7 +264,57 @@ void ReadMapDBC()
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
 
-void ReadLiquidTypeTableDBC()
+void ReadLiquidMaterialTable()
+{
+    printf("Read LiquidMaterial.db2 file...\n");
+
+    DB2CascFileSource source(CascStorage, "DBFilesClient\\LiquidMaterial.db2");
+    DB2FileLoader db2;
+    if (!db2.Load(&source, LiquidMaterialLoadInfo::Instance()))
+    {
+        printf("Fatal error: Invalid LiquidMaterial.db2 file format!\n");
+        exit(1);
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    {
+        DB2Record record = db2.GetRecord(x);
+        LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
+        liquidType.LVF = record.GetUInt8("LVF");
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+        LiquidMaterials[db2.GetRecordCopy(x).NewRowId] = LiquidMaterials[db2.GetRecordCopy(x).SourceRowId];
+
+    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
+}
+
+void ReadLiquidObjectTable()
+{
+    printf("Read LiquidObject.db2 file...\n");
+
+    DB2CascFileSource source(CascStorage, "DBFilesClient\\LiquidObject.db2");
+    DB2FileLoader db2;
+    if (!db2.Load(&source, LiquidObjectLoadInfo::Instance()))
+    {
+        printf("Fatal error: Invalid LiquidObject.db2 file format!\n");
+        exit(1);
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    {
+        DB2Record record = db2.GetRecord(x);
+        LiquidObjectEntry& liquidType = LiquidObjects[record.GetId()];
+        liquidType.LiquidTypeID = record.GetUInt16("LiquidTypeID");
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+        LiquidObjects[db2.GetRecordCopy(x).NewRowId] = LiquidObjects[db2.GetRecordCopy(x).SourceRowId];
+
+    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());
+}
+
+void ReadLiquidTypeTable()
 {
     printf("Read LiquidType.db2 file...\n");
 
@@ -384,18 +326,18 @@ void ReadLiquidTypeTableDBC()
         exit(1);
     }
 
-    LiqType.resize(db2.GetMaxId() + 1, 0xFFFF);
-
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
-        LiqType[record.GetId()] = record.GetUInt8("Type");
+        LiquidTypeEntry& liquidType = LiquidTypes[record.GetId()];
+        liquidType.SoundBank = record.GetUInt8("SoundBank");
+        liquidType.MaterialID = record.GetUInt8("MaterialID");
     }
 
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiqType[db2.GetRecordCopy(x).NewRowId] = LiqType[db2.GetRecordCopy(x).SourceRowId];
+        LiquidTypes[db2.GetRecordCopy(x).NewRowId] = LiquidTypes[db2.GetRecordCopy(x).SourceRowId];
 
-    printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
+    printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
 }
 
 bool ReadCinematicCameraDBC()
@@ -412,7 +354,7 @@ bool ReadCinematicCameraDBC()
 
     // get camera file list from DB2
     for (size_t i = 0; i < db2.GetRecordCount(); ++i)
-        CameraFileNames.insert(Trinity::StringFormat("FILE%08X.xxx", db2.GetRecord(i).GetUInt32("ModelFileDataID")));
+        CameraFileNames.insert(Trinity::StringFormat("FILE%08X.xxx", db2.GetRecord(i).GetUInt32("FileDataID")));
 
     printf("Done! (" SZFMTD " CinematicCameras loaded)\n", CameraFileNames.size());
     return true;
@@ -518,6 +460,25 @@ uint8 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID][8];
 
 int16 flight_box_max[3][3];
 int16 flight_box_min[3][3];
+
+LiquidVertexFormatType adt_MH2O::GetLiquidVertexFormat(adt_liquid_instance const* liquidInstance) const
+{
+    if (liquidInstance->LiquidVertexFormat < 42)
+        return static_cast<LiquidVertexFormatType>(liquidInstance->LiquidVertexFormat);
+
+    if (liquidInstance->LiquidType == 2)
+        return LiquidVertexFormatType::Depth;
+
+    auto liquidType = LiquidTypes.find(liquidInstance->LiquidType);
+    if (liquidType != LiquidTypes.end())
+    {
+        auto liquidMaterial = LiquidMaterials.find(liquidType->second.MaterialID);
+        if (liquidMaterial != LiquidMaterials.end())
+            return static_cast<LiquidVertexFormatType>(liquidMaterial->second.LVF);
+    }
+
+    return static_cast<LiquidVertexFormatType>(-1);
+}
 
 bool TransformToHighRes(uint16 lowResHoles, uint8 hiResHoles[8])
 {
@@ -706,66 +667,59 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     if (FileChunk* chunk = adt.GetChunk("MH2O"))
     {
         adt_MH2O* h2o = chunk->As<adt_MH2O>();
-        for (int i = 0; i < ADT_CELLS_PER_GRID; i++)
+        for (int32 i = 0; i < ADT_CELLS_PER_GRID; i++)
         {
-            for (int j = 0; j < ADT_CELLS_PER_GRID; j++)
+            for (int32 j = 0; j < ADT_CELLS_PER_GRID; j++)
             {
-                adt_liquid_header *h = h2o->getLiquidData(i, j);
+                adt_liquid_instance const* h = h2o->GetLiquidInstance(i, j);
                 if (!h)
                     continue;
 
-                int count = 0;
-                uint64 show = h2o->getLiquidShowMap(h);
-                for (int y = 0; y < h->height; y++)
+                int32 count = 0;
+                uint64 existsMask = h2o->GetLiquidExistsBitmap(h);
+                for (int32 y = 0; y < h->Height; y++)
                 {
-                    int cy = i * ADT_CELL_SIZE + y + h->yOffset;
-                    for (int x = 0; x < h->width; x++)
+                    int32 cy = i * ADT_CELL_SIZE + y + h->OffsetY;
+                    for (int32 x = 0; x < h->Width; x++)
                     {
-                        int cx = j * ADT_CELL_SIZE + x + h->xOffset;
-                        if (show & 1)
+                        int32 cx = j * ADT_CELL_SIZE + x + h->OffsetX;
+                        if (existsMask & 1)
                         {
                             liquid_show[cy][cx] = true;
                             ++count;
                         }
-                        show >>= 1;
+                        existsMask >>= 1;
                     }
                 }
 
-                liquid_entry[i][j] = h->liquidType;
-                switch (LiqType[h->liquidType])
+                liquid_entry[i][j] = h->LiquidType;
+                switch (LiquidTypes.at(h->LiquidType).SoundBank)
                 {
                     case LIQUID_TYPE_WATER: liquid_flags[i][j] |= MAP_LIQUID_TYPE_WATER; break;
                     case LIQUID_TYPE_OCEAN: liquid_flags[i][j] |= MAP_LIQUID_TYPE_OCEAN; break;
                     case LIQUID_TYPE_MAGMA: liquid_flags[i][j] |= MAP_LIQUID_TYPE_MAGMA; break;
                     case LIQUID_TYPE_SLIME: liquid_flags[i][j] |= MAP_LIQUID_TYPE_SLIME; break;
                     default:
-                        printf("\nCan't find Liquid type %u for map %s\nchunk %d,%d\n", h->liquidType, inputPath.c_str(), i, j);
+                        printf("\nCan't find Liquid type %u for map %s\nchunk %d,%d\n", h->LiquidType, inputPath.c_str(), i, j);
                         break;
-                }
-                // Dark water detect
-                if (LiqType[h->liquidType] == LIQUID_TYPE_OCEAN)
-                {
-                    uint8* lm = h2o->getLiquidLightMap(h);
-                    if (!lm)
-                        liquid_flags[i][j] |= MAP_LIQUID_TYPE_DARK_WATER;
                 }
 
                 if (!count && liquid_flags[i][j])
                     printf("Wrong liquid detect in MH2O chunk");
 
-                float* height = h2o->getLiquidHeightMap(h);
-                int pos = 0;
-                for (int y = 0; y <= h->height; y++)
+                int32 pos = 0;
+                for (int32 y = 0; y <= h->Height; y++)
                 {
-                    int cy = i * ADT_CELL_SIZE + y + h->yOffset;
-                    for (int x = 0; x <= h->width; x++)
+                    int32 cy = i * ADT_CELL_SIZE + y + h->OffsetY;
+                    for (int32 x = 0; x <= h->Width; x++)
                     {
-                        int cx = j * ADT_CELL_SIZE + x + h->xOffset;
+                        int32 cx = j * ADT_CELL_SIZE + x + h->OffsetX;
 
-                        if (height)
-                            liquid_height[cy][cx] = height[pos];
-                        else
-                            liquid_height[cy][cx] = h->heightLevel1;
+                        liquid_height[cy][cx] = h2o->GetLiquidHeight(h, pos);
+
+                        // Dark water detect
+                        if (liquid_flags[i][j] & MAP_LIQUID_TYPE_OCEAN && h2o->GetLiquidDepth(h, pos) == -1)
+                            liquid_flags[i][j] |= MAP_LIQUID_TYPE_DARK_WATER;
 
                         pos++;
                     }
@@ -1091,7 +1045,9 @@ void ExtractMaps(uint32 build)
 
     ReadMapDBC();
 
-    ReadLiquidTypeTableDBC();
+    ReadLiquidMaterialTable();
+    ReadLiquidObjectTable();
+    ReadLiquidTypeTable();
 
     CreateDir(output_path / "maps");
 

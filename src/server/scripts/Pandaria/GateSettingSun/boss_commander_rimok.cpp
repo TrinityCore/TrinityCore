@@ -263,7 +263,7 @@ class npc_add_generator : public CreatureScript
 
                 float x = me->GetPositionX();
                 float y = me->GetPositionY() - 10;
-                float z = me->GetMap()->GetHeight(x, y, 400.0f);
+                float z = me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, 400.0f);
                 summoned->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 10, 20);
             }
         };

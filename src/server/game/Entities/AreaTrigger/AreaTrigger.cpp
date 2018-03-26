@@ -30,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
@@ -149,7 +150,7 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
         if (GetMiscTemplate()->ScaleInfo.ExtraScale[scaleCurveIndex].AsInt32)
             SetUInt32Value(AREATRIGGER_EXTRA_SCALE_CURVE + scaleCurveIndex, GetMiscTemplate()->ScaleInfo.ExtraScale[scaleCurveIndex].AsInt32);
 
-    CopyPhaseFrom(caster);
+    PhasingHandler::InheritPhaseShift(this, caster);
 
     if (target && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
     {

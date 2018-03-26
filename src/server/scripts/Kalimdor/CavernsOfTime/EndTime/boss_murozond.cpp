@@ -25,14 +25,15 @@ SD%Complete:
 SDComment:
 EndScriptData */
 
+#include "end_time.h"
+#include "GameObject.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "end_time.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellHistory.h"
-#include "GameObject.h"
 
 enum Spells
 {
@@ -147,7 +148,7 @@ class boss_murozond : public CreatureScript
 
                 Rewardchest = GetClosestGameObjectWithEntry(me, 209547, 500.0f);
                 if (Rewardchest != nullptr)
-                    Rewardchest->SetInPhase(50, true, true);
+                    PhasingHandler::AddPhase(Rewardchest, 50);
             }
 
             void JustReachedHome() override
@@ -227,7 +228,7 @@ class boss_murozond : public CreatureScript
             }
 
                 if (Rewardchest)
-                    Rewardchest->ClearPhases(true);
+                    PhasingHandler::ResetPhaseShift(Rewardchest);
             }
 
             void JustSummoned(Creature* summon) override

@@ -251,7 +251,7 @@ class mob_animated_staff : public CreatureScript
                         {
                             if (point >= 11)
                             {
-                                if (TempSummon* tmp = me->SummonCreature(CREATURE_RING_OF_FIRE, _x, _y, me->GetMap()->GetHeight(0, _x, _y, me->GetPositionZ()), 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000))
+                                if (TempSummon* tmp = me->SummonCreature(CREATURE_RING_OF_FIRE, _x, _y, me->GetMap()->GetHeight(me->GetPhaseShift(), _x, _y, me->GetPositionZ()), 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000))
                                 {
                                     tmp->RemoveAura(SPELL_RING_OF_FIRE_0);
                                     tmp->CastSpell(tmp, SPELL_RING_OF_FIRE_1, false);
@@ -261,7 +261,7 @@ class mob_animated_staff : public CreatureScript
 
                             float x = _x + 5.0f * cos(point * M_PI / 5);
                             float y = _y + 5.0f * sin(point * M_PI / 5);
-                            me->SummonCreature(CREATURE_RING_OF_FIRE, x, y, me->GetMap()->GetHeight(0, x, y, me->GetPositionZ()), 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
+                            me->SummonCreature(CREATURE_RING_OF_FIRE, x, y, me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, me->GetPositionZ()), 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
                             ++point;
                             events.ScheduleEvent(EVENT_SUMMON_RING_TRIGGER, 400);
                             break;
