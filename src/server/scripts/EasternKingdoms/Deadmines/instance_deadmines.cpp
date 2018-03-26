@@ -51,6 +51,7 @@ enum EventIds
     EVENT_ANNOUNCE_SAVE_CALISSA_HARRINGTON,
     EVENT_ANNOUNCE_ELIXIR_WEARS_OFF,
     EVENT_SUMMON_VANESSA_VANCLEEF_BOSS,
+    EVENT_CHECK_DEAD_PLAYERS
 };
 
 enum TextsIds
@@ -119,10 +120,10 @@ class instance_deadmines : public InstanceMapScript
                 _foeReaper5000Intro = 0;
                 _ironCladDoorState = 0;
                 _vanessaVanCleefEncounterState = 0;
-                _deadPlayers = 0;
                 _activatedVentCounter = 0;
                 _deadEnragedWorgen = 0;
                 _firstCookieSpawn = true;
+                _noteSpawnChecked = false;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -130,6 +131,13 @@ class instance_deadmines : public InstanceMapScript
                 instance->LoadGrid(-205.75f, -579.09f);
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
+
+                if (!_noteSpawnChecked)
+                {
+                    if (GetBossState(DATA_CAPTAIN_COOKIE) == DONE)
+                        events.ScheduleEvent(EVENT_SUMMON_NOTE_FROM_VANESSA, Milliseconds(1));
+                    _noteSpawnChecked = true;
+                }
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -299,11 +307,7 @@ class instance_deadmines : public InstanceMapScript
             void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER && _vanessaVanCleefEncounterState != NOT_STARTED && _vanessaVanCleefEncounterState != NIGHTMARE_STAGE_DONE)
-                {   
-                    _deadPlayers++;
-                    if (_deadPlayers == instance->GetPlayersCountExceptGMs())
-                        ResetVanessasNightmare();
-                }
+                    events.ScheduleEvent(EVENT_CHECK_DEAD_PLAYERS, Milliseconds(100));
                 else
                 {
                     switch (unit->GetEntry())
@@ -369,7 +373,6 @@ class instance_deadmines : public InstanceMapScript
                 SetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER, NOT_STARTED);
                 events.Reset();
                 events.ScheduleEvent(EVENT_SUMMON_NOTE_FROM_VANESSA, Seconds(30));
-                _deadPlayers = 0;
                 _activatedVentCounter = 0;
                 _deadEnragedWorgen = 0;
 
@@ -765,6 +768,28 @@ class instance_deadmines : public InstanceMapScript
                         case EVENT_SUMMON_VANESSA_VANCLEEF_BOSS:
                             instance->SummonCreature(BOSS_VANESSA_VAN_CLEEF, bossVanessaVanCleefSpawnPos);
                             break;
+                        case EVENT_CHECK_DEAD_PLAYERS:
+                        {
+                            uint8 instancePlayersCount = instance->GetPlayersCountExceptGMs();
+                            uint8 deadPlayersCount = 0;
+                            Map::PlayerList const& players = instance->GetPlayers();
+
+                            for (auto const& i : players)
+                            {
+                                if (Player* player = i.GetSource())
+                                {
+                                    if (player->IsGameMaster())
+                                        continue;
+
+                                    if (player->isDead())
+                                        deadPlayersCount++;
+
+                                    if (deadPlayersCount == instancePlayersCount)
+                                        ResetVanessasNightmare();
+                                }
+                            }
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -774,7 +799,6 @@ class instance_deadmines : public InstanceMapScript
         protected:
             EventMap events;
             uint8 _activatedVentCounter;
-            uint8 _deadPlayers;
             uint8 _deadEnragedWorgen;
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
@@ -787,6 +811,7 @@ class instance_deadmines : public InstanceMapScript
             GuidSet _mechanicalNightmareGuidSet;
             GuidSet _ripsnarlNightareGuidSet;
             bool _firstCookieSpawn;
+            bool _noteSpawnChecked;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
