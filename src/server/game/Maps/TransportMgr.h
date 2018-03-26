@@ -114,7 +114,7 @@ class TC_GAME_API TransportMgr
         void LoadTransportAnimationAndRotation();
 
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint32 phaseid = 0, uint32 phasegroup = 0);
+        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
 
         // Spawns all continent transports, used at core startup
         void SpawnContinentTransports();

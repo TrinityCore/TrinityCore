@@ -1127,14 +1127,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Reloading terrain_phase_info table...");
-        sObjectMgr->LoadTerrainPhaseInfo();
-        handler->SendGlobalGMSysMessage("Terrain phase infos reloaded.");
-        return true;
-    }
-
     static bool HandleReloadAreaTriggerTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Reloading areatrigger_template table...");

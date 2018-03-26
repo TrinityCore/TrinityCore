@@ -18,6 +18,7 @@
 
 #include "vmapexport.h"
 #include "wmo.h"
+#include "adtfile.h"
 #include "vec3d.h"
 #include <cstdio>
 #include <cstdlib>
@@ -514,7 +515,7 @@ WMOGroup::~WMOGroup()
     delete [] LiquBytes;
 }
 
-WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
+WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
     : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0)
 {
     float ff[3];
@@ -578,7 +579,11 @@ WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uin
 
     float scale = 1.0f;
     uint32 flags = MOD_HAS_BOUND;
-    if(tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
+    if (tileX == 65 && tileY == 65)
+        flags |= MOD_WORLDSPAWN;
+    if (mapID != originalMapId)
+        flags |= MOD_PARENT_SPAWN;
+
     //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
@@ -591,9 +596,41 @@ WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uin
     fwrite(&scale, sizeof(float), 1, pDirfile);
     fwrite(&pos2, sizeof(float), 3, pDirfile);
     fwrite(&pos3, sizeof(float), 3, pDirfile);
-    uint32 nlen=strlen(WmoInstName);
+    uint32 nlen = strlen(WmoInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
     fwrite(WmoInstName, sizeof(char), nlen, pDirfile);
+
+    if (dirfileCache)
+    {
+        dirfileCache->emplace_back();
+        ADTOutputCache& cacheModelData = dirfileCache->back();
+        cacheModelData.Flags = flags & ~MOD_PARENT_SPAWN;
+        cacheModelData.Data.resize(
+            sizeof(uint16) +    // adtId
+            sizeof(uint32) +    // id
+            sizeof(float) * 3 + // pos
+            sizeof(float) * 3 + // rot
+            sizeof(float) +     // scale
+            sizeof(float) * 3 + // pos2
+            sizeof(float) * 3 + // pos3
+            sizeof(uint32) +    // nlen
+            nlen);              // WmoInstName
+
+        uint8* cacheData = cacheModelData.Data.data();
+#define CACHE_WRITE(value, size, count, dest) memcpy(dest, value, size * count); dest += size * count;
+
+        CACHE_WRITE(&adtId, sizeof(uint16), 1, cacheData);
+        CACHE_WRITE(&id, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(&pos, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&rot, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&scale, sizeof(float), 1, cacheData);
+        CACHE_WRITE(&pos2, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&pos3, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&nlen, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(WmoInstName, sizeof(char), nlen, cacheData);
+
+#undef CACHE_WRITE
+    }
 
     /* fprintf(pDirfile,"%s/%s %f,%f,%f_%f,%f,%f 1.0 %d %d %d,%d %d\n",
         MapName,

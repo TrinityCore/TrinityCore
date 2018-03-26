@@ -21,6 +21,7 @@
 
 #include "cascfile.h"
 #include "wmo.h"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,18 +29,22 @@ class ADTFile;
 
 class WDTFile
 {
-private:
-    CASCFile WDT;
-    std::string filename;
 public:
-    WDTFile(char* file_name, char* file_name1);
-    ~WDTFile(void);
-    bool init(char* map_id, unsigned int mapID);
+    WDTFile(char const* storagePath, std::string mapName, bool cache);
+    ~WDTFile();
+    bool init(uint32 mapId);
 
-    std::vector<std::string> gWmoInstansName;
-    int gnWMO;
-
-    ADTFile* GetMap(int x, int z);
+    ADTFile* GetMap(int32 x, int32 y);
+    void FreeADT(ADTFile* adt);
+private:
+    CASCFile _file;
+    std::string _mapName;
+    std::vector<std::string> _wmoNames;
+    struct ADTCache
+    {
+        std::unique_ptr<ADTFile> file[64][64];
+    };
+    std::unique_ptr<ADTCache> _adtCache;
 };
 
 #endif
