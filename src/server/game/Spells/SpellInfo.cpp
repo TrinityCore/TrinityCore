@@ -3442,6 +3442,11 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Starfall
             if (spellInfo->SpellFamilyFlags[2] == 0x00000100)
                 return false;
+            break
+        case SPELLFAMILY_DEATHKNIGHT:
+            if (spellInfo->SpellIconID == 1933) // Ebon Plague
+                return false;
+            break;
         default:
             break;
     }
@@ -3625,6 +3630,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:
             case SPELL_AURA_MOD_POWER_COST_SCHOOL:
             case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
+            case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:
+            case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:
                 if (bp > 0)
                     return false;
                 break;
@@ -3701,6 +3708,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
             case SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS:
             case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
+            case SPELL_AURA_PREVENTS_FLEEING:
                 return false;
             case SPELL_AURA_MECHANIC_IMMUNITY:
             {
