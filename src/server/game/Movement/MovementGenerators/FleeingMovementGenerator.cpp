@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "VMapFactory.h"
 
@@ -51,11 +52,9 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 
     // Add LOS check for target point
     Position mypos = owner->GetPosition();
-    bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(owner->GetMapId(),
-                                                                                mypos.m_positionX,
-                                                                                mypos.m_positionY,
-                                                                                mypos.m_positionZ + 2.0f,
-                                                                                x, y, z + 2.0f);
+    bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(
+        PhasingHandler::GetTerrainMapId(owner->GetPhaseShift(), owner->GetMap(), mypos.m_positionX, mypos.m_positionY),
+        mypos.m_positionX, mypos.m_positionY, mypos.m_positionZ + 2.0f, x, y, z + 2.0f);
     if (!isInLOS)
     {
         i_nextCheckTime.Reset(200);

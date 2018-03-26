@@ -79,25 +79,32 @@ char* GetExtension(char* FileName)
 
 extern CASC::StorageHandle CascStorage;
 
-ADTFile::ADTFile(char* filename) : ADT(CascStorage, filename, false), nWMO(0), nMDX(0)
+ADTFile::ADTFile(char* filename, bool cache) : ADT(CascStorage, filename, false), nWMO(0), nMDX(0)
 {
     Adtfilename.append(filename);
+    cacheable = cache;
+    dirfileCache = nullptr;
 }
 
-bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
+bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId)
 {
+    if (dirfileCache)
+        return initFromCache(map_num, tileX, tileY, originalMapId);
+
     if (ADT.isEof())
         return false;
 
     uint32 size;
     std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
-    FILE *dirfile;
-    dirfile = fopen(dirname.c_str(), "ab");
+    FILE* dirfile = fopen(dirname.c_str(), "ab");
     if(!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
         return false;
     }
+
+    if (cacheable)
+        dirfileCache = new std::vector<ADTOutputCache>();
 
     while (!ADT.isEof())
     {
@@ -173,7 +180,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 {
                     uint32 id;
                     ADT.read(&id, 4);
-                    ModelInstance inst(ADT, ModelInstanceNames[id].c_str(), map_num, tileX, tileY, dirfile);
+                    ModelInstance inst(ADT, ModelInstanceNames[id].c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
                 }
 
                 ModelInstanceNames.clear();
@@ -188,7 +195,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 {
                     uint32 id;
                     ADT.read(&id, 4);
-                    WMOInstance inst(ADT, WmoInstanceNames[id].c_str(), map_num, tileX, tileY, dirfile);
+                    WMOInstance inst(ADT, WmoInstanceNames[id].c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
                 }
 
                 WmoInstanceNames.clear();
@@ -204,7 +211,37 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
     return true;
 }
 
+bool ADTFile::initFromCache(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId)
+{
+    if (dirfileCache->empty())
+        return true;
+
+    std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
+    FILE* dirfile = fopen(dirname.c_str(), "ab");
+    if (!dirfile)
+    {
+        printf("Can't open dirfile!'%s'\n", dirname.c_str());
+        return false;
+    }
+
+    for (ADTOutputCache const& cached : *dirfileCache)
+    {
+        fwrite(&map_num, sizeof(uint32), 1, dirfile);
+        fwrite(&tileX, sizeof(uint32), 1, dirfile);
+        fwrite(&tileY, sizeof(uint32), 1, dirfile);
+        uint32 flags = cached.Flags;
+        if (map_num != originalMapId)
+            flags |= MOD_PARENT_SPAWN;
+        fwrite(&flags, sizeof(uint32), 1, dirfile);
+        fwrite(cached.Data.data(), cached.Data.size(), 1, dirfile);
+    }
+
+    fclose(dirfile);
+    return true;
+}
+
 ADTFile::~ADTFile()
 {
     ADT.close();
+    delete dirfileCache;
 }
