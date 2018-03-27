@@ -82,6 +82,8 @@ public:
     typedef std::map<uint32, VisibleMapIdRef> VisibleMapIdContainer;
     typedef std::map<uint32, UiWorldMapAreaIdSwapRef> UiWorldMapAreaIdSwapContainer;
 
+    PhaseShift() { }
+
     bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
     bool HasPhase(uint32 phaseId) const { return Phases.find(PhaseRef(phaseId, PhaseFlags::None, nullptr)) != Phases.end(); }
