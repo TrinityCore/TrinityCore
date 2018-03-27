@@ -82,7 +82,7 @@ public:
     typedef std::map<uint32, VisibleMapIdRef> VisibleMapIdContainer;
     typedef std::map<uint32, UiWorldMapAreaIdSwapRef> UiWorldMapAreaIdSwapContainer;
 
-    PhaseShift() { }
+    PhaseShift() : Flags(PhaseShiftFlags::Unphased), NonCosmeticReferences(0), CosmeticReferences(0), DefaultReferences(0), IsDbPhaseShift(false) { }
 
     bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
@@ -107,7 +107,7 @@ public:
 protected:
     friend class PhasingHandler;
 
-    EnumClassFlag<PhaseShiftFlags> Flags = PhaseShiftFlags::Unphased;
+    EnumClassFlag<PhaseShiftFlags> Flags;
     ObjectGuid PersonalGuid;
     PhaseContainer Phases;
     VisibleMapIdContainer VisibleMapIds;
@@ -115,10 +115,10 @@ protected:
 
     void ModifyPhasesReferences(PhaseContainer::iterator itr, int32 references);
     void UpdateUnphasedFlag();
-    int32 NonCosmeticReferences = 0;
-    int32 CosmeticReferences = 0;
-    int32 DefaultReferences = 0;
-    bool IsDbPhaseShift = false;
+    int32 NonCosmeticReferences;
+    int32 CosmeticReferences;
+    int32 DefaultReferences;
+    bool IsDbPhaseShift;
 };
 
 #endif // PhaseShift_h__
