@@ -1200,13 +1200,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             if (unitTarget->HasAura(974))
                 AddPct(addhealth, aurEff->GetAmount());
 
-        // Blessing of the Eternals
-        if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 3157, EFFECT_1))
-            if (unitTarget->HealthBelowPct(35))
-                if (roll_chance_i(aurEff->GetAmount()))
-                    if (SpellInfo const* earthLivingSpell = sSpellMgr->GetSpellInfo(52007))
-                        m_caster->CastSpell(unitTarget, earthLivingSpell->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
-
         // Vessel of the Naaru (Vial of the Sunwell trinket)
         if (m_spellInfo->Id == 45064)
         {

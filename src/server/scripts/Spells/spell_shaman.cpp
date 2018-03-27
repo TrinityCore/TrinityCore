@@ -82,7 +82,8 @@ enum ShamanSpells
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437,
     SPELL_SHAMAN_UNLEASH_LIFE                   = 73685,
-    SPELL_SHAMAN_WATER_SHIELD                   = 52127
+    SPELL_SHAMAN_WATER_SHIELD                   = 52127,
+
 };
 
 enum ShamanSpellIcons
@@ -90,6 +91,7 @@ enum ShamanSpellIcons
     SHAMAN_ICON_ID_SOOTHING_RAIN                = 2011,
     SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087,
     SHAMAN_ICON_ID_CLEANSING_WATERS             = 2020,
+    SHAMAN_ICON_ID_BLESSING_OF_THE_ETERNALS     = 3157
 };
 
 enum MiscSpells
@@ -1717,6 +1719,38 @@ class spell_sha_healing_rain_triggered : public SpellScriptLoader
         }
 };
 
+class spell_sha_earthliving_weapon : public SpellScriptLoader
+{
+    public:
+        spell_sha_earthliving_weapon() : SpellScriptLoader("spell_sha_earthliving_weapon") { }
+
+        class spell_sha_earthliving_weapon_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_earthliving_weapon_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // Blessing of the Eternals
+                // Increases the default 20% proc chance by additional 40%/80% when healing target is below 35% health
+                if (eventInfo.GetHealInfo()->GetTarget() && eventInfo.GetHealInfo()->GetTarget()->HealthBelowPct(35))
+                    if (AuraEffect const* aurEff = GetUnitOwner()->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_BLESSING_OF_THE_ETERNALS, EFFECT_1))
+                        return roll_chance_i(20 + aurEff->GetBaseAmount());
+
+                // Default Proc Chance is 20%
+                return roll_chance_i(20);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_sha_earthliving_weapon_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_earthliving_weapon_AuraScript();
+        }
+};
 
 void AddSC_shaman_spell_scripts()
 {
@@ -1730,6 +1764,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
+    new spell_sha_earthliving_weapon();
     new spell_sha_earth_shock();
     new spell_sha_elemental_overload();
     new spell_sha_feedback();
