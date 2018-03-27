@@ -21,7 +21,7 @@ INSERT INTO areatrigger_scripts (entry,ScriptName) VALUES
 (7630,'at_calamir_icy_comet'),
 (7650,'at_calamir_arcanopulse'),
 (7640,'at_calamir_howling_gale');
-DELETE FROM spell_script_names WHERE spell_id IN (220377,220340,220295);
+DELETE FROM spell_script_names WHERE spell_id IN (220377,220340,220295,223357);
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES 
 (220377,'spell_flotsam_getsam_damage'),
 (220340,'spell_flotsam_getsam_target'),
