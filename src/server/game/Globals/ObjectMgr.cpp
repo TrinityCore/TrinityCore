@@ -6342,7 +6342,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
     uint32 MapId = location.GetMapId();
 
     // search for zone associated closest graveyard
-    uint32 zoneId = sMapMgr->GetZoneId(conditionObject->GetPhaseShift(), MapId, x, y, z);
+    uint32 zoneId = sMapMgr->GetZoneId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
 
     if (!zoneId)
     {
@@ -9627,12 +9627,6 @@ void ObjectMgr::LoadTerrainWorldMaps()
         if (!sMapStore.LookupEntry(mapId))
         {
             TC_LOG_ERROR("sql.sql", "TerrainSwapMap %u defined in `terrain_worldmap` does not exist, skipped.", mapId);
-            continue;
-        }
-
-        if (!sWorldMapAreaStore.LookupEntry(worldMapArea))
-        {
-            TC_LOG_ERROR("sql.sql", "WorldMapArea %u defined in `terrain_worldmap` does not exist, skipped.", worldMapArea);
             continue;
         }
 
