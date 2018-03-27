@@ -93,15 +93,15 @@ struct boss_baroness_anastari : public BossAI
             switch (eventId)
             {
             case EVENT_SPELL_BANSHEEWAIL:
-                DoCastVictim(SPELL_BANSHEEWAIL);
+                DoCastVictim(SPELL_BANSHEEWAIL, SPELLMOD_NOT_LOSE_CASTING_TIME);
                 _events.ScheduleEvent(EVENT_SPELL_BANSHEEWAIL, 4s);
                 break;
             case EVENT_SPELL_BANSHEECURSE:
-                DoCastVictim(SPELL_BANSHEECURSE);
+                DoCastVictim(SPELL_BANSHEECURSE, SPELLMOD_NOT_LOSE_CASTING_TIME);
                 _events.Repeat(18s);
                 break;
             case EVENT_SPELL_SILENCE:
-                DoCastVictim(SPELL_SILENCE);
+                DoCastVictim(SPELL_SILENCE,SPELLMOD_NOT_LOSE_CASTING_TIME);
                 _events.ScheduleEvent(EVENT_SPELL_SILENCE, 13s);
                 break;
             case EVENT_SPELL_POSSESS:
@@ -133,7 +133,7 @@ struct boss_baroness_anastari : public BossAI
                 }
                 break;
             case EVENT_CHECK_POSSESSED:
-                if (me->IsVisible())
+                if (!me->IsVisible())
                 {
                     if (Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid))
                     {
