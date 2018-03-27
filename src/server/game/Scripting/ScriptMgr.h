@@ -1362,6 +1362,15 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
 };
 #define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
+template <class AI>
+class GenericInstanceMapScript : public InstanceMapScript
+{
+    public:
+        GenericInstanceMapScript(char const* name, uint32 mapId) : InstanceMapScript(name, mapId) { }
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override { return new AI(map); }
+};
+#define RegisterInstanceScript(ai_name, mapId) new GenericInstanceMapScript<ai_name>(#ai_name, mapId)
+
 #define sScriptMgr ScriptMgr::instance()
 
 #endif
