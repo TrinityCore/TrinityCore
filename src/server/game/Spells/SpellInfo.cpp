@@ -1266,7 +1266,7 @@ bool SpellInfo::HasOnlyDamageEffects() const
     return true;
 }
 
-bool SpellInfo::HasTarget(Targets target) const
+bool SpellInfo::HasTarget(uint32 target) const
 {
     for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
@@ -1275,12 +1275,24 @@ bool SpellInfo::HasTarget(Targets target) const
             if (!effect)
                 continue;
 
-            if (effect->TargetA == target || effect->TargetB == target)
+            if (effect->TargetA.GetTarget() == target || effect->TargetB.GetTarget() == target)
                 return true;
         }
     }
 
     return false;
+}
+
+bool SpellInfo::CasterCanTurnDuringCast() const
+{
+    if (HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+        return false;
+
+    // Todo : Find more generic way ?
+    if (HasTarget(TARGET_UNIT_CONE_ENEMY_54))
+        return false;
+
+    return true;
 }
 
 bool SpellInfo::HasAnyAuraInterruptFlag() const

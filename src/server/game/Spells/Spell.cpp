@@ -3147,7 +3147,7 @@ bool Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
                 m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
-            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+            else if (!m_spellInfo->CasterCanTurnDuringCast())
                 m_caster->ToCreature()->FocusTarget(this, nullptr);
         }
 
@@ -3362,7 +3362,7 @@ void Spell::cast(bool skipCheck)
     // if the spell allows the creature to turn while casting, then adjust server-side orientation to face the target now
     // client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::FocusTarget
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+        if (m_spellInfo->CasterCanTurnDuringCast())
             if (WorldObject* objTarget = m_targets.GetObjectTarget())
                 m_caster->SetInFront(objTarget);
 
