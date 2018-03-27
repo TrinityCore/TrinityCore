@@ -207,7 +207,7 @@ public:
             {
                 uint32 timer = 4000 * (std::floor(i / 3) + 1);
 
-                _worldTriggerList[i]->GetScheduler().Schedule(Milliseconds(timer), [this](TaskContext context)
+                _worldTriggerList[i]->GetScheduler().Schedule(Milliseconds(timer), [](TaskContext context)
                 {
                     context.GetContextUnit()->CastSpell(context.GetContextUnit(), SUMMON_ENSLAVED_SOUL, true);
                 });
