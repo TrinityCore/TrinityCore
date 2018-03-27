@@ -2932,7 +2932,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
                 focusSpell->GetSpellInfo()->GetSpellVisual()
             ) && (
                 !focusSpell->GetCastTime() || // if the spell is instant cast
-                focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet
+                !focusSpell->GetSpellInfo()->CasterCanTurnDuringCast() // client gets confused if we attempt to turn at the regularly scheduled update packet
             )
         )
         {
@@ -2947,7 +2947,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
         }
     }
 
-    bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    bool canTurnDuringCast = focusSpell->GetSpellInfo()->CasterCanTurnDuringCast();
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
         SetFacingToObject(target);
@@ -3009,7 +3009,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         // player pets don't need to do this, as they automatically reacquire their target on focus release
         MustReacquireTarget();
 
-    if (m_focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+    if (!m_focusSpell->GetSpellInfo()->CasterCanTurnDuringCast())
         ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
     m_focusSpell = nullptr;
