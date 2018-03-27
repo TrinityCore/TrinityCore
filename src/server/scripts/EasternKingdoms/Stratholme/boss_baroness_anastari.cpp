@@ -93,15 +93,15 @@ struct boss_baroness_anastari : public BossAI
             switch (eventId)
             {
             case EVENT_SPELL_BANSHEEWAIL:
-                DoCastVictim(SPELL_BANSHEEWAIL, SPELLMOD_NOT_LOSE_CASTING_TIME);
+                DoCastVictim(SPELL_BANSHEEWAIL);
                 _events.ScheduleEvent(EVENT_SPELL_BANSHEEWAIL, 4s);
                 break;
             case EVENT_SPELL_BANSHEECURSE:
-                DoCastVictim(SPELL_BANSHEECURSE, SPELLMOD_NOT_LOSE_CASTING_TIME);
+                DoCastVictim(SPELL_BANSHEECURSE);
                 _events.Repeat(18s);
                 break;
             case EVENT_SPELL_SILENCE:
-                DoCastVictim(SPELL_SILENCE,SPELLMOD_NOT_LOSE_CASTING_TIME);
+                DoCastVictim(SPELL_SILENCE);
                 _events.ScheduleEvent(EVENT_SPELL_SILENCE, 13s);
                 break;
             case EVENT_SPELL_POSSESS:
