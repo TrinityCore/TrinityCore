@@ -234,129 +234,116 @@ public:
 };
 
 /// 79794 - Yrel
-class npc_tanaan_yresummon : public CreatureScript
+struct npc_tanaan_yrel_summon : public FollowerAI
 {
-public:
-    npc_tanaan_yresummon() : CreatureScript("npc_tanaan_yresummon")
+    npc_tanaan_yrel_summon(Creature* creature) : FollowerAI(creature)  { }
+
+    enum eEvents
     {
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_tanaan_yresummonAI(creature);
-    }
-
-    struct npc_tanaan_yresummonAI : public FollowerAI
-    {
-        npc_tanaan_yresummonAI(Creature* creature) : FollowerAI(creature)  { }
-
-        enum eEvents
-        {
-            EventCheckStopFollow    = 1,
-            EventContinueRun        = 2,
-            EventCheckSummoner      = 3
-        };
-
-        EventMap m_Events;
-        ObjectGuid m_PlayerGuid;
-
-        void IsSummonedBy(Unit* summoner) override
-        {
-            if (!summoner->ToPlayer())
-                return;
-
-            m_PlayerGuid = summoner->GetGUID();
-
-            StartFollow(summoner->ToPlayer(), 35);
-
-            m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            switch (id)
-            {
-                case 1:
-                    me->GetMotionMaster()->MovePoint(2, 4540.006f, -2501.200f, 20.08f);
-                    break;
-                case 2:
-                    me->GetMotionMaster()->MovePoint(3, 4541.180f, -2474.347f, 25.218f);
-                    break;
-                case 3:
-                    me->GetMotionMaster()->MovePoint(4, 4513.743f, -2473.987f, 25.298f);
-                    break;
-                case 4:
-                    me->GetMotionMaster()->MovePoint(5, 4516.58f, -2495.62f, 25.872f);
-                    break;
-                case 5:
-                {
-                    me->SetFacingTo(1.664600f);
-                    if (!m_PlayerGuid.IsEmpty())
-                    {
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
-                        {
-                            if (player->HasQuest(TanaanQuests::QuestYrelTanaan) || player->HasQuest(TanaanQuests::QuestYrelHorde))
-                                player->KilledMonsterCredit(TanaanKillCredits::CreditEscortYrel);
-
-                            me->DespawnOrUnsummon();
-                        }
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            m_Events.Update(diff);
-            FollowerAI::UpdateAI(diff);
-
-            switch (m_Events.ExecuteEvent())
-            {
-                case eEvents::EventCheckStopFollow:
-                {
-                    if (GetClosestCreatureWithEntry(me, TanaanCreatures::NpcExarchMaladaar, 50.0f) ||
-                        GetClosestCreatureWithEntry(me, TanaanCreatures::NpcLadyLiadrin, 50.0f)
-                        || me->GetPositionX() < 4560.0f)
-                    {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                        SetFollowPaused(true);
-
-                        m_Events.CancelEvent(eEvents::EventCheckStopFollow);
-                        m_Events.ScheduleEvent(eEvents::EventContinueRun, 1000);
-                    }
-                    else
-                        m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 800);
-
-                    break;
-                }
-                case eEvents::EventContinueRun:
-                {
-                    me->GetMotionMaster()->MovePoint(1, 4539.223f, -2521.753f, 14.361f);
-                    break;
-                }
-                case eEvents::EventCheckSummoner:
-                {
-                    Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid);
-
-                    if (!player || !player->IsAlive())
-                        me->DespawnOrUnsummon();
-
-                    if (!player->HasQuest(TanaanQuests::QuestYrelTanaan) && !player->HasQuest(TanaanQuests::QuestYrelHorde))
-                        me->DespawnOrUnsummon();
-
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
+        EventCheckStopFollow    = 1,
+        EventContinueRun        = 2,
+        EventCheckSummoner      = 3
     };
+
+    EventMap m_Events;
+    ObjectGuid m_PlayerGuid;
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (!summoner->ToPlayer())
+            return;
+
+        m_PlayerGuid = summoner->GetGUID();
+
+        StartFollow(summoner->ToPlayer(), 35);
+
+        m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        switch (id)
+        {
+            case 1:
+                me->GetMotionMaster()->MovePoint(2, 4540.006f, -2501.200f, 20.08f);
+                break;
+            case 2:
+                me->GetMotionMaster()->MovePoint(3, 4541.180f, -2474.347f, 25.218f);
+                break;
+            case 3:
+                me->GetMotionMaster()->MovePoint(4, 4513.743f, -2473.987f, 25.298f);
+                break;
+            case 4:
+                me->GetMotionMaster()->MovePoint(5, 4516.58f, -2495.62f, 25.872f);
+                break;
+            case 5:
+            {
+                me->SetFacingTo(1.664600f);
+                if (!m_PlayerGuid.IsEmpty())
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
+                    {
+                        if (player->HasQuest(TanaanQuests::QuestYrelTanaan) || player->HasQuest(TanaanQuests::QuestYrelHorde))
+                            player->KilledMonsterCredit(TanaanKillCredits::CreditEscortYrel);
+
+                        me->DespawnOrUnsummon();
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        m_Events.Update(diff);
+        FollowerAI::UpdateAI(diff);
+
+        switch (m_Events.ExecuteEvent())
+        {
+            case eEvents::EventCheckStopFollow:
+            {
+                if (GetClosestCreatureWithEntry(me, TanaanCreatures::NpcExarchMaladaar, 50.0f) ||
+                    GetClosestCreatureWithEntry(me, TanaanCreatures::NpcLadyLiadrin, 50.0f)
+                    || me->GetPositionX() < 4560.0f)
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    SetFollowPaused(true);
+
+                    m_Events.CancelEvent(eEvents::EventCheckStopFollow);
+                    m_Events.ScheduleEvent(eEvents::EventContinueRun, 1000);
+                }
+                else
+                    m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 800);
+
+                break;
+            }
+            case eEvents::EventContinueRun:
+            {
+                me->GetMotionMaster()->MovePoint(1, 4539.223f, -2521.753f, 14.361f);
+                break;
+            }
+            case eEvents::EventCheckSummoner:
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid);
+
+                if (!player || !player->IsAlive())
+                    me->DespawnOrUnsummon();
+
+                if (!player->HasQuest(TanaanQuests::QuestYrelTanaan) && !player->HasQuest(TanaanQuests::QuestYrelHorde))
+                    me->DespawnOrUnsummon();
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
 };
 
 /// 79537 - Exarch Maladaar
@@ -500,7 +487,7 @@ void AddSC_tanaan_intro_shadowmoon()
     new npc_tanaan_ungra();
     new npc_taskmaster_gurran();
     new npc_ankova_the_fallen();
-    new npc_tanaan_yresummon();
+    RegisterCreatureAI(npc_tanaan_yrel_summon);
     new npc_tanaan_yrel();
     new npc_maladaar_liadrin_tanaan_cave();
     new go_iron_cage_door();
