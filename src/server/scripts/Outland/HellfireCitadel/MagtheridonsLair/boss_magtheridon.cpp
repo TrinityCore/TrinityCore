@@ -139,7 +139,6 @@ class boss_magtheridon : public CreatureScript
 
             void CombatStart()
             {
-                events.SetPhase(PHASE_2);
                 events.CancelEvent(EVENT_START_FIGHT);
                 events.CancelEvent(EVENT_NEARLY_EMOTE);
                 events.ScheduleEvent(EVENT_RELEASED, Seconds(6));
@@ -220,7 +219,7 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!events.IsInPhase(PHASE_BANISH) && !UpdateVictim())
+                if (!events.IsInPhase(PHASE_BANISH) && !events.IsInPhase(PHASE_1) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -254,6 +253,7 @@ class boss_magtheridon : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
                             DoZoneInCombat();
+                            events.SetPhase(PHASE_2);
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
                             events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
