@@ -47,6 +47,27 @@ namespace Trinity
             return CURRENT_EXPANSION;
     }
 
+    inline uint32 GetDamageMultiplierForExpansion(uint32 playerLevel, uint8 expansion)
+    {
+        if (playerLevel > GetMaxLevelForExpansion(expansion))
+        {
+            switch (expansion)
+            {
+                case EXPANSION_CLASSIC:
+                case EXPANSION_THE_BURNING_CRUSADE:
+                    return 20.0f;
+                case EXPANSION_WRATH_OF_THE_LICH_KING:
+                    return 25.0f;
+                case EXPANSION_CATACLYSM:
+                    return 13.5f;
+                default:
+                    break;
+            }
+        }
+
+        return 1.0f;
+    }
+
     namespace Honor
     {
         inline float hk_honor_at_level_f(uint8 level, float multiplier = 1.0f)
