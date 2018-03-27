@@ -46,134 +46,57 @@ DoorData const doorData[] =
     { GO_DOOR_ROOM_XAVIUS,             DATA_SHADE_OF_XAVIUS,       DOOR_TYPE_ROOM }
 };
 
-class instance_darkheart_thicket : public InstanceMapScript
+struct instance_darkheart_thicket : public InstanceScript
 {
-    public:
-        instance_darkheart_thicket() : InstanceMapScript("instance_darkheart_thicket", 1466) { }
+    instance_darkheart_thicket(Map* map) : InstanceScript(map), _introDone(false) { }
 
-        struct instance_darkheart_thicket_InstanceMapScript : public InstanceScript
+    void Initialize() override
+    {
+        SetBossNumber(DATA_MAX_ENCOUNTERS);
+        LoadDoorData(doorData);
+    }
+
+    void OnUnitDeath(Unit* unit) override
+    {
+        if (unit->IsCreature() && !_introDone)
         {
-            instance_darkheart_thicket_InstanceMapScript(Map* map) : InstanceScript(map), _introDone(false) { }
-
-            void Initialize() override
-            {
-                SetBossNumber(DATA_MAX_ENCOUNTERS);
-                LoadDoorData(doorData);
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DOOR_ROOM_GLAIDALIS_1:
-                    case GO_DOOR_ROOM_GLAIDALIS_2:
-                    case GO_DOOR_ROOM_GLAIDALIS_3:
-                    case GO_DOOR_ROOM_GLAIDALIS_4:
-                    case GO_DOOR_ROOM_GLAIDALIS_5:
-                    case GO_DOOR_ROOM_GLAIDALIS_6:
-                    case GO_DOOR_ROOM_GLAIDALIS_7:
-                    case GO_DOOR_ROOM_GLAIDALIS_8:
-                    case GO_DOOR_ROOM_GLAIDALIS_9:
-                    case GO_DOOR_ROOM_GLAIDALIS_10:
-                    case GO_DOOR_ROOM_GLAIDALIS_11:
-                    case GO_DOOR_ROOM_GLAIDALIS_12:
-                    case GO_DOOR_ROOM_GLAIDALIS_13:
-                    case GO_DOOR_ROOM_GLAIDALIS_14:
-                    case GO_DOOR_ROOM_GLAIDALIS_15:
-                    case GO_DOOR_ROOM_GLAIDALIS_16:
-                    case GO_DOOR_ROOM_DRESARON_1:
-                    case GO_DOOR_ROOM_DRESARON_2:
-                    case GO_DOOR_ROOM_XAVIUS:
-                        AddDoor(go, true);
-                        break;
-                    case GO_GLAIDALIS_EVENT:
-                        AddObject(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DOOR_ROOM_GLAIDALIS_1:
-                    case GO_DOOR_ROOM_GLAIDALIS_2:
-                    case GO_DOOR_ROOM_GLAIDALIS_3:
-                    case GO_DOOR_ROOM_GLAIDALIS_4:
-                    case GO_DOOR_ROOM_GLAIDALIS_5:
-                    case GO_DOOR_ROOM_GLAIDALIS_6:
-                    case GO_DOOR_ROOM_GLAIDALIS_7:
-                    case GO_DOOR_ROOM_GLAIDALIS_8:
-                    case GO_DOOR_ROOM_GLAIDALIS_9:
-                    case GO_DOOR_ROOM_GLAIDALIS_10:
-                    case GO_DOOR_ROOM_GLAIDALIS_11:
-                    case GO_DOOR_ROOM_GLAIDALIS_12:
-                    case GO_DOOR_ROOM_GLAIDALIS_13:
-                    case GO_DOOR_ROOM_GLAIDALIS_14:
-                    case GO_DOOR_ROOM_GLAIDALIS_15:
-                    case GO_DOOR_ROOM_GLAIDALIS_16:
-                    case GO_DOOR_ROOM_DRESARON_1:
-                    case GO_DOOR_ROOM_DRESARON_2:
-                    case GO_DOOR_ROOM_XAVIUS:
-                        AddDoor(go, false);
-                        break;
-                    case GO_GLAIDALIS_EVENT:
-                        AddObject(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnUnitDeath(Unit* unit) override
-            {
-                if (unit->IsCreature() && !_introDone)
-                {
-                    DoCastSpellOnPlayers(SPELL_CONVERSATION_INTRO);
-                    _introDone = true;
-                }
-            }
-
-            bool SetBossState(uint32 type, EncounterState state) override
-            {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_ARCHDRUID_GLAIDALIS:
-                    {
-                        if (state == DONE)
-                            DoCastSpellOnPlayers(SPELL_CONVERSATION_AFTER_FIRST_BOSS);
-
-                        break;
-                    }
-                    case DATA_SHADE_OF_XAVIUS:
-                    {
-                        if (state == DONE)
-                            if (Creature* malfurion = GetCreature(NPC_MALFURION_STORMRAGE))
-                                malfurion->AI()->DoAction(ACTION_MALFURION_OUTRO);
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            bool _introDone;
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_darkheart_thicket_InstanceMapScript(map);
+            DoCastSpellOnPlayers(SPELL_CONVERSATION_INTRO);
+            _introDone = true;
         }
+    }
+
+    bool SetBossState(uint32 type, EncounterState state) override
+    {
+        if (!InstanceScript::SetBossState(type, state))
+            return false;
+
+        switch (type)
+        {
+            case DATA_ARCHDRUID_GLAIDALIS:
+            {
+                if (state == DONE)
+                    DoCastSpellOnPlayers(SPELL_CONVERSATION_AFTER_FIRST_BOSS);
+
+                break;
+            }
+            case DATA_SHADE_OF_XAVIUS:
+            {
+                if (state == DONE)
+                    if (Creature* malfurion = GetCreature(NPC_MALFURION_STORMRAGE))
+                        malfurion->AI()->DoAction(ACTION_MALFURION_OUTRO);
+                break;
+            }
+            default:
+                break;
+        }
+
+        return true;
+    }
+
+    bool _introDone;
 };
 
 void AddSC_instance_darkheart_thicket()
 {
-    new instance_darkheart_thicket();
+    RegisterInstanceScript(instance_darkheart_thicket, 1466);
 }
