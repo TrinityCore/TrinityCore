@@ -1,16 +1,3 @@
-/*
--- 89757 cannonball spell    --> target=  0.512153 Y: -768.229 Z: 9.801343
-
-20:52:28.681 -- first ball
-20:52:37.042 -- 2nd ball
-20:52:45.451 -- 3rd
-20:52:53.937 -- 4th
-20:53:02.236 -- 5th
-
-21:15:38.665 -- emote 432
-21:15:40.069 -- 
-*/
-
 -- Creature Defias Pirate 48522 SAI
 SET @ENTRY := 48522;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
