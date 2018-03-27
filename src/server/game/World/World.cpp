@@ -1575,15 +1575,21 @@ void World::SetInitialWorldSettings()
     //Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
 
-    std::vector<uint32> mapIds;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
-        mapIds.push_back(mapEntry->ID);
+    {
+        mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->ID), std::forward_as_tuple());
+        if (mapEntry->ParentMapID != -1)
+            mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
+    }
+
+    sMapMgr->InitializeParentMapData(mapData);
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapIds);
+        vmmgr2->InitializeThreadUnsafe(mapData);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
-    mmmgr->InitializeThreadUnsafe(mapIds);
+    mmmgr->InitializeThreadUnsafe(mapData);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
@@ -1975,17 +1981,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
 
-    TC_LOG_INFO("server.loading", "Loading Terrain Phase definitions...");
-    sObjectMgr->LoadTerrainPhaseInfo();
-
-    TC_LOG_INFO("server.loading", "Loading Terrain Swap Default definitions...");
-    sObjectMgr->LoadTerrainSwapDefaults();
-
-    TC_LOG_INFO("server.loading", "Loading Terrain World Map definitions...");
-    sObjectMgr->LoadTerrainWorldMaps();
-
-    TC_LOG_INFO("server.loading", "Loading Phase Area definitions...");
-    sObjectMgr->LoadAreaPhases();
+    sObjectMgr->LoadPhases();
 
     TC_LOG_INFO("server.loading", "Loading Conditions...");
     sConditionMgr->LoadConditions();

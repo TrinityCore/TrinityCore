@@ -855,7 +855,8 @@ struct GameObjectAddon
 struct GameObjectData
 {
     explicit GameObjectData() : id(0), mapid(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
-                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), phaseId(0), phaseGroup(0), ScriptId(0), dbData(true) { }
+                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0),
+                                phaseUseFlags(0), phaseId(0), phaseGroup(0), terrainSwapMap(-1), ScriptId(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     float posX;
@@ -868,8 +869,10 @@ struct GameObjectData
     GOState go_state;
     uint64 spawnMask;
     uint8 artKit;
+    uint8 phaseUseFlags;
     uint32 phaseId;
     uint32 phaseGroup;
+    int32 terrainSwapMap;
     uint32 ScriptId;
     bool dbData;
 };

@@ -18,54 +18,8 @@
 #include "DB2Store.h"
 #include "ByteBuffer.h"
 #include "DB2DatabaseLoader.h"
+#include "DB2FileSystemSource.h"
 #include "DB2Meta.h"
-#include <boost/filesystem/operations.hpp>
-
-struct DB2FileSystemSource : public DB2FileSource
-{
-    DB2FileSystemSource(std::string const& fileName)
-    {
-        _fileName = fileName;
-        _file = fopen(_fileName.c_str(), "rb");
-    }
-
-    ~DB2FileSystemSource()
-    {
-        if (_file)
-            fclose(_file);
-    }
-
-    bool IsOpen() const override
-    {
-        return _file != nullptr;
-    }
-
-    bool Read(void* buffer, std::size_t numBytes) override
-    {
-        return fread(buffer, numBytes, 1, _file) == 1;
-    }
-
-    std::size_t GetPosition() const override
-    {
-        return ftell(_file);
-    }
-
-    std::size_t GetFileSize() const override
-    {
-        boost::system::error_code error;
-        std::size_t size = boost::filesystem::file_size(_fileName, error);
-        return !error ? size : 0;
-    }
-
-    char const* GetFileName() const override
-    {
-        return _fileName.c_str();
-    }
-
-private:
-    std::string _fileName;
-    FILE* _file;
-};
 
 DB2StorageBase::DB2StorageBase(char const* fileName, DB2LoadInfo const* loadInfo)
     : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(nullptr), _indexTableSize(0)

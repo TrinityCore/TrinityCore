@@ -47,23 +47,32 @@ namespace VMAP
             BIH iTree;
             ModelInstance* iTreeValues; // the tree entries
             uint32 iNTreeValues;
+            std::unordered_map<uint32, uint32> iSpawnIndices;
 
             // Store all the map tile idents that are loaded for that map
             // some maps are not splitted into tiles and we have to make sure, not removing the map before all tiles are removed
             // empty tiles have no tile file, hence map with bool instead of just a set (consistency check)
             loadedTileMap iLoadedTiles;
+            std::vector<std::pair<int32, int32>> iLoadedPrimaryTiles;
             // stores <tree_index, reference_count> to invalidate tree values, unload map, and to be able to report errors
             loadedSpawnMap iLoadedSpawns;
             std::string iBasePath;
 
+            struct TileFileOpenResult
+            {
+                FILE* File;
+                std::string Name;
+            };
+
         private:
+            static TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm);
             bool getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit) const;
             //bool containsLoadedMapTile(unsigned int pTileIdent) const { return(iLoadedMapTiles.containsKey(pTileIdent)); }
         public:
             static std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY);
             static uint32 packTileID(uint32 tileX, uint32 tileY) { return tileX<<16 | tileY; }
-            static void unpackTileID(uint32 ID, uint32 &tileX, uint32 &tileY) { tileX = ID>>16; tileY = ID&0xFF; }
-            static bool CanLoadMap(const std::string &basePath, uint32 mapID, uint32 tileX, uint32 tileY);
+            static void unpackTileID(uint32 ID, uint32 &tileX, uint32 &tileY) { tileX = ID >> 16; tileY = ID & 0xFF; }
+            static bool CanLoadMap(const std::string &basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm);
 
             StaticMapTree(uint32 mapID, const std::string &basePath);
             ~StaticMapTree();
