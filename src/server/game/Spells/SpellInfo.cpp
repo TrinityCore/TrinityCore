@@ -1266,6 +1266,23 @@ bool SpellInfo::HasOnlyDamageEffects() const
     return true;
 }
 
+bool SpellInfo::HasTarget(Targets target) const
+{
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (!effect)
+                continue;
+
+            if (effect->TargetA == target || effect->TargetB == target)
+                return true;
+        }
+    }
+
+    return false;
+}
+
 bool SpellInfo::HasAnyAuraInterruptFlag() const
 {
     return std::find_if(AuraInterruptFlags.begin(), AuraInterruptFlags.end(), [](uint32 flag) { return flag != 0; }) != AuraInterruptFlags.end();
