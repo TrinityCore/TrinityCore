@@ -204,7 +204,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                     mapID = corpseMapEntry->CorpseMapID;
                     x = corpseMapEntry->Corpse.X;
                     y = corpseMapEntry->Corpse.Y;
-                    z = entranceMap->GetHeight(player->GetPhases(), x, y, MAX_HEIGHT);
+                    z = entranceMap->GetHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }
         }

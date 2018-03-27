@@ -30,6 +30,7 @@
 #include "LootMgr.h"
 #include "Map.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
@@ -413,7 +414,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_PHASEID:
         {
-            condMeets = object->IsInPhase(ConditionValue1);
+            condMeets = object->GetPhaseShift().HasPhase(ConditionValue1);
             break;
         }
         case CONDITION_TITLE:
@@ -454,7 +455,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_TERRAIN_SWAP:
         {
-            condMeets = object->IsInTerrainSwap(ConditionValue1);
+            condMeets = object->GetPhaseShift().HasVisibleMapId(ConditionValue1);
             break;
         }
         case CONDITION_STAND_STATE:
@@ -1066,17 +1067,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
 
-        TC_LOG_INFO("misc", "Re-Loading `terrain_phase_info` Table for Conditions!");
-        sObjectMgr->LoadTerrainPhaseInfo();
-
-        TC_LOG_INFO("misc", "Re-Loading `terrain_swap_defaults` Table for Conditions!");
-        sObjectMgr->LoadTerrainSwapDefaults();
-
-        TC_LOG_INFO("misc", "Re-Loading `terrain_worldmap` Table for Conditions!");
-        sObjectMgr->LoadTerrainWorldMaps();
-
-        TC_LOG_INFO("misc", "Re-Loading `phase_area` Table for Conditions!");
-        sObjectMgr->LoadAreaPhases();
+        sObjectMgr->UnloadPhaseConditions();
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
@@ -1464,28 +1455,33 @@ bool ConditionMgr::addToPhases(Condition* cond) const
 {
     if (!cond->SourceEntry)
     {
-        bool found = false;
-        PhaseInfo& p = sObjectMgr->GetAreaAndZonePhasesForLoading();
-        for (auto phaseItr = p.begin(); phaseItr != p.end(); ++phaseItr)
+        if (PhaseInfoStruct const* phaseInfo = sObjectMgr->GetPhaseInfo(cond->SourceGroup))
         {
-            for (PhaseInfoStruct& phase : phaseItr->second)
+            bool found = false;
+            for (uint32 areaId : phaseInfo->Areas)
             {
-                if (phase.Id == cond->SourceGroup)
+                if (std::vector<PhaseAreaInfo>* phases = const_cast<std::vector<PhaseAreaInfo>*>(sObjectMgr->GetPhasesForArea(areaId)))
                 {
-                    phase.Conditions.push_back(cond);
-                    found = true;
+                    for (PhaseAreaInfo& phase : *phases)
+                    {
+                        if (phase.PhaseInfo->Id == cond->SourceGroup)
+                        {
+                            phase.Conditions.push_back(cond);
+                            found = true;
+                        }
+                    }
                 }
             }
-        }
 
-        if (found)
-            return true;
+            if (found)
+                return true;
+        }
     }
-    else if (std::vector<PhaseInfoStruct>* phases = sObjectMgr->GetPhasesForAreaOrZoneForLoading(cond->SourceEntry))
+    else if (std::vector<PhaseAreaInfo>* phases = const_cast<std::vector<PhaseAreaInfo>*>(sObjectMgr->GetPhasesForArea(cond->SourceEntry)))
     {
-        for (PhaseInfoStruct& phase : *phases)
+        for (PhaseAreaInfo& phase : *phases)
         {
-            if (phase.Id == cond->SourceGroup)
+            if (phase.PhaseInfo->Id == cond->SourceGroup)
             {
                 phase.Conditions.push_back(cond);
                 return true;
@@ -2809,15 +2805,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         || condition->MinExpansionLevel > int32(sWorld->getIntConfig(CONFIG_EXPANSION))))
         return false;
 
-    if (condition->PhaseID && !player->IsInPhase(condition->PhaseID))
-        return false;
-
-    if (condition->PhaseGroupID)
-    {
-        std::set<uint32> phases = sDB2Manager.GetPhasesForGroup(condition->PhaseGroupID);
-        if (!Trinity::Containers::Intersects(phases.begin(), phases.end(), player->GetPhases().begin(), player->GetPhases().end()))
+    if (condition->PhaseID || condition->PhaseGroupID || condition->PhaseUseFlags)
+        if (!PhasingHandler::InDbPhaseShift(player, condition->PhaseUseFlags, condition->PhaseID, condition->PhaseGroupID))
             return false;
-    }
 
     if (condition->QuestKillID)
     {

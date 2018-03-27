@@ -118,7 +118,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C, class Fn>
-        auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
+        inline auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
         {
             std::vector<double> weights;
             weights.reserve(Size(container));
@@ -161,7 +161,7 @@ namespace Trinity
          * @return true if containers have a common element, false otherwise.
         */
         template<class Iterator1, class Iterator2>
-        bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        inline bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
         {
             while (first1 != last1 && first2 != last2)
             {
@@ -169,6 +169,37 @@ namespace Trinity
                     ++first1;
                 else if (*first2 < *first1)
                     ++first2;
+                else
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2, Predicate&& equalPred)
+         *
+         * @brief Checks if two SORTED containers have a common element
+         *
+         * @param first1 Iterator pointing to start of the first container
+         * @param last1 Iterator pointing to end of the first container
+         * @param first2 Iterator pointing to start of the second container
+         * @param last2 Iterator pointing to end of the second container
+         * @param equalPred Additional predicate to exclude elements
+         *
+         * @return true if containers have a common element, false otherwise.
+        */
+        template<class Iterator1, class Iterator2, class Predicate>
+        inline bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2, Predicate&& equalPred)
+        {
+            while (first1 != last1 && first2 != last2)
+            {
+                if (*first1 < *first2)
+                    ++first1;
+                else if (*first2 < *first1)
+                    ++first2;
+                else if (!equalPred(*first1, *first2))
+                    ++first1, ++first2;
                 else
                     return true;
             }
@@ -187,7 +218,7 @@ namespace Trinity
         }
 
         template<class K, class V, template<class, class, class...> class M, class... Rest>
-        void MultimapErasePair(M<K, V, Rest...>& multimap, K const& key, V const& value)
+        inline void MultimapErasePair(M<K, V, Rest...>& multimap, K const& key, V const& value)
         {
             auto range = multimap.equal_range(key);
             for (auto itr = range.first; itr != range.second;)
