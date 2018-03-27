@@ -133,7 +133,7 @@ struct boss_baroness_anastari : public BossAI
                 }
                 break;
             case EVENT_CHECK_POSSESSED:
-                if (me->IsVisible())
+                if (!me->IsVisible())
                 {
                     if (Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid))
                     {
