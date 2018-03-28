@@ -19,7 +19,7 @@
 #include "GameTime.h"
 #include "Pet.h"
 #include "Player.h"
-#include "SpelLHistory.h"
+#include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"

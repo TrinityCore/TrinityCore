@@ -953,7 +953,7 @@ class at_kelthuzad_center : public AreaTriggerScript
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)

@@ -527,7 +527,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -551,7 +551,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -575,7 +575,7 @@ class at_nearby_scarshield_infiltrator : public AreaTriggerScript
 public:
     at_nearby_scarshield_infiltrator() : AreaTriggerScript("at_nearby_scarshield_infiltrator") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player->IsAlive())
             if (InstanceScript* instance = player->GetInstanceScript())

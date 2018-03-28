@@ -452,7 +452,7 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
 

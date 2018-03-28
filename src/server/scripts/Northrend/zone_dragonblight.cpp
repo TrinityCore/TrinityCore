@@ -716,7 +716,7 @@ class at_nearby_messenger_torvus : public AreaTriggerScript
 public:
     at_nearby_messenger_torvus() : AreaTriggerScript("at_nearby_messenger_torvus") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player->IsAlive())
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_MESSAGE_FROM_THE_WEST))
