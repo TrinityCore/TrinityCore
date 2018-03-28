@@ -5,14 +5,17 @@ set (libzmq_STAT_SRCS
   src/clock.cpp
   src/ctx.cpp
   src/dealer.cpp
+  src/devpoll.cpp
   src/dgram.cpp
   src/dist.cpp
+  src/epoll.cpp
   src/err.cpp
   src/fq.cpp
   src/io_object.cpp
   src/io_thread.cpp
   src/ip.cpp
   src/lb.cpp
+  src/kqueue.cpp
   src/mailbox.cpp
   src/mailbox_safe.cpp
   src/mechanism.cpp
@@ -28,7 +31,9 @@ set (libzmq_STAT_SRCS
   src/pipe.cpp
   src/plain_client.cpp
   src/plain_server.cpp
+  src/poll.cpp
   src/poller_base.cpp
+  src/pollset.cpp
   src/proxy.cpp
   src/pub.cpp
   src/pull.cpp
