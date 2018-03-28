@@ -450,9 +450,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetNearPoint2D(x, y, dist, _owner->GetOrientation() + angle);
-    z = _owner->GetPositionZ() + _owner->GetMidsectionHeight();
-    _owner->UpdateAllowedPositionZ(x, y, z);
+    _owner->GetClosePoint(x, y, z, _owner->GetObjectSize(), dist, angle);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 

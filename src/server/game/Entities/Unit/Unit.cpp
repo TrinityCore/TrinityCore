@@ -8107,7 +8107,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             if (charm->GetTypeId() == TYPEID_UNIT)
                 charm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
-        player->SendMovementSetCollisionHeight(player->GetCollisionHeight());
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -8124,7 +8124,7 @@ void Unit::Dismount()
     if (Player* thisPlayer = ToPlayer())
     {
         SendUpdateToSet();
-        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight());
+        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
     }
 
     WorldPacket data(SMSG_DISMOUNT, 8);
@@ -14652,28 +14652,4 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
     }
 
     return spellInfo;
-}
-
-float Unit::GetCollisionHeight() const
-{
-    float scaleMod = GetObjectScale(); // 99% sure about this
-
-    if (IsMounted())
-    {
-        if (CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID)))
-        {
-            if (CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId))
-            {
-                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
-                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelId);
-                return scaleMod * (mountModelData->MountHeight + modelData->CollisionHeight * 0.5f);
-            }
-        }
-    }
-
-    //! Dismounting case - use basic default model data
-    CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
-    CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelId);
-
-    return scaleMod * modelData->CollisionHeight;
 }
