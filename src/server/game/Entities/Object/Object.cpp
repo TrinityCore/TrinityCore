@@ -1622,17 +1622,17 @@ void WorldObject::RemoveFromWorld()
 
 uint32 WorldObject::GetZoneId() const
 {
-    return GetBaseMap()->GetZoneId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+    return GetMap()->GetZoneId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
 }
 
 uint32 WorldObject::GetAreaId() const
 {
-    return GetBaseMap()->GetAreaId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+    return GetMap()->GetAreaId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
 }
 
 void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
 {
-    GetBaseMap()->GetZoneAndAreaId(GetPhaseShift(), zoneid, areaid, m_positionX, m_positionY, m_positionZ);
+    GetMap()->GetZoneAndAreaId(GetPhaseShift(), zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
 
 InstanceScript* WorldObject::GetInstanceScript()
@@ -2330,12 +2330,6 @@ void WorldObject::ResetMap()
     //maybe not for corpse
     //m_mapId = 0;
     //m_InstanceId = 0;
-}
-
-Map const* WorldObject::GetBaseMap() const
-{
-    ASSERT(m_currMap);
-    return m_currMap->GetParent();
 }
 
 void WorldObject::AddObjectToRemoveList()
