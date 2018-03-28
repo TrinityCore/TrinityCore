@@ -16655,6 +16655,10 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
         SetQuestCompletedBit(questBit, false);
 
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+        for (QuestObjective const& obj : quest->GetObjectives())
+            m_questObjectiveCriteriaMgr->RemoveCompletedObjective(&obj, this);
+
     if (update)
         SendQuestUpdate(questId);
 }
