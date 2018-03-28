@@ -263,6 +263,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::string const& GetAIName() const;
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return GetUInt32Value(GAMEOBJECT_DISPLAYID); }
+        uint8 GetNameSetId() const;
 
         uint32 GetFaction() const override { return GetUInt32Value(GAMEOBJECT_FACTION); }
         void SetFaction(uint32 faction) override { SetUInt32Value(GAMEOBJECT_FACTION, faction); }

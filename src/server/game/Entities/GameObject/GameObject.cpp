@@ -2419,6 +2419,35 @@ void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         EnableCollision(true);
 }
 
+uint8 GameObject::GetNameSetId() const
+{
+    switch (GetGoType())
+    {
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            {
+                switch (GetDestructibleState())
+                {
+                    case GO_DESTRUCTIBLE_INTACT:
+                        return modelData->SmokeDisplayId;
+                    case GO_DESTRUCTIBLE_DAMAGED:
+                        return modelData->DamagedDisplayId;
+                    case GO_DESTRUCTIBLE_DESTROYED:
+                        return modelData->DestroyedDisplayId;
+                    case GO_DESTRUCTIBLE_REBUILDING:
+                        return modelData->RebuildingDisplayId;
+                    default:
+                        break;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 void GameObject::EnableCollision(bool enable)
 {
     if (!m_model)
@@ -2663,13 +2692,14 @@ class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 public:
     explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
 
-    virtual bool IsSpawned() const override { return _owner->isSpawned(); }
-    virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
-    virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
-    virtual float GetOrientation() const override { return _owner->GetOrientation(); }
-    virtual float GetScale() const override { return _owner->GetObjectScale(); }
-    virtual void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { const_cast<GameObject*>(_owner)->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+    bool IsSpawned() const override { return _owner->isSpawned(); }
+    uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
+    uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
+    uint8 GetNameSetId() const override { return _owner->GetNameSetId(); }
+    G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
+    float GetOrientation() const override { return _owner->GetOrientation(); }
+    float GetScale() const override { return _owner->GetObjectScale(); }
+    void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { const_cast<GameObject*>(_owner)->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
 
 private:
     GameObject const* _owner;

@@ -50,6 +50,7 @@ public:
                          float pModifyDist) const;
 
     float getHeight(float x, float y, float z, float maxSearchDist, uint32 phasemask) const;
+    bool getAreaInfo(float x, float y, float& z, uint32 phasemask, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
 
     void insert(GameObjectModel const&);
     void remove(GameObjectModel const&);

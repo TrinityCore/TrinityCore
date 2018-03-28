@@ -1282,7 +1282,7 @@ void Player::Update(uint32 p_time)
     }
 
     // not auto-free ghost from body in instances or if its affected by risen ally
-    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !IsGhouled())
+    if (m_deathTimer > 0 && !GetMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !IsGhouled())
     {
         if (p_time >= m_deathTimer)
         {
