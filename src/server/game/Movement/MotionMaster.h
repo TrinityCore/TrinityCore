@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "Errors.h"
+#include "ObjectDefines.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
@@ -84,6 +85,35 @@ enum RotateDirection
     ROTATE_DIRECTION_RIGHT
 };
 
+struct ChaseRange
+{
+    ChaseRange(float range) : minRange(range > CONTACT_DISTANCE ? 0 : range - CONTACT_DISTANCE), minTolerance(range), maxRange(range + CONTACT_DISTANCE), maxTolerance(range) {}
+    ChaseRange(float min, float max) : minRange(min), minTolerance(std::min(min + CONTACT_DISTANCE, (min + max) / 2)), maxRange(max), maxTolerance(std::max(max - CONTACT_DISTANCE, minTolerance)) {}
+    ChaseRange(float min, float tMin, float tMax, float max) : minRange(min), minTolerance(tMin), maxRange(max), maxTolerance(tMax) {}
+
+    // this contains info that informs how we should path!
+    float minRange;     // we have to move if we are within this range...    (min. attack range)
+    float minTolerance; // ...and if we are, we will move this far away
+    float maxRange;     // we have to move if we are outside this range...   (max. attack range)
+    float maxTolerance; // ...and if we are, we will move into this range
+};
+
+struct ChaseAngle
+{
+    ChaseAngle(float angle, float tol = M_PI_4) : relativeAngle(Position::NormalizeOrientation(angle)), tolerance(tol) {}
+
+    float relativeAngle; // we want to be at this angle relative to the target (0 = front, M_PI = back)
+    float tolerance;     // but we'll tolerate anything within +- this much
+
+    float upperBound() const { return Position::NormalizeOrientation(relativeAngle + tolerance); }
+    float lowerBound() const { return Position::NormalizeOrientation(relativeAngle - tolerance); }
+    bool isAngleOkay(float relAngle) const
+    {
+        float const diff = std::abs(relAngle - relativeAngle);
+        return (std::min(diff, float(2 * M_PI) - diff) <= tolerance);
+    }
+};
+
 class TC_GAME_API MotionMaster
 {
     public:
@@ -121,8 +151,9 @@ class TC_GAME_API MotionMaster
         void MoveIdle();
         void MoveTargetedHome();
         void MoveRandom(float spawndist = 0.0f);
-        void MoveFollow(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
-        void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
+        void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
+        void MoveChase(Unit* target, float dist, float angle = 0.0f) { MoveChase(target, Optional<ChaseRange>(dist), Optional<ChaseAngle>(angle)); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {})
