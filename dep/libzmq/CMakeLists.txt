@@ -169,6 +169,13 @@ else ()
     message (FATAL_ERROR "Invalid polling method")
 endif ()
 
+include (CheckIncludeFiles)
+
+check_include_files (ifaddrs.h ZMQ_HAVE_IFADDRS)
+
+check_include_files (sys/uio.h ZMQ_HAVE_UIO)
+check_include_files (sys/eventfd.h ZMQ_HAVE_EVENTFD)
+
 add_library(libzmq STATIC ${libzmq_STAT_SRCS})
 
 target_include_directories(libzmq
