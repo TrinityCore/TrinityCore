@@ -14,6 +14,9 @@ set (libzmq_STAT_SRCS
   src/io_object.cpp
   src/io_thread.cpp
   src/ip.cpp
+  src/ipc_address.cpp
+  src/ipc_connecter.cpp
+  src/ipc_listener.cpp
   src/lb.cpp
   src/kqueue.cpp
   src/mailbox.cpp

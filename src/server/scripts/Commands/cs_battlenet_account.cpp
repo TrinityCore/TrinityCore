@@ -20,6 +20,7 @@
 #include "BattlenetAccountMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "IpAddress.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
@@ -128,7 +129,7 @@ public:
             if (param == "on")
             {
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
-                uint32 ip = inet_addr(handler->GetSession()->GetRemoteAddress().c_str());
+                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(handler->GetSession()->GetRemoteAddress()));
                 EndianConvertReverse(ip);
                 stmt->setUInt32(0, ip);
                 PreparedQueryResult result = LoginDatabase.Query(stmt);
