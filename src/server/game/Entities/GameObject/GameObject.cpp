@@ -2279,9 +2279,15 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
 
             uint32 modelId = m_goInfo->displayId;
+<<<<<<< HEAD
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
+=======
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
+                if (modelData->State1Wmo)
+                    modelId = modelData->State1Wmo;
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2308,9 +2314,15 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
+<<<<<<< HEAD
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
+=======
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
+                if (modelData->State2Wmo)
+                    modelId = modelData->State2Wmo;
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2327,9 +2339,15 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
+<<<<<<< HEAD
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->RebuildingDisplayId)
                     modelId = modelData->RebuildingDisplayId;
+=======
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
+                if (modelData->State3Wmo)
+                    modelId = modelData->State3Wmo;
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
             SetDisplayId(modelId);
 
             // restores to full health
@@ -2411,11 +2429,45 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
+<<<<<<< HEAD
 void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 {
     WorldObject::SetPhaseMask(newPhaseMask, update);
     if (m_model && m_model->isEnabled())
         EnableCollision(true);
+=======
+uint8 GameObject::GetNameSetId() const
+{
+    switch (GetGoType())
+    {
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
+            {
+                switch (GetDestructibleState())
+                {
+                    case GO_DESTRUCTIBLE_INTACT:
+                        return modelData->State0NameSet;
+                    case GO_DESTRUCTIBLE_DAMAGED:
+                        return modelData->State1NameSet;
+                    case GO_DESTRUCTIBLE_DESTROYED:
+                        return modelData->State2NameSet;
+                    case GO_DESTRUCTIBLE_REBUILDING:
+                        return modelData->State3NameSet;
+                    default:
+                        break;
+                }
+            }
+            break;
+        case GAMEOBJECT_TYPE_GARRISON_BUILDING:
+        case GAMEOBJECT_TYPE_GARRISON_PLOT:
+        case GAMEOBJECT_TYPE_PHASEABLE_MO:
+            return GetByteValue(GAMEOBJECT_FLAGS, 1) & 0xF;
+        default:
+            break;
+    }
+
+    return 0;
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 void GameObject::EnableCollision(bool enable)
@@ -2662,6 +2714,7 @@ class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 public:
     explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
 
+<<<<<<< HEAD
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
     virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
@@ -2669,6 +2722,16 @@ public:
     virtual float GetOrientation() const override { return _owner->GetOrientation(); }
     virtual float GetScale() const override { return _owner->GetObjectScale(); }
     virtual void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { const_cast<GameObject*>(_owner)->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+=======
+    bool IsSpawned() const override { return _owner->isSpawned(); }
+    uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
+    uint8 GetNameSetId() const override { return _owner->GetNameSetId(); }
+    bool IsInPhase(PhaseShift const& phaseShift) const override { return _owner->GetPhaseShift().CanSee(phaseShift); }
+    G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
+    float GetOrientation() const override { return _owner->GetOrientation(); }
+    float GetScale() const override { return _owner->GetObjectScale(); }
+    void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 
 private:
     GameObject const* _owner;

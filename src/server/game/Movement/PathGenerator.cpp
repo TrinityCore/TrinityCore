@@ -186,7 +186,11 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
             for (uint32 i = 0; i < _pathPoints.size(); ++i)
             {
+<<<<<<< HEAD
                 ZLiquidStatus status = _source->GetBaseMap()->GetLiquidStatus(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, MAP_ALL_LIQUIDS, nullptr, _source->GetCollisionHeight());
+=======
+                ZLiquidStatus status = _sourceUnit->GetMap()->getLiquidStatus(_sourceUnit->GetPhaseShift(), _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, MAP_ALL_LIQUIDS, NULL);
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
                 // One of the points is not in the water, cancel movement.
                 if (status == LIQUID_MAP_NO_WATER)
                 {
@@ -219,12 +223,20 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
 
         bool buildShotrcut = false;
 
+<<<<<<< HEAD
         G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
         if (_source->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
         {
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
             if (Unit const* _sourceUnit = _source->ToUnit())
                 if (_sourceUnit->CanSwim())
+=======
+            G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
+            if (_sourceUnit->GetMap()->IsUnderWater(_sourceUnit->GetPhaseShift(), p.x, p.y, p.z))
+            {
+                TC_LOG_DEBUG("maps", "++ BuildPolyPath :: underWater case\n");
+                if (owner->CanSwim())
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
                     buildShotrcut = true;
         }
         else
@@ -698,7 +710,11 @@ void PathGenerator::UpdateFilter()
 NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z)
 {
     LiquidData data;
+<<<<<<< HEAD
     ZLiquidStatus liquidStatus = _source->GetBaseMap()->GetLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &data, _source->GetCollisionHeight());
+=======
+    ZLiquidStatus liquidStatus = _sourceUnit->GetMap()->getLiquidStatus(_sourceUnit->GetPhaseShift(), x, y, z, MAP_ALL_LIQUIDS, &data);
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
     if (liquidStatus == LIQUID_MAP_NO_WATER)
         return NAV_GROUND;
 

@@ -3129,12 +3129,20 @@ bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 
 bool Unit::IsInWater() const
 {
+<<<<<<< HEAD
     return GetLiquidStatus() & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER);
+=======
+    return GetMap()->IsInWater(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 bool Unit::IsUnderWater() const
 {
+<<<<<<< HEAD
     return GetLiquidStatus() & LIQUID_MAP_UNDER_WATER;
+=======
+    return GetMap()->IsUnderWater(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)

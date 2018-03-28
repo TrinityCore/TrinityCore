@@ -16,17 +16,20 @@
  */
 
 #include "DynamicTree.h"
-//#include "QuadTree.h"
-//#include "RegularGrid.h"
 #include "BoundingIntervalHierarchyWrapper.h"
-
+#include "GameObjectModel.h"
 #include "Log.h"
+#include "MapTree.h"
+#include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
+<<<<<<< HEAD
 #include "GameObjectModel.h"
 #include "ModelInstance.h"
 #include "ModelIgnoreFlags.h"
 
+=======
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
@@ -174,8 +177,28 @@ struct DynamicTreeIntersectionCallback_WithLogger
     bool didHit() const { return did_hit;}
 };
 
+<<<<<<< HEAD
 bool DynamicMapTree::getIntersectionTime(const uint32 phasemask, const G3D::Ray& ray,
                                          const G3D::Vector3& endPos, float& maxDist) const
+=======
+struct DynamicTreeAreaInfoCallback
+{
+    DynamicTreeAreaInfoCallback(PhaseShift const& phaseShift) : _phaseShift(phaseShift) {}
+
+    void operator()(G3D::Vector3 const& p, GameObjectModel const& obj)
+    {
+        obj.intersectPoint(p, _areaInfo, _phaseShift);
+    }
+
+    VMAP::AreaInfo const& GetAreaInfo() const { return _areaInfo; }
+
+private:
+    PhaseShift const& _phaseShift;
+    VMAP::AreaInfo _areaInfo;
+};
+
+bool DynamicMapTree::getIntersectionTime(G3D::Ray const& ray, G3D::Vector3 const& endPos, PhaseShift const& phaseShift, float& maxDist) const
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 {
     float distance = maxDist;
     DynamicTreeIntersectionCallback callback(phasemask);
@@ -252,4 +275,21 @@ float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, 
         return v.z - maxSearchDist;
     else
         return -G3D::finf();
+}
+
+bool DynamicMapTree::getAreaInfo(float x, float y, float& z, PhaseShift const& phaseShift, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
+{
+    G3D::Vector3 v(x, y, z + 0.5f);
+    DynamicTreeAreaInfoCallback intersectionCallBack(phaseShift);
+    impl->intersectPoint(v, intersectionCallBack);
+    if (intersectionCallBack.GetAreaInfo().result)
+    {
+        flags = intersectionCallBack.GetAreaInfo().flags;
+        adtId = intersectionCallBack.GetAreaInfo().adtId;
+        rootId = intersectionCallBack.GetAreaInfo().rootId;
+        groupId = intersectionCallBack.GetAreaInfo().groupId;
+        z = intersectionCallBack.GetAreaInfo().ground_Z;
+        return true;
+    }
+    return false;
 }

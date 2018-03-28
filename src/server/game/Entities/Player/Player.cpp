@@ -1280,8 +1280,13 @@ void Player::Update(uint32 p_time)
             _pendingBindTimer -= p_time;
     }
 
+<<<<<<< HEAD
     // not auto-free ghost from body in instances or if its affected by risen ally
     if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !IsGhouled())
+=======
+    // not auto-free ghost from body in instances
+    if (m_deathTimer > 0 && !GetMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
     {
         if (p_time >= m_deathTimer)
         {
@@ -2315,6 +2320,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid) const
 
 GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, GameobjectTypes type) const
 {
+<<<<<<< HEAD
     GameObject* go = GetGameObjectIfCanInteractWith(guid);
     if (!go)
         return nullptr;
@@ -2323,6 +2329,10 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, Gameo
         return nullptr;
 
     return go;
+=======
+    return IsInWater() &&
+        GetPositionZ() < (GetMap()->GetWaterLevel(GetPhaseShift(), GetPositionX(), GetPositionY()) - 2);
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 void Player::SetInWater(bool apply)
@@ -6414,7 +6424,15 @@ void Player::CheckAreaExploreAndOutdoor()
     if (IsInFlight())
         return;
 
+<<<<<<< HEAD
     if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !IsOutdoors())
+=======
+    bool isOutdoor;
+    uint32 areaId = GetMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
+
+    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
         RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
 
     uint32 const areaId = GetAreaId();

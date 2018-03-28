@@ -1064,6 +1064,7 @@ void WorldObject::UpdatePositionData()
 
 void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
+<<<<<<< HEAD
     m_zoneId = m_areaId = data.areaId;
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
         if (area->zone)
@@ -1071,22 +1072,33 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
     m_outdoors = data.outdoors;
     m_staticFloorZ = data.floorZ;
     m_liquidStatus = data.liquidStatus;
+=======
+    return GetMap()->GetZoneId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 void WorldObject::AddToWorld()
 {
+<<<<<<< HEAD
     Object::AddToWorld();
     GetBaseMap()->GetZoneAndAreaId(m_zoneId, m_areaId, GetPositionX(), GetPositionY(), GetPositionZ());
+=======
+    return GetMap()->GetAreaId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 void WorldObject::RemoveFromWorld()
 {
+<<<<<<< HEAD
     if (!IsInWorld())
         return;
 
     DestroyForNearbyPlayers();
 
     Object::RemoveFromWorld();
+=======
+    GetMap()->GetZoneAndAreaId(GetPhaseShift(), zoneid, areaid, m_positionX, m_positionY, m_positionZ);
+>>>>>>> 42f9deb21e... Core/Maps: Implemented getting area id from gameobject spawns
 }
 
 InstanceScript* WorldObject::GetInstanceScript() const
@@ -1814,12 +1826,6 @@ void WorldObject::ResetMap()
     //maybe not for corpse
     //m_mapId = 0;
     //m_InstanceId = 0;
-}
-
-Map const* WorldObject::GetBaseMap() const
-{
-    ASSERT(m_currMap);
-    return m_currMap->GetParent();
 }
 
 void WorldObject::AddObjectToRemoveList()
