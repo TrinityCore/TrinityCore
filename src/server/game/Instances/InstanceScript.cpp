@@ -25,6 +25,7 @@
 #include "DBCStructure.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "Guild.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"

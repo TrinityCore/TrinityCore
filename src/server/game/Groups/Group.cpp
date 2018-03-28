@@ -26,6 +26,7 @@
 #include "Formulas.h"
 #include "GameObject.h"
 #include "GroupMgr.h"
+#include "Guild.h"
 #include "InstanceSaveMgr.h"
 #include "LFGMgr.h"
 #include "LootMgr.h"

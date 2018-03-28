@@ -15,13 +15,18 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 #include "deadmines.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MovementTypedefs.h"
+#include "MoveSplineInit.h"
+#include "PassiveAI.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -203,7 +208,7 @@ class npc_vanessa_vanessa_van_cleef : public CreatureScript
                         {
                             Movement::MoveSplineInit init(me);
                             init.SetWalk(true);
-                            init.MoveTo(vanessaIntroWalkPos, true);
+                            init.MoveTo(vanessaIntroWalkPos.GetPositionX(), vanessaIntroWalkPos.GetPositionY(), vanessaIntroWalkPos.GetPositionZ(), true);
                             init.Launch();
                             _events.ScheduleEvent(EVENT_TALK_INTRO_2, Milliseconds(200));
                             break;

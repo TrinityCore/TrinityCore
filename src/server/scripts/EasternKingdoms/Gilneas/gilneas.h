@@ -25,7 +25,7 @@
 // House wave
 uint32 const runtHousePathSize1 = 13;
 
-G3D::Vector3 const worgenRuntHousePath1[runtHousePathSize1] =
+Position const worgenRuntHousePath1[runtHousePathSize1] =
 {
     { -1734.77f, 1527.007f, 55.2133f },
     { -1729.345f, 1526.495f, 55.4231f },
@@ -44,7 +44,7 @@ G3D::Vector3 const worgenRuntHousePath1[runtHousePathSize1] =
 
 uint32 const runtHousePathSize2 = 11;
 
-G3D::Vector3 const worgenRuntHousePath2[runtHousePathSize2] =
+Position const worgenRuntHousePath2[runtHousePathSize2] =
 {
     {-1705.29f, 1527.974f, 57.49218f },
     {-1709.63f, 1527.464f, 56.81163f },
@@ -61,7 +61,7 @@ G3D::Vector3 const worgenRuntHousePath2[runtHousePathSize2] =
 
 uint32 const runtHousePathSize3 = 8;
 
-G3D::Vector3 const worgenRuntHousePath3[runtHousePathSize3] =
+Position const worgenRuntHousePath3[runtHousePathSize3] =
 {
     {-1717.74f, 1514.99f, 55.37629f },
     {-1717.75f, 1513.727f, 55.39608f },
@@ -75,7 +75,7 @@ G3D::Vector3 const worgenRuntHousePath3[runtHousePathSize3] =
 
 uint32 const runtHousePathSize4 = 11;
 
-G3D::Vector3 const worgenRuntHousePath4[runtHousePathSize4] =
+Position const worgenRuntHousePath4[runtHousePathSize4] =
 {
     { -1727.101f, 1527.078f, 55.5045f },
     { -1724.719f, 1526.731f, 55.60394f },
@@ -92,7 +92,7 @@ G3D::Vector3 const worgenRuntHousePath4[runtHousePathSize4] =
 
 uint32 const runtHousePathSize5 = 11;
 
-G3D::Vector3 const worgenRuntHousePath5[runtHousePathSize5] =
+Position const worgenRuntHousePath5[runtHousePathSize5] =
 {
     { -1709.699f, 1527.335f, 56.34836f },
     { -1713.974f, 1526.625f, 56.13234f },
@@ -109,7 +109,7 @@ G3D::Vector3 const worgenRuntHousePath5[runtHousePathSize5] =
 
 uint32 const runtHousePathSize6 = 9;
 
-G3D::Vector3 const worgenRuntHousePath6[runtHousePathSize6] =
+Position const worgenRuntHousePath6[runtHousePathSize6] =
 {
     { -1718.083f, 1532.09f, 56.25435f },
     { -1718.104f, 1524.071f, 55.80854f },
@@ -124,7 +124,7 @@ G3D::Vector3 const worgenRuntHousePath6[runtHousePathSize6] =
 
 uint32 const runtHousePathSize7 = 9;
 
-G3D::Vector3 const worgenRuntHousePath7[runtHousePathSize7] =
+Position const worgenRuntHousePath7[runtHousePathSize7] =
 {
     { -1718.083f, 1532.09f, 56.25435f },
     { -1718.104f, 1524.071f, 55.80854f },
@@ -139,7 +139,7 @@ G3D::Vector3 const worgenRuntHousePath7[runtHousePathSize7] =
 
 uint32 const runtCathedralPathSize1 = 10;
 
-G3D::Vector3 const worgenRuntCathedralPath1[runtCathedralPathSize1] =
+Position const worgenRuntCathedralPath1[runtCathedralPathSize1] =
 {
     { -1612.885f, 1492.154f, 67.03599f },
     { -1618.054f, 1489.644f, 68.5475f },
@@ -155,7 +155,7 @@ G3D::Vector3 const worgenRuntCathedralPath1[runtCathedralPathSize1] =
 
 uint32 const runtCathedralPathSize2 = 7;
 
-G3D::Vector3 const worgenRuntCathedralPath2[runtCathedralPathSize2] =
+Position const worgenRuntCathedralPath2[runtCathedralPathSize2] =
 {
     { -1618.982f, 1489.76f, 68.56043f },
     { -1625.62f, 1487.033f, 71.4378f },
@@ -168,7 +168,7 @@ G3D::Vector3 const worgenRuntCathedralPath2[runtCathedralPathSize2] =
 
 uint32 const runtCathedralPathSize3 = 6;
 
-G3D::Vector3 const worgenRuntCathedralPath3[runtCathedralPathSize3] =
+Position const worgenRuntCathedralPath3[runtCathedralPathSize3] =
 {
     { -1637.957f, 1493.445f, 67.77746f },
     { -1638.569f, 1489.736f, 68.47077f },
@@ -180,7 +180,7 @@ G3D::Vector3 const worgenRuntCathedralPath3[runtCathedralPathSize3] =
 
 uint32 const runtCathedralPathSize4 = 5;
 
-G3D::Vector3 const worgenRuntCathedralPath4[runtCathedralPathSize4] =
+Position const worgenRuntCathedralPath4[runtCathedralPathSize4] =
 {
     { -1628.66f, 1482.281f, 71.34027f },
     { -1630.399f, 1481.66f, 71.33196f },
@@ -192,7 +192,7 @@ G3D::Vector3 const worgenRuntCathedralPath4[runtCathedralPathSize4] =
 
 uint32 const runtCathedralPathSize5 = 9;
 
-G3D::Vector3 const worgenRuntCathedralPath5[runtCathedralPathSize5] =
+Position const worgenRuntCathedralPath5[runtCathedralPathSize5] =
 {
     { -1620.279f, 1484.46f, 67.03528f },
     { -1622.424f, 1483.882f, 68.05564f },
@@ -207,7 +207,7 @@ G3D::Vector3 const worgenRuntCathedralPath5[runtCathedralPathSize5] =
 
 uint32 const runtCathedralPathSize6 = 10;
 
-G3D::Vector3 const worgenRuntCathedralPath6[runtCathedralPathSize6] =
+Position const worgenRuntCathedralPath6[runtCathedralPathSize6] =
 {
     { -1633.998f, 1495.233f, 68.24403f },
     { -1634.344f, 1491.3f, 70.41303f },
@@ -223,7 +223,7 @@ G3D::Vector3 const worgenRuntCathedralPath6[runtCathedralPathSize6] =
 
 uint32 const runtCathedralPathSize7 = 7;
 
-G3D::Vector3 const worgenRuntCathedralPath7[runtCathedralPathSize7] =
+Position const worgenRuntCathedralPath7[runtCathedralPathSize7] =
 {
     { -1629.975f, 1494.066f, 70.64719f },
     { -1631.979f, 1491.585f, 71.31316f },
@@ -236,7 +236,7 @@ G3D::Vector3 const worgenRuntCathedralPath7[runtCathedralPathSize7] =
 
 uint32 const runtCathedralPathSize8 = 8;
 
-G3D::Vector3 const worgenRuntCathedralPath8[runtCathedralPathSize8] =
+Position const worgenRuntCathedralPath8[runtCathedralPathSize8] =
 {
     { -1620.879f, 1491.133f, 70.67613f },
     { -1622.665f, 1489.818f, 71.04526f },
@@ -274,7 +274,7 @@ Position const worgenRuntJumpPos[] =
 ######*/
 
 uint32 const pathSize1 = 7;
-G3D::Vector3 const greymanesHorsePath1[pathSize1] =
+Position const greymanesHorsePath1[pathSize1] =
 {
     { -1797.425f, 1396.941f, 20.07336f },
     { -1788.675f, 1378.441f, 20.07336f },
@@ -286,7 +286,7 @@ G3D::Vector3 const greymanesHorsePath1[pathSize1] =
 };
 
 uint32 const pathSize2 = 13;
-G3D::Vector3 const greymanesHorsePath2[] =
+Position const greymanesHorsePath2[] =
 {
     { -1664.807f, 1345.011f, 15.48499f },
     { -1662.807f, 1354.511f, 15.48499f },

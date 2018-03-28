@@ -15,14 +15,20 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
-#include "Vehicle.h"
 #include "deadmines.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MovementTypedefs.h"
+#include "PassiveAI.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "SpellMgr.h"
+#include "VehicleDefines.h"
+#include "GridNotifiers.h"
 
 enum Texts
 {

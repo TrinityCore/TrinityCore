@@ -403,8 +403,8 @@ public:
         return true;
     }
 
-    static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, const char* /*args*/)    {
-        TC_LOG_INFO("misc", "Re-Loading creature award reputation definitions...");
+    static bool HandleReloadOnKillRewardCommand(ChatHandler* handler, const char* /*args*/)    {
+        TC_LOG_INFO("misc", "Re-Loading creature reward definitions...");
         sObjectMgr->LoadRewardOnKill();
         handler->SendGlobalGMSysMessage("DB table `creature_onkill_reward` reloaded.");
         return true;

@@ -20,6 +20,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "EventMap.h"
 
 enum BG_TP_TimerOrScore
 {
@@ -250,7 +251,7 @@ class BattlegroundTP : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }

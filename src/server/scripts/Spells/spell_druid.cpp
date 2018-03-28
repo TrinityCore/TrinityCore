@@ -24,10 +24,12 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "Player.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "DynamicObject.h"
 
 enum DruidSpells
 {
@@ -1056,7 +1058,7 @@ class spell_dru_stampede : public SpellScriptLoader
             {
                 return ValidateSpellInfo(
                 {
-                    SPELL_DRUID_STAMPEDE_BEAR_RANK_1,
+                    SPELL_DRUID_STAMPEDE_BAER_RANK_1,
                     SPELL_DRUID_STAMPEDE_CAT_RANK_1,
                     SPELL_DRUID_STAMPEDE_CAT_STATE,
                     SPELL_DRUID_FERAL_CHARGE_CAT,
@@ -1080,7 +1082,7 @@ class spell_dru_stampede : public SpellScriptLoader
                 if (GetTarget()->GetShapeshiftForm() != FORM_BEAR || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
                     return;
 
-                GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BEAR_RANK_1, GetSpellInfo()->GetRank()), true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BAER_RANK_1, GetSpellInfo()->GetRank()), true, nullptr, aurEff);
             }
 
             void Register() override

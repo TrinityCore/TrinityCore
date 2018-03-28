@@ -16,7 +16,17 @@
  */
 
 #include "BattlegroundBFG.h"
+#include "BattlegroundMgr.h"
+#include "Creature.h"
+#include "DBCStores.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "Map.h"
+#include "Player.h"
+#include "Random.h"
+#include "Util.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 void BattlegroundBFGScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
 {
@@ -604,7 +614,7 @@ void BattlegroundBFG::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveyard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 

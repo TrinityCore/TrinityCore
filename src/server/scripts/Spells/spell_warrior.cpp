@@ -22,12 +22,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "Item.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "GridNotifiersImpl.h"
 
 enum WarriorSpells
 {

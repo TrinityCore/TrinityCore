@@ -853,7 +853,11 @@ public:
             if (!stormTargetA || !stormTargetB || !stormTargetC)
                 return;
 
-            targets.remove_if(TargetInTriangleCheck(false, stormTargetA->GetPosition(), stormTargetB->GetPosition(), stormTargetC->GetPosition()));
+            TriangleBoundary triangle(*stormTargetA, *stormTargetB, *stormTargetC);
+            targets.remove_if([&](WorldObject* target)
+            {
+                return triangle.IsWithinBoundary(target);
+            });
 
             // Hitting 5 dummy npc's per hit
             if (!targets.empty() && targets.size() > 5)

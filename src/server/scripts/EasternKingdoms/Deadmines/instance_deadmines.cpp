@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "TemporarySummon.h"
+#include "VehicleDefines.h"
 #include "WorldPacket.h"
 
 enum EventIds

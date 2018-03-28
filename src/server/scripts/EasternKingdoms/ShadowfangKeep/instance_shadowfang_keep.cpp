@@ -15,11 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "shadowfang_keep.h"
+#include "AreaBoundary.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"
 #include "TemporarySummon.h"
+#include "ScriptedCreature.h"
 #include "Player.h"
 
 ObjectData const creatureData[] =

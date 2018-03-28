@@ -409,7 +409,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr<Player>(this);
     m_reputationMgr = new ReputationMgr(this);
-    hasValidLFGLeavePoint = false;
+    _hasValidLFGLeavePoint = false;
     _archaeology = new Archaeology(this);
 }
 

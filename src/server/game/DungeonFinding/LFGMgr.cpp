@@ -43,18 +43,12 @@
 
 namespace lfg
 {
-
-LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), minlevel(0),
-    maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-    requiredItemLevel(0)
-{
-}
-
 LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->name), map(dbc->map),
     type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
     minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
     seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-    requiredItemLevel(0)
+    requiredItemLevel(0), requiredTanks(dbc->requiredTanks), requiredHealers(dbc->requiredHealers),
+    requiredDamageDealers(dbc->requiredDamageDealers)
 {
 }
 

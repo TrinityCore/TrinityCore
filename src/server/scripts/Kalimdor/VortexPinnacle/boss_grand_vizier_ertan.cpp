@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"

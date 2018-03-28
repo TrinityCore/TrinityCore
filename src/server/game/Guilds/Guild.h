@@ -276,11 +276,6 @@ enum GuildChallengeTypes
     MAX_GUILD_CHALLENGE_TYPE,
 };
 
-uint32 const GuildChallengeGoldReward[GUILD_CHALLENGES_TYPES]         = { 0, 250,    1000,    500 };
-uint32 const GuildChallengeMaxLevelGoldReward[GUILD_CHALLENGES_TYPES] = { 0, 125,    500,     250 };
-uint32 const GuildChallengeXPReward[GUILD_CHALLENGES_TYPES]           = { 0, 300000, 3000000, 1500000 };
-uint32 const GuildChallengesPerWeek[GUILD_CHALLENGES_TYPES]           = { 0, 7,      1,       3 };
-
 // Emblem info
 class TC_GAME_API EmblemInfo
 {

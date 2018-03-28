@@ -280,14 +280,7 @@ struct LfgPlayerBoot
 struct LFGDungeonData
 {
     LFGDungeonData() = delete;
-
-    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name), map(dbc->map),
-        type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
-        minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
-        seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-        requiredItemLevel(0), requiredTanks(dbc->requiredTanks), requiredHealers(dbc->requiredHealers),
-        requiredDamageDealers(dbc->requiredDamageDealers)
-        { }
+    LFGDungeonData(LFGDungeonEntry const* dbc);
 
     uint32 id;
     std::string name;

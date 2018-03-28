@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "shadowfang_keep.h"
+#include "MotionMaster.h"
+#include "GridNotifiersImpl.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
-#include "shadowfang_keep.h"
 #include "Player.h"
 
 enum Events
@@ -161,7 +163,7 @@ Position const SKBelmontPath1[] =
     { -256.849f, 2117.16f, 81.1796f },
 };
 
-const G3D::Vector3 SKBelmontPath2[] =
+Position const SKBelmontPath2[] =
 {
     {-253.795f, 2129.375f, 81.6518f },
     {-251.545f, 2136.625f, 84.4018f },
@@ -175,7 +177,7 @@ const G3D::Vector3 SKBelmontPath2[] =
     { -241.741f, 2157.09f, 90.624f },
 };
 
-const G3D::Vector3 SKBelmontPath3[] =
+Position const SKBelmontPath3[] =
 {
     { -232.822f, 2150.74f, 90.874f },
     { -227.572f, 2148.99f, 90.874f },
@@ -186,7 +188,7 @@ const G3D::Vector3 SKBelmontPath3[] =
 
 Position const SKCromushMovePose1 = { -130.894f, 2166.81f, 138.697f };
 
-const G3D::Vector3 SKCromushFinalPath[] =
+Position const SKCromushFinalPath[] =
 {
     { -130.894f, 2166.81f, 138.697f },
     { -122.2125f, 2164.165f, 139.025f },
@@ -195,7 +197,7 @@ const G3D::Vector3 SKCromushFinalPath[] =
 
 // ---
 
-const G3D::Vector3 SKBelmontPath4[] =
+Position const SKBelmontPath4[] =
 {
     { -268.0123f, 2271.203f, 95.94984f },
     { -267.106f, 2270.78f, 95.94984f },
@@ -212,7 +214,7 @@ const G3D::Vector3 SKBelmontPath4[] =
 
 // ---
 
-const G3D::Vector3 SKBelmontPath5[] =
+Position const SKBelmontPath5[] =
 {
     { -173.513f, 2177.429f, 129.3383f },
     { -173.059f, 2178.32f, 129.3383f },
@@ -223,7 +225,7 @@ const G3D::Vector3 SKBelmontPath5[] =
     { -142.101f, 2171.24f, 128.201f },
 };
 
-const G3D::Vector3 SKBelmontPath6[] =
+Position const SKBelmontPath6[] =
 {
     { -137.9335f, 2166.785f, 128.8225f },
     { -135.6835f, 2165.535f, 129.0725f },
@@ -232,7 +234,7 @@ const G3D::Vector3 SKBelmontPath6[] =
 
 // ---
 
-const G3D::Vector3 SKBelmontFinalPath[] =
+Position const SKBelmontFinalPath[] =
 {
     { -168.6964f, 2187.787f, 151.9893f },
     { -169.071f, 2186.86f, 151.9893f },
@@ -251,7 +253,7 @@ enum IvarPaths
     PATH_IVAR_ASHBURY_BALCONY = 4700600,
 };
 
-const G3D::Vector3 SKIvarPath2[] =
+Position const SKIvarPath2[] =
 {
     { -253.9495f, 2124.95f, 81.65175f },
     { -253.6995f, 2131.45f, 81.65175f },
@@ -266,7 +268,7 @@ const G3D::Vector3 SKIvarPath2[] =
     { -241.84f, 2156.7f, 90.624f },
 };
 
-const G3D::Vector3 SKIvarPath3[] =
+Position const SKIvarPath3[] =
 {
     { -241.2605f, 2154.06f, 90.874f },
     { -237.2605f, 2151.81f, 90.874f },
@@ -276,7 +278,7 @@ const G3D::Vector3 SKIvarPath3[] =
 
 Position const IvarJumpPos1 = { -254.559f, 2121.7f, 81.1795f };
 
-const G3D::Vector3 SKBerserkerPath1[] =
+Position const SKBerserkerPath1[] =
 {
     { -235.5815f, 2138.77f, 87.24785f },
     { -238.0815f, 2141.02f, 87.24785f },
@@ -305,7 +307,7 @@ Position const SKBerserkerJumpPositions2[] =
 };
 
 // --
-const G3D::Vector3 SKBerserkerPath2[] =
+Position const SKBerserkerPath2[] =
 {
     { -254.862f, 2266.08f, 101.0079f },
     { -251.362f, 2264.58f, 101.0079f },
@@ -313,7 +315,7 @@ const G3D::Vector3 SKBerserkerPath2[] =
     { -250.318f, 2249.56f, 100.892f },
 };
 
-const G3D::Vector3 SKBerserkerPath3[] =
+Position const SKBerserkerPath3[] =
 {
     { -252.7115f, 2265.245f, 101.0332f },
     { -249.7115f, 2262.495f, 101.0332f },
@@ -322,7 +324,7 @@ const G3D::Vector3 SKBerserkerPath3[] =
     { -257.411f, 2244.82f, 100.891f },
 };
 
-const G3D::Vector3 SKBerserkerPath4[] =
+Position const SKBerserkerPath4[] =
 {
     { -252.2485f, 2265.13f, 101.0929f },
     { -249.7485f, 2262.63f, 101.0929f },
@@ -337,7 +339,7 @@ Position const IvarJumpPos3 = { -246.66f, 2163.02f, 96.6991f };
 
 Position const IvarWalkPos1 = { -149.165f, 2174.34f, 127.953f };
 
-const G3D::Vector3 SKIvarPath4[] =
+Position const SKIvarPath4[] =
 {
     { -139.9845f, 2170.305f, 128.6985f },
     { -135.2345f, 2165.305f, 129.1985f },
@@ -377,49 +379,49 @@ Position const BerserkerJumpMovePositions1[] =
     { -132.797f, 2166.66f, 138.697f },
 };
 
-const G3D::Vector3 BerserkerFinalPath0[] =
+Position const BerserkerFinalPath0[] =
 {
     { -127.849f, 2166.03f, 139.0555f },
     {-123.599f, 2165.53f, 139.0555f },
     {-120.089f, 2168.95f, 139.414f },
 };
 
-const G3D::Vector3 BerserkerFinalPath1[] =
+Position const BerserkerFinalPath1[] =
 {
     { -126.677f, 2165.465f, 139.0325f },
     { -121.427f, 2165.215f, 139.0325f },
     { -119.319f, 2168.17f, 139.368f },
 };
 
-const G3D::Vector3 BerserkerFinalPath2[] =
+Position const BerserkerFinalPath2[] =
 {
     { -134.12f, 2167.11f, 138.697f },
     { -123.1685f, 2165.135f, 139.0035f },
     { -118.717f, 2171.66f, 139.81f },
 };
 
-const G3D::Vector3 BerserkerFinalPath3[] =
+Position const BerserkerFinalPath3[] =
 {
     { -130.965f, 2166.47f, 138.697f },
     { -124.0485f, 2164.915f, 139.026f },
     { -120.132f, 2168.36f, 139.355f },
 };
 
-const G3D::Vector3 BerserkerFinalPath4[] =
+Position const BerserkerFinalPath4[] =
 {
     { -132.753f, 2167.57f, 138.697f },
     { -122.675f, 2164.24f, 139.0525f },
     { -119.097f, 2172.41f, 139.908f },
 };
 
-const G3D::Vector3 BerserkerFinalPath5[] =
+Position const BerserkerFinalPath5[] =
 {
     { -127.396f, 2165.925f, 139.088f },
     { -122.396f, 2164.925f, 139.088f },
     { -119.62f, 2169.44f, 139.479f },
 };
 
-const G3D::Vector3 BerserkerFinalPath6[] =
+Position const BerserkerFinalPath6[] =
 {
     { -132.753f, 2167.57f, 138.697f },
     { -124.541f, 2165.705f, 139.0565f },

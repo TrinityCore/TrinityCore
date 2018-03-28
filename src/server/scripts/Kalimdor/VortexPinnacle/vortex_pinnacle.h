@@ -50,27 +50,30 @@ enum DataTypes
 
 enum Misc
 {
-    NPC_GRAND_VIZIER_ERTAN = 43878,
-    NPC_ALTAIRUS = 43873,
-    NPC_ASAAD = 43875,
+    NPC_GRAND_VIZIER_ERTAN      = 43878,
+    NPC_ALTAIRUS                = 43873,
+    NPC_ASAAD                   = 43875,
 
-    NPC_SLIPSTREAM = 45455,
+    NPC_SLIPSTREAM              = 45455,
     NPC_SLIPSTREAM_LANDING_ZONE = 45504,
 
-    NPC_HOWLING_GALE = 45572,
+    NPC_HOWLING_GALE            = 45572,
 
     // Grounding Field
-    NPC_GROUNDING_FIELD = 47085,
-    SPELL_BEAM_A = 87721,
-    SPELL_BEAM_B = 87722,
-    SPELL_BEAM_C = 87723,
-    ACTION_GROUNDING_FIELD_TOP = 1,
+    NPC_GROUNDING_FIELD         = 47085,
+    SPELL_BEAM_A                = 87721,
+    SPELL_BEAM_B                = 87722,
+    SPELL_BEAM_C                = 87723,
+    ACTION_GROUNDING_FIELD_TOP  = 1,
+
+    // Skyfall
+    ACTION_SKYFALL_STAR_DEAD    = 2,
 
     // Zephyr
-    NPC_ZEPHYR = 45991,
-    EVENT_SUMMON_ZEPHYRS = 1,
-    PATH_ZEPHYR_SOUTH = 4599100,
-    PATH_ZEPHYR_NORTH = 4599101,
+    NPC_ZEPHYR                  = 45991,
+    EVENT_SUMMON_ZEPHYRS        = 1,
+    PATH_ZEPHYR_SOUTH           = 4599100,
+    PATH_ZEPHYR_NORTH           = 4599101,
 };
 
 template <class AI, class T>

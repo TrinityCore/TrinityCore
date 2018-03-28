@@ -15,16 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundTP.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "Language.h"
-#include "Object.h"
-#include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
+#include "DBCStores.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "Map.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 
  // these variables aren't used outside of this file, so declare them only here
@@ -474,7 +473,7 @@ void BattlegroundTP::UpdateTeamScore(uint32 team)
         UpdateWorldState(BG_TP_FLAG_CAPTURES_HORDE, GetTeamScore(team));
 }
 
-WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveyard(Player* player)
 {
     if (!player)
         return NULL;

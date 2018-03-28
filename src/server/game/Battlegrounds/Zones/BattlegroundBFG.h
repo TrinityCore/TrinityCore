@@ -274,7 +274,7 @@ class BattlegroundBFG : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         /* Scorekeeping */
         bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
