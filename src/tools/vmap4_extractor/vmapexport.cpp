@@ -26,8 +26,11 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-    #include <direct.h>
-    #define mkdir _mkdir
+#include <direct.h>
+#define mkdir _mkdir
+#else
+#include <unistd.h>
+#define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
 #undef min

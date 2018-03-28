@@ -19,7 +19,7 @@
 #include "Logger.h"
 #include "LogMessage.h"
 
-LogOperation::LogOperation(Logger const* logger, std::unique_ptr<LogMessage>&& msg) : _logger(logger), _msg(std::forward<std::unique_ptr<LogMessage>>(_msg))
+LogOperation::LogOperation(Logger const* logger, std::unique_ptr<LogMessage>&& msg) : _logger(logger), _msg(std::forward<std::unique_ptr<LogMessage>>(msg))
 {
 }
 
