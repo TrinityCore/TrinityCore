@@ -25,7 +25,7 @@
 class DBCFile
 {
     public:
-        DBCFile(HANDLE mpq, const char* filename);
+        DBCFile(HANDLE mpq, char const* filename);
         ~DBCFile();
 
         // Open database. It must be openened before it can be used.
@@ -148,7 +148,7 @@ class DBCFile
 
     private:
         HANDLE _mpq;
-        const char* _filename;
+        char const* _filename;
         HANDLE _file;
         size_t _recordSize;
         size_t _recordCount;

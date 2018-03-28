@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "baradin_hold.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -43,7 +46,7 @@ class instance_baradin_hold: public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                     case BOSS_ARGALOTH:
                         ArgalothGUID = creature->GetGUID();

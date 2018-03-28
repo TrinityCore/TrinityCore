@@ -15,12 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CharacterCache.h"
 #include "WorldSession.h"
+#include "AccountMgr.h"
+#include "CharacterCache.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "QueryCallback.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "SocialMgr.h"
-#include "ObjectMgr.h"
+#include "World.h"
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
 {

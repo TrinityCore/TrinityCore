@@ -19,6 +19,9 @@
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
 
+#include "Define.h"
+#include <array>
+
 enum LevelLimit
 {
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
@@ -172,7 +175,7 @@ enum AchievementCriteriaFlags
     ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020          // Displays counter as money
 };
 
-enum AchievementCriteriaTimedTypes
+enum AchievementCriteriaTimedTypes : uint8
 {
     ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by accepting quest with entry in timerStartEvent
@@ -185,7 +188,7 @@ enum AchievementCriteriaTimedTypes
     ACHIEVEMENT_TIMED_TYPE_MAX
 };
 
-enum AchievementCriteriaTypes
+enum AchievementCriteriaTypes : uint8
 {
     ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE                 = 0,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                        = 1,
@@ -353,7 +356,7 @@ enum AreaMountFlags
     AREA_MOUNT_FLAG_UNDERWATER_ALLOWED  = 0x8
 };
 
-enum Difficulty
+enum Difficulty : uint8
 {
     REGULAR_DIFFICULTY           = 0,
 
@@ -499,6 +502,25 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
+
+#define MAX_SPELL_EFFECTS 3
+#define MAX_EFFECT_MASK 7
+#define MAX_SPELL_REAGENTS 8
+
+enum EnchantmentSlotMask
+{
+    ENCHANTMENT_CAN_SOULBOUND = 0x01,
+    ENCHANTMENT_UNK1 = 0x02,
+    ENCHANTMENT_UNK2 = 0x04,
+    ENCHANTMENT_UNK3 = 0x08
+};
+
+#define MAX_TALENT_RANK 5
+#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
+#define MAX_TALENT_TABS 3
+
+#define TaxiMaskSize 114
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
 {

@@ -18,6 +18,8 @@
 #ifndef LOST_CITY_OF_THE_TOLVIR_H_
 #define LOST_CITY_OF_THE_TOLVIR_H_
 
+#include "CreatureAIImpl.h"
+
 #define LCTScriptName "instance_lost_city_of_the_tolvir"
 #define DataHeader   "LCT"
 
@@ -94,10 +96,10 @@ enum LCTMisc
     ASSISTANCE_SUMMON_CROCOLISKS        = 3
 };
 
-template<class AI>
-AI* GetLostCityOfTheTolvirAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetLostCityOfTheTolvirAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, LCTScriptName);
+    return GetInstanceAI<AI>(obj, LCTScriptName);
 }
 
 #endif // LOST_CITY_OF_THE_TOLVIR_H_

@@ -24,7 +24,7 @@
 class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
 {
     public:
-        explicit SplineChainMovementGenerator(uint32 id, SplineChain const& chain, bool walk = false) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), finished(false), _nextIndex(0), _nextFirstWP(0), _msToNext(0) { }
+        explicit SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk = false) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), finished(false), _nextIndex(0), _nextFirstWP(0), _msToNext(0) { }
         explicit SplineChainMovementGenerator(SplineChainResumeInfo const& info) : _id(info.PointID), _chain(*info.Chain), _chainSize(info.Chain->size()), _walk(info.IsWalkMode), finished(info.SplineIndex >= info.Chain->size()), _nextIndex(info.SplineIndex), _nextFirstWP(info.PointIndex), _msToNext(info.TimeToNext) { }
         void Initialize(Unit* me) override;
         void Finalize(Unit* me) override;
@@ -41,7 +41,7 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
         void SendSplineFor(Unit* me, uint32 index, uint32& toNext);
         uint32 SendPathSpline(Unit* me, Movement::PointsArray const& wp) const;
         uint32 const _id;
-        SplineChain const& _chain;
+        std::vector<SplineChainLink> const& _chain;
         uint8 const _chainSize;
         bool const _walk;
         bool finished;

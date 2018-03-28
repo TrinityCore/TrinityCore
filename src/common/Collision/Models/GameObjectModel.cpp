@@ -146,7 +146,7 @@ GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBas
     if (!mdl->initialize(std::move(modelOwner), dataPath))
     {
         delete mdl;
-        return NULL;
+        return nullptr;
     }
 
     return mdl;

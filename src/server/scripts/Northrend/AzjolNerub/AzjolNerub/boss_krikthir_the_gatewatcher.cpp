@@ -19,13 +19,15 @@
  * Comment: Find in the future best timers and the event is not implemented.
  */
 
-#include "Containers.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
-#include "SpellAuras.h"
 #include "azjol_nerub.h"
+#include "Containers.h"
+#include "InstanceScript.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -318,7 +320,7 @@ class boss_krik_thir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_krik_thirAI>(creature);
+            return GetAzjolNerubAI<boss_krik_thirAI>(creature);
         }
 };
 
@@ -481,7 +483,7 @@ class npc_watcher_gashra : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_watcher_gashraAI>(creature);
+            return GetAzjolNerubAI<npc_watcher_gashraAI>(creature);
         }
 };
 
@@ -559,7 +561,7 @@ class npc_watcher_narjil : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_watcher_narjilAI>(creature);
+            return GetAzjolNerubAI<npc_watcher_narjilAI>(creature);
         }
 };
 
@@ -637,7 +639,7 @@ class npc_watcher_silthik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_watcher_silthikAI>(creature);
+            return GetAzjolNerubAI<npc_watcher_silthikAI>(creature);
         }
 };
 
@@ -697,7 +699,7 @@ class npc_anub_ar_warrior : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_warriorAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_warriorAI>(creature);
         }
 };
 
@@ -765,7 +767,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_skirmisherAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_skirmisherAI>(creature);
         }
 };
 
@@ -826,7 +828,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_shadowcasterAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_shadowcasterAI>(creature);
         }
 };
 
@@ -853,7 +855,7 @@ class npc_skittering_swarmer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_skittering_swarmerAI>(creature);
+            return GetAzjolNerubAI<npc_skittering_swarmerAI>(creature);
         }
 };
 
@@ -886,7 +888,7 @@ class npc_skittering_infector : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_skittering_infectorAI>(creature);
+            return GetAzjolNerubAI<npc_skittering_infectorAI>(creature);
         }
 };
 
@@ -909,7 +911,7 @@ class npc_gatewatcher_web_wrap : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gatewatcher_web_wrapAI>(creature);
+            return GetAzjolNerubAI<npc_gatewatcher_web_wrapAI>(creature);
         }
 };
 
@@ -976,7 +978,7 @@ class spell_anub_ar_skirmisher_fixtate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_FIXTATE_TRIGGERED) != nullptr;
+                return ValidateSpellInfo({ SPELL_FIXTATE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1008,7 +1010,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_WEB_WRAP_WRAPPED) != nullptr;
+                return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -21,11 +21,13 @@
 
 #include "MovementGenerator.h"
 
+class Creature;
+
 template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f) : _movementId(id), _destination(x, y, z), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
+        PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f) : _movementId(id), _x(x), _y(y), _z(z), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
@@ -39,7 +41,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         void MovementInform(T*);
 
         uint32 _movementId;
-        G3D::Vector3 _destination;
+        float _x, _y, _z;
         float _speed;
         bool _generatePath;
         bool _recalculateSpeed;
@@ -49,7 +51,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        explicit AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
+        AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
         void Finalize(Unit*) override;

@@ -23,9 +23,10 @@ SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "steam_vault.h"
 #include "SpellInfo.h"
+#include "steam_vault.h"
 
 enum NagaDistiller
 {
@@ -50,7 +51,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_naga_distillerAI>(creature);
+        return GetSteamVaultAI<npc_naga_distillerAI>(creature);
     }
 
     struct npc_naga_distillerAI : public ScriptedAI
@@ -103,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_warlord_kalithreshAI>(creature);
+        return GetSteamVaultAI<boss_warlord_kalithreshAI>(creature);
     }
 
     struct boss_warlord_kalithreshAI : public ScriptedAI
@@ -148,7 +149,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)

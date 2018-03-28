@@ -24,8 +24,11 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -45,11 +48,6 @@ class boss_kri : public CreatureScript
 {
 public:
     boss_kri() : CreatureScript("boss_kri") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_kriAI>(creature);
-    }
 
     struct boss_kriAI : public ScriptedAI
     {
@@ -138,17 +136,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<boss_kriAI>(creature);
+    }
 };
 
 class boss_vem : public CreatureScript
 {
 public:
     boss_vem() : CreatureScript("boss_vem") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_vemAI>(creature);
-    }
 
     struct boss_vemAI : public ScriptedAI
     {
@@ -231,17 +228,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<boss_vemAI>(creature);
+    }
 };
 
 class boss_yauj : public CreatureScript
 {
 public:
     boss_yauj() : CreatureScript("boss_yauj") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_yaujAI>(creature);
-    }
 
     struct boss_yaujAI : public ScriptedAI
     {
@@ -346,6 +342,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<boss_yaujAI>(creature);
+    }
 };
 
 void AddSC_bug_trio()

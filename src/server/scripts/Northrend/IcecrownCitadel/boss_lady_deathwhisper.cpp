@@ -15,14 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PoolMgr.h"
 #include "Group.h"
 #include "icecrown_citadel.h"
-#include "SpellInfo.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "PoolMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum ScriptTexts
 {
@@ -176,10 +180,10 @@ Position const SummonPositions[7] =
     {-524.2480f, 2211.920f, 62.90960f, 3.141592f}, // 7 Upper (Random Cultist)
 };
 
-class DaranavanMoveEvent : public BasicEvent
+class DarnavanMoveEvent : public BasicEvent
 {
     public:
-        DaranavanMoveEvent(Creature& darnavan) : _darnavan(darnavan) { }
+        DarnavanMoveEvent(Creature& darnavan) : _darnavan(darnavan) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
@@ -361,11 +365,11 @@ class boss_lady_deathwhisper : public CreatureScript
                         darnavan->CombatStop(true);
                         darnavan->GetMotionMaster()->MoveIdle();
                         darnavan->SetReactState(REACT_PASSIVE);
-                        darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
+                        darnavan->m_Events.AddEvent(new DarnavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
                         darnavan->AI()->Talk(SAY_DARNAVAN_RESCUED);
 
-						if (!killer)
-							return;
+                        if (!killer)
+                            return;
 
                         if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                         {
@@ -453,7 +457,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
@@ -888,8 +892,8 @@ class npc_darnavan : public CreatureScript
             {
                 _events.Reset();
 
-				if (!killer)
-					return;
+                if (!killer)
+                    return;
 
                 if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 {
@@ -1047,9 +1051,7 @@ class spell_deathwhisper_dominated_mind : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DOMINATE_MIND_SCALE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DOMINATE_MIND_SCALE });
             }
 
             void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
@@ -1081,9 +1083,7 @@ class spell_deathwhisper_summon_spirits : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SHADE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SHADE });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)

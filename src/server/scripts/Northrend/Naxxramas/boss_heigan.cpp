@@ -16,10 +16,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "IteratorPair.h"
+#include "Map.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "naxxramas.h"
-#include "Player.h"
 
 enum Spells
 {
@@ -61,24 +66,22 @@ enum Misc
     DATA_SAFETY_DANCE               = 19962139
 };
 
-static const uint32 firstEruptionDBGUID = 84980;
-static const uint8 numSections = 4;
-static const uint8 numEruptions[numSections] = { // count of sequential GO DBGUIDs in the respective section of the room
+uint32 const firstEruptionDBGUID = 84980;
+
+// count of sequential GO DBGUIDs in the respective section of the room
+uint8 const numEruptions[] =
+{
     15,
     25,
     23,
     13
 };
+uint8 const numSections = std::extent<decltype(numEruptions)>::value;
 
 class boss_heigan : public CreatureScript
 {
 public:
     boss_heigan() : CreatureScript("boss_heigan") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_heiganAI>(creature);
-    }
 
     struct boss_heiganAI : public BossAI
     {
@@ -131,9 +134,9 @@ public:
                 _eruptTiles[section].clear();
                 for (uint8 i = 0; i < numEruptions[section]; ++i)
                 {
-                    std::pair<std::unordered_multimap<uint32, GameObject*>::const_iterator, std::unordered_multimap<uint32, GameObject*>::const_iterator> tileIt = mapGOs.equal_range(spawnId++);
-                    for (std::unordered_multimap<uint32, GameObject*>::const_iterator it = tileIt.first; it != tileIt.second; ++it)
-                        _eruptTiles[section].push_back(it->second->GetGUID());
+                    auto tileBounds = Trinity::Containers::MapEqualRange(mapGOs, spawnId++);
+                    for (auto const& spawnPair : tileBounds)
+                        _eruptTiles[section].push_back(spawnPair.second->GetGUID());
                 }
             }
         }
@@ -216,6 +219,10 @@ public:
             bool _safetyDance; // is achievement still possible? (= no player deaths yet)
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<boss_heiganAI>(creature);
+    }
 };
 
 class spell_heigan_eruption : public SpellScriptLoader

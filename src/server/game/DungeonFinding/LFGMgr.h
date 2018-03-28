@@ -18,17 +18,20 @@
 #ifndef _LFGMGR_H
 #define _LFGMGR_H
 
-#include "DBCStructure.h"
-#include "Field.h"
+#include "Common.h"
+#include "DatabaseEnvFwd.h"
 #include "LFG.h"
 #include "LFGQueue.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
+#include <unordered_map>
 
 class Group;
 class Player;
 class Quest;
 class Map;
+struct LFGDungeonEntry;
+enum Difficulty : uint8;
 
 namespace lfg
 {

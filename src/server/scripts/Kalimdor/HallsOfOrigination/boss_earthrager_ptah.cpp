@@ -15,15 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "halls_of_origination.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "Weather.h"
-#include "WorldSession.h"
-#include "halls_of_origination.h"
 
 enum Texts
 {
@@ -76,7 +75,7 @@ class SummonScarab : public BasicEvent
 public:
     SummonScarab(Unit* owner, InstanceScript* instance) : _owner(owner), _instance(instance) { }
 
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/)
+    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
     {
         if (!_instance || _instance->GetBossState(DATA_EARTHRAGER_PTAH) != IN_PROGRESS)
             return true;    // delete event

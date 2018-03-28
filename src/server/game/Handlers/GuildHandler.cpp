@@ -16,15 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
+#include "AchievementMgr.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
-#include "Guild.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "QueryCallback.h"
+#include "SpellAuraDefines.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
@@ -533,7 +537,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvPacket)
         // Player <-> Bank
         // Allow to work with inventory only
         if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
-            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, NULL);
+            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
         else
             guild->SwapItemsWithInventory(GetPlayer(), toChar != 0, tabId, slotId, playerBag, playerSlotId, splitedAmount);
     }
@@ -773,7 +777,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
             data << uint32(0); // Unused
             data << uint32(rewards[i].AchievementId);
         }
-        data << uint32(time(NULL));
+        data << uint32(time(nullptr));
         SendPacket(&data);
     }
 }
@@ -1021,3 +1025,59 @@ void WorldSession::HandleGuildRenameCallback(std::string newName, PreparedQueryR
     if(pGuild && hasRenamed)
         pGuild->SetName(newName);
 }
+/*
+void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
+{
+    uint8 counter = 4;
+
+    if (Guild* pGuild = GetPlayer()->GetGuild())
+    {
+        if (Guild::ChallengesMgr* challengesMgr = pGuild->GetChallengesMgr())
+        {
+            // First check if it's time to reset the challenges.
+            time_t thisTime = time(nullptr);
+            if (pGuild->GetChallengesMgr()->CompletedFirstChallenge(pGuild->GetId()) && pGuild->GetChallengesMgr()->GetFirstCompletedChallengeTime(pGuild->GetId()) + WEEK <= thisTime)
+                pGuild->GetChallengesMgr()->ResetWeeklyChallenges();
+
+            WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATED, 5 * 4 * 4);
+
+            //Guild Experience Reward block
+
+            data << uint32(0);                                                                      //in the block its always 1
+            data << challengesMgr->GetXPRewardForType(CHALLENGE_TYPE_DUNGEON);                      //dungeon
+            data << challengesMgr->GetXPRewardForType(CHALLENGE_TYPE_RAID);                         //raid
+            data << challengesMgr->GetXPRewardForType(CHALLENGE_TYPE_RATEDBG);                      //rated BG
+
+            //Gold Bonus block
+            data << uint32(0);                                                                      //in the block its always 1
+            data << challengesMgr->GetGoldBonusForType(CHALLENGE_TYPE_DUNGEON);                     //dungeon
+            data << challengesMgr->GetGoldBonusForType(CHALLENGE_TYPE_RAID);                        //raid
+            data << challengesMgr->GetGoldBonusForType(CHALLENGE_TYPE_RATEDBG);                     //rated BG
+
+            //Total Count block
+
+            data << uint32(0);                                                                      //in the block its always 1
+            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_DUNGEON);                        //dungeon
+            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RAID);                           //raid
+            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RATEDBG);                        //rated BG
+
+            //Completion Gold Reward block
+
+            data << uint32(0);                                                                      //in the block its always 1
+            data << challengesMgr->GetGoldRewardForType(CHALLENGE_TYPE_DUNGEON);                    //dungeon
+            data << challengesMgr->GetGoldRewardForType(CHALLENGE_TYPE_RAID);                       //raid
+            data << challengesMgr->GetGoldRewardForType(CHALLENGE_TYPE_RATEDBG);                    //rated BG
+
+            //Current Count block
+
+            data << uint32(0);                                                                      //in the block its always 1
+            data << challengesMgr->GetCurrentCountFor(CHALLENGE_TYPE_DUNGEON);                      //dungeon
+            data << challengesMgr->GetCurrentCountFor(CHALLENGE_TYPE_RAID);                         //raid
+            data << challengesMgr->GetCurrentCountFor(CHALLENGE_TYPE_RATEDBG);                      //rated BG
+
+            SendPacket(&data);
+        }
+        return;
+    }
+}
+*/

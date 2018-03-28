@@ -20,6 +20,7 @@
 #define TRINITY_RANDOMMOTIONGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Timer.h"
 
 template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
@@ -31,7 +32,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
-        bool DoUpdate(T*, const uint32);
+        bool DoUpdate(T*, uint32);
         bool GetResetPos(T*, float& x, float& y, float& z);
         MovementGeneratorType GetMovementGeneratorType() const override { return RANDOM_MOTION_TYPE; }
     private:

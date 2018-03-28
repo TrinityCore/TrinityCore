@@ -20,9 +20,10 @@
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Unit.h"
+#include "PathGenerator.h"
 #include "Transport.h"
-#include "WorldPacket.h"
 #include "Opcodes.h"
+#include "WorldPacket.h"
 
 namespace Movement
 {
@@ -184,7 +185,19 @@ namespace Movement
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
-    void MoveSplineInit::SetFacing(const Unit* target)
+    MoveSplineInit::~MoveSplineInit() = default;
+
+    void MoveSplineInit::SetFacing(Vector3 const& spot)
+    {
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        Vector3 finalSpot = transform(spot);
+        args.facing.f.x = finalSpot.x;
+        args.facing.f.y = finalSpot.y;
+        args.facing.f.z = finalSpot.z;
+        args.flags.EnableFacingPoint();
+    }
+
+    void MoveSplineInit::SetFacing(Unit const* target)
     {
         args.flags.EnableFacingTarget();
         args.facing.target = target->GetGUID().GetRawValue();
@@ -204,7 +217,19 @@ namespace Movement
         args.flags.EnableFacingAngle();
     }
 
-    void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)
+    void MoveSplineInit::MovebyPath(PointsArray const& controls, int32 path_offset)
+    {
+        args.path_Idx_offset = path_offset;
+        args.path.resize(controls.size());
+        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
+    }
+
+    void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
+    {
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
+    }
+
+    void MoveSplineInit::MoveTo(Vector3 const& dest, bool generatePath, bool forceDestination)
     {
         if (generatePath)
         {

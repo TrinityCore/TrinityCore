@@ -18,9 +18,10 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
-#include "ObjectMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData

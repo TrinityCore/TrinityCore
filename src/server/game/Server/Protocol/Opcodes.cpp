@@ -17,9 +17,23 @@
  */
 
 #include "Opcodes.h"
+#include "Log.h"
 #include "WorldSession.h"
+#include <iomanip>
+#include <sstream>
 
 OpcodeTable opcodeTable;
+
+OpcodeTable::OpcodeTable()
+{
+    memset(_internalTable, 0, sizeof(_internalTable));
+}
+
+OpcodeTable::~OpcodeTable()
+{
+    for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+        delete _internalTable[i];
+}
 
 template<bool isInValidRange, bool isNonZero>
 void OpcodeTable::ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
@@ -30,7 +44,7 @@ void OpcodeTable::ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, 
 template<>
 void OpcodeTable::ValidateAndSetOpcode<true, true>(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
 {
-    if (_internalTable[opcode] != NULL)
+    if (_internalTable[opcode] != nullptr)
     {
         TC_LOG_ERROR("network", "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
@@ -1656,4 +1670,29 @@ void OpcodeTable::Initialize()
   //DEFINE_OPCODE_HANDLER(SMSG_ZONE_MAP,                                         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
 
 #undef DEFINE_OPCODE_HANDLER
-};
+}
+
+/// Lookup opcode name for human understandable logging
+std::string GetOpcodeNameForLogging(uint32 id)
+{
+    uint32 opcode = uint32(id);
+    std::ostringstream ss;
+    ss << '[';
+
+    if (id < UNKNOWN_OPCODE)
+    {
+        if (OpcodeHandler const* handler = opcodeTable[uint32(id) & 0x7FFF])
+        {
+            ss << handler->Name;
+            if (opcode & COMPRESSED_OPCODE_MASK)
+                ss << "_COMPRESSED";
+        }
+        else
+            ss << "UNKNOWN OPCODE";
+    }
+    else
+        ss << "INVALID OPCODE";
+
+    ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
+    return ss.str();
+}

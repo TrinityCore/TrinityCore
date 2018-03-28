@@ -16,11 +16,20 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "DynamicObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MoveSplineInit.h"
+#include "MoveSplineInitArgs.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "Vehicle.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellScript.h"
 #include "stonecore.h"
+#include "Vehicle.h"
+#include <G3D/Vector3.h>
 
 enum Spells
 {
@@ -316,7 +325,7 @@ class boss_high_priestess_azil : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_high_priestess_azilAI>(creature);
+            return GetStonecoreAI<boss_high_priestess_azilAI>(creature);
         }
 };
 
@@ -350,7 +359,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_devout_followerAI>(creature);
+        return GetStonecoreAI<npc_devout_followerAI>(creature);
     }
 };
 
@@ -408,7 +417,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gravity_wellAI>(creature);
+        return GetStonecoreAI<npc_gravity_wellAI>(creature);
     }
 };
 
@@ -427,7 +436,7 @@ public:
             DoCast(me, SPELL_SEISMIC_SHARD_VISUAL);
 
             Movement::MoveSplineInit init(me);
-            FillPath(me->GetPosition(), init.Path());
+            FillPath(init.Path());
             init.SetFly();
             init.Launch();
 
@@ -455,13 +464,10 @@ public:
         }
 
     private:
-        void FillPath(Position const& pos, Movement::PointsArray& path)
+        void FillPath(Movement::PointsArray& path) const
         {
             G3D::Vector3 point;
-
-            point.x = pos.GetPositionX();
-            point.y = pos.GetPositionY();
-            point.z = pos.GetPositionZ();
+            me->GetPosition(point.x, point.y, point.z);
 
             point.x -= 1.0f;
             path.push_back(point);
@@ -481,7 +487,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_seismic_shardAI>(creature);
+        return GetStonecoreAI<npc_seismic_shardAI>(creature);
     }
 };
 
@@ -497,9 +503,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADD_SOUTH))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SUMMON_ADD_SOUTH });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
@@ -533,9 +537,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADD_WEST))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SUMMON_ADD_WEST });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
@@ -715,8 +717,8 @@ public:
                 return;
 
             target->ExitVehicle();
-            DynamicObject* dynamicObject = GetCaster()->GetDynObject(SPELL_SEISMIC_SHARD_TARGETING);
-            target->CastSpell(dynamicObject->GetPositionX(), dynamicObject->GetPositionY(), dynamicObject->GetPositionZ(), SPELL_SEISMIC_SHARD_MISSLE, true);
+            if (DynamicObject* dynamicObject = GetCaster()->GetDynObject(SPELL_SEISMIC_SHARD_TARGETING))
+                target->CastSpell(dynamicObject->GetPositionX(), dynamicObject->GetPositionY(), dynamicObject->GetPositionZ(), SPELL_SEISMIC_SHARD_MISSLE, true);
         }
 
         void Register() override

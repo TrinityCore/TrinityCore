@@ -30,10 +30,12 @@ at_map_chamber
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "uldaman.h"
-#include "Player.h"
-#include "GameObjectAI.h"
 
 /*######
 ## npc_jadespine_basilisk
@@ -48,10 +50,7 @@ class npc_jadespine_basilisk : public CreatureScript
 {
     public:
 
-        npc_jadespine_basilisk()
-            : CreatureScript("npc_jadespine_basilisk")
-        {
-        }
+        npc_jadespine_basilisk() : CreatureScript("npc_jadespine_basilisk") { }
 
         struct npc_jadespine_basiliskAI : public ScriptedAI
         {
@@ -107,7 +106,7 @@ class npc_jadespine_basilisk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_jadespine_basiliskAI(creature);
+            return GetUldamanAI<npc_jadespine_basiliskAI>(creature);
         }
 };
 
@@ -122,20 +121,20 @@ class go_keystone_chamber : public GameObjectScript
 
         struct go_keystone_chamberAI : public GameObjectAI
         {
-            go_keystone_chamberAI(GameObject* go) : GameObjectAI(go) { }
+            go_keystone_chamberAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* /*player*/) override
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
-
+                instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
                 return false;
             }
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_keystone_chamberAI(go);
+            return GetUldamanAI<go_keystone_chamberAI>(go);
         }
 };
 
@@ -152,10 +151,7 @@ class AreaTrigger_at_map_chamber : public AreaTriggerScript
 {
     public:
 
-        AreaTrigger_at_map_chamber()
-            : AreaTriggerScript("at_map_chamber")
-        {
-        }
+        AreaTrigger_at_map_chamber() : AreaTriggerScript("at_map_chamber") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {

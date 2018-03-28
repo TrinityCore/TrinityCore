@@ -31,9 +31,13 @@ item_only_for_flight                Items which should only useable while flying
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "Item.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
-#include "Player.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 /*#####
 # item_only_for_flight
@@ -76,7 +80,7 @@ public:
             return false;
 
         // error
-        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         return true;
     }
 };
@@ -119,7 +123,7 @@ public:
             targets.GetUnitTarget()->GetEntry() == 20748 && !targets.GetUnitTarget()->HasAura(32578))
             return false;
 
-        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         return true;
     }
 };
@@ -139,7 +143,7 @@ public:
             return false;
         else
         {
-            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
+            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, nullptr);
             return true;
         }
     }
@@ -159,7 +163,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 39883, true, Item::GenerateItemRandomPropertyId(39883));
+            player->StoreNewItem(dest, 39883, true, GenerateItemRandomPropertyId(39883));
 
         return true;
     }
@@ -179,7 +183,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
+            player->StoreNewItem(dest, 44718, true, GenerateItemRandomPropertyId(44718));
 
         return true;
     }
@@ -225,7 +229,7 @@ public:
 
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const & /*targets*/) override
     {
-        GameObject* go = NULL;
+        GameObject* go = nullptr;
         for (uint8 i = 0; i < CaribouTrapsNum; ++i)
         {
             go = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
@@ -241,7 +245,7 @@ public:
 
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, G3D::Quat(), 1);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, QuaternionData(), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
@@ -275,7 +279,7 @@ public:
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
                 Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_HERE);
 
             return true;
@@ -341,7 +345,7 @@ public:
         if (!pMammoth)
             return false;
 
-        GameObject* pTrap = NULL;
+        GameObject* pTrap = nullptr;
         for (uint8 i = 0; i < MammothTrapsNum; ++i)
         {
             pTrap = player->FindNearestGameObject(MammothTraps[i], 11.0f);
@@ -375,10 +379,10 @@ public:
             if (player->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
                 return false;
             else
-                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
+                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, nullptr);
         }
         else
-            player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
+            player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         return true;
     }
 };

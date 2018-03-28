@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "magisters_terrace.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
@@ -177,7 +178,7 @@ class boss_vexallus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_vexallusAI>(creature);
+            return GetMagistersTerraceAI<boss_vexallusAI>(creature);
         };
 };
 
@@ -210,7 +211,7 @@ class npc_pure_energy : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_pure_energyAI(creature);
+            return GetMagistersTerraceAI<npc_pure_energyAI>(creature);
         };
 };
 

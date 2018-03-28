@@ -24,9 +24,13 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "zulaman.h"
 
 enum Yells
@@ -221,10 +225,7 @@ class boss_hexlord_malacrass : public CreatureScript
 {
     public:
 
-        boss_hexlord_malacrass()
-            : CreatureScript("boss_hexlord_malacrass")
-        {
-        }
+        boss_hexlord_malacrass() : CreatureScript("boss_hexlord_malacrass") { }
 
         struct boss_hex_lord_malacrassAI : public ScriptedAI
         {
@@ -315,7 +316,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 {
                     Unit* Temp = ObjectAccessor::GetUnit(*me, AddGUID[i]);
                     if (Temp && Temp->IsAlive())
-                        Temp->DealDamage(Temp, Temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        Temp->DealDamage(Temp, Temp->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 
@@ -443,7 +444,7 @@ class boss_hexlord_malacrass : public CreatureScript
             void UseAbility()
             {
                 uint8 random = urand(0, 2);
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 switch (PlayerAbility[PlayerClass][random].target)
                 {
                     case ABILITY_TARGET_SELF:
@@ -474,18 +475,14 @@ class boss_hexlord_malacrass : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_hex_lord_malacrassAI>(creature);
+            return GetZulAmanAI<boss_hex_lord_malacrassAI>(creature);
         }
 };
 
 class boss_alyson_antille : public CreatureScript
 {
     public:
-
-        boss_alyson_antille()
-            : CreatureScript("boss_alyson_antille")
-        {
-        }
+        boss_alyson_antille() : CreatureScript("boss_alyson_antille") { }
 
         struct boss_alyson_antilleAI : public boss_hexlord_addAI
         {
@@ -579,14 +576,13 @@ class boss_alyson_antille : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_alyson_antilleAI>(creature);
+            return GetZulAmanAI<boss_alyson_antilleAI>(creature);
         }
 };
 
 class boss_gazakroth : public CreatureScript
 {
     public:
-
         boss_gazakroth() : CreatureScript("boss_gazakroth") { }
 
         struct boss_gazakrothAI : public boss_hexlord_addAI
@@ -632,7 +628,7 @@ class boss_gazakroth : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_gazakrothAI>(creature);
+            return GetZulAmanAI<boss_gazakrothAI>(creature);
         }
 };
 
@@ -640,10 +636,7 @@ class boss_darkheart : public CreatureScript
 {
     public:
 
-        boss_darkheart()
-            : CreatureScript("boss_darkheart")
-        {
-        }
+        boss_darkheart() : CreatureScript("boss_darkheart") { }
 
         struct boss_darkheartAI : public boss_hexlord_addAI
         {
@@ -681,7 +674,7 @@ class boss_darkheart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_darkheartAI>(creature);
+            return GetZulAmanAI<boss_darkheartAI>(creature);
         }
 };
 
@@ -689,11 +682,7 @@ class boss_darkheart : public CreatureScript
 class boss_slither : public CreatureScript
 {
     public:
-
-        boss_slither()
-            : CreatureScript("boss_slither")
-        {
-        }
+        boss_slither() : CreatureScript("boss_slither") { }
 
         struct boss_slitherAI : public boss_hexlord_addAI
         {
@@ -748,7 +737,7 @@ class boss_slither : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_slitherAI>(creature);
+            return GetZulAmanAI<boss_slitherAI>(creature);
         }
 };
 
@@ -763,15 +752,13 @@ class spell_hexlord_unstable_affliction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WL_UNSTABLE_AFFL_DISPEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WL_UNSTABLE_AFFL_DISPEL });
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, true, NULL, GetEffect(EFFECT_0));
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, true, nullptr, GetEffect(EFFECT_0));
             }
 
             void Register() override

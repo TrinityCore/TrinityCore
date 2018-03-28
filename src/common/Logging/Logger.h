@@ -18,15 +18,20 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include "Appender.h"
+#include "Define.h"
+#include "LogCommon.h"
+#include <unordered_map>
+#include <string>
+
+class Appender;
+struct LogMessage;
 
 class TC_COMMON_API Logger
 {
     public:
-        Logger();
+        Logger(std::string const& name, LogLevel level);
 
-        void Create(std::string const& name, LogLevel level);
-        void addAppender(uint8 type, Appender *);
+        void addAppender(uint8 type, Appender* appender);
         void delAppender(uint8 type);
 
         std::string const& getName() const;
@@ -35,9 +40,9 @@ class TC_COMMON_API Logger
         void write(LogMessage* message) const;
 
     private:
-        std::string name;
-        LogLevel level;
-        AppenderMap appenders;
+        std::string _name;
+        LogLevel _level;
+        std::unordered_map<uint8, Appender*> _appenders;
 };
 
 #endif

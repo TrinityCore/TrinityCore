@@ -15,13 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "TemporarySummon.h"
-#include "WorldPacket.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ruby_sanctum.h"
+
+Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0f };
 
 BossBoundaryData const boundaries =
 {
@@ -67,7 +70,6 @@ ObjectData const gameObjectData[] =
     { GO_TWILIGHT_FLAME_RING,   DATA_TWILIGHT_FLAME_RING    },
     { 0,                        0                           } //END
 };
-
 
 class instance_ruby_sanctum : public InstanceMapScript
 {

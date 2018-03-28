@@ -20,7 +20,7 @@
 
 inline bool ItemExists(uint32 id)
 {
-    return sObjectMgr->GetItemTemplate(id) != NULL;
+    return sObjectMgr->GetItemTemplate(id) != nullptr;
 }
 
 bool DB2Utilities::HasItemEntry(DB2Storage<ItemEntry> const& /*store*/, uint32 id)
@@ -53,7 +53,7 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(id);
     ASSERT(proto);
 
-    ItemLocale const* localeData = localeConstant ? sObjectMgr->GetItemLocale(id) : NULL;
+    ItemLocale const* localeData = localeConstant ? sObjectMgr->GetItemLocale(id) : nullptr;
 
     buffer << uint32(proto->ItemId);
     buffer << uint32(proto->Quality);

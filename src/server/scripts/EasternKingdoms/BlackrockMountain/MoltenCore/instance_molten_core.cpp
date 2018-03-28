@@ -15,29 +15,36 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "molten_core.h"
+#include "TemporarySummon.h"
 
 Position const SummonPositions[10] =
 {
-    {737.850f, -1145.35f, -120.288f, 4.71368f},
-    {744.162f, -1151.63f, -119.726f, 4.58204f},
-    {751.247f, -1152.82f, -119.744f, 4.49673f},
-    {759.206f, -1155.09f, -120.051f, 4.30104f},
-    {755.973f, -1152.33f, -120.029f, 4.25588f},
-    {731.712f, -1147.56f, -120.195f, 4.95955f},
-    {726.499f, -1149.80f, -120.156f, 5.24055f},
-    {722.408f, -1152.41f, -120.029f, 5.33087f},
-    {718.994f, -1156.36f, -119.805f, 5.75738f},
-    {838.510f, -829.840f, -232.000f, 2.00000f},
+    { 737.850f, -1145.35f, -120.288f, 4.71368f },
+    { 744.162f, -1151.63f, -119.726f, 4.58204f },
+    { 751.247f, -1152.82f, -119.744f, 4.49673f },
+    { 759.206f, -1155.09f, -120.051f, 4.30104f },
+    { 755.973f, -1152.33f, -120.029f, 4.25588f },
+    { 731.712f, -1147.56f, -120.195f, 4.95955f },
+    { 726.499f, -1149.80f, -120.156f, 5.24055f },
+    { 722.408f, -1152.41f, -120.029f, 5.33087f },
+    { 718.994f, -1156.36f, -119.805f, 5.75738f },
+    { 838.510f, -829.840f, -232.000f, 2.00000f },
 };
+
+Position const RagnarosTelePos   = { 829.159f, -815.773f, -228.972f, 5.30500f };
+Position const RagnarosSummonPos = { 838.510f, -829.840f, -232.000f, 2.00000f };
 
 class instance_molten_core : public InstanceMapScript
 {
     public:
-        instance_molten_core() : InstanceMapScript("instance_molten_core", 409) { }
+        instance_molten_core() : InstanceMapScript(MCScriptName, 409) { }
 
         struct instance_molten_core_InstanceMapScript : public InstanceScript
         {

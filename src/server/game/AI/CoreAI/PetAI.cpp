@@ -268,7 +268,7 @@ void PetAI::UpdateAllies()
     if (!owner)
         return;
 
-    Group* group = NULL;
+    Group* group = nullptr;
     if (Player* player = owner->ToPlayer())
         group = player->GetGroup();
 
@@ -284,7 +284,7 @@ void PetAI::UpdateAllies()
     m_AllySet.insert(me->GetGUID());
     if (group)                                              //add group
     {
-        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
             Player* Target = itr->GetSource();
             if (!Target || !Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
@@ -368,7 +368,7 @@ void PetAI::OwnerAttacked(Unit* target)
     // Called when owner attacks something. Allows defensive pets to know
     //  that they need to assist
 
-    // Target might be NULL if called from spell with invalid cast targets
+    // Target might be nullptr if called from spell with invalid cast targets
     if (!target || !me->IsAlive())
         return;
 
@@ -394,7 +394,6 @@ Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
     // Passive pets don't do next target selection
     if (me->HasReactState(REACT_PASSIVE) || me->HasReactState(REACT_ASSIST))
         return nullptr;
-
     // Check pet attackers first so we don't drag a bunch of targets to the owner
     if (Unit* myAttacker = me->getAttackerForHelper())
         if (!myAttacker->HasBreakableByDamageCrowdControlAura())
@@ -574,7 +573,7 @@ bool PetAI::CanAttack(Unit* target)
     if (me->GetVictim() && me->GetVictim() != target)
     {
         // Check if our owner selected this target and clicked "attack"
-        Unit* ownerTarget = NULL;
+        Unit* ownerTarget = nullptr;
         if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
             ownerTarget = owner->GetSelectedUnit();
         else

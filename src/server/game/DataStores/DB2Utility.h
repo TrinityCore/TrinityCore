@@ -25,6 +25,7 @@ class DB2Storage;
 class ByteBuffer;
 struct ItemEntry;
 struct ItemSparseEntry;
+enum LocaleConstant : uint8;
 
 namespace DB2Utilities
 {

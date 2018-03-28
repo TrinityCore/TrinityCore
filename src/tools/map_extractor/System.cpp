@@ -16,8 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-
 #include <stdio.h>
 #include <deque>
 #include <list>
@@ -35,6 +33,7 @@
 
 #include "StormLib.h"
 #include "dbcfile.h"
+#include "Banner.h"
 
 #include "adt.h"
 #include "wdt.h"
@@ -56,8 +55,8 @@
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
 
-HANDLE WorldMpq = NULL;
-HANDLE LocaleMpq = NULL;
+HANDLE WorldMpq = nullptr;
+HANDLE LocaleMpq = nullptr;
 
 typedef struct
 {
@@ -248,7 +247,7 @@ uint32 ReadBuild(int locale)
 
     char buff[512];
     DWORD readBytes = 0;
-    SFileReadFile(dbcFile, buff, 512, &readBytes, NULL);
+    SFileReadFile(dbcFile, buff, 512, &readBytes, nullptr);
     if (!readBytes)
     {
         printf("Fatal error: Not found %s file!\n", filename.c_str());
@@ -630,12 +629,12 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             float diff = maxHeight - minHeight;
             if (diff < CONF_float_to_int8_limit)      // As uint8 (max accuracy = CONF_float_to_int8_limit/256)
             {
-                heightHeader.flags|=MAP_HEIGHT_AS_INT8;
+                heightHeader.flags |= MAP_HEIGHT_AS_INT8;
                 step = selectUInt8StepStore(diff);
             }
             else if (diff<CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
             {
-                heightHeader.flags|=MAP_HEIGHT_AS_INT16;
+                heightHeader.flags |= MAP_HEIGHT_AS_INT16;
                 step = selectUInt16StepStore(diff);
             }
         }
@@ -1030,7 +1029,7 @@ bool ExtractFile(HANDLE fileInArchive, char const* filename)
 
     while (readBytes > 0)
     {
-        SFileReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes, NULL);
+        SFileReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes, nullptr);
         if (readBytes > 0)
             fwrite(buffer, 1, readBytes, output);
     }
@@ -1045,8 +1044,8 @@ void ExtractDBCFiles(int l, bool basicLocale)
 
     SFILE_FIND_DATA foundFile;
     memset(&foundFile, 0, sizeof(foundFile));
-    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*dbc", &foundFile, NULL);
-    HANDLE dbcFile = NULL;
+    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*dbc", &foundFile, nullptr);
+    HANDLE dbcFile = nullptr;
     uint32 count = 0;
     if (listFile)
     {
@@ -1095,8 +1094,8 @@ void ExtractDB2Files(int l, bool basicLocale)
 
     SFILE_FIND_DATA foundFile;
     memset(&foundFile, 0, sizeof(foundFile));
-    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*db2", &foundFile, NULL);
-    HANDLE dbcFile = NULL;
+    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*db2", &foundFile, nullptr);
+    HANDLE dbcFile = nullptr;
     uint32 count = 0;
     if (listFile)
     {
@@ -1179,7 +1178,7 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     for (std::string thisFile : camerafiles)
     {
         std::string filename = path;
-        HANDLE dbcFile = NULL;
+        HANDLE dbcFile = nullptr;
         filename += (thisFile.c_str() + strlen("Cameras\\"));
 
         if (FileExists(filename.c_str()))
@@ -1215,7 +1214,7 @@ bool LoadLocaleMPQFile(int locale)
     }
 
     _tprintf(_T("\nLoading %s locale MPQs\n"), LocalesT[locale]);
-    char const* prefix = NULL;
+    char const* prefix = nullptr;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
         // Do not attempt to read older MPQ patch archives past this build, they were merged with base
@@ -1280,7 +1279,7 @@ void LoadCommonMPQFiles(uint32 build)
 
     }
 
-    char const* prefix = NULL;
+    char const* prefix = nullptr;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
         // Do not attempt to read older MPQ patch archives past this build, they were merged with base
@@ -1317,8 +1316,7 @@ void LoadCommonMPQFiles(uint32 build)
 
 int main(int argc, char * arg[])
 {
-    printf("Map & DBC Extractor\n");
-    printf("===================\n");
+    Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     HandleArgs(argc, arg);
 

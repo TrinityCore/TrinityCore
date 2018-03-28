@@ -24,6 +24,7 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 
 // Bosses (East)
 // 0 - Pusillin

@@ -16,7 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
 #include "sunwell_plateau.h"
 
@@ -60,7 +64,6 @@ class instance_sunwell_plateau : public InstanceMapScript
             Player const* GetPlayerInMap() const
             {
                 Map::PlayerList const& players = instance->GetPlayers();
-
                 if (!players.isEmpty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -73,7 +76,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 else
                     TC_LOG_DEBUG("scripts", "Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
 
-                return NULL;
+                return nullptr;
             }
 
             void OnCreatureCreate(Creature* creature) override

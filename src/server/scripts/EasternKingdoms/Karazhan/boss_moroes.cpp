@@ -24,8 +24,11 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -95,11 +98,6 @@ class boss_moroes : public CreatureScript
 {
 public:
     boss_moroes() : CreatureScript("boss_moroes") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_moroesAI>(creature);
-    }
 
     struct boss_moroesAI : public ScriptedAI
     {
@@ -326,6 +324,11 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_moroesAI>(creature);
+    }
 };
 
 struct boss_moroes_guestAI : public ScriptedAI
@@ -334,10 +337,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     ObjectGuid GuestGUID[4];
 
-    boss_moroes_guestAI(Creature* creature) : ScriptedAI(creature)
-    {
-        instance = creature->GetInstanceScript();
-    }
+    boss_moroes_guestAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {
@@ -378,11 +378,6 @@ class boss_baroness_dorothea_millstipe : public CreatureScript
 {
 public:
     boss_baroness_dorothea_millstipe() : CreatureScript("boss_baroness_dorothea_millstipe") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_baroness_dorothea_millstipeAI>(creature);
-    }
 
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
     {
@@ -443,17 +438,17 @@ public:
             } else ShadowWordPain_Timer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_baroness_dorothea_millstipeAI>(creature);
+    }
 };
 
 class boss_baron_rafe_dreuger : public CreatureScript
 {
 public:
     boss_baron_rafe_dreuger() : CreatureScript("boss_baron_rafe_dreuger") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_baron_rafe_dreugerAI>(creature);
-    }
 
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
     {
@@ -508,17 +503,17 @@ public:
             } else HammerOfJustice_Timer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_baron_rafe_dreugerAI>(creature);
+    }
 };
 
 class boss_lady_catriona_von_indi : public CreatureScript
 {
 public:
     boss_lady_catriona_von_indi() : CreatureScript("boss_lady_catriona_von_indi") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_lady_catriona_von_indiAI>(creature);
-    }
 
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
     {
@@ -586,17 +581,18 @@ public:
             } else DispelMagic_Timer -= diff;
         }
     };
+
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_lady_catriona_von_indiAI>(creature);
+    }
 };
 
 class boss_lady_keira_berrybuck : public CreatureScript
 {
 public:
     boss_lady_keira_berrybuck() : CreatureScript("boss_lady_keira_berrybuck") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_lady_keira_berrybuckAI>(creature);
-    }
 
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
     {
@@ -668,17 +664,17 @@ public:
             } else Cleanse_Timer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_lady_keira_berrybuckAI>(creature);
+    }
 };
 
 class boss_lord_robin_daris : public CreatureScript
 {
 public:
     boss_lord_robin_daris() : CreatureScript("boss_lord_robin_daris") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_lord_robin_darisAI>(creature);
-    }
 
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
     {
@@ -732,17 +728,17 @@ public:
             } else WhirlWind_Timer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_lord_robin_darisAI>(creature);
+    }
 };
 
 class boss_lord_crispin_ference : public CreatureScript
 {
 public:
     boss_lord_crispin_ference() : CreatureScript("boss_lord_crispin_ference") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_lord_crispin_ferenceAI>(creature);
-    }
 
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
     {
@@ -804,6 +800,11 @@ public:
             } else ShieldWall_Timer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_lord_crispin_ferenceAI>(creature);
+    }
 };
 
 void AddSC_boss_moroes()

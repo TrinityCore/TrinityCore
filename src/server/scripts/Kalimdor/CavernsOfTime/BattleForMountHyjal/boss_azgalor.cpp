@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "hyjal.h"
 #include "hyjal_trash.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -45,11 +46,6 @@ class boss_azgalor : public CreatureScript
 {
 public:
     boss_azgalor() : CreatureScript("boss_azgalor") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_azgalorAI>(creature);
-    }
 
     struct boss_azgalorAI : public hyjal_trashAI
     {
@@ -181,17 +177,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<boss_azgalorAI>(creature);
+    }
 };
 
 class npc_lesser_doomguard : public CreatureScript
 {
 public:
     npc_lesser_doomguard() : CreatureScript("npc_lesser_doomguard") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_lesser_doomguardAI>(creature);
-    }
 
     struct npc_lesser_doomguardAI : public hyjal_trashAI
     {
@@ -276,6 +271,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<npc_lesser_doomguardAI>(creature);
+    }
 };
 
 void AddSC_boss_azgalor()

@@ -21,7 +21,6 @@
 
 #include "Define.h"
 #include "DetourNavMesh.h"
-#include <cassert>
 
 enum SpellEffIndex : uint8
 {
@@ -1807,6 +1806,19 @@ enum GameObjectDynamicLowFlags
     GO_DYNFLAG_LO_SPARKLE           = 0x08,                 // makes GO sparkle
     GO_DYNFLAG_LO_STOPPED           = 0x10                  // Transport is stopped
 };
+
+// client side GO show states
+enum GOState : uint8
+{
+    GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
+    GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_TRANSPORT_ACTIVE   = 24,
+    GO_STATE_TRANSPORT_STOPPED  = 25
+};
+
+#define MAX_GO_STATE              3
+#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 enum GameObjectDestructibleState
 {
@@ -3872,7 +3884,7 @@ enum BattlegroundTeamId
 #define BG_TEAMS_COUNT  2
 
 // indexes of BattlemasterList.dbc
-enum BattlegroundTypeId
+enum BattlegroundTypeId : uint32
 {
     BATTLEGROUND_TYPE_NONE      = 0,   // None
     BATTLEGROUND_AV             = 1,   // Alterac Valley
@@ -3987,7 +3999,7 @@ enum TradeStatus
     TRADE_STATUS_CLOSE_WINDOW = 31,
 };
 
-enum XPColorChar
+enum XPColorChar : uint8
 {
     XP_RED,
     XP_ORANGE,
@@ -3996,7 +4008,7 @@ enum XPColorChar
     XP_GRAY
 };
 
-enum RemoveMethod
+enum RemoveMethod : uint8
 {
     GROUP_REMOVEMETHOD_DEFAULT  = 0,
     GROUP_REMOVEMETHOD_KICK     = 1,
@@ -4027,7 +4039,7 @@ enum ProfessionUI
     MAX_SECONDARY_SKILLS = 5
 };
 
-enum DuelCompleteType
+enum DuelCompleteType : uint8
 {
     DUEL_INTERRUPTED = 0,
     DUEL_WON         = 1,
@@ -4180,14 +4192,6 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
-/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
-enum SpellCooldownFlags
-{
-    SPELL_COOLDOWN_FLAG_NONE                    = 0x0,
-    SPELL_COOLDOWN_FLAG_INCLUDE_GCD             = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
-    SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
-};
-
 enum WeaponAttackType : uint8
 {
     BASE_ATTACK   = 0,
@@ -4195,5 +4199,24 @@ enum WeaponAttackType : uint8
     RANGED_ATTACK = 2,
     MAX_ATTACK
 };
+
+enum LineOfSightChecks
+{
+    LINEOFSIGHT_CHECK_VMAP      = 0x1, // check static floor layout data
+    LINEOFSIGHT_CHECK_GOBJECT   = 0x2, // check dynamic game object data
+
+    LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
+};
+
+enum ContentLevels : uint8
+{
+    CONTENT_1_60    = 0,
+    CONTENT_61_70   = 1,
+    CONTENT_71_80   = 2,
+    CONTENT_81_85   = 3,
+    MAX_CONTENT
+};
+
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

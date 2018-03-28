@@ -24,11 +24,12 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
-#include "WorldPacket.h"
-#include "Item.h"
-#include "Spell.h"
 
 enum Spells
 {
@@ -167,7 +168,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* entry) override
+    void SpellHit(Unit* caster, SpellInfo const* entry) override
     {
         if (caster == me)
             return;
@@ -320,9 +321,9 @@ struct boss_twinemperorsAI : public ScriptedAI
         me->GetCreatureListWithEntryInGrid(lUnitList, 15317, 150.0f);
 
         if (lUnitList.empty())
-            return NULL;
+            return nullptr;
 
-        Creature* nearb = NULL;
+        Creature* nearb = nullptr;
 
         for (std::list<Creature*>::const_iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
         {
@@ -392,11 +393,6 @@ class boss_veknilash : public CreatureScript
 {
 public:
     boss_veknilash() : CreatureScript("boss_veknilash") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_veknilashAI>(creature);
-    }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
     {
@@ -474,17 +470,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<boss_veknilashAI>(creature);
+    }
 };
 
 class boss_veklor : public CreatureScript
 {
 public:
     boss_veklor() : CreatureScript("boss_veklor") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_veklorAI>(creature);
-    }
 
     struct boss_veklorAI : public boss_twinemperorsAI
     {
@@ -598,6 +593,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetAQ40AI<boss_veklorAI>(creature);
+    }
 };
 
 void AddSC_boss_twinemperors()

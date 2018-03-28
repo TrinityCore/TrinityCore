@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "gnomeregan.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
 
 #define    MAX_ENCOUNTER  1
@@ -25,12 +29,7 @@
 class instance_gnomeregan : public InstanceMapScript
 {
 public:
-    instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_gnomeregan_InstanceMapScript(map);
-    }
+    instance_gnomeregan() : InstanceMapScript(GNOScriptName, 90) { }
 
     struct instance_gnomeregan_InstanceMapScript : public InstanceScript
     {
@@ -47,7 +46,7 @@ public:
 
         ObjectGuid uiBastmasterEmiShortfuseGUID;
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {
@@ -128,6 +127,10 @@ public:
         }
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_gnomeregan_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_gnomeregan()

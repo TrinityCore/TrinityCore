@@ -17,11 +17,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 
 enum Yells
@@ -188,14 +191,11 @@ class boss_mandokir : public CreatureScript
                         if (creatures.empty())
                             return;
 
-                        for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
+                        for (Creature* chainedSpirit : creatures)
                         {
-                            if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, (*itr)->GetGUID()))
-                            {
-                                chainedSpirit->AI()->SetGUID(_reviveGUID);
-                                chainedSpirit->AI()->DoAction(ACTION_REVIVE);
-                                _reviveGUID.Clear();
-                            }
+                            chainedSpirit->AI()->SetGUID(_reviveGUID);
+                            chainedSpirit->AI()->DoAction(ACTION_REVIVE);
+                            _reviveGUID.Clear();
                         }
                         break;
                     }
@@ -479,11 +479,7 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_DAMAGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOODLETTING_DAMAGE, SPELL_BLOODLETTING_HEAL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
@@ -539,7 +535,7 @@ class spell_mandokir_spirit_vengeance_cancel : public SpellScriptLoader
         }
 };
 
-class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
+class DevastatingSlamTargetSelector
 {
     public:
         DevastatingSlamTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
@@ -706,7 +702,7 @@ class spell_mandokir_reanimate_ohgan : public SpellScriptLoader
                 {
                     target->RemoveAura(SPELL_PERMANENT_FEIGN_DEATH);
                     target->CastSpell(target, SPELL_OHGAN_HEART_VISUAL, true);
-                    target->CastSpell((Unit*)NULL, SPELL_OHGAN_ORDERS, true);
+                    target->CastSpell((Unit*)nullptr, SPELL_OHGAN_ORDERS, true);
                 }
             }
 

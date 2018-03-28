@@ -16,8 +16,27 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "EventProcessor.h"
 #include "firelands.h"
+#include "InstanceScript.h"
+#include "Map.h"
+
+class DelayedAttackStartEvent : public BasicEvent
+{
+    public:
+        DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
+
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+        {
+            _owner->AI()->DoZoneInCombat(_owner, 200.0f);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
 
 DoorData const doorData[] =
 {

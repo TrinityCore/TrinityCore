@@ -18,6 +18,8 @@
 #ifndef ARCATRAZ_H
 #define ARCATRAZ_H
 
+#include "CreatureAIImpl.h"
+
 #define ArcatrazScriptName "instance_arcatraz"
 #define DataHeader         "AZ"
 

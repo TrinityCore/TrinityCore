@@ -79,6 +79,6 @@ bool WDT_file::prepareLoadedData()
         return false;
     wmo = (wdt_MWMO *)((uint8*)main+ main->size+8);
     if (!wmo->prepareLoadedData())
-        wmo = NULL; // optional as of cataclysm
+        wmo = nullptr; // optional as of cataclysm
     return true;
 }

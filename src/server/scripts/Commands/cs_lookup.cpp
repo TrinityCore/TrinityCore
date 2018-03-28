@@ -22,15 +22,20 @@ Comment: All lookup related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "GameEventMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class lookup_commandscript : public CommandScript
 {
@@ -62,9 +67,9 @@ public:
             { "itemset",  rbac::RBAC_PERM_COMMAND_LOOKUP_ITEMSET,  true, &HandleLookupItemSetCommand,  "" },
             { "object",   rbac::RBAC_PERM_COMMAND_LOOKUP_OBJECT,   true, &HandleLookupObjectCommand,   "" },
             { "quest",    rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, &HandleLookupQuestCommand,    "" },
-            { "player",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, NULL,                         "", lookupPlayerCommandTable },
+            { "player",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, nullptr,                         "", lookupPlayerCommandTable },
             { "skill",    rbac::RBAC_PERM_COMMAND_LOOKUP_SKILL,    true, &HandleLookupSkillCommand,    "" },
-            { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, NULL,                         "", lookupSpellCommandTable },
+            { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, nullptr,                         "", lookupSpellCommandTable },
             { "taxinode", rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE, true, &HandleLookupTaxiNodeCommand, "" },
             { "tele",     rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,     true, &HandleLookupTeleCommand,     "" },
             { "title",    rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "" },
@@ -73,7 +78,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "lookup", rbac::RBAC_PERM_COMMAND_LOOKUP,  true, NULL, "", lookupCommandTable },
+            { "lookup", rbac::RBAC_PERM_COMMAND_LOOKUP,  true, nullptr, "", lookupCommandTable },
         };
         return commandTable;
     }
@@ -97,36 +102,32 @@ public:
         wstrToLower(wNamePart);
 
         // Search in AreaTable.dbc
-        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
+        for (AreaTableEntry const* areaEntry : sAreaTableStore)
         {
-            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(i);
-            if (areaEntry)
+            std::string name = areaEntry->area_name;
+            if (name.empty())
+                continue;
+
+            if (!Utf8FitTo(name, wNamePart))
+                continue;
+
+            if (maxResults && count++ == maxResults)
             {
-                std::string name = areaEntry->area_name;
-                if (name.empty())
-                    continue;
-
-                if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
-                }
-
-                // send area in "id - [name]" format
-                std::ostringstream ss;
-                if (handler->GetSession())
-                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name<< "]|h|r";
-                else
-                    ss << areaEntry->ID << " - " << name;
-
-                handler->SendSysMessage(ss.str().c_str());
-
-                if (!found)
-                    found = true;
+                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
             }
+
+            // send area in "id - [name]" format
+            std::ostringstream ss;
+            if (handler->GetSession())
+                ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << "]|h|r";
+            else
+                ss << areaEntry->ID << " - " << name;
+
+            handler->SendSysMessage(ss.str().c_str());
+
+            if (!found)
+                found = true;
         }
 
         if (!found)
@@ -273,7 +274,7 @@ public:
         if (!*args)
             return false;
 
-        // Can be NULL at console call
+        // Can be nullptr at console call
         Player* target = handler->getSelectedPlayer();
 
         std::string namePart = args;
@@ -293,7 +294,7 @@ public:
         {
             if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(id))
             {
-                FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
+                FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : nullptr;
 
                 std::string name = factionEntry->name;
                 if (name.empty())
@@ -316,7 +317,7 @@ public:
                 else
                     ss << id << " - " << name;
 
-                if (factionState) // and then target != NULL also
+                if (factionState) // and then target != nullptr also
                 {
                     uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
                     std::string rankName = handler->GetTrinityString(index);
@@ -568,7 +569,7 @@ public:
         if (!*args)
             return false;
 
-        // can be NULL at console call
+        // can be nullptr at console call
         Player* target = handler->getSelectedPlayerOrSelf();
 
         std::string namePart = args;
@@ -698,7 +699,7 @@ public:
         if (!*args)
             return false;
 
-        // can be NULL in console call
+        // can be nullptr in console call
         Player* target = handler->getSelectedPlayer();
 
         std::string namePart = args;
@@ -768,7 +769,7 @@ public:
         if (!*args)
             return false;
 
-        // can be NULL at console call
+        // can be nullptr at console call
         Player* target = handler->getSelectedPlayer();
 
         std::string namePart = args;
@@ -860,7 +861,7 @@ public:
         if (!*args)
             return false;
 
-        // can be NULL at console call
+        // can be nullptr at console call
         Player* target = handler->getSelectedPlayer();
 
         uint32 id = atoi((char*)args);
@@ -1044,7 +1045,7 @@ public:
         if (!*args)
             return false;
 
-        // can be NULL in console call
+        // can be nullptr in console call
         Player* target = handler->getSelectedPlayer();
 
         // title name have single string arg for player name
@@ -1184,7 +1185,7 @@ public:
         Player* target = handler->getSelectedPlayer();
         if (!*args)
         {
-            // NULL only if used from console
+            // nullptr only if used from console
             if (!target || target == handler->GetSession()->GetPlayer())
                 return false;
 
@@ -1194,7 +1195,7 @@ public:
         else
         {
             ip = strtok((char*)args, " ");
-            limitStr = strtok(NULL, " ");
+            limitStr = strtok(nullptr, " ");
             limit = limitStr ? atoi(limitStr) : -1;
         }
 
@@ -1211,7 +1212,7 @@ public:
             return false;
 
         std::string account = strtok((char*)args, " ");
-        char* limitStr = strtok(NULL, " ");
+        char* limitStr = strtok(nullptr, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
         if (!Utf8ToUpperOnlyLatin(account))
@@ -1230,7 +1231,7 @@ public:
             return false;
 
         std::string email = strtok((char*)args, " ");
-        char* limitStr = strtok(NULL, " ");
+        char* limitStr = strtok(nullptr, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);

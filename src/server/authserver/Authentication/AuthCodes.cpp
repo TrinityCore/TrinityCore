@@ -77,7 +77,7 @@ namespace AuthHelper
             if (PreBcAcceptedClientBuilds[i].Build == build)
                 return &PreBcAcceptedClientBuilds[i];
 
-        return NULL;
+        return nullptr;
     }
 
     bool IsBuildSupportingBattlenet(int build)

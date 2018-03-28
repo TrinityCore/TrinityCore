@@ -17,13 +17,18 @@
  */
 
 #include "Unit.h"
-#include "Player.h"
-#include "Pet.h"
 #include "Creature.h"
+#include "DBCStores.h"
+#include "Item.h"
+#include "Pet.h"
+#include "Player.h"
 #include "SharedDefines.h"
-#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellMgr.h"
 #include "World.h"
+#include <G3D/g3dmath.h>
+#include <numeric>
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {

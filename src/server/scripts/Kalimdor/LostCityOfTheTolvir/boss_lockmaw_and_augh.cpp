@@ -16,11 +16,12 @@
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "lost_city_of_the_tolvir.h"
-#include "ObjectMgr.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -107,15 +108,15 @@ enum Actions
 
 Position const AughMovePoint = { -11062.5f, -1662.39f, 0.7606202f, 0.8028514f };
 
-class ScentOfBloodTargetSelector : public std::unary_function<Unit*, bool>
+class ScentOfBloodTargetSelector
 {
-public:
-    ScentOfBloodTargetSelector() { }
+    public:
+        ScentOfBloodTargetSelector() { }
 
-    bool operator()(Unit* unit) const
-    {
-        return (!unit->HasAura(SPELL_SCENT_OF_BLOOD) || !unit->HasAura(SPELL_SCENT_OF_BLOOD_HC));
-    }
+        bool operator()(Unit* unit) const
+        {
+            return (!unit->HasAura(SPELL_SCENT_OF_BLOOD) || !unit->HasAura(SPELL_SCENT_OF_BLOOD_HC));
+        }
 };
 
 class boss_lockmaw : public CreatureScript

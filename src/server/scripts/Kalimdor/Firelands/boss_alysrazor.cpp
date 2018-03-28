@@ -15,17 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "SpellScript.h"
-#include "MoveSplineInit.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "DBCStores.h"
 #include "firelands.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -357,9 +359,7 @@ class npc_molten_barrage : public CreatureScript
 
         struct npc_molten_barrageAI : public NullCreatureAI
         {
-            npc_molten_barrageAI(Creature* creature) : NullCreatureAI(creature)
-            {
-            }
+            npc_molten_barrageAI(Creature* creature) : NullCreatureAI(creature) { }
 
             void AttackStart(Unit* target) override
             {
@@ -541,17 +541,7 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GENERIC_DUMMY_CAST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_KNOCKBACK_RIGHT))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_KNOCKBACK_LEFT))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_KNOCKBACK_FORWARD))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_KNOCKBACK_BACK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GENERIC_DUMMY_CAST, SPELL_KNOCKBACK_RIGHT, SPELL_KNOCKBACK_LEFT, SPELL_KNOCKBACK_FORWARD, SPELL_KNOCKBACK_BACK });
             }
 
             void KnockBarrage(SpellEffIndex effIndex)
@@ -670,9 +660,7 @@ class spell_alysrazor_fieroblast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIRE_IT_UP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FIRE_IT_UP });
             }
 
             void FireItUp()

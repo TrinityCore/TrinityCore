@@ -45,14 +45,20 @@ go_bells
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "GameObjectAI.h"
-#include "Spell.h"
-#include "Player.h"
-#include "WorldSession.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DBCStructure.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GameTime.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
+#include "WorldSession.h"
 
 /*######
 ## go_cat_figurine
@@ -562,7 +568,6 @@ class go_tele_to_dalaran_crystal : public GameObjectScript
                     return false;
 
                 player->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
-
                 return true;
             }
         };
@@ -1207,7 +1212,7 @@ class go_amberpine_outhouse : public GameObjectScript
                 if (action == GOSSIP_ACTION_INFO_DEF + 1)
                 {
                     CloseGossipMenuFor(player);
-                    Creature* target = GetClosestCreatureWithEntry(player, NPC_OUTHOUSE_BUNNY, 3.0f);
+                    Creature* target = player->FindNearestCreature(NPC_OUTHOUSE_BUNNY, 3.0f);
                     if (target)
                     {
                         target->AI()->SetData(1, player->getGender());
@@ -1315,15 +1320,15 @@ class go_veil_skith_cage : public GameObjectScript
                me->UseDoorOrButton();
                if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
                {
-                   std::list<Creature*> childrenList;
-                   GetCreatureListWithEntryInGrid(childrenList, me, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
-                   for (std::list<Creature*>::const_iterator itr = childrenList.begin(); itr != childrenList.end(); ++itr)
+                   std::vector<Creature*> childrenList;
+                   me->GetCreatureListWithEntryInGrid(childrenList, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
+                   for (Creature* children : childrenList)
                    {
-                       player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
-                       (*itr)->DespawnOrUnsummon(5000);
-                       (*itr)->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
-                       (*itr)->AI()->Talk(SAY_FREE_0);
-                       (*itr)->GetMotionMaster()->Clear();
+                       player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, children->GetGUID());
+                       children->DespawnOrUnsummon(5000);
+                       children->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
+                       children->AI()->Talk(SAY_FREE_0);
+                       children->GetMotionMaster()->Clear();
                    }
                }
                return false;
@@ -1655,7 +1660,7 @@ public:
                             break;
 
                         std::vector<Player*> playersNearby;
-                        me->GetPlayerListInGrid(playersNearby, me->GetMap()->GetVisibilityRange());
+                        me->GetPlayerListInGrid(playersNearby, me->GetVisibilityRange());
                         for (Player* player : playersNearby)
                         {
                             if (player->GetTeamId() == TEAM_HORDE)

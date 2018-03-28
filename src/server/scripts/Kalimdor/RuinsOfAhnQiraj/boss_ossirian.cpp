@@ -16,13 +16,19 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ruins_of_ahnqiraj.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "Weather.h"
+#include "WorldPacket.h"
 
 enum Texts
 {
@@ -118,7 +124,7 @@ class boss_ossirian : public CreatureScript
                     if (spell->Id == SpellWeakness[i])
                     {
                         me->RemoveAurasDueToSpell(SPELL_SUPREME);
-                        ((TempSummon*)caster)->UnSummon();
+                        caster->ToTempSummon()->UnSummon();
                         SpawnNextCrystal();
                     }
                 }
@@ -127,7 +133,7 @@ class boss_ossirian : public CreatureScript
             void DoAction(int32 action) override
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
-                    if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
+                    if (Creature* Trigger = ObjectAccessor::GetCreature(*me, TriggerGUID))
                         if (!Trigger->HasUnitState(UNIT_STATE_CASTING))
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
@@ -179,7 +185,7 @@ class boss_ossirian : public CreatureScript
 
             void Cleanup()
             {
-                if (GameObject* Crystal = me->GetMap()->GetGameObject(CrystalGUID))
+                if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, CrystalGUID))
                     Crystal->Use(me);
             }
 
@@ -191,7 +197,7 @@ class boss_ossirian : public CreatureScript
                 if (Creature* Trigger = me->GetMap()->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
                 {
                     TriggerGUID = Trigger->GetGUID();
-                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], G3D::Quat(), uint32(-1)))
+                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData(), uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;
@@ -270,7 +276,7 @@ class boss_ossirian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ossirianAI>(creature);
+            return GetAQ20AI<boss_ossirianAI>(creature);
         }
 };
 
@@ -281,16 +287,14 @@ class go_ossirian_crystal : public GameObjectScript
 
         struct go_ossirian_crystalAI : public GameObjectAI
         {
-            go_ossirian_crystalAI(GameObject* go) : GameObjectAI(go) { }
+            go_ossirian_crystalAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* player) override
             {
-                InstanceScript* Instance = player->GetInstanceScript();
-                if (!Instance)
-                    return false;
-
                 Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-                if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
+                if (!Ossirian || instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
                     return false;
 
                 Ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
@@ -300,7 +304,7 @@ class go_ossirian_crystal : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_ossirian_crystalAI(go);
+            return GetAQ20AI<go_ossirian_crystalAI>(go);
         }
 };
 

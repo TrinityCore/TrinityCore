@@ -22,13 +22,17 @@
 ***Implement Vital Flame - http://www.wowhead.com/spell=99263
 */
 
-#include "GridNotifiers.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 #include "firelands.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -470,7 +474,7 @@ class spell_countdown_p2 : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    GetTarget()->CastSpell((Unit*)NULL, SPELL_COUNTDOWN_4, true);
+                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_COUNTDOWN_4, true);
                 GetTarget()->ToPlayer()->RemoveAurasDueToSpell(SPELL_COUNTDOWN_5);
             }
 
@@ -548,9 +552,7 @@ class spell_decimating_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DECIMATING_STRIKE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DECIMATING_STRIKE });
             }
 
             void ChangeDamage()

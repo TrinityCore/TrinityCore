@@ -24,11 +24,18 @@ SDCategory: Sunwell_Plateau
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
-#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -430,11 +437,6 @@ class boss_kalec : public CreatureScript
 public:
     boss_kalec() : CreatureScript("boss_kalec") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_kalecAI>(creature);
-    }
-
     struct boss_kalecAI : public ScriptedAI
     {
         InstanceScript* instance;
@@ -530,6 +532,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetSunwellPlateauAI<boss_kalecAI>(creature);
+    }
 };
 
 class kalecgos_teleporter : public GameObjectScript
@@ -545,7 +552,7 @@ public:
         {
 #if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
             uint8 SpectralPlayers = 0;
-            Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = go->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
@@ -567,7 +574,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new kalecgos_teleporterAI(go);
+        return GetSunwellPlateauAI<kalecgos_teleporterAI>(go);
     }
 };
 
@@ -575,11 +582,6 @@ class boss_sathrovarr : public CreatureScript
 {
 public:
     boss_sathrovarr() : CreatureScript("boss_sathrovarr") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_sathrovarrAI>(creature);
-    }
 
     struct boss_sathrovarrAI : public ScriptedAI
     {
@@ -683,7 +685,7 @@ public:
 
         void TeleportAllPlayersBack()
         {
-            Map::PlayerList const &playerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
             Position const& homePos = me->GetHomePosition();
             for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
             {
@@ -803,6 +805,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetSunwellPlateauAI<boss_sathrovarrAI>(creature);
+    }
 };
 
 void AddSC_boss_kalecgos()

@@ -24,8 +24,9 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "scarlet_monastery.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -41,11 +42,6 @@ class boss_high_inquisitor_fairbanks : public CreatureScript
 {
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_high_inquisitor_fairbanksAI>(creature);
-    }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
     {
@@ -154,6 +150,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetScarletMonasteryAI<boss_high_inquisitor_fairbanksAI>(creature);
+    }
 };
 
 void AddSC_boss_high_inquisitor_fairbanks()

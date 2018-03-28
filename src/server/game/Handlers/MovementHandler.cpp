@@ -165,7 +165,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
-                    uint32 timeleft = uint32(timeReset - time(NULL));
+                    uint32 timeleft = uint32(timeReset - time(nullptr));
                     GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft, true);
                 }
             }
@@ -278,7 +278,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     Unit* mover = _player->m_unitMovedByMe;
 
-    ASSERT(mover != NULL);                      // there must always be a mover
+    ASSERT(mover != nullptr);                      // there must always be a mover
 
     Player* plrMover = mover->ToPlayer();
 

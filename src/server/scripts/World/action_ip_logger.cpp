@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "Channel.h"
-#include "Guild.h"
-#include "Group.h"
+#include "DatabaseEnv.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 enum IPLoggingTypes
 {
@@ -124,7 +124,7 @@ class AccountActionIpLogger : public AccountScript
             /*case ACCOUNT_LOGOUT:
                 systemNote = "Logged on AccountLogout"; //Can not be logged
                 break;*/
-                // Neither should happen. Ever. Period. If it does, call Ghostbusters and all your local software defences to investigate.
+                // Neither should happen. Ever. Period. If it does, call Ghostbusters and all your local software defenses to investigate.
             case UNKNOWN_ACTION:
             default:
                 systemNote = "ERROR! Unknown action!";

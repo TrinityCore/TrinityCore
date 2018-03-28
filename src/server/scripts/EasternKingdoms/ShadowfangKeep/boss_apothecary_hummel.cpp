@@ -16,15 +16,18 @@
  */
 
 #include "ScriptMgr.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "LFGMgr.h"
-#include "Player.h"
-#include "Group.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "shadowfang_keep.h"
-#include "GridNotifiersImpl.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum ApothecarySpells
 {
@@ -272,7 +275,7 @@ class boss_apothecary_hummel : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_apothecary_hummelAI>(creature);
+            return GetShadowfangKeepAI<boss_apothecary_hummelAI>(creature);
         }
 };
 
@@ -322,7 +325,7 @@ class npc_apothecary_frye : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_apothecary_fryeAI>(creature);
+            return GetShadowfangKeepAI<npc_apothecary_fryeAI>(creature);
         }
 };
 
@@ -385,7 +388,7 @@ class npc_apothecary_baxter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_apothecary_baxterAI>(creature);
+            return GetShadowfangKeepAI<npc_apothecary_baxterAI>(creature);
         }
 };
 

@@ -17,12 +17,26 @@
  */
 
 #include "ObjectGuid.h"
+#include "Errors.h"
+#include "Hash.h"
+#include "Log.h"
 #include "World.h"
-#include "ObjectMgr.h"
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 ObjectGuid const ObjectGuid::Empty = ObjectGuid();
+
+uint8& ObjectGuid::operator[](uint32 index)
+{
+    ASSERT(index < sizeof(uint64));
+    return _data._bytes[index];
+}
+
+uint8 const& ObjectGuid::operator[](uint32 index) const
+{
+    ASSERT(index < sizeof(uint64));
+    return _data._bytes[index];
+}
 
 char const* ObjectGuid::GetTypeName(HighGuid high)
 {
@@ -90,7 +104,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
 
 ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
 {
-    buf.readPackGUID(*reinterpret_cast<uint64*>(guid.GuidPtr));
+    buf.readPackGUID(reinterpret_cast<uint64&>(guid.Guid));
     return buf;
 }
 

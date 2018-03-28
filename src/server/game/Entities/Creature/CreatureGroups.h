@@ -20,6 +20,7 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
 
@@ -34,6 +35,7 @@ enum GroupAIFlags
 
 class Creature;
 class CreatureGroup;
+class Unit;
 
 struct FormationInfo
 {
@@ -74,7 +76,7 @@ class TC_GAME_API CreatureGroup
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) { }
+        explicit CreatureGroup(uint32 id) : m_leader(nullptr), m_groupID(id), m_Formed(false) { }
         ~CreatureGroup() { }
 
         Creature* getLeader() const { return m_leader; }

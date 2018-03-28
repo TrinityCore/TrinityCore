@@ -16,15 +16,18 @@
  */
 
 #include "ScriptMgr.h"
+#include "CombatAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "oculus.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
-#include "CombatAI.h"
-#include "Player.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
-#include "oculus.h"
 
 enum GossipNPCs
 {
@@ -156,6 +159,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_EMERALD_ESSENCE);
                             break;
                         }
+                        return false;
                     case GOSSIP_MENU_ETERNOS:
                         if (gossipListId >= 1 && gossipListId <= 3)
                         {
@@ -167,6 +171,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_AMBER_ESSENCE);
                             break;
                         }
+                        return false;
                     case GOSSIP_MENU_BELGARISTRASZ:
                         if (gossipListId <= 2)
                         {
@@ -178,8 +183,9 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_RUBY_ESSENCE);
                             break;
                         }
+                        return false;
                     default:
-                        break;
+                        return false;
                 }
                 player->PlayerTalkClass->SendCloseGossip();
                 return false;
@@ -260,7 +266,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                     if (spell->Id == SPELL_GPS)
@@ -475,9 +481,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RUBY_EVASIVE_CHARGES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -512,27 +516,27 @@ class spell_oculus_shock_lance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
-            void CalcDamage()
+            void CalcDamage(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetHitDamage();
+                int32 damage = GetEffectValue();
                 if (Unit* target = GetHitUnit())
+                {
                     if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
                     {
                         damage += shockCharges->GetAmount();
-                        shockCharges->GetBase()->Remove();
+                        shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
                     }
+                }
 
-                SetHitDamage(damage);
+                SetEffectValue(damage);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_oculus_shock_lance_SpellScript::CalcDamage);
+                OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -554,9 +558,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -594,9 +596,7 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

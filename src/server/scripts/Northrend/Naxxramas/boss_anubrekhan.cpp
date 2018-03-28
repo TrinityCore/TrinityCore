@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 enum AnubSays
 {
@@ -76,11 +78,6 @@ class boss_anubrekhan : public CreatureScript
 {
 public:
     boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_anubrekhanAI>(creature);
-    }
 
     struct boss_anubrekhanAI : public BossAI
     {
@@ -235,6 +232,10 @@ public:
             GuidSet guardCorpses;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<boss_anubrekhanAI>(creature);
+    }
 };
 
 class at_anubrekhan_entrance : public OnlyOnceAreaTriggerScript

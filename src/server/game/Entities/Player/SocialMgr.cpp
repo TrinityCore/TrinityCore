@@ -17,16 +17,17 @@
  */
 
 #include "SocialMgr.h"
-#include "WorldSession.h"
-#include "WorldPacket.h"
 #include "DatabaseEnv.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "World.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 PlayerSocial::PlayerSocial(): _playerGUID()
-{ }
+{
+}
 
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {

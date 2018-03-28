@@ -21,11 +21,16 @@
  * Scriptnames of files in this file should be prefixed with "spell_warl_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Random.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum WarlockSpells
 {
@@ -115,9 +120,7 @@ class spell_warl_aftermath : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_AFTERMATH_STUN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_AFTERMATH_STUN });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -127,7 +130,7 @@ class spell_warl_aftermath : public SpellScriptLoader
                     PreventDefaultAction();
 
                     if (eventInfo.GetProcTarget() && roll_chance_i(aurEff->GetAmount()))
-                        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, NULL, aurEff);
+                        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, nullptr, aurEff);
                 }
             }
 
@@ -210,9 +213,7 @@ class spell_warl_conflagrate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMMOLATE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_IMMOLATE });
             }
 
             void HandleHit(SpellEffIndex /*effIndex*/)
@@ -245,9 +246,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_CREATE_HEALTHSTONE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_CREATE_HEALTHSTONE });
             }
 
             bool Load() override
@@ -285,9 +284,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_BANE_OF_DOOM_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_BANE_OF_DOOM_EFFECT });
             }
 
             bool Load() override
@@ -305,7 +302,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
                     return;
 
                 if (GetCaster()->ToPlayer()->isHonorOrXPTarget(GetTarget()))
-                    GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_BANE_OF_DOOM_EFFECT, true, NULL, aurEff);
+                    GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_BANE_OF_DOOM_EFFECT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -420,17 +417,14 @@ class spell_warl_demon_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_IMP))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_FELHUNTER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_FELGUARD))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WARLOCK_DEMON_SOUL_IMP,
+                    SPELL_WARLOCK_DEMON_SOUL_FELHUNTER,
+                    SPELL_WARLOCK_DEMON_SOUL_FELGUARD,
+                    SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS,
+                    SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER
+                });
             }
 
             void OnHitTarget(SpellEffIndex /*effIndex*/)
@@ -490,9 +484,14 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS) || !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER) || !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD) || !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER) || !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS,
+                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER,
+                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD,
+                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER,
+                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP
+                });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -512,7 +511,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                             {
                                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
                                 int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
-                                targetCreature->CastCustomSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, NULL, NULL, true);
+                                targetCreature->CastCustomSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, nullptr, nullptr, true);
                                 break;
                             }
                             case CREATURE_FAMILY_FELGUARD:
@@ -630,9 +629,7 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_FEL_SYNERGY_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_FEL_SYNERGY_HEAL });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -645,7 +642,7 @@ class spell_warl_fel_synergy : public SpellScriptLoader
                 PreventDefaultAction();
 
                 int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)NULL, true, NULL, aurEff); // TARGET_UNIT_PET
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff); // TARGET_UNIT_PET
             }
 
             void Register() override
@@ -673,15 +670,13 @@ class spell_warl_glyph_of_shadowflame : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -726,9 +721,7 @@ class spell_warl_haunt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_HAUNT_HEAL });
             }
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -736,7 +729,7 @@ class spell_warl_haunt : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     int32 amount = aurEff->GetAmount();
-                    GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+                    GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, nullptr, nullptr, true, nullptr, aurEff, GetCasterGUID());
                 }
             }
 
@@ -797,7 +790,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 uint32 damage = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
 
                 if (Player* modOwner = caster->GetSpellModOwner())
-                    modOwner->ApplySpellMod<SPELLMOD_COST>(GetId(), damage);
+                    modOwner->ApplySpellMod(GetId(), SPELLMOD_COST, damage);
 
                 SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
@@ -859,17 +852,14 @@ class spell_warl_improved_soul_fire : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff);
-                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -900,12 +890,9 @@ class spell_warl_life_tap : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-             bool Validate(SpellInfo const* /*spellInfo*/) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_LIFE_TAP_ENERGIZE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_LIFE_TAP_ENERGIZE, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2 });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -923,14 +910,14 @@ class spell_warl_life_tap : public SpellScriptLoader
                     if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
                         AddPct(mana, aurEff->GetAmount());
 
-                    caster->CastCustomSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, &mana, NULL, NULL, false);
+                    caster->CastCustomSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, &mana, nullptr, nullptr, false);
 
                     // Mana Feed
                     if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
                     {
                         int32 manaFeedVal = aurEff->GetAmount();
                         ApplyPct(manaFeedVal, mana);
-                        caster->CastCustomSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, &manaFeedVal, NULL, NULL, true, NULL);
+                        caster->CastCustomSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, &manaFeedVal, nullptr, nullptr, true, nullptr);
                     }
                 }
             }
@@ -968,11 +955,12 @@ class spell_warl_nether_ward_overrride : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_WARD) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SHADOW_WARD))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WARLOCK_NETHER_TALENT,
+                    SPELL_WARLOCK_NETHER_WARD,
+                    SPELL_WARLOCK_SHADOW_WARD
+                });
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -1007,10 +995,7 @@ class spell_warl_seduction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_SUCCUBUS, SPELL_PRIEST_SHADOW_WORD_DEATH });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1081,15 +1066,13 @@ class spell_warl_shadow_trance_proc : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SHADOW_TRANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_SHADOW_TRANCE });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SHADOW_TRANCE, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SHADOW_TRANCE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1151,14 +1134,12 @@ class spell_warl_soul_leech : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_REPLENISHMENT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GEN_REPLENISHMENT });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
-                GetTarget()->CastSpell((Unit*)NULL, SPELL_GEN_REPLENISHMENT, true, NULL, aurEff);
+                GetTarget()->CastSpell((Unit*)nullptr, SPELL_GEN_REPLENISHMENT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1185,11 +1166,12 @@ class spell_warl_soul_swap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_SWAP_CD_MARKER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP,
+                    SPELL_WARLOCK_SOUL_SWAP_CD_MARKER,
+                    SPELL_WARLOCK_SOUL_SWAP_OVERRIDE
+                });
             }
 
             void HandleHit(SpellEffIndex /*effIndex*/)
@@ -1214,7 +1196,9 @@ class spell_warl_soul_swap : public SpellScriptLoader
 class spell_warl_soul_swap_override : public SpellScriptLoader
 {
     public:
-        spell_warl_soul_swap_override() : SpellScriptLoader("spell_warl_soul_swap_override") { }
+        static char constexpr const ScriptName[] = "spell_warl_soul_swap_override";
+
+        spell_warl_soul_swap_override() : SpellScriptLoader(ScriptName) { }
 
         class spell_warl_soul_swap_override_AuraScript : public AuraScript
         {
@@ -1222,7 +1206,7 @@ class spell_warl_soul_swap_override : public SpellScriptLoader
 
             bool Load() override
             {
-                _swapCaster = NULL;
+                _swapCaster = nullptr;
                 return true;
             }
 
@@ -1245,8 +1229,7 @@ class spell_warl_soul_swap_override : public SpellScriptLoader
             return new spell_warl_soul_swap_override_AuraScript();
         }
 };
-
-typedef spell_warl_soul_swap_override::spell_warl_soul_swap_override_AuraScript SoulSwapOverrideAuraScript;
+char constexpr const spell_warl_soul_swap_override::ScriptName[];
 
 //! Soul Swap Copy Spells - 92795 - Simply copies spell IDs.
 class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
@@ -1258,6 +1241,8 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soul_swap_dot_marker_SpellScript);
 
+            typedef spell_warl_soul_swap_override::spell_warl_soul_swap_override_AuraScript SoulSwapOverrideAuraScript;
+
             void HandleHit(SpellEffIndex effIndex)
             {
                 Unit* swapVictim = GetCaster();
@@ -1268,11 +1253,11 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
                 flag96 classMask = GetSpellInfo()->Effects[effIndex].SpellClassMask;
 
                 Unit::AuraApplicationMap const& appliedAuras = swapVictim->GetAppliedAuras();
-                SoulSwapOverrideAuraScript* swapSpellScript = NULL;
+                SoulSwapOverrideAuraScript* swapSpellScript = nullptr;
                 if (Aura* swapOverrideAura = warlock->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-                    swapSpellScript = dynamic_cast<SoulSwapOverrideAuraScript*>(swapOverrideAura->GetScriptByName("spell_warl_soul_swap_override"));
+                    swapSpellScript = swapOverrideAura->GetScript<SoulSwapOverrideAuraScript>(spell_warl_soul_swap_override::ScriptName);
 
-                if (swapSpellScript == NULL)
+                if (swapSpellScript == nullptr)
                     return;
 
                 for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
@@ -1308,20 +1293,23 @@ public:
     {
         PrepareSpellScript(spell_warl_soul_swap_exhale_SpellScript);
 
+        typedef spell_warl_soul_swap_override::spell_warl_soul_swap_override_AuraScript SoulSwapOverrideAuraScript;
+
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_SWAP_MOD_COST) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_SOUL_SWAP_MOD_COST,
+                SPELL_WARLOCK_SOUL_SWAP_OVERRIDE
+            });
         }
 
         SpellCastResult CheckCast()
         {
             Unit* currentTarget = GetExplTargetUnit();
-            Unit* swapTarget = NULL;
+            Unit* swapTarget = nullptr;
             if (Aura const* swapOverride = GetCaster()->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-                if (SoulSwapOverrideAuraScript* swapScript = dynamic_cast<SoulSwapOverrideAuraScript*>(swapOverride->GetScriptByName("spell_warl_soul_swap_override")))
+                if (SoulSwapOverrideAuraScript* swapScript = swapOverride->GetScript<SoulSwapOverrideAuraScript>(spell_warl_soul_swap_override::ScriptName))
                     swapTarget = swapScript->GetOriginalSwapSource();
 
             // Soul Swap Exhale can't be cast on the same target than Soul Swap
@@ -1337,10 +1325,10 @@ public:
             bool hasGlyph = GetCaster()->HasAura(SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP);
 
             std::list<uint32> dotList;
-            Unit* swapSource = NULL;
+            Unit* swapSource = nullptr;
             if (Aura const* swapOverride = GetCaster()->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
             {
-                SoulSwapOverrideAuraScript* swapScript = dynamic_cast<SoulSwapOverrideAuraScript*>(swapOverride->GetScriptByName("spell_warl_soul_swap_override"));
+                SoulSwapOverrideAuraScript* swapScript = swapOverride->GetScript<SoulSwapOverrideAuraScript>(spell_warl_soul_swap_override::ScriptName);
                 if (!swapScript)
                     return;
                 dotList = swapScript->GetDotList();
@@ -1390,9 +1378,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOULSHATTER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_SOULSHATTER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1428,9 +1414,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL });
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
@@ -1440,7 +1424,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                     {
                         int32 damage = aurEff->GetAmount() * 9;
                         // backfire damage and silence
-                        caster->CastCustomSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                        caster->CastCustomSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, nullptr, nullptr, true, nullptr, aurEff);
                     }
             }
 

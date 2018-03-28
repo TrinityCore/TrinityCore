@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
+#include "EventMap.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GameTime.h"
 
 enum FireworksShowTypeObjects
@@ -857,7 +860,7 @@ public:
 
                         if (_big)
                         {
-                            if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                            if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
                             {
                                 firework->SetRespawnTime(0);
                                 firework->Delete();
@@ -865,7 +868,7 @@ public:
                         }
                         else
                         {
-                            if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                            if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
                             {
                                 firework->SetRespawnTime(0);
                                 firework->Delete();

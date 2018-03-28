@@ -15,18 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
+#include "Bag.h"
+#include "Common.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include <list>
-#include <vector>
-#include <utility>
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 {
@@ -538,8 +536,8 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
         return;
     }
 
-    bool usedSrcSlot = player->GetVoidStorageItem(oldSlot) != NULL; // should be always true
-    bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
+    bool usedSrcSlot = player->GetVoidStorageItem(oldSlot) != nullptr; // should be always true
+    bool usedDestSlot = player->GetVoidStorageItem(newSlot) != nullptr;
     ObjectGuid itemIdDest;
     if (usedDestSlot)
         itemIdDest.Set(player->GetVoidStorageItem(newSlot)->ItemId);

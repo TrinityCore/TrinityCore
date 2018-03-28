@@ -16,49 +16,45 @@
  */
 
 #include "Logger.h"
+#include "Appender.h"
+#include "LogMessage.h"
 
-Logger::Logger(): name(""), level(LOG_LEVEL_DISABLED) { }
-
-void Logger::Create(std::string const& _name, LogLevel _level)
-{
-    name = _name;
-    level = _level;
-}
+Logger::Logger(std::string const& name, LogLevel level): _name(name), _level(level) { }
 
 std::string const& Logger::getName() const
 {
-    return name;
+    return _name;
 }
 
 LogLevel Logger::getLogLevel() const
 {
-    return level;
+    return _level;
 }
 
 void Logger::addAppender(uint8 id, Appender* appender)
 {
-    appenders[id] = appender;
+    _appenders[id] = appender;
 }
 
 void Logger::delAppender(uint8 id)
 {
-    appenders.erase(id);
+    _appenders.erase(id);
 }
 
-void Logger::setLogLevel(LogLevel _level)
+void Logger::setLogLevel(LogLevel level)
 {
-    level = _level;
+    _level = level;
 }
 
 void Logger::write(LogMessage* message) const
 {
-    if (!level || level > message->level || message->text.empty())
+    if (!_level || _level > message->level || message->text.empty())
     {
         //fprintf(stderr, "Logger::write: Logger %s, Level %u. Msg %s Level %u WRONG LEVEL MASK OR EMPTY MSG\n", getName().c_str(), getLogLevel(), message.text.c_str(), message.level);
         return;
     }
 
-    for (AppenderMap::const_iterator it = appenders.begin(); it != appenders.end(); ++it)
+    for (auto it = _appenders.begin(); it != _appenders.end(); ++it)
         if (it->second)
             it->second->write(message);
 }

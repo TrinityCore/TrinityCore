@@ -16,11 +16,13 @@
  */
 
 #include "DB2Stores.h"
+#include "Common.h"
 #include "DB2fmt.h"
 #include "DB2Utility.h"
-#include "Common.h"
+#include "Errors.h"
 #include "Log.h"
 #include "World.h"
+#include <sstream>
 
 DB2Storage<ItemEntry> sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
 DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
@@ -135,5 +137,5 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
     if (itr != DB2Stores.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
 }

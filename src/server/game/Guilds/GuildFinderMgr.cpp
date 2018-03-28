@@ -15,10 +15,40 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "GuildFinderMgr.h"
+#include "CharacterCache.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "World.h"
+
+MembershipRequest::MembershipRequest() : _guildId(0), _availability(0), _classRoles(0), _interests(0), _time(time(nullptr))
+{
+}
+
+MembershipRequest::MembershipRequest(ObjectGuid playerGUID, uint32 guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string comment, time_t submitTime) :
+    _comment(std::move(comment)), _guildId(guildId), _playerGUID(playerGUID), _availability(availability), _classRoles(classRoles), _interests(interests), _time(submitTime)
+{
+}
+
+uint8 MembershipRequest::GetClass() const
+{
+    return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Class;
+}
+
+uint8 MembershipRequest::GetLevel() const
+{
+    return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Level;
+}
+
+std::string const& MembershipRequest::GetName() const
+{
+    return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Name;
+}
 
 GuildFinderMgr::GuildFinderMgr()
 {

@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "steam_vault.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "steam_vault.h"
 
 class go_main_chambers_access_panel : public GameObjectScript
 {
@@ -27,14 +31,12 @@ class go_main_chambers_access_panel : public GameObjectScript
 
         struct go_main_chambers_access_panelAI : public GameObjectAI
         {
-            go_main_chambers_access_panelAI(GameObject* go) : GameObjectAI(go) { }
+            go_main_chambers_access_panelAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* /*player*/) override
             {
-                InstanceScript* instance = me->GetInstanceScript();
-                if (!instance)
-                    return false;
-
                 if (me->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
                     instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
 
@@ -43,14 +45,13 @@ class go_main_chambers_access_panel : public GameObjectScript
 
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);
-
                 return true;
             }
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_main_chambers_access_panelAI(go);
+            return GetSteamVaultAI<go_main_chambers_access_panelAI>(go);
         }
 };
 

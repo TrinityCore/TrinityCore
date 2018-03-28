@@ -24,10 +24,15 @@ SDCategory: Magisters' Terrace
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "magisters_terrace.h"
-#include "WorldPacket.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
+#include "WorldPacket.h"
 
 enum Says
 {
@@ -93,11 +98,6 @@ class boss_felblood_kaelthas : public CreatureScript
 {
 public:
     boss_felblood_kaelthas() : CreatureScript("boss_felblood_kaelthas") { }
-
-    CreatureAI* GetAI(Creature* c) const override
-    {
-        return GetInstanceAI<boss_felblood_kaelthasAI>(c);
-    }
 
     struct boss_felblood_kaelthasAI : public ScriptedAI
     {
@@ -428,17 +428,17 @@ public:
             }
         }
     };
+
+    CreatureAI* GetAI(Creature* c) const override
+    {
+        return GetMagistersTerraceAI<boss_felblood_kaelthasAI>(c);
+    }
 };
 
 class npc_felkael_flamestrike : public CreatureScript
 {
 public:
     npc_felkael_flamestrike() : CreatureScript("npc_felkael_flamestrike") { }
-
-    CreatureAI* GetAI(Creature* c) const override
-    {
-        return new npc_felkael_flamestrikeAI(c);
-    }
 
     struct npc_felkael_flamestrikeAI : public ScriptedAI
     {
@@ -476,17 +476,17 @@ public:
             } else FlameStrikeTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* c) const override
+    {
+        return GetMagistersTerraceAI<npc_felkael_flamestrikeAI>(c);
+    }
 };
 
 class npc_felkael_phoenix : public CreatureScript
 {
 public:
     npc_felkael_phoenix() : CreatureScript("npc_felkael_phoenix") { }
-
-    CreatureAI* GetAI(Creature* c) const override
-    {
-        return GetInstanceAI<npc_felkael_phoenixAI>(c);
-    }
 
     struct npc_felkael_phoenixAI : public ScriptedAI
     {
@@ -585,24 +585,24 @@ public:
             {
                 //spell Burn should possible do this, but it doesn't, so do this for now.
                 uint16 dmg = urand(1650, 2050);
-                me->DealDamage(me, dmg, 0, DOT, SPELL_SCHOOL_MASK_FIRE, NULL, false);
+                me->DealDamage(me, dmg, 0, DOT, SPELL_SCHOOL_MASK_FIRE, nullptr, false);
                 BurnTimer += 2000;
             } BurnTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* c) const override
+    {
+        return GetMagistersTerraceAI<npc_felkael_phoenixAI>(c);
+    }
 };
 
 class npc_felkael_phoenix_egg : public CreatureScript
 {
 public:
     npc_felkael_phoenix_egg() : CreatureScript("npc_felkael_phoenix_egg") { }
-
-    CreatureAI* GetAI(Creature* c) const override
-    {
-        return new npc_felkael_phoenix_eggAI(c);
-    }
 
     struct npc_felkael_phoenix_eggAI : public ScriptedAI
     {
@@ -636,17 +636,17 @@ public:
             } else HatchTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* c) const override
+    {
+        return GetMagistersTerraceAI<npc_felkael_phoenix_eggAI>(c);
+    }
 };
 
 class npc_arcane_sphere : public CreatureScript
 {
 public:
     npc_arcane_sphere() : CreatureScript("npc_arcane_sphere") { }
-
-    CreatureAI* GetAI(Creature* c) const override
-    {
-        return new npc_arcane_sphereAI(c);
-    }
 
     struct npc_arcane_sphereAI : public ScriptedAI
     {
@@ -692,6 +692,11 @@ public:
             } else ChangeTargetTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* c) const override
+    {
+        return GetMagistersTerraceAI<npc_arcane_sphereAI>(c);
+    }
 };
 
 void AddSC_boss_felblood_kaelthas()

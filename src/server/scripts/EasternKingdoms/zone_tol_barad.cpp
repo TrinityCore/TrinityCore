@@ -15,15 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlefieldMgr.h"
+#include "ScriptMgr.h"
 #include "BattlefieldTB.h"
-#include "Battlefield.h"
-#include "ScriptSystem.h"
-#include "WorldSession.h"
+#include "DBCStores.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
-#include "Player.h"
 
 enum TBSpiritGuide
 {
@@ -54,7 +52,7 @@ class npc_tb_spirit_guide : public CreatureScript
 
             bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                player->PlayerTalkClass->SendCloseGossip();
+                CloseGossipMenuFor(player);
 
                 uint32 areaId = 0;
                 switch (gossipListId)

@@ -16,14 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Corpse.h"
 #include "CharacterCache.h"
 #include "Common.h"
-#include "Corpse.h"
-#include "Player.h"
-#include "UpdateMask.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
-#include "DatabaseEnv.h"
+#include "Player.h"
+#include "UpdateData.h"
+#include "UpdateMask.h"
 #include "World.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
@@ -35,10 +38,10 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_valuesCount = CORPSE_END;
 
-    m_time = time(NULL);
+    m_time = time(nullptr);
 
     lootForBody = false;
-    lootRecipient = NULL;
+    lootRecipient = nullptr;
 }
 
 Corpse::~Corpse() { }

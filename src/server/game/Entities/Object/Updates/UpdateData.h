@@ -19,6 +19,7 @@
 #ifndef __UPDATEDATA_H
 #define __UPDATEDATA_H
 
+#include "Define.h"
 #include "ByteBuffer.h"
 #include "ObjectGuid.h"
 #include <set>

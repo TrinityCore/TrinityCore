@@ -16,18 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "GuildMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Guild.h"
 #include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
 #include "CharacterCache.h"
+#include "Common.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "SpellAuraDefines.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 #define CHARTER_DISPLAY_ID 16161
 
@@ -168,7 +174,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterid);
     if (!pProto)
     {
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, charterid, 0);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterid, 0);
         return;
     }
 
@@ -182,7 +188,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     InventoryResult msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, NULL, NULL, charterid);
+        _player->SendEquipError(msg, nullptr, nullptr, charterid);
         return;
     }
 
@@ -269,7 +275,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     result = CharacterDatabase.Query(stmt);
 
-    // result == NULL also correct in case no sign yet
+    // result == nullptr also correct in case no sign yet
     if (result)
         signs = uint8(result->GetRowCount());
 
@@ -572,7 +578,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     // update for owner if online
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(ownerGuid))
-        owner->GetSession()->SendPacket(&data);
+        owner->SendDirectMessage(&data);
 }
 
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
@@ -600,7 +606,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
     {
         WorldPacket data(MSG_PETITION_DECLINE, 8);
         data << uint64(_player->GetGUID());
-        owner->GetSession()->SendPacket(&data);
+        owner->SendDirectMessage(&data);
     }
 }
 
@@ -691,7 +697,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 
     result = CharacterDatabase.Query(stmt);
 
-    // result == NULL also correct charter without signs
+    // result == nullptr also correct charter without signs
     if (result)
         signs = uint8(result->GetRowCount());
 
@@ -710,7 +716,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
         result->NextRow();
     }
 
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
 }
 
 void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
@@ -764,7 +770,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         {
             data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
             data << uint32(PETITION_TURN_ALREADY_IN_GUILD);
-            _player->GetSession()->SendPacket(&data);
+            _player->SendDirectMessage(&data);
             return;
         }
 

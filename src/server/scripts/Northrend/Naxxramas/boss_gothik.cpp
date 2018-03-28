@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
-#include "CombatAI.h"
-#include "AreaBoundary.h"
-#include "naxxramas.h"
 
 /* Constants */
 enum Yells
@@ -127,15 +130,15 @@ enum Actions
 
 
 /* Room side checking logic */
-static AreaBoundary* const livingSide = new RectangleBoundary(2633.84f, 2750.49f, -3434.0f, -3360.78f);
-static AreaBoundary* const deadSide = new RectangleBoundary(2633.84f, 2750.49f, -3360.78f, -3285.0f);
+AreaBoundary* const livingSide = new RectangleBoundary(2633.84f, 2750.49f, -3434.0f, -3360.78f);
+AreaBoundary* const deadSide = new RectangleBoundary(2633.84f, 2750.49f, -3360.78f, -3285.0f);
 enum Side
 {
     SIDE_NONE = 0,
     SIDE_LIVING,
     SIDE_DEAD
 };
-inline static Side GetSide(Position const* who)
+inline Side GetSide(Position const* who)
 {
     if (livingSide->IsWithinBoundary(who))
         return SIDE_LIVING;
@@ -143,11 +146,11 @@ inline static Side GetSide(Position const* who)
         return SIDE_DEAD;
     return SIDE_NONE;
 }
-inline static bool IsOnSameSide(Position const* who, Position const* other)
+inline bool IsOnSameSide(Position const* who, Position const* other)
 {
     return (GetSide(who) == GetSide(other));
 }
-static Player* FindEligibleTarget(Creature const* me, bool isGateOpen)
+inline Player* FindEligibleTarget(Creature const* me, bool isGateOpen)
 {
     Map::PlayerList const& players = me->GetMap()->GetPlayers();
     for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
@@ -558,7 +561,7 @@ class boss_gothik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_gothikAI>(creature);
+            return GetNaxxramasAI<boss_gothikAI>(creature);
         }
 };
 
@@ -665,7 +668,7 @@ class npc_gothik_minion_livingtrainee : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingtraineeAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingtraineeAI>(creature);
         }
 };
 
@@ -694,7 +697,7 @@ class npc_gothik_minion_livingknight : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingknightAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingknightAI>(creature);
         }
 };
 
@@ -724,7 +727,7 @@ class npc_gothik_minion_livingrider : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingriderAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingriderAI>(creature);
         }
 };
 
@@ -753,7 +756,7 @@ class npc_gothik_minion_spectraltrainee : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectraltraineeAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectraltraineeAI>(creature);
     }
 };
 
@@ -782,7 +785,7 @@ class npc_gothik_minion_spectralknight : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralknightAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralknightAI>(creature);
     }
 };
 
@@ -847,7 +850,7 @@ class npc_gothik_minion_spectralrider : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralriderAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralriderAI>(creature);
     }
 };
 
@@ -876,7 +879,7 @@ class npc_gothik_minion_spectralhorse : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralhorseAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralhorseAI>(creature);
     }
 };
 
@@ -884,11 +887,6 @@ class npc_gothik_trigger : public CreatureScript
 {
 public:
     npc_gothik_trigger() : CreatureScript("npc_gothik_trigger") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_gothik_triggerAI>(creature);
-    }
 
     struct npc_gothik_triggerAI : public ScriptedAI
     {
@@ -963,6 +961,11 @@ public:
                 gothik->AI()->SummonedCreatureDespawn(summon);
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<npc_gothik_triggerAI>(creature);
+    }
 };
 
 class spell_gothik_shadow_bolt_volley : public SpellScriptLoader

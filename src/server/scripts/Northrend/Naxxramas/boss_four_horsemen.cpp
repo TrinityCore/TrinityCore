@@ -15,13 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "GameTime.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "GameTime.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Horseman
 {
@@ -210,7 +215,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 return;
             }
             instance->SetBossState(BOSS_HORSEMEN, IN_PROGRESS);
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (players.isEmpty()) // sanity check
                 ResetEncounter();
 
@@ -456,7 +461,7 @@ class boss_four_horsemen_baron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_baronAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_baronAI>(creature);
         }
 };
 
@@ -538,7 +543,7 @@ class boss_four_horsemen_thane : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_thaneAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_thaneAI>(creature);
         }
 };
 
@@ -608,7 +613,7 @@ class boss_four_horsemen_lady : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_ladyAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_ladyAI>(creature);
         }
 };
 
@@ -690,7 +695,7 @@ class boss_four_horsemen_sir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_sirAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_sirAI>(creature);
         }
 };
 

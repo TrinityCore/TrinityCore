@@ -24,16 +24,14 @@
 //  - Check and script achievements
 
 #include "BattlefieldTB.h"
-#include "AchievementMgr.h"
-#include "CreatureTextMgr.h"
 #include "Battleground.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "MapManager.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellAuras.h"
-#include "TemporarySummon.h"
-#include "WorldSession.h"
+#include "Random.h"
+#include "World.h"
 
 const uint32 TBFactions[BG_TEAMS_COUNT] = { 1610, 1732 };
 
@@ -144,7 +142,7 @@ uint32 const RandomQuestgivers[BG_TEAMS_COUNT][CELLBLOCK_MAX] =
 struct TBCapturePointSpawnData
 {
     Position pos;
-    G3D::Quat rot;
+    QuaternionData rot;
     TBCapturePointId id;
     uint32 entryFlagPole[2];
     uint32 wsControlled[2];
@@ -164,7 +162,7 @@ TBCapturePointSpawnData const TBCapturePoints[TB_BASE_COUNT] =
 struct TBTowerInfo
 {
     Position pos;
-    G3D::Quat rot;
+    QuaternionData rot;
     uint32 entry;
     uint32 textDamaged;
     uint32 textDestroyed;
@@ -196,7 +194,7 @@ uint32 const TBBannerEntry[BG_TEAMS_COUNT] = { GO_BARADINS_WARDEN_BANNER, GO_HEL
 struct TBBannerData
 {
     Position pos;
-    G3D::Quat rot;
+    QuaternionData rot;
 };
 
 uint8 const TB_BANNER_MAX = 23;
@@ -232,7 +230,7 @@ uint32 const TBPortalEntry[BG_TEAMS_COUNT] = { TB_PORTAL_ALLIANCE, TB_PORTAL_HOR
 struct TBPortalData
 {
     Position pos;
-    G3D::Quat rot;
+    QuaternionData rot;
 };
 
 uint8 const TB_PORTAL_MAX = 2;
@@ -571,8 +569,8 @@ void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
     data << uint32(TB_WS_ALLIANCE_CONTROLS_SHOW) << int32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0);
     data << uint32(TB_WS_HORDE_CONTROLS_SHOW) << int32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0);
 
-    data << uint32(TB_WS_TIME_BATTLE_END) << int32(IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0);
-    data << uint32(TB_WS_TIME_NEXT_BATTLE) << int32(!IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0);
+    data << uint32(TB_WS_TIME_BATTLE_END) << int32(IsWarTime() ? time(nullptr) + (m_Timer / 1000) : 0);
+    data << uint32(TB_WS_TIME_NEXT_BATTLE) << int32(!IsWarTime() ? time(nullptr) + (m_Timer / 1000) : 0);
 
     // Not sure if TB
     //packet.Worldstates.emplace_back(uint32(TB_WS_65_UNKNOWN), int32(0));
@@ -970,7 +968,7 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
     // Add 5 minute bonus time
     m_Timer += m_BonusTime;
 
-    SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(time(NULL) + (m_Timer / 1000)));
+    SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(time(nullptr) + (m_Timer / 1000)));
 
     SendWarning(TBTowers[tbTowerId].textDamaged);
 
@@ -1092,5 +1090,5 @@ void TolBaradCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
     }
 
     // Update counter
-    m_Bf->ProcessEvent(NULL, EVENT_COUNT_CAPTURED_BASE);
+    m_Bf->ProcessEvent(nullptr, EVENT_COUNT_CAPTURED_BASE);
 }

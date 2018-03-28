@@ -16,15 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapBuilder.h"
 #include "PathCommon.h"
+#include "Banner.h"
+#include "DBCFileLoader.h"
+#include "MapBuilder.h"
 #include "Timer.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include "DBCFileLoader.h"
 #include <boost/filesystem/operations.hpp>
 #include <unordered_map>
-#include <vector>
 
 using namespace MMAP;
 
@@ -94,7 +94,7 @@ bool handleArgs(int argc, char** argv,
                char* &file,
                unsigned int& threads)
 {
-    char* param = NULL;
+    char* param = nullptr;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--maxAngle") == 0)
@@ -130,7 +130,7 @@ bool handleArgs(int argc, char** argv,
                 return false;
 
             char* stileX = strtok(param, ",");
-            char* stileY = strtok(NULL, ",");
+            char* stileY = strtok(nullptr, ",");
             int tilex = atoi(stileX);
             int tiley = atoi(stileY);
 
@@ -251,7 +251,7 @@ bool handleArgs(int argc, char** argv,
     return true;
 }
 
-int finish(const char* message, int returnValue)
+int finish(char const* message, int returnValue)
 {
     printf("%s", message);
     getchar(); // Wait for user input
@@ -260,6 +260,8 @@ int finish(const char* message, int returnValue)
 
 int main(int argc, char** argv)
 {
+    Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
+
     unsigned int threads = std::thread::hardware_concurrency();
     int mapnum = -1;
     float maxAngle = 70.0f;
@@ -271,8 +273,8 @@ int main(int argc, char** argv)
          debugOutput = false,
          silent = false,
          bigBaseUnit = false;
-    char* offMeshInputPath = NULL;
-    char* file = NULL;
+    char* offMeshInputPath = nullptr;
+    char* file = nullptr;
 
     bool validParam = handleArgs(argc, argv, mapnum,
                                  tileX, tileY, maxAngle,

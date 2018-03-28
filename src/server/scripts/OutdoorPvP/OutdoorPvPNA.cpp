@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
 #include "ScriptMgr.h"
-#include "OutdoorPvPNA.h"
-#include "Player.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPNA.h"
+#include "Player.h"
 #include "WorldPacket.h"
 
  // kill credit for pks
@@ -132,7 +134,7 @@ creature_type const AllianceControlNPCs[NA_CONTROL_NPC_NUM] =
 OutdoorPvPNA::OutdoorPvPNA()
 {
     m_TypeId = OUTDOOR_PVP_NA;
-    m_obj = NULL;
+    m_obj = nullptr;
 }
 
 void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
@@ -241,11 +243,11 @@ void OPvPCapturePointNA::DeSpawnGOs()
 void OPvPCapturePointNA::FactionTakeOver(uint32 team)
 {
     if (m_ControllingFaction)
-        sObjectMgr->RemoveGraveYardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
+        sObjectMgr->RemoveGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
 
     m_ControllingFaction = team;
     if (m_ControllingFaction)
-        sObjectMgr->AddGraveYardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
+        sObjectMgr->AddGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
     DeSpawnGOs();
     DeSpawnNPCs();
     SpawnGOsForTeam(team);
@@ -487,7 +489,7 @@ int32 OPvPCapturePointNA::HandleOpenGo(Player* player, GameObject* go)
     int32 retval = OPvPCapturePoint::HandleOpenGo(player, go);
     if (retval >= 0)
     {
-        const go_type * gos = NULL;
+        const go_type * gos = nullptr;
         if (m_ControllingFaction == ALLIANCE)
             gos=AllianceControlGOs;
         else if (m_ControllingFaction == HORDE)

@@ -22,6 +22,7 @@
 #include "ModelInstance.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include <map>
 
 // ******************************************
 // Map file format defines
@@ -289,7 +290,7 @@ namespace MMAP
                 printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
 
 
-            float* liquid_map = NULL;
+            float* liquid_map = nullptr;
 
             if (!(lheader.flags & MAP_LIQUID_NO_TYPE))
                 if (fread(liquid_type, sizeof(liquid_type), 1, mapFile) != 1)
@@ -382,7 +383,7 @@ namespace MMAP
 
         // make a copy of liquid vertices
         // used to pad right-bottom frame due to lost vertex data at extraction
-        float* lverts_copy = NULL;
+        float* lverts_copy = nullptr;
         if (meshData.liquidVerts.size())
         {
             lverts_copy = new float[meshData.liquidVerts.size()];
@@ -654,7 +655,7 @@ namespace MMAP
             if (!instanceTrees[mapID])
                 break;
 
-            ModelInstance* models = NULL;
+            ModelInstance* models = nullptr;
             uint32 count = 0;
             instanceTrees[mapID]->getModelInstances(models, count);
 
@@ -691,7 +692,7 @@ namespace MMAP
                     std::vector<G3D::Vector3> tempVertices;
                     std::vector<G3D::Vector3> transformedVertices;
                     std::vector<MeshTriangle> tempTriangles;
-                    WmoLiquid* liquid = NULL;
+                    WmoLiquid* liquid = nullptr;
 
                     it->getMeshData(tempVertices, tempTriangles, liquid);
 
@@ -890,10 +891,10 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, const char* offMeshFilePath)
+    void TerrainBuilder::loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, char const* offMeshFilePath)
     {
         // no meshfile input given?
-        if (offMeshFilePath == NULL)
+        if (offMeshFilePath == nullptr)
             return;
 
         FILE* fp = fopen(offMeshFilePath, "rb");

@@ -17,10 +17,11 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "Vehicle.h"
+#include "SpellScript.h"
 #include "stonecore.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -180,7 +181,7 @@ class boss_ozruk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ozrukAI>(creature);
+            return GetStonecoreAI<boss_ozrukAI>(creature);
         }
 };
 

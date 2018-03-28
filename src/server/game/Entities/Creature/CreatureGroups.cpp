@@ -16,11 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
 #include "CreatureGroups.h"
-#include "ObjectMgr.h"
-
+#include "Creature.h"
 #include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 
 #define MAX_DESYNC 5.0f
 
@@ -164,10 +167,10 @@ void CreatureGroup::AddMember(Creature* member)
 void CreatureGroup::RemoveMember(Creature* member)
 {
     if (m_leader == member)
-        m_leader = NULL;
+        m_leader = nullptr;
 
     m_members.erase(member);
-    member->SetFormation(NULL);
+    member->SetFormation(nullptr);
 }
 
 void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)

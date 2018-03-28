@@ -19,12 +19,19 @@
 #ifndef TRINITY_DBCSTORES_H
 #define TRINITY_DBCSTORES_H
 
-#include "Common.h"
 #include "DBCStore.h"
 #include "DBCStructure.h"
 #include "SharedDefines.h"
-
 #include <list>
+#include <map>
+#include <unordered_map>
+
+enum LocaleConstant : uint8;
+
+// temporary hack until includes are sorted out (don't want to pull in Windows.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 typedef std::list<uint32> SimpleFactionsList;
 TC_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
@@ -40,16 +47,7 @@ TC_GAME_API WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid,
 
 TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 
-const std::string* GetRandomCharacterName(uint8 race, uint8 gender);
-
-enum ContentLevels
-{
-    CONTENT_1_60    = 0,
-    CONTENT_61_70   = 1,
-    CONTENT_71_80   = 2,
-    CONTENT_81_85   = 3,
-    MAX_CONTENT
-};
+std::string const& GetRandomCharacterName(uint8 race, uint8 gender);
 
 uint32 GetMaxLevelForExpansion(uint32 expansion);
 
@@ -182,7 +180,7 @@ TC_GAME_API extern DBCStorage <MailTemplateEntry>            sMailTemplateStore;
 TC_GAME_API extern DBCStorage <MapEntry>                     sMapStore;
 TC_GAME_API extern DBCStorage <MountCapabilityEntry>         sMountCapabilityStore;
 TC_GAME_API extern DBCStorage <MountTypeEntry>               sMountTypeStore;
-TC_GAME_API extern DBCStorage <NameGenEntry>                 sNameGenStore;
+//TC_GAME_API extern DBCStorage <NameGenEntry>                 sNameGenStore; -- use GetRandomCharacterName instead
 TC_GAME_API extern DBCStorage <NumTalentsAtLevelEntry>       sNumTalentsAtLevelStore;
 TC_GAME_API extern DBCStorage <PhaseEntry>                   sPhaseStore;
 TC_GAME_API extern DBCStorage <PhaseGroupEntry> sPhaseGroupStore;
@@ -249,6 +247,8 @@ TC_GAME_API extern TaxiMask                                  sAllianceTaxiNodesM
 TC_GAME_API extern TaxiMask                                  sDeathKnightTaxiNodesMask;
 TC_GAME_API extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+TC_GAME_API extern DBCStorage <TransportAnimationEntry>      sTransportAnimationStore;
+TC_GAME_API extern DBCStorage <TransportRotationEntry>       sTransportRotationStore;
 TC_GAME_API extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 TC_GAME_API extern DBCStorage <UnitPowerBarEntry>            sUnitPowerBarStore;
 TC_GAME_API extern DBCStorage <VehicleEntry>                 sVehicleStore;

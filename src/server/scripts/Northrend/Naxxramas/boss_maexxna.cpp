@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "SpellScript.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -45,7 +49,7 @@ enum Creatures
 };
 
 #define MAX_WRAP_POSITION  7
-const Position WrapPositions[MAX_WRAP_POSITION] =
+Position const WrapPositions[MAX_WRAP_POSITION] =
 {
     {3453.818f, -3854.651f, 308.7581f, 4.362833f},
     {3535.042f, -3842.383f, 300.795f,  3.179324f},
@@ -66,9 +70,9 @@ enum Events
     EVENT_SUMMON,
 };
 
-const float WEB_WRAP_MOVE_SPEED = 20.0f;
+float const WEB_WRAP_MOVE_SPEED = 20.0f;
 
-struct WebTargetSelector : public std::unary_function<Unit*, bool>
+struct WebTargetSelector
 {
     WebTargetSelector(Unit* maexxna) : _maexxna(maexxna) {}
     bool operator()(Unit const* target) const
@@ -83,18 +87,13 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     }
 
     private:
-        const Unit* _maexxna;
+        Unit const* _maexxna;
 };
 
 class boss_maexxna : public CreatureScript
 {
 public:
     boss_maexxna() : CreatureScript("boss_maexxna") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_maexxnaAI(creature);
-    }
 
     struct boss_maexxnaAI : public BossAI
     {
@@ -185,17 +184,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<boss_maexxnaAI>(creature);
+    }
 };
 
 class npc_webwrap : public CreatureScript
 {
 public:
     npc_webwrap() : CreatureScript("npc_webwrap") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_webwrapAI(creature);
-    }
 
     struct npc_webwrapAI : public NullCreatureAI
     {
@@ -217,7 +215,7 @@ public:
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
             {
                 visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
-                victim->CastSpell(victim, SPELL_WEB_WRAP, true, NULL, NULL, me->GetGUID());
+                victim->CastSpell(victim, SPELL_WEB_WRAP, true, nullptr, nullptr, me->GetGUID());
             }
         }
 
@@ -245,6 +243,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<npc_webwrapAI>(creature);
+    }
 };
 
 void AddSC_boss_maexxna()

@@ -15,17 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Session.h"
 #include "AuthCodes.h"
 #include "BitStream.h"
-#include "PacketManager.h"
-#include "SessionManager.h"
+#include "BNetRealmList.h"
 #include "Database/DatabaseEnv.h"
-#include "QueryCallback.h"
 #include "HmacHash.h"
 #include "Log.h"
-#include "RealmList.h"
+#include "PacketManager.h"
+#include "QueryCallback.h"
+#include "Random.h"
+#include "Realm.h"
+#include "SessionManager.h"
 #include "SHA256.h"
-#include <map>
+#include "Util.h"
 
 Battlenet::Session::ModuleHandler const Battlenet::Session::ModuleHandlers[MODULE_COUNT] =
 {
@@ -86,7 +89,7 @@ Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _
     g.SetDword(2);
 
     SHA256Hash sha;
-    sha.UpdateBigNumbers(&N, &g, NULL);
+    sha.UpdateBigNumbers(&N, &g, nullptr);
     sha.Finalize();
     k.SetBinary(sha.GetDigest(), sha.GetLength());
 }
@@ -107,7 +110,7 @@ void Battlenet::Session::_SetVSFields(std::string const& pstr)
     p.SetHexStr(pstr.c_str());
 
     SHA256Hash sha;
-    sha.UpdateBigNumbers(&s, &p, NULL);
+    sha.UpdateBigNumbers(&s, &p, nullptr);
     sha.Finalize();
     BigNumber x;
     x.SetBinary(sha.GetDigest(), sha.GetLength());
@@ -452,7 +455,7 @@ void Battlenet::Session::HandleListSubscribeRequestCallback(PreparedQueryResult 
 
     AsyncWrite(listSubscribeResponse);
 
-    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
+    for (auto const& i : sBNetRealmList->GetRealms())
         AsyncWrite(BuildListUpdate(&i.second));
 
     AsyncWrite(new WoWRealm::ListComplete());
@@ -468,7 +471,7 @@ void Battlenet::Session::HandleListUnsubscribe(WoWRealm::ListUnsubscribe const& 
 void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest)
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
-    Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
+    Realm const* realm = sBNetRealmList->GetRealm(joinRequest.Realm);
     if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE))
     {
         joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
@@ -498,9 +501,9 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountInfo->Id);
 
-    joinResponse->IPv4.emplace_back(realm->ExternalAddress, realm->Port);
-    if (realm->ExternalAddress != realm->LocalAddress)
-        joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->Port);
+    joinResponse->IPv4.emplace_back(*realm->ExternalAddress, realm->Port);
+    if (*realm->ExternalAddress != *realm->LocalAddress)
+        joinResponse->IPv4.emplace_back(*realm->LocalAddress, realm->Port);
 
     AsyncWrite(joinResponse);
 }
@@ -729,7 +732,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
     }
 
     SHA256Hash sha;
-    sha.UpdateBigNumbers(&A, &B, NULL);
+    sha.UpdateBigNumbers(&A, &B, nullptr);
     sha.Finalize();
 
     BigNumber u;
@@ -768,12 +771,12 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
 
     uint8 hash[SHA256_DIGEST_LENGTH];
     sha.Initialize();
-    sha.UpdateBigNumbers(&N, NULL);
+    sha.UpdateBigNumbers(&N, nullptr);
     sha.Finalize();
     memcpy(hash, sha.GetDigest(), sha.GetLength());
 
     sha.Initialize();
-    sha.UpdateBigNumbers(&g, NULL);
+    sha.UpdateBigNumbers(&g, nullptr);
     sha.Finalize();
 
     for (int i = 0; i < sha.GetLength(); ++i)
@@ -787,7 +790,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
     sha.Initialize();
     sha.UpdateData(hash, SHA256_DIGEST_LENGTH);
     sha.UpdateData(shaI.GetDigest(), shaI.GetLength());
-    sha.UpdateBigNumbers(&s, &A, &B, &K, NULL);
+    sha.UpdateBigNumbers(&s, &A, &B, &K, nullptr);
     sha.Finalize();
 
     M1.SetBinary(sha.GetDigest(), sha.GetLength());
@@ -816,7 +819,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
 
     BigNumber M;
     sha.Initialize();
-    sha.UpdateBigNumbers(&A, &M1, &K, NULL);
+    sha.UpdateBigNumbers(&A, &M1, &K, nullptr);
     sha.Finalize();
     M.SetBinary(sha.GetDigest(), sha.GetLength());
 

@@ -16,12 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
-#include "Spell.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -727,9 +728,7 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AURA_OF_DESIRE_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AURA_OF_DESIRE_DAMAGE });
             }
 
             void OnProcSpell(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -809,9 +808,7 @@ class spell_reliquary_of_souls_spite : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SPITE_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SPITE_DAMAGE });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
-#include "SpellScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -137,11 +138,11 @@ public:
                         {
                             for (ObjectGuid guid : _bloodmageList)
                                 if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
-                                    bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+                                    bloodmage->CastSpell((Unit*)nullptr, SPELL_SUMMON_CHANNEL);
 
                             for (ObjectGuid guid : _deathshaperList)
                                 if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
-                                    deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+                                    deathshaper->CastSpell((Unit*)nullptr, SPELL_SUMMON_CHANNEL);
 
                             _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
 
@@ -298,9 +299,7 @@ class spell_illidari_nightlord_shadow_inferno : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_INFERNO_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHADOW_INFERNO_DAMAGE });
             }
 
             void OnPeriodic(AuraEffect const* aurEffect)

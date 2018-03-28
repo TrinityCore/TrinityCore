@@ -19,18 +19,14 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
-#include "Define.h"
-#include "DatabaseEnv.h"
+#include "Common.h"
+#include "DatabaseEnvFwd.h"
+#include "DBCEnums.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
-#include "DBCEnums.h"
-
-#include <string>
 #include <vector>
 
 class Player;
-
-class ObjectMgr;
 
 #define MAX_QUEST_LOG_SIZE 25
 
@@ -97,7 +93,7 @@ enum QuestTradeSkill
     QUEST_TRSKILL_JEWELCRAFTING  = 14
 };
 
-enum QuestStatus
+enum QuestStatus : uint8
 {
     QUEST_STATUS_NONE           = 0,
     QUEST_STATUS_COMPLETE       = 1,
@@ -190,19 +186,19 @@ struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
 
-    StringVector Title;
-    StringVector Details;
-    StringVector Objectives;
-    StringVector OfferRewardText;
-    StringVector RequestItemsText;
-    StringVector AreaDescription;
-    StringVector CompletedText;
-    std::vector< StringVector > ObjectiveText;
+    std::vector<std::string> Title;
+    std::vector<std::string> Details;
+    std::vector<std::string> Objectives;
+    std::vector<std::string> OfferRewardText;
+    std::vector<std::string> RequestItemsText;
+    std::vector<std::string> AreaDescription;
+    std::vector<std::string> CompletedText;
+    std::vector<std::vector<std::string>> ObjectiveText;
     // new on 4.x
-    StringVector QuestGiverTextWindow;
-    StringVector QuestGiverTargetName;
-    StringVector QuestTurnTextWindow;
-    StringVector QuestTurnTargetName;
+    std::vector<std::string> QuestGiverTextWindow;
+    std::vector<std::string> QuestGiverTargetName;
+    std::vector<std::string> QuestTurnTextWindow;
+    std::vector<std::string> QuestTurnTargetName;
 };
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,

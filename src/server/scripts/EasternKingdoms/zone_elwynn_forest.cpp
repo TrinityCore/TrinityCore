@@ -16,11 +16,12 @@
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "MoveSplineInit.h"
-#include "SpellScript.h"
-#include "CombatAI.h"
+#include "CreatureAIImpl.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Northshire
 {
@@ -234,15 +235,12 @@ public:
 
     struct npc_injured_stormwind_infantry_dummyAI : public ScriptedAI
     {
-        npc_injured_stormwind_infantry_dummyAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        npc_injured_stormwind_infantry_dummyAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
             events.ScheduleEvent(EVENT_GIVE_RIGHT_CLICK_INSTRUCTIONS, Milliseconds(1));
         }
-
 
         void UpdateAI(uint32 diff) override
         {
@@ -254,20 +252,20 @@ public:
                 {
                     case EVENT_GIVE_RIGHT_CLICK_INSTRUCTIONS:
                     {
-                        std::list<Player*> players;
+                        std::vector<Player*> players;
                         Trinity::AnyPlayerInObjectRangeCheck checker(me, 50.0f);
                         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
                         Cell::VisitWorldObjects(me, searcher, 50.0f);
-                        for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        for (Player* player : players)
                         {
-                            for (uint8 i = 0; i < 9; i++)
+                            for (uint32 questId : FearNoEvilQuests)
                             {
-                                if ((*itr)->GetQuestStatus(FearNoEvilQuests[i]) == QUEST_STATUS_INCOMPLETE)
+                                if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                                 {
-                                    if (!(*itr)->HasAura(SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION))
+                                    if (!player->HasAura(SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION))
                                     {
-                                        me->CastSpell((*itr), SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION, true);
-                                        Talk(SAY_RIGHT_CLICK, (*itr));
+                                        me->CastSpell(player, SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION, true);
+                                        Talk(SAY_RIGHT_CLICK, player);
                                     }
                                 }
                             }

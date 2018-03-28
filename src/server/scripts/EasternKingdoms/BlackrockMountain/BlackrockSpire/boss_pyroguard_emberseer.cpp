@@ -15,12 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
-#include "Spell.h"
 #include "blackrock_spire.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 
 enum Text
 {
@@ -104,10 +109,10 @@ public:
                     break;
                 case 2:
                    // Close these two doors on Blackhand Incarcerators aggro
-                   if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_IN)))
+                   if (GameObject* door1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_IN)))
                        if (door1->GetGoState() == GO_STATE_ACTIVE)
                            door1->SetGoState(GO_STATE_READY);
-                   if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_DOORS)))
+                   if (GameObject* door2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_DOORS)))
                        if (door2->GetGoState() == GO_STATE_ACTIVE)
                            door2->SetGoState(GO_STATE_READY);
                     break;
@@ -166,33 +171,33 @@ public:
        void OpenDoors(bool Boss_Killed)
        {
            // These two doors reopen on reset or boss kill
-           if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_IN)))
+           if (GameObject* door1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_IN)))
                door1->SetGoState(GO_STATE_ACTIVE);
-           if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_DOORS)))
+           if (GameObject* door2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_DOORS)))
                door2->SetGoState(GO_STATE_ACTIVE);
 
            // This door opens on boss kill
            if (Boss_Killed)
-               if (GameObject* door3 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_OUT)))
+               if (GameObject* door3 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_OUT)))
                     door3->SetGoState(GO_STATE_ACTIVE);
        }
 
         void UpdateRunes(GOState state)
         {
             // update all runes
-            if (GameObject* rune1 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_1)))
+            if (GameObject* rune1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_1)))
                 rune1->SetGoState(state);
-            if (GameObject* rune2 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_2)))
+            if (GameObject* rune2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_2)))
                 rune2->SetGoState(state);
-            if (GameObject* rune3 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_3)))
+            if (GameObject* rune3 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_3)))
                 rune3->SetGoState(state);
-            if (GameObject* rune4 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_4)))
+            if (GameObject* rune4 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_4)))
                 rune4->SetGoState(state);
-            if (GameObject* rune5 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_5)))
+            if (GameObject* rune5 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_5)))
                 rune5->SetGoState(state);
-            if (GameObject* rune6 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_6)))
+            if (GameObject* rune6 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_6)))
                 rune6->SetGoState(state);
-            if (GameObject* rune7 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_RUNE_7)))
+            if (GameObject* rune7 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EMBERSEER_RUNE_7)))
                 rune7->SetGoState(state);
         }
 
@@ -250,7 +255,7 @@ public:
                         {
                             // Check to see if all players in instance have aura SPELL_EMBERSEER_START before starting event
                             bool _hasAura = true;
-                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* player = itr->GetSource()->ToPlayer())
                                     if (!player->HasAura(SPELL_EMBERSEER_OBJECT_VISUAL))
@@ -312,7 +317,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_pyroguard_emberseerAI>(creature);
+        return GetBlackrockSpireAI<boss_pyroguard_emberseerAI>(creature);
     }
 };
 
@@ -384,8 +389,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-
-
             if (!UpdateVictim())
             {
                 _events.Update(diff);
@@ -436,7 +439,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_blackhand_incarceratorAI(creature);
+        return GetBlackrockSpireAI<npc_blackhand_incarceratorAI>(creature);
     }
 };
 

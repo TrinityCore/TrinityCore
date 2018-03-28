@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
@@ -60,32 +61,6 @@ class instance_shadow_labyrinth : public InstanceMapScript
                             if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
                                 hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
                         }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_REFECTORY_DOOR:
-                    case GO_SCREAMING_HALL_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_REFECTORY_DOOR:
-                    case GO_SCREAMING_HALL_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

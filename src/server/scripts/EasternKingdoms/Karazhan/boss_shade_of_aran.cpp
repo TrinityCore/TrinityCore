@@ -24,10 +24,13 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "karazhan.h"
 #include "GameObject.h"
+#include "InstanceScript.h"
+#include "karazhan.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum ShadeOfAran
 {
@@ -83,11 +86,6 @@ class boss_shade_of_aran : public CreatureScript
 {
 public:
     boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_aranAI>(creature);
-    }
 
     struct boss_aranAI : public ScriptedAI
     {
@@ -181,12 +179,11 @@ public:
 
         void FlameWreathEffect()
         {
-            std::vector<Unit*> targets;
-            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
-
+            ThreatContainer::StorageType const& t_list = me->getThreatManager().getThreatList();
             if (t_list.empty())
                 return;
 
+            std::vector<Unit*> targets;
             //store the threat list in a different container
             for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
@@ -482,7 +479,7 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*pAttacker*/, SpellInfo const* Spell) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being cast
             if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
@@ -504,17 +501,17 @@ public:
             }
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_aranAI>(creature);
+    }
 };
 
 class npc_aran_elemental : public CreatureScript
 {
 public:
     npc_aran_elemental() : CreatureScript("npc_aran_elemental") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new water_elementalAI(creature);
-    }
 
     struct water_elementalAI : public ScriptedAI
     {
@@ -549,6 +546,11 @@ public:
             } else CastTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<water_elementalAI>(creature);
+    }
 };
 
 void AddSC_boss_shade_of_aran()

@@ -22,10 +22,10 @@ SDComment:
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 enum DumpyKeeshan
 {
@@ -298,8 +298,7 @@ const uint32 Emote[6] =
     EMOTE_ONESHOTNO
 };
 
-uint32 const pathSize = 8;
-G3D::Vector3 const TownhallPath[pathSize] =
+Position const TownhallPath[] =
 {
     { -9221.39f, -2198.45f, 66.34846f },
     { -9221.39f, -2198.45f, 66.34846f },
@@ -310,6 +309,7 @@ G3D::Vector3 const TownhallPath[pathSize] =
     { -9244.14f, -2211.20f, 66.34846f },
     { -9255.31f, -2211.62f, 63.93340f }
 };
+uint32 const pathSize = std::extent<decltype(TownhallPath)>::value;
 
 class npc_redridge_citizen : public CreatureScript
 {

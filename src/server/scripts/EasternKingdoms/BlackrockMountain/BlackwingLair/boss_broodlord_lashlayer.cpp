@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -110,7 +110,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_broodlordAI>(creature);
+        return GetBlackwingLairAI<boss_broodlordAI>(creature);
     }
 };
 

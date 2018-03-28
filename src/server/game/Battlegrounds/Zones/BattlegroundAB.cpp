@@ -17,12 +17,24 @@
  */
 
 #include "BattlegroundAB.h"
-#include "WorldPacket.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "DBCStores.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "Random.h"
 #include "Util.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
+
+void BattlegroundABScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
+{
+    data.WriteBits(2, 24); // Objectives Count
+    content << uint32(BasesAssaulted);
+    content << uint32(BasesDefended);
+}
 
 BattlegroundAB::BattlegroundAB()
 {
@@ -367,7 +379,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     if (capturedNodes >= 4)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
 
-    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : NULL; // 0-6 spirit guides
+    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : nullptr; // 0-6 spirit guides
     if (!trigger)
         trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node], GetTeamIndexByTeamId(team));
 
@@ -388,7 +400,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         return;
 
     //remove bonus honor aura trigger creature when node is lost
-    DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
+    DelCreature(node+7);//nullptr checks are in DelCreature! 0-6 spirit guides
 
     RelocateDeadPlayers(BgCreatures[node]);
 
@@ -623,7 +635,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
@@ -633,7 +645,7 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
         if (m_Nodes[i] == teamIndex + 3)
             nodes.push_back(i);
 
-    WorldSafeLocsEntry const* good_entry = NULL;
+    WorldSafeLocsEntry const* good_entry = nullptr;
     // If so, select the closest node to place ghost on
     if (!nodes.empty())
     {

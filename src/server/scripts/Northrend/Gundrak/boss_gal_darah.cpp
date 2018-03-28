@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "gundrak.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -250,9 +252,7 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_IMPALING_CHARGE_CONTROL_VEHICLE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_IMPALING_CHARGE_CONTROL_VEHICLE });
             }
 
             bool Load() override

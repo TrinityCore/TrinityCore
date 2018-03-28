@@ -40,7 +40,8 @@
 #ifndef _RBAC_H
 #define _RBAC_H
 
-#include "DatabaseEnv.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <string>
 #include <set>
 #include <map>

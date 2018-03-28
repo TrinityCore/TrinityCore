@@ -16,15 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "utgarde_keep.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-
-enum Spells
-{
-    SPELL_UK_SECOUND_WIND_TRIGGER    = 42771
-};
+#include "utgarde_keep.h"
 
 uint32 ForgeSearch[3] =
 {
@@ -135,9 +133,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TICKING_TIME_BOMB_EXPLODE });
             }
 
             void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
@@ -174,9 +170,7 @@ class spell_fixate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FIXATE_TRIGGER });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -213,9 +207,7 @@ class spell_uk_second_wind : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SECOND_WIND_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SECOND_WIND_TRIGGER });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -347,7 +339,7 @@ class npc_enslaved_proto_drake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_enslaved_proto_drakeAI(creature);
+            return GetUtgardeKeepAI<npc_enslaved_proto_drakeAI>(creature);
         }
 };
 

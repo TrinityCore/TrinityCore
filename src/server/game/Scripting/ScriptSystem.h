@@ -19,10 +19,13 @@
 #ifndef SC_SYSTEM_H
 #define SC_SYSTEM_H
 
-#include "ScriptMgr.h"
-#include "SplineChain.h"
+#include "Define.h"
+#include "Hash.h"
+#include <unordered_map>
+#include <vector>
 
 class Creature;
+struct SplineChainLink;
 
 struct ScriptPointMove
 {
@@ -39,8 +42,8 @@ typedef std::vector<ScriptPointMove> ScriptPointVector;
 class TC_GAME_API SystemMgr
 {
     private:
-        SystemMgr() { }
-        ~SystemMgr() { }
+        SystemMgr();
+        ~SystemMgr();
 
     public:
         static SystemMgr* instance();
@@ -61,20 +64,13 @@ class TC_GAME_API SystemMgr
             return &itr->second;
         }
 
-        SplineChain const* GetSplineChain(uint32 entry, uint16 chainId) const
-        {
-            auto it = m_mSplineChainsMap.find({ entry, chainId });
-            if (it == m_mSplineChainsMap.end())
-                return nullptr;
-            return &it->second;
-        }
-
-        SplineChain const* GetSplineChain(Creature const* who, uint16 id) const;
+        std::vector<SplineChainLink> const* GetSplineChain(uint32 entry, uint16 chainId) const;
+        std::vector<SplineChainLink> const* GetSplineChain(Creature const* who, uint16 id) const;
 
     protected:
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
         typedef std::pair<uint32, uint16> ChainKeyType; // creature entry + chain ID
-        std::unordered_map<ChainKeyType, SplineChain> m_mSplineChainsMap; // spline chains
+        std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 };
 
 #define sScriptSystemMgr SystemMgr::instance()

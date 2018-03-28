@@ -371,11 +371,7 @@ struct BattlegroundEYScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
-        {
-            data.WriteBits(1, 24); // Objectives Count
-            content << uint32(FlagCaptures);
-        }
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override;
 
         uint32 GetAttr1() const final override { return FlagCaptures; }
 
@@ -404,7 +400,7 @@ class BattlegroundEY : public Battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         bool SetupBattleground() override;
         void Reset() override;
         void UpdateTeamScore(uint32 Team);

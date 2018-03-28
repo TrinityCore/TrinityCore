@@ -28,11 +28,11 @@ npc_kalecgos
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "magisters_terrace.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
-#include "magisters_terrace.h"
-#include "EventMap.h"
 
 /*######
 ## npc_kalecgos
@@ -67,11 +67,6 @@ class npc_kalecgos : public CreatureScript
 {
 public:
     npc_kalecgos() : CreatureScript("npc_kalecgos") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_kalecgosAI(creature);
-    }
 
     struct npc_kalecgosAI : public ScriptedAI
     {
@@ -157,6 +152,11 @@ public:
         private:
             EventMap events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<npc_kalecgosAI>(creature);
+    }
 };
 
 void AddSC_magisters_terrace()

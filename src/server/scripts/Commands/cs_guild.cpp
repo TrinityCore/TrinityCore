@@ -22,14 +22,16 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AchievementMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
-#include "Language.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Language.h"
 #include "ObjectAccessor.h"
-#include "ScriptMgr.h"
-#include "CharacterCache.h"
+#include "Player.h"
+#include "RBAC.h"
 #include <iomanip>
 
 class guild_commandscript : public CommandScript
@@ -51,7 +53,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "guild", rbac::RBAC_PERM_COMMAND_GUILD,  true, NULL, "", guildCommandTable },
+            { "guild", rbac::RBAC_PERM_COMMAND_GUILD,  true, nullptr, "", guildCommandTable },
         };
         return commandTable;
     }
@@ -71,10 +73,10 @@ public:
 
         // if not guild name only (in "") then player name
         Player* target;
-        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : NULL, &target))
+        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, &target))
             return false;
 
-        char* tailStr = *args != '"' ? strtok(NULL, "") : (char*)args;
+        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
         if (!tailStr)
             return false;
 
@@ -100,7 +102,6 @@ public:
         }
 
         sGuildMgr->AddGuild(guild);
-
         return true;
     }
 
@@ -132,10 +133,10 @@ public:
 
         // if not guild name only (in "") then player name
         ObjectGuid targetGuid;
-        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : NULL, NULL, &targetGuid))
+        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, nullptr, &targetGuid))
             return false;
 
-        char* tailStr = *args != '"' ? strtok(NULL, "") : (char*)args;
+        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
         if (!tailStr)
             return false;
 
@@ -215,7 +216,7 @@ public:
             return false;
         }
 
-        char const* newGuildStr = handler->extractQuotedArg(strtok(NULL, ""));
+        char const* newGuildStr = handler->extractQuotedArg(strtok(nullptr, ""));
         if (!newGuildStr)
         {
             handler->SendSysMessage(LANG_INSERT_GUILD_NAME);

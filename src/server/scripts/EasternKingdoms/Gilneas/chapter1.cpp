@@ -17,19 +17,12 @@
 
 #include "gilneas.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "ScriptedEscortAI.h"
-#include "CombatAI.h"
+#include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "PhasingHandler.h"
 #include "Player.h"
-#include "SpellInfo.h"
-#include "CreatureTextMgr.h"
-#include "MoveSplineInit.h"
-#include "GameObjectAI.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*######
 ## Quest 14098 - Evacuate the Merchant Square

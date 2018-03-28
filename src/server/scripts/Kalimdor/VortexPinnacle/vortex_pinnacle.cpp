@@ -16,11 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "ObjectGuid.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
-#include "Vehicle.h"
 #include "vortex_pinnacle.h"
 
 enum Texts
@@ -155,7 +156,7 @@ public:
             DoCast(me, SPELL_LURK_SEARCH);
         }
 
-        void SpellHit(Unit* /*unit*/, const SpellInfo* spellInfo) override
+        void SpellHit(Unit* /*unit*/, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id == SPELL_FEIGN_DEATH)
                 Talk(SAY_FEIGN_DEATH);
@@ -183,7 +184,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_lurking_tempestAI>(creature);
+        return GetVortexPinnacleAI<npc_lurking_tempestAI>(creature);
     }
 };
 
@@ -229,7 +230,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_slipstreamAI>(creature);
+        return GetVortexPinnacleAI<npc_slipstreamAI>(creature);
     }
 };
 
@@ -259,7 +260,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_slipstream_landing_zoneAI>(creature);
+        return GetVortexPinnacleAI<npc_slipstream_landing_zoneAI>(creature);
     }
 };
 
@@ -346,7 +347,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_young_storm_dragonAI>(creature);
+        return GetVortexPinnacleAI<npc_young_storm_dragonAI>(creature);
     }
 };
 
@@ -400,7 +401,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_grounding_fieldAI>(creature);
+        return GetVortexPinnacleAI<npc_grounding_fieldAI>(creature);
     }
 };
 
@@ -456,7 +457,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_skyfallAI>(creature);
+        return GetVortexPinnacleAI<npc_skyfallAI>(creature);
     }
 };
 
@@ -521,7 +522,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_skyfall_starAI>(creature);
+        return GetVortexPinnacleAI<npc_skyfall_starAI>(creature);
     }
 };
 
@@ -537,11 +538,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_LURK_CHECK))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_FEIGN_DEATH_CHECK))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_LURK_CHECK, SPELL_FEIGN_DEATH_CHECK });
         }
 
         void HandlePeriodic(AuraEffect const* /*aurEff*/)
@@ -596,20 +593,9 @@ public:
     {
         PrepareSpellScript(spell_lurk_search_check_SpellScript);
 
-    public:
-        spell_lurk_search_check_SpellScript()
-        {
-            countFacingUnits = 0;
-        }
-
-    private:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FEIGN_DEATH))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_LURK_RESSURECT))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FEIGN_DEATH, SPELL_LURK_RESSURECT });
         }
 
         void FilterTargets(std::list<WorldObject*>& unitList)
@@ -643,7 +629,7 @@ public:
             OnEffectLaunch += SpellEffectFn(spell_lurk_search_check_SpellScript::OnLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
 
-        uint32 countFacingUnits;
+        uint32 countFacingUnits = 0;
     };
 
     SpellScript* GetSpellScript() const override
@@ -695,11 +681,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_LURK))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_LURK_SEARCH))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_LURK, SPELL_LURK_SEARCH });
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -837,25 +819,9 @@ public:
     {
         PrepareAuraScript(spell_howling_gale_AuraScript);
 
-    public:
-        spell_howling_gale_AuraScript()
-        {
-            tickCountdown = 0;
-            proced = false;
-        }
-
-    private:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_HOWLING_GALE_VISUAL))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_HOWLING_GALE_KNOCKBACK))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_HOWLING_GALE_VISUAL_2))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_HOWLING_GALE_KNOCKBACK_2))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_HOWLING_GALE_VISUAL, SPELL_HOWLING_GALE_KNOCKBACK, SPELL_HOWLING_GALE_VISUAL_2, SPELL_HOWLING_GALE_KNOCKBACK_2 });
         }
 
         void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -888,8 +854,8 @@ public:
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_howling_gale_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
 
-        uint32 tickCountdown;
-        bool proced;
+        uint32 tickCountdown = 0;
+        bool proced = false;
     };
 
     AuraScript* GetAuraScript() const override
@@ -928,8 +894,7 @@ public:
                 if (GetCaster()->GetGUID() == groundingField->GetGUID())
                     continue;
 
-                GroundFieldPositions[count] = groundingField->GetPosition();
-                count += 1;
+                GroundFieldPositions[count++] = groundingField->GetPosition();
                 if (count == 3)
                     break;
             }
@@ -937,7 +902,11 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            targets.remove_if(TargetInTriangleCheck(true, GroundFieldPositions[0], GroundFieldPositions[1], GroundFieldPositions[2]));
+            TriangleBoundary triangle(GroundFieldPositions[0], GroundFieldPositions[1], GroundFieldPositions[2], true);
+            targets.remove_if([&](WorldObject* target)
+            {
+                return triangle.IsWithinBoundary(target);
+            });
         }
 
         void Register() override

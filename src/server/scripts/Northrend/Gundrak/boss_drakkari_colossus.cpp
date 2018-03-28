@@ -20,8 +20,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "gundrak.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Texts
@@ -375,11 +377,6 @@ class npc_living_mojo : public CreatureScript
 public:
     npc_living_mojo() : CreatureScript("npc_living_mojo") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetGundrakAI<npc_living_mojoAI>(creature);
-    }
-
     struct npc_living_mojoAI : public ScriptedAI
     {
         npc_living_mojoAI(Creature* creature) : ScriptedAI(creature)
@@ -479,6 +476,11 @@ public:
         uint32 mojoWaveTimer;
         uint32 mojoPuddleTimer;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetGundrakAI<npc_living_mojoAI>(creature);
+    }
 };
 
 void AddSC_boss_drakkari_colossus()

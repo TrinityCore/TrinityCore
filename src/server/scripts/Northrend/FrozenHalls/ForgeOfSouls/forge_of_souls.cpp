@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "forge_of_souls.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 enum Events
 {
@@ -163,7 +163,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_sylvanas_fosAI>(creature);
+        return GetForgeOfSoulsAI<npc_sylvanas_fosAI>(creature);
     }
 };
 
@@ -272,7 +272,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jaina_fosAI>(creature);
+        return GetForgeOfSoulsAI<npc_jaina_fosAI>(creature);
     }
 };
 

@@ -24,8 +24,11 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "scarlet_monastery.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Says
@@ -62,11 +65,6 @@ class boss_scarlet_commander_mograine : public CreatureScript
 {
 public:
     boss_scarlet_commander_mograine() : CreatureScript("boss_scarlet_commander_mograine") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_scarlet_commander_mograineAI>(creature);
-    }
 
     struct boss_scarlet_commander_mograineAI : public ScriptedAI
     {
@@ -160,7 +158,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
         {
             //When hit with resurrection say text
             if (spell->Id == SPELL_SCARLETRESURRECTION)
@@ -219,17 +217,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetScarletMonasteryAI<boss_scarlet_commander_mograineAI>(creature);
+    }
 };
 
 class boss_high_inquisitor_whitemane : public CreatureScript
 {
 public:
     boss_high_inquisitor_whitemane() : CreatureScript("boss_high_inquisitor_whitemane") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_high_inquisitor_whitemaneAI>(creature);
-    }
 
     struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
     {
@@ -331,7 +329,7 @@ public:
             //If we are <75% hp cast healing spells at self or Mograine
             if (Heal_Timer <= diff)
             {
-                Creature* target = NULL;
+                Creature* target = nullptr;
 
                 if (!HealthAbovePct(75))
                     target = me;
@@ -369,6 +367,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetScarletMonasteryAI<boss_high_inquisitor_whitemaneAI>(creature);
+    }
 };
 
 void AddSC_boss_mograine_and_whitemane()

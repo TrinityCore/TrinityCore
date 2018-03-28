@@ -16,13 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "blackrock_depths.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "blackrock_depths.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
-#include "GameObjectAI.h"
 
 //go_shadowforge_brazier
 class go_shadowforge_brazier : public GameObjectScript
@@ -32,29 +36,28 @@ public:
 
     struct go_shadowforge_brazierAI : public GameObjectAI
     {
-        go_shadowforge_brazierAI(GameObject* go) : GameObjectAI(go) { }
+        go_shadowforge_brazierAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
 
         bool GossipHello(Player* /*player*/) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-            {
-                if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
-                    instance->SetData(TYPE_LYCEUM, DONE);
-                else
-                    instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
-                // If used brazier open linked doors (North or South)
-                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
-                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
-                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
-            }
+            if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
+                instance->SetData(TYPE_LYCEUM, DONE);
+            else
+                instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
+            // If used brazier open linked doors (North or South)
+            if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
+            else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
             return false;
         }
     };
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_shadowforge_brazierAI(go);
+        return GetBlackrockDepthsAI<go_shadowforge_brazierAI>(go);
     }
 };
 
@@ -93,7 +96,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -125,11 +128,6 @@ class npc_grimstone : public CreatureScript
 {
 public:
     npc_grimstone() : CreatureScript("npc_grimstone") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_grimstoneAI>(creature);
-    }
 
     struct npc_grimstoneAI : public npc_escortAI
     {
@@ -224,7 +222,7 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
+                    instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
                     instance->SetData(TYPE_RING_OF_LAW, DONE);
                     TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
@@ -348,6 +346,11 @@ public:
                 npc_escortAI::UpdateAI(diff);
            }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackrockDepthsAI<npc_grimstoneAI>(creature);
+    }
 };
 
 // npc_phalanx
@@ -362,11 +365,6 @@ class npc_phalanx : public CreatureScript
 {
 public:
     npc_phalanx() : CreatureScript("npc_phalanx") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_phalanxAI(creature);
-    }
 
     struct npc_phalanxAI : public ScriptedAI
     {
@@ -424,6 +422,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
+    }
 };
 
 // npc_lokhtos_darkbargainer
@@ -489,7 +492,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_lokhtos_darkbargainerAI(creature);
+            return GetBlackrockDepthsAI<npc_lokhtos_darkbargainerAI>(creature);
         }
 };
 
@@ -535,7 +538,7 @@ class npc_rocknot : public CreatureScript
 
             void DoGo(uint32 id, uint32 state)
             {
-                if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(id)))
+                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(id)))
                     go->SetGoState((GOState)state);
             }
 
@@ -629,7 +632,7 @@ class npc_rocknot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_rocknotAI(creature);
+            return GetBlackrockDepthsAI<npc_rocknotAI>(creature);
         }
 };
 

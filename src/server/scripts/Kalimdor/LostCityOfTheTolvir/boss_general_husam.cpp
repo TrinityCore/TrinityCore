@@ -15,14 +15,16 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
-#include "Vehicle.h"
+#include "InstanceScript.h"
 #include "lost_city_of_the_tolvir.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -400,10 +402,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHOCKWAVE_VISUAL))
-                return false;
-
-            return true;
+            return ValidateSpellInfo({ SPELL_SHOCKWAVE_VISUAL });
         }
 
         void EffectScriptEffect(SpellEffIndex /*effIndex*/)
@@ -434,10 +433,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHOCKWAVE_SUMMON_EFFECT))
-                return false;
-
-            return true;
+            return ValidateSpellInfo({ SPELL_SHOCKWAVE_SUMMON_EFFECT });
         }
 
         void FilterTargets(std::list<WorldObject*>& targets)

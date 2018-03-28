@@ -16,15 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "SpellHistory.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Vehicle.h"
 #include "CombatAI.h"
+#include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 #include "WorldSession.h"
 
 /////////////////////
@@ -222,7 +224,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
@@ -528,7 +530,7 @@ class npc_brann_bronzebeard_keystone : public CreatureScript
                                 if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                     voice->AI()->Talk(SAY_VOICE_1, player);
                             }
-                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, G3D::Quat(0.f, 0.f, -0.737277f, 0.6755905f), 0))
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, QuaternionData(0.f, 0.f, -0.737277f, 0.6755905f), 0))
                                 objectGUID[objectCounter++] = go->GetGUID();
                             events.ScheduleEvent(EVENT_SCRIPT_5, 6000);
                             break;
@@ -536,7 +538,7 @@ class npc_brann_bronzebeard_keystone : public CreatureScript
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                     voice->AI()->Talk(SAY_VOICE_2, player);
-                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, G3D::Quat(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, QuaternionData(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
                                 objectGUID[objectCounter++] = go->GetGUID();
                             events.ScheduleEvent(EVENT_SCRIPT_6, 6000);
                             break;
@@ -544,7 +546,7 @@ class npc_brann_bronzebeard_keystone : public CreatureScript
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                     voice->AI()->Talk(SAY_VOICE_3, player);
-                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, G3D::Quat(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, QuaternionData(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
                                 objectGUID[objectCounter++] = go->GetGUID();
                             events.ScheduleEvent(EVENT_SCRIPT_7, 6000);
                             break;
@@ -552,7 +554,7 @@ class npc_brann_bronzebeard_keystone : public CreatureScript
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                     voice->AI()->Talk(SAY_VOICE_4, player);
-                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, G3D::Quat(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, QuaternionData(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
                                 objectGUID[objectCounter++] = go->GetGUID();
                             events.ScheduleEvent(EVENT_SCRIPT_8, 6000);
                             break;
@@ -560,7 +562,7 @@ class npc_brann_bronzebeard_keystone : public CreatureScript
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                     voice->AI()->Talk(SAY_VOICE_5, player);
-                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, G3D::Quat(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, QuaternionData(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
                                 objectGUID[objectCounter] = go->GetGUID();
                             events.ScheduleEvent(EVENT_SCRIPT_9, 6000);
                             break;
@@ -968,9 +970,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_JOKKUM_SUMMON });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1001,9 +1001,7 @@ class spell_veranus_summon : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VERANUS_AND_THORIM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_VERANUS_AND_THORIM });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1038,22 +1036,15 @@ class spell_close_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_close_rift_AuraScript);
 
-        public:
-            spell_close_rift_AuraScript()
-            {
-                _counter = 0;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT) != nullptr;
+                return ValidateSpellInfo({ SPELL_DESPAWN_RIFT });
             }
 
             void HandlePeriodic(AuraEffect const* /* aurEff */)
             {
                 if (++_counter == 5)
-                    GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
+                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_DESPAWN_RIFT, true);
             }
 
             void Register() override
@@ -1061,8 +1052,7 @@ class spell_close_rift : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_close_rift_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
 
-        private:
-            uint8 _counter;
+            uint8 _counter = 0;
 
         };
 
@@ -1084,9 +1074,7 @@ class spell_eject_passenger_wild_wyrm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIGHT_WYRM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1246,9 +1234,7 @@ class spell_low_health_trigger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1352,9 +1338,7 @@ class spell_fatal_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FATAL_STRIKE_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1431,9 +1415,7 @@ class spell_player_mount_wyrm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIGHT_WYRM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
             }
 
             void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

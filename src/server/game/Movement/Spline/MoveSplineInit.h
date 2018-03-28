@@ -20,13 +20,12 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
-#include "PathGenerator.h"
 
 class Unit;
 
 namespace Movement
 {
-    enum AnimType
+    enum AnimType : uint8
     {
         ToGround    = 0, // 460 = ToGround, index of AnimationData.dbc
         FlyToFly    = 1, // 461 = FlyToFly?
@@ -54,6 +53,9 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
+        ~MoveSplineInit();
+        MoveSplineInit(MoveSplineInit const&) = delete;
+        MoveSplineInit& operator=(MoveSplineInit const&) = delete;
 
         /*  Final pass of initialization that launches spline movement.
          */
@@ -80,17 +82,17 @@ namespace Movement
          */
         void SetFacing(float angle);
         void SetFacing(Vector3 const& point);
-        void SetFacing(const Unit* target);
+        void SetFacing(Unit const* target);
 
         /* Initializes movement by path
          * @param path - array of points, shouldn't be empty
          * @param pointId - Id of fisrt point of the path. Example: when third path point will be done it will notify that pointId + 3 done
          */
-        void MovebyPath(const PointsArray& path, int32 pointId = 0);
+        void MovebyPath(PointsArray const& path, int32 pointId = 0);
 
         /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
-        void MoveTo(const Vector3& destination, bool generatePath = true, bool forceDestination = false);
+        void MoveTo(Vector3 const& destination, bool generatePath = true, bool forceDestination = false);
         void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDestination = false);
 
         /* Sets Id of fisrt point of the path. When N-th path point will be done ILisener will notify that pointId + N done
@@ -168,18 +170,6 @@ namespace Movement
     inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
 
-    inline void MoveSplineInit::MovebyPath(const PointsArray& controls, int32 path_offset)
-    {
-        args.path_Idx_offset = path_offset;
-        args.path.resize(controls.size());
-        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
-    }
-
-    inline void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
-    {
-        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
-    }
-
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
     {
         args.time_perc = time_shift;
@@ -191,16 +181,6 @@ namespace Movement
     {
         args.time_perc = 0.f;
         args.flags.EnableAnimation((uint8)anim);
-    }
-
-    inline void MoveSplineInit::SetFacing(Vector3 const& spot)
-    {
-        TransportPathTransform transform(unit, args.TransformForTransport);
-        Vector3 finalSpot = transform(spot);
-        args.facing.f.x = finalSpot.x;
-        args.facing.f.y = finalSpot.y;
-        args.facing.f.z = finalSpot.z;
-        args.flags.EnableFacingPoint();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }

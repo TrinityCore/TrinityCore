@@ -24,11 +24,16 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "karazhan.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "karazhan.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 /***********************************/
 /*** OPERA WIZARD OF OZ EVENT *****/
@@ -115,11 +120,6 @@ class boss_dorothee : public CreatureScript
 {
 public:
     boss_dorothee() : CreatureScript("boss_dorothee") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_dorotheeAI>(creature);
-    }
 
     struct boss_dorotheeAI : public ScriptedAI
     {
@@ -229,17 +229,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_dorotheeAI>(creature);
+    }
 };
 
 class npc_tito : public CreatureScript
 {
 public:
     npc_tito() : CreatureScript("npc_tito") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_titoAI(creature);
-    }
 
     struct npc_titoAI : public ScriptedAI
     {
@@ -268,7 +268,7 @@ public:
         {
             if (DorotheeGUID)
             {
-                Creature* Dorothee = (ObjectAccessor::GetCreature((*me), DorotheeGUID));
+                Creature* Dorothee = ObjectAccessor::GetCreature((*me), DorotheeGUID);
                 if (Dorothee && Dorothee->IsAlive())
                 {
                     ENSURE_AI(boss_dorothee::boss_dorotheeAI, Dorothee->AI())->TitoDied = true;
@@ -291,6 +291,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<npc_titoAI>(creature);
+    }
 };
 
 void boss_dorothee::boss_dorotheeAI::SummonTito()
@@ -309,11 +314,6 @@ class boss_strawman : public CreatureScript
 {
 public:
     boss_strawman() : CreatureScript("boss_strawman") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_strawmanAI>(creature);
-    }
 
     struct boss_strawmanAI : public ScriptedAI
     {
@@ -368,7 +368,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* Spell) override
         {
             if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand32() % 10)))
             {
@@ -423,17 +423,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_strawmanAI>(creature);
+    }
 };
 
 class boss_tinhead : public CreatureScript
 {
 public:
     boss_tinhead() : CreatureScript("boss_tinhead") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_tinheadAI>(creature);
-    }
 
     struct boss_tinheadAI : public ScriptedAI
     {
@@ -538,17 +538,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_tinheadAI>(creature);
+    }
 };
 
 class boss_roar : public CreatureScript
 {
 public:
     boss_roar() : CreatureScript("boss_roar") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_roarAI>(creature);
-    }
 
     struct boss_roarAI : public ScriptedAI
     {
@@ -652,17 +652,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_roarAI>(creature);
+    }
 };
 
 class boss_crone : public CreatureScript
 {
 public:
     boss_crone() : CreatureScript("boss_crone") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_croneAI>(creature);
-    }
 
     struct boss_croneAI : public ScriptedAI
     {
@@ -736,17 +736,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_croneAI>(creature);
+    }
 };
 
 class npc_cyclone : public CreatureScript
 {
 public:
     npc_cyclone() : CreatureScript("npc_cyclone") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_cycloneAI(creature);
-    }
 
     struct npc_cycloneAI : public ScriptedAI
     {
@@ -787,6 +787,11 @@ public:
             } else MoveTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<npc_cycloneAI>(creature);
+    }
 };
 
 /**************************************/
@@ -834,7 +839,7 @@ class npc_grandmother : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_grandmotherAI(creature);
+            return GetKarazhanAI<npc_grandmotherAI>(creature);
         }
 };
 
@@ -842,11 +847,6 @@ class boss_bigbadwolf : public CreatureScript
 {
 public:
     boss_bigbadwolf() : CreatureScript("boss_bigbadwolf") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_bigbadwolfAI>(creature);
-    }
 
     struct boss_bigbadwolfAI : public ScriptedAI
     {
@@ -962,6 +962,11 @@ public:
             } else SwipeTimer -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_bigbadwolfAI>(creature);
+    }
 };
 
 /**********************************************/
@@ -1041,11 +1046,6 @@ class boss_julianne : public CreatureScript
 {
 public:
     boss_julianne() : CreatureScript("boss_julianne") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_julianneAI>(creature);
-    }
 
     struct boss_julianneAI : public ScriptedAI
     {
@@ -1132,7 +1132,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* Spell) override
         {
             if (Spell->Id == SPELL_DRINK_POISON)
             {
@@ -1156,17 +1156,17 @@ public:
 
         void UpdateAI(uint32 diff) override;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_julianneAI>(creature);
+    }
 };
 
 class boss_romulo : public CreatureScript
 {
 public:
     boss_romulo() : CreatureScript("boss_romulo") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_romuloAI>(creature);
-    }
 
     struct boss_romuloAI : public ScriptedAI
     {
@@ -1360,6 +1360,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_romuloAI>(creature);
+    }
 };
 
 void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)

@@ -37,6 +37,10 @@
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
+    static_assert(std::is_same<Player, T>::value
+        || std::is_same<Transport, T>::value,
+        "Only Player and Transport can be registered in global HashMapHolder");
+
     boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
@@ -56,7 +60,7 @@ T* HashMapHolder<T>::Find(ObjectGuid guid)
     boost::shared_lock<boost::shared_mutex> lock(*GetLock());
 
     typename MapType::iterator itr = GetContainer().find(guid);
-    return (itr != GetContainer().end()) ? itr->second : NULL;
+    return (itr != GetContainer().end()) ? itr->second : nullptr;
 }
 
 template<class T>

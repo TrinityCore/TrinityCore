@@ -16,8 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
 #include "black_temple.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {

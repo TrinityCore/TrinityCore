@@ -17,8 +17,12 @@
 
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "CreatureAI.h"
 #include "deadmines.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
 

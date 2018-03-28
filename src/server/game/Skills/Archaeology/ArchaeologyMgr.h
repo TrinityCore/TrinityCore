@@ -18,10 +18,11 @@
 #ifndef _ARCHAEOLOGY_MGR_H
 #define _ARCHAEOLOGY_MGR_H
 
+#include "SharedDefines.h"
 #include <map>
 #include <vector>
-#include "SitePolygonGraph.h"
-#include "Define.h"
+
+class SitePolygonGraph;
 
 #define CONTINENT_SITES 4
 #define MAX_PROJECTS 16
@@ -69,13 +70,13 @@ struct SiteEntry
 
 struct SiteData
 {
-    uint16 entry;
-    uint16 state;
-    float x;
-    float y;
-    float tele_x;
-    float tele_y;
-    float tele_angle;
+    uint16 Entry = 0;
+    uint16 State = 0;
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Tele_x = 0.0f;
+    float Tele_y = 0.0f;
+    float Tele_angle = 0.0f;
 };
 
 struct BranchEntry
@@ -88,9 +89,8 @@ struct BranchEntry
 
 struct BranchData
 {
-    uint8 branchId;
-    uint8 completedRares;
-    uint32 project;
+    uint8 CompletedRares;
+    uint32 Project;
 };
 
 struct ProjectEntry
@@ -104,49 +104,44 @@ struct ProjectEntry
     uint32 spell;
 };
 
-namespace archaeology
-{
-
 class TC_GAME_API ArchaeologyMgr
 {
-public:
-    static ArchaeologyMgr* instance();
-    void LoadData();
+    public:
+        static ArchaeologyMgr* instance();
+        void LoadData();
 
-    // Site Functionality
-    static uint32 GetFindCurrency(uint32 go_entry);
-    uint16 GetNewSite(Continent continent, SiteData *sites, bool extended, uint32 playerLevel);
-    bool SetSiteCoords(SiteData &site);
-    uint32 GetSiteType(uint16 entry);
+        // Site Functionality
+        static uint32 GetFindCurrency(uint32 go_entry);
+        uint16 GetNewSite(Continent continent, SiteData *sites, bool extended, uint32 playerLevel);
+        bool SetSiteCoords(SiteData &site);
+        uint32 GetSiteType(uint16 entry);
 
-    // Project Functionality
-    uint8 Currency2BranchId(uint32 currencyId) { return _currencyMap[currencyId]; }
-    const BranchEntry *GetBranchEntry(uint8 branchId) { return &_branchMap[branchId]; }
-    const ProjectEntry *GetProjectEntry(uint16 projectId) { return &_projects[projectId]; }
+        // Project Functionality
+        uint8 Currency2BranchId(uint32 currencyId) { return _currencyMap[currencyId]; }
+        BranchEntry const* GetBranchEntry(uint8 branchId) { return &_branchMap[branchId]; }
+        ProjectEntry const* GetProjectEntry(uint16 projectId) { return &_projects[projectId]; }
 
-    bool IsRareProject(uint16 project) { return _projects[project].rarity >= ITEM_QUALITY_RARE; }
-    uint16 GetNewProject(BranchData *branch, std::map<uint16, std::pair<int32, int32> > *completedMap, uint32 PlayerSkill);
+        bool IsRareProject(uint16 project) { return _projects[project].rarity >= ITEM_QUALITY_RARE; }
+        uint16 GetNewProject(uint8 branchId, BranchData* branch, std::map<uint16, std::pair<int32, int32>> *completedMap, uint32 PlayerSkill);
 
-private:
-    ArchaeologyMgr();
-    ~ArchaeologyMgr();
+    private:
+        ArchaeologyMgr();
+        ~ArchaeologyMgr();
 
-    bool isSiteValid(SiteData *sites, uint16 entry);
+        bool isSiteValid(SiteData *sites, uint16 entry);
 
-    std::map<uint32, std::vector<SiteEntry> >   _siteMap;
-    std::map<uint16, SitePolygonGraph* >        _polygonMap;
-    std::map<uint16, uint32>                    _objectMap;
+        std::map<uint32, std::vector<SiteEntry>>            _siteMap;
+        std::map<uint16, SitePolygonGraph*>                 _polygonMap;
+        std::map<uint16, uint32>                            _objectMap;
 
-    std::map<uint32, uint8>                     _currencyMap;       // currencyId -> branchId
-    std::map<uint8, BranchEntry>                _branchMap;    // branchId -> BranchEntry
+        std::map<uint32 /*currencyId*/, uint8 /*branchId*/> _currencyMap;
+        std::map<uint8 /*branchId*/, BranchEntry>           _branchMap;
 
-    std::map<uint16, ProjectEntry>              _projects;
-    std::map<uint8, std::vector<uint16> >       _commonProjects;
-    std::map<uint8, std::vector<uint16> >       _rareProjects;
+        std::map<uint16, ProjectEntry>                      _projects;
+        std::map<uint8, std::vector<uint16>>                _commonProjects;
+        std::map<uint8, std::vector<uint16>>                _rareProjects;
 };
 
-} // namespace archaeology
-
-#define sArchaeologyMgr archaeology::ArchaeologyMgr::instance()
+#define sArchaeologyMgr ArchaeologyMgr::instance()
 
 #endif

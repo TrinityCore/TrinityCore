@@ -24,8 +24,11 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -91,7 +94,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_morogrim_tidewalkerAI>(creature);
+        return GetSerpentshrineCavernAI<boss_morogrim_tidewalkerAI>(creature);
     }
 
     struct boss_morogrim_tidewalkerAI : public ScriptedAI
@@ -296,7 +299,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_water_globuleAI(creature);
+        return GetSerpentshrineCavernAI<npc_water_globuleAI>(creature);
     }
 
     struct npc_water_globuleAI : public ScriptedAI

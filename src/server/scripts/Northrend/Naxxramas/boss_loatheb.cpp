@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -172,9 +173,7 @@ class spell_loatheb_deathbloom : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEATHBLOOM_FINAL_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEATHBLOOM_FINAL_DAMAGE });
             }
 
             void AfterRemove(AuraEffect const* eff, AuraEffectHandleModes /*mode*/)

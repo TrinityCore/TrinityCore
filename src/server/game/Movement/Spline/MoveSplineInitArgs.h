@@ -20,7 +20,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
-#include <G3D/Vector3.h>
+#include <vector>
 
 class Unit;
 
@@ -43,12 +43,8 @@ namespace Movement
 
     struct MoveSplineInitArgs
     {
-        MoveSplineInitArgs(size_t path_capacity = 16) : path_Idx_offset(0), velocity(0.f),
-            parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f),
-            HasVelocity(false), TransformForTransport(true)
-        {
-            path.reserve(path_capacity);
-        }
+        MoveSplineInitArgs(size_t path_capacity = 16);
+        ~MoveSplineInitArgs();
 
         PointsArray path;
         FacingInfo facing;

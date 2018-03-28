@@ -17,11 +17,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "the_black_morass.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "the_black_morass.h"
 
 enum MedivhBm
 {
@@ -54,11 +58,6 @@ class npc_medivh_bm : public CreatureScript
 {
 public:
     npc_medivh_bm() : CreatureScript("npc_medivh_bm") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_medivh_bmAI>(creature);
-    }
 
     struct npc_medivh_bmAI : public ScriptedAI
     {
@@ -139,7 +138,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (SpellCorrupt_Timer)
                 return;
@@ -203,7 +202,7 @@ public:
                     //if we reach this it means event was running but at some point reset.
                     if (instance->GetData(TYPE_MEDIVH) == NOT_STARTED)
                     {
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                         me->RemoveCorpse();
                         me->Respawn();
                         return;
@@ -230,6 +229,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackMorassAI<npc_medivh_bmAI>(creature);
+    }
 };
 
 struct Wave
@@ -248,11 +251,6 @@ class npc_time_rift : public CreatureScript
 {
 public:
     npc_time_rift() : CreatureScript("npc_time_rift") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_time_riftAI>(creature);
-    }
 
     struct npc_time_riftAI : public ScriptedAI
     {
@@ -350,6 +348,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackMorassAI<npc_time_riftAI>(creature);
+    }
 };
 
 void AddSC_the_black_morass()

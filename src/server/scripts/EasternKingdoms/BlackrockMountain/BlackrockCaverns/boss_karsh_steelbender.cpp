@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_caverns.h"
+#include "ScriptedCreature.h"
 
 enum Text
 {

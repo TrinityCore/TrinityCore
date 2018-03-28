@@ -18,8 +18,7 @@
 #ifndef FIRELANDS_H_
 #define FIRELANDS_H_
 
-#include "Map.h"
-#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 
 #define DataHeader "FL"
 #define FirelandsScriptName "instance_firelands"
@@ -66,29 +65,10 @@ enum GameobjectIds
     GO_RAGNAROS_DOOR                = 209073,
 };
 
-class DelayedAttackStartEvent : public BasicEvent
+template <class AI, class T>
+inline AI* GetFirelandsAI(T* obj)
 {
-    public:
-        DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
-
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/)
-        {
-            _owner->AI()->DoZoneInCombat(_owner, 200.0f);
-            return true;
-        }
-
-    private:
-        Creature* _owner;
-};
-
-template<class AI>
-CreatureAI* GetFirelandsAI(Creature* creature)
-{
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(FirelandsScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(obj, FirelandsScriptName);
 }
 
 #endif // FIRELANDS_H_

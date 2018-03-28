@@ -204,12 +204,7 @@ class BattlegroundTPScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final
-        {
-            data.WriteBits(2, 24); // Objectives Count
-            content << uint32(FlagCaptures);
-            content << uint32(FlagReturns);
-        }
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override;
 
         uint32 GetAttr1() const final override { return FlagCaptures; }
         uint32 GetAttr2() const final override { return FlagReturns; }

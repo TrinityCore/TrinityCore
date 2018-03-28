@@ -16,12 +16,13 @@
 */
 
 #include "ArchaeologyMgr.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "Log.h"
+#include "Random.h"
+#include "SitePolygonGraph.h"
 #include "SpellMgr.h"
 #include "Timer.h"
-
-namespace archaeology
-{
 
 ArchaeologyMgr::ArchaeologyMgr()
 {
@@ -230,8 +231,8 @@ void ArchaeologyMgr::LoadData()
 
 bool ArchaeologyMgr::isSiteValid(SiteData* sites, uint16 entry)
 {
-    for (uint32 i = 0; i < CONTINENT_SITES; i++)
-        if (sites[i].entry == entry)
+    for (uint32 i = 0; i < CONTINENT_SITES; ++i)
+        if (sites[i].Entry == entry)
             return false;
 
     return true;
@@ -262,14 +263,14 @@ uint16 ArchaeologyMgr::GetNewSite(Continent continent, SiteData* sites, bool ext
 
 bool ArchaeologyMgr::SetSiteCoords(SiteData &site)
 {
-    if (SitePolygonGraph* poly = _polygonMap[site.entry])
+    if (SitePolygonGraph* poly = _polygonMap[site.Entry])
     {
         // Calculate random point of interest
         SitePolygonGraphNode node = poly->randomize_poi();
 
         // Get random point into Polygon
-        site.x = node.getX();
-        site.y = node.getY();
+        site.X = node.getX();
+        site.Y = node.getY();
 
         return true;
     }
@@ -310,24 +311,23 @@ uint32 ArchaeologyMgr::GetFindCurrency(uint32 go_entry)
     return 0;
 }
 
-uint16 ArchaeologyMgr::GetNewProject(BranchData* branch, std::map<uint16, std::pair<int32, int32> >* completedMap, uint32 playerSkill)
+uint16 ArchaeologyMgr::GetNewProject(uint8 branchId, BranchData* branch, std::map<uint16, std::pair<int32, int32>>* completedMap, uint32 playerSkill)
 {
-    uint8 branchId = branch->branchId;
     std::vector<uint16>* _rares = &_rareProjects[branchId];
     std::vector<uint16>* _commons = &_commonProjects[branchId];
 
-    float rareChance = float(_rares->size() - branch->completedRares) / float(_commons->size() + _rares->size());
+    float rareChance = float(_rares->size() - branch->CompletedRares) / float(_commons->size() + _rares->size());
     float roll1 = frand(.0f, 1.0f);
 
     // Are we eligible for a Rare Project ?
     if (rareChance > roll1)
     {
-        float roll2 = frand(.0f, 1.0f);
+        float roll2 = float(rand_norm());
         float rareChance = _branchMap[branchId].rareChance;
 
         for (std::vector<uint16>::iterator itr = _rares->begin(); itr != _rares->end(); ++itr)
         {
-            float chance = (_projects[*itr].rarity == ITEM_QUALITY_RARE)? rareChance: EPIC_CHANCE;
+            float chance = (_projects[*itr].rarity == ITEM_QUALITY_RARE) ? rareChance : EPIC_CHANCE;
 
             // Are we in our choose range ?
             if (chance < roll2)
@@ -354,7 +354,7 @@ uint16 ArchaeologyMgr::GetNewProject(BranchData* branch, std::map<uint16, std::p
 
     uint32 secondArtifact = 0;
 
-    for (uint16 itr = begin; itr != end ; itr = (itr + 1) % _commons->size())
+    for (uint16 itr = begin; itr != end; itr = (itr + 1) % _commons->size())
     {
         uint16 projectId = _commons->at(itr);
 
@@ -376,5 +376,3 @@ uint16 ArchaeologyMgr::GetNewProject(BranchData* branch, std::map<uint16, std::p
     // looks like we didn't find an eligible common artifact => relax the non repetitive restriction
     return secondArtifact;
 }
-
-} // namespace archaeology

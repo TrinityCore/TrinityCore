@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
 
 enum Phases
 {
@@ -66,9 +67,9 @@ enum Adds
     N_CHAMPION_SPELLS = 6,
     N_GUARDIAN_SPELLS = 3
 };
-const uint32 SummonWarriorSpells[N_WARRIOR_SPELLS] = { 29247, 29248, 29249 };
-const uint32 SummonChampionSpells[N_CHAMPION_SPELLS] = { 29238, 29255, 29257, 29258, 29262, 29267 };
-const uint32 SummonGuardianSpells[N_GUARDIAN_SPELLS] = { 29239, 29256, 29268 };
+uint32 const SummonWarriorSpells[N_WARRIOR_SPELLS] = { 29247, 29248, 29249 };
+uint32 const SummonChampionSpells[N_CHAMPION_SPELLS] = { 29238, 29255, 29257, 29258, 29262, 29267 };
+uint32 const SummonGuardianSpells[N_GUARDIAN_SPELLS] = { 29239, 29256, 29268 };
 
 #define SPELL_BLINK                 RAND(29208, 29209, 29210, 29211)
 
@@ -335,7 +336,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nothAI>(creature);
+        return GetNaxxramasAI<boss_nothAI>(creature);
     }
 };
 

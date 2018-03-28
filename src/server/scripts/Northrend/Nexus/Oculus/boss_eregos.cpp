@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "oculus.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "oculus.h"
 
 // Types of drake mounts: Ruby (Tank), Amber (DPS), Emerald (Healer)
 // Two Repeating phases
@@ -258,7 +258,7 @@ class boss_eregos : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_eregosAI(creature);
+            return GetOculusAI<boss_eregosAI>(creature);
         }
 };
 

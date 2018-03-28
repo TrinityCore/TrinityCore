@@ -16,11 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
 #include "ahnkahet.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -254,7 +260,7 @@ class boss_prince_taldaram : public CreatureScript
                 if (_embraceTargetGUID)
                     return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
-                return NULL;
+                return nullptr;
             }
 
             void RemovePrison()
@@ -383,14 +389,12 @@ class go_prince_taldaram_sphere : public GameObjectScript
 
         struct go_prince_taldaram_sphereAI : public GameObjectAI
         {
-            go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go) { }
+            go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* /*player*/) override
             {
-                InstanceScript* instance = me->GetInstanceScript();
-                if (!instance)
-                    return false;
-
                 Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRINCE_TALDARAM));
                 if (PrinceTaldaram && PrinceTaldaram->IsAlive())
                 {
@@ -417,7 +421,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_prince_taldaram_sphereAI(go);
+            return GetAhnKahetAI<go_prince_taldaram_sphereAI>(go);
         }
 };
 
@@ -433,11 +437,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_3))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLAME_SPHERE_SUMMON_1, SPELL_FLAME_SPHERE_SUMMON_2, SPELL_FLAME_SPHERE_SUMMON_3 });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
