@@ -70,6 +70,13 @@ BattlegroundTP::BattlegroundTP()
     _minutesElapsed = 0;
 }
 
+void BattlegroundTPScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
+{
+    data.WriteBits(2, 24); // Objectives Count
+    content << uint32(FlagCaptures);
+    content << uint32(FlagReturns);
+}
+
 BattlegroundTP::~BattlegroundTP() { }
 
 void BattlegroundTP::PostUpdateImpl(uint32 diff)
