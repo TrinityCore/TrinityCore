@@ -91,7 +91,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 
     void update(uint32 difftime)
     {
-        if (!size())
+        if (empty())
             return;
 
         rebalance_timer.Update(difftime);
@@ -132,11 +132,6 @@ bool DynamicMapTree::contains(const GameObjectModel& mdl) const
 void DynamicMapTree::balance()
 {
     impl->balance();
-}
-
-int DynamicMapTree::size() const
-{
-    return impl->size();
 }
 
 void DynamicMapTree::update(uint32 t_diff)
