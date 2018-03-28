@@ -21,6 +21,7 @@
 #include "SocketMgr.h"
 #include "Session.h"
 #include <functional>
+#include <list>
 
 namespace Battlenet
 {

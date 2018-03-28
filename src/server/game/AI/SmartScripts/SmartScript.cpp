@@ -1744,10 +1744,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (WorldObject* target : targets)
             {
-                if (Creature* target = target->ToCreature())
+                if (Creature* creature = target->ToCreature())
                 {
-                    if (IsSmart(target))
-                        ENSURE_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
+                    if (IsSmart(creature))
+                        ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, id, GetLastInvoker());
                 }
                 else if (GameObject* goTarget = target->ToGameObject())
                 {
@@ -2067,9 +2067,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (WorldObject* target : targets)
             {
-                if (Creature* target = target->ToCreature())
+                if (Creature* creature = target->ToCreature())
                 {
-                    if (IsSmart(target))
+                    if (IsSmart(creature))
                     {
                         for (uint32 wp : waypoints)
                         {
@@ -2082,7 +2082,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             {
                                 if (WayPoint* wp = itrWp->second)
                                 {
-                                    float distToThisPath = target->GetDistance(wp->x, wp->y, wp->z);
+                                    float distToThisPath = creature->GetDistance(wp->x, wp->y, wp->z);
                                     if (distToThisPath < distanceToClosest)
                                     {
                                         distanceToClosest = distToThisPath;
@@ -2093,7 +2093,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         if (closestWp)
-                            CAST_AI(SmartAI, target->AI())->StartPath(false, closestWp->id, true);
+                            CAST_AI(SmartAI, creature->AI())->StartPath(false, closestWp->id, true);
                     }
                 }
             }
