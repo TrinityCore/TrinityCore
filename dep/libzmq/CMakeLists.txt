@@ -111,10 +111,6 @@ if (POLLER STREQUAL "")
     set (CMAKE_REQUIRED_INCLUDES)
     if (HAVE_EPOLL)
         set (POLLER "epoll")
-        check_function_exists (epoll_create1 HAVE_EPOLL_CLOEXEC)
-        if (HAVE_EPOLL_CLOEXEC)
-            set (ZMQ_USE_EPOLL_CLOEXEC 1)
-        endif ()
     endif ()
 endif ()
 
@@ -176,10 +172,21 @@ endif ()
 
 include (CheckIncludeFiles)
 
-check_include_files (ifaddrs.h ZMQ_HAVE_IFADDRS)
+set(ADDITIONAL_DEFINES "")
+check_include_files (ifaddrs.h HAVE_IFADDRS)
+if (HAVE_IFADDRS)
+  list(APPEND ADDITIONAL_DEFINES -DZMQ_HAVE_IFADDRS)
+endif()
 
-check_include_files (sys/uio.h ZMQ_HAVE_UIO)
-check_include_files (sys/eventfd.h ZMQ_HAVE_EVENTFD)
+check_include_files (sys/uio.h HAVE_UIO)
+if (HAVE_UIO)
+  list(APPEND ADDITIONAL_DEFINES -DZMQ_HAVE_UIO)
+endif()
+
+check_include_files (sys/eventfd.h HAVE_EVENTFD)
+if (HAVE_EVENTFD)
+  list(APPEND ADDITIONAL_DEFINES -DZMQ_HAVE_EVENTFD)
+endif()
 
 add_library(libzmq STATIC ${libzmq_STAT_SRCS})
 
@@ -205,4 +212,5 @@ target_compile_definitions(libzmq
   PUBLIC
     -DZMQ_USE_${UPPER_POLLER}
     -DZMQ_STATIC
-    ${ZMQ_PLATFORM})
+    ${ZMQ_PLATFORM}
+    ${ADDITIONAL_DEFINES})
