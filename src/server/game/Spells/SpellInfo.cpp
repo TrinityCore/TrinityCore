@@ -3558,7 +3558,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             if (SpellFamilyFlags[0] == 0x00000800)
                 return false;
             // Arcane Missiles
-            if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
+            if (SpellFamilyFlags[0] == 0x00000800)
                 return false;
             break;
         case SPELLFAMILY_PRIEST:
