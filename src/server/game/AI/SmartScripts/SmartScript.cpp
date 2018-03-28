@@ -1446,7 +1446,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             e.GetTargetType() == SMART_TARGET_SELF || e.GetTargetType() == SMART_TARGET_STORED)*/
             {
                 // we want to move to random element
-                target = Trinity::Containers::SelectRandomContainerElement(targets);
+                if (!targets.empty())
+                    target = Trinity::Containers::SelectRandomContainerElement(targets);
             }
 
             if (!target)
