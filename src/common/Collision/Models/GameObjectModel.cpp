@@ -177,6 +177,33 @@ bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool sto
     return hit;
 }
 
+void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const
+{
+    if (!isCollisionEnabled() || !owner->IsSpawned())
+        return;
+
+    if (!owner->IsInPhase(phaseShift))
+        return;
+
+    if (!iBound.contains(point))
+        return;
+
+    // child bounds are defined in object space:
+    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
+    Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+    float zDist;
+    if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
+    {
+        Vector3 modelGround = pModel + zDist * zDirModel;
+        float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
+        if (info.ground_Z < world_Z)
+        {
+            info.ground_Z = world_Z;
+            info.adtId = owner->GetNameSetId();
+        }
+    }
+}
+
 bool GameObjectModel::UpdatePosition()
 {
     if (!iModel)

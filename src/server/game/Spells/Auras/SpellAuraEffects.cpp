@@ -4946,7 +4946,7 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
     if (apply)
         aurApp->GetTarget()->RemoveFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER);
-    else if (!aurApp->GetTarget()->GetBaseMap()->Instanceable())
+    else if (!aurApp->GetTarget()->GetMap()->Instanceable())
         aurApp->GetTarget()->SetFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER);
 }
 
