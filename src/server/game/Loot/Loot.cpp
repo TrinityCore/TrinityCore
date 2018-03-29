@@ -77,7 +77,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
         return false;
 
-    if (type == LOOT_ITEM_TYPE_ITEM)
+    if (!currency)
     {
         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
         if (!pProto)
