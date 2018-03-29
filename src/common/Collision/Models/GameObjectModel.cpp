@@ -22,6 +22,7 @@
 #include "WorldModel.h"
 #include "GameObjectModel.h"
 #include "Log.h"
+#include "MapTree.h"
 #include "Timer.h"
 
 using G3D::Vector3;
