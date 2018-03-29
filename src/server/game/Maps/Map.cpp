@@ -2338,15 +2338,7 @@ float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y,
         LiquidData liquid_status;
 
         ZLiquidStatus res = GetLiquidStatus(phaseShift, x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
-        switch (res)
-        {
-            case LIQUID_MAP_ABOVE_WATER:
-                return std::max<float>(liquid_status.level, ground_z);
-            case LIQUID_MAP_NO_WATER:
-                return ground_z;
-            default:
-                return liquid_status.level;
-        }
+        return res ? liquid_status.level : ground_z;
     }
 
     return VMAP_INVALID_HEIGHT_VALUE;

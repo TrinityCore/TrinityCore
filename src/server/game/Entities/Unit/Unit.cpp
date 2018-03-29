@@ -14152,7 +14152,8 @@ bool Unit::SetSwim(bool enable)
     if (enable)
     {
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-        SetDisableGravity(true);
+        if (IsUnderWater())
+            SetDisableGravity(true);
     }
     else
     {
