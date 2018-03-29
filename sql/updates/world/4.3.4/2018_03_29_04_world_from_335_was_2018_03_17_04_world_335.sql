@@ -1,3 +1,4 @@
+/*
 -- Takar the Seer
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=6244;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6244 AND `source_type`=0;
@@ -50,3 +51,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (6245,0,0,"So this... this is how it ends, my love...",12,7,100,0,0,0,2316,0,"Anathera"),
 (6246,0,0,"Anathera!",12,7,100,15,0,0,2313,0,"Latherion"),
 (6246,1,0,"Anathera... I cannot bear to face the rest of eternity without you by my side... If you are taken from me, then let this be the day I also return to the earth...",12,7,100,0,0,0,2315,0,"Latherion");
+*/

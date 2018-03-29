@@ -1,3 +1,4 @@
+/*
 -- Tormus Deepforge
 DELETE FROM `creature_text` WHERE `CreatureID`=6031;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -25,3 +26,4 @@ DELETE FROM `waypoints` WHERE `entry`=6031;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (6031,1,-4798.04,-1104.75,499.605,""),
 (6031,2,-4793.38,-1098.17,498.89,"");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Grimand Elmore
 DELETE FROM `creature_text` WHERE `CreatureID`=1416 AND `GroupID` IN (2,3);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -16,3 +17,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (141601,9,5,0,0,0,100,0,1000,1000,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,2.286,"Grimand Elmore - On Script - Set Orientation"),
 (141601,9,6,0,0,0,100,0,0,0,0,0,1,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grimand Elmore - On Script - Say Line 3"),
 (141601,9,7,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grimand Elmore - On Script - Add Npc Flag Questgiver+Gossip");
+*/

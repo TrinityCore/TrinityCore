@@ -1,3 +1,4 @@
+/*
 -- Winna Hazzard
 DELETE FROM `creature_text` WHERE `CreatureID`=9996;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -31,3 +32,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Fix position and add random movement for Winna's Kitten
 UPDATE `creature` SET `position_x`=5126.69, `position_y`=-332.264, `position_z`=356.926, `spawndist`=8, `MovementType`=1 WHERE `guid`=39704;
+*/

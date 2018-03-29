@@ -1,3 +1,4 @@
+/*
 -- Donova Snowden
 DELETE FROM `creature_text` WHERE `CreatureID`=9298 AND `GroupID` IN (3,4,5,6,7,8);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -37,3 +38,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (929801,1,6364.47,-2522.52,527.093,""),
 (929801,2,6370.08,-2523.34,532.122,""),
 (929801,3,6395.57,-2536.75,541.548,"");
+*/

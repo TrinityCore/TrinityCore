@@ -1,3 +1,4 @@
+/*
 -- Klockmort Spannerspan
 DELETE FROM `creature_text` WHERE `CreatureID`=6169;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -27,3 +28,4 @@ DELETE FROM `waypoints` WHERE `entry`=6169;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (6169,1,-4815,-1250.3,501.915,""),
 (6169,2,-4812.48,-1250.62,502.014,"");
+*/

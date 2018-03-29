@@ -1,3 +1,4 @@
+/*
 -- Furen Longbeard
 DELETE FROM `creature_text` WHERE `CreatureID`=5413;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -34,3 +35,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (5413,2,-8426.26,613.757,95.269,""),
 (5413,3,-8428.98,607.758,95.1228,""),
 (5413,4,-8427,600.092,94.706,"");
+*/

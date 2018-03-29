@@ -1,3 +1,4 @@
+/*
 -- 
 -- Summoned Voidwalker
 DELETE FROM `smart_scripts` WHERE `entryorguid`=5676 AND `source_type`=0 AND `id` IN (2,3);
@@ -20,3 +21,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=5677;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (5677,0,0,"Interesting... Now this is more than I expected. Delicious...",12,8,100,0,0,0,1991,0,"Summoned Succubus");
+*/

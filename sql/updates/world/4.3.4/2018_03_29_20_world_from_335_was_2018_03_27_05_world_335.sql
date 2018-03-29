@@ -1,3 +1,4 @@
+/*
 -- Yorus Barleybrew
 DELETE FROM `creature_text` WHERE `CreatureID`=6166;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -15,3 +16,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (616600,9,3,0,0,0,100,0,3500,3500,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Yorus Barleybrew - On Script - Say Line 1"),
 (616600,9,4,0,0,0,100,0,3500,3500,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Yorus Barleybrew - On Script - Say Line 1"),
 (616600,9,5,0,0,0,100,0,3000,3000,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Yorus Barleybrew - On Script - Add Npc Flag Questgiver");
+*/

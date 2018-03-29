@@ -1,3 +1,4 @@
+/*
 -- Vindicator Vedaar --> Fix Gossip Texts
 DELETE FROM `gossip_menu` WHERE `MenuID`=7407 AND `TextID` IN (8878,8877);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -15,3 +16,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,7407,8878,0,0,8,0,9522,0,0,1,0,0,"","Show gossip text 8878 if quest 'Never Again!' is NOT rewarded"),
 (14,7407,8877,0,0,8,0,9516,0,0,0,0,0,"","Show gossip text 8877 if quest 'Destroy the Legion' is rewarded"),
 (14,7407,8877,0,0,8,0,9522,0,0,0,0,0,"","Show gossip text 8877 if quest 'Never Again!' is rewarded");
+*/
