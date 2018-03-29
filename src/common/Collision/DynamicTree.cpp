@@ -17,16 +17,13 @@
  */
 
 #include "DynamicTree.h"
-//#include "QuadTree.h"
-//#include "RegularGrid.h"
 #include "BoundingIntervalHierarchyWrapper.h"
-
+#include "GameObjectModel.h"
 #include "Log.h"
+#include "MapTree.h"
+#include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
-#include "GameObjectModel.h"
-#include "ModelInstance.h"
-
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
@@ -91,7 +88,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 
     void update(uint32 difftime)
     {
-        if (!size())
+        if (empty())
             return;
 
         rebalance_timer.Update(difftime);
@@ -134,11 +131,6 @@ void DynamicMapTree::balance()
     impl->balance();
 }
 
-int DynamicMapTree::size() const
-{
-    return impl->size();
-}
-
 void DynamicMapTree::update(uint32 t_diff)
 {
     impl->update(t_diff);
@@ -159,6 +151,22 @@ struct DynamicTreeIntersectionCallback
 private:
     bool _didHit;
     PhaseShift const& _phaseShift;
+};
+
+struct DynamicTreeAreaInfoCallback
+{
+    DynamicTreeAreaInfoCallback(PhaseShift const& phaseShift) : _phaseShift(phaseShift) {}
+
+    void operator()(G3D::Vector3 const& p, GameObjectModel const& obj)
+    {
+        obj.intersectPoint(p, _areaInfo, _phaseShift);
+    }
+
+    VMAP::AreaInfo const& GetAreaInfo() const { return _areaInfo; }
+
+private:
+    PhaseShift const& _phaseShift;
+    VMAP::AreaInfo _areaInfo;
 };
 
 bool DynamicMapTree::getIntersectionTime(G3D::Ray const& ray, G3D::Vector3 const& endPos, PhaseShift const& phaseShift, float& maxDist) const
@@ -234,4 +242,21 @@ float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, 
         return v.z - maxSearchDist;
     else
         return -G3D::finf();
+}
+
+bool DynamicMapTree::getAreaInfo(float x, float y, float& z, PhaseShift const& phaseShift, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
+{
+    G3D::Vector3 v(x, y, z + 0.5f);
+    DynamicTreeAreaInfoCallback intersectionCallBack(phaseShift);
+    impl->intersectPoint(v, intersectionCallBack);
+    if (intersectionCallBack.GetAreaInfo().result)
+    {
+        flags = intersectionCallBack.GetAreaInfo().flags;
+        adtId = intersectionCallBack.GetAreaInfo().adtId;
+        rootId = intersectionCallBack.GetAreaInfo().rootId;
+        groupId = intersectionCallBack.GetAreaInfo().groupId;
+        z = intersectionCallBack.GetAreaInfo().ground_Z;
+        return true;
+    }
+    return false;
 }

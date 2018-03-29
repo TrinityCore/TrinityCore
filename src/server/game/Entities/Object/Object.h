@@ -497,9 +497,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Map* FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
 
-        //this function should be removed in nearest time...
-        Map const* GetBaseMap() const;
-
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
