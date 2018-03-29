@@ -103,9 +103,27 @@ struct map_info
     int32 parent_id;
 };
 
+struct LiquidMaterialEntry
+{
+    int8 LVF;
+};
+
+struct LiquidObjectEntry
+{
+    int16 LiquidTypeID;
+};
+
+struct LiquidTypeEntry
+{
+    uint8 SoundBank;
+    uint8 MaterialID;
+};
+
 std::map<uint32, map_info> map_ids;
 std::unordered_set<uint32> maps_that_are_parents;
-uint16 *LiqType = 0;
+std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
+std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
+std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
 char output_path[128]=".";
 char input_path[1024]=".";
 bool preciseVectorData = false;
@@ -252,7 +270,47 @@ void strToLower(char* str)
 }
 
 // copied from contrib/extractor/System.cpp
-void ReadLiquidTypeTableDBC()
+void ReadLiquidMaterialTable()
+{
+    printf("Read LiquidMaterial.dbc file...\n");
+
+    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidMaterial.dbc");
+    if (!dbc.open())
+    {
+        printf("Fatal error: Invalid LiquidMaterial.dbc file format!\n");
+        exit(1);
+    }
+
+    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
+    {
+        LiquidMaterialEntry& liquidType = LiquidMaterials[dbc.getRecord(x).getUInt(0)];
+        liquidType.LVF = dbc.getRecord(x).getUInt(1);
+    }
+
+    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
+}
+
+void ReadLiquidObjectTable()
+{
+    printf("Read LiquidObject.dbc file...\n");
+
+    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidObject.dbc");
+    if (!dbc.open())
+    {
+        printf("Fatal error: Invalid LiquidObject.dbc file format!\n");
+        exit(1);
+    }
+
+    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
+    {
+        LiquidObjectEntry& liquidType = LiquidObjects[dbc.getRecord(x).getUInt(0)];
+        liquidType.LiquidTypeID = dbc.getRecord(x).getUInt(3);
+    }
+
+    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());
+}
+
+void ReadLiquidTypeTable()
 {
     printf("Read LiquidType.dbc file...");
 
@@ -263,15 +321,14 @@ void ReadLiquidTypeTableDBC()
         exit(1);
     }
 
-    size_t LiqType_count = dbc.getRecordCount();
-    size_t LiqType_maxid = dbc.getRecord(LiqType_count - 1).getUInt(0);
-    LiqType = new uint16[LiqType_maxid + 1];
-    memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
+    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
+    {
+        LiquidTypeEntry& liquidType = LiquidTypes[dbc.getRecord(x).getUInt(0)];
+        liquidType.SoundBank = dbc.getRecord(x).getUInt(3);
+        liquidType.MaterialID = dbc.getRecord(x).getUInt(14);
+    }
 
-    for(uint32 x = 0; x < LiqType_count; ++x)
-        LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
-
-    printf("Done! (%u LiqTypes loaded)\n", (unsigned int)LiqType_count);
+    printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
 }
 
 bool ExtractWmo()
@@ -573,7 +630,9 @@ int main(int argc, char ** argv)
         break;
     }
 
-    ReadLiquidTypeTableDBC();
+    ReadLiquidMaterialTable();
+    ReadLiquidObjectTable();
+    ReadLiquidTypeTable();
 
     // extract data
     if (success)
@@ -627,6 +686,5 @@ int main(int argc, char ** argv)
     }
 
     printf("Extract %s. Work complete. No errors.\n", versionString);
-    delete [] LiqType;
     return 0;
 }

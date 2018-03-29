@@ -1049,7 +1049,6 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
         AddToGrid(player, new_cell);
     }
 
-    player->UpdatePositionData();
     player->UpdateObjectVisibility(false);
 }
 
@@ -1084,7 +1083,6 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
         if (creature->IsVehicle())
             creature->GetVehicleKit()->RelocatePassengers();
         creature->UpdateObjectVisibility(false);
-        creature->UpdatePositionData();
         RemoveCreatureFromMoveList(creature);
     }
 
@@ -1115,7 +1113,6 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
     {
         go->Relocate(x, y, z, orientation);
         go->UpdateModelPosition();
-        go->UpdatePositionData();
         go->UpdateObjectVisibility(false);
         RemoveGameObjectFromMoveList(go);
     }
@@ -1148,7 +1145,6 @@ void Map::DynamicObjectRelocation(DynamicObject* dynObj, float x, float y, float
     else
     {
         dynObj->Relocate(x, y, z, orientation);
-        dynObj->UpdatePositionData();
         dynObj->UpdateObjectVisibility(false);
         RemoveDynamicObjectFromMoveList(dynObj);
     }
@@ -1242,7 +1238,6 @@ void Map::MoveAllCreaturesInMoveList()
             if (c->IsVehicle())
                 c->GetVehicleKit()->RelocatePassengers();
             //CreatureRelocationNotify(c, new_cell, new_cell.cellCoord());
-            c->UpdatePositionData();
             c->UpdateObjectVisibility(false);
         }
         else
@@ -1297,7 +1292,6 @@ void Map::MoveAllGameObjectsInMoveList()
             // update pos
             go->Relocate(go->_newPosition);
             go->UpdateModelPosition();
-            go->UpdatePositionData();
             go->UpdateObjectVisibility(false);
         }
         else
@@ -1342,7 +1336,6 @@ void Map::MoveAllDynamicObjectsInMoveList()
         {
             // update pos
             dynObj->Relocate(dynObj->_newPosition);
-            dynObj->UpdatePositionData();
             dynObj->UpdateObjectVisibility(false);
         }
         else
@@ -1563,7 +1556,6 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
         c->Relocate(resp_x, resp_y, resp_z, resp_o);
         c->GetMotionMaster()->Initialize();                 // prevent possible problems with default move generators
         //CreatureRelocationNotify(c, resp_cell, resp_cell.GetCellCoord());
-        c->UpdatePositionData();
         c->UpdateObjectVisibility(false);
         return true;
     }
@@ -1589,7 +1581,6 @@ bool Map::GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly)
     if (GameObjectCellRelocation(go, resp_cell))
     {
         go->Relocate(resp_x, resp_y, resp_z, resp_o);
-        go->UpdatePositionData();
         go->UpdateObjectVisibility(false);
         return true;
     }
@@ -2500,6 +2491,11 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
     return areaId;
 }
 
+uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) const
+{
+    return GetAreaId(phaseShift, x, y, z, nullptr);
+}
+
 uint32 Map::GetZoneId(PhaseShift const& phaseShift, float x, float y, float z) const
 {
     uint32 areaId = GetAreaId(phaseShift, x, y, z);
@@ -2612,108 +2608,6 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
     return result;
 }
 
-void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType) const
-{
-    VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-    VMAP::AreaAndLiquidData vmapData;
-    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
-    vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, reqLiquidType, vmapData);
-    if (vmapData.areaInfo)
-        data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
-
-    float mapHeight = VMAP_INVALID_HEIGHT;
-    GridMap* gmap = const_cast<Map*>(this)->GetGrid(terrainMapId, x, y);
-    if (gmap)
-        mapHeight = gmap->getHeight(x, y);
-
-    // area lookup
-    AreaTableEntry const* areaEntry = nullptr;
-    if (vmapData.areaInfo && (z + 2.0f <= mapHeight || mapHeight <= vmapData.floorZ))
-        if (WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId))
-            areaEntry = sAreaTableStore.LookupEntry(wmoEntry->areaId);
-
-    data.areaId = 0;
-
-    if (areaEntry)
-    {
-        data.floorZ = vmapData.floorZ;
-        data.areaId = areaEntry->ID;
-    }
-    else
-    {
-        data.floorZ = mapHeight;
-        if (gmap)
-            data.areaId = gmap->getArea(x, y);
-        else
-            data.areaId = 0;
-
-        if (!data.areaId)
-            data.areaId = i_mapEntry->linked_zone;
-
-        if (data.areaId)
-            areaEntry = sAreaTableStore.LookupEntry(data.areaId);
-    }
-
-    // liquid processing
-    data.liquidStatus = LIQUID_MAP_NO_WATER;
-    if (vmapData.liquidInfo && vmapData.liquidInfo->level > vmapData.floorZ && z + 2.0f > vmapData.floorZ)
-    {
-        uint32 liquidType = vmapData.liquidInfo->type;
-        if (GetId() == 530 && liquidType == 2) // gotta love blizzard hacks
-            liquidType = 15;
-
-        uint32 liquidFlagType = 0;
-        if (LiquidTypeEntry const* liquidData = sLiquidTypeStore.LookupEntry(liquidType))
-            liquidFlagType = liquidData->Type;
-
-        if (liquidType && liquidType < 21 && areaEntry)
-        {
-            uint32 overrideLiquid = areaEntry->LiquidTypeOverride[liquidFlagType];
-            if (!overrideLiquid && areaEntry->zone)
-            {
-                AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(areaEntry->zone);
-                if (zoneEntry)
-                    overrideLiquid = zoneEntry->LiquidTypeOverride[liquidFlagType];
-            }
-
-            if (LiquidTypeEntry const* overrideData = sLiquidTypeStore.LookupEntry(overrideLiquid))
-            {
-                liquidType = overrideLiquid;
-                liquidFlagType = overrideData->Type;
-            }
-        }
-
-        data.liquidInfo = boost::in_place();
-        data.liquidInfo->level = vmapData.liquidInfo->level;
-        data.liquidInfo->depth_level = vmapData.floorZ;
-        data.liquidInfo->entry = liquidType;
-        data.liquidInfo->type_flags = 1 << liquidFlagType;
-
-        float delta = vmapData.liquidInfo->level - z;
-        if (delta > 2.0f)
-            data.liquidStatus = LIQUID_MAP_UNDER_WATER;
-        else if (delta > 0.0f)
-            data.liquidStatus = LIQUID_MAP_IN_WATER;
-        else if (delta > -0.1f)
-            data.liquidStatus = LIQUID_MAP_WATER_WALK;
-        else
-            data.liquidStatus = LIQUID_MAP_ABOVE_WATER;
-    }
-    // look up liquid data from grid map
-    if (gmap && (data.liquidStatus == LIQUID_MAP_ABOVE_WATER || data.liquidStatus == LIQUID_MAP_NO_WATER))
-    {
-        LiquidData gridMapLiquid;
-        ZLiquidStatus gridMapStatus = gmap->GetLiquidStatus(x, y, z, reqLiquidType, &gridMapLiquid);
-        if (gridMapStatus != LIQUID_MAP_NO_WATER && (gridMapLiquid.level > vmapData.floorZ))
-        {
-            if (GetId() == 530 && gridMapLiquid.entry == 2)
-                gridMapLiquid.entry = 15;
-            data.liquidInfo = gridMapLiquid;
-            data.liquidStatus = gridMapStatus;
-        }
-    }
-}
-
 float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const
 {
     if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
@@ -2749,7 +2643,7 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
 
 float Map::GetHeight(PhaseShift const& phaseShift, float x, float y, float z, bool vmap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
-    return std::max<float>(GetStaticHeight(phaseShift, x, y, z, vmap, maxSearchDist), GetGameObjectFloor(phaseShift, x, y, z, maxSearchDist));
+    return std::max<float>(GetStaticHeight(phaseShift, x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phaseShift));
 }
 
 bool Map::IsInWater(PhaseShift const& phaseShift, float x, float y, float pZ, LiquidData* data) const
