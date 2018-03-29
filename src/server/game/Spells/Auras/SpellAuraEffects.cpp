@@ -1486,7 +1486,7 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     if (apply)
     {
         // apply glow vision
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->GetTypeId() == TYPEID_PLAYER && type != INVISIBILITY_UNK9)
             target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
         target->m_invisibility.AddFlag(type);
