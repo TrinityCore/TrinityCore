@@ -561,7 +561,7 @@ public:
                     caster->CastSpell(caster, SPELL_PRIEST_VOIDFORM_TENTACLES + 2, true);
                     break;
                 case 9:
-                    caster->CastSpell(caster, SPELL_PRIEST_VOIDFORM_TENTACLES + 1, true);
+                    caster->CastSpell(caster, SPELL_PRIEST_VOIDFORM_TENTACLES + 3, true);
                     break;
                 default:
                     break;
