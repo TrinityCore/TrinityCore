@@ -4458,6 +4458,24 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF FIRELANDS SPELLS
 
+    //
+    // GILNEAS SPELLS
+    //
+    // Curse of the Worgen
+    ApplySpellFix({ 69123 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+    });
+
+    // Forcecast summon personal Godfrey
+    ApplySpellFix({ 68635, 68636 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SUMMONER);
+    });
+
+
+    // ENDOF GILNEAS SPELLS
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
