@@ -46,11 +46,11 @@ public:
     bool getObjectHitPos(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist, PhaseShift const& phaseShift) const;
 
     float getHeight(float x, float y, float z, float maxSearchDist, PhaseShift const& phaseShift) const;
+    bool getAreaInfo(float x, float y, float& z, PhaseShift const& phaseShift, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
 
     void insert(const GameObjectModel&);
     void remove(const GameObjectModel&);
     bool contains(const GameObjectModel&) const;
-    int size() const;
 
     void balance();
     void update(uint32 diff);
