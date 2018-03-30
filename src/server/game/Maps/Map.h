@@ -332,7 +332,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static void DeleteStateMachine();
 
         Map const* GetParent() const { return m_parentMap; }
-        void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); }
+        void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); map->m_parentTerrainMap = this; }
         void UnlinkAllChildTerrainMaps() { m_childTerrainMaps->clear(); }
 
         // some calls like isInWater should not use vmaps due to processor power
@@ -576,7 +576,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);
         static void LoadMapImpl(Map* map, int gx, int gy, bool reload);
-        static void UnloadMap(Map* map, int gx, int gy);
+        void UnloadMap(int gx, int gy);
+        static void UnloadMapImpl(Map* map, int gx, int gy);
         void LoadMMap(int gx, int gy);
         GridMap* GetGrid(float x, float y);
         GridMap* GetGrid(uint32 mapId, float x, float y);
@@ -676,8 +677,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         //used for fast base_map (e.g. MapInstanced class object) search for
         //InstanceMaps and BattlegroundMaps...
-        Map* m_parentMap;
-        std::vector<Map*>* m_childTerrainMaps;
+        Map* m_parentMap;                                           // points to MapInstanced* or self (always same map id)
+        Map* m_parentTerrainMap;                                    // points to m_parentMap of MapEntry::ParentMapID
+        std::vector<Map*>* m_childTerrainMaps;                      // contains m_parentMap of maps that have MapEntry::ParentMapID == GetId()
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         GridMap* GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
