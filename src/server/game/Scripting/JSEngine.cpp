@@ -15,14 +15,4 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaTrigger.h"
-#include "AreaTriggerAI.h"
-#include "ScriptedCreature.h"
-#include "ScriptMgr.h"
-#include "SpellAuras.h"
-#include "SpellScript.h"
-#include "tomb_of_sargeras.h"
 
-void AddSC_boss_demonic_inquisition()
-{
-}

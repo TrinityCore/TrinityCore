@@ -51,6 +51,8 @@ if (WITH_CPR)
         scripts
         game
         readline
+        duktape
+        dukglue
         ${CPR_LIBRARIES})
 else()
     target_link_libraries(worldserver
@@ -59,7 +61,9 @@ else()
       PUBLIC
         scripts
         game
-        readline)
+        readline
+        duktape
+        dukglue)
 endif()
 
 CollectIncludeDirectories(
@@ -72,6 +76,7 @@ if (WITH_CPR)
     target_include_directories(worldserver
       PUBLIC
         ${PUBLIC_INCLUDES}
+        ${DUKGLUE_HEADERS}
         ${CPR_INCLUDE_DIRS}
       PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR})
@@ -79,6 +84,7 @@ else()
     target_include_directories(worldserver
       PUBLIC
         ${PUBLIC_INCLUDES}
+        ${DUKGLUE_HEADERS}
       PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR})
 endif()
