@@ -164,8 +164,8 @@ INSERT INTO `spell_dbc` (`Id`, `CastingTimeIndex`, `DurationIndex`, `Comment`) V
 (93716, 0, 27, 'Shield of the Perfidious');
 
 DELETE FROM `spelleffect_dbc` WHERE `Id`= 155915;
-INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
-(155915, 28, 50547, 64, 7,7, 18, 18, 93716, 0);
+INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`, `Comment`) VALUES
+(155915, 28, 50547, 64, 7,7, 18, 18, 93716, 0, '');
 
 -- Boss Loot
 -- Baron Ashbury

@@ -20,8 +20,8 @@ INSERT INTO `spell_dbc` (`Id`, `DurationIndex`, `Comment`) VALUES
 (59632, 21, "Serverside Spell: mod scale 0.1");
 
 DELETE FROM `spelleffect_dbc` WHERE `Id`= 160080;
-INSERT INTO `spelleffect_dbc` (`Id`, `EffectSpellId`, `Effect`, `EffectApplyAuraName`, `EffectBasePoints`, `EffectIndex`) VALUES
-(160080, 59632, 6, 61, -90, 0);
+INSERT INTO `spelleffect_dbc` (`Id`, `EffectSpellId`, `Effect`, `EffectApplyAuraName`, `EffectBasePoints`, `EffectIndex`, `Comment`) VALUES
+(160080, 59632, 6, 61, -90, 0, '');
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (45259, 45268, 45269, 49256, 49257, 49258, 44541, 44704, 49260, 44713);
 INSERT INTO `creature_template_addon` (`entry`, `Auras`) VALUES
