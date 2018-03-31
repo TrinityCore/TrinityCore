@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -94,6 +95,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     }
 
     WorldObject::_Create(guidlow, HighGuid::DynamicObject, caster->GetPhaseMask());
+    PhasingHandler::InheritPhaseShift(this, caster);
 
     SetEntry(spell->Id);
     SetObjectScale(1);
