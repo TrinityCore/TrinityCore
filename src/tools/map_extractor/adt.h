@@ -47,13 +47,13 @@ enum LiquidType
 //
 class adt_MCVT
 {
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
 public:
-    float height_map[(ADT_CELL_SIZE+1)*(ADT_CELL_SIZE+1)+ADT_CELL_SIZE*ADT_CELL_SIZE];
+    float height_map[(ADT_CELL_SIZE + 1)*(ADT_CELL_SIZE + 1) + ADT_CELL_SIZE * ADT_CELL_SIZE];
 
     bool  prepareLoadedData();
 };
@@ -63,7 +63,7 @@ public:
 //
 class adt_MCLQ
 {
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
@@ -71,10 +71,10 @@ public:
     uint32 size;
     float height1;
     float height2;
-    struct liquid_data{
+    struct liquid_data {
         uint32 light;
         float  height;
-    } liquid[ADT_CELL_SIZE+1][ADT_CELL_SIZE+1];
+    } liquid[ADT_CELL_SIZE + 1][ADT_CELL_SIZE + 1];
 
     // 1<<0 - ochen
     // 1<<1 - lava/slime
@@ -92,7 +92,7 @@ public:
 //
 class adt_MCNK
 {
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
@@ -151,13 +151,13 @@ public:
 //
 class adt_MCIN
 {
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
 public:
     uint32 size;
-    struct adt_CELLS{
+    struct adt_CELLS {
         uint32 offsMCNK;
         uint32 size;
         uint32 flags;
@@ -179,12 +179,12 @@ public:
 
 enum class LiquidVertexFormatType : uint16
 {
-    HeightDepth             = 0,
-    HeightTextureCoord      = 1,
-    Depth                   = 2,
+    HeightDepth = 0,
+    HeightTextureCoord = 1,
+    Depth = 2,
     HeightDepthTextureCoord = 3,
-    Unk4                    = 4,
-    Unk5                    = 5
+    Unk4 = 4,
+    Unk5 = 5
 };
 
 struct adt_liquid_instance
@@ -199,6 +199,17 @@ struct adt_liquid_instance
     uint8 Height;
     uint32 OffsetExistsBitmap;
     uint32 OffsetVertexData;
+
+    uint8 GetOffsetX() const { return LiquidVertexFormat < 42 ? OffsetX : 0; }
+    uint8 GetOffsetY() const { return LiquidVertexFormat < 42 ? OffsetY : 0; }
+    uint8 GetWidth() const { return LiquidVertexFormat < 42 ? Width : 8; }
+    uint8 GetHeight() const { return LiquidVertexFormat < 42 ? Height : 8; }
+};
+
+struct adt_liquid_attributes
+{
+    uint64 Fishable;
+    uint64 Deep;
 };
 
 //
@@ -207,13 +218,13 @@ struct adt_liquid_instance
 class adt_MH2O
 {
 public:
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
 
-    struct adt_LIQUID{
+    struct adt_LIQUID {
         uint32 OffsetInstances;
         uint32 used;
         uint32 OffsetAttributes;
@@ -228,6 +239,17 @@ public:
         return nullptr;
     }
 
+    adt_liquid_attributes GetLiquidAttributes(int32 x, int32 y) const
+    {
+        if (liquid[x][y].used)
+        {
+            if (liquid[x][y].OffsetAttributes)
+                return *((adt_liquid_attributes *)((uint8*)this + 8 + liquid[x][y].OffsetAttributes));
+            return { 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF };
+        }
+        return { 0, 0 };
+    }
+
     float GetLiquidHeight(adt_liquid_instance const* h, int32 pos) const
     {
         if (!h->OffsetVertexData)
@@ -237,17 +259,17 @@ public:
 
         switch (GetLiquidVertexFormat(h))
         {
-            case LiquidVertexFormatType::HeightDepth:
-            case LiquidVertexFormatType::HeightTextureCoord:
-            case LiquidVertexFormatType::HeightDepthTextureCoord:
-                return ((float const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
-            case LiquidVertexFormatType::Depth:
-                return 0.0f;
-            case LiquidVertexFormatType::Unk4:
-            case LiquidVertexFormatType::Unk5:
-                return ((float const*)((uint8*)this + 8 + h->OffsetVertexData + 4))[pos * 2];
-            default:
-                break;
+        case LiquidVertexFormatType::HeightDepth:
+        case LiquidVertexFormatType::HeightTextureCoord:
+        case LiquidVertexFormatType::HeightDepthTextureCoord:
+            return ((float const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
+        case LiquidVertexFormatType::Depth:
+            return 0.0f;
+        case LiquidVertexFormatType::Unk4:
+        case LiquidVertexFormatType::Unk5:
+            return ((float const*)((uint8*)this + 8 + h->OffsetVertexData + 4))[pos * 2];
+        default:
+            break;
         }
 
         return 0.0f;
@@ -261,13 +283,13 @@ public:
         switch (GetLiquidVertexFormat(h))
         {
             case LiquidVertexFormatType::HeightDepth:
-                return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->Width + 1) * (h->Height + 1) * 4))[pos];
+                return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->GetWidth() + 1) * (h->GetHeight() + 1) * 4))[pos];
             case LiquidVertexFormatType::HeightTextureCoord:
                 return 0;
             case LiquidVertexFormatType::Depth:
                 return ((int8 const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
             case LiquidVertexFormatType::HeightDepthTextureCoord:
-                return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->Width + 1) * (h->Height + 1) * 8))[pos];
+                return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->GetWidth() + 1) * (h->GetHeight() + 1) * 8))[pos];
             case LiquidVertexFormatType::Unk4:
                 return ((int8 const*)((uint8*)this + 8 + h->OffsetVertexData))[pos * 8];
             case LiquidVertexFormatType::Unk5:
@@ -285,17 +307,17 @@ public:
 
         switch (GetLiquidVertexFormat(h))
         {
-            case LiquidVertexFormatType::HeightDepth:
-            case LiquidVertexFormatType::Depth:
-            case LiquidVertexFormatType::Unk4:
-                return nullptr;
-            case LiquidVertexFormatType::HeightTextureCoord:
-            case LiquidVertexFormatType::HeightDepthTextureCoord:
-                return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 4 * ((h->Width + 1) * (h->Height + 1) + pos));
-            case LiquidVertexFormatType::Unk5:
-                return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 8 * ((h->Width + 1) * (h->Height + 1) + pos));
-            default:
-                break;
+        case LiquidVertexFormatType::HeightDepth:
+        case LiquidVertexFormatType::Depth:
+        case LiquidVertexFormatType::Unk4:
+            return nullptr;
+        case LiquidVertexFormatType::HeightTextureCoord:
+        case LiquidVertexFormatType::HeightDepthTextureCoord:
+            return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 4 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
+        case LiquidVertexFormatType::Unk5:
+            return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 8 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
+        default:
+            break;
         }
         return nullptr;
     }
@@ -319,7 +341,7 @@ class adt_MHDR
 {
     friend class ADT_file;
 
-    union{
+    union {
         uint32 fcc;
         char   fcc_txt[4];
     };
@@ -343,11 +365,11 @@ public:
     uint32 data4;
     uint32 data5;
     bool prepareLoadedData();
-    adt_MCIN* getMCIN() { return offsMCIN ? (adt_MCIN *)((uint8 *)&flags+offsMCIN) : nullptr; }
-    adt_MH2O* getMH2O() { return offsMH2O ? (adt_MH2O *)((uint8 *)&flags+offsMH2O) : nullptr; }
+    adt_MCIN* getMCIN() { return offsMCIN ? (adt_MCIN *)((uint8 *)&flags + offsMCIN) : nullptr; }
+    adt_MH2O* getMH2O() { return offsMH2O ? (adt_MH2O *)((uint8 *)&flags + offsMH2O) : nullptr; }
 };
 
-class ADT_file : public FileLoader{
+class ADT_file : public FileLoader {
 public:
     bool prepareLoadedData();
     ADT_file();

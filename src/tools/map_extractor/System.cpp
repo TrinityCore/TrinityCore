@@ -103,7 +103,7 @@ int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
-float CONF_use_minHeight = -500.0f;
+float CONF_use_minHeight = -2000.0f;
 
 // This option allow use float to int conversion
 bool  CONF_allow_float_to_int   = true;
@@ -525,7 +525,7 @@ LiquidVertexFormatType adt_MH2O::GetLiquidVertexFormat(adt_liquid_instance const
     return static_cast<LiquidVertexFormatType>(-1);
 }
 
-bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/, uint32 build)
+bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/, uint32 build, bool ignoreDeepWater)
 {
     ADT_file adt;
 
@@ -778,7 +778,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                     if (liquid->flags[y][x] != 0x0F)
                     {
                         liquid_show[cy][cx] = true;
-                        if (liquid->flags[y][x] & (1<<7))
+                        if (!ignoreDeepWater && liquid->flags[y][x] & (1<<7))
                             liquid_flags[i][j] |= MAP_LIQUID_TYPE_DARK_WATER;
                         ++count;
                     }
@@ -829,14 +829,16 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 if (!h)
                     continue;
 
+                adt_liquid_attributes attrs = h2o->GetLiquidAttributes(i, j);
+
                 int32 count = 0;
                 uint64 existsMask = h2o->GetLiquidExistsBitmap(h);
-                for (int32 y = 0; y < h->Height; y++)
+                for (int32 y = 0; y < h->GetHeight(); y++)
                 {
-                    int32 cy = i * ADT_CELL_SIZE + y + h->OffsetY;
-                    for (int32 x = 0; x < h->Width; x++)
+                    int32 cy = i * ADT_CELL_SIZE + y + h->GetOffsetY();
+                    for (int32 x = 0; x < h->GetWidth(); x++)
                     {
-                        int32 cx = j * ADT_CELL_SIZE + x + h->OffsetX;
+                        int32 cx = j * ADT_CELL_SIZE + x + h->GetOffsetX();
                         if (existsMask & 1)
                         {
                             liquid_show[cy][cx] = true;
@@ -850,7 +852,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 switch (LiquidTypes.at(h->LiquidType).SoundBank)
                 {
                     case LIQUID_TYPE_WATER: liquid_flags[i][j] |= MAP_LIQUID_TYPE_WATER; break;
-                    case LIQUID_TYPE_OCEAN: liquid_flags[i][j] |= MAP_LIQUID_TYPE_OCEAN; break;
+                    case LIQUID_TYPE_OCEAN: liquid_flags[i][j] |= MAP_LIQUID_TYPE_OCEAN; if (!ignoreDeepWater && attrs.Deep) liquid_flags[i][j] |= MAP_LIQUID_TYPE_DARK_WATER; break;
                     case LIQUID_TYPE_MAGMA: liquid_flags[i][j] |= MAP_LIQUID_TYPE_MAGMA; break;
                     case LIQUID_TYPE_SLIME: liquid_flags[i][j] |= MAP_LIQUID_TYPE_SLIME; break;
                     default:
@@ -862,18 +864,14 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                     printf("Wrong liquid detect in MH2O chunk");
 
                 int32 pos = 0;
-                for (int32 y = 0; y <= h->Height; y++)
+                for (int32 y = 0; y <= h->GetHeight(); y++)
                 {
-                    int32 cy = i * ADT_CELL_SIZE + y + h->OffsetY;
-                    for (int32 x = 0; x <= h->Width; x++)
+                    int32 cy = i * ADT_CELL_SIZE + y + h->GetOffsetY();
+                    for (int32 x = 0; x <= h->GetWidth(); x++)
                     {
-                        int32 cx = j * ADT_CELL_SIZE + x + h->OffsetX;
+                        int32 cx = j * ADT_CELL_SIZE + x + h->GetOffsetX();
 
                         liquid_height[cy][cx] = h2o->GetLiquidHeight(h, pos);
-
-                        // Dark water detect
-                        if (liquid_flags[i][j] & MAP_LIQUID_TYPE_OCEAN && h2o->GetLiquidDepth(h, pos) == -1)
-                            liquid_flags[i][j] |= MAP_LIQUID_TYPE_DARK_WATER;
 
                         pos++;
                     }
@@ -1052,6 +1050,24 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     return true;
 }
 
+bool IsDeepWaterIgnored(uint32 mapId, uint32 x, uint32 y)
+{
+    if (mapId != 0)
+        return false;
+
+    //                                                                                                GRID(39, 24) || GRID(39, 25) || GRID(39, 26) ||
+    //                                                                                                GRID(40, 24) || GRID(40, 25) || GRID(40, 26) ||
+    //GRID(41, 18) || GRID(41, 19) || GRID(41, 20) || GRID(41, 21) || GRID(41, 22) || GRID(41, 23) || GRID(41, 24) || GRID(41, 25) || GRID(41, 26) ||
+    //GRID(42, 18) || GRID(42, 19) || GRID(42, 20) || GRID(42, 21) || GRID(42, 22) || GRID(42, 23) || GRID(42, 24) || GRID(42, 25) || GRID(42, 26) ||
+    //GRID(43, 18) || GRID(43, 19) || GRID(43, 20) || GRID(43, 21) || GRID(43, 22) || GRID(43, 23) || GRID(43, 24) || GRID(43, 25) || GRID(43, 26) ||
+    //GRID(44, 18) || GRID(44, 19) || GRID(44, 20) || GRID(44, 21) || GRID(44, 22) || GRID(44, 23) || GRID(44, 24) || GRID(44, 25) || GRID(44, 26) ||
+    //GRID(45, 18) || GRID(45, 19) || GRID(45, 20) || GRID(45, 21) || GRID(45, 22) || GRID(45, 23) || GRID(45, 24) || GRID(45, 25) || GRID(45, 26) ||
+    //GRID(46, 18) || GRID(46, 19) || GRID(46, 20) || GRID(46, 21) || GRID(46, 22) || GRID(46, 23) || GRID(46, 24) || GRID(46, 25) || GRID(46, 26)
+
+    // Vashj'ir grids completely ignore fatigue
+    return (x >= 39 && x <= 40 && y >= 24 && y <= 26) || (x >= 41 && x <= 46 && y >= 18 && y <= 26);
+}
+
 void ExtractMapsFromMpq(uint32 build)
 {
     char mpq_filename[1024];
@@ -1089,7 +1105,8 @@ void ExtractMapsFromMpq(uint32 build)
 
                 sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
-                ConvertADT(mpq_filename, output_filename, y, x, build);
+                bool ignoreDeepWater = IsDeepWaterIgnored(map_ids[z].id, y, x);
+                ConvertADT(mpq_filename, output_filename, y, x, build, ignoreDeepWater);
             }
 
             // draw progress bar
