@@ -676,6 +676,7 @@ class TC_GAME_API Spell
             SpellInfo const* AuraSpellInfo = nullptr;
             int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
             bool Positive = true;
+            UnitAura* HitAura = nullptr;
 
         private:
             Unit* _spellHitTarget = nullptr; // changed for example by reflect
