@@ -151,7 +151,8 @@ enum RogueSpells
     SPELL_ROGUE_DEATH_FROM_ABOVE_DAMAGE_BONUS       = 163786,
     SPELL_ROGUE_DEATH_FROM_ABOVE_JUMP               = 178153,
     SPELL_ROGUE_ALACRITY                            = 193539,
-    SPELL_ROGUE_ALACRITY_BUFF                       = 193538
+    SPELL_ROGUE_ALACRITY_BUFF                       = 193538,
+    SPELL_ROGUE_VENOMOUS_WOUNDS                     = 79134,
 };
 
 enum RollTheBones
@@ -1725,35 +1726,27 @@ public:
     }
 };
 
-class spell_rog_venomous_wounds : public SpellScriptLoader
+// 79134 - Venomous Wounds
+class aura_rog_venomous_wounds : public AuraScript
 {
-public:
-    spell_rog_venomous_wounds() : SpellScriptLoader("spell_rog_venomous_wounds") { }
+    PrepareAuraScript(aura_rog_venomous_wounds);
 
-    class spell_rog_venomous_wounds_AuraScript : public AuraScript
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
     {
-        PrepareAuraScript(spell_rog_venomous_wounds_AuraScript);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
-        {
-            Unit* caster = GetCaster();
-            if(!caster)
-                return;
-            if(caster->HasAura(SPELL_ROGUE_VENOM_RUSH))
-                caster->ModifyPower(POWER_ENERGY, +10);
-            else
-                caster->ModifyPower(POWER_ENERGY, +7);
-        }
+        int32 energyGain = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints;
+        if (caster->HasAura(SPELL_ROGUE_VENOM_RUSH))
+            energyGain += sSpellMgr->GetSpellInfo(SPELL_ROGUE_VENOM_RUSH)->GetEffect(EFFECT_0)->BasePoints;
 
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_rog_venomous_wounds_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
-        }
-    };
+        caster->ModifyPower(POWER_ENERGY, energyGain);
+    }
 
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_rog_venomous_wounds_AuraScript();
+        OnEffectProc += AuraEffectProcFn(aura_rog_venomous_wounds::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2908,7 +2901,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_true_bearing();
     new spell_rog_vanish();
     new spell_rog_vanish_aura();
-    new spell_rog_venomous_wounds();
+    RegisterAuraScript(aura_rog_venomous_wounds);
     new spell_rogue_blade_flurry();
     new spell_rogue_combat_potency();
     new spell_rog_weaponmaster();
