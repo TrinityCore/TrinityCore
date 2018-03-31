@@ -1942,40 +1942,30 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
             stmt->setUInt64(0, lowGuid);
 
+            uint16 raceLang = 0;
+
             switch (factionChangeInfo->RaceID)
             {
-                case RACE_DWARF:
-                    stmt->setUInt16(1, 111);
-                    break;
+                case RACE_DWARF:                raceLang = 111;     break;
                 case RACE_DRAENEI:
-                    stmt->setUInt16(1, 759);
-                    break;
-                case RACE_GNOME:
-                    stmt->setUInt16(1, 313);
-                    break;
-                case RACE_NIGHTELF:
-                    stmt->setUInt16(1, 113);
-                    break;
-                case RACE_WORGEN:
-                    stmt->setUInt16(1, 791);
-                    break;
-                case RACE_UNDEAD_PLAYER:
-                    stmt->setUInt16(1, 673);
-                    break;
+                case RACE_LIGHTFORGED_DRAENEI:  raceLang = 759;     break;
+                case RACE_GNOME:                raceLang = 313;     break;
+                case RACE_NIGHTELF:             raceLang = 113;     break;
+                case RACE_WORGEN:               raceLang = 791;     break;
+                case RACE_UNDEAD_PLAYER:        raceLang = 673;     break;
                 case RACE_TAUREN:
-                    stmt->setUInt16(1, 115);
-                    break;
-                case RACE_TROLL:
-                    stmt->setUInt16(1, 315);
-                    break;
-                case RACE_BLOODELF:
-                    stmt->setUInt16(1, 137);
-                    break;
-                case RACE_GOBLIN:
-                    stmt->setUInt16(1, 792);
+                case RACE_HIGHMOUNTAIN_TAUREN:  raceLang = 115;     break;
+                case RACE_TROLL:                raceLang = 315;     break;
+                case RACE_BLOODELF:             raceLang = 137;     break;
+                case RACE_GOBLIN:               raceLang = 792;     break;
+                case RACE_NIGHTBORNE:           raceLang = 2464;    break;
+                case RACE_VOID_ELF:             raceLang = 2465;    break;
+                default:
+                    ASSERT(false, "Missing race lang skill at character change race/faction");
                     break;
             }
 
+            stmt->setUInt16(1, raceLang);
             trans->Append(stmt);
         }
 
