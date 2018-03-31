@@ -13,8 +13,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `m
 (210112023, 116621, 1519, 0, 0, 1, 0, 0, 1590, 1410, 236, 3, 300, 0, 0, 87, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- DIFF `creature_queststarter` of quest 24530 -- OBSOLETE
-DELETE * FROM `creature_queststarter` WHERE `quest` = 24530;
-DELETE * FROM `creature_questender` WHERE `quest` = 24530;
+DELETE FROM `creature_queststarter` WHERE `quest` = 24530;
+DELETE FROM `creature_questender` WHERE `quest` = 24530;
 
 -- Table `quest_template_addon`
 UPDATE `quest_template_addon` SET `AllowableClasses` = 512 WHERE (ID = 31150);
@@ -22,7 +22,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `m
 (210112024, 63285, 0, 0, 0, 1, 0, 0, -6105, 368, 395, 1, 300, 0, 0, 34506, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- DIFF `creature_questender` of quest 24527
-DELETE * FROM `creature_questender` WHERE `quest` = 24527;
+DELETE FROM `creature_questender` WHERE `quest` = 24527;
 
 -- Table `quest_template_addon`
 UPDATE `quest_template_addon` SET `RequiredSkillPoints` = 475 WHERE (ID = 29067);
