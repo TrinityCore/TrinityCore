@@ -97,8 +97,8 @@ public:
 
     float GetExactDist2dSq(const float x, const float y) const
     {
-        float dx = m_positionX - x;
-        float dy = m_positionY - y;
+        float dx = x - m_positionX;
+        float dy = y - m_positionY;
         return dx*dx + dy*dy;
     }
     float GetExactDist2dSq(Position const& pos) const { return GetExactDist2dSq(pos.m_positionX, pos.m_positionY); }
@@ -110,7 +110,7 @@ public:
 
     float GetExactDistSq(float x, float y, float z) const
     {
-        float dz = m_positionZ - z;
+        float dz = z - m_positionZ;
         return GetExactDist2dSq(x, y) + dz*dz;
     }
     float GetExactDistSq(Position const& pos) const { return GetExactDistSq(pos.m_positionX, pos.m_positionY, pos.m_positionZ); }
@@ -125,8 +125,8 @@ public:
 
     float GetAbsoluteAngle(float x, float y) const
     {
-        float dx = m_positionX - x;
-        float dy = m_positionY - y;
+        float dx = x - m_positionX;
+        float dy = y - m_positionY;
         return NormalizeOrientation(std::atan2(dy, dx));
     }
     float GetAbsoluteAngle(Position const& pos) const { return GetAbsoluteAngle(pos.m_positionX, pos.m_positionY); }
