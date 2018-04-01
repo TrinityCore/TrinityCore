@@ -95,56 +95,56 @@ struct boss_baroness_anastari : public BossAI
         {
             switch (eventId)
             {
-            case EVENT_SPELL_BANSHEEWAIL:
-                DoCastVictim(SPELL_BANSHEEWAIL);
-                _events.Repeat(4s);
-                break;
-            case EVENT_SPELL_BANSHEECURSE:
-                DoCastVictim(SPELL_BANSHEECURSE);
-                _events.Repeat(18s);
-                break;
-            case EVENT_SPELL_SILENCE:
-                DoCastVictim(SPELL_SILENCE);
-                _events.ScheduleEvent(EVENT_SPELL_SILENCE, 13s);
-                break;
-            case EVENT_SPELL_POSSESS:
-                if (Unit* possessTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false))    // Random target to be possessed
-                {
-                    if (possessTarget->IsAlive())
+                case EVENT_SPELL_BANSHEEWAIL:
+                    DoCastVictim(SPELL_BANSHEEWAIL);
+                    _events.Repeat(4s);
+                    break;
+                case EVENT_SPELL_BANSHEECURSE:
+                    DoCastVictim(SPELL_BANSHEECURSE);
+                    _events.Repeat(18s);
+                    break;
+                case EVENT_SPELL_SILENCE:
+                    DoCastVictim(SPELL_SILENCE);
+                    _events.ScheduleEvent(EVENT_SPELL_SILENCE, 13s);
+                    break;
+                case EVENT_SPELL_POSSESS:
+                    if (Unit* possessTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false))    // Random target to be possessed
                     {
-                        me->CastStop();
-                        DoCast(possessTarget, SPELL_POSSESS);
-                        DoCast(possessTarget, SPELL_POSSESSED);
-                        DoCastSelf(SPELL_POSSESS_INV);
-                        _possessedTargetGuid = possessTarget->GetGUID();
-                        _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 0s);
-                    }
-                    else
-                        _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
-                }
-                break;
-            case EVENT_INVISIBLE:
-                if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))    // When there's a possessed target
-                {
-                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
-                    possessedTarget->SetFullHealth();
-                    _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
-                }
-                break;
-            case EVENT_CHECK_POSSESSED:
-                if (me->HasAura(SPELL_POSSESS_INV))
-                {
-                    if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))
-                    {
-                        if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->HealthBelowPct(50))
-                            _events.ScheduleEvent(EVENT_INVISIBLE, 0s);
+                        if (possessTarget->IsAlive())
+                        {
+                            me->CastStop();
+                            DoCast(possessTarget, SPELL_POSSESS);
+                            DoCast(possessTarget, SPELL_POSSESSED);
+                            DoCastSelf(SPELL_POSSESS_INV);
+                            _possessedTargetGuid = possessTarget->GetGUID();
+                            _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 0s);
+                        }
                         else
-                            _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 1s);
+                            _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                     }
-                }
-                break;
+                    break;
+                case EVENT_INVISIBLE:
+                    if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))    // When there's a possessed target
+                    {
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
+                        possessedTarget->SetFullHealth();
+                        _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
+                    }
+                    break;
+                case EVENT_CHECK_POSSESSED:
+                    if (me->HasAura(SPELL_POSSESS_INV))
+                    {
+                        if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))
+                        {
+                            if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->HealthBelowPct(50))
+                                _events.ScheduleEvent(EVENT_INVISIBLE, 0s);
+                            else
+                                _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 1s);
+                        }
+                    }
+                    break;
             }
         }
         DoMeleeAttackIfReady();
