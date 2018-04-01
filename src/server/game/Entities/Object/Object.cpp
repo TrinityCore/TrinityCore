@@ -2981,12 +2981,12 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
     Trinity::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
 {
     GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
     z = GetPositionZ();
-    // Should "searcher" be used instead of "this" when updating z coordinate ?
-    UpdateAllowedPositionZ(x, y, z);
+    
+    (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
 
     // if detection disabled, return first point
     if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
@@ -3006,7 +3006,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     {
         GetNearPoint2D(x, y, distance2d + searcher_size, absAngle + angle);
         z = GetPositionZ();
-        UpdateAllowedPositionZ(x, y, z);
+        (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
         if (IsWithinLOS(x, y, z))
             return;
     }
