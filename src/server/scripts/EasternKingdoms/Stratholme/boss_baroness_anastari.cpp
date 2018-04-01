@@ -78,7 +78,7 @@ struct boss_baroness_anastari : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        instance->SetData(TYPE_BARONESS, IN_PROGRESS);
+        instance->SetData(TYPE_BARONESS, DONE);
     }
 
     void UpdateAI(uint32 diff) override
