@@ -53,18 +53,14 @@ struct boss_baroness_anastari : public BossAI
 
     void Reset() override
     {
+        _possessedTargetGuid.Clear();
+
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSSESS);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSSESSED);
+
         if (me->HasAura(SPELL_POSSESS_INV))
-        {
-            if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))
-            {
-                if (possessedTarget->IsAlive())
-                {
-                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                }
-            }
             me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
-        }
+
         _events.Reset();
     }
 
@@ -131,6 +127,7 @@ struct boss_baroness_anastari : public BossAI
                         me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
                         possessedTarget->SetFullHealth();
                         _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
+                        _possessedTargetGuid.Clear();
                     }
                     break;
                 case EVENT_CHECK_POSSESSED:
