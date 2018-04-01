@@ -124,7 +124,6 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
     float x, y, z;
     if (updateDestination || !_path)
     {
-        float hoverDiff = std::abs(owner->GetHoverOffset() - GetTarget()->GetHoverOffset());
         if (!_offset)
         {
             if (GetTarget()->IsWithinDistInMap(owner, CONTACT_DISTANCE))
