@@ -347,7 +347,7 @@ void WorldSession::SendLfgPlayerLockInfo()
         {
             data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);  // currencyQuantity
             data << uint32(player->GetCurrencyWeekCap(currency));                                      // some sort of overall cap/weekly cap
-            data << uint32(quest->RewardCurrencyId[0]);                                                // currencyID
+            data << uint32(CURRENCY_TYPE_VALOR_POINTS);                                                // "[currency name] this week"
             data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // tier1Quantity
             data << uint32(player->GetCurrencyWeekCap(currency));                                      // tier1Limit
             data << uint32(0);                                                                         // overallQuantity
