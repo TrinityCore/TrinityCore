@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "GridNotifiers.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -231,7 +232,7 @@ public:
         if (newStatus == QUEST_STATUS_NONE)
         {
             player->CastSpell(player, SPELL_CANCEL_FIRE_CRASH_PHASE, true);
-            player->UpdateAreaAndZonePhase();
+            PhasingHandler::OnConditionChange(player);
         }
     }
 };
@@ -310,7 +311,7 @@ public:
             player->CastSpell(player, SPELL_DESPAWN_FIRE_SPIRIT, true);
             player->RemoveAura(SPELL_SUMMON_FIRE_SPIRIT);
             player->RemoveAura(SPELL_SUMMON_FIRE_SPIRIT_AFTER_RELOG);
-            player->UpdateAreaAndZonePhase();
+            PhasingHandler::OnConditionChange(player);
         }
     }
 };
@@ -522,6 +523,7 @@ public:
         {
             _events.Reset();
             _events.ScheduleEvent(EVENT_SWITCH_POLE, 0);
+            me->RestoreFaction();
             me->SetReactState(REACT_DEFENSIVE);
         }
 
@@ -577,7 +579,9 @@ public:
                         // Transform is casted only when in frog pool
                         if (me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
                             DoCastSelf(SPELL_CURSE_OF_THE_FROG, true);
-                        me->GetMotionMaster()->MoveRandom(10.0f);
+                        ClearThreadList();
+                        me->SetWalk(true);
+                        MoveForward(10.0f);
                         me->DespawnOrUnsummon(3000);
                         break;
                 }
@@ -619,6 +623,26 @@ public:
                     break;
                 }
             }
+        }
+
+        void ClearThreadList()
+        {
+            std::list<HostileReference*> threatList = me->getThreatManager().getThreatList();;
+            for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                if (Unit* target = (*itr)->getTarget()->ToUnit())
+                    target->ClearInCombat();
+        }
+
+        void MoveForward(float distance)
+        {
+            Position movePos;
+            float ori = me->GetOrientation();
+            float x = me->GetPositionX() + distance * cos(ori);
+            float y = me->GetPositionY() + distance * sin(ori);
+            float z = me->GetPositionZ();
+            me->UpdateGroundPositionZ(x, y, z);
+            movePos = { x, y, z };
+            me->GetMotionMaster()->MovePoint(1, movePos);
         }
     };
 
@@ -671,7 +695,7 @@ public:
                 else
                 {
                     if (GameObject* go = caster->FindNearestGameObject(209576, 8.0f))
-                        caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 5);
+                        caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
                 }
             }
         }
@@ -1934,8 +1958,8 @@ public:
                         {
                             if ((*itr)->ToPlayer()->GetQuestStatus(QUEST_AN_ANCIENT_EVIL) == QUEST_STATUS_COMPLETE)
                             {
-                                (*itr)->SetInPhase(DB_PHASE_AFTER_FIGHT, true, true);
-                                (*itr)->SetInPhase(DB_PHASE_FIGHT, true, false);
+                                PhasingHandler::AddPhase(*itr, DB_PHASE_AFTER_FIGHT, true);
+                                PhasingHandler::RemovePhase(*itr, DB_PHASE_FIGHT, true);
                             }
                         }
                         break;
@@ -2027,7 +2051,7 @@ public:
             Initialize();
             me->setActive(true);
             me->SetReactState(REACT_PASSIVE);
-            me->SetInPhase(543, true, true);
+            PhasingHandler::AddPhase(me, 543, true);
         }
 
         void EnterCombat(Unit* /*who*/) override
