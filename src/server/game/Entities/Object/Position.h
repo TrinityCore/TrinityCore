@@ -62,8 +62,8 @@ public:
     bool operator!=(Position const& a) const { return !(operator==(a)); }
 
     void Relocate(float x, float y) { m_positionX = x; m_positionY = y; }
-    void Relocate(float x, float y, float z) { m_positionX = x; m_positionY = y; m_positionZ = z; }
-    void Relocate(float x, float y, float z, float o) { *this = { x,y,z,o }; }
+    void Relocate(float x, float y, float z) { Relocate(x, y); m_positionZ = z; }
+    void Relocate(float x, float y, float z, float o) { Relocate(x, y, z); SetOrientation(o); }
     void Relocate(Position const& pos) { *this = pos; }
     void Relocate(Position const* pos) { *this = *pos; }
 
