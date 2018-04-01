@@ -64,7 +64,6 @@ struct boss_baroness_anastari : public BossAI
                 }
             }
             me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
-            me->SetReactState(REACT_AGGRESSIVE);
         }
         _events.Reset();
     }
@@ -98,7 +97,7 @@ struct boss_baroness_anastari : public BossAI
             {
             case EVENT_SPELL_BANSHEEWAIL:
                 DoCastVictim(SPELL_BANSHEEWAIL);
-                _events.ScheduleEvent(EVENT_SPELL_BANSHEEWAIL, 4s);
+                _events.Repeat(4s);
                 break;
             case EVENT_SPELL_BANSHEECURSE:
                 DoCastVictim(SPELL_BANSHEECURSE);
@@ -116,7 +115,6 @@ struct boss_baroness_anastari : public BossAI
                         me->CastStop();
                         DoCast(possessTarget, SPELL_POSSESS);
                         DoCast(possessTarget, SPELL_POSSESSED);
-                        me->SetReactState(REACT_PASSIVE);
                         DoCastSelf(SPELL_POSSESS_INV);
                         _possessedTargetGuid = possessTarget->GetGUID();
                         _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 0s);
@@ -132,7 +130,6 @@ struct boss_baroness_anastari : public BossAI
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
                     possessedTarget->SetFullHealth();
-                    me->SetReactState(REACT_AGGRESSIVE);
                     _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                 }
                 break;
