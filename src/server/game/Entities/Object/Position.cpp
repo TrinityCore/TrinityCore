@@ -124,11 +124,8 @@ bool Position::HasInArc(float arc, Position const* obj, float border) const
     // move arc to range 0.. 2*pi
     arc = NormalizeOrientation(arc);
 
-    float angle = GetAngle(obj);
-    angle -= m_orientation;
-
     // move angle to range -pi ... +pi
-    angle = NormalizeOrientation(angle);
+    float angle = GetRelativeAngle(obj);
     if (angle > float(M_PI))
         angle -= 2.0f * float(M_PI);
 

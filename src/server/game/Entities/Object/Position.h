@@ -125,19 +125,20 @@ public:
     void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
     Position GetPositionWithOffset(Position const& offset) const;
 
-    float GetAngle(float x, float y) const
+    float GetAbsoluteAngle(float x, float y) const
     {
         float dx = m_positionX - x;
         float dy = m_positionY - y;
         return NormalizeOrientation(std::atan2(dy, dx));
     }
-    float GetAngle(Position const& pos) const { return GetAngle(pos.m_positionX, pos.m_positionY); }
-    float GetAngle(Position const* pos) const { return GetAngle(*pos); }
+    float GetAbsoluteAngle(Position const& pos) const { return GetAbsoluteAngle(pos.m_positionX, pos.m_positionY); }
+    float GetAbsoluteAngle(Position const* pos) const { return GetAbsoluteAngle(*pos); }
+    float ToAbsoluteAngle(float relAngle) const { return NormalizeOrientation(relAngle + m_orientation); }
 
-    float GetAbsoluteAngle(float relAngle) const { return NormalizeOrientation(relAngle + m_orientation); }
-    float GetRelativeAngle(float absAngle) const { return NormalizeOrientation(absAngle - m_orientation); }
-    float GetRelativeAngle(float x, float y) const { return GetRelativeAngle(GetAngle(x, y)); }
-    float GetRelativeAngle(Position const* pos) const { return GetRelativeAngle(GetAngle(pos)); }
+    float ToRelativeAngle(float absAngle) const { return NormalizeOrientation(absAngle - m_orientation); }
+    float GetRelativeAngle(float x, float y) const { return ToRelativeAngle(GetAbsoluteAngle(x, y)); }
+    float GetRelativeAngle(Position const& pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
+    float GetRelativeAngle(Position const* pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
 
     void GetSinCos(float x, float y, float &vsin, float &vcos) const;
 

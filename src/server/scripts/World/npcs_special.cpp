@@ -2586,7 +2586,7 @@ class npc_train_wrecker : public CreatureScript
                             _isSearching = false;
                             _target = target->GetGUID();
                             me->SetWalk(true);
-                            me->GetMotionMaster()->MovePoint(MOVEID_CHASE, target->GetNearPosition(3.0f, target->GetAngle(me)));
+                            me->GetMotionMaster()->MovePoint(MOVEID_CHASE, target->GetNearPosition(3.0f, target->GetAbsoluteAngle(me)));
                         }
                         else
                             _timer = 3 * IN_MILLISECONDS;

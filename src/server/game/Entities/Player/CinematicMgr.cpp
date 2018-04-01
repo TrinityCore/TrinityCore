@@ -114,7 +114,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
         lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
-    float angle = lastPosition.GetAngle(&nextPosition);
+    float angle = lastPosition.GetAbsoluteAngle(&nextPosition);
     angle -= lastPosition.GetOrientation();
     if (angle < 0)
         angle += 2 * float(M_PI);

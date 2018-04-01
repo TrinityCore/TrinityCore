@@ -1655,7 +1655,7 @@ public:
 
         Player* chr = handler->GetSession()->GetPlayer();
 
-        float  followAngle = (creature->GetAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
+        float  followAngle = (creature->GetAbsoluteAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
         float  followDist  = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
         uint32 groupAI     = 0;
         sFormationMgr->AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
