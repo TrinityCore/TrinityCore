@@ -316,7 +316,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             {
                 const char* filename = base.filename().generic_string().c_str();
                 const char* workdir = boost::filesystem::current_path().generic_string().c_str();
-                TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
+                TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/AshamaneProject/AshamaneCore/releases\"" \
                     " uncompress it and place the file \"%s\" in the directory \"%s\".", filename, filename, workdir);
                 break;
             }

@@ -175,6 +175,9 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     //For fleeing
     bool IsFleeing;
 
+    SummonList summons;
+    EventMap events;
+
     // *************
     //Pure virtual functions
     // *************
@@ -325,6 +328,15 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         bool _isHeroic;
 };
 
+struct TC_GAME_API Scripted_NoMovementAI : public ScriptedAI
+{
+    Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
+    virtual ~Scripted_NoMovementAI() {}
+
+    //Called at each attack of me by any victim
+    void AttackStart(Unit* target);
+};
+
 class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
@@ -429,5 +441,13 @@ inline void GetPlayerListInGrid(Container& container, WorldObject* source, float
 {
     source->GetPlayerListInGrid(container, maxSearchRange);
 }
+
+TC_GAME_API void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y);
+TC_GAME_API void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition);
+
+TC_GAME_API void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y);
+TC_GAME_API void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition);
+
+TC_GAME_API void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition);
 
 #endif // SCRIPTEDCREATURE_H_

@@ -53,9 +53,23 @@
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
 
+TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
+{
+    TrainerSpellMap::const_iterator itr = spellList.find(spell_id);
+    if (itr != spellList.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
 {
-    return pProto->GetFlags2() & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE || !ExtendedCost;
+    return pProto->GetFlags2() & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE || !ExtendedCost || OverrideGoldCost >= 0;
+}
+
+int64 VendorItem::GetBuyPrice(ItemTemplate const* pProto) const
+{
+    return OverrideGoldCost >= 0 ? OverrideGoldCost : pProto->GetBuyPrice();
 }
 
 bool VendorItemData::RemoveItem(uint32 item_id, uint8 type)
@@ -649,7 +663,7 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-
+                i_AI->UpdateOperations(diff);
                 i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
@@ -1226,19 +1240,20 @@ void Creature::SelectLevel()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
+    // level
+    uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
+    uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
+
     if (!HasScalableLevels())
     {
-        // level
-        uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
-        uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
         uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
         SetLevel(level);
     }
     else
     {
-        SetLevel(cInfo->levelScaling->MaxLevel);
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, cInfo->levelScaling->MinLevel);
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, cInfo->levelScaling->MaxLevel);
+        SetLevel(maxlevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScaling->DeltaLevel);
     }
 
@@ -1282,8 +1297,8 @@ void Creature::UpdateLevelDependantStats()
     // damage
     float basedamage = stats->GenerateBaseDamage(cInfo);
 
-    float weaponBaseMinDamage = basedamage;
-    float weaponBaseMaxDamage = basedamage * 1.5f;
+    float weaponBaseMinDamage = basedamage / 1.5f;
+    float weaponBaseMaxDamage = basedamage;
 
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
@@ -1318,6 +1333,13 @@ float Creature::_GetHealthMod(int32 Rank)
         default:
             return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
     }
+}
+
+uint64 Creature::GetMaxHealthByLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateHealth(cInfo);
 }
 
 void Creature::LowerPlayerDamageReq(uint64 unDamage)
@@ -1910,6 +1932,18 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& 
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
 }
 
+void Creature::DespawnCreaturesInArea(uint32 entry, float range)
+{
+    std::list<Creature*> creatures;
+    GetCreatureListWithEntryInGrid(creatures, entry, range);
+
+    if (creatures.empty())
+        return;
+
+    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+        (*iter)->DespawnOrUnsummon();
+}
+
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
 {
     if (!spellInfo)
@@ -2097,17 +2131,6 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
     Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
     Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
     Cell::VisitAllObjects(this, searcher, std::max(dist, ATTACK_DISTANCE));
-    return target;
-}
-
-Player* Creature::SelectNearestPlayer(float distance) const
-{
-    Player* target = nullptr;
-
-    Trinity::NearestPlayerInObjectRangeCheck checker(this, distance);
-    Trinity::PlayerLastSearcher<Trinity::NearestPlayerInObjectRangeCheck> searcher(this, target, checker);
-    Cell::VisitAllObjects(this, searcher, distance);
-
     return target;
 }
 
@@ -2499,13 +2522,6 @@ bool Creature::HasScalableLevels() const
     return cinfo->levelScaling.is_initialized();
 }
 
-uint64 Creature::GetMaxHealthByLevel(uint8 level) const
-{
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-    return stats->GenerateHealth(cInfo);
-}
-
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
 {
     if (!HasScalableLevels())
@@ -2596,6 +2612,22 @@ uint32 Creature::GetScriptId() const
     return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
+ScriptParam Creature::GetScriptParam(uint8 index) const
+{
+    ScriptParams guidParams = sObjectMgr->GetScriptParam(GetGUID().GetCounter());
+    auto guidItr = guidParams.find(index);
+    if (guidItr != guidParams.end())
+        return guidItr->second;
+
+    ScriptParams templateParams = sObjectMgr->GetTemplateScriptParam(GetEntry());
+    auto templateItr = templateParams.find(index);
+    if (templateItr != templateParams.end())
+        return templateItr->second;
+
+    ScriptParam param;
+    return param;
+}
+
 VendorItemData const* Creature::GetVendorItems() const
 {
     return sObjectMgr->GetNpcVendorItemList(GetEntry());
@@ -2669,6 +2701,11 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
     vCount->count = vCount->count > used_count ? vCount->count-used_count : 0;
     vCount->lastIncrementTime = ptime;
     return vCount->count;
+}
+
+TrainerSpellData const* Creature::GetTrainerSpells() const
+{
+    return sObjectMgr->GetNpcTrainerSpells(GetEntry());
 }
 
 // overwrite WorldObject function for proper name localization
@@ -2895,7 +2932,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
                 focusSpell->GetSpellInfo()->GetSpellVisual()
             ) && (
                 !focusSpell->GetCastTime() || // if the spell is instant cast
-                focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet
+                !focusSpell->GetSpellInfo()->CasterCanTurnDuringCast() // client gets confused if we attempt to turn at the regularly scheduled update packet
             )
         )
         {
@@ -2910,7 +2947,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
         }
     }
 
-    bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    bool canTurnDuringCast = focusSpell->GetSpellInfo()->CasterCanTurnDuringCast();
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
         SetFacingToObject(target);
@@ -2972,7 +3009,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         // player pets don't need to do this, as they automatically reacquire their target on focus release
         MustReacquireTarget();
 
-    if (m_focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+    if (!m_focusSpell->GetSpellInfo()->CasterCanTurnDuringCast())
         ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
     m_focusSpell = nullptr;

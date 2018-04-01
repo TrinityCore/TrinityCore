@@ -38,17 +38,29 @@
 LootItem::LootItem(LootStoreItem const& li)
 {
     itemid      = li.itemid;
-    conditions   = li.conditions;
+    conditions  = li.conditions;
+    currency    = li.type == LOOT_ITEM_TYPE_CURRENCY;
 
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-    freeforall = proto && (proto->GetFlags() & ITEM_FLAG_MULTI_DROP);
-    follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
+    if (currency)
+    {
+        freeforall = false;
+        needs_quest = false;
+        follow_loot_rules = false;
+        upgradeId = 0;
+    }
+    else
+    {
+        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
+        freeforall = proto && (proto->GetFlags() & ITEM_FLAG_MULTI_DROP);
+        follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
 
-    needs_quest = li.needs_quest;
+        needs_quest = li.needs_quest;
 
-    randomSuffix = GenerateEnchSuffixFactor(itemid);
-    randomPropertyId = GenerateItemRandomPropertyId(itemid);
-    upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
+        randomSuffix = GenerateEnchSuffixFactor(itemid);
+        randomPropertyId = GenerateItemRandomPropertyId(itemid);
+        upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
+    }
+
     context = 0;
     count = 0;
     is_looted = 0;
@@ -65,24 +77,27 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
         return false;
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
-    if (!pProto)
-        return false;
+    if (!currency)
+    {
+        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
+        if (!pProto)
+            return false;
 
-    // not show loot for players without profession or those who already know the recipe
-    if ((pProto->GetFlags() & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->GetRequiredSkill()) || player->HasSpell(pProto->Effects[1]->SpellID)))
-        return false;
+        // not show loot for players without profession or those who already know the recipe
+        if ((pProto->GetFlags() & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->GetRequiredSkill()) || player->HasSpell(pProto->Effects[1]->SpellID)))
+            return false;
 
-    // not show loot for not own team
-    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
-        return false;
+        // not show loot for not own team
+        if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
+            return false;
 
-    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
-        return false;
+        if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
+            return false;
 
-    // check quest requirements
-    if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
-        return false;
+        // check quest requirements
+        if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+            return false;
+    }
 
     return true;
 }
@@ -134,6 +149,10 @@ void Loot::DeleteLootMoneyFromContainerItemDB()
 
 void Loot::clear()
 {
+    for (NotNormalLootItemMap::const_iterator itr = PlayerCurrencies.begin(); itr != PlayerCurrencies.end(); ++itr)
+        delete itr->second;
+    PlayerCurrencies.clear();
+
     for (NotNormalLootItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
         delete itr->second;
     PlayerQuestItems.clear();
@@ -236,7 +255,7 @@ void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
 }
 
 // Calls processor of corresponding LootTemplate (which handles everything including references)
-bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/)
+bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/, bool specOnly /*= false*/)
 {
     // Must be provided
     if (!lootOwner)
@@ -256,7 +275,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     items.reserve(MAX_NR_LOOT_ITEMS);
     quest_items.reserve(MAX_NR_QUEST_ITEMS);
 
-    tab->Process(*this, store.IsRatesAllowed(), lootMode);          // Processing is done there, callback via Loot::AddItem()
+    tab->Process(*this, store.IsRatesAllowed(), lootMode, 0, lootOwner, specOnly);          // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
     Group* group = lootOwner->GetGroup();
@@ -283,16 +302,30 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)
-void Loot::AddItem(LootStoreItem const& item)
+void Loot::AddItem(LootStoreItem const& item, Player const* player /*= nullptr*/, bool specOnly /*= false*/)
 {
+    std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
+
+    if (item.type == LOOT_ITEM_TYPE_CURRENCY)
+    {
+        LootItem generatedLoot(item);
+        generatedLoot.count = urand(item.mincount, item.maxcount);
+        lootItems.push_back(generatedLoot);
+        return;
+    }
+
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
     if (!proto)
         return;
 
+    // If this loot should be filtered by specialization, check player spec before adding
+    if (specOnly && player)
+        if (!proto->IsUsableByLootSpecialization(player, false))
+            return;
+
     uint32 count = urand(item.mincount, item.maxcount);
     uint32 stacks = count / proto->GetMaxStackSize() + ((count % proto->GetMaxStackSize()) ? 1 : 0);
 
-    std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
     uint32 limit = item.needs_quest ? MAX_NR_QUEST_ITEMS : MAX_NR_LOOT_ITEMS;
 
     for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
@@ -329,7 +362,7 @@ LootItem const* Loot::GetItemInSlot(uint32 lootSlot) const
     return nullptr;
 }
 
-LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootItem* *qitem, NotNormalLootItem* *ffaitem, NotNormalLootItem* *conditem)
+LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootItem* *qitem, NotNormalLootItem* *ffaitem, NotNormalLootItem* *conditem, NotNormalLootItem* *currency)
 {
     LootItem* item = NULL;
     bool is_looted = true;
@@ -350,7 +383,25 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootIte
     {
         item = &items[lootSlot];
         is_looted = item->is_looted;
-        if (item->freeforall)
+        if (item->currency)
+        {
+            NotNormalLootItemMap::const_iterator itr = PlayerCurrencies.find(player->GetGUID());
+            if (itr != PlayerCurrencies.end())
+            {
+                for (NotNormalLootItemList::const_iterator iter = itr->second->begin(); iter != itr->second->end(); ++iter)
+                {
+                    if (iter->index == lootSlot)
+                    {
+                        NotNormalLootItem* currency2 = (NotNormalLootItem*) & (*iter);
+                        if (currency)
+                            *currency = currency2;
+                        is_looted = currency2->is_looted;
+                        break;
+                    }
+                }
+            }
+        }
+        else if (item->freeforall)
         {
             NotNormalLootItemMap::const_iterator itr = PlayerFFAItems.find(player->GetGUID());
             if (itr != PlayerFFAItems.end())
@@ -485,7 +536,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             // blocked rolled items and quest items, and !ffa items
             for (uint8 i = 0; i < items.size(); ++i)
             {
-                if (!items[i].is_looted && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
+                if (!items[i].is_looted && !items[i].currency && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
                     uint8 slot_type;
 
@@ -537,7 +588,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         {
             for (uint8 i = 0; i < items.size(); ++i)
             {
-                if (!items[i].is_looted && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
+                if (!items[i].is_looted && !items[i].currency && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
                     WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = i + 1;
@@ -554,6 +605,26 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
     }
 
     LootSlotType slotType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
+    NotNormalLootItemMap const& lootPlayerCurrencies = GetPlayerCurrencies();
+    NotNormalLootItemMap::const_iterator currency_itr = lootPlayerCurrencies.find(viewer->GetGUID());
+    if (currency_itr != lootPlayerCurrencies.end())
+    {
+        NotNormalLootItemList* currency_list = currency_itr->second;
+        for (NotNormalLootItemList::const_iterator ci = currency_list->begin(); ci != currency_list->end(); ++ci)
+        {
+            LootItem const& item = items[ci->index];
+            if (!ci->is_looted && !item.is_looted)
+            {
+                WorldPackets::Loot::LootCurrency lootCurrency;
+                lootCurrency.LootListID = ci->index + 1;
+                lootCurrency.UIType = GetUITypeByPermission(item, permission, slotType);
+                lootCurrency.CurrencyID = item.itemid;
+                lootCurrency.Quantity = item.count;
+                packet.Currencies.push_back(lootCurrency);
+            }
+        }
+    }
+
     NotNormalLootItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
     NotNormalLootItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID());
     if (q_itr != lootPlayerQuestItems.end())
@@ -571,26 +642,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 lootItem.Loot.Initialize(item);
 
                 if (item.follow_loot_rules)
-                {
-                    switch (permission)
-                    {
-                        case MASTER_PERMISSION:
-                            lootItem.UIType = LOOT_SLOT_TYPE_MASTER;
-                            break;
-                        case RESTRICTED_PERMISSION:
-                            lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
-                            break;
-                        case GROUP_PERMISSION:
-                            if (!item.is_blocked)
-                                lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
-                            else
-                                lootItem.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                            break;
-                        default:
-                            lootItem.UIType = slotType;
-                            break;
-                    }
-                }
+                    lootItem.UIType = GetUITypeByPermission(item, permission, slotType);
                 else
                     lootItem.UIType = slotType;
 
@@ -631,39 +683,41 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             {
                 WorldPackets::Loot::LootItemData lootItem;
                 lootItem.LootListID = ci->index + 1;
+                lootItem.UIType = GetUITypeByPermission(item, permission, slotType);
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
-
-                switch (permission)
-                {
-                    case MASTER_PERMISSION:
-                        lootItem.UIType = LOOT_SLOT_TYPE_MASTER;
-                        break;
-                    case RESTRICTED_PERMISSION:
-                        lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
-                        break;
-                    case GROUP_PERMISSION:
-                        if (!item.is_blocked)
-                            lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
-                        else
-                            lootItem.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                        break;
-                    default:
-                        lootItem.UIType = slotType;
-                        break;
-                }
-
                 packet.Items.push_back(lootItem);
             }
         }
     }
 }
 
+LootSlotType Loot::GetUITypeByPermission(LootItem const& item, PermissionTypes permission, LootSlotType slotType) const
+{
+    switch (permission)
+    {
+        case MASTER_PERMISSION:
+            return LOOT_SLOT_TYPE_MASTER;
+        case RESTRICTED_PERMISSION:
+            return item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+        case GROUP_PERMISSION:
+            return item.is_blocked ? LOOT_SLOT_TYPE_ROLL_ONGOING : LOOT_SLOT_TYPE_ALLOW_LOOT;
+        default:
+            break;
+    }
+
+    return slotType;
+}
+
 void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 {
     ObjectGuid plguid = player->GetGUID();
 
-    NotNormalLootItemMap::const_iterator qmapitr = PlayerQuestItems.find(plguid);
+    NotNormalLootItemMap::const_iterator qmapitr = PlayerCurrencies.find(plguid);
+    if (qmapitr == PlayerCurrencies.end())
+        FillCurrencyLoot(player);
+
+    qmapitr = PlayerQuestItems.find(plguid);
     if (qmapitr == PlayerQuestItems.end())
         FillQuestLoot(player);
 
@@ -695,6 +749,30 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
                 if (proto->IsCurrencyToken())
                     player->StoreLootItem(i, this);
     }
+}
+
+NotNormalLootItemList* Loot::FillCurrencyLoot(Player* player)
+{
+    NotNormalLootItemList* ql = new NotNormalLootItemList();
+
+    for (uint8 i = 0; i < items.size(); ++i)
+    {
+        LootItem& item = items[i];
+        if (!item.is_looted && item.currency && item.AllowedForPlayer(player))
+        {
+            ql->push_back(NotNormalLootItem(i));
+            ++unlootedCount;
+        }
+    }
+
+    if (ql->empty())
+    {
+        delete ql;
+        return nullptr;
+    }
+
+    PlayerCurrencies[player->GetGUID()] = ql;
+    return ql;
 }
 
 NotNormalLootItemList* Loot::FillFFALoot(Player* player)
@@ -794,7 +872,7 @@ NotNormalLootItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, b
 // --------- AELootResult ---------
 //
 
-void AELootResult::Add(Item* item, uint8 count, LootType lootType)
+void AELootResult::Add(Item* item, uint32 count, LootType lootType)
 {
     auto itr = _byItem.find(item);
     if (itr != _byItem.end())

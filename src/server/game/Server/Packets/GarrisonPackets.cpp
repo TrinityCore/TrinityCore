@@ -365,3 +365,48 @@ WorldPacket const* WorldPackets::Garrison::GarrisonBuildingActivated::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Garrison::GarrisonOpenMissionNpcClient::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> GarrTypeID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpc::Write()
+{
+    // Shauren> ... Traesh: int32, int32, uint32(loop counter), loop:{ int32 }, bit, bit
+
+    _worldPacket << int32(garrType);
+    _worldPacket << int32(result);
+    _worldPacket << uint32(Missions.size());
+
+    for (auto const& missionId : Missions)
+        _worldPacket << int32(missionId);
+
+    _worldPacket.WriteBit(unk4);
+    _worldPacket.WriteBit(preventXmlOpenMissionEvent);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::ShowAdventureMap::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonRequestScoutingMap::Read()
+{
+    _worldPacket >> ID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonScoutingMapResult::Write()
+{
+    _worldPacket << ID;
+    _worldPacket.WriteBit(Active);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

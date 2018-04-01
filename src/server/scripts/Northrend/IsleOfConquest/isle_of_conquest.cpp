@@ -307,7 +307,7 @@ class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ioc_seaforium_blast_credit_SpellScript();
         }

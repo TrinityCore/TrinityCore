@@ -90,6 +90,7 @@
 #include "WaypointManager.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldSocket.h"
 
@@ -956,6 +957,13 @@ void World::LoadConfigSettings(bool reload)
     }
     m_int_configs[CONFIG_CURRENCY_MAX_JUSTICE_POINTS] *= 100;     //precision mod
 
+    m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE] = sConfigMgr->GetIntDefault("Currency.StartArtifactKnowledge", 55);
+    if (int32(m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE]) < 0)
+    {
+        TC_LOG_ERROR("server.loading", "Currency.StartArtifactKnowledge (%i) must be >= 0, set to default 0.", m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE]);
+        m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE] = 0;
+    }
+
     m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("RecruitAFriend.MaxLevel", 85);
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
@@ -1487,6 +1495,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CREATURE_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("Creature.CheckInvalidPosition", false);
     m_bool_configs[CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("GameObject.CheckInvalidPosition", false);
 
+    m_bool_configs[CONFIG_LEGACY_BUFF_ENABLED] = sConfigMgr->GetBoolDefault("LegacyBuffEnabled", true);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -1703,7 +1713,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
 
-    TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
+    TC_LOG_INFO("misc", "Loading Item Scripts...");                            // must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
     TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
@@ -1720,6 +1730,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature template scaling...");
     sObjectMgr->LoadCreatureScalingData();
+
+    TC_LOG_INFO("server.loading", "Loading Script Params...");
+    sObjectMgr->LoadScriptParams();
 
     TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
@@ -1853,6 +1866,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading AreaTriggers...");
+    sAreaTriggerDataStore->LoadAreaTriggers();
+
     TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
     sConversationDataStore->LoadConversationTemplates();
 
@@ -1869,9 +1885,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
-
-    TC_LOG_INFO("server.loading", "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
 
     TC_LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
     sObjectMgr->LoadMailLevelRewards();
@@ -1966,6 +1979,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Vendors...");
     sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
 
+    TC_LOG_INFO("server.loading", "Loading Trainers...");
+    sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
+
     TC_LOG_INFO("server.loading", "Loading Waypoints...");
     sWaypointMgr->Load();
 
@@ -2053,6 +2069,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading Quest task...");
+    sObjectMgr->LoadQuestTasks();
+
+    TC_LOG_INFO("server.loading", "Loading Zones script names...");
+    sObjectMgr->LoadZoneScriptNames();
+
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2080,6 +2102,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_WORLD_QUEST].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     blackmarket_timer = 0;
 
@@ -2188,6 +2212,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
+
+    TC_LOG_INFO("server.loading", "Loading active world quests...");
+    sWorldQuestMgr->LoadActiveWorldQuests();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2345,6 +2372,8 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_BLACKMARKET].Reset();
 
+        sBlackMarketMgr->Update();
+
         ///- Update blackmarket, refresh auctions if necessary
         if ((blackmarket_timer *  m_timers[WUPDATE_BLACKMARKET].GetInterval() >=
             getIntConfig(CONFIG_BLACKMARKET_UPDATE_PERIOD) * HOUR * IN_MILLISECONDS)
@@ -2354,10 +2383,7 @@ void World::Update(uint32 diff)
             blackmarket_timer = 1; // timer is 0 on startup
         }
         else
-        {
             ++blackmarket_timer;
-            sBlackMarketMgr->Update();
-        }
     }
 
     /// <li> Handle AHBot operations
@@ -2372,6 +2398,12 @@ void World::Update(uint32 diff)
     {
         sScriptReloadMgr->Update();
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
+    }
+
+    if (m_timers[WUPDATE_WORLD_QUEST].Passed())
+    {
+        sWorldQuestMgr->Update();
+        m_timers[WUPDATE_WORLD_QUEST].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed

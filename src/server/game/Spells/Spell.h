@@ -154,6 +154,7 @@ struct TC_GAME_API SpellDestination
     SpellDestination(WorldObject const& wObj);
 
     void Relocate(Position const& pos);
+    void Relocate(WorldLocation const &loc);
     void RelocateOffset(Position const& offset);
 
     WorldLocation _position;
@@ -329,6 +330,7 @@ class TC_GAME_API Spell
     friend void SetUnitCurrentCastSpell(Unit* unit, Spell* spell);
     friend class SpellScript;
     public:
+        Ashamane::VariablesSafe Variables;
 
         void EffectNULL(SpellEffIndex effIndex);
         void EffectUnused(SpellEffIndex effIndex);
@@ -469,16 +471,20 @@ class TC_GAME_API Spell
         void EffectHealBattlePetPct(SpellEffIndex effIndex);
         void EffectEnableBattlePets(SpellEffIndex effIndex);
         void EffectLaunchQuestChoice(SpellEffIndex effIndex);
+        void EffectLootWithToast(SpellEffIndex effIndex);
         void EffectUncageBattlePet(SpellEffIndex effIndex);
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
         void EffectApplyEnchantIllusion(SpellEffIndex effIndex);
         void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
+        void EffectGiveExperience(SpellEffIndex effIndex);
+        void EffectIncreaseSkill(SpellEffIndex effIndex);
         void EffectGiveArtifactPower(SpellEffIndex effIndex);
         void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
         void EffectPlayScene(SpellEffIndex effIndex);
         void EffectGiveHonor(SpellEffIndex effIndex);
+        void EffectDash(SpellEffIndex effIndex);
         void EffectLearnTransmogSet(SpellEffIndex effIndex);
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
@@ -494,6 +500,7 @@ class TC_GAME_API Spell
         void SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitLineTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
@@ -514,7 +521,7 @@ class TC_GAME_API Spell
 
         GameObject* SearchSpellFocus();
 
-        void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
+        bool prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
         void cancel();
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
@@ -829,6 +836,7 @@ class TC_GAME_API Spell
 
         // Scripting system
         void LoadScripts();
+        void CallScriptOnPrepareHandlers();
         void CallScriptBeforeCastHandlers();
         void CallScriptOnCastHandlers();
         void CallScriptAfterCastHandlers();
@@ -841,6 +849,7 @@ class TC_GAME_API Spell
         void CallScriptAfterHitHandlers();
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void CallScriptOnSummonHandlers(Creature* creature);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
         std::vector<SpellScript*> m_loadedScripts;
@@ -938,6 +947,13 @@ namespace Trinity
         float _coneAngle;
         WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
+        bool operator()(WorldObject* target);
+    };
+
+    struct TC_GAME_API WorldObjectSpellLineTargetCheck : public WorldObjectSpellAreaTargetCheck
+    {
+        WorldObjectSpellLineTargetCheck(float range, Unit* caster,
+            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, std::vector<Condition*>* condList);
         bool operator()(WorldObject* target);
     };
 

@@ -97,6 +97,7 @@ enum RotateDirection
 struct JumpArrivalCastArgs
 {
     uint32 SpellId;
+    ObjectGuid Caster;
     ObjectGuid Target;
 };
 
@@ -183,6 +184,7 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 path_id, bool repeatable);
         void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
+        void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
 
     private:
         void pop();

@@ -131,13 +131,17 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
     if (!u->IsAlive() || !c->IsAlive() || c == u || u->IsInFlight())
         return;
 
-    if (!c->HasUnitState(UNIT_STATE_SIGHTLESS))
+    if (c->IsAIEnabled)
     {
-        if (c->IsAIEnabled && c->CanSeeOrDetect(u, false, true))
-            c->AI()->MoveInLineOfSight_Safe(u);
-        else
-            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled && c->CanSeeOrDetect(u, false, true, true))
-                c->AI()->TriggerAlert(u);
+
+        if (!c->HasUnitState(UNIT_STATE_SIGHTLESS) || c->AI()->CanSeeEvenInPassiveMode())
+        {
+            if (c->CanSeeOrDetect(u, false, true))
+                c->AI()->MoveInLineOfSight_Safe(u);
+            else
+                if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->CanSeeOrDetect(u, false, true, true))
+                    c->AI()->TriggerAlert(u);
+        }
     }
 }
 
@@ -372,4 +376,5 @@ template void ObjectUpdater::Visit<Creature>(CreatureMapType&);
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType&);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType&);
 template void ObjectUpdater::Visit<AreaTrigger>(AreaTriggerMapType &);
+template void ObjectUpdater::Visit<SceneObject>(SceneObjectMapType &);
 template void ObjectUpdater::Visit<Conversation>(ConversationMapType &);

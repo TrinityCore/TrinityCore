@@ -1099,6 +1099,7 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 target->SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (target->GetTypeId() == TYPEID_UNIT)
@@ -2676,7 +2677,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
                     Pet* newPet = new Pet(player, newPetType);
-                    if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                    if (newPet->LoadPetData(player, 0, player->GetLastPetNumber(), true))
                     {
                         // revive the pet if it is dead
                         if (newPet->getDeathState() == DEAD)
@@ -3232,7 +3233,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
                         if (owner->GetTypeId() == TYPEID_PLAYER) /// @todo this check is maybe wrong
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+                            owner->ToPlayer()->RemovePet(nullptr, PET_SAVE_DISMISS, true);
             }
 
             void Register() override
@@ -3712,7 +3713,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                         break;
                 }
 
-                float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+                float avgILvl = caster->ToPlayer()->GetAverageItemLevelEquipped();
                 if (avgILvl < baseItemLevel)
                     return;                     /// @todo Research possibility of scaling down
 
@@ -3934,10 +3935,10 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                     {
                         if (Pet* pet = player->GetPet())
                         {
-                            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                            pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
                             // not let dismiss dead pet
                             if (pet->IsAlive())
-                                player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+                                player->RemovePet(pet, PET_SAVE_DISMISS);
                         }
                     }
                 }
@@ -4420,7 +4421,7 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_pony_mount_check_AuraScript();
         }
@@ -4652,6 +4653,52 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+enum EredarBloodmage
+{
+    SPELL_BLOOD_SIPHON_DAMAGE  = 235232,
+    SPELL_BLOOD_SIPHON_HEAL    = 235262
+};
+
+// 235222
+class spell_gen_eredar_bloodmage_blood_siphon : public AuraScript
+{
+    PrepareAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        GetCaster()->CastSpell(GetTarget(), aurEff->GetAmount(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_eredar_bloodmage_blood_siphon::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 235232 - Blood Siphon (damage)
+class spell_gen_eredar_bloodmage_blood_siphon_damage : public SpellScript
+{
+    PrepareSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
+
+    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        int32 healthPctDmg = target->CountPctFromCurHealth(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints);
+        SetHitDamage(healthPctDmg);
+        target->CastCustomSpell(GetCaster(), SPELL_BLOOD_SIPHON_HEAL, &healthPctDmg, 0, 0, true);
+
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_eredar_bloodmage_blood_siphon_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4758,4 +4805,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    RegisterAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
+    RegisterSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
 }

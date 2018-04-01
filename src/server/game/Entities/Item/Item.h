@@ -152,8 +152,9 @@ class TC_GAME_API Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
-        void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* owner = nullptr);
+        void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        void CheckArtifactUnlock(Player const* owner);
 
         void AddBonuses(uint32 bonusListID);
 
@@ -214,8 +215,8 @@ class TC_GAME_API Item : public Object
         // RandomPropertyId (signed but stored as unsigned)
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
-        void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId);
-        void UpdateItemSuffixFactor();
+        void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId, Player const* owner = nullptr);
+        void UpdateItemSuffixFactor(Player const* owner = nullptr);
         ItemRandomEnchantmentId GetItemRandomEnchantmentId() const { return m_randomEnchantment; }
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
@@ -330,7 +331,7 @@ class TC_GAME_API Item : public Object
         ItemDynamicFieldArtifactPowers const* GetArtifactPower(uint32 artifactPowerId) const;
         void SetArtifactPower(ItemDynamicFieldArtifactPowers const* artifactPower, bool createIfMissing = false);
 
-        void InitArtifactPowers(uint8 artifactId, uint8 artifactTier);
+        void InitArtifactPowers(uint8 artifactId);
         uint32 GetTotalPurchasedArtifactPowers() const;
         void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enchantId, bool apply, Player* owner);
         void CopyArtifactDataFromParent(Item* parent);

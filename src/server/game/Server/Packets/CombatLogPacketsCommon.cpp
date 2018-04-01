@@ -65,12 +65,12 @@ namespace WorldPackets
 
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
             PlayerLevelDelta = target->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
-            PlayerItemLevel = target->GetAverageItemLevel();
+            PlayerItemLevel = target->GetAverageItemLevelEquipped();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
             Class = creatureTemplate->unit_class;
-            TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
-            TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
+            TargetMinScalingLevel = uint8(creatureTemplate->minlevel);
+            TargetMaxScalingLevel = uint8(creatureTemplate->maxlevel);
             TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
             return true;
         }
@@ -82,12 +82,12 @@ namespace WorldPackets
 
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = attacker->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
-            PlayerItemLevel = attacker->GetAverageItemLevel();
+            PlayerItemLevel = attacker->GetAverageItemLevelEquipped();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
             Class = creatureTemplate->unit_class;
-            TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
-            TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
+            TargetMinScalingLevel = uint8(creatureTemplate->minlevel);
+            TargetMaxScalingLevel = uint8(creatureTemplate->maxlevel);
             TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
             return true;
         }
@@ -103,8 +103,8 @@ namespace WorldPackets
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
             Class = creatureTemplate->unit_class;
-            TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
-            TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
+            TargetMinScalingLevel = uint8(creatureTemplate->minlevel);
+            TargetMaxScalingLevel = uint8(creatureTemplate->maxlevel);
             TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
             return true;
         }

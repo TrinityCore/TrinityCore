@@ -36,6 +36,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Faction, Points, MinimumCriteria, ID, IconFileID, CriteriaTree FROM achievement ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT ID, Title_lang, Description_lang, Reward_lang FROM achievement_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // AdventureJournal.db2
+    PrepareStatement(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Title, Description, ButtonText, Unk1, Unk2, Unk3, ObjectiveText, Unk4, QuestID, Unk5_1, Unk5_2, Unk6, Unk7, Unk8, Unk9, "
+        "Unk10, Unk11, Unk12, Unk13, Unk14_1, Unk14_2, Unk15, Unk16, Unk17 FROM adventure_journal ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Title_lang, Description_lang, ButtonText_lang, Unk3_lang, ObjectiveText_lang FROM adventure_journal_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // AnimKit.db2
     PrepareStatement(HOTFIX_SEL_ANIM_KIT, "SELECT ID, OneShotDuration, OneShotStopAnimKitID, LowDefAnimKitID FROM anim_kit ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -94,6 +99,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ArtifactQuestXp.db2
     PrepareStatement(HOTFIX_SEL_ARTIFACT_QUEST_XP, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM artifact_quest_xp ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactTier.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_TIER, "SELECT ID, ArtifactTier, MaxNumTraits, MaxArtifactKnowledge, KnowledgePlayerCondition, MinimumEmpowerKnowledge FROM artifact_tier"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactUnlock.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_UNLOCK, "SELECT ID, ItemBonusListID, PowerRank, PowerID, PlayerConditionID, ArtifactID FROM artifact_unlock"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // AuctionHouse.db2
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -350,6 +363,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrAbilityID, FactionIndex, GarrFollowerID FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GarrMission.db2
+    PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT Duration, OfferTime, Name, Description, Location, Map1X, Map1Y, Map2X, Map2Y, RequiredItemLevel, "
+        "LocPrefixID, CurrencyID, RequiredLevel, GarrMechanicTypeRecID, RequiredFollowersCount, Category, MissionType, LostChance, unk1, ID, TravelTime, "
+        "SubCategory2, SubCategory1, CurrencyCost, Flags, RewardFollowerExperience, unk2, unk3, unk4, VerifiedBuild FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, Name_lang, Description_lang, Location_lang FROM garr_mission_locale"
+        " WHERE locale = ?", CONNECTION_SYNCH);
+
     // GarrPlot.db2
     PrepareStatement(HOTFIX_SEL_GARR_PLOT, "SELECT ID, Name, AllianceConstructObjID, HordeConstructObjID, UiCategoryID, PlotType, Flags, "
         "UpgradeRequirement1, UpgradeRequirement2 FROM garr_plot ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -371,6 +391,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // GemProperties.db2
     PrepareStatement(HOTFIX_SEL_GEM_PROPERTIES, "SELECT ID, Type, EnchantId, MinItemLevel FROM gem_properties ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GlobalStrings.db2
+    PrepareStatement(HOTFIX_SEL_GLOBAL_STRINGS, "SELECT ID, StringName, StringValue, Unknown FROM global_strings ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GLOBAL_STRINGS, "SELECT ID, StringValue_lang FROM global_strings_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // GlyphBindableSpell.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -723,6 +747,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // QuestMoneyReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_MONEY_REWARD, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_money_reward ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // QuestV2CliTask.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT Unk1, Name, Description, Unk2, Unk3, Unk4, Unk5, QuestID0, QuestID1, QuestID2, "
+        "Unk7, Unk8, Unk9, Unk10, Unk11, Unk12, Unk13, Unk14, Unk15, Unk16, RequiredLevel, Unk18, ID, Unk19, QuestInfoID "
+        "FROM QuestV2CliTask ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // QuestPackageItem.db2
     PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, ItemID, PackageID, DisplayType, ItemQuantity FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);

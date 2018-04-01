@@ -613,8 +613,9 @@ void BattlefieldTB::OnCreatureCreate(Creature* creature)
             creature->CastSpell(creature, SPELL_THICK_LAYER_OF_RUST, true);
             break;
         case NPC_SIEGE_ENGINE_TURRET:
-            if (Unit* vehiclebase = creature->GetCharmerOrOwner()->GetVehicleBase())
-                creature->EnterVehicle(vehiclebase);
+            if (Unit* charmerOrOwner = creature->GetCharmerOrOwner())
+                if (Unit* vehiclebase = charmerOrOwner->GetVehicleBase())
+                    creature->EnterVehicle(vehiclebase);
             break;
         case NPC_TOWER_RANGE_FINDER:
             creature->CastSpell(creature, SPELL_TOWER_RANGE_FINDER_PERIODIC, true);

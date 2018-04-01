@@ -134,11 +134,18 @@ public:
     bool IsSchoolLocked(SpellSchoolMask schoolMask) const;
 
     // Charges
+    void ForceSendSpellCharges();
+    void ForceSendSpellCharge(SpellCategoryEntry const* chargeCategoryEntry);
+    void ForceSendSetSpellCharges(SpellCategoryEntry const* chargeCategoryEntry);
+    void UpdateCharges();
+    void UpdateCharge(SpellCategoryEntry const* chargeCategoryEntry);
+    void ReduceChargeCooldown(SpellCategoryEntry const* chargeCategoryEntry, uint32 reductionTime);
     bool ConsumeCharge(uint32 chargeCategoryId);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
     bool HasCharge(uint32 chargeCategoryId) const;
+    int32 GetChargeCount(uint32 chargeCategoryId) const;
     int32 GetMaxCharges(uint32 chargeCategoryId) const;
     int32 GetChargeRecoveryTime(uint32 chargeCategoryId) const;
 
