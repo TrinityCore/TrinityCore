@@ -128,7 +128,7 @@ struct boss_baroness_anastari : public BossAI
                     {
                         possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                         possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
+                        me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
                         possessedTarget->SetFullHealth();
                         _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                     }
