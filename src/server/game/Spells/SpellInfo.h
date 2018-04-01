@@ -38,6 +38,7 @@ struct SpellChainNode;
 struct SpellModifier;
 struct SpellTargetPosition;
 struct Condition;
+enum WeaponAttackType : uint8;
 
 enum SpellCastTargetFlags : uint32
 {
@@ -586,6 +587,10 @@ class TC_GAME_API SpellInfo
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
 
+        WeaponAttackType GetAttackType() const;
+
+        bool IsItemFitToSpellRequirements(Item const* item) const;
+
         bool IsAffected(uint32 familyName, flag128 const& familyFlags) const;
 
         bool IsAffectedBySpellMods() const;
@@ -661,7 +666,7 @@ class TC_GAME_API SpellInfo
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const* effect, bool apply) const;
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
-        bool CanSpellCastOverrideAuraEffect(AuraEffect const* aurEff) const;
+        bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
     private:
         // loading helpers

@@ -23,6 +23,8 @@
 
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
 
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMesh.h"
@@ -216,7 +218,7 @@ namespace MMAP
             _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
         }
 
-        m_tiles.sort([](MapTiles a, MapTiles b)
+        m_tiles.sort([](MapTiles const& a, MapTiles const& b)
         {
             return a.m_tiles->size() > b.m_tiles->size();
         });
@@ -470,7 +472,12 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildNavMesh(uint32 mapID, dtNavMesh* &navMesh)
     {
-        std::set<uint32>* tiles = getTileList(mapID);
+        // if map has a parent we use that to generate dtNavMeshParams - worldserver will load all missing tiles from that map
+        int32 navMeshParamsMapId = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager())->getParentMapId(mapID);
+        if (navMeshParamsMapId == -1)
+            navMeshParamsMapId = mapID;
+
+        std::set<uint32>* tiles = getTileList(navMeshParamsMapId);
 
         // old code for non-statically assigned bitmask sizes:
         ///*** calculate number of bits needed to store tiles & polys ***/
@@ -531,6 +538,7 @@ namespace MMAP
         if (!file)
         {
             dtFreeNavMesh(navMesh);
+            navMesh = nullptr;
             char message[1024];
             sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
             perror(message);

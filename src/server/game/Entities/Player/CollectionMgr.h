@@ -93,7 +93,7 @@ public:
     void LoadAccountHeirlooms(PreparedQueryResult result);
     void SaveAccountHeirlooms(SQLTransaction& trans);
     void AddHeirloom(uint32 itemId, uint32 flags);
-    void UpgradeHeirloom(uint32 itemId, uint32 castItem);
+    void UpgradeHeirloom(uint32 itemId, int32 castItem);
     void CheckHeirloomUpgrades(Item* item);
 
     bool UpdateAccountHeirlooms(uint32 itemId, uint32 flags);

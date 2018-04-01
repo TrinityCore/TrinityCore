@@ -776,7 +776,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869,
     RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870, // reserved
     RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871, // reserved
-    RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872, // reserved
+    RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //

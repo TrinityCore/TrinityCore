@@ -884,11 +884,11 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
         {
             for (ItemEffectEntry const* itemEffect : proto->Effects)
             {
-                if (itemEffect->SpellID == spellInfo->Id)
+                if (uint32(itemEffect->SpellID) == spellInfo->Id)
                 {
-                    tmpCooldown = itemEffect->Cooldown;
-                    tmpCategoryId = itemEffect->Category;
-                    tmpCategoryCooldown = itemEffect->CategoryCooldown;
+                    tmpCooldown = itemEffect->CoolDownMSec;
+                    tmpCategoryId = itemEffect->SpellCategoryID;
+                    tmpCategoryCooldown = itemEffect->CategoryCoolDownMSec;
                     break;
                 }
             }

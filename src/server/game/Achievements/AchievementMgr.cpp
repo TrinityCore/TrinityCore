@@ -83,7 +83,7 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
         return false;
     }
 
-    if (achievement->MapID != -1 && referencePlayer->GetMapId() != uint32(achievement->MapID))
+    if (achievement->InstanceID != -1 && referencePlayer->GetMapId() != uint32(achievement->InstanceID))
     {
         TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong map",
             criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
@@ -171,7 +171,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     // Oddly, the target count is NOT contained in the achievement, but in each individual criteria
     if (entry->Flags & ACHIEVEMENT_FLAG_SUMM)
     {
-        uint64 progress = 0;
+        int64 progress = 0;
         CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
         {
             if (criteriaTree->Criteria)
@@ -352,7 +352,7 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, 
     CriteriaList const& achievementCriteriaList = GetCriteriaByType(type);
     for (Criteria const* achievementCriteria : achievementCriteriaList)
     {
-        if (achievementCriteria->Entry->FailEvent != miscValue1 || (achievementCriteria->Entry->FailAsset && achievementCriteria->Entry->FailAsset != miscValue2))
+        if (achievementCriteria->Entry->FailEvent != miscValue1 || (achievementCriteria->Entry->FailAsset && achievementCriteria->Entry->FailAsset != int64(miscValue2)))
             continue;
 
         std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(achievementCriteria->ID);
@@ -1059,7 +1059,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
     hotfixes.ApplyHotfix(4539, [](AchievementEntry* achievement)
     {
-        achievement->MapID = 631;
+        achievement->InstanceID = 631;
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));

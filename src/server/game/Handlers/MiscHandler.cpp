@@ -1062,17 +1062,6 @@ void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*requ
     SendPacket(response.Write());
 }
 
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps)
-{
-    WorldPackets::Misc::PhaseShift phaseShift;
-    phaseShift.ClientGUID = _player->GetGUID();
-    phaseShift.PersonalGUID = _player->GetGUID();
-    phaseShift.PhaseShifts = phaseIds;
-    phaseShift.VisibleMapIDs = terrainswaps;
-    phaseShift.UiWorldMapAreaIDSwaps = worldMapAreaSwaps;
-    SendPacket(phaseShift.Write());
-}
-
 void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet)
 {
     if (!_player->HasPendingBind())

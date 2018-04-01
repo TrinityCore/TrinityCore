@@ -31,7 +31,6 @@ npc_khunok_the_behemoth
 npc_nerubar_victim
 npc_nesingwary_trapper
 npc_lurgglbr
-npc_nexus_drake_hatchling
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -39,10 +38,12 @@ EndContentData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -682,121 +683,48 @@ public:
     }
 };
 
-/*######
-## npc_nexus_drake_hatchling
-######*/
-
-enum NexusDrakeHatchling
+enum red_dragonblood
 {
-    SPELL_DRAKE_HARPOON             = 46607,
-    SPELL_RED_DRAGONBLOOD           = 46620,
-    SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
-    SPELL_SUBDUED                   = 46675,
-
-    NPC_RAELORASZ                   = 26117,
-
-    QUEST_DRAKE_HUNT                = 11919,
-    QUEST_DRAKE_HUNT_D              = 11940
+    SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
+    SPELL_SUBDUED = 46675
 };
 
-class npc_nexus_drake_hatchling : public CreatureScript
+class spell_red_dragonblood : public SpellScriptLoader
 {
 public:
-    npc_nexus_drake_hatchling() : CreatureScript("npc_nexus_drake_hatchling") { }
+    spell_red_dragonblood() : SpellScriptLoader("spell_red_dragonblood") { }
 
-    struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
+    class spell_red_dragonblood_AuraScript : public AuraScript
     {
-        npc_nexus_drake_hatchlingAI(Creature* creature) : FollowerAI(creature)
+        PrepareAuraScript(spell_red_dragonblood_AuraScript);
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            WithRedDragonBlood = false;
-        }
-
-        ObjectGuid HarpoonerGUID;
-        bool WithRedDragonBlood;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* who) override
-        {
-            if (me->IsValidAttackTarget(who))
-                AttackStart(who);
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
-        {
-            if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                HarpoonerGUID = caster->GetGUID();
-                DoCast(me, SPELL_RED_DRAGONBLOOD, true);
-            }
-            WithRedDragonBlood = true;
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            FollowerAI::MoveInLineOfSight(who);
-
-            if (!HarpoonerGUID)
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
                 return;
 
-            if (me->HasAura(SPELL_SUBDUED) && who->GetEntry() == NPC_RAELORASZ)
-            {
-                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-                {
-                    if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
-                    {
-                        pHarpooner->KilledMonsterCredit(26175);
-                        pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
-                        SetFollowComplete();
-                        HarpoonerGUID.Clear();
-                        me->DisappearAndDie();
-                    }
-                }
-            }
+            Creature* owner = GetOwner()->ToCreature();
+            owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
+            owner->CombatStop(true);
+            owner->DeleteThreatList();
+            owner->GetMotionMaster()->Clear(false);
+            owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
+            owner->CastSpell(owner, SPELL_SUBDUED, true);
+            GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
+            owner->setFaction(35);
+            owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
         }
 
-        void UpdateAI(uint32 /*diff*/) override
+        void Register()
         {
-            if (WithRedDragonBlood && !HarpoonerGUID.IsEmpty() && !me->HasAura(SPELL_RED_DRAGONBLOOD))
-            {
-                if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
-                {
-                    EnterEvadeMode();
-                    StartFollow(pHarpooner, 35, NULL);
-
-                    DoCast(me, SPELL_SUBDUED, true);
-                    pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
-
-                    me->AttackStop();
-                    WithRedDragonBlood = false;
-                }
-            }
-
-            if ((me->getFaction() == 35) && (!me->HasAura(SPELL_SUBDUED)))
-            {
-                HarpoonerGUID.Clear();
-                me->DisappearAndDie();
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
+            AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    AuraScript* GetAuraScript() const
     {
-        return new npc_nexus_drake_hatchlingAI(creature);
+        return new spell_red_dragonblood_AuraScript();
     }
 };
 
@@ -1751,7 +1679,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     break;
                 case 20:
-                    me->SetInPhase(170, true, false);
+                    PhasingHandler::RemovePhase(me, 170, true);
                     Talk(SAY_5);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
@@ -2457,7 +2385,7 @@ void AddSC_borean_tundra()
     new npc_nerubar_victim();
     new npc_nesingwary_trapper();
     new npc_lurgglbr();
-    new npc_nexus_drake_hatchling();
+    new spell_red_dragonblood();
     new npc_thassarian();
     new npc_image_lich_king();
     new npc_counselor_talbot();

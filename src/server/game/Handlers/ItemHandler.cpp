@@ -303,6 +303,11 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
         }
 
         _player->AutoUnequipOffhandIfNeed();
+
+        // if inventory item was moved, check if we can remove dependent auras, because they were not removed in Player::RemoveItem (update was set to false)
+        // do this after swaps are done, we pass nullptr because both weapons could be swapped and none of them should be ignored
+        if ((autoEquipItem.PackSlot == INVENTORY_SLOT_BAG_0 && autoEquipItem.Slot < INVENTORY_SLOT_BAG_END) || (dstbag == INVENTORY_SLOT_BAG_0 && dstslot < INVENTORY_SLOT_BAG_END))
+            _player->ApplyItemDependentAuras((Item*)nullptr, false);
     }
 }
 
@@ -1077,8 +1082,8 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
             itemTarget->SetGem(i, &gemData[i], gemScalingLevel);
 
-            if (gemProperties[i] && gemProperties[i]->EnchantID)
-                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
+            if (gemProperties[i] && gemProperties[i]->EnchantId)
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantId, 0, 0, _player->GetGUID());
 
             uint32 gemCount = 1;
             _player->DestroyItemCount(gems[i], gemCount, true);
@@ -1189,7 +1194,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     if (item->GetTemplate()->Effects.size() < 2)
         return;
 
-    uint32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
+    int32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
     for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
     {
         if (entry->SummonSpellID == spellToLearn)
@@ -1233,16 +1238,16 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
     }
 
     // Check if player has enough currency
-    if (!_player->HasCurrency(itemUpgradeEntry->CurrencyID, itemUpgradeEntry->CurrencyCost))
+    if (!_player->HasCurrency(itemUpgradeEntry->CurrencyType, itemUpgradeEntry->CurrencyAmount))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpgradeEntry->CurrencyID, itemUpgradeEntry->CurrencyCost);
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpgradeEntry->CurrencyType, itemUpgradeEntry->CurrencyAmount);
         itemUpgradeResult.Success = false;
         SendPacket(itemUpgradeResult.Write());
         return;
     }
 
     uint32 currentUpgradeId = item->GetModifier(ITEM_MODIFIER_UPGRADE_ID);
-    if (currentUpgradeId != itemUpgradeEntry->PrevItemUpgradeID)
+    if (currentUpgradeId != itemUpgradeEntry->PrerequisiteID)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpgradeEntry->ID, currentUpgradeId);
         itemUpgradeResult.Success = false;
@@ -1262,7 +1267,7 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
         _player->_ApplyItemBonuses(item, item->GetSlot(), true);
 
     item->SetState(ITEM_CHANGED, _player);
-    _player->ModifyCurrency(itemUpgradeEntry->CurrencyID, -int32(itemUpgradeEntry->CurrencyCost));
+    _player->ModifyCurrency(itemUpgradeEntry->CurrencyType, -int32(itemUpgradeEntry->CurrencyAmount));
 }
 
 void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)

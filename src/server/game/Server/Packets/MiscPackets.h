@@ -28,7 +28,6 @@
 #include "SharedDefines.h"
 #include <array>
 #include <map>
-#include <set>
 
 enum MountStatusFlags : uint8;
 enum UnitStandStateType : uint8;
@@ -529,19 +528,31 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class PhaseShift final : public ServerPacket
+        struct PhaseShiftDataPhase
+        {
+            uint16 PhaseFlags = 0;
+            uint16 Id = 0;
+        };
+
+        struct PhaseShiftData
+        {
+            uint32 PhaseShiftFlags = 0;
+            std::vector<PhaseShiftDataPhase> Phases;
+            ObjectGuid PersonalGUID;
+        };
+
+        class PhaseShiftChange final : public ServerPacket
         {
         public:
-            PhaseShift() : ServerPacket(SMSG_PHASE_SHIFT_CHANGE, 4) { }
+            PhaseShiftChange() : ServerPacket(SMSG_PHASE_SHIFT_CHANGE, 16 + 4 + 4 + 16 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid ClientGUID;
-            ObjectGuid PersonalGUID;
-            std::set<uint32> PhaseShifts;
-            std::set<uint32> PreloadMapIDs;
-            std::set<uint32> UiWorldMapAreaIDSwaps;
-            std::set<uint32> VisibleMapIDs;
+            ObjectGuid Client;
+            PhaseShiftData Phaseshift;
+            std::vector<uint16> PreloadMapIDs;
+            std::vector<uint16> UiWorldMapAreaIDSwaps;
+            std::vector<uint16> VisibleMapIDs;
         };
 
         class ZoneUnderAttack final : public ServerPacket

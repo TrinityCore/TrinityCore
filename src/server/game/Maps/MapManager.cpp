@@ -55,10 +55,15 @@ void MapManager::Initialize()
         m_updater.activate(num_threads);
 }
 
+void MapManager::InitializeParentMapData(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
+{
+    _parentMapData = mapData;
+}
+
 void MapManager::InitializeVisibilityDistanceInfo()
 {
-    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        (*iter).second->InitVisibilityDistance();
+    for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
+        iter->second->InitVisibilityDistance();
 }
 
 MapManager* MapManager::instance()
@@ -71,26 +76,43 @@ Map* MapManager::CreateBaseMap(uint32 id)
 {
     Map* map = FindBaseMap(id);
 
-    if (map == NULL)
+    if (!map)
     {
-        std::lock_guard<std::mutex> lock(_mapsLock);
-
-        MapEntry const* entry = sMapStore.LookupEntry(id);
-        ASSERT(entry);
-
-        if (entry->Instanceable())
-            map = new MapInstanced(id, i_gridCleanUpDelay);
-        else
+        MapEntry const* entry = sMapStore.AssertEntry(id);
+        if (entry->ParentMapID != -1)
         {
-            map = new Map(id, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
-            map->LoadRespawnTimes();
-            map->LoadCorpseData();
+            CreateBaseMap(entry->ParentMapID);
+
+            // must have been created by parent map
+            map = FindBaseMap(id);
+            return ASSERT_NOTNULL(map);
         }
 
-        i_maps[id] = map;
+        std::lock_guard<std::mutex> lock(_mapsLock);
+        map = CreateBaseMap_i(entry);
     }
 
     ASSERT(map);
+    return map;
+}
+
+Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
+{
+    Map* map;
+    if (mapEntry->Instanceable())
+        map = new MapInstanced(mapEntry->ID, i_gridCleanUpDelay);
+    else
+    {
+        map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
+        map->LoadRespawnTimes();
+        map->LoadCorpseData();
+    }
+
+    i_maps[mapEntry->ID] = map;
+
+    for (uint32 childMapId : _parentMapData[mapEntry->ID])
+        map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
+
     return map;
 }
 
@@ -257,6 +279,10 @@ bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 
 void MapManager::UnloadAll()
 {
+    // first unlink child maps
+    for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
+        iter->second->UnlinkAllChildTerrainMaps();
+
     for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end();)
     {
         iter->second->UnloadAll();

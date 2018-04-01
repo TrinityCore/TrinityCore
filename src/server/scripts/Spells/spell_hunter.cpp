@@ -435,11 +435,11 @@ class spell_hun_masters_call : public SpellScriptLoader
 
             SpellCastResult DoCheckCast()
             {
-                Pet* pet = GetCaster()->ToPlayer()->GetPet();
+                Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
                 ASSERT(pet); // checked in Spell::CheckCast
 
-                if (!pet->IsAlive())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                if (!pet->IsPet() || !pet->IsAlive())
+                    return SPELL_FAILED_NO_PET;
 
                 // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
                 SpellCastResult result = SPELL_CAST_OK;

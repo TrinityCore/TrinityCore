@@ -197,7 +197,7 @@ class TC_GAME_API Channel
         AreaTableEntry const* GetZoneEntry() const { return _zoneEntry; }
 
         void JoinChannel(Player* player, std::string const& pass);
-        void LeaveChannel(Player* player, bool send = true);
+        void LeaveChannel(Player* player, bool send = true, bool suspend = false);
 
         void KickOrBan(Player const* player, std::string const& badname, bool ban);
         void Kick(Player const* player, std::string const& badname) { KickOrBan(player, badname, false); }
