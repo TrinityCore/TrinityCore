@@ -84,7 +84,7 @@ namespace VMAP
                 if (entry->second.flags & MOD_M2)
                 {
                     if (!calculateTransformedBound(entry->second))
-                        break;
+                        continue;
                 }
                 else if (entry->second.flags & MOD_WORLDSPAWN) // WMO maps and terrain maps use different origin, so we need to adapt :/
                 {
@@ -92,7 +92,7 @@ namespace VMAP
                     //entry->second.iPos += Vector3(533.33333f*32, 533.33333f*32, 0.f);
                     entry->second.iBound = entry->second.iBound + Vector3(533.33333f*32, 533.33333f*32, 0.f);
                 }
-                mapSpawns.push_back(&(entry->second));
+                mapSpawns.push_back(&entry->second);
                 spawnedModelFiles.insert(entry->second.name);
             }
 
@@ -110,9 +110,6 @@ namespace VMAP
             }
 
             // ===> possibly move this code to StaticMapTree class
-            std::map<uint32, uint32> modelNodeIdx;
-            for (uint32 i=0; i<mapSpawns.size(); ++i)
-                modelNodeIdx.insert(pair<uint32, uint32>(mapSpawns[i]->ID, i));
 
             // write map tree file
             std::stringstream mapfilename;
@@ -139,7 +136,17 @@ namespace VMAP
 
             for (TileMap::iterator glob=globalRange.first; glob != globalRange.second && success; ++glob)
             {
-                success = ModelSpawn::writeToFile(mapfile, map_iter->second->UniqueEntries[glob->second]);
+                success = ModelSpawn::writeToFile(mapfile, map_iter->second->UniqueEntries[glob->second.Id]);
+            }
+
+            // spawn id to index map
+            if (success && fwrite("SIDX", 4, 1, mapfile) != 1) success = false;
+            uint32 mapSpawnsSize = mapSpawns.size();
+            if (success && fwrite(&mapSpawnsSize, sizeof(uint32), 1, mapfile) != 1) success = false;
+            for (uint32 i = 0; i < mapSpawnsSize; ++i)
+            {
+                if (success && fwrite(&mapSpawns[i]->ID, sizeof(uint32), 1, mapfile) != 1) success = false;
+                if (success && fwrite(&i, sizeof(uint32), 1, mapfile) != 1) success = false;
             }
 
             fclose(mapfile);
@@ -151,8 +158,9 @@ namespace VMAP
             TileMap::iterator tile;
             for (tile = tileEntries.begin(); tile != tileEntries.end(); ++tile)
             {
-                const ModelSpawn &spawn = map_iter->second->UniqueEntries[tile->second];
-                if (spawn.flags & MOD_WORLDSPAWN) // WDT spawn, saved as tile 65/65 currently...
+                if (tile->second.Flags & MOD_WORLDSPAWN) // WDT spawn, saved as tile 65/65 currently...
+                    continue;
+                if (tile->second.Flags & MOD_PARENT_SPAWN) // tile belongs to parent map
                     continue;
                 uint32 nSpawns = tileEntries.count(tile->first);
                 std::stringstream tilefilename;
@@ -172,16 +180,12 @@ namespace VMAP
                     {
                         if (s)
                             ++tile;
-                        const ModelSpawn &spawn2 = map_iter->second->UniqueEntries[tile->second];
+                        const ModelSpawn &spawn2 = map_iter->second->UniqueEntries[tile->second.Id];
                         success = success && ModelSpawn::writeToFile(tilefile, spawn2);
-                        // MapTree nodes to update when loading tile:
-                        std::map<uint32, uint32>::iterator nIdx = modelNodeIdx.find(spawn2.ID);
-                        if (success && fwrite(&nIdx->second, sizeof(uint32), 1, tilefile) != 1) success = false;
                     }
                     fclose(tilefile);
                 }
             }
-            // break; //test, extract only first map; TODO: remvoe this line
         }
 
         // add an object models, listed in temp_gameobject_models file
@@ -239,9 +243,9 @@ namespace VMAP
                 printf("spawning Map %u\n", mapID);
                 mapData[mapID] = current = new MapSpawns();
             }
-            else current = (*map_iter).second;
+            else current = map_iter->second;
             current->UniqueEntries.insert(pair<uint32, ModelSpawn>(spawn.ID, spawn));
-            current->TileEntries.insert(pair<uint32, uint32>(StaticMapTree::packTileID(tileX, tileY), spawn.ID));
+            current->TileEntries.insert(pair<uint32, TileSpawn>(StaticMapTree::packTileID(tileX, tileY), TileSpawn{ spawn.ID, spawn.flags }));
         }
         bool success = (ferror(dirf) == 0);
         fclose(dirf);

@@ -30,6 +30,7 @@ EndScriptData */
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WaypointManager.h"
@@ -672,7 +673,7 @@ public:
                 return false;
             }
 
-            wpCreature->CopyPhaseFrom(chr);
+            PhasingHandler::InheritPhaseShift(wpCreature, chr);
             wpCreature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
 
             ObjectGuid::LowType dbGuid = wpCreature->GetSpawnId();
@@ -890,7 +891,7 @@ public:
                     return false;
                 }
 
-                wpCreature->CopyPhaseFrom(chr);
+                PhasingHandler::InheritPhaseShift(wpCreature, chr);
                 wpCreature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
 
                 ObjectGuid::LowType dbGuid = wpCreature->GetSpawnId();
@@ -959,7 +960,7 @@ public:
                 return false;
             }
 
-            creature->CopyPhaseFrom(chr);
+            PhasingHandler::InheritPhaseShift(creature, chr);
             creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
 
             ObjectGuid::LowType dbGuid = creature->GetSpawnId();
@@ -1016,7 +1017,7 @@ public:
                 return false;
             }
 
-            creature->CopyPhaseFrom(chr);
+            PhasingHandler::InheritPhaseShift(creature, chr);
             creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
 
             ObjectGuid::LowType dbGuid = creature->GetSpawnId();
