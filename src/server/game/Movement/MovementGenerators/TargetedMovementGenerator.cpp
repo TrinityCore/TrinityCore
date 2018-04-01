@@ -141,10 +141,17 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
         {
             float distance = _offset + 1.0f;
 
-            if (owner->IsPet() && GetTarget()->GetTypeId() == TYPEID_PLAYER)
+            if (owner->IsPet())
             {
-                distance = 1.0f;
-                size = 1.0f;
+                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                {
+                    distance = 1.0f;
+                    size = 1.0f;
+                }
+                else if (GetTarget()->GetVictim() != owner) // if pet is not the target's victim
+                    _angle = float(M_PI); // then pet goes for the back
+                else
+                    _angle = 0.f; // else pet goes for the front
             }
             else if (hoverDiff)
                 size = size > hoverDiff ? std::sqrt(size * size - hoverDiff * hoverDiff) : 0.0f;
