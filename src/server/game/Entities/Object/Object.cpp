@@ -2990,7 +2990,7 @@ void WorldObject::GetNearPoint2D(WorldObject const* searcher, float &x, float &y
 
             float hoverDelta = myHover - searcherHover;
             if (hoverDelta != 0.0f)
-                effectiveReach = std::sqrt(effectiveReach * effectiveReach - hoverDelta * hoverDelta);
+                effectiveReach = std::sqrt(std::max(effectiveReach * effectiveReach - hoverDelta * hoverDelta, 0.0f));
         }
     }
 
