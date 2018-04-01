@@ -29,7 +29,8 @@ enum Spells
     SPELL_BANSHEECURSE          = 16867,
     SPELL_SILENCE               = 18327,
     SPELL_POSSESS               = 17244,    // The charm
-    SPELL_POSSESSED             = 17246     // The damage buff
+    SPELL_POSSESSED             = 17246,    // The damage buff
+    SPELL_POSSESS_INV           = 17250     // baroness becomes invisible while possessing a target
 };
 
 enum BaronessAnastariEvents
@@ -52,18 +53,18 @@ struct boss_baroness_anastari : public BossAI
 
     void Reset() override
     {
-        if (!me->IsVisible())
+        if (me->HasAura(SPELL_POSSESS_INV))
         {
-            if (Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid))
+            if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))
             {
                 if (possessedTarget->IsAlive())
                 {
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetVisible(true);
                 }
             }
+            me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
+            me->SetReactState(REACT_AGGRESSIVE);
         }
         _events.Reset();
     }
@@ -116,7 +117,7 @@ struct boss_baroness_anastari : public BossAI
                         DoCast(possessTarget, SPELL_POSSESS);
                         DoCast(possessTarget, SPELL_POSSESSED);
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetVisible(false);
+                        DoCastSelf(SPELL_POSSESS_INV);
                         _possessedTargetGuid = possessTarget->GetGUID();
                         _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 0s);
                     }
@@ -125,22 +126,22 @@ struct boss_baroness_anastari : public BossAI
                 }
                 break;
             case EVENT_INVISIBLE:
-                if (Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid))    // When there's a possessed target
+                if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))    // When there's a possessed target
                 {
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                    me->SetVisible(true);
+                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
                     possessedTarget->SetFullHealth();
                     me->SetReactState(REACT_AGGRESSIVE);
                     _events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                 }
                 break;
             case EVENT_CHECK_POSSESSED:
-                if (!me->IsVisible())
+                if (me->HasAura(SPELL_POSSESS_INV))
                 {
-                    if (Player* possessedTarget = ObjectAccessor::FindConnectedPlayer(_possessedTargetGuid))
+                    if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))
                     {
-                        if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->GetHealthPct() <= 50)
+                        if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->HealthBelowPct(50))
                             _events.ScheduleEvent(EVENT_INVISIBLE, 0s);
                         else
                             _events.ScheduleEvent(EVENT_CHECK_POSSESSED, 1s);
