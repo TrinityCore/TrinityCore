@@ -1952,6 +1952,21 @@ struct NamesReservedLocaleEntry
     uint8 LocaleMask;
 };
 
+struct NPCSoundsEntry
+{
+    uint32 ID;
+    uint32 hello;
+    uint32 goodbye;
+    uint32 pissed;
+    uint32 ack;
+};
+
+struct CreatureDisplayInfoStore
+{
+    bool HasRecord(uint32 id) const;
+    const CreatureDisplayInfoEntry * LookupEntry(uint32 id) const;
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry

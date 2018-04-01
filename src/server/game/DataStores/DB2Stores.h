@@ -64,7 +64,8 @@ TC_GAME_API extern DB2Storage<ChrSpecializationEntry>               sChrSpeciali
 TC_GAME_API extern DB2Storage<CinematicCameraEntry>                 sCinematicCameraStore;
 TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
 TC_GAME_API extern DB2Storage<ConversationLineEntry>                sConversationLineStore;
-TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
+TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStoreRaw;
+TC_GAME_API extern CreatureDisplayInfoStore                         sCreatureDisplayInfoStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoExtraEntry>        sCreatureDisplayInfoExtraStore;
 TC_GAME_API extern DB2Storage<CreatureFamilyEntry>                  sCreatureFamilyStore;
 TC_GAME_API extern DB2Storage<CreatureModelDataEntry>               sCreatureModelDataStore;
@@ -141,6 +142,7 @@ TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTre
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
 TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
+TC_GAME_API extern DB2Storage<NPCSoundsEntry>                       sNPCSoundsStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
