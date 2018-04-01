@@ -8342,15 +8342,15 @@ bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target) const
 
 WorldObjectSpellLineTargetCheck::WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, float range, WorldObject* caster,
     SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType)
-    : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _srcPosition(srcPosition), _dstPosition(dstPosition), _lineWidth(lineWidth) { }
+    : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _position(*srcPosition), _lineWidth(lineWidth)
+{
+    if (dstPosition && *srcPosition != *dstPosition)
+        _position.SetOrientation(srcPosition->GetAbsoluteAngle(dstPosition));
+}
 
 bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
 {
-    float angle = _caster->GetOrientation();
-    if (*_srcPosition != *_dstPosition)
-        angle = _srcPosition->GetAngle(_dstPosition);
-
-    if (!_caster->HasInLine(target, target->GetCombatReach(), _lineWidth, angle))
+    if (!_position.HasInLine(target, target->GetCombatReach(), _lineWidth))
         return false;
 
     return WorldObjectSpellTargetCheck::operator ()(target);

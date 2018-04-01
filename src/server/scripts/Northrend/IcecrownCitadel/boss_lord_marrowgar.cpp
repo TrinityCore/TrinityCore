@@ -378,7 +378,7 @@ class npc_coldflame : public CreatureScript
 
                 if (owner->HasAura(SPELL_BONE_STORM))
                 {
-                    float ang = Position::NormalizeOrientation(pos.GetAngle(me));
+                    float ang = pos.GetAbsoluteAngle(me);
                     me->SetOrientation(ang);
                     owner->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 5.0f - owner->GetCombatReach(), ang);
                 }
@@ -391,7 +391,7 @@ class npc_coldflame : public CreatureScript
                         return;
                     }
 
-                    float ang = Position::NormalizeOrientation(pos.GetAngle(target));
+                    float ang = pos.GetAbsoluteAngle(target);
                     me->SetOrientation(ang);
                     owner->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 15.0f - owner->GetCombatReach(), ang);
                 }

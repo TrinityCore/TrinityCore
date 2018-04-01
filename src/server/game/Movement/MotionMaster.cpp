@@ -337,7 +337,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     float distanceToTravel = _owner->GetExactDist2d(target) - distance;
     if (distanceToTravel > 0.0f)
     {
-        float angle = _owner->GetAngle(target);
+        float angle = _owner->GetAbsoluteAngle(target);
         float destx = _owner->GetPositionX() + distanceToTravel * std::cos(angle);
         float desty = _owner->GetPositionY() + distanceToTravel * std::sin(angle);
         MovePoint(id, destx, desty, target->GetPositionZ());
@@ -432,7 +432,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    _owner->GetNearPoint(_owner, x, y, z, _owner->GetCombatReach(), dist, _owner->GetAngle(srcX, srcY) + float(M_PI));
+    _owner->GetNearPoint(_owner, x, y, z, _owner->GetCombatReach(), dist, _owner->GetAbsoluteAngle(srcX, srcY) + float(M_PI));
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
@@ -497,7 +497,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);
     Position const& pos = { x, y, z, 0.0f };
-    float angle = pos.GetAngle(_owner->GetPositionX(), _owner->GetPositionY());
+    float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
 
     Movement::MoveSplineInit init(_owner);
 

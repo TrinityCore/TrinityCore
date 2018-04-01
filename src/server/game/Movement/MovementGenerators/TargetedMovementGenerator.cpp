@@ -134,7 +134,7 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
             if (hoverDiff)
                 size = size > hoverDiff ? std::sqrt(size * size - hoverDiff * hoverDiff) : 0.0f;
 
-            GetTarget()->GetNearPoint(owner, x, y, z, size, CONTACT_DISTANCE, GetTarget()->GetAngle(owner));
+            GetTarget()->GetNearPoint(owner, x, y, z, size, CONTACT_DISTANCE, GetTarget()->GetAbsoluteAngle(owner));
         }
         else
         {

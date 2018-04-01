@@ -1023,8 +1023,7 @@ namespace Trinity
 
     struct TC_GAME_API WorldObjectSpellLineTargetCheck : public WorldObjectSpellAreaTargetCheck
     {
-        Position const* _srcPosition;
-        Position const* _dstPosition;
+        Position _position;
         float _lineWidth;
         WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, float range, WorldObject* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType);

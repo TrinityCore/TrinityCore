@@ -1102,7 +1102,7 @@ Position WorldObject::GetHitSpherePointFor(Position const& dest) const
     G3D::Vector3 vObj(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
     G3D::Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * std::min(dest.GetExactDist(GetPosition()), GetCombatReach());
 
-    return Position(contactPoint.x, contactPoint.y, contactPoint.z, GetAngle(contactPoint.x, contactPoint.y));
+    return Position(contactPoint.x, contactPoint.y, contactPoint.z, GetAbsoluteAngle(contactPoint.x, contactPoint.y));
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const
@@ -1259,7 +1259,7 @@ bool WorldObject::IsInBetween(Position const& pos1, Position const& pos2, float 
     if (!size)
         size = GetCombatReach() / 2;
 
-    float angle = pos1.GetAngle(pos2);
+    float angle = pos1.GetAbsoluteAngle(pos2);
 
     // not using sqrt() for performance
     return (size * size) >= GetExactDist2dSq(pos1.GetPositionX() + std::cos(angle) * dist, pos1.GetPositionY() + std::sin(angle) * dist);
@@ -3047,7 +3047,7 @@ Position WorldObject::GetRandomNearPosition(float radius)
 void WorldObject::GetContactPoint(WorldObject const* obj, float& x, float& y, float& z, float distance2d /*= CONTACT_DISTANCE*/) const
 {
     // angle to face `obj` to `this` using distance includes size of `obj`
-    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2d, GetAngle(obj));
+    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2d, GetAbsoluteAngle(obj));
 }
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)

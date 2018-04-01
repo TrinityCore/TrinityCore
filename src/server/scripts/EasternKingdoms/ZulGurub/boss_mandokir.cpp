@@ -392,7 +392,7 @@ class npc_chained_spirit : public CreatureScript
                     Position pos;
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
                     {
-                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 5.0f, target->GetAngle(me));
+                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 5.0f, target->GetAbsoluteAngle(me));
                         me->GetMotionMaster()->MovePoint(POINT_START_REVIVE, pos);
                     }
                 }
@@ -597,8 +597,8 @@ class spell_mandokir_devastating_slam : public SpellScriptLoader
                 if (Player* target = GetHitPlayer())
                 {
                     caster->AttackStop();
-                    caster->SetOrientation(caster->GetAngle(target));
-                    caster->SetFacingTo(caster->GetAngle(target));
+                    caster->SetOrientation(caster->GetAbsoluteAngle(target));
+                    caster->SetFacingTo(caster->GetAbsoluteAngle(target));
 
                     caster->CastSpell(caster, SPELL_DEVASTATING_SLAM, false);
 

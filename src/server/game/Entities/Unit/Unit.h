@@ -797,7 +797,6 @@ class TC_GAME_API Unit : public WorldObject
         float GetMeleeRange(Unit const* target) const;
         virtual SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = BASE_ATTACK) const = 0;
         bool IsWithinBoundaryRadius(const Unit* obj) const;
-        void GetRandomContactPoint(Unit const* target, float& x, float& y, float& z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
 

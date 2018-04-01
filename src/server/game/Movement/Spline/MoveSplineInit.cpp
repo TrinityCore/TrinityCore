@@ -203,7 +203,7 @@ namespace Movement
 
     void MoveSplineInit::SetFacing(Unit const* target)
     {
-        args.facing.angle = unit->GetAngle(target);
+        args.facing.angle = unit->GetAbsoluteAngle(target);
         args.facing.target = target->GetGUID();
         args.facing.type = MONSTER_MOVE_FACING_TARGET;
     }
