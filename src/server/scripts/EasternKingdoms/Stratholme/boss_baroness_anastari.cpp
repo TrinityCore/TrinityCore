@@ -55,7 +55,7 @@ struct boss_baroness_anastari : public BossAI
     {
         if (me->HasAura(SPELL_POSSESS_INV))
         {
-            if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))
+            if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))
             {
                 if (possessedTarget->IsAlive())
                 {
@@ -124,7 +124,7 @@ struct boss_baroness_anastari : public BossAI
                     }
                     break;
                 case EVENT_INVISIBLE:
-                    if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))    // When there's a possessed target
+                    if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))    // When there's a possessed target
                     {
                         possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                         possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
@@ -136,7 +136,7 @@ struct boss_baroness_anastari : public BossAI
                 case EVENT_CHECK_POSSESSED:
                     if (me->HasAura(SPELL_POSSESS_INV))
                     {
-                        if (Player* possessedTarget = ObjectAccessor::GetPlayer(me->GetMap(), _possessedTargetGuid))
+                        if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))
                         {
                             if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->HealthBelowPct(50))
                                 _events.ScheduleEvent(EVENT_INVISIBLE, 0s);
