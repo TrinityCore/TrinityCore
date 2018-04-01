@@ -16,9 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "vortex_pinnacle.h"
 
 enum Spells
@@ -77,10 +83,11 @@ enum Points
     POINT_TWISTER_MAX = 24,
 };
 
-const Position InvisibleStalkerPos = { -1216.12f, 64.026f, 734.2573f };
-const Position platform = { -1213.83f, 62.99f, 735.2f, 0.0f };
+Position const InvisibleStalkerPos = { -1216.12f, 64.026f, 734.2573f };
+Position const platform = { -1213.83f, 62.99f, 735.2f, 0.0f };
 
-const Position TwisterSpawnPoints[POINT_TWISTER_MAX] = {
+Position const TwisterSpawnPoints[POINT_TWISTER_MAX] =
+{
     { -1226.936f, 58.03993f, 734.2574f },
     { -1250.604f, 78.47916f, 729.8842f },
     { -1255.609f, 63.03125f, 729.05f   },
@@ -104,7 +111,7 @@ const Position TwisterSpawnPoints[POINT_TWISTER_MAX] = {
     { -1223.229f, 40.89063f, 734.2574f },
     { -1211.016f, 105.4375f, 740.8424f },
     { -1189.568f, 95.77604f, 740.8668f },
-    { -1204.863f, 40.49826f, 734.2564f },
+    { -1204.863f, 40.49826f, 734.2564f }
 };
 
 // TO-DO:
@@ -148,7 +155,6 @@ class boss_altairus : public CreatureScript
             void CheckPlatform()
             {
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
-
                 if (!playerList.isEmpty())
                     for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if (Player* player = itr->GetSource())
@@ -195,7 +201,7 @@ class boss_altairus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_altairusAI>(creature);
+            return GetVortexPinnacleAI<boss_altairusAI>(creature);
         }
 };
 
@@ -212,7 +218,7 @@ class npc_air_current : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void SpellHit(Unit* /*unit*/, const SpellInfo* spellInfo) override
+            void SpellHit(Unit* /*unit*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id != SPELL_CALL_THE_WIND)
                     return;
@@ -257,7 +263,7 @@ class npc_air_current : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_air_currentAI>(creature);
+            return GetVortexPinnacleAI<npc_air_currentAI>(creature);
         }
 };
 
@@ -273,9 +279,7 @@ class spell_call_the_wind : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CALL_THE_WIND_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CALL_THE_WIND_AURA });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

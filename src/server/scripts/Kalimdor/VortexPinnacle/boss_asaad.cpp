@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "AreaBoundary.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "vortex_pinnacle.h"
 
 enum Spells
@@ -214,7 +218,7 @@ class boss_asaad : public CreatureScript
                 BossAI::JustSummoned(creature);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id != SPELL_SOTS_TARGETING || target->GetEntry() != NPC_STORM_TARGET)
                     return;
@@ -370,7 +374,7 @@ class boss_asaad : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_asaadAI>(creature);
+            return GetVortexPinnacleAI<boss_asaadAI>(creature);
         }
 };
 
@@ -427,7 +431,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_storm_targetAI>(creature);
+        return GetVortexPinnacleAI<npc_storm_targetAI>(creature);
     }
 };
 
@@ -458,18 +462,18 @@ public:
             {
                 case POINT_STORM_B:
                     if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
-                        stormTargetB->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_A);
+                        stormTargetB->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_A);
                     _events.ScheduleEvent(EVENT_STORM_MOVE_C, 1200);
                     break;
                 case POINT_STORM_C:
                     if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
-                        stormTargetC->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_B);
+                        stormTargetC->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_B);
                     _events.ScheduleEvent(EVENT_STORM_MOVE_A, 1200);
                     break;
                 case POINT_STORM_A:
                 {
                     if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
-                        stormTargetA->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_C);
+                        stormTargetA->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_C);
 
                     DoCast(me, SPELL_STORM_SUMMON_GROUNDING_FIELD);
 
@@ -538,7 +542,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_unstable_grounding_fieldAI>(creature);
+        return GetVortexPinnacleAI<npc_unstable_grounding_fieldAI>(creature);
     }
 };
 
@@ -583,7 +587,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_asaad_grounding_fieldAI>(creature);
+        return GetVortexPinnacleAI<npc_asaad_grounding_fieldAI>(creature);
     }
 };
 
@@ -633,9 +637,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_UNSTABLE_GROUNDING_FIELD))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_UNSTABLE_GROUNDING_FIELD });
         }
 
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -784,7 +786,11 @@ public:
             if (!stormTargetA || !stormTargetB || !stormTargetC)
                 return;
 
-            targets.remove_if(TargetInTriangleCheck(false, stormTargetA->GetPosition(), stormTargetB->GetPosition(), stormTargetC->GetPosition()));
+            TriangleBoundary triangle(*stormTargetA, *stormTargetB, *stormTargetC);
+            targets.remove_if([&](WorldObject* target)
+            {
+                return triangle.IsWithinBoundary(target);
+            });
         }
 
         void Register() override

@@ -19,6 +19,7 @@
 #define TRINITYCORE_AREATRIGGER_H
 
 #include "Object.h"
+#include "MapObject.h"
 
 class Unit;
 class SpellInfo;

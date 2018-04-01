@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "Player.h"
+#include "DBCStructure.h"
 #include "Log.h"
-#include "ObjectAccessor.h"
+#include "Map.h"
 #include "MovementStructures.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {

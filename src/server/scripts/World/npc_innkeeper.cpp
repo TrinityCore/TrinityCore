@@ -64,7 +64,7 @@ class npc_innkeeper : public CreatureScript
             {
                 if (IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
                 {
-                    const char* localizedEntry;
+                    char const* localizedEntry;
                     switch (player->GetSession()->GetSessionDbcLocale())
                     {
                         case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
@@ -94,7 +94,7 @@ class npc_innkeeper : public CreatureScript
 
                 if (me->IsInnkeeper())
                 {
-                    const char* localizedEntry;
+                    char const* localizedEntry;
                     switch (player->GetSession()->GetSessionDbcLocale())
                     {
                         case LOCALE_frFR: localizedEntry = LOCALE_INNKEEPER_2; break;

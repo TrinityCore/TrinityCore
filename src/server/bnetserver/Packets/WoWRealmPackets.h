@@ -19,7 +19,7 @@
 #define WoWRealmPackets_h__
 
 #include "PacketsBase.h"
-#include "RealmList.h"
+#include "Realm.h"
 
 namespace Battlenet
 {

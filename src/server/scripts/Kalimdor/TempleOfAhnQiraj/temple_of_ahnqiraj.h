@@ -19,6 +19,9 @@
 #ifndef DEF_TEMPLE_OF_AHNQIRAJ_H
 #define DEF_TEMPLE_OF_AHNQIRAJ_H
 
+#include "CreatureAIImpl.h"
+
+#define AQ40ScriptName "instance_temple_of_ahnqiraj"
 #define DataHeader "AQT"
 
 enum AQTDataTypes
@@ -61,5 +64,11 @@ enum AQTCreatures
     NPC_VEKLOR              = 15276,
     NPC_VEKNILASH           = 15275
 };
+
+template <class AI, class T>
+inline AI* GetAQ40AI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, AQ40ScriptName);
+}
 
 #endif

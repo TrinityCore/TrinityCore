@@ -20,16 +20,16 @@
 #define __AUTHSESSION_H__
 
 #include "Common.h"
-#include "ByteBuffer.h"
-#include "Socket.h"
 #include "BigNumber.h"
-#include "QueryResult.h"
+#include "DatabaseEnvFwd.h"
 #include "QueryCallbackProcessor.h"
-#include <memory>
+#include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <memory>
 
 using boost::asio::ip::tcp;
 
+class ByteBuffer;
 class Field;
 struct AuthHandler;
 

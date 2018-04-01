@@ -16,14 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "magtheridons_lair.h"
+#include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "PassiveAI.h"
-#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -304,7 +305,7 @@ class boss_magtheridon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_magtheridonAI>(creature);
+            return GetMagtheridonsLairAI<boss_magtheridonAI>(creature);
         }
 };
 
@@ -422,7 +423,7 @@ class npc_hellfire_channeler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_hellfire_channelerAI>(creature);
+            return GetMagtheridonsLairAI<npc_hellfire_channelerAI>(creature);
         }
 };
 
@@ -455,7 +456,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_magtheridon_roomAI(creature);
+        return GetMagtheridonsLairAI<npc_magtheridon_roomAI>(creature);
     }
 };
 
@@ -483,7 +484,7 @@ class go_manticron_cube : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_manticron_cubeAI(go);
+            return GetMagtheridonsLairAI<go_manticron_cubeAI>(go);
         }
 };
 
@@ -499,9 +500,7 @@ class spell_magtheridon_blaze_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLAZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLAZE });
             }
 
             void HandleAura()
@@ -534,9 +533,7 @@ class spell_magtheridon_shadow_grasp : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIND_EXHAUSTION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -570,10 +567,7 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_CAGE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHADOW_GRASP_VISUAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHADOW_CAGE, SPELL_SHADOW_GRASP_VISUAL });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

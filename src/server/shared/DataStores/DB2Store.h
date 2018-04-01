@@ -18,8 +18,9 @@
 #ifndef DB2STORE_H
 #define DB2STORE_H
 
-#include "DB2FileLoader.h"
 #include "Common.h"
+#include "DB2FileLoader.h"
+#include "Errors.h"
 #include "ByteBuffer.h"
 #include <vector>
 
@@ -45,7 +46,7 @@ class DB2Storage;
 template<class T>
 bool DB2StorageHasEntry(DB2Storage<T> const& store, uint32 id)
 {
-    return store.LookupEntry(id) != NULL;
+    return store.LookupEntry(id) != nullptr;
 }
 
 template<class T>
@@ -100,15 +101,15 @@ void WriteDB2RecordToPacket(DB2Storage<T> const& store, uint32 id, uint32 locale
 template<class T>
 class DB2Storage : public DB2StorageBase
 {
-    typedef std::list<char*> StringPoolList;
+    typedef std::vector<char*> StringPoolList;
     typedef std::vector<T*> DataTableEx;
     typedef bool(*EntryChecker)(DB2Storage<T> const&, uint32);
     typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, LocaleConstant, ByteBuffer&);
 public:
-    DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
-        nCount(0), fieldCount(0), fmt(f), m_dataTable(NULL)
+    DB2Storage(char const* f, EntryChecker checkEntry = nullptr, PacketWriter writePacket = nullptr) :
+        nCount(0), fieldCount(0), fmt(f), m_dataTable(nullptr)
     {
-        indexTable.asT = NULL;
+        indexTable.asT = nullptr;
         CheckEntry = checkEntry ? checkEntry : (EntryChecker)&DB2StorageHasEntry<T>;
         WritePacket = writePacket ? writePacket : (PacketWriter)&WriteDB2RecordToPacket<T>;
     }
@@ -116,7 +117,7 @@ public:
     ~DB2Storage() { Clear(); }
 
     bool HasRecord(uint32 id) const { return CheckEntry(*this, id); }
-    T const* LookupEntry(uint32 id) const { return (id >= nCount) ? NULL : indexTable.asT[id]; }
+    T const* LookupEntry(uint32 id) const { return (id >= nCount) ? nullptr : indexTable.asT[id]; }
     uint32 GetNumRows() const { return nCount; }
     char const* GetFormat() const { return fmt; }
     uint32 GetFieldCount() const { return fieldCount; }
@@ -128,7 +129,7 @@ public:
     T* CreateEntry(uint32 id, bool evenIfExists = false)
     {
         if (evenIfExists && LookupEntry(id))
-            return NULL;
+            return nullptr;
 
         if (id >= nCount)
         {
@@ -147,7 +148,7 @@ public:
         return entryDst;
     }
 
-    void EraseEntry(uint32 id) { indexTable.asT[id] = NULL; }
+    void EraseEntry(uint32 id) { indexTable.asT[id] = nullptr; }
 
     bool Load(char const* fn, LocaleConstant localeConstant)
     {
@@ -168,8 +169,8 @@ public:
         // load strings from dbc data
         m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, localeConstant));
 
-        // error in dbc file at loading if NULL
-        return indexTable.asT != NULL;
+        // error in dbc file at loading if nullptr
+        return indexTable.asT != nullptr;
     }
 
     bool LoadStringsFrom(char const* fn, uint32 locale)
@@ -195,20 +196,18 @@ public:
             return;
 
         delete[] reinterpret_cast<char*>(indexTable.asT);
-        indexTable.asT = NULL;
+        indexTable.asT = nullptr;
 
         delete[] reinterpret_cast<char*>(m_dataTable);
-        m_dataTable = NULL;
+        m_dataTable = nullptr;
 
         for (typename DataTableEx::iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
             delete *itr;
         m_dataTableEx.clear();
 
-        while (!m_stringPoolList.empty())
-        {
-            delete[] m_stringPoolList.front();
-            m_stringPoolList.pop_front();
-        }
+        for (char* strings : m_stringPoolList)
+            delete[] strings;
+        m_stringPoolList.clear();
 
         nCount = 0;
     }

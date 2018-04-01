@@ -18,13 +18,29 @@
 #ifndef _GUILDMGR_H
 #define _GUILDMGR_H
 
-#include "Guild.h"
+#include "Define.h"
+#include "ObjectGuid.h"
+#include <unordered_map>
+#include <vector>
+
+class Guild;
+
+struct GuildReward
+{
+    uint32 Entry;
+    int32 Racemask;
+    uint64 Price;
+    uint32 AchievementId;
+    uint8 Standing;
+};
 
 class TC_GAME_API GuildMgr
 {
 private:
     GuildMgr();
     ~GuildMgr();
+    GuildMgr(GuildMgr const&) = delete;
+    GuildMgr& operator=(GuildMgr const&) = delete;
 
 public:
     static GuildMgr* instance();
@@ -43,8 +59,6 @@ public:
     void RemoveGuild(ObjectGuid::LowType guildId);
 
     void SaveGuilds();
-
-    void ResetReputationCaps();
 
     ObjectGuid::LowType GenerateGuildId();
     void SetNextGuildId(ObjectGuid::LowType Id) { NextGuildId = Id; }

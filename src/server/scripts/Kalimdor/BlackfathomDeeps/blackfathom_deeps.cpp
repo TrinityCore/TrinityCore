@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObjectAI.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "blackfathom_deeps.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 enum Spells
 {
@@ -53,7 +55,7 @@ class go_blackfathom_altar : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_blackfathom_altarAI(go);
+            return GetBlackfathomDeepsAI<go_blackfathom_altarAI>(go);
         }
 };
 
@@ -64,24 +66,22 @@ class go_blackfathom_fire : public GameObjectScript
 
         struct go_blackfathom_fireAI : public GameObjectAI
         {
-            go_blackfathom_fireAI(GameObject* go) : GameObjectAI(go) { }
+            go_blackfathom_fireAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* /*player*/) override
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
-                {
-                    me->SetGoState(GO_STATE_ACTIVE);
-                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
-                    return true;
-                }
-                return false;
+                me->SetGoState(GO_STATE_ACTIVE);
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
+                return true;
             }
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_blackfathom_fireAI(go);
+            return GetBlackfathomDeepsAI<go_blackfathom_fireAI>(go);
         }
 };
 
@@ -89,11 +89,6 @@ class npc_blackfathom_deeps_event : public CreatureScript
 {
 public:
     npc_blackfathom_deeps_event() : CreatureScript("npc_blackfathom_deeps_event") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_blackfathom_deeps_eventAI>(creature);
-    }
 
     struct npc_blackfathom_deeps_eventAI : public ScriptedAI
     {
@@ -133,8 +128,7 @@ public:
 
         void AttackPlayer()
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-
+            Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
             if (PlList.isEmpty())
                 return;
 
@@ -210,6 +204,11 @@ public:
                 instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackfathomDeepsAI<npc_blackfathom_deeps_eventAI>(creature);
+    }
 };
 
 enum Morridune
@@ -254,7 +253,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_morriduneAI(creature);
+        return GetBlackfathomDeepsAI<npc_morriduneAI>(creature);
     }
 };
 

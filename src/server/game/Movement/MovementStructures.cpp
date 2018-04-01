@@ -17,6 +17,7 @@
  */
 
 #include "MovementStructures.h"
+#include "Log.h"
 #include "Player.h"
 
 MovementStatusElements const PlayerMove[] =
@@ -5486,7 +5487,7 @@ bool Movement::PrintInvalidSequenceElement(MovementStatusElements const element,
     return false;
 }
 
-Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= NULL*/)
+Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= nullptr*/)
     : _extraElements(extras), _unit(unit)
 {
     if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->m_unitMovedByMe->GetTypeId() == TYPEID_PLAYER)
@@ -5751,5 +5752,5 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             break;
     }
 
-    return NULL;
+    return nullptr;
 }

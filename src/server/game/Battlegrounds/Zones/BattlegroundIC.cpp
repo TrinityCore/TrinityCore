@@ -16,15 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "Battleground.h"
 #include "BattlegroundIC.h"
-#include "WorldPacket.h"
+#include "Battleground.h"
 #include "GameObject.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
-#include "Vehicle.h"
-#include "Transport.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "Transport.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
+
+void BattlegroundICScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
+{
+    data.WriteBits(2, 24); // Objectives Count
+    content << uint32(BasesAssaulted);
+    content << uint32(BasesDefended);
+}
 
 BattlegroundIC::BattlegroundIC()
 {
@@ -47,8 +56,8 @@ BattlegroundIC::BattlegroundIC()
 
     siegeEngineWorkshopTimer = WORKSHOP_UPDATE_TIME;
 
-    gunshipHorde = NULL;
-    gunshipAlliance = NULL;
+    gunshipHorde = nullptr;
+    gunshipAlliance = nullptr;
 }
 
 BattlegroundIC::~BattlegroundIC() { }
@@ -853,7 +862,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
     SendBroadcastText(textId, msgType);
 }
 
-WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
@@ -863,7 +872,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
         if (nodePoint[i].faction == player->GetTeamId())
             nodes.push_back(i);
 
-    WorldSafeLocsEntry const* good_entry = NULL;
+    WorldSafeLocsEntry const* good_entry = nullptr;
     // If so, select the closest node to place ghost on
     if (!nodes.empty())
     {

@@ -24,10 +24,12 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
-#include "GameObjectAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad
@@ -40,27 +42,24 @@ public:
 
     struct go_barrel_old_hillsbradAI : public GameObjectAI
     {
-        go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go) { }
+        go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
 
         bool GossipHello(Player* /*player*/) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-            {
-                if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
-                    return false;
+            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+                return false;
 
-                instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
-            }
-
+            instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
             return false;
         }
     };
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_barrel_old_hillsbradAI(go);
+        return GetOldHillsbradAI<go_barrel_old_hillsbradAI>(go);
     }
-
 };
 
 /*######
@@ -82,7 +81,7 @@ enum LieutenantDrake
     SPELL_FRIGHTENING_SHOUT = 33789
 };
 
-G3D::Vector3 const DrakeWP[]=
+Position const DrakeWP[]=
 {
     { 2125.84f, 88.2535f, 54.8830f },
     { 2111.01f, 93.8022f, 52.6356f },
@@ -109,11 +108,6 @@ class boss_lieutenant_drake : public CreatureScript
 {
 public:
     boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_lieutenant_drakeAI(creature);
-    }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
     {
@@ -166,7 +160,7 @@ public:
             /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
-                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId].x, DrakeWP[wpId].y, DrakeWP[wpId].z);
+                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId]);
                 ++wpId;
             }
 
@@ -201,6 +195,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetOldHillsbradAI<boss_lieutenant_drakeAI>(creature);
+    }
 };
 
 void AddSC_boss_lieutenant_drake()

@@ -22,22 +22,22 @@ SDCategory: Trial Of the Champion
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "trial_of_the_champion.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "trial_of_the_champion.h"
 
 #define MAX_ENCOUNTER  4
 
 class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
-    instance_trial_of_the_champion() : InstanceMapScript("instance_trial_of_the_champion", 650) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_trial_of_the_champion_InstanceMapScript(map);
-    }
+    instance_trial_of_the_champion() : InstanceMapScript(ToCScriptName, 650) { }
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
@@ -89,7 +89,7 @@ public:
 
         void OnCreatureCreate(Creature* creature) override
         {
-            Map::PlayerList const &players = instance->GetPlayers();
+            Map::PlayerList const& players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
 
             if (!players.isEmpty())
@@ -160,7 +160,7 @@ public:
                     uiMovementDone = uiData;
                     if (uiMovementDone == 3)
                     {
-                        if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                             pAnnouncer->AI()->SetData(DATA_IN_POSITION, 0);
                     }
                     break;
@@ -171,16 +171,17 @@ public:
                         for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* summon = instance->GetCreature(*itr))
                                 summon->RemoveFromWorld();
-                    }else if (uiData == DONE)
+                    }
+                    else if (uiData == DONE)
                     {
                         ++uiGrandChampionsDeaths;
                         if (uiGrandChampionsDeaths == 3)
                         {
-                            if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
+                            if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
                             }
                         }
                     }
@@ -189,7 +190,7 @@ public:
                     uiArgentSoldierDeaths = uiData;
                     if (uiArgentSoldierDeaths == 9)
                     {
-                        if (Creature* pBoss =  instance->GetCreature(uiArgentChampionGUID))
+                        if (Creature* pBoss = instance->GetCreature(uiArgentChampionGUID))
                         {
                             pBoss->GetMotionMaster()->MovePoint(0, 746.88f, 618.74f, 411.06f);
                             pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -203,7 +204,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
@@ -212,7 +213,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
                     }
                     break;
             }
@@ -287,7 +288,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {
@@ -316,12 +317,18 @@ public:
 
                 uiGrandChampionsDeaths = data4;
                 uiMovementDone = data5;
-            } else OUT_LOAD_INST_DATA_FAIL;
+            }
+            else
+                OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_trial_of_the_champion_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_trial_of_the_champion()

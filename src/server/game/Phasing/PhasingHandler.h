@@ -26,6 +26,7 @@ class Map;
 class PhaseShift;
 class Player;
 class WorldObject;
+class WorldPacket;
 
 class TC_GAME_API PhasingHandler
 {

@@ -16,8 +16,17 @@
  */
 
 #include "PlayerAI.h"
+#include "Creature.h"
+#include "DBCStores.h"
+#include "Item.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 
 enum Specs
 {
@@ -425,6 +434,21 @@ enum Spells
     SPELL_LIFEBLOOM           = 48451
 };
 
+PlayerAI::PlayerAI(Player* player) : UnitAI(player), me(player),
+    _selfSpec(PlayerAI::GetPlayerSpec(player)),
+    _isSelfHealer(PlayerAI::IsPlayerHealer(player)),
+    _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player))
+{
+}
+
+Creature* PlayerAI::GetCharmer() const
+{
+    if (ObjectGuid charmerGUID = me->GetCharmerGUID())
+        if (charmerGUID.IsCreature())
+            return ObjectAccessor::GetCreature(*me, charmerGUID);
+    return nullptr;
+}
+
 uint8 PlayerAI::GetPlayerSpec(Player const* who)
 {
     if (!who)
@@ -592,6 +616,13 @@ PlayerAI::TargetedSpell PlayerAI::SelectSpellCast(PossibleSpellVector& spells)
     return selected;
 }
 
+void PlayerAI::DoCastAtTarget(TargetedSpell spell)
+{
+    SpellCastTargets targets;
+    targets.SetUnitTarget(spell.second);
+    spell.first->prepare(&targets);
+}
+
 void PlayerAI::DoRangedAttackIfReady()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -663,13 +694,19 @@ void PlayerAI::CancelAllShapeshifts()
         me->RemoveOwnedAura(aura, AURA_REMOVE_BY_CANCEL);
 }
 
-struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, bool>
+Unit* PlayerAI::SelectAttackTarget() const
+{
+    return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr;
+}
+
+struct UncontrolledTargetSelectPredicate
 {
     bool operator()(Unit const* target) const
     {
         return !target->HasBreakableByDamageCrowdControlAura();
     }
 };
+
 Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 {
     if (Unit* charmer = me->GetCharmer())

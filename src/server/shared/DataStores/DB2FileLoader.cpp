@@ -39,16 +39,16 @@ DB2FileLoader::DB2FileLoader()
     locale = 0;
     unk5 = 0;
 
-    data = NULL;
-    fieldsOffset = NULL;
+    data = nullptr;
+    fieldsOffset = nullptr;
 }
 
-bool DB2FileLoader::Load(const char *filename, const char *fmt)
+bool DB2FileLoader::Load(char const* filename, char const* fmt)
 {
     if (data)
     {
         delete [] data;
-        data = NULL;
+        data = nullptr;
     }
 
     FILE* f = fopen(filename, "rb");
@@ -202,7 +202,7 @@ DB2FileLoader::Record DB2FileLoader::getRecord(size_t id)
     return Record(*this, data + id*recordSize);
 }
 
-uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
+uint32 DB2FileLoader::GetFormatRecordSize(char const* format, int32* index_pos)
 {
     uint32 recordsize = 0;
     int32 i = -1;
@@ -236,7 +236,7 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
     return recordsize;
 }
 
-uint32 DB2FileLoader::GetFormatStringsFields(const char * format)
+uint32 DB2FileLoader::GetFormatStringsFields(char const* format)
 {
     uint32 stringfields = 0;
     for (uint32 x=0; format[x]; ++x)
@@ -246,12 +246,11 @@ uint32 DB2FileLoader::GetFormatStringsFields(const char * format)
     return stringfields;
 }
 
-char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable)
+char* DB2FileLoader::AutoProduceData(char const* format, uint32& records, char**& indexTable)
 {
-
     typedef char * ptr;
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     //get struct size and index pos
     int32 i;
@@ -310,7 +309,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += 1;
                     break;
                 case FT_STRING:
-                    *((char**)(&dataTable[offset])) = NULL;   // will be replaces non-empty or "" strings in AutoProduceStrings
+                    *((char**)(&dataTable[offset])) = nullptr;   // will be replaces non-empty or "" strings in AutoProduceStrings
                     offset += sizeof(char*);
                     break;
             }
@@ -322,10 +321,10 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
 
 static char const* const nullStr = "";
 
-char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* dataTable)
+char* DB2FileLoader::AutoProduceStringsArrayHolders(char const* format, char* dataTable)
 {
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     // we store flat holders pool as single memory block
     size_t stringFields = GetFormatStringsFields(format);
@@ -380,10 +379,10 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     return stringHoldersPool;
 }
 
-char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uint32 locale)
+char* DB2FileLoader::AutoProduceStrings(char const* format, char* dataTable, uint32 locale)
 {
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     char* stringPool= new char[stringSize];
     memcpy(stringPool, stringTable, stringSize);
@@ -410,7 +409,7 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
                 if (db2str->Str[locale] == nullStr)
                 {
                     const char * st = getRecord(y).getString(x);
-                    db2str->Str[locale] = stringPool + (st - (const char*)stringTable);
+                    db2str->Str[locale] = stringPool + (st - (char const*)stringTable);
                 }
 
                 offset += sizeof(char*);

@@ -19,9 +19,10 @@
 #ifndef __TRINITY_SOCIALMGR_H
 #define __TRINITY_SOCIALMGR_H
 
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "Common.h"
 #include "ObjectGuid.h"
+#include <map>
 
 class Player;
 class WorldPacket;

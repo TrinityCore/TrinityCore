@@ -24,9 +24,13 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 // 18 Coordinates for Infernal spawns
 struct InfernalPoint
@@ -102,15 +106,10 @@ class netherspite_infernal : public CreatureScript
 public:
     netherspite_infernal() : CreatureScript("netherspite_infernal") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new netherspite_infernalAI(creature);
-    }
-
     struct netherspite_infernalAI : public ScriptedAI
     {
         netherspite_infernalAI(Creature* creature) : ScriptedAI(creature),
-            HellfireTimer(0), CleanupTimer(0), point(NULL) { }
+            HellfireTimer(0), CleanupTimer(0), point(nullptr) { }
 
         uint32 HellfireTimer;
         uint32 CleanupTimer;
@@ -151,7 +150,7 @@ public:
                     creature->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_INFERNAL_RELAY)
             {
@@ -170,17 +169,17 @@ public:
 
         void Cleanup();
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<netherspite_infernalAI>(creature);
+    }
 };
 
 class boss_malchezaar : public CreatureScript
 {
 public:
     boss_malchezaar() : CreatureScript("boss_malchezaar") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_malchezaarAI>(creature);
-    }
 
     struct boss_malchezaarAI : public ScriptedAI
     {
@@ -308,16 +307,15 @@ public:
 
         void EnfeebleHealthEffect()
         {
-            const SpellInfo* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
+            SpellInfo const* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
             if (!info)
                 return;
 
-            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
-            std::vector<Unit*> targets;
-
+            ThreatContainer::StorageType const& t_list = me->getThreatManager().getThreatList();
             if (t_list.empty())
                 return;
 
+            std::vector<Unit*> targets;
             //begin + 1, so we don't target the one with the highest threat
             ThreatContainer::StorageType::const_iterator itr = t_list.begin();
             std::advance(itr, 1);
@@ -356,7 +354,7 @@ public:
 
         void SummonInfernal(const uint32 /*diff*/)
         {
-            InfernalPoint *point = NULL;
+            InfernalPoint* point = nullptr;
             Position pos;
             if ((me->GetMapId() != 532) || positions.empty())
                 pos = me->GetRandomNearPosition(60);
@@ -367,7 +365,6 @@ public:
             }
 
             Creature* infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
-
             if (infernal)
             {
                 infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
@@ -524,7 +521,7 @@ public:
             {
                 if (SWPainTimer <= diff)
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     if (phase == 1)
                         target = me->GetVictim();        // the tank
                     else                                          // anyone but the tank
@@ -573,7 +570,7 @@ public:
             }
         }
 
-        void Cleanup(Creature* infernal, InfernalPoint *point)
+        void Cleanup(Creature* infernal, InfernalPoint* point)
         {
             for (GuidVector::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
             {
@@ -587,6 +584,11 @@ public:
             positions.push_back(point);
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_malchezaarAI>(creature);
+    }
 };
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()

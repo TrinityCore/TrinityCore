@@ -18,6 +18,8 @@
 #ifndef DEF_BLACKWING_LAIR_H
 #define DEF_BLACKWING_LAIR_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount     = 8;
 
 #define BRLScriptName "instance_blackwing_lair"
@@ -79,5 +81,11 @@ enum BWLMisc
     ACTION_PHASE_TWO            = 1,
     DATA_EGG_EVENT
 };
+
+template <class AI, class T>
+inline AI* GetBlackwingLairAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BRLScriptName);
+}
 
 #endif

@@ -21,20 +21,21 @@
  * Scriptnames of files in this file should be prefixed with "spell_mage_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellHistory.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Pet.h"
 #include "GridNotifiers.h"
+#include "Pet.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum MageSpells
 {
-    SPELL_ARCANCE_POTENCY_RANK_1                 = 31571,
-    SPELL_ARCANCE_POTENCY_RANK_2                 = 31572,
-    SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1         = 57529,
-    SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2         = 57531,
+    SPELL_MAGE_ARCANE_POTENCY_RANK_1             = 31571,
+    SPELL_MAGE_ARCANE_POTENCY_RANK_2             = 31572,
+    SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1     = 57529,
+    SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2     = 57531,
 
     SPELL_MAGE_ARCANE_BLAST                      = 30451,
     SPELL_MAGE_ARCANE_MISSILES                   = 5143,
@@ -131,12 +132,13 @@ class spell_mage_arcane_potency : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_RANK_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_ARCANE_POTENCY_RANK_1,
+                    SPELL_MAGE_ARCANE_POTENCY_RANK_2,
+                    SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1,
+                    SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2
+                });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -144,14 +146,14 @@ class spell_mage_arcane_potency : public SpellScriptLoader
                 PreventDefaultAction();
                 uint32 spellId = 0;
 
-                if (GetSpellInfo()->Id == SPELL_ARCANCE_POTENCY_RANK_1)
-                    spellId = SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1;
-                else if (GetSpellInfo()->Id == SPELL_ARCANCE_POTENCY_RANK_2)
-                    spellId = SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2;
+                if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_POTENCY_RANK_1)
+                    spellId = SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1;
+                else if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_POTENCY_RANK_2)
+                    spellId = SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2;
                 if (!spellId)
                     return;
 
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
 
             }
 
@@ -184,9 +186,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FLAMESTRIKE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_FLAMESTRIKE });
             }
 
             void CountTargets(std::list<WorldObject*>& targetList)
@@ -216,8 +216,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
                 AfterCast += SpellCastFn(spell_mage_blast_wave_SpellScript::HandleImprovedFlamestrike);
             }
 
-        private:
-            uint32 _targetCount =0;
+            uint32 _targetCount = 0;
         };
 
         SpellScript* GetSpellScript() const override
@@ -238,15 +237,13 @@ class spell_mage_blazing_speed : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BLAZING_SPEED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_BLAZING_SPEED });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -274,11 +271,11 @@ class spell_mage_blizzard : public SpellScriptLoader
 
            bool Validate(SpellInfo const* /*spellInfo*/) override
            {
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
-                   return false;
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R2))
-                   return false;
-               return true;
+               return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_CHILLED_R1,
+                    SPELL_MAGE_CHILLED_R2
+                });
            }
 
            void AddChillEffect(SpellEffIndex /*effIndex*/)
@@ -386,8 +383,7 @@ struct ConjureRefreshmentData
     uint32 spellId;
 };
 
-uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = 7;
-ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
+ConjureRefreshmentData const _conjureData[] =
 {
     { 33, 43, 92739 },
     { 44, 53, 92799 },
@@ -397,6 +393,7 @@ ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
     { 80, 84, 92822 },
     { 85, 85, 92727 }
 };
+uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = std::extent<decltype(_conjureData)>::value;
 
 // 42955 - Conjure Refreshment
 class spell_mage_conjure_refreshment : public SpellScriptLoader
@@ -411,7 +408,7 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_SPELLS; ++i)
-                    if (!sSpellMgr->GetSpellInfo(_conjureData[i].spellId))
+                    if (!ValidateSpellInfo({ _conjureData[i].spellId }))
                         return false;
                 return true;
             }
@@ -480,10 +477,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_TRIGGERED) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_R1))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_FROST_WARDING_TRIGGERED, SPELL_MAGE_FROST_WARDING_R1 });
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
@@ -511,7 +505,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                     {
                         int32 bp = dmgInfo.GetDamage();
                         dmgInfo.AbsorbDamage(bp);
-                        target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                        target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff);
                         absorbAmount = 0;
                         PreventDefaultAction();
                     }
@@ -541,18 +535,9 @@ class spell_mage_focus_magic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_focus_magic_AuraScript);
 
-        public:
-            spell_mage_focus_magic_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FOCUS_MAGIC_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_FOCUS_MAGIC_PROC });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -564,7 +549,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_MAGE_FOCUS_MAGIC_PROC, true, NULL, aurEff);
+                GetTarget()->CastSpell(_procTarget, SPELL_MAGE_FOCUS_MAGIC_PROC, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -573,8 +558,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_mage_focus_magic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -663,9 +647,7 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_NOVA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_FROST_NOVA });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -735,9 +717,7 @@ class spell_mage_glyph_of_polymorph : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH });
             }
 
             void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -774,9 +754,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_1].CalcValue())))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_1].CalcValue()) });
             }
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -786,7 +764,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
                     return;
 
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff);
+                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -856,9 +834,7 @@ class spell_mage_ignite : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_IGNITE });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -875,7 +851,7 @@ class spell_mage_ignite : public SpellScriptLoader
 
                 int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
                 amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-                GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -918,7 +894,7 @@ class spell_mage_mage_ward : public SpellScriptLoader
                if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
                {
                    int32 bp = CalculatePct(absorbAmount, aurEff->GetAmount());
-                   GetTarget()->CastCustomSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true);
+                   GetTarget()->CastCustomSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, nullptr, nullptr, true);
                }
            }
 
@@ -971,7 +947,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
                if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
                {
                    int32 bp = CalculatePct(absorbAmount, aurEff->GetAmount());
-                   GetTarget()->CastCustomSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true);
+                   GetTarget()->CastCustomSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, nullptr, nullptr, true);
                }
            }
 
@@ -1008,9 +984,7 @@ class spell_mage_master_of_elements : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1026,7 +1000,7 @@ class spell_mage_master_of_elements : public SpellScriptLoader
                 mana = CalculatePct(mana, aurEff->GetAmount());
 
                 if (mana > 0)
-                    GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
+                    GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1076,7 +1050,7 @@ class spell_mage_nether_vortex : public SpellScriptLoader
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1104,9 +1078,7 @@ class spell_mage_permafrost : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_PERMAFROST))
-                    return false;
-               return true;
+                return ValidateSpellInfo({ SPELL_MAGE_PERMAFROST });
             }
 
             bool DoCheck(ProcEventInfo& eventInfo)
@@ -1119,7 +1091,7 @@ class spell_mage_permafrost : public SpellScriptLoader
                 PreventDefaultAction();
 
                 int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                GetTarget()->CastCustomSpell(SPELL_MAGE_PERMAFROST, SPELLVALUE_BASE_POINT0, heal, (Unit*)NULL, true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_MAGE_PERMAFROST, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1147,16 +1119,17 @@ class spell_mage_polymorph : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_POLYMORPH_MARKER))
-                    return false;
-               return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1,
+                    SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1,
+                    SPELL_MAGE_IMPROVED_POLYMORPH_MARKER
+                });
             }
 
             bool Load() override
             {
-                _caster = NULL;
+                _caster = nullptr;
                 return true;
             }
 
@@ -1175,8 +1148,8 @@ class spell_mage_polymorph : public SpellScriptLoader
                     if (_caster->HasAura(SPELL_MAGE_IMPROVED_POLYMORPH_MARKER))
                         return;
 
-                    GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1, improvedPolymorph->GetSpellInfo()->GetRank()), true, NULL, aurEff);
-                    _caster->CastSpell(_caster, SPELL_MAGE_IMPROVED_POLYMORPH_MARKER, true, NULL, aurEff);
+                    GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1, improvedPolymorph->GetSpellInfo()->GetRank()), true, nullptr, aurEff);
+                    _caster->CastSpell(_caster, SPELL_MAGE_IMPROVED_POLYMORPH_MARKER, true, nullptr, aurEff);
                 }
             }
 
@@ -1217,10 +1190,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 // check if spell ids exist in dbc
-                for (uint32 i = 0; i < 6; i++)
-                    if (!sSpellMgr->GetSpellInfo(PolymorhForms[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(PolymorhForms);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1266,9 +1236,7 @@ class spell_mage_replenish_mana : public SpellScriptLoader
 
            bool Validate(SpellInfo const* /*spellInfo*/) override
            {
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED))
-                   return false;
-               return true;
+               return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED });
            }
 
            void HandleImprovedManaGem()
@@ -1276,7 +1244,7 @@ class spell_mage_replenish_mana : public SpellScriptLoader
                if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_IMPROVED_MANA_GEM, EFFECT_0))
                {
                    int32 bp = CalculatePct(GetCaster()->GetMaxPower(POWER_MANA), aurEff->GetAmount());
-                   GetCaster()->CastCustomSpell(GetCaster(), SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED, &bp, &bp, NULL, true);
+                   GetCaster()->CastCustomSpell(GetCaster(), SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED, &bp, &bp, nullptr, true);
                }
            }
 
@@ -1305,18 +1273,17 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_FREEZE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_RING_OF_FROST_SUMMON,
+                    SPELL_MAGE_RING_OF_FROST_FREEZE,
+                    SPELL_MAGE_RING_OF_FROST_DUMMY
+                });
             }
 
             bool Load() override
             {
-                ringOfFrost = NULL;
+                ringOfFrost = nullptr;
                 return true;
             }
 
@@ -1380,11 +1347,7 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_FREEZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1415,9 +1378,7 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_DUMMY });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1451,12 +1412,13 @@ class spell_mage_time_warp : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+                    SPELL_HUNTER_INSANITY,
+                    SPELL_SHAMAN_EXHAUSTION,
+                    SPELL_SHAMAN_SATED
+                });
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
@@ -1499,9 +1461,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
 
            bool Validate(SpellInfo const* /*spellInfo*/) override
            {
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
-                   return false;
-               return true;
+               return ValidateSpellInfo({ SPELL_MAGE_FINGERS_OF_FROST });
            }
 
            void CountTargets(std::list<WorldObject*>& targetList)
@@ -1558,9 +1518,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES_AURASTATE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MAGE_ARCANE_MISSILES_AURASTATE });
         }
 
         void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -1609,16 +1567,13 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES))
-                return false;
-
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES_DAMAGE))
-                return false;
-
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_BLAST))
-                return false;
-
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_MAGE_ARCANE_MISSILES,
+                SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
+                SPELL_MAGE_ARCANE_BLAST
+            });
+            
         }
 
         bool CheckProc(ProcEventInfo& eventInfo)
@@ -1677,7 +1632,7 @@ public:
         void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_VISUAL , true, NULL, aurEff);
+                caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_VISUAL , true, nullptr, aurEff);
         }
 
         void Register() override

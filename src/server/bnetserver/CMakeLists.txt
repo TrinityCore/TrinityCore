@@ -10,106 +10,66 @@
 
 ########### bnetserver ###############
 
-file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
-file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
-file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
-file(GLOB_RECURSE sources_packets Packets/*.cpp Packets/*.h)
-file(GLOB sources_localdir *.cpp *.h)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+if (WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+  if (MSVC)
+    list(APPEND PRIVATE_SOURCES bnetserver.rc)
+  endif()
+endif()
 
 if (USE_COREPCH)
-  set(bnetserver_PCH_HDR PrecompiledHeaders/bnetPCH.h)
-  set(bnetserver_PCH_SRC PrecompiledHeaders/bnetPCH.cpp)
+  set(PRIVATE_PCH_HEADER PrecompiledHeaders/bnetPCH.h)
 endif()
-
-set(bnetserver_SRCS
-  ${bnetserver_SRCS}
-  ${sources_authentication}
-  ${sources_realms}
-  ${sources_server}
-  ${sources_packets}
-  ${sources_localdir}
-)
-
-if( WIN32 )
-  set(bnetserver_SRCS
-    ${bnetserver_SRCS}
-    ${sources_windows}
-  )
-  if ( MSVC )
-    set(bnetserver_SRCS
-      ${bnetserver_SRCS}
-      bnetserver.rc
-    )
-  endif ()
-endif()
-
-include_directories(
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
-  ${CMAKE_CURRENT_SOURCE_DIR}/Packets
-  ${CMAKE_CURRENT_SOURCE_DIR}/Realms
-  ${CMAKE_CURRENT_SOURCE_DIR}/Server
-  ${CMAKE_SOURCE_DIR}/dep/fmt
-  ${CMAKE_SOURCE_DIR}/dep/zmqpp
-  ${CMAKE_SOURCE_DIR}/src/common
-  ${CMAKE_SOURCE_DIR}/src/common/Configuration
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography/Authentication
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Logging
-  ${CMAKE_SOURCE_DIR}/src/common/Threading
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/common/Platform
-  ${CMAKE_SOURCE_DIR}/src/server/database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Logging
-  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
-  ${CMAKE_SOURCE_DIR}/src/server/ipc
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Service
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${VALGRIND_INCLUDE_DIR}
-  ${ZMQ_INCLUDE_DIR}
-)
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(bnetserver
-  ${bnetserver_SRCS}
-  ${bnetserver_PCH_SRC}
+  ${PRIVATE_SOURCES}
 )
 
-if( NOT WIN32 )
+if (NOT WIN32)
   set_target_properties(bnetserver PROPERTIES
     COMPILE_DEFINITIONS _TRINITY_BNET_CONFIG="${CONF_DIR}/bnetserver.conf"
   )
 endif()
 
 target_link_libraries(bnetserver
-  shared
-  database
-  ipc
-  common
-  zmqpp
-  fmt
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${ZMQ_LIBRARY}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-)
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    shared
+    ipc)
 
-if( WIN32 )
-  if ( MSVC )
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+target_include_directories(bnetserver
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(bnetserver
+    PROPERTIES
+      FOLDER
+        "server")
+
+if (WIN32)
+  if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
     add_custom_command(TARGET bnetserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
-  elseif ( MINGW )
+  elseif (MINGW)
     add_custom_command(TARGET bnetserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
@@ -117,15 +77,15 @@ if( WIN32 )
   endif()
 endif()
 
-if( UNIX )
+if (UNIX)
   install(TARGETS bnetserver DESTINATION bin)
-  install(FILES  bnetserver.conf.dist DESTINATION ${CONF_DIR})
-elseif( WIN32 )
+  install(FILES bnetserver.conf.dist DESTINATION ${CONF_DIR})
+elseif (WIN32)
   install(TARGETS bnetserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES bnetserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(bnetserver ${bnetserver_PCH_HDR} ${bnetserver_PCH_SRC})
+  add_cxx_pch(bnetserver ${PRIVATE_PCH_HEADER})
 endif()

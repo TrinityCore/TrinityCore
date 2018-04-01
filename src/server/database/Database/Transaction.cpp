@@ -15,21 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
 #include "Transaction.h"
+#include "Log.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "Timer.h"
 #include <mysqld_error.h>
 #include <sstream>
-#include <thread>
 
 std::mutex TransactionTask::_deadlockLock;
 
 #define DEADLOCK_MAX_RETRY_TIME_MS 60000
 
 //- Append a raw ad-hoc query to the transaction
-void Transaction::Append(const char* sql)
+void Transaction::Append(char const* sql)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_RAW;
@@ -52,9 +51,8 @@ void Transaction::Cleanup()
     if (_cleanedUp)
         return;
 
-    while (!m_queries.empty())
+    for (SQLElementData const& data : m_queries)
     {
-        SQLElementData const &data = m_queries.front();
         switch (data.type)
         {
             case SQL_ELEMENT_PREPARED:
@@ -64,10 +62,9 @@ void Transaction::Cleanup()
                 free((void*)(data.element.query));
             break;
         }
-
-        m_queries.pop_front();
     }
 
+    m_queries.clear();
     _cleanedUp = true;
 }
 

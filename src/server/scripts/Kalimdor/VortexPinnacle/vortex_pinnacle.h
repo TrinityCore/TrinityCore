@@ -18,13 +18,10 @@
 #ifndef DEF_VORTEX_PINNACLE_H
 #define DEF_VORTEX_PINNACLE_H
 
-#define SCScriptName "instance_vortex_pinnacle"
-#define DataHeader "VP"
+#include "CreatureAIImpl.h"
 
-#include "G3D/Vector3.h"
-#include "G3D/Triangle.h"
-#include "G3D/Plane.h"
-#include "G3D/CollisionDetection.h"
+#define VPScriptName "instance_vortex_pinnacle"
+#define DataHeader "VP"
 
 uint32 const Slipstreams = 13;
 uint32 const PrismGroundingFieldPoints = 3;
@@ -76,36 +73,10 @@ enum Misc
     PATH_ZEPHYR_NORTH = 4599101,
 };
 
-class TargetInTriangleCheck
+template <class AI, class T>
+inline AI* GetVortexPinnacleAI(T* obj)
 {
-public:
-    TargetInTriangleCheck(bool negate, Position positionA, Position positionB, Position positionC)
-        : _negate(negate), _positionA(positionA), _positionB(positionB), _positionC(positionC) { }
-
-    bool operator()(WorldObject* target) const
-    {
-        return _negate != IsInTriangle(target);
-    }
-
-private:
-
-    bool IsInTriangle(WorldObject* target) const
-    {
-        G3D::Triangle const triangle(PositionToVector3(_positionA), PositionToVector3(_positionB), PositionToVector3(_positionC));
-        G3D::Vector3 const vector(PositionToVector3(*target));
-
-        return G3D::CollisionDetection::isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), vector, triangle.primaryAxis());
-    }
-
-    inline static G3D::Vector3 PositionToVector3(Position const& position)
-    {
-        return G3D::Vector3(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
-    }
-
-    bool _negate;
-    Position _positionA;
-    Position _positionB;
-    Position _positionC;
-};
+    return GetInstanceAI<AI>(obj, VPScriptName);
+}
 
 #endif // DEF_VORTEX_PINNACLE_H

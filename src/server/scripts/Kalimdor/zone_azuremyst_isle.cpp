@@ -33,14 +33,15 @@ npc_death_ravager
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "CellImpl.h"
+#include "GameObjectAI.h"
+#include "GridNotifiersImpl.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiersImpl.h"
-#include "GridNotifiers.h"
-#include "GameObjectAI.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_draenei_survivor
@@ -111,7 +112,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
         {
             if (Spell->SpellFamilyFlags[2] & 0x080000000)
             {

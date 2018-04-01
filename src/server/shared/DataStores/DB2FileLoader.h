@@ -62,9 +62,9 @@ class TC_SHARED_API DB2FileLoader
         }
 
     private:
-        Record(DB2FileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
+        Record(DB2FileLoader& file_, unsigned char* offset_): offset(offset_), file(file_) {}
         unsigned char *offset;
-        DB2FileLoader &file;
+        DB2FileLoader& file;
 
         friend class DB2FileLoader;
     };
@@ -75,14 +75,14 @@ class TC_SHARED_API DB2FileLoader
 
     uint32 GetNumRows() const { return recordCount;}
     uint32 GetCols() const { return fieldCount; }
-    uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
+    uint32 GetOffset(size_t id) const { return (fieldsOffset != nullptr && id < fieldCount) ? fieldsOffset[id] : 0; }
     uint32 GetHash() const { return tableHash; }
-    bool IsLoaded() const { return (data != NULL); }
-    char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable);
-    char* AutoProduceStringsArrayHolders(const char* fmt, char* dataTable);
-    char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
-    static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
-    static uint32 GetFormatStringsFields(const char * format);
+    bool IsLoaded() const { return (data != nullptr); }
+    char* AutoProduceData(char const* fmt, uint32& count, char**& indexTable);
+    char* AutoProduceStringsArrayHolders(char const* fmt, char* dataTable);
+    char* AutoProduceStrings(char const* fmt, char* dataTable, uint32 locale);
+    static uint32 GetFormatRecordSize(char const* format, int32* index_pos = nullptr);
+    static uint32 GetFormatStringsFields(char const* format);
 private:
 
     uint32 recordSize;

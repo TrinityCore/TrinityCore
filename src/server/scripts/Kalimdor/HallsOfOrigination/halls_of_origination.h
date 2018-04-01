@@ -18,6 +18,8 @@
 #ifndef HALLS_OF_ORIGINATION_H
 #define HALLS_OF_ORIGINATION_H
 
+#include "CreatureAIImpl.h"
+
 #define DataHeader "HOO"
 #define HoOScriptName "instance_halls_of_origination"
 
@@ -119,14 +121,10 @@ enum HOOGlobalActions
     ACTION_OMEGA_TRIGGER,
 };
 
-template<class AI>
-CreatureAI* GetHallsOfOriginationAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfOriginationAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(HoOScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(obj, HoOScriptName);
 }
 
 #endif // HALLS_OF_ORIGINATION_H

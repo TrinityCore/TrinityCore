@@ -18,27 +18,34 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
-#include "Util.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
-#include "Spell.h"
-#include "ScriptReloadMgr.h"
+#include "Util.h"
+#include <memory>
 #include <stack>
 
-class Unit;
+class Aura;
+class AuraApplication;
+class AuraEffect;
+class Creature;
+class DamageInfo;
+class DispelInfo;
+class DynamicObject;
+class GameObject;
+class Item;
+class ModuleReference;
+class Player;
+class ProcEventInfo;
+class Spell;
 class SpellInfo;
 class SpellScript;
-class Spell;
-class Aura;
-class AuraEffect;
-struct SpellModifier;
-class Creature;
-class GameObject;
-class DynamicObject;
-class Player;
-class Item;
+class Unit;
 class WorldLocation;
 class WorldObject;
+struct SpellDestination;
+struct SpellModifier;
+struct SpellValue;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
@@ -61,7 +68,7 @@ class TC_GAME_API _SpellScript
         virtual bool _Validate(SpellInfo const* entry);
 
     public:
-        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(NULL), m_scriptSpellId(0) {}
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(nullptr), m_scriptSpellId(0) {}
         virtual ~_SpellScript() { }
         void _Register();
         void _Unload();
@@ -133,7 +140,19 @@ class TC_GAME_API _SpellScript
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
         // Helpers
-        static bool ValidateSpellInfo(std::vector<uint32> const& spellIds);
+        static bool ValidateSpellInfo(std::initializer_list<uint32> spellIds)
+        {
+            return _ValidateSpellInfo(spellIds.begin(), spellIds.end());
+        }
+
+        template <class T>
+        static bool ValidateSpellInfo(T const& spellIds)
+        {
+            return _ValidateSpellInfo(std::begin(spellIds), std::end(spellIds));
+        }
+
+    private:
+        static bool _ValidateSpellInfo(uint32 const* begin, uint32 const* end);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
@@ -368,38 +387,38 @@ class TC_GAME_API SpellScript : public _SpellScript
         // examples:
         // -shadowstep - explicit target is the unit you want to go behind of
         // -chain heal - explicit target is the unit to be healed first
-        // -holy nova/arcane explosion - explicit target = NULL because target you are selecting doesn't affect how spell targets are selected
+        // -holy nova/arcane explosion - explicit target = nullptr because target you are selecting doesn't affect how spell targets are selected
         // you can determine if spell requires explicit targets by dbc columns:
         // - Targets - mask of explicit target types
         // - ImplicitTargetXX set to TARGET_XXX_TARGET_YYY, _TARGET_ here means that explicit target is used by the effect, so spell needs one too
 
-        // returns: WorldLocation which was selected as a spell destination or NULL
+        // returns: WorldLocation which was selected as a spell destination or nullptr
         WorldLocation const* GetExplTargetDest() const;
 
         void SetExplTargetDest(WorldLocation& loc);
 
-        // returns: WorldObject which was selected as an explicit spell target or NULL if there's no target
+        // returns: WorldObject which was selected as an explicit spell target or nullptr if there's no target
         WorldObject* GetExplTargetWorldObject() const;
 
-        // returns: Unit which was selected as an explicit spell target or NULL if there's no target
+        // returns: Unit which was selected as an explicit spell target or nullptr if there's no target
         Unit* GetExplTargetUnit() const;
 
-        // returns: GameObject which was selected as an explicit spell target or NULL if there's no target
+        // returns: GameObject which was selected as an explicit spell target or nullptr if there's no target
         GameObject* GetExplTargetGObj() const;
 
-        // returns: Item which was selected as an explicit spell target or NULL if there's no target
+        // returns: Item which was selected as an explicit spell target or nullptr if there's no target
         Item* GetExplTargetItem() const;
 
         // methods useable only during spell hit on target, or during spell launch on target:
-        // returns: target of current effect if it was Unit otherwise NULL
+        // returns: target of current effect if it was Unit otherwise nullptr
         Unit* GetHitUnit() const;
-        // returns: target of current effect if it was Creature otherwise NULL
+        // returns: target of current effect if it was Creature otherwise nullptr
         Creature* GetHitCreature() const;
-        // returns: target of current effect if it was Player otherwise NULL
+        // returns: target of current effect if it was Player otherwise nullptr
         Player* GetHitPlayer() const;
-        // returns: target of current effect if it was Item otherwise NULL
+        // returns: target of current effect if it was Item otherwise nullptr
         Item* GetHitItem() const;
-        // returns: target of current effect if it was GameObject otherwise NULL
+        // returns: target of current effect if it was GameObject otherwise nullptr
         GameObject* GetHitGObj() const;
         // returns: destination of current effect
         WorldLocation* GetHitDest() const;
@@ -658,11 +677,11 @@ class TC_GAME_API AuraScript : public _SpellScript
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
     public:
-        AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
+        AuraScript() : _SpellScript(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
         { }
         bool _Validate(SpellInfo const* entry) override;
         bool _Load(Aura* aura);
-        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = NULL);
+        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = nullptr);
         void _FinishScriptCall();
         bool _IsDefaultActionPrevented();
     private:
@@ -834,13 +853,13 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // returns guid of object which cast the aura (m_originalCaster of the Spell class)
         ObjectGuid GetCasterGUID() const;
-        // returns unit which cast the aura or NULL if not avalible (caster logged out for example)
+        // returns unit which cast the aura or nullptr if not avalible (caster logged out for example)
         Unit* GetCaster() const;
         // returns object on which aura was cast, target for non-area auras, area aura source for area auras
         WorldObject* GetOwner() const;
-        // returns owner if it's unit or unit derived object, NULL otherwise (only for persistent area auras NULL is returned)
+        // returns owner if it's unit or unit derived object, nullptr otherwise (only for persistent area auras nullptr is returned)
         Unit* GetUnitOwner() const;
-        // returns owner if it's dynobj, NULL otherwise
+        // returns owner if it's dynobj, nullptr otherwise
         DynamicObject* GetDynobjOwner() const;
 
         // removes aura with remove mode (see AuraRemoveMode enum)
@@ -885,18 +904,18 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // check if aura has effect of given effindex
         bool HasEffect(uint8 effIndex) const;
-        // returns aura effect of given effect index or NULL
+        // returns aura effect of given effect index or nullptr
         AuraEffect* GetEffect(uint8 effIndex) const;
 
         // check if aura has effect of given aura type
         bool HasEffectType(AuraType type) const;
 
         // AuraScript interface - functions which are redirecting to AuraApplication class
-        // Do not call these in hooks in which AuraApplication is not avalible, otherwise result will differ from expected (the functions will return NULL)
+        // Do not call these in hooks in which AuraApplication is not avalible, otherwise result will differ from expected (the functions will return nullptr)
 
         // returns currently processed target of an aura
-        // Return value does not need to be NULL-checked, the only situation this will (always)
-        // return NULL is when the call happens in an unsupported hook, in other cases, it is always valid
+        // Return value does not need to be nullptr-checked, the only situation this will (always)
+        // return nullptr is when the call happens in an unsupported hook, in other cases, it is always valid
         Unit* GetTarget() const;
         // returns AuraApplication object of currently processed target
         AuraApplication const* GetTargetApplication() const;

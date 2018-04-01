@@ -19,25 +19,18 @@
 #define TRINITY_PLAYERAI_H
 
 #include "UnitAI.h"
-#include "Player.h"
-#include "Spell.h"
-#include "Creature.h"
+
+class Spell;
 
 class TC_GAME_API PlayerAI : public UnitAI
 {
     public:
-        explicit PlayerAI(Player* player) : UnitAI(static_cast<Unit*>(player)), me(player), _selfSpec(PlayerAI::GetPlayerSpec(player)), _isSelfHealer(PlayerAI::IsPlayerHealer(player)), _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player)) { }
+        explicit PlayerAI(Player* player);
 
         void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
 
+        Creature* GetCharmer() const;
 
-        Creature* GetCharmer() const
-        {
-            if (ObjectGuid charmerGUID = me->GetCharmerGUID())
-                if (charmerGUID.IsCreature())
-                    return ObjectAccessor::GetCreature(*me, charmerGUID);
-            return nullptr;
-        }
         // helper functions to determine player info
         // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
         static uint8 GetPlayerSpec(Player const* who);
@@ -85,14 +78,9 @@ class TC_GAME_API PlayerAI : public UnitAI
            This invalidates the vector, and empties it to prevent accidental misuse. */
         TargetedSpell SelectSpellCast(PossibleSpellVector& spells);
         /* Helper method - casts the included spell at the included target */
-        inline void DoCastAtTarget(TargetedSpell spell)
-        {
-            SpellCastTargets targets;
-            targets.SetUnitTarget(spell.second);
-            spell.first->prepare(&targets);
-        }
+        void DoCastAtTarget(TargetedSpell spell);
 
-        virtual Unit* SelectAttackTarget() const { return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr; }
+        virtual Unit* SelectAttackTarget() const;
         void DoRangedAttackIfReady();
         void DoAutoAttackIfReady();
 

@@ -15,16 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "icecrown_citadel.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -162,16 +164,16 @@ class RisenArchmageCheck
         }
 };
 
-struct ManaVoidSelector : public std::unary_function<Unit*, bool>
+struct ManaVoidSelector
 {
-        explicit ManaVoidSelector(WorldObject const* source) : _source(source) { }
+    explicit ManaVoidSelector(WorldObject const* source) : _source(source) { }
 
-        bool operator()(Unit* unit) const
-        {
-            return unit->getPowerType() == POWER_MANA && _source->GetDistance(unit) > 15.0f;
-        }
+    bool operator()(Unit* unit) const
+    {
+        return unit->getPowerType() == POWER_MANA && _source->GetDistance(unit) > 15.0f;
+    }
 
-        WorldObject const* _source;
+    WorldObject const* _source;
 };
 
 class DelayedCastEvent : public BasicEvent
@@ -199,9 +201,7 @@ class DelayedCastEvent : public BasicEvent
 class AuraRemoveEvent : public BasicEvent
 {
     public:
-        AuraRemoveEvent(Creature* trigger, uint32 spellId) : _trigger(trigger), _spellId(spellId)
-        {
-        }
+        AuraRemoveEvent(Creature* trigger, uint32 spellId) : _trigger(trigger), _spellId(spellId) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
@@ -217,9 +217,7 @@ class AuraRemoveEvent : public BasicEvent
 class ValithriaDespawner : public BasicEvent
 {
     public:
-        explicit ValithriaDespawner(Creature* creature) : _creature(creature)
-        {
-        }
+        explicit ValithriaDespawner(Creature* creature) : _creature(creature) { }
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
@@ -685,7 +683,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_the_lich_king_controllerAI>(creature);
+            return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
         }
 };
 
@@ -1170,13 +1168,6 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_decay_periodic_timer_AuraScript);
 
-        public:
-            spell_dreamwalker_decay_periodic_timer_AuraScript()
-            {
-                _decayRate = 0;
-            }
-
-        private:
             bool Load() override
             {
                 _decayRate = GetId() != SPELL_TIMER_BLAZING_SKELETON ? 1000 : 5000;
@@ -1197,7 +1188,7 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dreamwalker_decay_periodic_timer_AuraScript::DecayPeriodicTimer, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
 
-            int32 _decayRate;
+            int32 _decayRate = 0;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1266,9 +1257,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SUPPRESSER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SUPPRESSER });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1418,13 +1407,6 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_nightmare_cloud_AuraScript);
 
-        public:
-            spell_dreamwalker_nightmare_cloud_AuraScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetOwner()->GetInstanceScript();
@@ -1442,7 +1424,7 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dreamwalker_nightmare_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         AuraScript* GetAuraScript() const override

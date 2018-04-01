@@ -18,6 +18,8 @@
 #ifndef DEF_ZULAMAN_H
 #define DEF_ZULAMAN_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount = 6;
 #define ZulAmanScriptName "instance_zulaman"
 #define DataHeader "ZA"
@@ -78,14 +80,10 @@ enum ZAWorldStates
     WORLD_STATE_ZULAMAN_TIMER           = 3106,
 };
 
-template<class AI>
-CreatureAI* GetZulAmanAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetZulAmanAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZulAmanScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(obj, ZulAmanScriptName);
 }
 
 #endif

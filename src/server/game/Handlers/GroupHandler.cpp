@@ -16,24 +16,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "SocialMgr.h"
+#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "SpellAuraEffects.h"
 
 class Aura;
 
@@ -232,7 +233,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
             data << int32(0);
 
-            invitedPlayer->GetSession()->SendPacket(&data);
+            invitedPlayer->SendDirectMessage(&data);
         }
 
         return;
@@ -336,7 +337,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
     data << int32(0);
 
-    invitedPlayer->GetSession()->SendPacket(&data);
+    invitedPlayer->SendDirectMessage(&data);
 
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
 }
@@ -414,7 +415,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
         // report
         WorldPacket data(SMSG_GROUP_DECLINE, GetPlayer()->GetName().size());
         data << GetPlayer()->GetName();
-        leader->GetSession()->SendPacket(&data);
+        leader->SendDirectMessage(&data);
     }
 }
 

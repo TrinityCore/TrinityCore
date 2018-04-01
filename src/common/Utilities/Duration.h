@@ -33,7 +33,6 @@ typedef std::chrono::minutes Minutes;
 typedef std::chrono::hours Hours;
 
 /// Makes std::chrono_literals globally available.
-// ToDo: Enable this when TC supports C++14.
-// using namespace std::chrono_literals;
+using namespace std::chrono_literals;
 
 #endif // _DURATION_H_

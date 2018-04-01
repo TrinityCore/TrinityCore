@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "vortex_pinnacle.h"
 
 enum Spells
@@ -202,7 +203,7 @@ class boss_grand_vizier_ertan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_grand_vizier_ertanAI>(creature);
+            return GetVortexPinnacleAI<boss_grand_vizier_ertanAI>(creature);
         }
 };
 
@@ -269,7 +270,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ertans_vortexAI>(creature);
+        return GetVortexPinnacleAI<npc_ertans_vortexAI>(creature);
     }
 };
 

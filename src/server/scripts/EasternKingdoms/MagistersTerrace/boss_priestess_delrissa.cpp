@@ -24,8 +24,11 @@ SDCategory: Magister's Terrace
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 struct Speech
 {
@@ -107,11 +110,6 @@ class boss_priestess_delrissa : public CreatureScript
 {
 public:
     boss_priestess_delrissa() : CreatureScript("boss_priestess_delrissa") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_priestess_delrissaAI>(creature);
-    }
 
     struct boss_priestess_delrissaAI : public ScriptedAI
     {
@@ -315,7 +313,7 @@ public:
 
             if (DispelTimer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
 
                 if (urand(0, 1))
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
@@ -346,6 +344,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_priestess_delrissaAI>(creature);
+    }
 };
 
 enum HealingPotion
@@ -495,11 +498,6 @@ class boss_kagani_nightstrike : public CreatureScript
 public:
     boss_kagani_nightstrike() : CreatureScript("boss_kagani_nightstrike") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_kagani_nightstrikeAI>(creature);
-    }
-
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
     {
         //Rogue
@@ -589,6 +587,11 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_kagani_nightstrikeAI>(creature);
+    }
 };
 
 enum WarlockSpells
@@ -606,11 +609,6 @@ class boss_ellris_duskhallow : public CreatureScript
 {
 public:
     boss_ellris_duskhallow() : CreatureScript("boss_ellris_duskhallow") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_ellris_duskhallowAI>(creature);
-    }
 
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
     {
@@ -693,6 +691,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_ellris_duskhallowAI>(creature);
+    }
 };
 
 enum KickDown
@@ -705,11 +708,6 @@ class boss_eramas_brightblaze : public CreatureScript
 {
 public:
     boss_eramas_brightblaze() : CreatureScript("boss_eramas_brightblaze") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_eramas_brightblazeAI>(creature);
-    }
 
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
     {
@@ -757,6 +755,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_eramas_brightblazeAI>(creature);
+    }
 };
 
 enum MageSpells
@@ -774,11 +777,6 @@ class boss_yazzai : public CreatureScript
 {
 public:
     boss_yazzai() : CreatureScript("boss_yazzai") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_yazzaiAI>(creature);
-    }
 
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
     {
@@ -895,6 +893,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_yazzaiAI>(creature);
+    }
 };
 
 enum WarriorSpells
@@ -912,11 +915,6 @@ class boss_warlord_salaris : public CreatureScript
 {
 public:
     boss_warlord_salaris() : CreatureScript("boss_warlord_salaris") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_warlord_salarisAI>(creature);
-    }
 
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
     {
@@ -1022,6 +1020,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_warlord_salarisAI>(creature);
+    }
 };
 
 enum HunterSpells
@@ -1040,11 +1043,6 @@ class boss_garaxxas : public CreatureScript
 {
 public:
     boss_garaxxas() : CreatureScript("boss_garaxxas") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_garaxxasAI>(creature);
-    }
 
     struct boss_garaxxasAI : public boss_priestess_lackey_commonAI
     {
@@ -1150,17 +1148,17 @@ public:
             }
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_garaxxasAI>(creature);
+    }
 };
 
 class boss_apoko : public CreatureScript
 {
 public:
     boss_apoko() : CreatureScript("boss_apoko") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_apokoAI>(creature);
-    }
 
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
     {
@@ -1237,6 +1235,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_apokoAI>(creature);
+    }
 };
 
 enum EngineerSpells
@@ -1253,11 +1256,6 @@ class boss_zelfan : public CreatureScript
 {
 public:
     boss_zelfan() : CreatureScript("boss_zelfan") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_zelfanAI>(creature);
-    }
 
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI
     {
@@ -1339,6 +1337,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetMagistersTerraceAI<boss_zelfanAI>(creature);
+    }
 };
 
 /*
@@ -1349,7 +1352,7 @@ public:
 
     //CreatureAI* GetAI(Creature* creature) const override
     //{
-    //    return new npc_high_explosive_sheepAI(creature);
+    //    return GetMagistersTerraceAI<npc_high_explosive_sheepAI>(creature);
     //};
 };
 */

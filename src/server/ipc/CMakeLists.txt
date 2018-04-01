@@ -29,6 +29,8 @@ target_include_directories(ipc
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(ipc
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     shared
     zmqpp)

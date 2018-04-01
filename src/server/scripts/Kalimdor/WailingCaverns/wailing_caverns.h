@@ -18,6 +18,8 @@
 #ifndef DEF_WAILING_CAVERNS_H
 #define DEF_WAILING_CAVERNS_H
 
+#include "CreatureAIImpl.h"
+
 #define DataHeader "WC"
 #define WCScriptName "instance_wailing_caverns"
 
@@ -62,8 +64,8 @@ enum Creatures
     NPC_DRUID_OF_THE_FANG        = 3840,
 };
 
-template<class AI, class T>
-AI* GetWailingCavernsAI(T* obj)
+template <class AI, class T>
+inline AI* GetWailingCavernsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, WCScriptName);
 }

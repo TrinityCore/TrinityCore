@@ -23,15 +23,15 @@
 #include "DBCFileLoader.h"
 #include "Errors.h"
 
-DBCFileLoader::DBCFileLoader() : recordSize(0), recordCount(0), fieldCount(0), stringSize(0), fieldsOffset(NULL), data(NULL), stringTable(NULL) { }
+DBCFileLoader::DBCFileLoader() : recordSize(0), recordCount(0), fieldCount(0), stringSize(0), fieldsOffset(nullptr), data(nullptr), stringTable(nullptr) { }
 
-bool DBCFileLoader::Load(const char* filename, const char* fmt)
+bool DBCFileLoader::Load(char const* filename, char const* fmt)
 {
     uint32 header;
     if (data)
     {
         delete [] data;
-        data = NULL;
+        data = nullptr;
     }
 
     FILE* f = fopen(filename, "rb");
@@ -125,7 +125,7 @@ DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
     return Record(*this, data + id * recordSize);
 }
 
-uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
+uint32 DBCFileLoader::GetFormatRecordSize(char const* format, int32* index_pos)
 {
     uint32 recordsize = 0;
     int32 i = -1;
@@ -170,7 +170,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
     return recordsize;
 }
 
-char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char*& sqlDataTable)
+char* DBCFileLoader::AutoProduceData(char const* format, uint32& records, char**& indexTable)
 {
     /*
     format STRING, NA, FLOAT, NA, INT <=>
@@ -185,7 +185,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     typedef char* ptr;
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     //get struct size and index pos
     int32 i;
@@ -202,10 +202,6 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                 maxi = ind;
         }
 
-        // If higher index avalible from sql - use it instead of dbcs
-        if (sqlHighestIndex > maxi)
-            maxi = sqlHighestIndex;
-
         ++maxi;
         records = maxi;
         indexTable = new ptr[maxi];
@@ -213,11 +209,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     }
     else
     {
-        records = recordCount + sqlRecordCount;
-        indexTable = new ptr[recordCount + sqlRecordCount];
+        records = recordCount;
+        indexTable = new ptr[recordCount];
     }
 
-    char* dataTable = new char[(recordCount + sqlRecordCount) * recordsize];
+    char* dataTable = new char[recordCount * recordsize];
 
     uint32 offset = 0;
 
@@ -250,7 +246,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += sizeof(uint64);
                     break;
                 case FT_STRING:
-                    *((char**)(&dataTable[offset])) = NULL;   // will replace non-empty or "" strings in AutoProduceStrings
+                    *((char**)(&dataTable[offset])) = nullptr;   // will replace non-empty or "" strings in AutoProduceStrings
                     offset += sizeof(char*);
                     break;
                 case FT_NA:
@@ -264,15 +260,13 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         }
     }
 
-    sqlDataTable = dataTable + offset;
-
     return dataTable;
 }
 
-char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
+char* DBCFileLoader::AutoProduceStrings(char const* format, char* dataTable)
 {
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     char* stringPool = new char[stringSize];
     memcpy(stringPool, stringTable, stringSize);
@@ -305,7 +299,7 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                     if (!*slot || !**slot)
                     {
                         const char * st = getRecord(y).getString(x);
-                        *slot=stringPool+(st-(const char*)stringTable);
+                        *slot = stringPool + (st - (char const*)stringTable);
                     }
                     offset += sizeof(char*);
                     break;

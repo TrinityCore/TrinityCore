@@ -23,7 +23,9 @@ SDCategory: Wailing Caverns
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "wailing_caverns.h"
 
 ObjectData const creatureData[] =

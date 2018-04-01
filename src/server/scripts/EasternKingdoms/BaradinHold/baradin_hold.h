@@ -18,9 +18,7 @@
 #ifndef DEF_BARADIN_HOLD_H_
 #define DEF_BARADIN_HOLD_H_
 
-#include "Map.h"
-#include "Creature.h"
-#include "ObjectMgr.h"
+#include "CreatureAIImpl.h"
 
 #define DataHeader "BH"
 #define BHScriptName "instance_baradin_hold"
@@ -52,14 +50,10 @@ enum BHGameObjectIds
     GO_ALIZABAL_DOOR        = 209849
 };
 
-template<class AI>
-CreatureAI* GetBaradinHoldAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetBaradinHoldAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(BHScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(obj, BHScriptName);
 }
 
 #endif

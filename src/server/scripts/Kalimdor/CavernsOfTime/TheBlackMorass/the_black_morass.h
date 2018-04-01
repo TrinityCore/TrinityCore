@@ -19,6 +19,9 @@
 #ifndef DEF_THEBLACKMORASS_H
 #define DEF_THEBLACKMORASS_H
 
+#include "CreatureAIImpl.h"
+
+#define TBMScriptName "instance_the_black_morass"
 #define DataHeader "TBM"
 
 uint32 const EncounterCount             = 2;
@@ -64,5 +67,11 @@ enum TBMCreatureIds
     NPC_INFINITE_EXECUTIONER            = 18994,
     NPC_INFINITE_VANQUISHER             = 18995
 };
+
+template <class AI, class T>
+inline AI* GetBlackMorassAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TBMScriptName);
+}
 
 #endif

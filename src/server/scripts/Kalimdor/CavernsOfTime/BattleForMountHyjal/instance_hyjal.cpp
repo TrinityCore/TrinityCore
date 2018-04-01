@@ -24,12 +24,15 @@ SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "hyjal.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
-#include "hyjal_trash.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "WorldPacket.h"
-#include "Chat.h"
 #include "WorldSession.h"
 
 /* Battle of Mount Hyjal encounters:
@@ -54,12 +57,7 @@ ObjectData const creatureData[] =
 class instance_hyjal : public InstanceMapScript
 {
 public:
-    instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_mount_hyjal_InstanceMapScript(map);
-    }
+    instance_hyjal() : InstanceMapScript(HyjalScriptName, 534) { }
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
@@ -281,7 +279,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {
@@ -318,6 +316,11 @@ public:
             uint32 RaidDamage;
             bool ArchiYell;
     };
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_mount_hyjal_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_mount_hyjal()

@@ -18,11 +18,13 @@
 #ifndef __TRINITY_GUILDFINDER_H
 #define __TRINITY_GUILDFINDER_H
 
-#include "CharacterCache.h"
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "World.h"
-#include "GuildMgr.h"
+#include "SharedDefines.h"
+#include <unordered_map>
+
+class Guild;
+class Player;
 
 enum GuildFinderOptionsInterest
 {
@@ -60,34 +62,21 @@ enum GuildFinderOptionsLevel
 struct MembershipRequest
 {
     public:
-        MembershipRequest(MembershipRequest const& settings) : _comment(settings.GetComment())
-        {
-            _availability = settings.GetAvailability();
-            _classRoles = settings.GetClassRoles();
-            _interests = settings.GetInterests();
-            _guildId = settings.GetGuildId();
-            _playerGUID = settings.GetPlayerGUID();
-            _time = settings.GetSubmitTime();
-        }
-
-        MembershipRequest(ObjectGuid playerGUID, uint32 guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string& comment, time_t submitTime) :
-            _comment(comment), _guildId(guildId), _playerGUID(playerGUID), _availability(availability),
-            _classRoles(classRoles), _interests(interests), _time(submitTime)  {}
-
-        MembershipRequest() : _guildId(0), _availability(0), _classRoles(0),
-            _interests(0), _time(time(NULL)) {}
+        MembershipRequest();
+        MembershipRequest(ObjectGuid playerGUID, uint32 guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string comment, time_t submitTime);
 
         uint32 GetGuildId() const      { return _guildId; }
         ObjectGuid GetPlayerGUID() const   { return _playerGUID; }
         uint8 GetAvailability() const  { return _availability; }
         uint8 GetClassRoles() const    { return _classRoles; }
         uint8 GetInterests() const     { return _interests; }
-        uint8 GetClass() const         { return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Class; }
-        uint8 GetLevel() const         { return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Level; }
+        uint8 GetClass() const;
+        uint8 GetLevel() const;
         time_t GetSubmitTime() const   { return _time; }
         time_t GetExpiryTime() const   { return time_t(_time + 30 * 24 * 3600); } // Adding 30 days
         std::string const& GetComment() const { return _comment; }
-        std::string const& GetName() const    { return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Name; }
+        std::string const& GetName() const;
+
     private:
         std::string _comment;
 
@@ -184,14 +173,16 @@ struct LFGuildSettings : public LFGuildPlayer
         TeamId _team;
 };
 
-typedef std::map<uint32 /* guildGuid */, LFGuildSettings> LFGuildStore;
-typedef std::map<uint32 /* guildGuid */, std::vector<MembershipRequest> > MembershipRequestStore;
+typedef std::unordered_map<uint32 /* guildGuid */, LFGuildSettings> LFGuildStore;
+typedef std::unordered_map<uint32 /* guildGuid */, std::vector<MembershipRequest>> MembershipRequestStore;
 
 class GuildFinderMgr
 {
     private:
         GuildFinderMgr();
         ~GuildFinderMgr();
+        GuildFinderMgr(GuildFinderMgr const&) = delete;
+        GuildFinderMgr& operator=(GuildFinderMgr const&) = delete;
 
         LFGuildStore  _guildSettings;
 

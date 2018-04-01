@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include <math.h>
 
 enum Texts
 {
@@ -86,11 +88,6 @@ class boss_gluth : public CreatureScript
 {
 public:
     boss_gluth() : CreatureScript("boss_gluth") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_gluthAI>(creature);
-    }
 
     struct boss_gluthAI : public BossAI
     {
@@ -190,7 +187,7 @@ public:
                         Creature* zombie = nullptr;
                         for (SummonList::const_iterator itr = summons.begin(); !zombie && itr != summons.end(); ++itr)
                         {
-                            zombie=ObjectAccessor::GetCreature(*me, *itr);
+                            zombie = ObjectAccessor::GetCreature(*me, *itr);
                             if (zombie == nullptr || !zombie->IsAlive() || !zombie->IsWithinDistInMap(me, 10.0))
                                 zombie = nullptr;
                         }
@@ -293,6 +290,10 @@ public:
         uint8 state;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<boss_gluthAI>(creature);
+    }
 };
 
 // spell 28374 (10man) / 54426 (25man) -  Decimate
@@ -324,10 +325,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (sSpellMgr->GetSpellInfo(SPELL_DECIMATE_DMG))
-                return true;
-            else
-                return false;
+            return ValidateSpellInfo({ SPELL_DECIMATE_DMG });
         }
 
         void Register() override
@@ -387,7 +385,6 @@ public:
 class npc_zombie_chow : public CreatureScript
 {
 public:
-
     npc_zombie_chow() : CreatureScript("npc_zombie_chow") { }
 
     struct npc_zombie_chowAI : public ScriptedAI
@@ -474,7 +471,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_zombie_chowAI>(creature);
+        return GetNaxxramasAI<npc_zombie_chowAI>(creature);
     }
 };
 

@@ -20,8 +20,10 @@
 #define TRINITYSERVER_SPLINE_H
 
 #include "MovementTypedefs.h"
+#include "Errors.h"
 #include <G3D/Vector3.h>
 #include <limits>
+#include <vector>
 
 namespace Movement {
 
@@ -76,10 +78,10 @@ protected:
     typedef float (SplineBase::*SegLenghtMethtod)(index_type) const;
     static SegLenghtMethtod seglengths[ModesEnd];
 
-    void InitLinear(const Vector3*, index_type, index_type);
-    void InitCatmullRom(const Vector3*, index_type, index_type);
-    void InitBezier3(const Vector3*, index_type, index_type);
-    typedef void (SplineBase::*InitMethtod)(const Vector3*, index_type, index_type);
+    void InitLinear(Vector3 const*, index_type, index_type);
+    void InitCatmullRom(Vector3 const*, index_type, index_type);
+    void InitBezier3(Vector3 const*, index_type, index_type);
+    typedef void (SplineBase::*InitMethtod)(Vector3 const*, index_type, index_type);
     static InitMethtod initializers[ModesEnd];
 
     void UninitializedSpline() const { ABORT();}
@@ -108,9 +110,9 @@ public:
     EvaluationMode mode() const { return (EvaluationMode)m_mode;}
     bool isCyclic() const { return cyclic;}
 
-    const ControlArray& getPoints() const { return points;}
+    ControlArray const& getPoints() const { return points;}
     index_type getPointCount() const { return points.size();}
-    const Vector3& getPoint(index_type i) const { return points[i];}
+    Vector3 const& getPoint(index_type i) const { return points[i];}
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
     void init_spline(const Vector3 * controls, index_type count, EvaluationMode m);
@@ -169,8 +171,8 @@ public:
     void computeIndex(float t, index_type& out_idx, float& out_u) const;
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
-    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m) { SplineBase::init_spline(controls, count, m);}
-    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point) { SplineBase::init_cyclic_spline(controls, count, m, cyclic_point);}
+    void init_spline(Vector3 const* controls, index_type count, EvaluationMode m) { SplineBase::init_spline(controls, count, m);}
+    void init_cyclic_spline(Vector3 const* controls, index_type count, EvaluationMode m, index_type cyclic_point) { SplineBase::init_cyclic_spline(controls, count, m, cyclic_point);}
 
     /**  Initializes lengths with SplineBase::SegLength method. */
     void initLengths();

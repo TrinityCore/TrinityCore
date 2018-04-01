@@ -16,11 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "drak_tharon_keep.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
-#include "drak_tharon_keep.h"
 
 /*
  * Known Issues: Spell 49356 and 53463 will be interrupted for an unknown reason
@@ -219,9 +217,7 @@ class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GIFT_OF_THARON_JA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GIFT_OF_THARON_JA });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

@@ -18,21 +18,19 @@
 #ifndef _ARCHAEOLOGY_H
 #define _ARCHAEOLOGY_H
 
+#include "ArchaeologyMgr.h"
 #include "Common.h"
 #include "WorldSession.h"
-#include "ArchaeologyMgr.h"
 
 #define DIGS_PER_SITE 3
 class Player;
 
 struct ArchData
 {
-    ArchData() : fragId(0), fragCount(0), keyId(0), keyCount(0) { }
-
-    uint32 fragId;
-    uint32 fragCount;
-    uint32 keyId;
-    uint32 keyCount;
+    uint32 FragId;
+    uint32 FragCount;
+    uint32 KeyId;
+    uint32 KeyCount;
 };
 
 enum ContinentState
@@ -44,60 +42,56 @@ enum ContinentState
 
 class Archaeology
 {
-public:
-    Archaeology(Player* player);
+    public:
+        explicit Archaeology(Player* player);
 
-    void Initialize();
+        void Initialize();
 
-    void Learn();
-    void UnLearn();
-    void Update();
+        void Learn();
+        void UnLearn();
+        void Update();
 
-    void UseSite();
+        void UseSite();
 
-    void SendResearchHistory();
+        void SendResearchHistory();
 
-    void ActivateBranch(uint8 branchId, bool force = false);
-    bool ProjectCompleteable(uint16 projectId);
-    bool ProjectExists(uint16 projectId);
+        void ActivateBranch(uint8 branchId, bool force = false);
+        bool ProjectCompleteable(uint16 projectId);
+        bool ProjectExists(uint16 projectId);
 
-    void CompleteProject(uint16 projectId);
-    void SetArchData(struct ArchData *data)
-    {
-        ASSERT(data);
-        archData = data;
-    }
+        void CompleteProject(uint16 projectId);
+        void SetArchData(ArchData const& data);
 
-private:
-    Player* _player;
-    ArchData *archData;
+    private:
+        Player* _player;
+        std::unique_ptr<ArchData> _archData;
 
-    // Site Functionality
-    ContinentState _continentState[4];
-    SiteData _site[CONTINENT_SITES * COUNT_CONT];
+        // Site Functionality
+        ContinentState _continentState[CONTINENT_SITES];
+        SiteData _site[CONTINENT_SITES * COUNT_CONT];
 
-    void LoadSitesFromDB();
-    void VerifySites();
+        void LoadSitesFromDB();
+        void VerifySites();
 
-    Continent GetContinent();
-    uint32 GetNearestSite(float &distance);
-    void SetSite(uint32 posi, uint16 entry, uint32 state = 0);
-    void RegeneratePosition(uint32 position, Continent continent);
-    void RegenerateContinent(Continent continent);
-    void RegenerateAllSites();
+        Continent GetContinent();
+        uint32 GetNearestSite(float &distance);
+        void SetSite(uint32 posi, uint16 entry, uint32 state = 0);
+        void RegeneratePosition(uint32 position, Continent continent);
+        void RegenerateContinent(Continent continent);
+        void RegenerateAllSites();
 
-    // Project Functionality
-    std::map<uint16, std::pair<int32, int32> > _completedProjects;
-    std::map<uint8, BranchData> _branches;
+        // Project Functionality
+        std::map<uint16, std::pair<int32, int32>> _completedProjects;
+        std::map<uint8, BranchData> _branches;
 
-    void LoadCompletedProjectsFromDB();
-    void LoadCurrentProjectsFromDB();
-    void InitBranches();
-    void VerifyProjects();
-    void CleanProjects();
+        void LoadCompletedProjectsFromDB();
+        void LoadCurrentProjectsFromDB();
+        void InitBranches();
+        void VerifyProjects();
+        void CleanProjects();
 
-    void RegenerateBranch(uint8 branch);
-    void VisualizeBranch(uint8 position, uint16 project);
+        void RegenerateBranch(uint8 branch);
+        void VisualizeBranch(uint8 position, uint16 project);
 };
 
 #endif

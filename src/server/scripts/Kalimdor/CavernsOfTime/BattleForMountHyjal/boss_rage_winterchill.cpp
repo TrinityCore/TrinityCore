@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "hyjal.h"
 #include "hyjal_trash.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 
 enum Spells
 {
@@ -41,11 +41,6 @@ class boss_rage_winterchill : public CreatureScript
 {
 public:
     boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_rage_winterchillAI>(creature);
-    }
 
     struct boss_rage_winterchillAI : public hyjal_trashAI
     {
@@ -162,6 +157,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHyjalAI<boss_rage_winterchillAI>(creature);
+    }
 };
 
 void AddSC_boss_rage_winterchill()

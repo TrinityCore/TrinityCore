@@ -16,11 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "PlayerAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -161,7 +167,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
     public:
         KelThuzadCharmedPlayerAI(Player* player) : SimpleCharmedPlayerAI(player) { }
 
-        struct CharmedPlayerTargetSelectPred : public std::unary_function<Unit*, bool>
+        struct CharmedPlayerTargetSelectPred
         {
             bool operator()(Unit const* target) const
             {
@@ -190,7 +196,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         }
 };
 
-struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
+struct ManaUserTargetSelector
 {
     bool operator()(Unit const* target) const
     {
@@ -568,11 +574,11 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kelthuzadAI>(creature);
+        return GetNaxxramasAI<boss_kelthuzadAI>(creature);
     }
 };
 
-static const float MINION_AGGRO_DISTANCE = 20.0f;
+float const MINION_AGGRO_DISTANCE = 20.0f;
 // @hack the entire _movementTimer logic only exists because RandomMovementGenerator gets really confused due to the unique map geography of KT's room (it's placed on top of a copy of Winterspring).
 // As of the time of writing, RMG sometimes selects positions on the "floor" below the room, causing Abominations to path wildly through the room.
 // This custom movement code prevents this by simply ignoring z coord calculation (the floor of the minion coves is flat anyway).
@@ -699,7 +705,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_skeletonAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_skeletonAI>(creature);
     }
 };
 
@@ -725,7 +731,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_bansheeAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_bansheeAI>(creature);
     }
 };
 
@@ -768,7 +774,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_abominationAI>(creature);
     }
 };
 
@@ -862,7 +868,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_guardianAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_guardianAI>(creature);
     }
 };
 
@@ -915,9 +921,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DETONATION_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MANA_DETONATION_DAMAGE });
         }
 
         void HandleScript(AuraEffect const* aurEff)
@@ -928,7 +932,7 @@ public:
             if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
             {
                 mana = target->ModifyPower(POWER_MANA, -mana);
-                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, NULL, aurEff);
+                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, nullptr, aurEff);
             }
         }
 
@@ -949,7 +953,7 @@ class at_kelthuzad_center : public AreaTriggerScript
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)
@@ -963,7 +967,6 @@ public:
             return true;
 
         kelThuzad->AI()->DoAction(ACTION_BEGIN_ENCOUNTER);
-
         return true;
     }
 };

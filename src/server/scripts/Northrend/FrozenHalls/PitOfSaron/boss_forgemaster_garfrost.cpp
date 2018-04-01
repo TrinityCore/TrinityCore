@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuras.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "pit_of_saron.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -167,7 +171,7 @@ class boss_garfrost : public CreatureScript
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
@@ -259,28 +263,21 @@ class spell_garfrost_permafrost : public SpellScriptLoader
         {
             PrepareSpellScript(spell_garfrost_permafrost_SpellScript);
 
-        public:
-            spell_garfrost_permafrost_SpellScript()
-            {
-                prevented = false;
-            }
-
-        private:
             void PreventHitByLoS()
             {
                 if (Unit* target = GetHitUnit())
                 {
                     Unit* caster = GetCaster();
                     //Temporary Line of Sight Check
-                    std::list<GameObject*> blockList;
+                    std::vector<GameObject*> blockList;
                     caster->GetGameObjectListWithEntryInGrid(blockList, GO_SARONITE_ROCK, 100.0f);
                     if (!blockList.empty())
                     {
-                        for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
+                        for (GameObject* go : blockList)
                         {
-                            if (!(*itr)->IsInvisibleDueToDespawn())
+                            if (!go->IsInvisibleDueToDespawn())
                             {
-                                if ((*itr)->IsInBetween(caster, target, 4.0f))
+                                if (go->IsInBetween(caster, target, 4.0f))
                                 {
                                     prevented = true;
                                     target->ApplySpellImmune(GetSpellInfo()->Id, IMMUNITY_ID, GetSpellInfo()->Id, true);
@@ -312,7 +309,7 @@ class spell_garfrost_permafrost : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_garfrost_permafrost_SpellScript::RestoreImmunity);
             }
 
-            bool prevented;
+            bool prevented = false;
         };
 
         SpellScript* GetSpellScript() const override

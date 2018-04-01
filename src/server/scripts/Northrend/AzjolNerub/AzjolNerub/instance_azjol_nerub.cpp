@@ -16,34 +16,38 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
-    { GO_KRIKTHIR_DOOR,     DATA_KRIKTHIR,  DOOR_TYPE_PASSAGE },
-    { GO_ANUBARAK_DOOR_1,   DATA_ANUBARAK,                  DOOR_TYPE_ROOM },
-    { GO_ANUBARAK_DOOR_2,   DATA_ANUBARAK,                  DOOR_TYPE_ROOM },
-    { GO_ANUBARAK_DOOR_3,   DATA_ANUBARAK,                  DOOR_TYPE_ROOM },
-    { 0,                    0,                              DOOR_TYPE_ROOM } // END
+    { GO_KRIKTHIR_DOOR,     DATA_KRIKTHIR, DOOR_TYPE_PASSAGE },
+    { GO_ANUBARAK_DOOR_1,   DATA_ANUBARAK, DOOR_TYPE_ROOM    },
+    { GO_ANUBARAK_DOOR_2,   DATA_ANUBARAK, DOOR_TYPE_ROOM    },
+    { GO_ANUBARAK_DOOR_3,   DATA_ANUBARAK, DOOR_TYPE_ROOM    },
+    { 0,                    0,             DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =
 {
-    { NPC_KRIKTHIR,        DATA_KRIKTHIR },
-    { NPC_HADRONOX,        DATA_HADRONOX                 },
-    { NPC_ANUBARAK,        DATA_ANUBARAK                 },
-    { NPC_WATCHER_NARJIL,  DATA_WATCHER_GASHRA           },
-    { NPC_WATCHER_GASHRA,  DATA_WATCHER_SILTHIK          },
-    { NPC_WATCHER_SILTHIK, DATA_WATCHER_NARJIL           },
-    { 0,                   0                             } // END
+    { NPC_KRIKTHIR,        DATA_KRIKTHIR        },
+    { NPC_HADRONOX,        DATA_HADRONOX        },
+    { NPC_ANUBARAK,        DATA_ANUBARAK        },
+    { NPC_WATCHER_NARJIL,  DATA_WATCHER_GASHRA  },
+    { NPC_WATCHER_GASHRA,  DATA_WATCHER_SILTHIK },
+    { NPC_WATCHER_SILTHIK, DATA_WATCHER_NARJIL  },
+    { 0,                   0                    } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { GO_ANUBARAK_DOOR_1, DATA_ANUBARAK_WALL },
+    { GO_ANUBARAK_DOOR_1, DATA_ANUBARAK_WALL   },
     { GO_ANUBARAK_DOOR_3, DATA_ANUBARAK_WALL_2 },
-    { 0,                  0                  } // END
+    { 0,                  0                    } // END
 };
 
 BossBoundaryData const boundaries =
@@ -56,7 +60,7 @@ BossBoundaryData const boundaries =
 class instance_azjol_nerub : public InstanceMapScript
 {
     public:
-        instance_azjol_nerub() : InstanceMapScript("instance_azjol_nerub", 601) { }
+        instance_azjol_nerub() : InstanceMapScript(AzjolNerubScriptName, 601) { }
 
         struct instance_azjol_nerub_InstanceScript : public InstanceScript
         {

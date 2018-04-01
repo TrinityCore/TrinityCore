@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
-#include "ObjectGuid.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "naxxramas.h"
-
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Phases
 {
@@ -161,11 +164,6 @@ class boss_thaddius : public CreatureScript
 {
 public:
     boss_thaddius() : CreatureScript("boss_thaddius") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_thaddiusAI>(creature);
-    }
 
     struct boss_thaddiusAI : public BossAI
     {
@@ -486,17 +484,16 @@ public:
             bool shockingEligibility;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<boss_thaddiusAI>(creature);
+    }
 };
 
 class npc_stalagg : public CreatureScript
 {
 public:
     npc_stalagg() : CreatureScript("npc_stalagg") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_stalaggAI>(creature);
-    }
 
     struct npc_stalaggAI : public ScriptedAI
     {
@@ -755,17 +752,16 @@ public:
             bool isFeignDeath;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<npc_stalaggAI>(creature);
+    }
 };
 
 class npc_feugen : public CreatureScript
 {
 public:
     npc_feugen() : CreatureScript("npc_feugen") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_feugenAI>(creature);
-    }
 
     struct npc_feugenAI : public ScriptedAI
     {
@@ -1027,17 +1023,17 @@ public:
             bool refreshBeam;
             bool isFeignDeath;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<npc_feugenAI>(creature);
+    }
 };
 
 class npc_tesla : public CreatureScript
 {
 public:
     npc_tesla() : CreatureScript("npc_tesla") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_teslaAI>(creature);
-    }
 
     struct npc_teslaAI : public ScriptedAI
     {
@@ -1048,6 +1044,11 @@ public:
         void JustEngagedWith(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetNaxxramasAI<npc_teslaAI>(creature);
+    }
 };
 
 class spell_thaddius_polarity_charge : public SpellScriptLoader
@@ -1061,15 +1062,16 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_POLARITY_SHIFT) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_AMP) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_AMP)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_POLARITY_SHIFT,
+                    SPELL_POSITIVE_CHARGE_APPLY,
+                    SPELL_POSITIVE_CHARGE_TICK,
+                    SPELL_POSITIVE_CHARGE_AMP,
+                    SPELL_NEGATIVE_CHARGE_APPLY,
+                    SPELL_NEGATIVE_CHARGE_TICK,
+                    SPELL_NEGATIVE_CHARGE_AMP
+                });
             }
 
             void HandleTargets(std::list<WorldObject*>& targetList)
@@ -1160,15 +1162,16 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_POLARITY_SHIFT) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_AMP) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_AMP)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_POLARITY_SHIFT,
+                    SPELL_POSITIVE_CHARGE_APPLY,
+                    SPELL_POSITIVE_CHARGE_TICK,
+                    SPELL_POSITIVE_CHARGE_AMP,
+                    SPELL_NEGATIVE_CHARGE_APPLY,
+                    SPELL_NEGATIVE_CHARGE_TICK,
+                    SPELL_NEGATIVE_CHARGE_AMP
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1212,7 +1215,7 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_PULL) ? true : false;
+                return ValidateSpellInfo({ SPELL_MAGNETIC_PULL });
             }
 
             void HandleCast() // only feugen ever casts this according to wowhead data

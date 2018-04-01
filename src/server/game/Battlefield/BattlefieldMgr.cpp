@@ -18,6 +18,7 @@
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "BattlefieldTB.h"
+#include "Log.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
@@ -132,7 +133,7 @@ Battlefield* BattlefieldMgr::GetBattlefieldByGUID(ObjectGuid guid)
         if ((*itr)->GetGUID() == guid)
             return *itr;
 
-    return NULL;
+    return nullptr;
 }
 
 ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)

@@ -27,6 +27,13 @@
 #include "World.h"
 #include "WorldPacket.h"
 
+void BattlegroundTPScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
+{
+    data.WriteBits(2, 24); // Objectives Count
+    content << uint32(FlagCaptures);
+    content << uint32(FlagReturns);
+}
+
 BattlegroundTP::BattlegroundTP()
 {
 }

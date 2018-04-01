@@ -23,9 +23,12 @@ SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
 
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
 #include "shadowfang_keep.h"
 #include "TemporarySummon.h"
 
@@ -69,12 +72,7 @@ const Position SpawnLocation[] =
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
-    instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_shadowfang_keep_InstanceMapScript(map);
-    }
+    instance_shadowfang_keep() : InstanceMapScript(SFKScriptName, 33) { }
 
     struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
     {
@@ -214,7 +212,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {
@@ -279,6 +277,10 @@ public:
         }
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_shadowfang_keep_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_shadowfang_keep()

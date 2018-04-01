@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "karazhan.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "karazhan.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum NightbaneSpells
 {
@@ -376,7 +380,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nightbaneAI>(creature);
+        return GetKarazhanAI<boss_nightbaneAI>(creature);
     }
 };
 
@@ -392,9 +396,7 @@ class spell_rain_of_bones : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SKELETON });
             }
 
             void OnTrigger(AuraEffect const* aurEff)
@@ -422,15 +424,16 @@ class go_blackened_urn : public GameObjectScript
 
         struct go_blackened_urnAI : public GameObjectAI
         {
-            go_blackened_urnAI(GameObject* go) : GameObjectAI(go) { }
+            go_blackened_urnAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* /*player*/) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return false;
 
-                InstanceScript* instance = me->GetInstanceScript();
-                if (!instance || instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
                     return false;
 
                 if (Creature* nightbane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NIGHTBANE)))
@@ -444,7 +447,7 @@ class go_blackened_urn : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_blackened_urnAI(go);
+            return GetKarazhanAI<go_blackened_urnAI>(go);
         }
 };
 

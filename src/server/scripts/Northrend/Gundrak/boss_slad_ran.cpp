@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "gundrak.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "gundrak.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -207,11 +209,6 @@ class npc_slad_ran_constrictor : public CreatureScript
 public:
     npc_slad_ran_constrictor() : CreatureScript("npc_slad_ran_constrictor") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_slad_ran_constrictorAI(creature);
-    }
-
     struct npc_slad_ran_constrictorAI : public ScriptedAI
     {
         npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature)
@@ -255,17 +252,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetGundrakAI<npc_slad_ran_constrictorAI>(creature);
+    }
 };
 
 class npc_slad_ran_viper : public CreatureScript
 {
 public:
     npc_slad_ran_viper() : CreatureScript("npc_slad_ran_viper") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_slad_ran_viperAI(creature);
-    }
 
     struct npc_slad_ran_viperAI : public ScriptedAI
     {
@@ -294,6 +290,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetGundrakAI<npc_slad_ran_viperAI>(creature);
+    }
 };
 
 class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaScript

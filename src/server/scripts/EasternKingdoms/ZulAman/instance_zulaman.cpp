@@ -16,7 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
@@ -47,32 +49,32 @@ public:
         {
             switch (creature->GetEntry())
             {
-            case NPC_AKILZON:
-                AkilzonGUID = creature->GetGUID();
-                break;
-            case NPC_NALORAKK:
-                NalorakkGUID = creature->GetGUID();
-                break;
-            case NPC_JANALAI:
-                JanalaiGUID = creature->GetGUID();
-                break;
-            case NPC_HALAZZI:
-                HalazziGUID = creature->GetGUID();
-                break;
-            case NPC_HEXLORD:
-                HexLordMalacrassGUID = creature->GetGUID();
-                break;
-            case NPC_DAAKARA:
-                DaakaraGUID = creature->GetGUID();
-                break;
-            case NPC_VOLJIN:
-                VoljinGUID = creature->GetGUID();
-                break;
-            case NPC_HEXLORD_TRIGGER:
-                HexLordTriggerGUID = creature->GetGUID();
-                break;
-            default:
-                break;
+                case NPC_AKILZON:
+                    AkilzonGUID = creature->GetGUID();
+                    break;
+                case NPC_NALORAKK:
+                    NalorakkGUID = creature->GetGUID();
+                    break;
+                case NPC_JANALAI:
+                    JanalaiGUID = creature->GetGUID();
+                    break;
+                case NPC_HALAZZI:
+                    HalazziGUID = creature->GetGUID();
+                    break;
+                case NPC_HEXLORD:
+                    HexLordMalacrassGUID = creature->GetGUID();
+                    break;
+                case NPC_DAAKARA:
+                    DaakaraGUID = creature->GetGUID();
+                    break;
+                case NPC_VOLJIN:
+                    VoljinGUID = creature->GetGUID();
+                    break;
+                case NPC_HEXLORD_TRIGGER:
+                    HexLordTriggerGUID = creature->GetGUID();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -80,17 +82,17 @@ public:
         {
             switch (go->GetEntry())
             {
-            case GO_STRANGE_GONG:
-                StrangeGongGUID = go->GetGUID();
-                break;
-            case GO_MASSIVE_GATE:
-                MasiveGateGUID = go->GetGUID();
-                AddDoor(go, true);
-                if (ZulAmanState != NOT_STARTED)
-                    go->SetGoState(GO_STATE_ACTIVE);
-                break;
-            default:
-                break;
+                case GO_STRANGE_GONG:
+                    StrangeGongGUID = go->GetGUID();
+                    break;
+                case GO_MASSIVE_GATE:
+                    MasiveGateGUID = go->GetGUID();
+                    AddDoor(go, true);
+                    if (ZulAmanState != NOT_STARTED)
+                        go->SetGoState(GO_STATE_ACTIVE);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -98,11 +100,11 @@ public:
         {
             switch (go->GetEntry())
             {
-            case GO_MASSIVE_GATE:
-                AddDoor(go, false);
-                break;
-            default:
-                break;
+                case GO_MASSIVE_GATE:
+                    AddDoor(go, false);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -110,26 +112,26 @@ public:
         {
             switch (type)
             {
-            case DATA_AKILZONEVENT:
-                return AkilzonGUID;
-            case DATA_NALORAKKEVENT:
-                return NalorakkGUID;
-            case DATA_JANALAIEVENT:
-                return JanalaiGUID;
-            case DATA_HALAZZIEVENT:
-                return HalazziGUID;
-            case DATA_HEXLORDEVENT:
-                return HexLordMalacrassGUID;
-            case DATA_DAAKARAEVENT:
-                return DaakaraGUID;
-            case DATA_HEXLORD_TRIGGER:
-                return HexLordTriggerGUID;
-            case DATA_STRANGE_GONG:
-                return StrangeGongGUID;
-            case DATA_MASSIVE_GATE:
-                return MasiveGateGUID;
-            default:
-                break;
+                case DATA_AKILZONEVENT:
+                    return AkilzonGUID;
+                case DATA_NALORAKKEVENT:
+                    return NalorakkGUID;
+                case DATA_JANALAIEVENT:
+                    return JanalaiGUID;
+                case DATA_HALAZZIEVENT:
+                    return HalazziGUID;
+                case DATA_HEXLORDEVENT:
+                    return HexLordMalacrassGUID;
+                case DATA_DAAKARAEVENT:
+                    return DaakaraGUID;
+                case DATA_HEXLORD_TRIGGER:
+                    return HexLordTriggerGUID;
+                case DATA_STRANGE_GONG:
+                    return StrangeGongGUID;
+                case DATA_MASSIVE_GATE:
+                    return MasiveGateGUID;
+                default:
+                    break;
             }
 
             return ObjectGuid::Empty;
@@ -139,21 +141,21 @@ public:
         {
             switch (type)
             {
-            case DATA_ZULAMAN_STATE:
-            {
-                if (data == IN_PROGRESS)
+                case DATA_ZULAMAN_STATE:
                 {
-                    DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
-                    DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, 15);
-                    events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
-                    SpeedRunTimer = 15;
-                    ZulAmanState = data;
-                    SaveToDB();
+                    if (data == IN_PROGRESS)
+                    {
+                        DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
+                        DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, 15);
+                        events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                        SpeedRunTimer = 15;
+                        ZulAmanState = data;
+                        SaveToDB();
+                    }
+                    break;
                 }
-                break;
-            }
-            default:
-                break;
+                default:
+                    break;
             }
         }
 
@@ -161,10 +163,10 @@ public:
         {
             switch (type)
             {
-            case DATA_ZULAMAN_STATE:
-                return ZulAmanState;
-            default:
-                break;
+                case DATA_ZULAMAN_STATE:
+                    return ZulAmanState;
+                default:
+                    break;
             }
 
             return 0;
@@ -197,18 +199,18 @@ public:
 
             switch (type)
             {
-            case DATA_AKILZONEVENT:
-                break;
-            case DATA_NALORAKKEVENT:
-                break;
-            case DATA_JANALAIEVENT:
-                break;
-            case DATA_HALAZZIEVENT:
-            case DATA_HEXLORDEVENT:
-            case DATA_DAAKARAEVENT:
-                break;
-            default:
-                break;
+                case DATA_AKILZONEVENT:
+                    break;
+                case DATA_NALORAKKEVENT:
+                    break;
+                case DATA_JANALAIEVENT:
+                    break;
+                case DATA_HALAZZIEVENT:
+                case DATA_HEXLORDEVENT:
+                case DATA_DAAKARAEVENT:
+                    break;
+                default:
+                    break;
             }
 
             return true;
@@ -218,15 +220,15 @@ public:
         {
             switch (eventId)
             {
-            case EVENT_START_ZULAMAN:
-                if (Creature* voljin = instance->GetCreature(VoljinGUID))
-                {
-                    if (voljin->IsAIEnabled)
-                        voljin->AI()->DoAction(ACTION_START_ZULAMAN);
-                }
-                break;
-            default:
-                break;
+                case EVENT_START_ZULAMAN:
+                    if (Creature* voljin = instance->GetCreature(VoljinGUID))
+                    {
+                        if (voljin->IsAIEnabled)
+                            voljin->AI()->DoAction(ACTION_START_ZULAMAN);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -241,20 +243,20 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_UPDATE_ZULAMAN_TIMER:
-                    SaveToDB();
-                    DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, --SpeedRunTimer);
-                    if (SpeedRunTimer)
-                        events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
-                    else
-                    {
-                        DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 0);
-                        events.CancelEvent(EVENT_UPDATE_ZULAMAN_TIMER);
-                        ZulAmanState = FAIL;
-                    }
-                    break;
-                default:
-                    break;
+                    case EVENT_UPDATE_ZULAMAN_TIMER:
+                        SaveToDB();
+                        DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, --SpeedRunTimer);
+                        if (SpeedRunTimer)
+                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                        else
+                        {
+                            DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 0);
+                            events.CancelEvent(EVENT_UPDATE_ZULAMAN_TIMER);
+                            ZulAmanState = FAIL;
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }

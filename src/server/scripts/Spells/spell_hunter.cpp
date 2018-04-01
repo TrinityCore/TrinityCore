@@ -21,15 +21,14 @@
  * Scriptnames of files in this file should be prefixed with "spell_hun_".
  */
 
-#include "Pet.h"
 #include "ScriptMgr.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "SpellHistory.h"
-#include "SpellScript.h"
+#include "Pet.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum HunterSpells
 {
@@ -85,12 +84,13 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_HUNTER_INSANITY,
+                    SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+                    SPELL_SHAMAN_EXHAUSTION,
+                    SPELL_SHAMAN_SATED
+                });
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
@@ -132,10 +132,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_HEAL) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_CHIMERA_SHOT_HEAL, SPELL_HUNTER_SERPENT_STING });
             }
 
             bool Load() override
@@ -175,10 +172,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, SPELL_HUNTER_SERPENT_STING });
             }
 
             bool Load() override
@@ -288,9 +282,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_MEND_PET))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_IMPROVED_MEND_PET });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -301,7 +293,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_MEND_PET, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_MEND_PET, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -365,9 +357,7 @@ class spell_hun_invigoration : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_INVIGORATION_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_INVIGORATION_TRIGGERED });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -402,16 +392,14 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_LAST_STAND_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_PET_LAST_STAND_TRIGGERED });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
-                caster->CastCustomSpell(caster, SPELL_HUNTER_PET_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                caster->CastCustomSpell(caster, SPELL_HUNTER_PET_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, nullptr, nullptr, true, nullptr);
             }
 
             void Register() override
@@ -438,10 +426,7 @@ class spell_hun_lock_and_load : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LOCK_AND_LOAD_TRIGGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_LOCK_AND_LOAD_MARKER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LOCK_AND_LOAD_TRIGGER, SPELL_LOCK_AND_LOAD_MARKER });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -501,10 +486,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MASTERS_CALL_TRIGGERED) ||
-                    !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_MASTERS_CALL_TRIGGERED, uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -553,9 +535,7 @@ class spell_hun_misdirection : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MISDIRECTION_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_MISDIRECTION_PROC });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -572,7 +552,7 @@ class spell_hun_misdirection : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_MISDIRECTION_PROC, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_MISDIRECTION_PROC, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -635,16 +615,14 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED });
             }
 
             SpellCastResult CheckIfCorpseNear()
             {
                 Unit* caster = GetCaster();
                 float max_range = GetSpellInfo()->GetMaxRange(false);
-                WorldObject* result = NULL;
+                WorldObject* result = nullptr;
                 // search for nearby enemy corpse in range
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
                 Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
@@ -694,9 +672,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -734,9 +710,7 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_RAPID_RECUPERATION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_RAPID_RECUPERATION });
             }
 
             void HandleAbilityCast(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -754,7 +728,7 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
                     return;
 
                 int32 focus = aurEff->GetAmount();
-                GetTarget()->CastCustomSpell(SPELL_HUNTER_RAPID_RECUPERATION, SPELLVALUE_BASE_POINT0, focus, GetTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_HUNTER_RAPID_RECUPERATION, SPELLVALUE_BASE_POINT0, focus, GetTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -827,16 +801,14 @@ class spell_hun_ready_set_aim : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_FIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_FIRE });
             }
 
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetStackAmount() == 5)
                 {
-                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_FIRE, true, NULL, aurEff);
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_FIRE, true, nullptr, aurEff);
                     GetTarget()->RemoveAura(GetId());
                 }
             }
@@ -901,10 +873,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_R1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_SNIPER_TRAINING_R1, SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1 });
             }
 
             void HandlePeriodic(AuraEffect const* aurEff)
@@ -962,9 +931,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT_FOCUS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_STEADY_SHOT_FOCUS });
             }
 
             bool Load() override
@@ -990,7 +957,6 @@ class spell_hun_steady_shot : public SpellScriptLoader
 };
 
 // 53221 - 53221 - 53224 - Improved Steady Shot
-
 class spell_hun_improved_steady_shot : public SpellScriptLoader
 {
     public:
@@ -1008,12 +974,7 @@ class spell_hun_improved_steady_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT))
-                    return false;
-
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_STEADY_SHOT, SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1141,9 +1102,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_THRILL_OF_THE_HUNT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_THRILL_OF_THE_HUNT });
             }
 
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1152,7 +1111,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                 int32 focus = eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), SpellSchoolMask(eventInfo.GetDamageInfo()->GetSchoolMask()));
                 focus = CalculatePct(focus, aurEff->GetAmount());
 
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_HUNTER_THRILL_OF_THE_HUNT, &focus, NULL, NULL, true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_HUNTER_THRILL_OF_THE_HUNT, &focus, nullptr, nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1179,9 +1138,7 @@ class spell_hun_tnt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_LOCK_AND_LOAD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -1192,7 +1149,7 @@ class spell_hun_tnt : public SpellScriptLoader
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, true, nullptr, aurEff);
             }
 
             void Register() override

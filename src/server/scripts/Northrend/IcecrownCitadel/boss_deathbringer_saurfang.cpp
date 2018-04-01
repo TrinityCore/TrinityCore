@@ -15,13 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -645,6 +649,14 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 return false;
             }
 
+            void GuardBroadcast(std::function<void(Creature*)>&& action) const
+            {
+                std::vector<Creature*> guardList;
+                GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_KOR_KRON_REAVER, 100.0f);
+                for (Creature* guard : guardList)
+                    action(guard);
+            }
+
             void DoAction(int32 action) override
             {
                 switch (action)
@@ -655,10 +667,11 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         if (_events.IsInPhase(PHASE_INTRO_A) || _events.IsInPhase(PHASE_INTRO_H))
                             return;
 
-                        GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
-                        _guardList.sort(Trinity::ObjectDistanceOrderPred(me));
+                        std::list<Creature*> guardList;
+                        GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
+                        guardList.sort(Trinity::ObjectDistanceOrderPred(me));
                         uint32 x = 1;
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++x, ++itr)
+                        for (auto itr = guardList.begin(); itr != guardList.end(); ++x, ++itr)
                             (*itr)->AI()->SetData(0, x);
 
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -680,15 +693,19 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30000);   // move
                         me->SetDisableGravity(false);
                         me->GetMotionMaster()->MoveFall();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
                         break;
                     }
                     case ACTION_INTERRUPT_INTRO:
                     {
                         _events.Reset();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
                         break;
                     }
                     default:
@@ -772,8 +789,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             break;
                         case EVENT_INTRO_HORDE_8:
                             Talk(SAY_INTRO_HORDE_8);
-                            for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                                (*itr)->AI()->DoAction(ACTION_CHARGE);
+                            GuardBroadcast([](Creature* guard)
+                            {
+                                guard->AI()->DoAction(ACTION_CHARGE);
+                            });
                             me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
                             break;
                         case EVENT_OUTRO_HORDE_2:   // say
@@ -806,7 +825,6 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
-            std::list<Creature*> _guardList;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -842,6 +860,14 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 return false;
             }
 
+            void GuardBroadcast(std::function<void(Creature*)>&& action) const
+            {
+                std::vector<Creature*> guardList;
+                GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_SKYBREAKER_MARINE, 100.0f);
+                for (Creature* guard : guardList)
+                    action(guard);
+            }
+
             void DoAction(int32 action) override
             {
                 switch (action)
@@ -853,10 +879,11 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                             return;
 
                         _events.SetPhase(PHASE_INTRO_A);
-                        GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_SKYBREAKER_MARINE, 20.0f);
-                        _guardList.sort(Trinity::ObjectDistanceOrderPred(me));
+                        std::list<Creature*> guardList;
+                        GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_SKYBREAKER_MARINE, 20.0f);
+                        guardList.sort(Trinity::ObjectDistanceOrderPred(me));
                         uint32 x = 1;
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++x, ++itr)
+                        for (auto itr = guardList.begin(); itr != guardList.end(); ++x, ++itr)
                             (*itr)->AI()->SetData(0, x);
 
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -873,8 +900,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                         Talk(SAY_OUTRO_ALLIANCE_1);
                         me->SetDisableGravity(false);
                         me->GetMotionMaster()->MoveFall();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
 
                         // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
@@ -883,8 +912,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     }
                     case ACTION_INTERRUPT_INTRO:
                         _events.Reset();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
                         break;
                 }
             }
@@ -931,8 +962,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                             break;
                         case EVENT_INTRO_ALLIANCE_5:
                             Talk(SAY_INTRO_ALLIANCE_5);
-                            for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                                (*itr)->AI()->DoAction(ACTION_CHARGE);
+                            GuardBroadcast([](Creature* guard)
+                            {
+                                guard->AI()->DoAction(ACTION_CHARGE);
+                            });
                             me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
                             break;
                     }
@@ -942,7 +975,6 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
-            std::list<Creature*> _guardList;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1007,11 +1039,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_POWER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_POWER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_POWER, SPELL_BLOOD_POWER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1043,9 +1071,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_THE_FALLEN_CHAMPION });
             }
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1128,9 +1154,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1163,9 +1187,7 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1197,9 +1219,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1229,13 +1249,6 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript);
 
-        public:
-            spell_deathbringer_blood_nova_targeting_SpellScript()
-            {
-                target = nullptr;
-            }
-
-        private:
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -1284,7 +1297,7 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_nova_targeting_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
 
-            WorldObject* target;
+            WorldObject* target = nullptr;
         };
 
         SpellScript* GetSpellScript() const override

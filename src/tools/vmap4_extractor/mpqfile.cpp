@@ -3,7 +3,7 @@
 #include <cstdio>
 #include "StormLib.h"
 
-MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) :
+MPQFile::MPQFile(HANDLE mpq, char const* filename, bool warnNoExist /*= true*/) :
     eof(false),
     buffer(0),
     pointer(0),

@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "scarlet_monastery.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -115,7 +117,7 @@ class boss_interrogator_vishas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_interrogator_vishasAI>(creature);
+            return GetScarletMonasteryAI<boss_interrogator_vishasAI>(creature);
         }
 };
 

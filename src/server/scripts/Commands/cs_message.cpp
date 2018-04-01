@@ -23,12 +23,18 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "Chat.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "Language.h"
-#include "Player.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class message_commandscript : public CommandScript
 {
@@ -43,11 +49,11 @@ public:
         };
         static std::vector<ChatCommand> channelCommandTable =
         {
-            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, NULL, "", channelSetCommandTable },
+            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, nullptr, "", channelSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, NULL,                         "", channelCommandTable  },
+            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, nullptr,                         "", channelCommandTable  },
             { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "" },
             { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "" },
             { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "" },
@@ -70,26 +76,18 @@ public:
             return false;
 
         uint32 channelId = 0;
-        for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+        for (ChatChannelsEntry const* entry : sChatChannelsStore)
         {
-            ChatChannelsEntry const* entry = sChatChannelsStore.LookupEntry(i);
-            if (!entry)
-                continue;
-
             if (strstr(entry->pattern, channelStr))
             {
-                channelId = i;
+                channelId = entry->ChannelID;
                 break;
             }
         }
 
         AreaTableEntry const* zoneEntry = nullptr;
-        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
+        for (AreaTableEntry const* entry : sAreaTableStore)
         {
-            AreaTableEntry const* entry = sAreaTableStore.LookupEntry(i);
-            if (!entry)
-                continue;
-
             if (strstr(entry->area_name, channelStr))
             {
                 zoneEntry = entry;
@@ -232,7 +230,7 @@ public:
 
         if (argStr == "remove")
         {
-            std::string name = strtok(NULL, " ");
+            std::string name = strtok(nullptr, " ");
             if (normalizePlayerName(name))
             {
                 if (Player* player = ObjectAccessor::FindPlayerByName(name))

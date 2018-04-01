@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum TerestianSays

@@ -20,8 +20,6 @@
 #define TRINITY_COMBATAI_H
 
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
-#include "ConditionMgr.h"
 
 class Creature;
 

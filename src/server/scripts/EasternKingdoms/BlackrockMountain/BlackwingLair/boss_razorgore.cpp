@@ -17,11 +17,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackwing_lair.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "blackwing_lair.h"
-#include "Player.h"
-#include "GameObjectAI.h"
 
 enum Say
 {
@@ -169,7 +171,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_razorgoreAI>(creature);
+        return GetBlackwingLairAI<boss_razorgoreAI>(creature);
     }
 };
 
@@ -180,24 +182,27 @@ class go_orb_of_domination : public GameObjectScript
 
         struct go_orb_of_dominationAI : public GameObjectAI
         {
-            go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go) { }
+            go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* player) override
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                        if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
-                        {
-                            razorgore->Attack(player, true);
-                            player->CastSpell(razorgore, SPELL_MINDCONTROL);
-                        }
+                if (instance->GetData(DATA_EGG_EVENT) != DONE)
+                {
+                    if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+                    {
+                        razorgore->Attack(player, true);
+                        player->CastSpell(razorgore, SPELL_MINDCONTROL);
+                    }
+                }
                 return true;
             }
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return new go_orb_of_dominationAI(go);
+            return GetBlackwingLairAI<go_orb_of_dominationAI>(go);
         }
 };
 

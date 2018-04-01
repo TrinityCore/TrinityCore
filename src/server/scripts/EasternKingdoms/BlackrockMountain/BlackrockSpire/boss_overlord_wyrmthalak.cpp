@@ -17,8 +17,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -49,11 +50,6 @@ class boss_overlord_wyrmthalak : public CreatureScript
 {
 public:
     boss_overlord_wyrmthalak() : CreatureScript("boss_overlord_wyrmthalak") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_overlordwyrmthalakAI(creature);
-    }
 
     struct boss_overlordwyrmthalakAI : public BossAI
     {
@@ -139,6 +135,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackrockSpireAI<boss_overlordwyrmthalakAI>(creature);
+    }
 };
 
 void AddSC_boss_overlordwyrmthalak()

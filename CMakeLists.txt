@@ -35,7 +35,9 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 
 # set macro-directory
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
+list(APPEND CMAKE_MODULE_PATH
+  "${CMAKE_SOURCE_DIR}/cmake/macros"
+  "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
 
 # build in Release-mode by default if not explicitly set
 if( NOT CMAKE_BUILD_TYPE )
@@ -55,13 +57,13 @@ if( NOPCH )
   set(USE_SCRIPTPCH 0)
 endif()
 
+include(ConfigureBaseTargets)
 include(CheckPlatform)
 
 include(GroupSources)
 include(AutoCollect)
 
 find_package(PCHSupport)
-find_package(ZMQ REQUIRED)
 find_package(MySQL)
 
 if(NOT WITHOUT_GIT)

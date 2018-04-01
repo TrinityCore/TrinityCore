@@ -18,10 +18,12 @@
 #ifndef TRINITYCORE_CHATLINK_H
 #define TRINITYCORE_CHATLINK_H
 
+#include "Common.h"
 #include "SharedDefines.h"
-#include <sstream>
-#include <list>
 #include <cstring>
+#include <list>
+#include <sstream>
+#include <vector>
 
 struct ItemLocale;
 struct ItemTemplate;
@@ -152,7 +154,7 @@ public:
 class TC_GAME_API GlyphChatLink : public SpellChatLink
 {
 public:
-    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
+    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(nullptr) { }
     virtual bool Initialize(std::istringstream& iss) override;
 private:
     uint32 _slotId;

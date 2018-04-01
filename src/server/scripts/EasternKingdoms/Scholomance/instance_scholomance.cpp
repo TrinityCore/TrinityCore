@@ -16,7 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 #include "scholomance.h"
 
@@ -25,12 +27,7 @@ Position const GandlingLoc = { 180.7712f, -5.428603f, 75.57024f, 1.291544f };
 class instance_scholomance : public InstanceMapScript
 {
     public:
-        instance_scholomance() : InstanceMapScript("instance_scholomance", 289) { }
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_scholomance_InstanceMapScript(map);
-        }
+        instance_scholomance() : InstanceMapScript(ScholomanceScriptName, 289) { }
 
         struct instance_scholomance_InstanceMapScript : public InstanceScript
         {
@@ -176,6 +173,11 @@ class instance_scholomance : public InstanceMapScript
             ObjectGuid GateIlluciaGUID;
             ObjectGuid BrazierOfTheHeraldGUID;
         };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        {
+            return new instance_scholomance_InstanceMapScript(map);
+        }
 };
 
 void AddSC_instance_scholomance()

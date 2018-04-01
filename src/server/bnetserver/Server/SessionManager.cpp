@@ -16,10 +16,35 @@
  */
 
 #include "SessionManager.h"
+#include "Containers.h"
+#include "Hash.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
-bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
+namespace
 {
-    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+    std::unordered_map<std::pair<uint32 /*accountId*/, uint32 /*gameAccountId*/>, Battlenet::Session*> _sessions;
+    std::unordered_map<uint32, std::list<Battlenet::Session*>> _sessionsByAccountId;
+    boost::shared_mutex _sessionMutex;
+}
+
+Battlenet::SessionManager::SessionManager() : SocketMgr<Session>()
+{
+}
+
+Battlenet::SessionManager::~SessionManager()
+{
+}
+
+Battlenet::SessionManager& Battlenet::SessionManager::Instance()
+{
+    static SessionManager instance;
+    return instance;
+}
+
+bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount /*= 1*/)
+{
+    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
     _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
@@ -58,20 +83,18 @@ void Battlenet::SessionManager::RemoveSession(Session* session)
 Battlenet::Session* Battlenet::SessionManager::GetSession(uint32 accountId, uint32 gameAccountId) const
 {
     boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
-    auto itr = _sessions.find({ accountId, gameAccountId });
-    if (itr != _sessions.end())
-        return itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_sessions, { accountId, gameAccountId });
 }
 
-std::list<Battlenet::Session*> Battlenet::SessionManager::GetSessions(uint32 accountId) const
+std::list<Battlenet::Session*>* Battlenet::SessionManager::GetSessions(uint32 accountId) const
 {
     boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
-    std::list<Session*> sessions;
-    auto itr = _sessionsByAccountId.find(accountId);
-    if (itr != _sessionsByAccountId.end())
-        sessions = itr->second;
+    return Trinity::Containers::MapGetValuePtr(_sessionsByAccountId, accountId);
+}
 
-    return sessions;
+void Battlenet::SessionManager::LockedForEach(std::function<void(Session*)>&& iterator) const
+{
+    boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
+    for (auto const& pair : _sessions)
+        iterator(pair.second);
 }

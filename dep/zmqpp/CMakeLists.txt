@@ -10,20 +10,18 @@
 
 file(GLOB_RECURSE sources_zmqpp zmqpp/*.cpp zmqpp/*.hpp zmqpp/*.h)
 
-include_directories(${ZMQ_INCLUDE_DIR})
-
-add_library(zmqpp STATIC
-  ${sources_zmqpp}
-)
-
-target_link_libraries(zmqpp
-  PUBLIC
-    zmq)
+add_library(zmqpp STATIC ${sources_zmqpp})
 
 target_include_directories(zmqpp
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
 
+target_link_libraries(zmqpp
+  PRIVATE
+    trinity-dependency-interface
+  PUBLIC
+    libzmq)
+    
 set_target_properties(zmqpp
   PROPERTIES
     FOLDER

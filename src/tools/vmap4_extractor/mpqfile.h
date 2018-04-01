@@ -12,32 +12,10 @@
 #include <iostream>
 #include <deque>
 #include "StormLib.h"
+#include "Define.h"
 
 #ifdef _WIN32
 #include <Windows.h>    // mainly only HANDLE definition is required
-typedef __int64            int64;
-typedef __int32            int32;
-typedef __int16            int16;
-typedef __int8             int8;
-typedef unsigned __int64   uint64;
-typedef unsigned __int32   uint32;
-typedef unsigned __int16   uint16;
-typedef unsigned __int8    uint8;
-#else
-#include <stdint.h>
-#ifndef uint64_t
-#ifdef __linux__
-#include <linux/types.h>
-#endif
-#endif
-typedef int64_t            int64;
-typedef int32_t            int32;
-typedef int16_t            int16;
-typedef int8_t             int8;
-typedef uint64_t           uint64;
-typedef uint32_t           uint32;
-typedef uint16_t           uint16;
-typedef uint8_t            uint8;
 #endif
 
 using namespace std;
@@ -50,11 +28,11 @@ class MPQFile
     size_t pointer,size;
 
     // disable copying
-    MPQFile(const MPQFile &f);
-    void operator=(const MPQFile &f);
+    MPQFile(MPQFile const& f) = delete;
+    void operator=(MPQFile const& f) = delete;
 
 public:
-    MPQFile(HANDLE mpq, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
+    MPQFile(HANDLE mpq, char const* filename, bool warnNoExist = true);    // filenames are not case sensitive
     ~MPQFile() { close(); }
     size_t read(void* dest, size_t bytes);
     size_t getSize() { return size; }

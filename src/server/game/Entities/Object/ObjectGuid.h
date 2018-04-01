@@ -19,10 +19,15 @@
 #ifndef ObjectGuid_h__
 #define ObjectGuid_h__
 
-#include "Common.h"
+#include "Define.h"
 #include "ByteBuffer.h"
-#include <type_traits>
+#include <deque>
 #include <functional>
+#include <list>
+#include <set>
+#include <type_traits>
+#include <unordered_set>
+#include <vector>
 
 enum TypeID
 {
@@ -119,8 +124,8 @@ class PackedGuid;
 
 struct PackedGuidReader
 {
-    explicit PackedGuidReader(ObjectGuid& guid) : GuidPtr(&guid) { }
-    ObjectGuid* GuidPtr;
+    explicit PackedGuidReader(ObjectGuid& guid) : Guid(guid) { }
+    ObjectGuid& Guid;
 };
 
 class TC_GAME_API ObjectGuid
@@ -174,17 +179,8 @@ class TC_GAME_API ObjectGuid
 
         ObjectGuid::LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        uint8& operator[](uint32 index)
-        {
-            ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
-        }
-
-        uint8 const& operator[](uint32 index) const
-        {
-            ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
-        }
+        uint8& operator[](uint32 index);
+        uint8 const& operator[](uint32 index) const;
 
         bool IsEmpty()             const { return _data._guid == 0; }
         bool IsCreature()          const { return GetHigh() == HighGuid::Unit; }
@@ -235,9 +231,9 @@ class TC_GAME_API ObjectGuid
         TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
 
         bool operator!() const { return IsEmpty(); }
-        bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
-        bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
-        bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
+        bool operator==(ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
+        bool operator!=(ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
+        bool operator<(ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
@@ -294,7 +290,7 @@ typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
 
 class TC_GAME_API PackedGuid
 {
-        friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+    friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
     public:
         explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(0); }
@@ -304,7 +300,7 @@ class TC_GAME_API PackedGuid
         void Set(uint64 guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid); }
         void Set(ObjectGuid guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid.GetRawValue()); }
 
-        size_t size() const { return _packedGuid.size(); }
+        std::size_t size() const { return _packedGuid.size(); }
 
     private:
         ByteBuffer _packedGuid;
@@ -355,7 +351,7 @@ namespace std
         public:
             size_t operator()(ObjectGuid const& key) const
             {
-                return hash<uint64>()(key.GetRawValue());
+                return std::hash<uint64>()(key.GetRawValue());
             }
     };
 }
