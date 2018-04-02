@@ -140,7 +140,7 @@ class instance_deadmines : public InstanceMapScript
 
                 if (!_noteSpawnChecked)
                 {
-                    if (GetBossState(DATA_CAPTAIN_COOKIE) == DONE)
+                    if (GetBossState(DATA_CAPTAIN_COOKIE) == DONE && GetBossState(DATA_VANESSA_VAN_CLEEF) != DONE)
                         events.ScheduleEvent(EVENT_SUMMON_NOTE_FROM_VANESSA, Milliseconds(1));
                     _noteSpawnChecked = true;
                 }
@@ -332,7 +332,7 @@ class instance_deadmines : public InstanceMapScript
             void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER && _vanessaVanCleefEncounterState != NOT_STARTED && _vanessaVanCleefEncounterState != NIGHTMARE_STAGE_DONE)
-                    events.ScheduleEvent(EVENT_CHECK_DEAD_PLAYERS, Milliseconds(100));
+                    events.ScheduleEvent(EVENT_CHECK_DEAD_PLAYERS, Milliseconds(200));
                 else
                 {
                     switch (unit->GetEntry())
