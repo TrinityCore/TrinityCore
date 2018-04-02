@@ -8817,6 +8817,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 108627, 0, 1, 31, 0, 3, 59498, 0, 0, 0, 0, '', 'Ox Cart Rope Left target Nourished Yak'),
 (13, 1, 108627, 0, 2, 31, 0, 3, 57742, 0, 0, 0, 0, '', 'Ox Cart Rope Left target Nourished Yak'),
 (13, 1, 105881, 0, 0, 31, 0, 3, 55213, 0, 0, 0, 0, '', 'Trigger Spirit of Water at Farm target Shu'),
+(13, 1, 105881, 0, 0, 33, 0, 1, 3, 0, 0, 0, 0, '', 'Trigger Spirit of Water at Farm target Shu owned by summoner'), -- temp?
 (13, 1, 118032, 0, 0, 31, 0, 3, 60914, 0, 0, 0, 0, '', 'Water Spout target Water Spout Bunny'),
 (13, 2, 118029, 0, 0, 31, 0, 3, 60915, 0, 0, 0, 0, '', 'Water Spout Warning target Mossback Toad'),
 (13, 1, 118030, 0, 0, 31, 0, 3, 60915, 0, 0, 0, 0, '', 'Water Spout Burst target Mossback Toad'),
@@ -9036,105 +9037,105 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `ScriptName
 
 DELETE FROM `spell_area` WHERE `spell` IN (105096, 108914, 117501, 108931, 105525, 115449, 115447, 109067, 105095, 105001, 104566, 105306, 104334, 106394, 104567, 105005, 105307, 105308, 108842, 108844, 109100, 104028, 104762, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 119305, 119306, 119307, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES
-(100709, 5834, 0, 29524, 0, 0, 2, 3, 0, 9), -- See Quest Invis 1 (Master Shang bench)
-(107027, 5834, 0, 29406, 0, 0, 2, 3, 0, 11), -- See Quest Invis 20 (Gate 1 - GO)
-(107028, 5834, 0, 29524, 0, 0, 2, 3, 0, 9), -- See Quest Invis 21 (Master Shang's staff & barrel near bench - GO)
-(107032, 5834, 29524, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 22 (Gate 2 - GO)
-(102403, 5825, 29524, 0, 0, 0, 2, 3, 8, 0), -- Force Reaction Sparring Trainees
-(102403, 5834, 29524, 0, 0, 0, 2, 3, 8, 0), -- Force Reaction Sparring Trainees
-(102403, 5843, 29524, 0, 0, 0, 2, 3, 8, 0), -- Force Reaction Sparring Trainees
-(100711, 5834, 29524, 29409, 0, 0, 2, 3, 66, 9), -- See Quest Invis 3 (Master Shang inside)
-(107033, 5834, 29409, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 23 (Gate 3 - GO)
-(102429, 5825, 29409, 0, 0, 0, 2, 3, 10, 0), -- Force Reaction Jaomin Po
-(102429, 5843, 29409, 0, 0, 0, 2, 3, 10, 0), -- Force Reaction Jaomin Po
-(102194, 5825, 29409, 29414, 0, 0, 2, 3, 66, 9), -- See Quest Invis 4 (Master Shang bridge)
-(102194, 5834, 29409, 29414, 0, 0, 2, 3, 66, 9), -- See Quest Invis 4 (Master Shang bridge)
-(102194, 5843, 29409, 29414, 0, 0, 2, 3, 66, 9), -- See Quest Invis 4 (Master Shang bridge)
-(102393, 5825, 0, 29419, 0, 0, 2, 3, 0, 9), -- See Quest Invis 5 (Mechant Lorvo & Alysa mole)
-(102393, 5846, 0, 29419, 0, 0, 2, 3, 0, 9), -- See Quest Invis 5 (Mechant Lorvo & Alysa mole)
-(114735, 5825, 29419, 29414, 0, 0, 2, 3, 66, 1), -- See Quest Invis 10 (Alysa Cloudsinger mole)
-(114735, 5846, 29419, 29414, 0, 0, 2, 3, 66, 1), -- See Quest Invis 10 (Alysa Cloudsinger mole)
-(102395, 5825, 29419, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 6 (Mechant Lorvo mole)
-(102395, 5846, 29419, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 6 (Mechant Lorvo mole)
-(102396, 5825, 29414, 29417, 0, 0, 2, 3, 66, 1), -- See Quest Invis 7 (Master Shang & Alysa cave)
-(102396, 5846, 29414, 29417, 0, 0, 2, 3, 66, 1), -- See Quest Invis 7 (Master Shang & Alysa cave)
-(102396, 5848, 29414, 29417, 0, 0, 2, 3, 66, 1), -- See Quest Invis 7 (Master Shang & Alysa cave)
-(102397, 5835, 29522, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 8 (???)
-(102398, 5835, 29523, 29423, 0, 0, 2, 3, 66, 1), -- See Quest Invis 9 (Master Shang Wu-Shong Village)
-(102399, 5849, 29420, 29423, 0, 0, 2, 3, 66, 9), -- See Quest Invis 10 (Master Li Fei)
-(102400, 5849, 0, 29423, 0, 0, 2, 3, 0, 1), -- See Quest Invis 11 (Huo)
-(102521, 5849, 0, 29422, 0, 0, 2, 3, 0, 1), -- See Quest Invis 12 (Flame Wall - GO)
-(105160, 5849, 0, 29664, 0, 0, 2, 3, 0, 9), -- See Quest Invis 16 (Red Flame - GO)
-(105161, 5849, 0, 29664, 0, 0, 2, 3, 0, 9), -- See Quest Invis 17 (Blue Flame - GO)
-(105162, 5849, 0, 29664, 0, 0, 2, 3, 0, 9), -- See Quest Invis 18 (Violet Flame - GO)
-(108694, 5849, 29664, 0, 0, 0, 2, 3, 8, 0), -- See Quest Invis 19 (Sparkle Bunny - Flickering Flame)
-(108695, 5849, 29664, 0, 0, 0, 2, 3, 8, 0), -- See Quest Invis 20 (Sparkle Bunny flames)
-(105156, 5849, 29664, 29422, 0, 0, 2, 2, 74, 1), -- See Quest Invis 13 (Red Flame activated - GO)
-(105157, 5849, 29664, 29422, 0, 0, 2, 2, 74, 1), -- See Quest Invis 14 (Blue Flame activated - GO)
-(105158, 5849, 29664, 29422, 0, 0, 2, 2, 74, 1), -- See Quest Invis 15 (Violet Flame activated - GO)
-(119305, 5849, 29422, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 13 (Red Flame activated - GO)
-(119306, 5849, 29422, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 14 (Blue Flame activated - GO)
-(119307, 5849, 29422, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 15 (Violet Flame activated - GO)
-(106493, 5820, 0, 29423, 0, 0, 2, 3, 0, 11), -- See Quest Invis 15 (Brazier temple)
-(102868, 5820, 29423, 29775, 0, 0, 2, 3, 74, 9), -- See Quest Invis 1 (Master Shang temple)
-(106494, 5820, 29423, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 16 (Brazier temple - GO) // todo: should be delayed autocast
-(102869, 5826, 29521, 29677, 0, 0, 2, 3, 66, 1), -- See Quest Invis 1 (Aysa in water)
-(102872, 5826, 0, 29662, 0, 0, 2, 3, 0, 11), -- See Quest Invis 4 (Jojo Ironbrow)
-(102873, 5826, 0, 29677, 0, 0, 2, 3, 0, 9), -- See Quest Invis 5 (Old Man Liang - Liang's Retreat)
-(102873, 5860, 0, 29677, 0, 0, 2, 3, 0, 9), -- See Quest Invis 5 (Old Man Liang - Liang's Retreat)
-(108834, 5826, 0, 29662, 0, 0, 2, 1, 0, 11), -- See Quest Invis 8 (Children & Onlookers)
-(108879, 5826, 0, 0, 0, 0, 2, 3, 0, 0), -- See Quest Invis 9 (Cart - The Singing Pools)
-(103051, 5826, 29663, 0, 0, 0, 2, 3, 8, 0), -- Force Reaction Tushui Monks
-(102870, 5826, 29677, 29678, 0, 0, 2, 3, 74, 9), -- See Quest Invis 2 (Aysa near jumping rocks)
-(102874, 5826, 29677, 29678, 0, 0, 2, 3, 74, 9), -- See Quest Invis 6 (Old Man Liang near jumping rocks)
-(116571, 5862, 29678, 0, 0, 0, 2, 3, 74, 0), -- Blessing of the Water Strider
-(102871, 5862, 29678, 29776, 0, 0, 2, 3, 66, 11), -- See Quest Invis 3 (Aysa near Shu)
-(102871, 5826, 29678, 29776, 0, 0, 2, 3, 66, 11), -- See Quest Invis 3 (Aysa near Shu)
-(102875, 5862, 29678, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 7 (Old Man Liang near Shu)
-(102875, 5826, 29678, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 7 (Old Man Liang near Shu)
-(128574, 5862, 29678, 29679, 0, 0, 2, 3, 66, 9), -- See Quest Invis 29 (Shu)
+(100709, 5834, 0, 29524, 0, 0, 2, 7, 0, 9), -- See Quest Invis 1 (Master Shang bench)
+(107027, 5834, 0, 29406, 0, 0, 2, 7, 0, 11), -- See Quest Invis 20 (Gate 1 - GO)
+(107028, 5834, 0, 29524, 0, 0, 2, 7, 0, 9), -- See Quest Invis 21 (Master Shang's staff & barrel near bench - GO)
+(107032, 5834, 29524, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 22 (Gate 2 - GO)
+(102403, 5825, 29524, 0, 0, 0, 2, 7, 8, 0), -- Force Reaction Sparring Trainees
+(102403, 5834, 29524, 0, 0, 0, 2, 7, 8, 0), -- Force Reaction Sparring Trainees
+(102403, 5843, 29524, 0, 0, 0, 2, 7, 8, 0), -- Force Reaction Sparring Trainees
+(100711, 5834, 29524, 29409, 0, 0, 2, 7, 66, 9), -- See Quest Invis 3 (Master Shang inside)
+(107033, 5834, 29409, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 23 (Gate 3 - GO)
+(102429, 5825, 29409, 0, 0, 0, 2, 7, 10, 0), -- Force Reaction Jaomin Po
+(102429, 5843, 29409, 0, 0, 0, 2, 7, 10, 0), -- Force Reaction Jaomin Po
+(102194, 5825, 29409, 29414, 0, 0, 2, 7, 66, 9), -- See Quest Invis 4 (Master Shang bridge)
+(102194, 5834, 29409, 29414, 0, 0, 2, 7, 66, 9), -- See Quest Invis 4 (Master Shang bridge)
+(102194, 5843, 29409, 29414, 0, 0, 2, 7, 66, 9), -- See Quest Invis 4 (Master Shang bridge)
+(102393, 5825, 0, 29419, 0, 0, 2, 7, 0, 9), -- See Quest Invis 5 (Mechant Lorvo & Alysa mole)
+(102393, 5846, 0, 29419, 0, 0, 2, 7, 0, 9), -- See Quest Invis 5 (Mechant Lorvo & Alysa mole)
+(114735, 5825, 29419, 29414, 0, 0, 2, 7, 66, 1), -- See Quest Invis 10 (Alysa Cloudsinger mole)
+(114735, 5846, 29419, 29414, 0, 0, 2, 7, 66, 1), -- See Quest Invis 10 (Alysa Cloudsinger mole)
+(102395, 5825, 29419, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 6 (Mechant Lorvo mole)
+(102395, 5846, 29419, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 6 (Mechant Lorvo mole)
+(102396, 5825, 29414, 29417, 0, 0, 2, 7, 66, 1), -- See Quest Invis 7 (Master Shang & Alysa cave)
+(102396, 5846, 29414, 29417, 0, 0, 2, 7, 66, 1), -- See Quest Invis 7 (Master Shang & Alysa cave)
+(102396, 5848, 29414, 29417, 0, 0, 2, 7, 66, 1), -- See Quest Invis 7 (Master Shang & Alysa cave)
+(102397, 5835, 29522, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 8 (???)
+(102398, 5835, 29523, 29423, 0, 0, 2, 7, 66, 1), -- See Quest Invis 9 (Master Shang Wu-Shong Village)
+(102399, 5849, 29420, 29423, 0, 0, 2, 7, 66, 9), -- See Quest Invis 10 (Master Li Fei)
+(102400, 5849, 0, 29423, 0, 0, 2, 7, 0, 1), -- See Quest Invis 11 (Huo)
+(102521, 5849, 0, 29422, 0, 0, 2, 7, 0, 1), -- See Quest Invis 12 (Flame Wall - GO)
+(105160, 5849, 0, 29664, 0, 0, 2, 7, 0, 9), -- See Quest Invis 16 (Red Flame - GO)
+(105161, 5849, 0, 29664, 0, 0, 2, 7, 0, 9), -- See Quest Invis 17 (Blue Flame - GO)
+(105162, 5849, 0, 29664, 0, 0, 2, 7, 0, 9), -- See Quest Invis 18 (Violet Flame - GO)
+(108694, 5849, 29664, 0, 0, 0, 2, 7, 8, 0), -- See Quest Invis 19 (Sparkle Bunny - Flickering Flame)
+(108695, 5849, 29664, 0, 0, 0, 2, 7, 8, 0), -- See Quest Invis 20 (Sparkle Bunny flames)
+(105156, 5849, 29664, 29422, 0, 0, 2, 6, 74, 1), -- See Quest Invis 13 (Red Flame activated - GO)
+(105157, 5849, 29664, 29422, 0, 0, 2, 6, 74, 1), -- See Quest Invis 14 (Blue Flame activated - GO)
+(105158, 5849, 29664, 29422, 0, 0, 2, 6, 74, 1), -- See Quest Invis 15 (Violet Flame activated - GO)
+(119305, 5849, 29422, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 13 (Red Flame activated - GO)
+(119306, 5849, 29422, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 14 (Blue Flame activated - GO)
+(119307, 5849, 29422, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 15 (Violet Flame activated - GO)
+(106493, 5820, 0, 29423, 0, 0, 2, 7, 0, 11), -- See Quest Invis 15 (Brazier temple)
+(102868, 5820, 29423, 29775, 0, 0, 2, 7, 74, 9), -- See Quest Invis 1 (Master Shang temple)
+(106494, 5820, 29423, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 16 (Brazier temple - GO)
+(102869, 5826, 29521, 29677, 0, 0, 2, 7, 66, 1), -- See Quest Invis 1 (Aysa in water)
+(102872, 5826, 0, 29662, 0, 0, 2, 7, 0, 11), -- See Quest Invis 4 (Jojo Ironbrow)
+(102873, 5826, 0, 29677, 0, 0, 2, 7, 0, 9), -- See Quest Invis 5 (Old Man Liang - Liang's Retreat)
+(102873, 5860, 0, 29677, 0, 0, 2, 7, 0, 9), -- See Quest Invis 5 (Old Man Liang - Liang's Retreat)
+(108834, 5826, 0, 29662, 0, 0, 2, 5, 0, 11), -- See Quest Invis 8 (Children & Onlookers)
+(108879, 5826, 0, 0, 0, 0, 2, 7, 0, 0), -- See Quest Invis 9 (Cart - The Singing Pools)
+(103051, 5826, 29663, 0, 0, 0, 2, 7, 8, 0), -- Force Reaction Tushui Monks
+(102870, 5826, 29677, 29678, 0, 0, 2, 7, 74, 9), -- See Quest Invis 2 (Aysa near jumping rocks)
+(102874, 5826, 29677, 29678, 0, 0, 2, 7, 74, 9), -- See Quest Invis 6 (Old Man Liang near jumping rocks)
+(116571, 5862, 29678, 0, 0, 0, 2, 7, 74, 0), -- Blessing of the Water Strider
+(102871, 5862, 29678, 29776, 0, 0, 2, 7, 66, 11), -- See Quest Invis 3 (Aysa near Shu)
+(102871, 5826, 29678, 29776, 0, 0, 2, 7, 66, 11), -- See Quest Invis 3 (Aysa near Shu)
+(102875, 5862, 29678, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 7 (Old Man Liang near Shu)
+(102875, 5826, 29678, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 7 (Old Man Liang near Shu)
+(128574, 5862, 29678, 29679, 0, 0, 2, 7, 66, 9), -- See Quest Invis 29 (Shu)
 (104018, 5881, 29680, 29774, 0, 0, 2, 3, 64, 9), -- See Quest Invis 1 (Shu)
-(108822, 5881, 29423, 29768, 0, 0, 2, 3, 64, 1), -- See Quest Invis 2 (Ji Firepaw)
-(108823, 5881, 29662, 29771, 0, 0, 2, 3, 64, 11), -- See Quest Invis 3 (Jojo Ironbrow)
-(108835, 5881, 29662, 29771, 0, 0, 2, 1, 64, 11), -- See Quest Invis 4 (Children & Onlookers)
-(109303, 5881, 0, 29774, 0, 0, 2, 3, 0, 9), -- See Quest Invis 5 (Wugou - gong)
-(114455, 5881, 0, 0, 0, 0, 2, 3, 0, 0), -- See Quest Invis 6 (Cart - The Dai-Lo Farmstead)
-(118028, 5881, 29768, 29776, 0, 0, 2, 3, 74, 11), -- See Quest Invis 7 (Ji Firepaw)
-(115446, 5828, 0, 29792, 0, 0, 2, 3, 0, 9), -- See Quest Invis 29 (Mandori Village Gate - GO)
-(104028, 5820, 29775, 29776, 0, 0, 2, 3, 66, 11), -- See Quest Invis 2 (Master Shang)
-(104762, 5886, 29786, 0, 0, 0, 2, 3, 8, 0), -- Phase Shift: Dragon Fight + Normal
-(104334, 5886, 0, 29785, 0, 0, 2, 3, 0, 9), -- See Quest Invis 1 (Chamber Winds - GO)
-(106394, 5859, 0, 29787, 0, 0, 2, 3, 0, 9), -- See Quest Invis 2 (Spirit Wall - GO)
-(104566, 5886, 29785, 29786, 0, 0, 2, 3, 66, 1), -- See Quest Invis 4 (Aysa - near Air Spirit)
-(104567, 5886, 0, 29786, 0, 0, 2, 3, 0, 1), -- See Quest Invis 5 (Dafeng)
-(105005, 5830, 0, 29787, 0, 0, 2, 3, 0, 1), -- See Quest Invis 6 (Balloon)
-(105005, 5946, 0, 29787, 0, 0, 2, 3, 0, 1), -- See Quest Invis 6 (Balloon)
-(105307, 5830, 29776, 29787, 0, 0, 2, 3, 66, 1), -- See Quest Invis 7 (Ji Firepaw)
-(105307, 5946, 29776, 29787, 0, 0, 2, 3, 66, 1), -- See Quest Invis 7 (Ji Firepaw)
-(105308, 5830, 29776, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 8 (Aysa on rope - Lake)
-(105308, 5946, 29776, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 8 (Aysa on rope - Lake)
-(108842, 5830, 29771, 29782, 0, 0, 2, 3, 66, 11), -- See Quest Invis 9 (Jojo Ironbrow)
-(108842, 5946, 29771, 29782, 0, 0, 2, 3, 66, 11), -- See Quest Invis 9 (Jojo Ironbrow)
-(108844, 5830, 29771, 29782, 0, 0, 2, 1, 66, 11), -- See Quest Invis 10 (Children & Onlookers)
-(108844, 5946, 29771, 29782, 0, 0, 2, 1, 66, 11), -- See Quest Invis 10 (Children & Onlookers)
-(109100, 5829, 0, 0, 0, 0, 2, 3, 0, 0), -- See Quest Invis 11 (???)
--- (105306, 5831, 29779, 0, 0, 0, 2, 3, 74, 0), -- Summon Ji Yuan
--- (105306, 5831, 29780, 0, 0, 0, 2, 3, 10, 0), -- Summon Ji Yuan
--- (105306, 5831, 29781, 0, 0, 0, 2, 3, 74, 0), -- Summon Ji Yuan
-(105001, 5859, 29787, 29791, 0, 0, 2, 3, 74, 9), -- See Quest Invis 1 (Ji Firepaw)
-(105001, 5832, 29787, 29791, 0, 0, 2, 3, 74, 9), -- See Quest Invis 1 (Ji Firepaw)
-(105095, 5820, 29791, 0, 0, 0, 2, 3, 66, 0), --  See Quest Invis 3 (Elder Shaopai)
-(109067, 5820, 29776, 29791, 0, 0, 2, 3, 64, 9), --  See Quest Invis 17 (Uplifting Draft)
-(115448, 5828, 29792, 0, 0, 0, 2, 3, 8, 0), -- See Quest Invis 27 (Pei-Wu Forest Gate - GO)
-(115448, 5737, 29792, 0, 0, 0, 2, 3, 8, 0), -- See Quest Invis 27 (Pei-Wu Forest Gate - GO)
-(115447, 5828, 29792, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 28 (Mandori Village Gate open - GO)
-(115447, 5737, 29792, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 28 (Mandori Village Gate open - GO)
-(115449, 5737, 29792, 0, 0, 0, 2, 3, 66, 0), -- See Quest Invis 26 (Pei-Wu Forest Gate open - GO)
-(105525, 5833, 0, 29794, 0, 0, 2, 3, 0, 9), -- See Quest Invis 1 (Injured Sailor)
-(108931, 5833, 0, 0, 0, 0, 2, 3, 0, 0), -- See Quest Invis 2 (Cart - Wreck of the Skyseeker)
-(117501, 5833, 0, 29799, 0, 0, 2, 3, 0, 1), -- See Quest Invis 11 (Aysa Cloudsinger - after Vordraka fight)
-(108914, 5820, 29800, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 5 (Delora, Aysa, Ji, Korga)
-(105096, 5820, 29800, 0, 0, 0, 2, 3, 74, 0); -- See Quest Invis 4 (Spirit of Master Shang)
+(108822, 5881, 29423, 29768, 0, 0, 2, 7, 64, 1), -- See Quest Invis 2 (Ji Firepaw)
+(108823, 5881, 29662, 29771, 0, 0, 2, 7, 64, 11), -- See Quest Invis 3 (Jojo Ironbrow)
+(108835, 5881, 29662, 29771, 0, 0, 2, 5, 64, 11), -- See Quest Invis 4 (Children & Onlookers)
+(109303, 5881, 0, 29774, 0, 0, 2, 7, 0, 9), -- See Quest Invis 5 (Wugou - gong)
+(114455, 5881, 0, 0, 0, 0, 2, 7, 0, 0), -- See Quest Invis 6 (Cart - The Dai-Lo Farmstead)
+(118028, 5881, 29768, 29776, 0, 0, 2, 7, 74, 11), -- See Quest Invis 7 (Ji Firepaw)
+(115446, 5828, 0, 29792, 0, 0, 2, 7, 0, 9), -- See Quest Invis 29 (Mandori Village Gate - GO)
+(104028, 5820, 29775, 29776, 0, 0, 2, 7, 66, 11), -- See Quest Invis 2 (Master Shang)
+(104762, 5886, 29786, 0, 0, 0, 2, 7, 8, 0), -- Phase Shift: Dragon Fight + Normal
+(104334, 5886, 0, 29785, 0, 0, 2, 7, 0, 9), -- See Quest Invis 1 (Chamber Winds - GO)
+(106394, 5859, 0, 29787, 0, 0, 2, 7, 0, 9), -- See Quest Invis 2 (Spirit Wall - GO)
+(104566, 5886, 29785, 29786, 0, 0, 2, 7, 66, 1), -- See Quest Invis 4 (Aysa - near Air Spirit)
+(104567, 5886, 0, 29786, 0, 0, 2, 7, 0, 1), -- See Quest Invis 5 (Dafeng)
+(105005, 5830, 0, 29787, 0, 0, 2, 7, 0, 1), -- See Quest Invis 6 (Balloon)
+(105005, 5946, 0, 29787, 0, 0, 2, 7, 0, 1), -- See Quest Invis 6 (Balloon)
+(105307, 5830, 29776, 29787, 0, 0, 2, 7, 66, 1), -- See Quest Invis 7 (Ji Firepaw)
+(105307, 5946, 29776, 29787, 0, 0, 2, 7, 66, 1), -- See Quest Invis 7 (Ji Firepaw)
+(105308, 5830, 29776, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 8 (Aysa on rope - Lake)
+(105308, 5946, 29776, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 8 (Aysa on rope - Lake)
+(108842, 5830, 29771, 29782, 0, 0, 2, 7, 66, 11), -- See Quest Invis 9 (Jojo Ironbrow)
+(108842, 5946, 29771, 29782, 0, 0, 2, 7, 66, 11), -- See Quest Invis 9 (Jojo Ironbrow)
+(108844, 5830, 29771, 29782, 0, 0, 2, 5, 66, 11), -- See Quest Invis 10 (Children & Onlookers)
+(108844, 5946, 29771, 29782, 0, 0, 2, 5, 66, 11), -- See Quest Invis 10 (Children & Onlookers)
+(109100, 5829, 0, 0, 0, 0, 2, 7, 0, 0), -- See Quest Invis 11 (???)
+-- (105306, 5831, 29779, 0, 0, 0, 2, 7, 74, 0), -- Summon Ji Yuan
+-- (105306, 5831, 29780, 0, 0, 0, 2, 7, 10, 0), -- Summon Ji Yuan
+-- (105306, 5831, 29781, 0, 0, 0, 2, 7, 74, 0), -- Summon Ji Yuan
+(105001, 5859, 29787, 29791, 0, 0, 2, 7, 74, 9), -- See Quest Invis 1 (Ji Firepaw)
+(105001, 5832, 29787, 29791, 0, 0, 2, 7, 74, 9), -- See Quest Invis 1 (Ji Firepaw)
+(105095, 5820, 29791, 0, 0, 0, 2, 7, 66, 0), --  See Quest Invis 3 (Elder Shaopai)
+(109067, 5820, 29776, 29791, 0, 0, 2, 7, 64, 9), --  See Quest Invis 17 (Uplifting Draft)
+(115448, 5828, 29792, 0, 0, 0, 2, 7, 8, 0), -- See Quest Invis 27 (Pei-Wu Forest Gate - GO)
+(115448, 5737, 29792, 0, 0, 0, 2, 7, 8, 0), -- See Quest Invis 27 (Pei-Wu Forest Gate - GO)
+(115447, 5828, 29792, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 28 (Mandori Village Gate open - GO)
+(115447, 5737, 29792, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 28 (Mandori Village Gate open - GO)
+(115449, 5737, 29792, 0, 0, 0, 2, 7, 66, 0), -- See Quest Invis 26 (Pei-Wu Forest Gate open - GO)
+(105525, 5833, 0, 29794, 0, 0, 2, 7, 0, 9), -- See Quest Invis 1 (Injured Sailor)
+(108931, 5833, 0, 0, 0, 0, 2, 7, 0, 0), -- See Quest Invis 2 (Cart - Wreck of the Skyseeker)
+(117501, 5833, 0, 29799, 0, 0, 2, 7, 0, 1), -- See Quest Invis 11 (Aysa Cloudsinger - after Vordraka fight)
+(108914, 5820, 29800, 0, 0, 0, 2, 7, 74, 0), -- See Quest Invis 5 (Delora, Aysa, Ji, Korga)
+(105096, 5820, 29800, 0, 0, 0, 2, 7, 74, 0); -- See Quest Invis 4 (Spirit of Master Shang)
 
 DELETE FROM `spell_target_position` WHERE `ID` IN (102499, 118499, 118500, 116190, 116191, 108786, 108827, 104450, 108847, 108858, 104571, 126040, 115426, 115334, 115336, 115338, 115435, 115493, 115494, 115495, 117597, 117615, 131974, 116957, 116962);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
@@ -9518,7 +9519,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Min Dimwind
 (56503, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 33, 54855, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Min Dimwind - Just Spawned - Quest Credit'),
 (56503, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 54130, 6, 0, 0, 0, 0, 0, 'Min Dimwind - Just Spawned - Set Data'),
-(56503, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 44, 629, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Min Dimwind - Just Spawned - Remove Phase'),
+(56503, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 44, 630, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Min Dimwind - Just Spawned - Remove Phase'),
 (56503, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5650300, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Min Dimwind - Just Spawned - Run Script'),
 (5650300, 9, 1, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Min Dimwind - Talk'),
 (5650300, 9, 2, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Min Dimwind - Talk'),
@@ -9855,7 +9856,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (54958, 0, 3, 4, 34, 0, 100, 0, 8, 2, 0, 0, 11, 106665, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Cast Forcecast Fire Turn-in Statue/Brazier Change'),
 (54958, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1324, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Add Phase'),
 (54958, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1323, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Remove Phase'),
-(54958, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 85, 106494, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Add Aura'),
+(54958, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 85, 106494, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Invoker Cast See Quest Invis 16'),
 (54958, 0, 7, 8, 61, 0, 100, 0, 0, 0, 0, 0, 28, 128700, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Remove Aura'),
 (54958, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Despawn'),
 (54958, 0, 9, 0, 8, 0, 100, 0, 109178, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Spellhit - Despawn'),
@@ -9937,7 +9938,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (55213, 0, 1, 0, 8, 0, 100, 0, 105881, 0, 0, 0, 53, 1, 55213, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - On Spellhit - Start WP'),
 (55213, 0, 2, 0, 40, 0, 100, 0, 5, 55213, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - WP Reached - Set Run'),
 (55213, 0, 3, 4, 58, 0, 100, 0, 6, 55213, 0, 0, 28, 103538, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shu - WP Ended - Remove Aura'),
-(55213, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - WP Ended - Despawn'),
+(55213, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 85, 104018, 2, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shu - WP Ended - Invoker Cast See Quest Invis 1'),
+(55213, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - WP Ended - Despawn'),
 -- Delivery Cart
 (57710, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, 5771000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - On Respawn - Run Script'),
 (5771000, 9, 0, 0, 0, 0, 100, 0, 500, 500, 0, 0, 11, 108877, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Cast Ox Cart Rope Left'),
@@ -9972,21 +9974,21 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5547700, 9, 1, 0, 0, 0, 100, 0, 16000, 16000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (5547700, 9, 2, 0, 0, 0, 100, 0, 17000, 17000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (5547700, 9, 3, 0, 0, 0, 100, 0, 18000, 18000, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 628.734, 3138.05, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
-(5547700, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 5, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 11, 118026, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Cast SpecialUnarmed w/ Gong Song'),
-(5547700, 9, 6, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 7, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 629.354, 3139.15, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
-(5547700, 9, 8, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 9, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 510, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Emote State'),
-(5547700, 9, 10, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 11, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 7, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 13, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 12, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Emote State'),
-(5547700, 9, 14, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 15, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 1, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 16, 0, 0, 0, 100, 0, 13000, 13000, 0, 0, 5, 20, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Play Emote'),
-(-@CGUID-1055, 0, 2, 0, 34, 0, 100, 0, 8, 1, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 6.213372, 'Ji Firepaw - Movement Inform - Set Orientation'),
-(-@CGUID-1055, 0, 3, 0, 34, 0, 100, 0, 8, 2, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0.5585054, 'Ji Firepaw - Movement Inform - Set Orientation'),
+(5547700, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 6.213372, 'Ji Firepaw - Set Orientation'),
+(5547700, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 6, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 11, 118026, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Cast SpecialUnarmed w/ Gong Song'),
+(5547700, 9, 7, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 8, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 629.354, 3139.15, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
+(5547700, 9, 9, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0.5585054, 'Ji Firepaw - Set Orientation'),
+(5547700, 9, 10, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 11, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 510, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Emote State'),
+(5547700, 9, 12, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 13, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 7, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 14, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 15, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Emote State'),
+(5547700, 9, 16, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 17, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 1, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5547700, 9, 18, 0, 0, 0, 100, 0, 13000, 13000, 0, 0, 5, 20, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Play Emote'),
 -- Dai-Lo Farmer
 (-@CGUID-1030, 0, 0, 0, 1, 0, 100, 0, 0, 0, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
 (-@CGUID-1031, 0, 0, 0, 1, 0, 100, 0, 2000, 5000, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
