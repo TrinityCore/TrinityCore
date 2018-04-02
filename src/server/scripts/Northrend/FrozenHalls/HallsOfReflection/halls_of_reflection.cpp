@@ -2790,7 +2790,7 @@ class spell_hor_evasion : public SpellScriptLoader
                 if (pos.IsInDist2d(&home, 15.0f))
                     return;
 
-                float angle = pos.GetAngle(&home);
+                float angle = pos.GetAbsoluteAngle(&home);
                 float dist = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
                 target->MovePosition(pos, dist, angle);
 

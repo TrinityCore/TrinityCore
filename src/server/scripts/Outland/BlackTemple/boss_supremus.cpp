@@ -183,7 +183,7 @@ struct npc_molten_flame : public NullCreatureAI
     void InitializeAI() override
     {
         float x, y, z;
-        me->GetNearPoint(me, x, y, z, 1, 100.0f, frand(0.f, 2.f * float(M_PI)));
+        me->GetNearPoint(me, x, y, z, 100.0f, frand(0.f, 2.f * float(M_PI)));
         me->GetMotionMaster()->MovePoint(0, x, y, z);
         DoCastSelf(SPELL_MOLTEN_FLAME, true);
     }
