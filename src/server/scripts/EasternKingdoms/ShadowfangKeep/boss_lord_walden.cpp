@@ -60,193 +60,222 @@ enum Events
 
 class boss_lord_walden : public CreatureScript
 {
-public:
-    boss_lord_walden() : CreatureScript("boss_lord_walden") { }
+    public:
+        boss_lord_walden() : CreatureScript("boss_lord_walden") { }
 
-    struct boss_lord_waldenAI : public BossAI
-    {
-        boss_lord_waldenAI(Creature* creature) : BossAI(creature, DATA_LORD_WALDEN) { }
-
-        void JustEngagedWith(Unit* /*who*/) override
+        struct boss_lord_waldenAI : public BossAI
         {
-            Talk(SAY_AGGRO);
-            _JustEngagedWith();
+            boss_lord_waldenAI(Creature* creature) : BossAI(creature, DATA_LORD_WALDEN) { }
 
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            events.ScheduleEvent(EVENT_ICE_SHARDS, Seconds(23));
-            events.ScheduleEvent(EVENT_CONJURE_FROST_MIXTURE, Seconds(8));
-            events.ScheduleEvent(EVENT_CONJURE_POISONOUS_MIXTURE, Seconds(21));
-            if (IsHeroic())
-                events.ScheduleEvent(EVENT_CONJURE_MYSTERY_TOXINE, Seconds(10) + Milliseconds(500));
-
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            _JustDied();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        }
-
-        void KilledUnit(Unit* target) override
-        {
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            summons.DespawnAll();
-            instance->SetBossState(DATA_LORD_WALDEN, FAIL);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            _DespawnAtEvade();
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
-            switch (summon->GetEntry())
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                case NPC_MYSTERY_MIXTURE:
-                    if (!me->HealthBelowPct(35))
-                        summon->CastSpell((Unit*)NULL, SPELL_TOXIC_COAGULANT, true);
-                    else
-                    {
-                        summon->CastSpell((Unit*)NULL, SPELL_TOXIC_CATALYST, true);
-                        events.ScheduleEvent(EVENT_ADD_CATALYST, Seconds(2));
-                    }
-                    // Since summon above caster is not implemented yet
-                    summon->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.5f, me->GetOrientation());
-                    break;
-                default:
-                    break;
+                Talk(SAY_AGGRO);
+                _JustEngagedWith();
+
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                events.ScheduleEvent(EVENT_ICE_SHARDS, Seconds(22) + Milliseconds(500));
+                events.ScheduleEvent(EVENT_CONJURE_FROST_MIXTURE, Seconds(8));
+                events.ScheduleEvent(EVENT_CONJURE_POISONOUS_MIXTURE, Seconds(21));
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_CONJURE_MYSTERY_TOXINE, Seconds(10) + Milliseconds(500));
             }
-        }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while(uint32 eventId = events.ExecuteEvent())
+            void JustDied(Unit* /*killer*/) override
             {
-                switch (eventId)
+                Talk(SAY_DEATH);
+                _JustDied();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
+            void KilledUnit(Unit* target) override
+            {
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                _EnterEvadeMode();
+                summons.DespawnAll();
+                instance->SetBossState(DATA_LORD_WALDEN, FAIL);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _DespawnAtEvade();
+            }
+
+            void JustSummoned(Creature* summon) override
+            {
+                summons.Summon(summon);
+                switch (summon->GetEntry())
                 {
-                    case EVENT_ICE_SHARDS:
-                        me->StopMoving();
-                        DoCastAOE(SPELL_ICE_SHARDS);
-                        events.Repeat(Seconds(21) + Milliseconds(500));
-                        break;
-                    case EVENT_CONJURE_FROST_MIXTURE:
-                        me->StopMoving();
-                        DoCastAOE(SPELL_CONJURE_FROST_MIXTURE);
-                        events.Repeat(Seconds(21) + Milliseconds(500));
-                        break;
-                    case EVENT_CONJURE_POISONOUS_MIXTURE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_CONJURE_POISONOUS_MIXTURE);
-                        events.Repeat(Seconds(21) + Milliseconds(500));
-                        break;
-                    case EVENT_CONJURE_MYSTERY_TOXINE:
-                        DoCast(SPELL_CONJURE_MYSTERY_MIXTURE);
-                        DoCast(SPELL_CONJURE_MYSTERY_MIXTURE_CHANNEL);
-                        events.Repeat(Seconds(21) + Milliseconds(500));
-                        break;
-                    case EVENT_ADD_CATALYST:
-                        if (Unit* mixture = me->FindNearestCreature(NPC_MYSTERY_MIXTURE, 20.0f, true))
-                            mixture->CastSpell(mixture, SPELL_TOXIC_CATALYST_AURA, false);
+                    case NPC_MYSTERY_MIXTURE:
+                        if (!me->HealthBelowPct(35))
+                            summon->CastSpell((Unit*)NULL, SPELL_TOXIC_COAGULANT, true);
+                        else
+                        {
+                            summon->CastSpell((Unit*)NULL, SPELL_TOXIC_CATALYST, true);
+                            events.ScheduleEvent(EVENT_ADD_CATALYST, Seconds(2));
+                        }
+                        // Since summon above caster is not implemented yet
+                        summon->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.5f, me->GetOrientation());
                         break;
                     default:
                         break;
                 }
             }
-            DoMeleeAttackIfReady();
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while(uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ICE_SHARDS:
+                            me->StopMoving();
+                            DoCastAOE(SPELL_ICE_SHARDS);
+                            events.Repeat(Seconds(21) + Milliseconds(500));
+                            break;
+                        case EVENT_CONJURE_FROST_MIXTURE:
+                            me->StopMoving();
+                            DoCastAOE(SPELL_CONJURE_FROST_MIXTURE);
+                            events.Repeat(Seconds(21) + Milliseconds(500));
+                            break;
+                        case EVENT_CONJURE_POISONOUS_MIXTURE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(target, SPELL_CONJURE_POISONOUS_MIXTURE);
+                            events.Repeat(Seconds(21) + Milliseconds(500));
+                            break;
+                        case EVENT_CONJURE_MYSTERY_TOXINE:
+                            DoCast(SPELL_CONJURE_MYSTERY_MIXTURE);
+                            DoCast(SPELL_CONJURE_MYSTERY_MIXTURE_CHANNEL);
+                            events.Repeat(Seconds(21) + Milliseconds(500));
+                            break;
+                        case EVENT_ADD_CATALYST:
+                            if (Unit* mixture = me->FindNearestCreature(NPC_MYSTERY_MIXTURE, 20.0f, true))
+                                mixture->CastSpell(mixture, SPELL_TOXIC_CATALYST_AURA, false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+        CreatureAI* GetAI(Creature *creature) const override
+        {
+            return GetShadowfangKeepAI<boss_lord_waldenAI>(creature);
         }
-    };
-    CreatureAI* GetAI(Creature *creature) const override
-    {
-        return GetShadowfangKeepAI<boss_lord_waldenAI>(creature);
-    }
 };
 
 class spell_sfk_toxic_coagulant : public SpellScriptLoader
 {
-public:
-    spell_sfk_toxic_coagulant() : SpellScriptLoader("spell_sfk_toxic_coagulant") { }
+    public:
+        spell_sfk_toxic_coagulant() : SpellScriptLoader("spell_sfk_toxic_coagulant") { }
 
-    class spell_sfk_toxic_coagulant_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sfk_toxic_coagulant_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_sfk_toxic_coagulant_SpellScript : public SpellScript
         {
-            return ValidateSpellInfo(
-            {
-                SPELL_FULLY_COAGULATED,
-                SPELL_TOXIC_COAGULANT_SLOW
-            });
-        }
+            PrepareSpellScript(spell_sfk_toxic_coagulant_SpellScript);
 
-        void HandleStacks()
-        {
-            if (Unit* target = GetHitUnit())
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                Aura* aura = nullptr;
-                aura = target->GetAura(SPELL_TOXIC_COAGULANT_SLOW);
-
-                if (aura)
+                return ValidateSpellInfo(
                 {
-                    if (aura->GetStackAmount() == 3)
+                    SPELL_FULLY_COAGULATED,
+                    SPELL_TOXIC_COAGULANT_SLOW
+                });
+            }
+
+            void HandleStacks()
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    Aura* aura = nullptr;
+                    aura = target->GetAura(SPELL_TOXIC_COAGULANT_SLOW);
+
+                    if (aura)
                     {
-                        target->RemoveAurasDueToSpell(SPELL_TOXIC_COAGULANT_SLOW);
-                        target->CastSpell(target, SPELL_FULLY_COAGULATED, true);
+                        if (aura->GetStackAmount() == 3)
+                        {
+                            target->RemoveAurasDueToSpell(SPELL_TOXIC_COAGULANT_SLOW);
+                            target->CastSpell(target, SPELL_FULLY_COAGULATED, true);
+                        }
                     }
                 }
             }
-        }
 
-        void Register() override
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_sfk_toxic_coagulant_SpellScript::HandleStacks);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            AfterHit += SpellHitFn(spell_sfk_toxic_coagulant_SpellScript::HandleStacks);
+            return new spell_sfk_toxic_coagulant_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sfk_toxic_coagulant_SpellScript();
-    }
 };
 
 class spell_sfk_conjure_poisonous_mixture : public SpellScriptLoader
 {
-public:
-    spell_sfk_conjure_poisonous_mixture() : SpellScriptLoader("spell_sfk_conjure_poisonous_mixture") { }
+    public:
+        spell_sfk_conjure_poisonous_mixture() : SpellScriptLoader("spell_sfk_conjure_poisonous_mixture") { }
 
-    class spell_sfk_conjure_poisonous_mixture_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sfk_conjure_poisonous_mixture_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
+        class spell_sfk_conjure_poisonous_mixture_SpellScript : public SpellScript
         {
-            Trinity::Containers::RandomResize(targets, 1);
-        }
+            PrepareSpellScript(spell_sfk_conjure_poisonous_mixture_SpellScript);
 
-        void Register() override
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sfk_conjure_poisonous_mixture_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sfk_conjure_poisonous_mixture_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
+            return new spell_sfk_conjure_poisonous_mixture_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sfk_conjure_poisonous_mixture_SpellScript();
-    }
+class spell_sfk_frost_shards : public SpellScriptLoader
+{
+    public:
+        spell_sfk_frost_shards() : SpellScriptLoader("spell_sfk_frost_shards") { }
+
+        class spell_sfk_frost_shards_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sfk_frost_shards_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+                if (Creature* caster = GetTarget()->ToCreature())
+                    if (caster->IsAIEnabled)
+                        if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                            caster->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+            }
+
+            void Register() override
+            {
+                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_frost_shards_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sfk_frost_shards_AuraScript();
+        }
 };
 
 void AddSC_boss_lord_walden()
@@ -254,4 +283,5 @@ void AddSC_boss_lord_walden()
     new boss_lord_walden();
     new spell_sfk_toxic_coagulant();
     new spell_sfk_conjure_poisonous_mixture();
+    new spell_sfk_frost_shards();
 }
