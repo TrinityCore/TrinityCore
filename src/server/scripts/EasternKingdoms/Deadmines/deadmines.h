@@ -134,7 +134,6 @@ enum DMCreatures
     NPC_CALISSA_HARRINGTON              = 49536,
     NPC_DEFIAS_SHADOWGUARD              = 49852,
     NPC_DEFIAS_ENFORCER                 = 49850,
-    NPC_DEFIAS_BLOOD_WIZARD             = 49854,
     NPC_ROPE                            = 49550,
     NPC_VANESSAS_ROPE_ANCHOR            = 49552,
 }; 
@@ -537,7 +536,6 @@ Position const VanessaNightmareFirePos[] =
     { -28.87847f, -840.0226f, 19.30344f, 3.926991f },
     { -31.54861f, -830.5191f, 23.84564f, 3.926991f },
     { -53.39583f, -808.4184f, 42.27031f, 2.75762f },
-    // 2nd packet
     { -59.65799f, -786.8472f, 18.00813f, 3.926991f },
     { -51.8559f, -788.4774f, 18.27221f, 3.926991f },
     { -115.3142f, -827.2327f, 20.94427f, 3.926991f },

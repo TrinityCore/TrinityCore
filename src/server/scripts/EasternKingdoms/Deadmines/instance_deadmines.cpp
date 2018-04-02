@@ -243,7 +243,7 @@ class instance_deadmines : public InstanceMapScript
                     case NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY:
                     case NPC_GLUBTOK_NIGHTMARE:
                         if (_vanessaVanCleefEncounterState == NIGHTMARE_STAGE_GLUBTOK)
-                        _glubtokNightmareGuidSet.insert(creature->GetGUID());
+                            _glubtokNightmareGuidSet.insert(creature->GetGUID());
                         break;
                     case NPC_HELIX_GEARBREAKER_NIGHTMARE:
                     case NPC_NIGHTMARE_SKITTERLING:
