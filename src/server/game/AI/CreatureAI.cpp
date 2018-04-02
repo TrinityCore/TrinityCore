@@ -159,7 +159,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     // Face the unit (stealthed player) and set distracted state for 5 seconds
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS);
     me->StopMoving();
-    me->SetFacingTo(me->GetAngle(who));
+    me->SetFacingTo(me->GetAbsoluteAngle(who));
 }
 
 void CreatureAI::EnterEvadeMode(EvadeReason why)

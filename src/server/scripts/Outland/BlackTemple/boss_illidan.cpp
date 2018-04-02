@@ -885,7 +885,7 @@ struct boss_illidan_stormrage : public BossAI
                 }
                 case EVENT_FACE_MIDDLE:
                 {
-                    float angle = me->GetAngle(IllidanMiddlePoint);
+                    float angle = me->GetAbsoluteAngle(IllidanMiddlePoint);
                     me->SetFacingTo(angle);
                     break;
                 }
