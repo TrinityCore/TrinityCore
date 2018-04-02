@@ -196,9 +196,6 @@ bool WMOGroup::open()
         }
         fourcc[4] = 0;
         size_t nextpos = f.getPos() + size;
-        LiquEx_size = 0;
-        liquflags = 0;
-
         if (!strcmp(fourcc,"MOGP"))//header
         {
             f.read(&groupName, 4);
