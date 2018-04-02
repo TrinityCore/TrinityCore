@@ -551,15 +551,6 @@ Position const VanessaNightmareFirePos[] =
     { -123.3351f, -807.2153f, 16.98381f, 3.926991f }
 };
 
-/*
-Position const ExtinguishNightmareFirePos[] =
-{
-    -75.33681 Y: -833.434 Z : 40.29444  3.193953
-    -62.4375 Y : -825.9114 Z : 41.42738  3.193953
-    -70.38889 Y : -824.9722 Z : 40.70635  3.193953
-}
-*/
-
 template<class AI>
 AI* GetDeadminesAI(Creature* creature)
 {
