@@ -1,47 +1,6 @@
-/*
-
-
-
-21:35:31.527 -- spawn boss
-21:35:37.564 -- aggro
-21:35:48.422 -- deflection 1
-21:35:49.607 -- deadly blades 1
-
-21:35:46.004 -- summon defias enforcer
-21:35:46.222 -- talk reinforcmeent
-
-21:35:50.013 -- summon fires
-
-21:35:56.456 -- summon defias shadowguard
-21:36:06.065 -- summon bloodmage
-
-
-21:36:19.325 -- jump to 
-21:36:20.527
-21:36:20.745 -- hahaha narren
-21:36:24.349 -- announce sprengstoff
-21:36:25.051 -- summon ropes + CLICK ME aura  --> 95527
-
-
-21:36:48.248 -- deadly blades 2
-21:36:43.428 -- # 2
-
-
-21:13:21.384 -- blood wizard aggro
-21:13:21.384 -- blood bolt 90938
-21:13:24.988 -- blood bolt
-21:13:28.591 -- rage zone 90932
-
-21:37:55.282 -- ride vehicle
-21:37:56.093 -- move path
-21:38:04.954 -- despawn
-
-*/
-
-
 -- Template Updates
 -- Vanessa VanCleef
-UPDATE `creature_template` SET `ScriptName`= 'boss_vanessa_van_cleef', `DamageModifier`= 121.2, `mechanic_immune_mask`= 617299839, `mingold`= 19000, `maxgold`= 20000 WHERE `entry`= 49541;
+UPDATE `creature_template` SET `ScriptName`= 'boss_vanessa_van_cleef', `DamageModifier`= 60, `mechanic_immune_mask`= 617299839, `mingold`= 19000, `maxgold`= 20000, `flags_extra`= `flags_extra` | 2048 WHERE `entry`= 49541;
 -- Vanessa VanCleef (Intro)
 UPDATE `creature_template` SET `ScriptName`= 'npc_vanessa_vanessa_van_cleef' WHERE `entry`= 49429;
 -- A Note from Vanessa
@@ -59,7 +18,7 @@ UPDATE `creature_template` SET `flags_extra`= 131 WHERE `entry`= 51594;
 -- Collapsing Icicle
 UPDATE `creature_template` SET `unit_flags`= 33587200, `flags_extra`= 131 WHERE `entry` IN (49481, 57866);
 -- Glubtok Nightmare Illusion
-UPDATE `creature_template` SET `ScriptName`= '' WHERE `entry`= 49670;
+UPDATE `creature_template` SET `DamageModifier`= 42.2, `mechanic_immune_mask`= 617299839 WHERE `entry`= 49670;
 -- Helix Gearbreaker Illusion
 UPDATE `creature_template` SET `unit_flags`= 33600, `DamageModifier`= 10, `mechanic_immune_mask`= 617299839, `ScriptName`= 'npc_deadmines_helix_nightmare' WHERE `entry`= 49674;
 -- Lightning Platters
@@ -72,23 +31,29 @@ UPDATE `creature_template` SET `VehicleId`= 1403 WHERE `entry`= 49539;
 UPDATE `creature_template` SET `DamageModifier`= 35 WHERE `entry`= 49532;
 -- Defias Enforcer
 UPDATE `creature_template` SET `difficulty_entry_1`= 49851 WHERE `entry`= 49850;
-UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3 WHERE `entry`= 49851;
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `DamageModifier`= 10 WHERE `entry`= 49851;
 -- Defias Shadowguard
 UPDATE `creature_template` SET `difficulty_entry_1`= 49853, `unit_class`= 4 WHERE `entry`= 49852;
-UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `unit_class`= 4 WHERE `entry`= 49853;
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `unit_class`= 4, `DamageModifier`= 10 WHERE `entry`= 49853;
 -- Defias Blood Wizard
 UPDATE `creature_template` SET `difficulty_entry_1`= 49855 WHERE `entry`= 49854;
-UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3 WHERE `entry`= 49855;
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `DamageModifier`= 10 WHERE `entry`= 49855;
 -- Vanessa's Rope Anchor
 UPDATE `creature_template` SET `InhabitType`= 4, `flags_extra`= 128 WHERE `entry`= 49552;
 -- Rope
 UPDATE `creature_template` SET `ScriptName`= 'npc_vanessa_rope' WHERE `entry`= 49550;
+-- Glubtok Nightmare Fire Bunny
+UPDATE `creature_template` SET `flags_extra`= 131 WHERE `entry`= 51594;
+-- Vanessa Lightning Wall Platter
+UPDATE `creature_template` SET `npcflag`= 16777216 WHERE `entry`= 49520;
+-- James Harrington
+UPDATE `creature_template` SET `lootid`= 0 WHERE `entry`= 49539;
 
+DELETE FROM `creature_loot_template` WHERE `entry`= 49539;
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`= 49550;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (49550, 89731, 1, 0);
-
 
 -- Template Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (49564, 51594, 49671, 49670, 92201);
@@ -165,9 +130,6 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (49541, 9, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it!  RUN!', 41, 0, 100, 0, 0, 0, 49757, 'Vanessa van Cleef'),
 (49541, 10, 0, 'MY FATE IS MY OWN!', 14, 0, 100, 397, 0, 24612, 49754, 'Vanessa van Cleef');
 UPDATE `creature_text` SET `TextRange`= 3 WHERE `CreatureID` IN (45979, 49539, 49536);
-
-
-UPDATE `creature_template` SET `npcflag`= 16777216 WHERE `entry`= 49520;
 
 -- Vehicle Acessory
 DELETE FROM `vehicle_template_accessory` WHERE `entry`= 49520;
@@ -286,9 +248,28 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 0, 0, 0, 0, 100, 0, 0, 0, 3000, 3000, 11, 90938, 64, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 0 and 0 ms (and later repeats every 3000 and 3000 ms) - Self: Cast spell Bloodbolt (90938) on Victim // "),
 (@ENTRY, 0, 1, 0, 0, 0, 100, 0, 7000, 7000, 60000, 60000, 11, 90932, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 7000 and 7000 ms (and later repeats every 60000 and 60000 ms) - Self: Cast spell Ragezone (90932) on Random hostile // ");
 
+-- Loot
+DELETE FROM `creature_loot_template` WHERE `Entry`= 49541;
+DELETE FROM `reference_loot_template` WHERE `Entry` IN (495410, 495411);
 
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Reference`, `MaxCount`) VALUES
+(49541, 495410, 100, 1, 497120, 2),
+(49541, 495411, 100, 1, 497121, 1); -- Chaos Orb
 
+INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
+(497120, 63487, 0, 1, 1, 1, 1), -- Book of the Well Sung Song
+(497120, 63480, 0, 1, 1, 1, 1), -- Record of the Broderhood's End
+(497120, 63479, 0, 1, 1, 1, 1), -- Bracers of Some Consequence
+(497120, 63478, 0, 1, 1, 1, 1), -- Stonemanons's Helm
+(497120, 65178, 0, 1, 1, 1, 1), -- VanCleef's Boots
+(497120, 63485, 0, 1, 1, 1, 1), -- Cowl of Rebellion
+(497120, 63482, 0, 1, 1, 1, 1), -- Daughter's Hand
+(497120, 63483, 0, 1, 1, 1, 1), -- Guildmaster's Greaves
+(497120, 63486, 0, 1, 1, 1, 1), -- Shackles of the Betrayed
+(497120, 63484, 0, 1, 1, 1, 1), -- Armbands of Exiled Architects
+(495411, 52078, 100, 1, 1, 1, 1);
 
-
-
-
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (49429, 49541);
+INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
+-- 70 Justice Points
+(49541, 395, 7000);

@@ -28,6 +28,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 
 enum Texts
 {
@@ -37,6 +38,12 @@ enum Texts
     SAY_SUMMON_DEFIAS_REINFORCEMENT = 2,
     SAY_DETONATION_1                = 3,
     SAY_ANNOUNCE_DETONATION_1       = 4,
+    SAY_DETONATION_2                = 5,
+    SAY_ANNOUNCE_DETONATION_2       = 6,
+    SAY_SUICIDE_1                   = 7,
+    SAY_SUICIDE_2                   = 8,
+    SAY_ANNOUNCE_POWDER_EXPLOSION   = 9,
+    SAY_DEATH                       = 10,
 
     // Vanessa VanCleef Intro
     SAY_ANNOUNCE_NOISE_FROM_ABOVE   = 0,
@@ -54,23 +61,26 @@ enum Texts
 enum Spells
 {
     // Vanessa VanCleef
-    SPELL_VANESSA_ACHIEVEMENT_SPELL = 95654,
-    SPELL_CLEAR_ALL_DEBUFFS         = 34098,
-    SPELL_DEFLECTION                = 92614,
-    SPELL_DEADLY_BLADES             = 92622,
-    SPELL_BACKSLASH                 = 92619,
-    SPELL_SUMMON_ENFORCER           = 92616,
-    SPELL_SUMMON_SHADOWGUARD        = 92618,
-    SPELL_SUMMON_BLOOD_WIZARD       = 92617,
+    SPELL_VANESSA_ACHIEVEMENT_SPELL     = 95654,
+    SPELL_CLEAR_ALL_DEBUFFS             = 34098,
+    SPELL_DEFLECTION                    = 92614,
+    SPELL_DEADLY_BLADES                 = 92622,
+    SPELL_BACKSLASH                     = 92619,
+    SPELL_SUMMON_ENFORCER               = 92616,
+    SPELL_SUMMON_SHADOWGUARD            = 92618,
+    SPELL_SUMMON_BLOOD_WIZARD           = 92617,
+    SPELL_VENGEANCE_OF_VANCLEEF         = 95542,
+    SPELL_VANESSA_COSMETIC_BOMB_STATE   = 96280,
+    SPELL_POWDER_EXPLOSION              = 96283,
 
     // General Purpose Bunny JMF
-    SPELL_FIERY_BLAZE               = 93484,
+    SPELL_FIERY_BLAZE                   = 93484,
 
     // Vanessa VanCleef Nightmare
-    SPELL_SITTING                   = 89279,
-    SPELL_NOXIOUS_CONCOCTION        = 92100,
-    SPELL_NIGHTMARE_ELIXIR          = 92113,
-    SPELL_VANESSAS_BLACKOUT_AURA    = 92120
+    SPELL_SITTING                       = 89279,
+    SPELL_NOXIOUS_CONCOCTION            = 92100,
+    SPELL_NIGHTMARE_ELIXIR              = 92113,
+    SPELL_VANESSAS_BLACKOUT_AURA        = 92120
 };
 
 enum Events
@@ -82,9 +92,20 @@ enum Events
     EVENT_TALK_SUMMON_REINFORCEMENT,
     EVENT_SUMMON_ENTRANCE_FIRE,
     EVENT_FACE_TO_DECK,
-    EVENT_TALK_DETONATION_1,
-    EVENT_ANNOUNCE_DETONATION_1,
+    EVENT_TALK_DETONATION,
+    EVENT_ANNOUNCE_DETONATION,
+    EVENT_SUMMON_DETONATION_FIRE,
+    EVENT_CAST_FIERY_BLAZE,
     EVENT_SUMMON_ROPES,
+    EVENT_EXTINGUISH_FIRES,
+    EVENT_FACE_TO_ROPES,
+    EVENT_VENGEANCE_OF_VANCLEEF,
+    EVENT_TALK_SUICIDE_1,
+    EVENT_COSMETIC_BOMB_STATE,
+    EVENT_TALK_SUICIDE_2,
+    EVENT_ANNOUNCE_POWDER_EXPLSION,
+    EVENT_TALK_LAST_WORDS,
+    EVENT_POWDER_EXPLOSION,
 
     // Vanessa VanCleef Intro
     EVENT_ANNOUNCE_NOISE_FROM_ABOVE,
@@ -107,7 +128,13 @@ enum Events
     EVENT_TALK_NOTE_FALLS_TO_THE_GROUND,
 
     // Rope
-    EVENT_START_SWING
+    EVENT_START_SWING,
+    EVENT_DESPAWN
+};
+
+enum ModelIds
+{
+    MODEL_ID_INVISIBLE = 11686
 };
 
 enum DefiasReinforcements
@@ -134,6 +161,8 @@ Position const defiasReinforcementPositions[] =
 Position const vanessaIntroJumpPos = { -64.5677f,  -820.161f,  41.123f   };
 Position const vanessaIntroWalkPos = { -65.30209f, -838.0382f, 41.11562f };
 Position const vanessaDetonationJumpPos = { -53.09028f, -819.5538f, 51.42455f };
+Position const vanessaAfterDetonationJumpPos = { -66.64063f, -815.1962f, 40.94127f };
+
 
 class boss_vanessa_van_cleef : public CreatureScript
 {
@@ -152,11 +181,15 @@ class boss_vanessa_van_cleef : public CreatureScript
                 _currentReinforcement = REINFORCEMENT_ENFORCER;
                 _detonationCounter = 0;
                 _talkReinforcement = false;
+                _prepareForReEngage = false;
+                _allowDeath = false;
             }
 
             void Reset() override
             {
                 Initialize();
+                _extinguishableFlamesGuidSet.clear();
+                _nightmareFlamesGuidSet.clear();
                 _Reset();
             }
 
@@ -193,9 +226,13 @@ class boss_vanessa_van_cleef : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HealthBelowPct(50) && _detonationCounter == 0)
+                if (damage >= me->GetHealth() && !_allowDeath)
+                    damage = me->GetHealth() - 1;
+
+                if ((me->HealthBelowPct(50) && _detonationCounter == 0)
+                    || (me->HealthBelowPct(25) && _detonationCounter == 1))
                 {
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
@@ -208,11 +245,34 @@ class boss_vanessa_van_cleef : public CreatureScript
                     events.ScheduleEvent(EVENT_FACE_TO_DECK, Seconds(1) + Milliseconds(200));
                     _detonationCounter++;
                 }
+                else if (me->GetHealthPct() <= 1.0f && _detonationCounter == 2)
+                {
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->RemoveAurasDueToSpell(SPELL_DEADLY_BLADES);
+                    events.Reset();
+                    DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS, true);
+                    events.ScheduleEvent(EVENT_TALK_SUICIDE_1, Milliseconds(200));
+                    _detonationCounter++;
+                }
+
+                if (_prepareForReEngage)
+                {
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    _prepareForReEngage = false;
+                    if (_detonationCounter == 1)
+                        events.CancelEvent(EVENT_VENGEANCE_OF_VANCLEEF);
+
+                    events.ScheduleEvent(EVENT_DEFLECTION, Milliseconds(400));
+                    events.ScheduleEvent(EVENT_DEADLY_BLADES, Seconds(5) + Milliseconds(200));
+                }
             }
 
             void JustSummoned(Creature* summon) override
             {
-                if (summon->GetEntry() != NPC_ROPE && summon->GetEntry() != NPC_GENERAL_PURPOSE_DUMMY_JMF)
+                if (summon->GetEntry() != NPC_ROPE
+                    && summon->GetEntry() != NPC_GENERAL_PURPOSE_DUMMY_JMF
+                    && summon->GetEntry() != NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY)
                     BossAI::JustSummoned(summon);
                 else
                     summons.Summon(summon);
@@ -221,6 +281,9 @@ class boss_vanessa_van_cleef : public CreatureScript
                 {
                     case NPC_GENERAL_PURPOSE_DUMMY_JMF:
                         summon->CastSpell(summon, SPELL_FIERY_BLAZE, true);
+                        break;
+                    case NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY:
+                        _nightmareFlamesGuidSet.insert(summon->GetGUID());
                         break;
                     default:
                         break;
@@ -265,10 +328,8 @@ class boss_vanessa_van_cleef : public CreatureScript
                                 me->CastSpell(x, y, z, defiasReinforcementSpells[_currentReinforcement], true);
                                 _currentReinforcement++;
 
-                                if (_currentReinforcement > REINFORCEMENT_BLOOD_WIZARD)
-                                    _currentReinforcement = REINFORCEMENT_ENFORCER;
-
-                                events.Repeat(Seconds(10));
+                                if (_currentReinforcement <= REINFORCEMENT_BLOOD_WIZARD)
+                                    events.Repeat(Seconds(10));
                             }
                             break;
                         }
@@ -281,18 +342,102 @@ class boss_vanessa_van_cleef : public CreatureScript
                             break;
                         case EVENT_FACE_TO_DECK:
                             me->SetFacingTo(2.932153f);
-                            events.ScheduleEvent(EVENT_TALK_DETONATION_1, Milliseconds(200));
+                            events.ScheduleEvent(EVENT_TALK_DETONATION, Milliseconds(200));
                             break;
-                        case EVENT_TALK_DETONATION_1:
-                            Talk(SAY_DETONATION_1);
-                            events.ScheduleEvent(EVENT_ANNOUNCE_DETONATION_1, Seconds(3) + Milliseconds(600));
+                        case EVENT_TALK_DETONATION:
+                            if (_detonationCounter == 1)
+                                Talk(SAY_DETONATION_1);
+                            else if (_detonationCounter == 2)
+                                Talk(SAY_DETONATION_2);
+
+                            events.ScheduleEvent(EVENT_ANNOUNCE_DETONATION, Seconds(3) + Milliseconds(600));
                             break;
-                        case EVENT_ANNOUNCE_DETONATION_1:
-                            Talk(SAY_ANNOUNCE_DETONATION_1);
+                        case EVENT_ANNOUNCE_DETONATION:
+                            if (_detonationCounter == 1)
+                                Talk(SAY_ANNOUNCE_DETONATION_1);
+                            else if (_detonationCounter == 2)
+                                Talk(SAY_ANNOUNCE_DETONATION_2);
+
+                            events.ScheduleEvent(EVENT_SUMMON_DETONATION_FIRE, Milliseconds(600));
                             events.ScheduleEvent(EVENT_SUMMON_ROPES, Milliseconds(700));
                             break;
+                        case EVENT_SUMMON_DETONATION_FIRE:
+                            for (uint8 i = 0; i < 65; i++)
+                            {
+                                if (Creature* dummy = DoSummon(NPC_GLUBTOK_NIGHTMARE_FIRE_BUNNY, VanessaNightmareFirePos[i], 0, TEMPSUMMON_MANUAL_DESPAWN))
+                                {
+                                    // Remove the default aura that has been set in creature_template_addon as it is not used here
+                                    dummy->RemoveAllAuras();
+
+                                    // Blizzard uses some specific orientations to decide which fires may get extinguished
+                                    if (VanessaNightmareFirePos[i].GetOrientation() == 2.75762f || VanessaNightmareFirePos[i].GetOrientation() == 3.193953f)
+                                    _extinguishableFlamesGuidSet.insert(dummy->GetGUID());
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_CAST_FIERY_BLAZE, Seconds(4) + Milliseconds(800));
+                            events.ScheduleEvent(EVENT_EXTINGUISH_FIRES, Seconds(11));
+                            break;
                         case EVENT_SUMMON_ROPES:
+                            summons.DespawnEntry(NPC_ROPE);
                             instance->SetData(DATA_SUMMON_ROPES, 0);
+                            break;
+                        case EVENT_CAST_FIERY_BLAZE:
+                            if (_detonationCounter == 1)
+                            {
+                                for (auto itr = _nightmareFlamesGuidSet.begin(); itr != _nightmareFlamesGuidSet.end(); itr++)
+                                    if (Creature* dummy = ObjectAccessor::GetCreature(*me, (*itr)))
+                                        dummy->CastSpell(dummy, SPELL_FIERY_BLAZE);
+                            }
+                            else
+                            {
+                                for (auto itr = _extinguishableFlamesGuidSet.begin(); itr != _extinguishableFlamesGuidSet.end(); itr++)
+                                    if (Creature* dummy = ObjectAccessor::GetCreature(*me, (*itr)))
+                                        dummy->CastSpell(dummy, SPELL_FIERY_BLAZE);
+                            }
+                            break;
+                        case EVENT_EXTINGUISH_FIRES:
+                            for (auto itr = _extinguishableFlamesGuidSet.begin(); itr != _extinguishableFlamesGuidSet.end(); itr++)
+                                if (Creature* dummy = ObjectAccessor::GetCreature(*me, (*itr)))
+                                    dummy->RemoveAllAuras();
+                            events.ScheduleEvent(EVENT_JUMP_ON_DECK, Seconds(3) + Milliseconds(200));
+                            break;
+                        case EVENT_JUMP_ON_DECK:
+                            me->GetMotionMaster()->MoveJump(vanessaAfterDetonationJumpPos, me->GetDistance(vanessaAfterDetonationJumpPos), 32.75936f);
+                            events.ScheduleEvent(EVENT_FACE_TO_ROPES, Seconds(1) + Milliseconds(200));
+                            break;
+                        case EVENT_FACE_TO_ROPES:
+                            me->SetFacingTo(4.642576f);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            _prepareForReEngage = true;
+                            events.ScheduleEvent(EVENT_VENGEANCE_OF_VANCLEEF, Seconds(1) + Milliseconds(200));
+                            break;
+                        case EVENT_VENGEANCE_OF_VANCLEEF:
+                            DoCastSelf(SPELL_VENGEANCE_OF_VANCLEEF);
+                            events.Repeat(Seconds(2) + Milliseconds(400));
+                            break;
+                        case EVENT_TALK_SUICIDE_1:
+                            Talk(SAY_SUICIDE_1);
+                            events.ScheduleEvent(EVENT_COSMETIC_BOMB_STATE, Seconds(4) + Milliseconds(600));
+                            break;
+                        case EVENT_COSMETIC_BOMB_STATE:
+                            DoCastSelf(SPELL_VANESSA_COSMETIC_BOMB_STATE);
+                            events.ScheduleEvent(EVENT_TALK_SUICIDE_2, Milliseconds(200));
+                            break;
+                        case EVENT_TALK_SUICIDE_2:
+                            Talk(SAY_SUICIDE_2);
+                            events.ScheduleEvent(EVENT_ANNOUNCE_POWDER_EXPLSION, Seconds(2) + Milliseconds(400));
+                            break;
+                        case EVENT_ANNOUNCE_POWDER_EXPLSION:
+                            Talk(SAY_ANNOUNCE_POWDER_EXPLOSION);
+                            events.ScheduleEvent(EVENT_TALK_LAST_WORDS, Seconds(3) + Milliseconds(500));
+                            break;
+                        case EVENT_TALK_LAST_WORDS:
+                            Talk(SAY_DEATH);
+                            events.ScheduleEvent(EVENT_POWDER_EXPLOSION, Seconds(1) + Milliseconds(100));
+                            break;
+                        case EVENT_POWDER_EXPLOSION:
+                            _allowDeath = true;
+                            DoCastAOE(SPELL_POWDER_EXPLOSION);
                             break;
                         default:
                             break;
@@ -303,7 +448,11 @@ class boss_vanessa_van_cleef : public CreatureScript
         private:
             uint8 _currentReinforcement;
             uint8 _detonationCounter;
+            GuidSet _nightmareFlamesGuidSet;
+            GuidSet _extinguishableFlamesGuidSet;
             bool _talkReinforcement;
+            bool _prepareForReEngage;
+            bool _allowDeath;
         };
 
         CreatureAI* GetAI(Creature *creature) const override
@@ -469,46 +618,6 @@ class npc_vanessa_note_from_vanessa : public CreatureScript
         }
 };
 
-class spell_vanessa_backslash_targeting : public SpellScriptLoader
-{
-    public:
-        spell_vanessa_backslash_targeting() : SpellScriptLoader("spell_vanessa_backslash_targeting") { }
-
-        class spell_vanessa_backslash_targeting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_vanessa_backslash_targeting_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_BACKSLASH });
-            }
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
-            }
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_BACKSLASH));
-
-                if (!targets.empty())
-                    Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_vanessa_backslash_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_vanessa_backslash_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_vanessa_backslash_targeting_SpellScript();
-        }
-};
-
 class npc_vanessa_rope : public CreatureScript
 {
     public:
@@ -547,6 +656,7 @@ class npc_vanessa_rope : public CreatureScript
                                 {
                                     me->DespawnOrUnsummon(Seconds(8) + Milliseconds(900));
                                     me->SetSpeed(MOVE_RUN, 22.0f); // Don't ask me why but this is the correct speed to be synch with sniff behaivior
+                                    me->SetDisplayId(MODEL_ID_INVISIBLE);
                                     switch (i)
                                     {
                                         case 0:
@@ -581,6 +691,46 @@ class npc_vanessa_rope : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetDeadminesAI<npc_vanessa_ropeAI>(creature);
+        }
+};
+
+class spell_vanessa_backslash_targeting : public SpellScriptLoader
+{
+    public:
+        spell_vanessa_backslash_targeting() : SpellScriptLoader("spell_vanessa_backslash_targeting") { }
+
+        class spell_vanessa_backslash_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_vanessa_backslash_targeting_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_BACKSLASH });
+            }
+
+            void HandleHit(SpellEffIndex effIndex)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_BACKSLASH));
+
+                if (!targets.empty())
+                    Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_vanessa_backslash_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_vanessa_backslash_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_vanessa_backslash_targeting_SpellScript();
         }
 };
 

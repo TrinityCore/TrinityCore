@@ -4227,6 +4227,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
     });
 
+    // Fiery Blaze
+    ApplySpellFix({ 93485 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+    });
+
     // END OF DEADMINES SPELLS
 
     //
