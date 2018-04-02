@@ -1116,6 +1116,10 @@ bool Aura::CanBeSaved() const
             return false;
     }
 
+    // don't save liquid auras
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_LIQUID_AURA))
+        return false;
+
     // Can't be saved - aura handler relies on calculated amount and changes it
     if (HasEffectType(SPELL_AURA_CONVERT_RUNE))
         return false;
@@ -1159,11 +1163,6 @@ bool Aura::CanBeSaved() const
     // don't save permanent auras triggered by items, they'll be recasted on login if necessary
     if (GetCastItemGUID() && IsPermanent())
         return false;
-
-    // don't save liquid auras
-    for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
-        if (liquid->SpellId && liquid->SpellId == GetId())
-            return false;
 
     return true;
 }
