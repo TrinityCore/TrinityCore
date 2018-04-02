@@ -2724,7 +2724,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
     stmt->setString(3, reason);
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
-    
+
     if (banned)
         banned->GetSession()->KickPlayer();
 
