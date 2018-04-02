@@ -50,7 +50,8 @@ enum DMDataTypes
     DATA_VANESSA_VAN_CLEEF_NIGHTMARE    = 21,
     DATA_EMME_HARRINGTON                = 22,
     DATA_ERIK_HARRINGTON                = 23,
-    DATA_CALISSA_HARRINGTON             = 24
+    DATA_CALISSA_HARRINGTON             = 24,
+    DATA_SUMMON_ROPES                   = 25
 };
 
 enum DMCreatures
@@ -131,7 +132,9 @@ enum DMCreatures
     NPC_ENRAGED_WORGEN                  = 49532,
     NPC_JAMES_HARRINGTON                = 49539,
     NPC_CALISSA_HARRINGTON              = 49536,
-
+    NPC_DEFIAS_SHADOWGUARD              = 49852,
+    NPC_ROPE                            = 49550,
+    NPC_VANESSAS_ROPE_ANCHOR            = 49552,
 }; 
 
 enum DMGameObjects
@@ -161,6 +164,7 @@ enum DMSpells
     SPELL_MOLTEN_MAGMA                      = 92424,
     SPELL_FORCE_MAGMA_TRAP_THROW            = 92489,
     SPELL_ROPE_BEAM                         = 43785,
+    SPELL_CLICK_ME                          = 95527,
     SPELL_STEAM_VENT                        = 92399,
     SPELL_ADRENALINE                        = 92604,
     SPELL_NIGHTMARE_SLOW                    = 92559,
@@ -400,6 +404,79 @@ Position const LightningPlatterCenterPos[] =
     { -136.7385f, -604.6659f, 15.53128f },
     { -130.4809f, -586.5009f, 18.57832f },
     { -143.004f, -574.9209f, 19.1443f }
+};
+
+Position const VanessaEntranceFirePos[] =
+{
+    { -38.11458f, -795.2952f, 39.45137f, 3.926991f },
+    { -64.02257f, -797.4323f, 39.12309f, 3.926991f },
+    { -46.48438f, -791.8073f, 39.12098f, 3.926991f },
+    { -75.50694f, -787.1597f, 39.16325f, 3.926991f },
+    { -66.18229f, -789.2778f, 39.78834f, 3.926991f },
+    { -70.9809f, -795.5f, 39.14447f, 3.926991f }
+};
+
+Position const RopePos[] =
+{
+    { -62.17014f, -839.8438f, 41.48514f, 5.044002f },
+    { -64.97049f, -840.0087f, 41.22668f, 4.834562f },
+    { -67.79166f, -840.1736f, 40.96664f, 4.712389f },
+    { -70.62153f, -840.0104f, 40.71846f, 4.537856f },
+    { -73.42361f, -839.8646f, 40.47259f, 4.34587f  }
+};
+
+Position const RopeAnchorPos[] =
+{
+    { -63.6059f, -862.7864f, 202.7301f, 4.607669f },
+    { -64.21702f, -866.1823f, 195.3946f, 4.607669f },
+    { -69.15452f, -868.9636f, 195.2482f, 4.607669f },
+    { -71.11459f, -868.4636f, 200.7708f, 4.607669f },
+    { -74.29688f, -877.1007f, 195.0443f, 4.607669f }
+};
+
+Position const RopePath1[] =
+{
+    { -59.18403f, -877.3125f, 35.78355f },
+    { -58.08333f, -923.9757f, 50.83706f },
+    { -52.68403f, -922.8768f, 50.83706f },
+    { -58.59201f, -877.1684f, 38.01407f },
+    { -62.86285f, -836.3472f, 46.62854f }
+};
+
+Position const RopePath2[] =
+{
+    { -62.23438f, -877.2969f, 35.78355f },
+    { -66.63021f, -924.0417f, 50.83706f },
+    { -60.85938f, -924.0399f, 50.83706f },
+    { -62.03472f, -877.4514f, 38.01407f },
+    { -64.96875f, -836.7847f, 46.62854f }
+};
+
+Position const RopePath3[] =
+{
+    { -67.98264f, -877.3785f, 35.78355f },
+    { -75.66493f, -924.3958f, 50.83706f },
+    { -69.01215f, -923.9114f, 50.83706f },
+    { -67.80903f, -877.0972f, 38.01407f },
+    { -68.02778f, -836.6268f, 46.62854f }
+};
+
+Position const RopePath4[] =
+{
+    { -74.47049f, -878.3611f, 35.78355f },
+    { -82.86111f, -922.4688f, 50.83706f },
+    { -77.72396f, -924.1285f, 50.83706f },
+    { -71.76563f, -877.132f, 38.01407f },
+    { -70.55209f, -836.6754f, 46.62854f }
+};
+
+Position const RopePath5[] =
+{
+    { -77.625f, -877.75f, 35.78355f },
+    { -85.46528f, -922.4965f, 50.83706f },
+    { -91.52431f, -921.3768f, 50.83706f },
+    { -78.06944f, -875.9445f, 38.01407f },
+    { -73.34549f, -836.3733f, 46.62854f }
 };
 
 template<class AI>

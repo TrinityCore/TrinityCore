@@ -664,6 +664,35 @@ class spell_deadmines_magma_trap_throw_to_location : public SpellScriptLoader
         }
 };
 
+class spell_deadmines_bloodbath : public SpellScriptLoader
+{
+    public:
+        spell_deadmines_bloodbath() : SpellScriptLoader("spell_deadmines_bloodbath") { }
+
+        class spell_deadmines_bloodbath_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_deadmines_bloodbath_AuraScript);
+
+            void HandleTick(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    if (caster->GetVictim())
+                        caster->CastSpell(GetCaster()->GetVictim(), GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_deadmines_bloodbath_AuraScript::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_deadmines_bloodbath_AuraScript();
+        }
+};
+
 void AddSC_deadmines()
 {
     new npc_deadmines_defias_watcher();
@@ -675,4 +704,5 @@ void AddSC_deadmines()
     new spell_deadmines_on_fire();
     new spell_deadmines_ride_magma_vehicle();
     new spell_deadmines_magma_trap_throw_to_location();
+    new spell_deadmines_bloodbath();
 }

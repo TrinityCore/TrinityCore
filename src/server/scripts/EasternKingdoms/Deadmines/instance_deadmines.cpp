@@ -129,6 +129,7 @@ class instance_deadmines : public InstanceMapScript
                 _deadEnragedWorgen = 0;
                 _firstCookieSpawn = true;
                 _noteSpawnChecked = false;
+                _ropesSpawned = false;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -142,6 +143,13 @@ class instance_deadmines : public InstanceMapScript
                     if (GetBossState(DATA_CAPTAIN_COOKIE) == DONE)
                         events.ScheduleEvent(EVENT_SUMMON_NOTE_FROM_VANESSA, Milliseconds(1));
                     _noteSpawnChecked = true;
+                }
+
+                if (!_ropesSpawned)
+                {
+                    for (uint8 i = 0; i < 5; i++)
+                        if (Creature* anchor = instance->SummonCreature(NPC_VANESSAS_ROPE_ANCHOR, RopeAnchorPos[i]))
+                            _ropeAnchorGuidSet.insert(anchor->GetGUID());
                 }
             }
 
@@ -225,6 +233,7 @@ class instance_deadmines : public InstanceMapScript
                         break;
                     case NPC_VANESSAS_TRAP_BUNNY:
                     case NPC_VANESSA_ANCHOR_BUNNY_JMF:
+                    case NPC_VANESSAS_ROPE_ANCHOR:
                         creature->setActive(true);
                         creature->SetFarVisible(true);
                         break;
@@ -256,6 +265,16 @@ class instance_deadmines : public InstanceMapScript
                     case NPC_JAMES_HARRINGTON:
                     case NPC_ENRAGED_WORGEN:
                         _ripsnarlNightareGuidSet.insert(creature->GetGUID());
+                        break;
+                    case NPC_DEFIAS_SHADOWGUARD:
+                        creature->setPowerType(POWER_ENERGY);
+                        creature->SetMaxPower(POWER_ENERGY, 100);
+                        creature->SetPower(POWER_ENERGY, 100);
+                        break;
+                    case NPC_ROPE:
+                        creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        if (Creature* vanessa = GetCreature(DATA_VANESSA_VAN_CLEEF))
+                            vanessa->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
@@ -522,6 +541,15 @@ class instance_deadmines : public InstanceMapScript
                                 trapBunny->AI()->DoAction(ACTION_EJECT_PLAYERS);
                         }
                         break;
+                    case DATA_SUMMON_ROPES:
+                    {
+                        uint8 i = 0;
+                        for (auto itr = _ropeAnchorGuidSet.begin(); itr != _ropeAnchorGuidSet.end(); itr++, i++)
+                            if (Creature* anchor = instance->GetCreature((*itr)))
+                                if (Creature* rope = instance->SummonCreature(NPC_ROPE, RopePos[i]))
+                                    anchor->CastSpell(rope, SPELL_ROPE_BEAM);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -815,8 +843,10 @@ class instance_deadmines : public InstanceMapScript
             GuidSet _helixNightmareGuidSet;
             GuidSet _mechanicalNightmareGuidSet;
             GuidSet _ripsnarlNightareGuidSet;
+            GuidSet _ropeAnchorGuidSet;
             bool _firstCookieSpawn;
             bool _noteSpawnChecked;
+            bool _ropesSpawned;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

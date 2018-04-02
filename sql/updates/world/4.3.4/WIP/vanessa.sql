@@ -1,14 +1,40 @@
 /*
+
+
+
 21:35:31.527 -- spawn boss
 21:35:37.564 -- aggro
 21:35:48.422 -- deflection 1
 21:35:49.607 -- deadly blades 1
 
+21:35:46.004 -- summon defias enforcer
+21:35:46.222 -- talk reinforcmeent
+
+21:35:50.013 -- summon fires
+
+21:35:56.456 -- summon defias shadowguard
+21:36:06.065 -- summon bloodmage
+
+
+21:36:19.325 -- jump to 
+21:36:20.527
+21:36:20.745 -- hahaha narren
 21:36:24.349 -- announce sprengstoff
+21:36:25.051 -- summon ropes + CLICK ME aura  --> 95527
 
 
-
+21:36:48.248 -- deadly blades 2
 21:36:43.428 -- # 2
+
+
+21:13:21.384 -- blood wizard aggro
+21:13:21.384 -- blood bolt 90938
+21:13:24.988 -- blood bolt
+21:13:28.591 -- rage zone 90932
+
+21:37:55.282 -- ride vehicle
+21:37:56.093 -- move path
+21:38:04.954 -- despawn
 
 */
 
@@ -44,6 +70,24 @@ UPDATE `creature_template` SET `DamageModifier`= 42.2, `mechanic_immune_mask`= 6
 UPDATE `creature_template` SET `VehicleId`= 1403 WHERE `entry`= 49539;
 -- Enraged Worgen
 UPDATE `creature_template` SET `DamageModifier`= 35 WHERE `entry`= 49532;
+-- Defias Enforcer
+UPDATE `creature_template` SET `difficulty_entry_1`= 49851 WHERE `entry`= 49850;
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3 WHERE `entry`= 49851;
+-- Defias Shadowguard
+UPDATE `creature_template` SET `difficulty_entry_1`= 49853, `unit_class`= 4 WHERE `entry`= 49852;
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `unit_class`= 4 WHERE `entry`= 49853;
+-- Defias Blood Wizard
+UPDATE `creature_template` SET `difficulty_entry_1`= 49855 WHERE `entry`= 49854;
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3 WHERE `entry`= 49855;
+-- Vanessa's Rope Anchor
+UPDATE `creature_template` SET `InhabitType`= 4, `flags_extra`= 128 WHERE `entry`= 49552;
+-- Rope
+UPDATE `creature_template` SET `ScriptName`= 'npc_vanessa_rope' WHERE `entry`= 49550;
+
+
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`= 49550;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(49550, 89731, 1, 0);
 
 
 -- Template Addons
@@ -141,12 +185,15 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_deadmines_ride_magma_vehicle',
 'spell_deadmines_magma_trap_throw_to_location',
-'spell_vanessa_backslash_targeting');
+'spell_vanessa_backslash_targeting',
+'spell_vanessa_backslash_targeting',
+'spell_deadmines_bloodbath');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (92378, 'spell_deadmines_ride_magma_vehicle'),
 (92438, 'spell_deadmines_magma_trap_throw_to_location'),
-(92620, 'spell_vanessa_backslash_targeting');
+(92620, 'spell_vanessa_backslash_targeting'),
+(90925, 'spell_deadmines_bloodbath');
 
 -- Spellclick spells
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (49457);
@@ -155,9 +202,15 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (49457, 92399, 0, 0);
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceEntry` IN (92379) AND `SourceTypeOrReferenceId`= 13;
+DELETE FROM `conditions` WHERE `SourceEntry` IN (92379, 90962, 90963) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
-(13, 1, 92379, 0, 0, 31, 0, 3, 49454, 0, 0, 0, '', 'Ride Magma Vehicle - Vanessa''s Trap Bunny');
+(13, 1, 92379, 0, 0, 31, 0, 3, 49454, 0, 0, 0, '', 'Ride Magma Vehicle - Target Vanessa''s Trap Bunny'),
+(13, 1, 90962, 0, 0, 31, 0, 3, 49850, 0, 0, 0, '', 'Whirling Blades - Target Defias Enforcer'),
+(13, 1, 90962, 0, 1, 31, 0, 3, 49852, 0, 0, 0, '', 'Whirling Blades - Target Defias Shadowguard'),
+(13, 1, 90962, 0, 2, 31, 0, 3, 49854, 0, 0, 0, '', 'Whirling Blades - Target Defias Blood Wizard'),
+(13, 1, 90963, 0, 0, 31, 0, 3, 49850, 0, 0, 0, '', 'Whirling Blades - Target Defias Enforcer'),
+(13, 1, 90963, 0, 1, 31, 0, 3, 49852, 0, 0, 0, '', 'Whirling Blades - Target Defias Shadowguard'),
+(13, 1, 90963, 0, 2, 31, 0, 3, 49854, 0, 0, 0, '', 'Whirling Blades - Target Defias Blood Wizard');
 
 -- Creature Collapsing Icicle 49481 SAI
 SET @ENTRY := 49481;
@@ -204,4 +257,38 @@ UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 0, 0, 0, 0, 0, 100, 0, 2600, 2600, 3600, 3600, 11, 59304, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 2600 and 2600 ms (and later repeats every 3600 and 3600 ms) - Self: Cast spell Spirit Strike (59304) on Victim // ");
+
+-- Creature Defias Enforcer 49850 SAI
+SET @ENTRY := 49850;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 0, 0, 100, 1, 1000, 1000, 0, 0, 11, 90931, 0, 0, 0, 0, 0, 21, 50, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 1000 and 1000 ms (and later repeats every 0 and 0 ms) - Self: Cast spell Charge (90931) on Closest player in 50 yards // "),
+(@ENTRY, 0, 1, 0, 0, 0, 100, 0, 6500, 7000, 30000, 30000, 11, 90925, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 6500 and 7000 ms (and later repeats every 30000 and 30000 ms) - Self: Cast spell Bloodbath (90925) on Victim // "),
+(@ENTRY, 0, 2, 0, 2, 0, 100, 0, 0, 20, 29000, 30000, 11, 90929, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "When health between 0% and 20% (check every 29000 - 30000 ms) - Self: Cast spell Recklessness (90929) on Self // ");
+
+-- Creature Defias Shadowguard 49852 SAI
+SET @ENTRY := 49852;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 0, 0, 100, 1, 1000, 1000, 0, 0, 11, 90954, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 1000 and 1000 ms (and later repeats every 0 and 0 ms) - Self: Cast spell Camouflage (90954) on Self // "),
+(@ENTRY, 0, 1, 0, 0, 0, 100, 0, 5500, 6000, 10000, 11000, 11, 90951, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 5500 and 6000 ms (and later repeats every 10000 and 11000 ms) - Self: Cast spell Sinister Strike (90951) on Victim // "),
+(@ENTRY, 0, 2, 0, 0, 0, 100, 0, 10000, 10000, 20000, 20000, 11, 90956, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 10000 and 10000 ms (and later repeats every 20000 and 20000 ms) - Self: Cast spell Shadowstep (90956) on Victim // "),
+(@ENTRY, 0, 3, 0, 0, 0, 100, 0, 13000, 13000, 16000, 16000, 11, 90960, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 13000 and 13000 ms (and later repeats every 16000 and 16000 ms) - Self: Cast spell Whirling Blades (90960) on Victim // "),
+(@ENTRY, 0, 4, 0, 2, 0, 100, 0, 0, 20, 29000, 30000, 11, 90958, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "When health between 0% and 20% (check every 29000 - 30000 ms) - Self: Cast spell Evasion (90958) on Self // ");
+
+-- Creature Defias Blood Wizard 49854 SAI
+SET @ENTRY := 49854;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 0, 0, 100, 0, 0, 0, 3000, 3000, 11, 90938, 64, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 0 and 0 ms (and later repeats every 3000 and 3000 ms) - Self: Cast spell Bloodbolt (90938) on Victim // "),
+(@ENTRY, 0, 1, 0, 0, 0, 100, 0, 7000, 7000, 60000, 60000, 11, 90932, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 7000 and 7000 ms (and later repeats every 60000 and 60000 ms) - Self: Cast spell Ragezone (90932) on Random hostile // ");
+
+
+
+
+
+
 

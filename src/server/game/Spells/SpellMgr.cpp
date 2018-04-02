@@ -4193,7 +4193,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
     });
 
-    // "Captain" Coikie
+    // "Captain" Cookie
     // Rotten Aura
     ApplySpellFix({
         89735,
@@ -4215,6 +4215,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].MiscValue = 200;
     });
+
+    // Summon Defias
+    ApplySpellFix({
+        92616,
+        92617,
+        92618
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
     // END OF DEADMINES SPELLS
 
     //
@@ -4347,6 +4359,21 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
         spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+    });
+
+    // Destruction Protocoll
+    ApplySpellFix({ 77437 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // Crumbling Ruin
+    ApplySpellFix({
+        75609,
+        91206
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);
     });
 
     // Solar Fire
