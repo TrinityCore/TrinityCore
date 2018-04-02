@@ -103,7 +103,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     allowShortcut = true;
 
             bool success = _path->CalculatePath(x, y, z, allowShortcut);
-            if (!success | (_path->GetPathType() & PATHFIND_NOPATH))
+            if (!success || (_path->GetPathType() & PATHFIND_NOPATH))
             {
                 owner->StopMoving();
                 return true;
