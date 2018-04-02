@@ -35,7 +35,7 @@ public:
     {
         player->GetScheduler().Schedule(Milliseconds(500), 41, [](TaskContext context)
         {
-            if (Player* contextPlayer = context.GetContextUnit()->ToPlayer())
+            if (Player* contextPlayer = GetContextPlayer())
                 if (contextPlayer->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_INCOMPLETE && contextPlayer->GetPositionZ() < 700.0f)
                     if (SpellTargetPosition const* targetPosition = sSpellMgr->GetSpellTargetPosition(SPELL_DALARAN_TELEPORT, EFFECT_0))
                         contextPlayer->NearTeleportTo(targetPosition->target_X, targetPosition->target_Y, targetPosition->target_Z, targetPosition->target_Orientation);

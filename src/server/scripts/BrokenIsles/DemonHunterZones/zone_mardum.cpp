@@ -207,8 +207,7 @@ public:
             // We schedule this to let hover animation pass
             GetCaster()->GetScheduler().Schedule(Milliseconds(900), [](TaskContext context)
             {
-                Unit* contextUnit = context.GetContextUnit();
-                contextUnit->CastSpell(contextUnit, 200175, true); // Felsaber mount
+                GetContextUnit()->CastSpell(GetContextUnit(), 200175, true); // Felsaber mount
             });
         }
 
@@ -634,13 +633,13 @@ public:
         {
             personnalCavernStone->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
             {
-                context.GetContextGameObject()->SetLootState(GO_READY);
-                context.GetContextGameObject()->UseDoorOrButton(10000);
+                GetContextGameObject()->SetLootState(GO_READY);
+                GetContextGameObject()->UseDoorOrButton(10000);
             });
 
             personnalCavernStone->GetScheduler().Schedule(Seconds(4), [](TaskContext context)
             {
-                context.GetContextGameObject()->Delete();
+                GetContextGameObject()->Delete();
             });
         }
 
@@ -753,7 +752,7 @@ public:
                 //TODO : Script destruction event
                 personnalCreature->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
                 {
-                    context.GetContextUnit()->KillSelf();
+                    GetContextUnit()->KillSelf();
                 });
             }
         }
@@ -921,7 +920,7 @@ public:
 
                 player->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
                 {
-                    context.GetContextUnit()->RemoveAurasDueToSpell(192140); // Remove black screen
+                    GetContextUnit()->RemoveAurasDueToSpell(192140); // Remove black screen
                 });
 
                 // TEMPFIX - Spells learned in next zone

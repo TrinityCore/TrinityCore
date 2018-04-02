@@ -2512,7 +2512,7 @@ class spell_dk_glacial_advance : public SpellScript
         {
             caster->GetScheduler().Schedule(Milliseconds(uint32(dist / 1.5f * 50.0f)), [castPosition, dist](TaskContext context)
             {
-                Unit* caster = context.GetContextUnit();
+                Unit* caster = context.GetUnit();
 
                 Position targetPosition = castPosition;
                 caster->MovePosition(targetPosition, dist);

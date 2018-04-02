@@ -36,7 +36,7 @@ public:
     {
         player->GetScheduler().Schedule(Milliseconds(2s), ZONE_MACARE, [](TaskContext context)
         {
-            if (Player* player = context.GetContextUnit()->ToPlayer())
+            if (Player* player = GetContextPlayer())
                 if (player->GetAreaId() == AREA_MACAREE_VINDICAAR)
                     if (player->GetPositionZ() <= 0.0f)
                         player->NearTeleportTo(4600.83f, 9831.83f, 70.0f, 0.213662f);

@@ -441,7 +441,7 @@ public:
             {
                 me->GetScheduler().Schedule(Milliseconds(500), [](TaskContext context) -> void
                 {
-                    context.GetContextUnit()->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
+                    GetContextUnit()->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
                 });
             }
         }

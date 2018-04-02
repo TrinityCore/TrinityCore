@@ -1020,7 +1020,7 @@ enum CharacterSlot
 };
 
 // Languages.dbc (6.0.2.18988)
-enum Language
+enum Language : uint32
 {
     LANG_UNIVERSAL         = 0,
     LANG_ORCISH            = 1,

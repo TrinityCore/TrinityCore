@@ -565,12 +565,12 @@ class spell_mage_comet_storm : public SpellScript
         {
             caster->GetScheduler().Schedule(Milliseconds(500 * i), [targetPos](TaskContext context)
             {
-                context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_VISUAL, true);
+                GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_VISUAL, true);
 
                 // Damage come 1sec after visual
                 context.Schedule(Milliseconds(1000), [targetPos](TaskContext context)
                 {
-                    context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_DAMAGE, true);
+                    GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_DAMAGE, true);
                 });
             });
         }
@@ -1261,13 +1261,13 @@ class spell_mage_flurry : public SpellScript
         {
             caster->GetScheduler().Schedule(Milliseconds(i * 250), [targetGuid, isImproved](TaskContext context)
             {
-                if (Unit* caster = context.GetContextUnit())
+                if (Unit* caster = context.GetUnit())
                     if (Unit* target = ObjectAccessor::GetUnit(*caster, targetGuid))
                     {
-                        context.GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_VISUAL, false);
+                        GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_VISUAL, false);
 
                         if (isImproved)
-                            context.GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_CHILL_PROC, false);
+                            GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_CHILL_PROC, false);
                     }
             });
         }

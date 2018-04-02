@@ -33,6 +33,11 @@ class TaskContext;
 class Unit;
 class GameObject;
 
+#define GetContextUnit()        context.GetUnit()
+#define GetContextCreature()    context.GetUnit()->ToCreature()
+#define GetContextPlayer()      context.GetUnit()->ToPlayer()
+#define GetContextGameObject()  context.GetGameObject()
+
 /// The TaskScheduler class provides the ability to schedule std::function's in the near future.
 /// Use TaskScheduler::Update to update the scheduler.
 /// Popular methods are:
@@ -690,10 +695,10 @@ public:
     }
 
     /// Allow to retrieve Unit currently updating TaskScheduler
-    Unit* GetContextUnit() const { return _contextUnit; }
+    Unit* GetUnit() const { return _contextUnit; }
 
     /// Allow to retrieve GameObject currently updating TaskScheduler
-    GameObject* GetContextGameObject() const { return _contextGob; }
+    GameObject* GetGameObject() const { return _contextGob; }
 
 private:
     /// Asserts if the task was consumed already.
