@@ -2946,7 +2946,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
     }
 
-    // add attribute custom to liquid auras
+    // add custom attribute to liquid auras
     for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
         if (liquid->SpellId)
         {
