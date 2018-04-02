@@ -235,7 +235,7 @@ class boss_admiral_ripsnarl: public CreatureScript
                             float z = me->GetPositionZ();
                             me->GetMotionMaster()->MovePoint(0, x, y, z, false);
 
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             _firstVaporGuid.Clear();
                             events.ScheduleEvent(EVENT_CAST_VANISH, Milliseconds(1));
                             events.ScheduleEvent(EVENT_GO_FOR_THE_THROAT, Seconds(22) + Milliseconds(500));
@@ -254,7 +254,7 @@ class boss_admiral_ripsnarl: public CreatureScript
                             if (me->HasAura(SPELL_VANISH))
                             {
                                 me->RemoveAurasDueToSpell(SPELL_VANISH);
-                                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->PlayDirectSound(SOUND_HOWL);
                                 events.ScheduleEvent(EVENT_SWIPE, Seconds(3) + Milliseconds(500));
