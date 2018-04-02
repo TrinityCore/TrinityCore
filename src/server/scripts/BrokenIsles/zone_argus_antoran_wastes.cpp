@@ -36,7 +36,7 @@ public:
     {
         player->GetScheduler().Schedule(Milliseconds(2s), ZONE_ANTORAN_WASTES, [](TaskContext context)
         {
-            if (Player* player = context.GetContextUnit()->ToPlayer())
+            if (Player* player = GetContextPlayer())
                 if (player->GetAreaId() == AREA_ANTORAN_WASTES_VINDICAAR)
                     if (player->GetPositionZ() <= -125.0f)
                         player->NearTeleportTo(-2602.05f, 8573.32f, -66.0f, 1.816547f);

@@ -1658,7 +1658,7 @@ class spell_hun_throwing_axes : public SpellScript
         {
             caster->GetScheduler().Schedule(Milliseconds(500 * i), [targetGUID](TaskContext context)
             {
-                if (Unit* caster = context.GetContextUnit())
+                if (Unit* caster = context.GetUnit())
                     if (Unit* target = ObjectAccessor::GetCreature(*caster, targetGUID))
                         caster->CastSpell(target, SPELL_HUNTER_THOWING_AXES_DAMAGE, false);
             });
@@ -1954,8 +1954,8 @@ public:
             {
                 caster->GetScheduler().Schedule(Milliseconds(timer), [targetGuid](TaskContext context)
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*context.GetContextUnit(), targetGuid))
-                        context.GetContextUnit()->CastSpell(target, SPELL_HUNTER_DIRE_FRENZY_DAMAGE, false);
+                    if (Unit* target = ObjectAccessor::GetUnit(*context.GetUnit(), targetGuid))
+                        GetContextUnit()->CastSpell(target, SPELL_HUNTER_DIRE_FRENZY_DAMAGE, false);
                 });
             }
         }

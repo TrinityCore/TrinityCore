@@ -36,7 +36,7 @@ public:
     {
         player->GetScheduler().Schedule(Milliseconds(2s), ZONE_KROKUUN, [](TaskContext context)
         {
-            if (Player* player = context.GetContextUnit()->ToPlayer())
+            if (Player* player = GetContextPlayer())
                 if (player->GetAreaId() == AREA_KROKUUN_VINDICAAR)
                     if (player->GetPositionZ() <= 700.0f)
                         player->NearTeleportTo(383.17f, 1413.87f, 770.0f, 0.438168f);

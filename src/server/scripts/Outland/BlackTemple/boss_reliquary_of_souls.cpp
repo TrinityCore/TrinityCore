@@ -209,7 +209,7 @@ public:
 
                 _worldTriggerList[i]->GetScheduler().Schedule(Milliseconds(timer), [](TaskContext context)
                 {
-                    context.GetContextUnit()->CastSpell(context.GetContextUnit(), SUMMON_ENSLAVED_SOUL, true);
+                    GetContextUnit()->CastSpell(context.GetUnit(), SUMMON_ENSLAVED_SOUL, true);
                 });
             }
         }

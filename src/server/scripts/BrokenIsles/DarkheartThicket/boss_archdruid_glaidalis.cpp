@@ -215,8 +215,8 @@ public:
 
                                     druid->GetScheduler().Schedule(1s, 2s, [triggerSumGuid](TaskContext context)
                                     {
-                                        if (Creature* triggerSum = ObjectAccessor::GetCreature(*context.GetContextUnit(), triggerSumGuid))
-                                            context.GetContextUnit()->CastSpell(triggerSum, SPELL_RAY_PRESERVATION, false);
+                                        if (Creature* triggerSum = ObjectAccessor::GetCreature(*context.GetUnit(), triggerSumGuid))
+                                            GetContextUnit()->CastSpell(triggerSum, SPELL_RAY_PRESERVATION, false);
 
                                         context.Repeat(5s);
                                     });

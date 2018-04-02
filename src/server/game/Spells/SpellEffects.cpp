@@ -742,7 +742,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
 
         m_caster->GetScheduler().Schedule(Milliseconds(effectInfo->MiscValue), triggerSpellId, [targetGUID, targetDest, spellInfo, values, originalCasterGUID, triggerSpellId](TaskContext context)
         {
-            if (Unit* caster = context.GetContextUnit())
+            if (Unit* caster = context.GetUnit())
             {
                 SpellCastTargets delayedTargets;
 

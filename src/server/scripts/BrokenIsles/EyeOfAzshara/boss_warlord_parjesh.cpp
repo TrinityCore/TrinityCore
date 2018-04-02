@@ -130,7 +130,7 @@ struct npc_hatecoil_shellbreaker : public ScriptedAI
     {
         me->GetScheduler().Schedule(Seconds(1), Seconds(1), [](TaskContext context)
         {
-            context.GetContextUnit()->CastSpell(nullptr, SPELL_CRESTRIDER_LIGHTNING_STRIKE, false);
+            GetContextUnit()->CastSpell(nullptr, SPELL_CRESTRIDER_LIGHTNING_STRIKE, false);
             context.Repeat();
         });
     }
@@ -145,7 +145,7 @@ struct npc_hatecoil_crestrider : public ScriptedAI
         me->GetScheduler().Schedule(Seconds(1), Seconds(1), [this](TaskContext context)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                context.GetContextUnit()->CastSpell(nullptr, SPELL_SHELLBREAKER_BELLOWING_ROAR, false);
+                GetContextUnit()->CastSpell(nullptr, SPELL_SHELLBREAKER_BELLOWING_ROAR, false);
 
             context.Repeat();
         });
