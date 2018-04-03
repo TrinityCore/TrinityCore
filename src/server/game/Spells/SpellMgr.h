@@ -453,7 +453,7 @@ typedef std::map<uint32, PetAura> SpellPetAuraMap;
 enum SpellAreaFlag
 {
     SPELL_AREA_FLAG_AUTOCAST   = 0x1, // if has autocast, spell is applied on enter
-    SPELL_AREA_FLAG_AUTOREMOVE = 0x2, // if has autoremove, spell is remove automatically inside zone/area (allways removed on leaving area or zone)
+    SPELL_AREA_FLAG_AUTOREMOVE = 0x2, // if has autoremove, spell is removed automatically inside zone/area (allways removed on leaving area or zone)
     SPELL_AREA_FLAG_AUTOAPPLY  = 0x4  // if has autoapply, spell is applied immediatelly after quest status change
 };
 
@@ -469,7 +469,7 @@ struct TC_GAME_API SpellArea
     uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
     uint32 questEndStatus;                                  // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
     uint8 flags;                                            // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast
-                                                            // if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without flag)
+                                                            // if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaving even without flag)
                                                             // if SPELL_AREA_FLAG_AUTOAPPLY then auto applied after quest status change
 
     // helpers

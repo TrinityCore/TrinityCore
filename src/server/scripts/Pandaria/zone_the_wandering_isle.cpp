@@ -460,7 +460,7 @@ public:
                 {
                     case EVENT_CAST_TRANSFORM:
                         // Transform is casted only when in frog pool
-                        if (_passenger->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
+                        if (me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
                         {
                             if (!_passenger->HasAura(SPELL_TRAINING_BELL_RIDE_VEHICLE) && !_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
                             {
@@ -1409,7 +1409,9 @@ public:
 
     struct npc_zhaorenAI : public ScriptedAI
     {
-        npc_zhaorenAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_zhaorenAI(Creature* creature) : ScriptedAI(creature) {
+            Initialize();
+        }
 
         Position const pos = { 723.163f, 4163.8f, 204.999f };
 
@@ -2035,7 +2037,9 @@ public:
 
     struct npc_vordrakaAI : public ScriptedAI
     {
-        npc_vordrakaAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_vordrakaAI(Creature* creature) : ScriptedAI(creature) {
+            Initialize();
+        }
 
         void Initialize()
         {
