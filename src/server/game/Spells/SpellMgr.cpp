@@ -2949,6 +2949,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         SpellInfo* spellInfoMutable = const_cast<SpellInfo*>(&spellInfo);
         for (SpellEffectInfo const& spellEffectInfo : spellInfoMutable->GetEffects())
         {
+            // all bleed effects and spells ignore armor
+            if (spellInfo.GetEffectMechanicMask(spellEffectInfo.EffectIndex) & (1 << MECHANIC_BLEED))
+                spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+
             switch (spellEffectInfo.ApplyAuraName)
             {
                 case SPELL_AURA_MOD_POSSESS:
