@@ -2949,12 +2949,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     // add custom attribute to liquid auras
     for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
     {
-        if (liquid->SpellId)
-        {
-            spellInfo = _GetSpellInfo(liquid->SpellId);
-            if (spellInfo)
+        if (uint32 spellId = liquid->SpellId)
+            if (SpellInfo* spellInfo = _GetSpellInfo(spellId))
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_LIQUID_AURA;
-        }
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
