@@ -107,7 +107,7 @@ class boss_zuramat : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-				_JustDied();
+                _JustDied();
             }
 
             void KilledUnit(Unit* victim) override

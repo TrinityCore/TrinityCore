@@ -185,7 +185,7 @@ public:
         return true;
     }
 
-    static bool GroupFlagCommand(ChatHandler* handler, char const* args, GroupMemberFlags flag, const char* what)
+    static bool GroupFlagCommand(ChatHandler* handler, char const* args, GroupMemberFlags flag, char const* what)
     {
         Player* player = nullptr;
         Group* group = nullptr;

@@ -167,7 +167,7 @@ class boss_ichoron : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-				_JustDied();
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) override
