@@ -2002,7 +2002,7 @@ void Spell::EffectSummonType()
                             // randomize position for multiple summons
                             pos = caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = caster->SummonCreature(entry, pos, summonType, duration, 0, privateObjectOwner);
+                        summon = caster->SummonCreature(entry, pos, summonType, duration, 0, m_spellInfo->Id, privateObjectOwner);
                         if (!summon)
                             continue;
 
@@ -2010,7 +2010,6 @@ void Spell::EffectSummonType()
                         {
                             summon->SetOwnerGUID(caster->GetGUID());
                             summon->SetFaction(caster->GetFaction());
-                            summon->SetCreatedBySpell(m_spellInfo->Id);
                         }
 
                         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);

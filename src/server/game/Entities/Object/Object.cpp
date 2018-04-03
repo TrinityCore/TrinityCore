@@ -1875,11 +1875,11 @@ Scenario* WorldObject::GetScenario() const
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), 0, vehId, privateObjectOwner))
+        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), spellId, vehId, privateObjectOwner))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -1895,7 +1895,7 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
         GetClosePoint(x, y, z, GetCombatReach());
     if (!o)
         o = GetOrientation();
-    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, privateObjectOwner);
+    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, 0, privateObjectOwner);
 }
 
 GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
@@ -3005,7 +3005,6 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
 {
     GetNearPoint2D(searcher, x, y, distance2d, absAngle);
     z = GetPositionZ();
-
     (searcher ? searcher : this)->UpdateAllowedPositionZ(x, y, z);
 
     // if detection disabled, return first point
