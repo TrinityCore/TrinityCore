@@ -664,7 +664,7 @@ struct npc_xt_void_zone : public PassiveAI
         {
             CastSpellExtraArgs args(false);
             if (bp)
-                args.SpellValueOverrides.AddBP0(bp);
+                args.AddSpellBP0(bp);
             DoCastSelf(SPELL_CONSUMPTION, args);
             consumption.Repeat();
         });
