@@ -35,6 +35,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesByAreaTrigger;
     std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetByAreaTrigger;
     std::unordered_map<uint32, std::vector<Position>> splinesBySpellMisc;
+    std::unordered_map<uint32, std::vector<Position>> rollpitchyawBySpellMisc;
     std::unordered_map<uint32, std::vector<AreaTriggerAction>> actionsByAreaTrigger;
 
     //                                                            0              1           2            3
@@ -112,6 +113,23 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `spell_areatrigger_splines` is empty.");
     }
 
+    //                                                          0            1  2  3  4        5        6
+    if (QueryResult rollpitchyaws = WorldDatabase.Query("SELECT SpellMiscId, X, Y, Z, TargetX, TargetY, TargetZ FROM `spell_areatrigger_rollpitchyaw` ORDER BY `SpellMiscId`"))
+    {
+        do
+        {
+            Field* rollpitchyawFields = rollpitchyaws->Fetch();
+            uint32 spellMiscId = rollpitchyawFields[0].GetUInt32();
+            rollpitchyawBySpellMisc[spellMiscId].emplace_back(rollpitchyawFields[1].GetFloat(), rollpitchyawFields[2].GetFloat(), rollpitchyawFields[3].GetFloat());
+            rollpitchyawBySpellMisc[spellMiscId].emplace_back(rollpitchyawFields[4].GetFloat(), rollpitchyawFields[5].GetFloat(), rollpitchyawFields[6].GetFloat());
+        }
+        while (rollpitchyaws->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates Roll Pitch Yaw. DB table `spell_areatrigger_rollpitchyaw` is empty.");
+    }
+
     //                                                      0   1     2      3      4      5      6      7      8      9
     if (QueryResult templates = WorldDatabase.Query("SELECT Id, Type, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`"))
     {
@@ -187,6 +205,12 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[8].GetUInt32();
 
             miscTemplate.SplinePoints = std::move(splinesBySpellMisc[miscTemplate.MiscId]);
+
+            if (rollpitchyawBySpellMisc.find(miscTemplate.MiscId) != rollpitchyawBySpellMisc.end())
+            {
+                miscTemplate.RollPitchYaw       = std::move(rollpitchyawBySpellMisc[miscTemplate.MiscId][0]);
+                miscTemplate.TargetRollPitchYaw = std::move(rollpitchyawBySpellMisc[miscTemplate.MiscId][1]);
+            }
 
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
         }

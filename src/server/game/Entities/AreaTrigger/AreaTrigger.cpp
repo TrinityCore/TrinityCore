@@ -488,6 +488,16 @@ Unit* AreaTrigger::GetTarget() const
     return ObjectAccessor::GetUnit(*this, _targetGuid);
 }
 
+Position const& AreaTrigger::GetRollPitchYaw() const
+{
+    return GetMiscTemplate()->RollPitchYaw;
+}
+
+Position const& AreaTrigger::GetTargetRollPitchYaw() const
+{
+    return GetMiscTemplate()->TargetRollPitchYaw;
+}
+
 void AreaTrigger::UpdatePolygonOrientation()
 {
     float newOrientation = GetOrientation();
