@@ -546,7 +546,7 @@ private:
 
 struct npc_boombot : public ScriptedAI
 {
-    npc_boombot(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_boombot(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _boomed(false) { }
 
     void Reset() override
     {
