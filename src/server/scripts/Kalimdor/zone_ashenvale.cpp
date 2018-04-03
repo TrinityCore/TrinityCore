@@ -130,7 +130,7 @@ public:
         {
             EscortAI::UpdateAI(diff);
         }
-		
+
         void EnterEvadeMode(EvadeReason why) override
         {
             if (!me->HasAura(RUUL_SHAPECHANGE))
