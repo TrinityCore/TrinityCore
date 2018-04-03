@@ -1,2 +1,0 @@
---
-DELETE FROM `pet_aura` WHERE `spell` IN (28801, 37025, 42201, 57634);
