@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
@@ -132,7 +133,8 @@ enum Yells
 enum Misc
 {
     ACHIEV_MUST_DECONSTRUCT_FASTER = 21027,
-    HEART_VEHICLE_SEAT_EXPOSED     = 1
+    HEART_VEHICLE_SEAT_EXPOSED     = 1,
+    GROUP_SEARING_GRAVITY          = 1
 };
 
 struct boss_xt002 : public BossAI
@@ -185,10 +187,10 @@ struct boss_xt002 : public BossAI
     {
         Talk(SAY_AGGRO);
         _JustEngagedWith();
-        events.ScheduleEvent(EVENT_SEARING_LIGHT, Is25ManRaid() ? 9s : 11s, 0, PHASE_1);
-        events.ScheduleEvent(EVENT_GRAVITY_BOMB, Is25ManRaid() ? 17s : 21s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_SEARING_LIGHT, Is25ManRaid() ? 9s : 11s, GROUP_SEARING_GRAVITY, PHASE_1);
+        events.ScheduleEvent(EVENT_GRAVITY_BOMB, Is25ManRaid() ? 18s : 21s, GROUP_SEARING_GRAVITY, PHASE_1);
         events.ScheduleEvent(EVENT_ENRAGE, 10min);
-        events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 31s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 60s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_PHASE_CHECK, 1s, 0, PHASE_1);
         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
     }
@@ -253,8 +255,8 @@ struct boss_xt002 : public BossAI
     void RescheduleEvents()
     {
         events.SetPhase(PHASE_1);
-        events.ScheduleEvent(EVENT_SEARING_LIGHT, 25s, 0, PHASE_1);
-        events.ScheduleEvent(EVENT_GRAVITY_BOMB, Is25ManRaid() ? 33s : 15s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_SEARING_LIGHT, 25s, GROUP_SEARING_GRAVITY, PHASE_1);
+        events.ScheduleEvent(EVENT_GRAVITY_BOMB, Is25ManRaid() ? 33s : 15s, GROUP_SEARING_GRAVITY, PHASE_1);
         events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 25s, 0, PHASE_1);
         if (!_hardMode)
             events.ScheduleEvent(EVENT_PHASE_CHECK, 1s, 0, PHASE_1);
@@ -337,6 +339,7 @@ struct boss_xt002 : public BossAI
                 case EVENT_TYMPANIC_TANTRUM:
                     Talk(SAY_TYMPANIC_TANTRUM);
                     Talk(EMOTE_TYMPANIC_TANTRUM);
+                    events.DelayEvents(10s, GROUP_SEARING_GRAVITY);
                     DoCastSelf(SPELL_TYMPANIC_TANTRUM);
                     events.Repeat(60s);
                     break;
@@ -350,7 +353,7 @@ struct boss_xt002 : public BossAI
                     Talk(EMOTE_HEART_OPENED);
                     if (Creature* heart = instance->GetCreature(DATA_XT002_HEART))
                         heart->AI()->DoAction(ACTION_START_PHASE_HEART);
-                    events.ScheduleEvent(EVENT_DISPOSE_HEART, 30s);
+                    events.ScheduleEvent(EVENT_DISPOSE_HEART, 30s, PHASE_HEART);
                     break;
                 case EVENT_DISPOSE_HEART:
                     DisposeHeart();
@@ -653,9 +656,16 @@ struct npc_xt_void_zone : public PassiveAI
 
     void Reset() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext consumption)
+        int32 bp = 0;
+        if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(me->GetUInt32Value(UNIT_CREATED_BY_SPELL)))
+            bp = createdBySpell->Effects[EFFECT_1].CalcValue();
+
+        _scheduler.Schedule(1s, [this, bp](TaskContext consumption)
         {
-            DoCastSelf(SPELL_CONSUMPTION);
+            CastSpellExtraArgs args(false);
+            if (bp)
+                args.SpellValueOverrides.AddBP0(bp);
+            DoCastSelf(SPELL_CONSUMPTION, args);
             consumption.Repeat();
         });
     }
