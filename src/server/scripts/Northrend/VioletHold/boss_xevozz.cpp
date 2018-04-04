@@ -127,14 +127,6 @@ class boss_xevozz : public CreatureScript
                     Talk(SAY_SUMMON_ENERGY);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
             void ScheduleTasks() override
             {
                 me->GetScheduler().Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
