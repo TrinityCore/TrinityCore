@@ -7239,7 +7239,6 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
         return;
 
     ItemTemplate const* proto = item->GetTemplate();
-
     if (!proto)
         return;
 
@@ -7540,7 +7539,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         HandleStatFlatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(proto->ArcaneRes), apply);
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot);
-    if (attType != MAX_ATTACK && CanUseAttackType(attType))
+    if (attType != MAX_ATTACK)
         _ApplyWeaponDamage(slot, proto, apply);
 
     // Druids get feral AP bonus from weapon dps (also use DPS from ScalingStatValue)
@@ -7563,7 +7562,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply)
 {
     WeaponAttackType attType = Player::GetAttackBySlot(slot);
-    if (attType == MAX_ATTACK)
+    if (!IsInFeralForm() && apply && !CanUseAttackType(attType))
         return;
 
     ScalingStatValuesEntry const* ssv = GetScalingStatValuesFor(*proto);
@@ -12209,8 +12208,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 if (pProto->ItemSet)
                     RemoveItemsSetItem(this, pProto);
 
-                // remove here before _ApplyItemMods (for example to register correct damages of unequipped weapon)
-                m_items[slot] = nullptr;
                 _ApplyItemMods(pItem, slot, false, update);
 
                 // remove item dependent auras and casts (only weapon and armor slots)
@@ -12246,9 +12243,8 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                     }
                 }
             }
-            else
-                m_items[slot] = nullptr;
 
+            m_items[slot] = nullptr;
             SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid::Empty);
 
             if (slot < EQUIPMENT_SLOT_END)
@@ -12358,9 +12354,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 if (pProto->ItemSet)
                     RemoveItemsSetItem(this, pProto);
 
-                // clear m_items so weapons for example can be registered as unequipped
-                m_items[slot] = nullptr;
-
                 _ApplyItemMods(pItem, slot, false);
             }
 
@@ -12386,9 +12379,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 SetVisibleItemSlot(slot, nullptr);
             }
 
-            // clear for rest of items (ie nonequippable)
-            if (slot >= INVENTORY_SLOT_BAG_END)
-                m_items[slot] = nullptr;
+            m_items[slot] = nullptr;
         }
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
