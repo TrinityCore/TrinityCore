@@ -2953,3 +2953,9 @@ bool Creature::IsAllowedToRepostionAgainst(Unit* target) const
         && !IsDungeonBoss()                 // 6. Creature is a dungeon boss
         && !isWorldBoss();                  // 7. Creature is a world boss
 }
+
+void Creature::MakeInterruptable(bool apply)
+{
+    ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
+    ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
+}

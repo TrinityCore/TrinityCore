@@ -328,6 +328,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanGiveExperience() const;
         bool IsAllowedToRepostionAgainst(Unit* target) const;
 
+        void MakeInterruptable(bool apply);
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);

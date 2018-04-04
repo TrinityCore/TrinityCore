@@ -105,7 +105,7 @@ public:
             _achievementEnabled = true;
             me->SetReactState(REACT_PASSIVE);
             me->SetPower(POWER_ENERGY, 100);
-            MakeInterruptable(false);
+            me->MakeInterruptable(false);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -127,7 +127,7 @@ public:
 
             if (summon->GetEntry() == NPC_INFERNO_LEAP)
             {
-                MakeInterruptable(true);
+                me->MakeInterruptable(true);
                 events.ScheduleEvent(EVENT_INFERNO_LEAP, 1);
                 events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(1) + Milliseconds(500));
             }
@@ -150,20 +150,14 @@ public:
         {
             _EnterEvadeMode();
             summons.DespawnAll();
-            MakeInterruptable(false);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _DespawnAtEvade();
         }
+
         void OnSpellCastInterrupt(SpellInfo const* /*spell*/) override
         {
-            MakeInterruptable(false);
+            me->MakeInterruptable(false);
             events.CancelEvent(EVENT_APPLY_IMMUNITY);
-        }
-
-        void MakeInterruptable(bool apply)
-        {
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
         }
 
         uint32 GetData(uint32 type) const override
@@ -225,7 +219,7 @@ public:
                         DoCastSelf(SPELL_SOLAR_WINDS_SUMMON);
                         break;
                     case EVENT_SUMMON_SUN_ORB:
-                        MakeInterruptable(true);
+                        me->MakeInterruptable(true);
                         me->StopMoving();
                         DoCastSelf(SPELL_SUMMON_SUN_ORB);
                         events.Repeat(_randomTimerCase == 0 ? Seconds(35), Seconds(36) : Seconds(31), Seconds(37));
@@ -237,7 +231,7 @@ public:
                         events.Repeat(_randomTimerCase == 0 ? Seconds(35) : Seconds(27));
                         break;
                     case EVENT_APPLY_IMMUNITY:
-                        MakeInterruptable(false);
+                        me->MakeInterruptable(false);
                         break;
                     case EVENT_MOVE_TO_MIDDLE:
                         events.Reset();
