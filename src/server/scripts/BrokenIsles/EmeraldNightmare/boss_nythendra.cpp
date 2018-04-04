@@ -55,10 +55,10 @@ struct boss_nythendra : public BossAI
 
     void EnterCombat(Unit* /*attacker*/) override
     {
-        events.ScheduleEvent(EVENT_ROT, Seconds(15));
-        events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(1));
-        events.ScheduleEvent(EVENT_INFESTED_BREATH, Seconds(1));
-        events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
+        events.ScheduleEvent(EVENT_ROT,             15s);
+        events.ScheduleEvent(EVENT_VOLATILE_ROT,    1s, 10s);
+        events.ScheduleEvent(EVENT_INFESTED_BREATH, 1s, 10s);
+        events.ScheduleEvent(EVENT_TAIL_LASH,       6s);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -71,7 +71,7 @@ struct boss_nythendra : public BossAI
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
                         me->CastSpell(target, SPELL_ROT, true);
 
-                events.ScheduleEvent(EVENT_ROT, Seconds(15));
+                events.Repeat(15s);
                 break;
             }
             case EVENT_VOLATILE_ROT:
@@ -79,13 +79,13 @@ struct boss_nythendra : public BossAI
                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                     me->CastSpell(target, SPELL_VOLATILE_ROT, true);
 
-                events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(15));
+                events.Repeat(15s);
                 break;
             }
             case EVENT_TAIL_LASH:
             {
                 DoCast(SPELL_TAIL_LASH);
-                events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
+                events.Repeat(6s);
                 break;
             }
             default:
@@ -147,6 +147,7 @@ class spell_nythendra_volatile_rot_damage : public SpellScript
 };
 
 //Spell : 203044
+//AT : 10594
 struct at_nythendra_infested_ground : AreaTriggerAI
 {
     at_nythendra_infested_ground(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
