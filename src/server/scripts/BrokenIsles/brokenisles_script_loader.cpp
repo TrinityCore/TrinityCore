@@ -102,6 +102,7 @@ void AddSC_boss_warlord_parjesh();
 
 // Maw of Souls
 void AddSC_instance_maw_of_souls();
+void AddSC_maw_of_souls();
 void AddSC_boss_ymiron_maw();
 void AddSC_boss_harbaron_maw();
 void AddSC_boss_helya_maw();
@@ -254,6 +255,7 @@ void AddBrokenIslesScripts()
 
     // Maw of Souls
     AddSC_instance_maw_of_souls();
+    AddSC_maw_of_souls();
     AddSC_boss_ymiron_maw();
     AddSC_boss_harbaron_maw();
     AddSC_boss_helya_maw();

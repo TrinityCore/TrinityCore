@@ -2272,6 +2272,7 @@ INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `lan
 (106482, @GROUP_ID+0, @ID+0, 'I sense the touch of Cenarius upon this Iris. It is a portal that leads to Moonglade, but the way has been sealed by dark magic. We must sever the tendrils of power that bind it.', 14, 0, 100, 0, 0, 61373, 0, 'Malfurion Stormrage to Player'),
 (106482, @GROUP_ID+1, @ID+0, 'From each of these pathways, a palpable evil emanates. Choose a course, and know that I will stand with you.', 14, 0, 100, 0, 0, 61374, 0, 'Malfurion Stormrage to Player');
 
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 111263;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (111263, 222693, 0, 0);
 

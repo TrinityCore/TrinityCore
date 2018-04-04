@@ -27,19 +27,18 @@ uint32 const EncounterCount = 3;
 enum MOSDataTypes
 {
     // Encounter States/Boss GUIDs
-    DATA_YMIRON_MAW = 0,
-    DATA_HARBARON_MAW = 1,
-    DATA_HELYA_MAW = 2,
+    DATA_YMIRON_MAW     = 0,
+    DATA_HARBARON_MAW   = 1,
+    DATA_HELYA_MAW      = 2,
 };
 
 enum MOSCreatureIds
 {
-
     // NPCs
-    NPC_YMIRON_MAW = 96756,
-    NPC_HARBARON_MAW = 96754,
-    NPC_SKJAL_MAW = 99307,
-    NPC_HELYA_MAW = 96759,
+    NPC_YMIRON_MAW      = 96756,
+    NPC_HARBARON_MAW    = 96754,
+    NPC_SKJAL_MAW       = 99307,
+    NPC_HELYA_MAW       = 96759,
 
     // Triggers
 };
