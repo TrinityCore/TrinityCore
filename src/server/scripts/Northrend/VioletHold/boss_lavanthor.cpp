@@ -48,26 +48,25 @@ class boss_lavanthor : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
+                DoMeleeAttackIfReady();
             }
 
             void ScheduleTasks() override
             {
-                scheduler.Schedule(Seconds(1), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(1), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                         DoCast(target, SPELL_FIREBOLT);
                     task.Repeat(Seconds(5), Seconds(13));
                 });
 
-                scheduler.Schedule(Seconds(5), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(5), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_FLAME_BREATH);
                     task.Repeat(Seconds(10), Seconds(15));
                 });
 
-                scheduler.Schedule(Seconds(10), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(10), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
                         DoCast(target, SPELL_LAVA_BURN);
@@ -76,7 +75,7 @@ class boss_lavanthor : public CreatureScript
 
                 if (IsHeroic())
                 {
-                    scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                    me->GetScheduler().Schedule(Seconds(3), [this](TaskContext task)
                     {
                         DoCastAOE(SPELL_CAUTERIZING_FLAMES);
                         task.Repeat(Seconds(10), Seconds(16));

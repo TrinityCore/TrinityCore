@@ -158,7 +158,7 @@ public:
             harpoonHit = 0;
             loveSkadi = 0;
             _phase = PHASE_GROUND;
-            scheduler.SetValidator([this]
+            me->GetScheduler().SetValidator([this]
             {
                 return !me->HasUnitState(UNIT_STATE_CASTING);
             });
@@ -238,7 +238,7 @@ public:
                     _phase = PHASE_FLYING;
                     instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
 
-                    scheduler
+                    me->GetScheduler()
                         .Schedule(Seconds(6), [this](TaskContext resetCheck)
                         {
                             if (Creature* resetTrigger = me->FindNearestCreature(NPC_TRIGGER_RESET, 200.0f))
@@ -271,7 +271,7 @@ public:
                     me->SetReactState(REACT_AGGRESSIVE);
                     _phase = PHASE_GROUND;
 
-                    scheduler
+                    me->GetScheduler()
                         .Schedule(Seconds(8), [this](TaskContext crush)
                         {
                             DoCastVictim(SPELL_CRUSH);
@@ -307,8 +307,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            scheduler.Update(diff);
-
             if (_phase == PHASE_GROUND)
             {
                 if (!UpdateVictim())

@@ -126,6 +126,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
     summons(creature),
+    instance(creature->GetInstanceScript()),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
@@ -444,13 +445,11 @@ void Scripted_NoMovementAI::AttackStart(Unit* target)
 
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
-    instance(creature->GetInstanceScript()),
-    summons(creature),
     _bossId(bossId)
 {
     if (instance)
         SetBoundary(instance->GetBossBoundary(bossId));
-    scheduler.SetValidator([this]
+    me->GetScheduler().SetValidator([this]
     {
         return !me->HasUnitState(UNIT_STATE_CASTING);
     });
@@ -465,7 +464,7 @@ void BossAI::_Reset()
     me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
-    scheduler.CancelAll();
+    me->GetScheduler().CancelAll();
     if (instance)
         instance->SetBossState(_bossId, NOT_STARTED);
 }
@@ -474,7 +473,7 @@ void BossAI::_JustDied()
 {
     events.Reset();
     summons.DespawnAll();
-    scheduler.CancelAll();
+    me->GetScheduler().CancelAll();
     if (instance)
         instance->SetBossState(_bossId, DONE);
 }

@@ -177,6 +177,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
     SummonList summons;
     EventMap events;
+    InstanceScript* const instance;
 
     // *************
     //Pure virtual functions
@@ -343,8 +344,6 @@ class TC_GAME_API BossAI : public ScriptedAI
         BossAI(Creature* creature, uint32 bossId);
         virtual ~BossAI() { }
 
-        InstanceScript* const instance;
-
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;
 
@@ -374,10 +373,6 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _DespawnAtEvade(Seconds const& time, Creature* who = nullptr) { _DespawnAtEvade(uint32(time.count()), who); }
 
         void TeleportCheaters();
-
-        EventMap events;
-        SummonList summons;
-        TaskScheduler scheduler;
 
     private:
         uint32 const _bossId;
