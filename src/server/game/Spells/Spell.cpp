@@ -3475,6 +3475,11 @@ void Spell::_cast(bool skipCheck)
         hitMask |= PROC_HIT_NORMAL;
 
     m_originalCaster->ProcSkillsAndAuras(nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
+
+    // Call CreatureAI hook OnSuccessfulSpellCast
+    if (Creature* caster = m_originalCaster->ToCreature())
+        if (caster->IsAIEnabled)
+            caster->AI()->OnSuccessfulSpellCast(GetSpellInfo());
 }
 
 void Spell::handle_immediate()
