@@ -1066,7 +1066,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     // Correct map requirement (currently has Lost City of the Tol'vir)
     hotfixes.ApplyHotfix(5294, [](AchievementEntry* achievement)
     {
-        achievement->MapID = 644;
+        achievement->InstanceID = 644;
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
