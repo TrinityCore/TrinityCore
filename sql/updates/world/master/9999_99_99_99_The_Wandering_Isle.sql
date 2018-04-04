@@ -9022,12 +9022,13 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 
 DELETE FROM `terrain_swap_defaults` WHERE `MapId`=860;
 INSERT INTO `terrain_swap_defaults` (`MapId`, `TerrainSwapMap`, `Comment`) VALUES
-(860, 976, 'Wandering Isle default terrain');
+(860, 975, 'Wandering Isle terrain injured'),
+(860, 976, 'Wandering Isle terrain healed');
 
 DELETE FROM `terrain_worldmap` WHERE `TerrainSwapMap` IN (975, 976);
 INSERT INTO `terrain_worldmap` (`TerrainSwapMap`, `WorldMapArea`, `Comment`) VALUES
-(975, 683, 'Wandering Isle terrain injured'),
-(976, 683, 'Wandering Isle terrain healed');
+(975, 683, 'TurtleShipPhase01'),
+(976, 683, 'TurtleShipPhase02');
 
 DELETE FROM `scene_template` WHERE `SceneId`=102;
 INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `ScriptName`) VALUES
