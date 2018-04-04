@@ -119,7 +119,7 @@ struct npc_risen_arcanist : public ScriptedAI
 {
     npc_risen_arcanist(Creature* creature) : ScriptedAI(creature) { }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
