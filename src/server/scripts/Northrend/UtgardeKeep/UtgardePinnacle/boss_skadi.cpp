@@ -305,7 +305,7 @@ public:
             return 0;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (_phase == PHASE_GROUND)
             {

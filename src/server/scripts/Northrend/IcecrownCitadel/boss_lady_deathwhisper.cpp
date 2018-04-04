@@ -481,7 +481,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim() && _phase != PHASE_INTRO)
                     return;
@@ -592,8 +592,8 @@ class npc_cult_fanatic : public CreatureScript
 
             void Reset() override
             {
-                _scheduler.CancelAll();
-                _scheduler
+                me->GetScheduler().CancelAll();
+                me->GetScheduler()
                     .SetValidator([this]
                     {
                         return !me->HasUnitState(UNIT_STATE_CASTING);
@@ -634,7 +634,7 @@ class npc_cult_fanatic : public CreatureScript
                         DoCastSelf(SPELL_DARK_MARTYRDOM_FANATIC);
                         break;
                     case SPELL_DARK_MARTYRDOM_FANATIC:
-                        _scheduler
+                        me->GetScheduler()
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
                                 me->UpdateEntry(NPC_REANIMATED_FANATIC);
@@ -659,19 +659,15 @@ class npc_cult_fanatic : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim() && !me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
                     return;
 
-                _scheduler.Update(diff, [this]
-                {
-                    DoMeleeAttackIfReady();
-                });
+                DoMeleeAttackIfReady();
             }
 
         protected:
-            TaskScheduler _scheduler;
             InstanceScript* _instance;
         };
 
@@ -692,8 +688,8 @@ class npc_cult_adherent : public CreatureScript
 
             void Reset() override
             {
-               _scheduler.CancelAll();
-               _scheduler
+                me->GetScheduler().CancelAll();
+                me->GetScheduler()
                    .SetValidator([this]
                    {
                        return !me->HasUnitState(UNIT_STATE_CASTING);
@@ -733,7 +729,7 @@ class npc_cult_adherent : public CreatureScript
                         DoCastSelf(SPELL_DARK_MARTYRDOM_ADHERENT);
                         break;
                     case SPELL_DARK_MARTYRDOM_ADHERENT:
-                        _scheduler
+                        me->GetScheduler()
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
                                 me->UpdateEntry(NPC_REANIMATED_ADHERENT);
@@ -759,16 +755,7 @@ class npc_cult_adherent : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
-                    return;
-
-                _scheduler.Update(diff);
-            }
-
         protected:
-            TaskScheduler _scheduler;
             InstanceScript* _instance;
         };
 
@@ -792,7 +779,7 @@ class npc_vengeful_shade : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->AddAura(SPELL_VENGEFUL_BLAST_PASSIVE, me);
 
-                _scheduler
+                me->GetScheduler()
                     .Schedule(Seconds(2), [this](TaskContext /*context*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -824,16 +811,7 @@ class npc_vengeful_shade : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                _scheduler.Update(diff, [this]
-                {
-                    DoMeleeAttackIfReady();
-                });
-            }
-
         private:
-            TaskScheduler _scheduler;
             ObjectGuid _targetGUID;
         };
 
