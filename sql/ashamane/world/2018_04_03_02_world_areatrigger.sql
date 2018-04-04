@@ -1,4 +1,4 @@
-DROP TABLE `spell_areatrigger_rollpitchyaw`;
+DROP TABLE IF EXISTS `spell_areatrigger_rollpitchyaw`;
 CREATE TABLE `spell_areatrigger_rollpitchyaw`(
     `SpellMiscId` INT(10) UNSIGNED NOT NULL,
     `X` FLOAT NOT NULL DEFAULT 0,
