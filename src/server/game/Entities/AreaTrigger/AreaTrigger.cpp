@@ -493,7 +493,7 @@ Position const& AreaTrigger::GetRollPitchYaw() const
     if (GetMiscTemplate())
         return GetMiscTemplate()->RollPitchYaw;
 
-    return Position();
+    return Position::Empty;
 }
 
 Position const& AreaTrigger::GetTargetRollPitchYaw() const
@@ -501,7 +501,7 @@ Position const& AreaTrigger::GetTargetRollPitchYaw() const
     if (GetMiscTemplate())
         return GetMiscTemplate()->TargetRollPitchYaw;
 
-    return Position();
+    return Position::Empty;
 }
 
 void AreaTrigger::UpdatePolygonOrientation()

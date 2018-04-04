@@ -236,6 +236,8 @@ public:
 
     // modulos a radian orientation to the range of 0..2PI
     static float NormalizeOrientation(float o);
+
+    static Position const Empty;
 };
 
 #define MAPID_INVALID 0xFFFFFFFF
