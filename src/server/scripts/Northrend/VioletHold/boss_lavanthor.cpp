@@ -43,14 +43,6 @@ class boss_lavanthor : public CreatureScript
                 instance->SetData(DATA_HANDLE_CELLS, DATA_LAVANTHOR);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
             void ScheduleTasks() override
             {
                 me->GetScheduler().Schedule(Seconds(1), [this](TaskContext task)

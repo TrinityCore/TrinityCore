@@ -187,7 +187,7 @@ class boss_ichoron : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_DRAINED, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;

@@ -218,7 +218,7 @@ class npc_ethereal_sphere : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override { }
+            void UpdateAI(uint32 /*diff*/) override { }
 
             void ScheduledTasks()
             {

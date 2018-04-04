@@ -211,7 +211,7 @@ struct npc_shackled_servitor : public ScriptedAI
         });
     }
 
-    void UpdateAI(uint32 diff) override { }
+    void UpdateAI(uint32 /*diff*/) override { }
 };
 
 void AddSC_boss_harbaron_maw()
