@@ -377,7 +377,6 @@ class boss_vanessa_van_cleef : public CreatureScript
                             events.ScheduleEvent(EVENT_EXTINGUISH_FIRES, Seconds(11));
                             break;
                         case EVENT_SUMMON_ROPES:
-                            summons.DespawnEntry(NPC_ROPE);
                             instance->SetData(DATA_SUMMON_ROPES, 0);
                             break;
                         case EVENT_CAST_FIERY_BLAZE:

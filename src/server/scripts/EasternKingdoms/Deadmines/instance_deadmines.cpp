@@ -321,7 +321,12 @@ class instance_deadmines : public InstanceMapScript
                         break;
                     case DATA_VANESSA_VAN_CLEEF:
                         if (state == FAIL)
+                        {
                             ResetVanessasNightmare();
+                            _ropeAnchorPairs.clear();
+                        }
+                        else if (state == DONE)
+                            _ropeAnchorPairs.clear();
                         break;
                     default:
                         break;
@@ -545,10 +550,39 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_SUMMON_ROPES:
                     {
                         uint8 i = 0;
-                        for (auto itr = _ropeAnchorGuidSet.begin(); itr != _ropeAnchorGuidSet.end(); itr++, i++)
-                            if (Creature* anchor = instance->GetCreature((*itr)))
-                                if (Creature* rope = instance->SummonCreature(NPC_ROPE, RopePos[i]))
-                                    anchor->CastSpell(rope, SPELL_ROPE_BEAM);
+
+                        if (!_ropeAnchorPairs.empty())
+                        {
+                            for (auto itr = _ropeAnchorPairs.begin(); itr != _ropeAnchorPairs.end(); itr++)
+                            {
+                                if (!instance->GetCreature(itr->ropeGuid))
+                                {
+                                    if (Creature* anchor = instance->GetCreature(itr->anchorGuid))
+                                    {
+                                        if (Creature* rope = instance->SummonCreature(NPC_ROPE, itr->ropePosition))
+                                        {
+                                            anchor->CastSpell(rope, SPELL_ROPE_BEAM);
+                                            _ropeAnchorPairs.push_back({ anchor->GetGUID(), rope->GetGUID(), itr->ropePosition });
+                                        }
+                                    }
+                                    _ropeAnchorPairs.erase(itr);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (auto itr = _ropeAnchorGuidSet.begin(); itr != _ropeAnchorGuidSet.end(); itr++, i++)
+                            {
+                                if (Creature* anchor = instance->GetCreature((*itr)))
+                                {
+                                    if (Creature* rope = instance->SummonCreature(NPC_ROPE, RopePos[i]))
+                                    {
+                                        anchor->CastSpell(rope, SPELL_ROPE_BEAM);
+                                        _ropeAnchorPairs.push_back({ anchor->GetGUID(), rope->GetGUID(), RopePos[i] });
+                                    }
+                                }
+                            }
+                        }
                         break;
                     }
                     default:
@@ -831,6 +865,13 @@ class instance_deadmines : public InstanceMapScript
             }
 
         protected:
+            struct RopeAnchorPair
+            {
+                ObjectGuid anchorGuid;
+                ObjectGuid ropeGuid;
+                Position ropePosition;
+            };
+
             EventMap events;
             uint8 _activatedVentCounter;
             uint8 _deadEnragedWorgen;
@@ -845,6 +886,7 @@ class instance_deadmines : public InstanceMapScript
             GuidSet _mechanicalNightmareGuidSet;
             GuidSet _ripsnarlNightareGuidSet;
             GuidSet _ropeAnchorGuidSet;
+            std::vector<RopeAnchorPair> _ropeAnchorPairs;
             bool _firstCookieSpawn;
             bool _noteSpawnChecked;
             bool _ropesSpawned;
