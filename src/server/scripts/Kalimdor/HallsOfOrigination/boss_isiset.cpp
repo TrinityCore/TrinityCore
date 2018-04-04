@@ -130,14 +130,13 @@ public:
 
     struct boss_isisetAI : public BossAI
     {
-        boss_isisetAI(Creature* creature) : BossAI(creature, DATA_ISISET) { }
+        boss_isisetAI(Creature* creature) : BossAI(creature, DATA_ISISET), _transitionPhase(false) { }
 
         void Reset() override
         {
             _Reset();
 
             me->SetReactState(REACT_AGGRESSIVE);
-            _transitionPhase = false;
             instance->SetData(DATA_ISISET_PHASE, 1);
             instance->SetData(DATA_ISISET_ASTRAL_RAIN_ALIVE, 1);
             instance->SetData(DATA_ISISET_CELESTIAL_CALL_ALIVE, 1);

@@ -366,7 +366,7 @@ public:
 
     struct npc_brann_bronzebeard_anraphetAI : public CreatureAI
     {
-        npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _instance(creature->GetInstanceScript()) { }
+        npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _instance(creature->GetInstanceScript()), _canSayIdleEmote(false) { }
 
         void Reset() override
         {
@@ -375,7 +375,7 @@ public:
                 _instance->SetBossState(DATA_VAULT_OF_LIGHTS, NOT_STARTED);
 
             // We are ready for idle emote only if intro not started yet. 
-            canSayIdleEmote = _instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED;
+            _canSayIdleEmote = _instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED;
 
             // Different home positions after intro is started.
             if (_instance->GetBossState(DATA_ANRAPHET) == DONE)
@@ -401,9 +401,9 @@ public:
             switch (action)
             {
                 case ACTION_BRANN_IDLE_EMOTE:
-                    if (canSayIdleEmote)
+                    if (_canSayIdleEmote)
                     {
-                        canSayIdleEmote = false;
+                        _canSayIdleEmote = false;
                         Talk(urand(0, 1) ? BRANN_SAY_BLASTED_TITANS : BRANN_SAY_THIS_SYMBOL);
                         events.ScheduleEvent(EVENT_BRANN_IDLE_EMOTE_COOLDOWN, Seconds(45)); // Cooldown for AreaTrigger
                     }
@@ -434,7 +434,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_BRANN_IDLE_EMOTE_COOLDOWN:
-                        canSayIdleEmote = true;
+                        _canSayIdleEmote = true;
                         break;
                     case EVENT_BRANN_START_INTRO:
                         Talk(BRANN_SAY_DOOR_INTRO);
@@ -537,7 +537,7 @@ public:
     private:
         InstanceScript* _instance;
         EventMap events;
-        bool canSayIdleEmote;
+        bool _canSayIdleEmote;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
