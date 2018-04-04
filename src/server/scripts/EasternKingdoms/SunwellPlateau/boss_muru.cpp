@@ -149,13 +149,13 @@ public:
 
         void ScheduleTasks() override
         {
-            scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
             {
                 DoResetPortals();
                 DoCastAOE(SPELL_NEGATIVE_ENERGY_PERIODIC_E, true);
             });
 
-            scheduler.Schedule(Seconds(15), [this](TaskContext context)
+            me->GetScheduler().Schedule(Seconds(15), [this](TaskContext context)
             {
                 DoCastAOE(SPELL_DARKNESS_E, true);
                 DoCastAOE(SPELL_BLACKHOLE, true);
@@ -203,10 +203,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            DoMeleeAttackIfReady();
         }
 
         void DoResetPortals()
@@ -261,7 +258,7 @@ public:
 
         void ScheduleTasks() override
         {
-            scheduler.Schedule(Minutes(10), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Minutes(10), [this](TaskContext /*context*/)
             {
                 if (Creature* entropius = ObjectAccessor::GetCreature(*me, _entropiusGUID))
                     entropius->CastSpell(entropius, SPELL_ENRAGE);
@@ -269,7 +266,7 @@ public:
                 _hasEnraged = true;
             });
 
-            scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Seconds(10), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
                 DoCast(me, SPELL_SUMMON_BLOOD_ELVES_PERIODIC, true);
@@ -297,7 +294,7 @@ public:
                 DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+                me->GetScheduler().Schedule(Seconds(6), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_SUMMON_ENTROPIUS, true);
                 });
@@ -317,13 +314,7 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff);
-        }
+        void UpdateAI(uint32 diff) override { }
 
     private:
         ObjectGuid _entropiusGUID;

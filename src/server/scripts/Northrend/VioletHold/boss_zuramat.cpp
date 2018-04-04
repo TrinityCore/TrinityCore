@@ -121,26 +121,25 @@ class boss_zuramat : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
+                DoMeleeAttackIfReady();
             }
 
             void ScheduleTasks() override
             {
-                scheduler.Schedule(Seconds(4), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(4), [this](TaskContext task)
                 {
                     DoCast(me, SPELL_SUMMON_VOID_SENTRY);
                     task.Repeat(Seconds(7), Seconds(10));
                 });
 
-                scheduler.Schedule(Seconds(9), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(9), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                         DoCast(target, SPELL_VOID_SHIFT);
                     task.Repeat(Seconds(15));
                 });
 
-                scheduler.Schedule(Seconds(18), Seconds(20), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(18), Seconds(20), [this](TaskContext task)
                 {
                     DoCast(me, SPELL_SHROUD_OF_DARKNESS);
                     task.Repeat(Seconds(18), Seconds(20));

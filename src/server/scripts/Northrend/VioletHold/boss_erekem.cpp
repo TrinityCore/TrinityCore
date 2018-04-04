@@ -173,18 +173,15 @@ class boss_erekem : public CreatureScript
                     DoCast(me, SPELL_WINDFURY, true);
                 }
 
-                scheduler.Update(diff, [this]
-                {
-                    if (_phase == 1)
-                        DoSpellAttackIfReady(SPELL_STORMSTRIKE);
-                    else
-                        DoMeleeAttackIfReady();
-                });
+                if (_phase == 1)
+                    DoSpellAttackIfReady(SPELL_STORMSTRIKE);
+                else
+                    DoMeleeAttackIfReady();
             }
 
             void ScheduleTasks() override
             {
-                scheduler.Schedule(Seconds(20), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(20), [this](TaskContext task)
                 {
                     if (Unit* ally = DoSelectLowestHpFriendly(30.0f))
                         DoCast(ally, SPELL_EARTH_SHIELD);
@@ -192,13 +189,13 @@ class boss_erekem : public CreatureScript
                     task.Repeat(Seconds(20));
                 });
 
-                scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(2), [this](TaskContext task)
                 {
                     DoCast(SPELL_BLOODLUST);
                     task.Repeat(Seconds(35), Seconds(45));
                 });
 
-                scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(2), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
                         DoCast(target, SPELL_LIGHTNING_BOLT);
@@ -206,7 +203,7 @@ class boss_erekem : public CreatureScript
                     task.Repeat(Milliseconds(2500));
                 });
 
-                scheduler.Schedule(Seconds(10), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(10), [this](TaskContext task)
                 {
                     if (Unit* ally = DoSelectLowestHpFriendly(40.0f))
                         DoCast(ally, SPELL_CHAIN_HEAL);
@@ -217,13 +214,13 @@ class boss_erekem : public CreatureScript
                         task.Repeat(Seconds(8), Seconds(11));
                 });
 
-                scheduler.Schedule(Seconds(2), Seconds(8), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(2), Seconds(8), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_EARTH_SHOCK);
                     task.Repeat(Seconds(8), Seconds(13));
                 });
 
-                scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(0), [this](TaskContext task)
                 {
                     for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                     {
@@ -268,7 +265,7 @@ class npc_erekem_guard : public CreatureScript
 
             void Reset() override
             {
-                scheduler.CancelAll();
+                me->GetScheduler().CancelAll();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -281,33 +278,29 @@ class npc_erekem_guard : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                scheduler.Update(diff,
-                    std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+                DoMeleeAttackIfReady();
             }
 
             void ScheduledTasks()
             {
-                scheduler.Schedule(Seconds(4), Seconds(8), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(4), Seconds(8), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_STRIKE);
                     task.Repeat(Seconds(4), Seconds(8));
                 });
 
-                scheduler.Schedule(Seconds(8), Seconds(13), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(8), Seconds(13), [this](TaskContext task)
                 {
                     DoCastAOE(SPELL_HOWLING_SCREECH);
                     task.Repeat(Seconds(8), Seconds(13));
                 });
 
-                scheduler.Schedule(Seconds(1), Seconds(3), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(1), Seconds(3), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_GUSHING_WOUND);
                     task.Repeat(Seconds(7), Seconds(12));
                 });
             }
-
-        private:
-            TaskScheduler scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

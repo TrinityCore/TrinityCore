@@ -209,7 +209,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 _cultistQueue.clear();
                 _darnavanGUID.Clear();
                 _phase = PHASE_ALL;
-                scheduler.SetValidator([this]
+                me->GetScheduler().SetValidator([this]
                 {
                     return !(me->HasUnitState(UNIT_STATE_CASTING) && _phase != PHASE_INTRO);
                 });
@@ -235,7 +235,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     _introDone = true;
                     Talk(SAY_INTRO_1);
                     _phase = PHASE_INTRO;
-                    scheduler.Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
+                    me->GetScheduler().Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
                     {
                         switch (context.GetRepeatCounter())
                         {
@@ -291,9 +291,9 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->setActive(true);
                 DoZoneInCombat();
                 _phase = PHASE_ONE;
-                scheduler.CancelGroup(GROUP_INTRO);
+                me->GetScheduler().CancelGroup(GROUP_INTRO);
                 // phase-independent events
-                scheduler
+                me->GetScheduler()
                     .Schedule(Minutes(10), [this](TaskContext /*context*/)
                     {
                         DoCastSelf(SPELL_BERSERK);
@@ -306,7 +306,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         death_and_decay.Repeat(Seconds(22), Seconds(30));
                     });
                     if (GetDifficulty() != DIFFICULTY_10_N)
-                        scheduler.Schedule(Seconds(27), [this](TaskContext dominate_mind)
+                        me->GetScheduler().Schedule(Seconds(27), [this](TaskContext dominate_mind)
                         {
                             Talk(SAY_DOMINATE_MIND);
                             for (uint8 i = 0; i < _dominateMindCount; i++)
@@ -315,7 +315,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             dominate_mind.Repeat(Seconds(40), Seconds(45));
                         });
                 // phase one only
-                scheduler
+                me->GetScheduler()
                     .Schedule(Seconds(5), GROUP_ONE, [this](TaskContext wave)
                     {
                         SummonWaveP1();
@@ -383,7 +383,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                scheduler.CancelAll();
+                me->GetScheduler().CancelAll();
                 summons.DespawnAll();
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
                     darnavan->DespawnOrUnsummon();
@@ -410,9 +410,9 @@ class boss_lady_deathwhisper : public CreatureScript
                     damage -= me->GetPower(POWER_MANA);
                     me->SetPower(POWER_MANA, 0);
                     me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
-                    scheduler.CancelGroup(GROUP_ONE);
+                    me->GetScheduler().CancelGroup(GROUP_ONE);
 
-                    scheduler
+                    me->GetScheduler()
                         .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext frostbolt)
                         {
                             DoCastVictim(SPELL_FROSTBOLT);
@@ -440,7 +440,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     {
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                        scheduler.Schedule(Seconds(), GROUP_TWO, [this](TaskContext context)
+                        me->GetScheduler().Schedule(Seconds(), GROUP_TWO, [this](TaskContext context)
                         {
                             SummonWaveP2();
                             context.Repeat(Seconds(45));
@@ -486,12 +486,8 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (!UpdateVictim() && _phase != PHASE_INTRO)
                     return;
 
-                scheduler.Update(diff, [this]
-                {
-                    // We should not melee attack when barrier is up
-                    if (!me->HasAura(SPELL_MANA_BARRIER))
-                        DoMeleeAttackIfReady();
-                });
+                if (!me->HasAura(SPELL_MANA_BARRIER))
+                    DoMeleeAttackIfReady();
             }
 
             // summoning function for first phase
