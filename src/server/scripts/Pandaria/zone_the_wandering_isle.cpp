@@ -432,13 +432,15 @@ public:
 
     struct npc_balance_poleAI : public ScriptedAI
     {
-        npc_balance_poleAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_balance_poleAI(Creature* creature) : ScriptedAI(creature) {
+            _passengerGuid.Clear();
+        }
 
         void PassengerBoarded(Unit* passenger, int8 /*seat*/, bool apply) override
         {
             if (passenger->GetTypeId() == TYPEID_PLAYER)
             {
-                _passenger = passenger;
+                _passengerGuid = passenger->GetGUID();
 
                 if (!apply)
                     _events.ScheduleEvent(EVENT_CAST_TRANSFORM, 1000);
@@ -460,15 +462,13 @@ public:
                 {
                     case EVENT_CAST_TRANSFORM:
                         // Transform is casted only when in frog pool
-                        if (me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
+                        Unit* passenger = ObjectAccessor::GetUnit(*me, _passengerGuid);
+                        if (passenger->GetPositionZ() > 116.0f && !passenger->HasAura(SPELL_TRAINING_BELL_RIDE_VEHICLE) && !passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
                         {
-                            if (!_passenger->HasAura(SPELL_TRAINING_BELL_RIDE_VEHICLE) && !_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
-                            {
-                                _passenger->CastSpell(_passenger, SPELL_CURSE_OF_THE_FROG, true);
+                            passenger->CastSpell(passenger, SPELL_CURSE_OF_THE_FROG, true);
 
-                                if (_passenger->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
-                                    _passenger->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
-                            }
+                            if (passenger->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
+                                passenger->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
                         }
                         break;
                 }
@@ -477,7 +477,7 @@ public:
 
     private:
         EventMap _events;
-        Unit* _passenger;
+        ObjectGuid _passengerGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
