@@ -338,7 +338,7 @@ void AreaTrigger::SearchUnitInSphere(std::list<Unit*>& targetList)
     float radius = GetTemplate()->SphereDatas.Radius;
     if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE))
     {
-        if (GetMiscTemplate()->MorphCurveId)
+        if (GetMiscTemplate() && GetMiscTemplate()->MorphCurveId)
         {
             radius = G3D::lerp(GetTemplate()->SphereDatas.Radius,
                 GetTemplate()->SphereDatas.RadiusTarget,
@@ -490,12 +490,18 @@ Unit* AreaTrigger::GetTarget() const
 
 Position const& AreaTrigger::GetRollPitchYaw() const
 {
-    return GetMiscTemplate()->RollPitchYaw;
+    if (GetMiscTemplate())
+        return GetMiscTemplate()->RollPitchYaw;
+
+    return Position();
 }
 
 Position const& AreaTrigger::GetTargetRollPitchYaw() const
 {
-    return GetMiscTemplate()->TargetRollPitchYaw;
+    if (GetMiscTemplate())
+        return GetMiscTemplate()->TargetRollPitchYaw;
+
+    return Position();
 }
 
 void AreaTrigger::UpdatePolygonOrientation()
@@ -821,7 +827,7 @@ float AreaTrigger::GetCurrentTimePercent()
     if (currentTimePercent <= 0.f)
         return 0.0f;
 
-    if (GetMiscTemplate()->MoveCurveId)
+    if (GetMiscTemplate() && GetMiscTemplate()->MoveCurveId)
     {
         float progress = sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MoveCurveId, currentTimePercent);
         if (progress < 0.f || progress > 1.f)
