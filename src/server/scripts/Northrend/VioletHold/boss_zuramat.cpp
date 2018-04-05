@@ -116,14 +116,6 @@ class boss_zuramat : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
             void ScheduleTasks() override
             {
                 me->GetScheduler().Schedule(Seconds(4), [this](TaskContext task)

@@ -161,7 +161,7 @@ class boss_erekem : public CreatureScript
                 return nullptr;
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -271,14 +271,6 @@ class npc_erekem_guard : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 DoZoneInCombat();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
             }
 
             void ScheduledTasks()

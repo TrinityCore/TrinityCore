@@ -215,7 +215,7 @@ public:
                 _midnightGUID = guid;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim() && _phase != PHASE_NONE)
                 return;
@@ -362,7 +362,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim() || _phase == PHASE_MOUNTED)
                 return;

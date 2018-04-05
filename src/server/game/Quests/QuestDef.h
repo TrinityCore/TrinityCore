@@ -561,13 +561,14 @@ class TC_GAME_API Quest
 
 struct QuestStatusData
 {
-    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0)
+    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0), Explored(false)
     {
     }
 
     QuestStatus Status;
     uint32 Timer;
     std::vector<int32> ObjectiveData;
+    bool Explored;
 };
 
 #endif

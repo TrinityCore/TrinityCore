@@ -18,6 +18,7 @@ DELETE FROM `creature_questender` WHERE `quest` = 24530;
 
 -- Table `quest_template_addon`
 UPDATE `quest_template_addon` SET `AllowableClasses` = 512 WHERE (ID = 31150);
+DELETE FROM `creature` WHERE (id = 63285) AND (guid IN (210112024));
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`, `PhaseId`, `PhaseGroup`) VALUES
 (210112024, 63285, 0, 0, 0, 1, 0, 0, -6105, 368, 395, 1, 300, 0, 0, 34506, 0, 0, 0, 0, 0, 0, 0, 0);
 

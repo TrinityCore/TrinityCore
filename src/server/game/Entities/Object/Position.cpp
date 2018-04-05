@@ -200,6 +200,8 @@ float Position::NormalizeOrientation(float o)
     return std::fmod(o, 2.0f * static_cast<float>(M_PI));
 }
 
+Position const Position::Empty = Position();
+
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)
 {
     buf << streamer.Pos->GetPositionX();
