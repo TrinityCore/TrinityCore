@@ -173,4 +173,5 @@ void ChaseMovementGenerator::Finalize(Unit* owner)
         cOwner->SetCannotReachTarget(false);
 }
 
+ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
 ChaseMovementGenerator::~ChaseMovementGenerator() = default;

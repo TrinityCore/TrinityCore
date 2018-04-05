@@ -19,15 +19,17 @@
 #define TRINITY_FOLLOWMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "PathGenerator.h"
 #include "Unit.h"
+
+class PathGenerator;
 
 class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
 {
     public:
         MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
-        FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
+        FollowMovementGenerator(Unit* target, float range, ChaseAngle angle);
+        ~FollowMovementGenerator();
 
         void Initialize(Unit* owner) override
         {

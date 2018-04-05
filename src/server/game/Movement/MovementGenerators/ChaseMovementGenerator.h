@@ -29,7 +29,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
     public:
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
-        ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {}) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
+        ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
         ~ChaseMovementGenerator();
 
         void Initialize(Unit* owner) override { owner->AddUnitState(UNIT_STATE_CHASE); owner->SetWalk(false); }

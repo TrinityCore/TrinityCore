@@ -18,6 +18,7 @@
 #include "FollowMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "PathGenerator.h"
 #include "Pet.h"
 
 static inline float sq(float a) { return a*a; }
@@ -131,3 +132,6 @@ void FollowMovementGenerator::UpdatePetSpeed(Unit* owner)
             oPet->UpdateSpeed(MOVE_SWIM);
         }
 }
+
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
+FollowMovementGenerator::~FollowMovementGenerator() {}
