@@ -28,8 +28,8 @@ enum Spells
     SPELL_BANSHEEWAIL           = 16565,
     SPELL_BANSHEECURSE          = 16867,
     SPELL_SILENCE               = 18327,
-    SPELL_POSSESS               = 17244,    // The charm
-    SPELL_POSSESSED             = 17246,    // The damage buff
+    SPELL_POSSESS               = 17244,    // the charm on player
+    SPELL_POSSESSED             = 17246,    // the damage debuff on player
     SPELL_POSSESS_INV           = 17250     // baroness becomes invisible while possessing a target
 };
 
@@ -42,7 +42,6 @@ enum BaronessAnastariEvents
     EVENT_INVISIBLE             = 5,
     EVENT_CHECK_POSSESSED       = 6
 };
-
 
 struct boss_baroness_anastari : public BossAI
 {
@@ -74,7 +73,7 @@ struct boss_baroness_anastari : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        instance->SetData(TYPE_BARONESS, DONE);
+        instance->SetData(TYPE_BARONESS, IN_PROGRESS);
     }
 
     void UpdateAI(uint32 diff) override
