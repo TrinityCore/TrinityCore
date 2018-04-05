@@ -37,7 +37,7 @@ enum AreaTriggerFlags
     AREATRIGGER_FLAG_UNK2                       = 0x00080,
     AREATRIGGER_FLAG_UNK3                       = 0x00100,
     AREATRIGGER_FLAG_UNK4                       = 0x00200,
-    AREATRIGGER_FLAG_UNK5                       = 0x00400
+    AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT      = 0x00400
 };
 
 enum AreaTriggerTypes
@@ -90,6 +90,17 @@ struct AreaTriggerScaleInfo
         int32 AsInt32;
         float AsFloat;
     } ExtraScale[MAX_AREATRIGGER_SCALE];
+};
+
+struct AreaTriggerCicularMovementInfo
+{
+    float CircleRadius;
+    float BlendFromRadius;
+    float InitialAngle;
+    float ZOffset;
+
+    bool CounterClockWise;
+    bool CanLoop;
 };
 
 class AreaTriggerTemplate
@@ -182,6 +193,7 @@ public:
     Position TargetRollPitchYaw;
 
     AreaTriggerScaleInfo ScaleInfo;
+    AreaTriggerCicularMovementInfo CircularMovementInfo;
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;

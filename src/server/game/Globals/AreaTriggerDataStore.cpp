@@ -221,6 +221,34 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Spell AreaTrigger templates. DB table `spell_areatrigger` is empty.");
     }
 
+    //                                                                  0            1             2                3             4        5                 6
+    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT SpellMiscId, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockWise, CanLoop FROM `spell_areatrigger_circular` ORDER BY `SpellMiscId`"))
+    {
+        do
+        {
+            Field* circularMovementInfoFields = circularMovementInfos->Fetch();
+            uint32 spellMiscId = circularMovementInfoFields[0].GetUInt32();
+
+            auto atSpellMiscItr = _areaTriggerTemplateSpellMisc.find(spellMiscId);
+
+            if (atSpellMiscItr == _areaTriggerTemplateSpellMisc.end())
+                continue;
+
+            AreaTriggerCicularMovementInfo& circularMovementInfo = atSpellMiscItr->second.CircularMovementInfo;
+            circularMovementInfo.CircleRadius       = circularMovementInfoFields[1].GetFloat();
+            circularMovementInfo.BlendFromRadius    = circularMovementInfoFields[2].GetFloat();
+            circularMovementInfo.InitialAngle       = circularMovementInfoFields[3].GetFloat();
+            circularMovementInfo.ZOffset            = circularMovementInfoFields[4].GetFloat();
+            circularMovementInfo.CounterClockWise   = circularMovementInfoFields[5].GetBool();
+            circularMovementInfo.CanLoop            = circularMovementInfoFields[6].GetBool();
+        }
+        while (circularMovementInfos->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates circular movement infos. DB table `spell_areatrigger_circular` is empty.");
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
