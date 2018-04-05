@@ -40,7 +40,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f,0.0f,0.0f); }
 
     private:
-        static const uint32 RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
+        static constexpr uint32 RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
 
         Optional<ChaseRange> const _range;
         Optional<ChaseAngle> const _angle;

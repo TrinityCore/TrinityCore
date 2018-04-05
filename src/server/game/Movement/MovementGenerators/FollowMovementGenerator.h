@@ -45,7 +45,7 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f); }
 
     private:
-        static const uint32 CHECK_INTERVAL = 500;
+        static constexpr uint32 CHECK_INTERVAL = 500;
 // static inline const when?
 #define FOLLOW_RANGE_TOLERANCE 1.0f
 
