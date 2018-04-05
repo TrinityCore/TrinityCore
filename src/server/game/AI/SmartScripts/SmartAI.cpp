@@ -992,7 +992,7 @@ bool SmartGameObjectAI::GossipHello(Player* player)
 bool SmartGameObjectAI::OnReportUse(Player* player)
 {
     _gossipReturn = false;
-    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 1, 0, false, nullptr, me);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GO_ON_REPORT_USE, player, 0, 0, false, nullptr, me);
     return _gossipReturn;
 }
 
