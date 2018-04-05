@@ -92,13 +92,6 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _path = nullptr;
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
-
-        // @todo is this really the right place to call ::Attack?
-        if (PositionOkay(owner, target, minRange, maxRange, {}))
-        {
-            owner->SetInFront(target);
-            owner->Attack(target, true);
-        }
     }
 
     // if the target moved, we have to consider whether to adjust
