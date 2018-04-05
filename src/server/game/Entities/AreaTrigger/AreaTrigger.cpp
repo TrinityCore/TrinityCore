@@ -137,10 +137,15 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
 
     UpdateShape();
 
+    uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
+
     if (GetMiscTemplate()->HasSplines())
     {
-        uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
+    }
+    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
+    {
+        m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
     }
 
     // movement on transport of areatriggers on unit is handled by themself
@@ -157,6 +162,11 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
     }
 
     AI_Initialize();
+
+    // If has circular movement but no center set, define caster as default center
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
+        if (_circularMovementCenterPosition.IsPositionEmpty() && _circularMovementCenterGUID.IsEmpty())
+            SetCasterAsCircularMovementCenter();
 
     if (!GetMap()->AddToMap(this))
     {
@@ -190,7 +200,12 @@ void AreaTrigger::Update(uint32 diff)
     WorldObject::Update(diff);
     _timeSinceCreated += diff;
 
-    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+    // "If" order matter here, Circular Movement > Attached > Splines
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
+    {
+        UpdateCircularMovementPosition();
+    }
+    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
     {
         if (Unit* target = GetTarget())
             GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
@@ -640,6 +655,59 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
 bool AreaTrigger::HasSplines() const
 {
     return bool(_spline);
+}
+
+AreaTriggerCircularMovementInfo AreaTrigger::GetAreaTriggerCircularMovementInfo() const
+{
+    AreaTriggerCircularMovementInfo areaTriggerCircularMovementInfo;
+    AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = GetMiscTemplate();
+
+    areaTriggerCircularMovementInfo = areaTriggerMiscTemplate->CircularMovementInfo;
+
+    areaTriggerCircularMovementInfo.TimeToTarget = GetTimeToTarget();
+    areaTriggerCircularMovementInfo.ElapsedTimeForMovement = GetElapsedTimeForMovement();
+
+    if (!_circularMovementCenterGUID.IsEmpty())
+        areaTriggerCircularMovementInfo.TargetGUID = _circularMovementCenterGUID;
+
+    if (!_circularMovementCenterPosition.IsPositionEmpty())
+        areaTriggerCircularMovementInfo.Center = _circularMovementCenterPosition;
+
+    return areaTriggerCircularMovementInfo;
+}
+
+Position const& AreaTrigger::GetCircularMovementCenterPosition() const
+{
+    if (_circularMovementCenterPosition.IsPositionEmpty() && !_circularMovementCenterGUID.IsEmpty())
+        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, _circularMovementCenterGUID))
+            return *center;
+
+    return _circularMovementCenterPosition;
+}
+
+void AreaTrigger::UpdateCircularMovementPosition()
+{
+    Position centerPos = GetCircularMovementCenterPosition();
+    AreaTriggerCircularMovementInfo const& cmi = GetMiscTemplate()->CircularMovementInfo;
+
+    // AreaTrigger make exactly "TimeToTarget / Duration" loops during his life time
+    float angleDiff = 2.0f * float(M_PI) / (float(GetTimeToTarget()) / float(GetDuration())) * (float(GetTimeSinceCreated()) / float(GetDuration()));
+
+    // Adapt angle diff depending of circle direction
+    angleDiff *= cmi.CounterClockWise ? 1 : -1;
+
+    // We already made one circle & can't loop
+    if (!cmi.CanLoop && (angleDiff <= 0.0f || angleDiff >= 2.0f * float(M_PI)))
+        angleDiff = 0.0f;
+
+    float x = centerPos.GetPositionX() + (cmi.Radius * cos(cmi.InitialAngle + angleDiff));
+    float y = centerPos.GetPositionY() + (cmi.Radius * sin(cmi.InitialAngle + angleDiff));
+    float z = centerPos.GetPositionZ() + cmi.ZOffset;
+
+    GetMap()->AreaTriggerRelocation(this, x, y, z, cmi.InitialAngle + angleDiff);
+#ifdef TRINITY_DEBUG
+    DebugVisualizePosition();
+#endif
 }
 
 void AreaTrigger::UpdateSplinePosition(uint32 diff)

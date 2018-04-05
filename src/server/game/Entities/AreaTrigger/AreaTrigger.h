@@ -20,6 +20,7 @@
 
 #include "Object.h"
 #include "MapObject.h"
+#include "AreaTriggerTemplate.h"
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
@@ -91,6 +92,15 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
+        AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const;
+
+        ObjectGuid GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
+        void SetCircularMovementCenterGUID(ObjectGuid guid) { _circularMovementCenterGUID = guid; }
+        void SetCasterAsCircularMovementCenter() { _circularMovementCenterGUID = GetCasterGuid(); }
+
+        Position const& GetCircularMovementCenterPosition() const;
+        void SetCircularMovementCenterPosition(Position pos) { _circularMovementCenterPosition = pos; }
+
         void UpdateShape();
 
     protected:
@@ -109,6 +119,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
+        void UpdateCircularMovementPosition();
         void UpdateSplinePosition(uint32 diff);
 
         void DebugVisualizePosition(); // Debug purpose only
@@ -136,6 +147,9 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         GuidUnorderedSet _insideUnits;
 
         std::unique_ptr<AreaTriggerAI> _ai;
+
+        ObjectGuid _circularMovementCenterGUID;
+        Position _circularMovementCenterPosition;
 };
 
 #endif
