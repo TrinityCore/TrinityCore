@@ -1450,7 +1450,8 @@ UPDATE `npc_text` SET `VerifiedBuild`=26124 WHERE `ID`=14127; -- 14127
 UPDATE creature_template SET inhabitType = 4 WHERE entry IN (96759, 97163);
 DELETE FROM creature WHERE id = 111221;
 
-UPDATE instance_template SET scriptname = "instance_maw_of_souls" WHERE map = 1492;
-UPDATE creature_template SET scriptname = "boss_harbaron_maw" WHERE entry = ;
-UPDATE creature_template SET scriptname = "npc_shackled_servitor" WHERE entry = 98693:
-
+UPDATE instance_template SET parent = 1220, script = "instance_maw_of_souls", insideResurrection = 1 WHERE map = 1492;
+UPDATE creature_template SET scriptname = "boss_ymiron_maw" WHERE entry = 96756;
+UPDATE creature_template SET scriptname = "boss_harbaron_maw" WHERE entry = 96754;
+UPDATE creature_template SET scriptname = "boss_helya_maw" WHERE entry = 96759;
+UPDATE creature_template SET scriptname = "npc_shackled_servitor" WHERE entry = 98693;

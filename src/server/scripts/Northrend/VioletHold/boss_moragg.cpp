@@ -53,14 +53,6 @@ class boss_moragg : public CreatureScript
                 instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
             void ScheduleTasks() override
             {
                 me->GetScheduler().Async([this]

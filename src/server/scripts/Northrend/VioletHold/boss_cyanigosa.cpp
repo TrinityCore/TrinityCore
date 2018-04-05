@@ -72,14 +72,6 @@ class boss_cyanigosa : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
             void ScheduleTasks() override
             {
                 me->GetScheduler().Schedule(Seconds(10), [this](TaskContext task)

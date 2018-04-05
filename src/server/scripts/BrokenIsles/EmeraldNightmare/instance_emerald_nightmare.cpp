@@ -27,74 +27,18 @@
 {
 };*/
 
-class instance_emerald_nightmare : public InstanceMapScript
+struct instance_emerald_nightmare : public InstanceScript
 {
-    public:
-        instance_emerald_nightmare() : InstanceMapScript("instance_emerald_nightmare", 1520) { }
+    instance_emerald_nightmare(Map* map) : InstanceScript(map) { }
 
-        struct instance_emerald_nightmare_InstanceMapScript : public InstanceScript
-        {
-            instance_emerald_nightmare_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            void Initialize() override
-            {
-                SetBossNumber(DATA_MAX_ENCOUNTERS);
-                //LoadDoorData(doorData);
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_NYTHENDRA:
-                    case NPC_ILGYNOTH:
-                    case NPC_ELERETHE_RENFERAL:
-                    case NPC_URSOC:
-                    case NPC_YSONDRE:
-                    case NPC_EMERISS:
-                    case NPC_LETHON:
-                    case NPC_TAERAR:
-                    case NPC_CENARIUS:
-                    case NPC_XAVIUS:
-                        AddObject(creature, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            /*void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DOOR_ROOM_XAVIUS:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }*/
-
-           /* void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DOOR_ROOM_XAVIUS:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }*/
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_emerald_nightmare_InstanceMapScript(map);
-        }
+    void Initialize() override
+    {
+        SetBossNumber(DATA_MAX_ENCOUNTERS);
+        //LoadDoorData(doorData);
+    }
 };
 
 void AddSC_instance_emerald_nightmare()
 {
-    new instance_emerald_nightmare();
+    RegisterInstanceScript(instance_emerald_nightmare, 1520);
 }
