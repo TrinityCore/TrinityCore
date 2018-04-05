@@ -128,6 +128,7 @@ class instance_deadmines : public InstanceMapScript
                 _activatedVentCounter = 0;
                 _deadEnragedWorgen = 0;
                 _firstCookieSpawn = true;
+                _cookieSpawnChecked = false;
                 _noteSpawnChecked = false;
                 _ropesSpawned = false;
             }
@@ -137,6 +138,14 @@ class instance_deadmines : public InstanceMapScript
                 instance->LoadGrid(-205.75f, -579.09f);
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
+
+                if (!_cookieSpawnChecked)
+                {
+                    if (GetBossState(DATA_ADMIRAL_RIPSNARL) == DONE && GetBossState(DATA_CAPTAIN_COOKIE) != DONE)
+                        events.ScheduleEvent(EVENT_SUMMON_CAPTAIN_COOKIE, Milliseconds(1));
+
+                    _cookieSpawnChecked = true;
+                }
 
                 if (!_noteSpawnChecked)
                 {
@@ -149,7 +158,7 @@ class instance_deadmines : public InstanceMapScript
                 {
                     for (uint8 i = 0; i < 5; i++)
                         if (Creature* anchor = instance->SummonCreature(NPC_VANESSAS_ROPE_ANCHOR, RopeAnchorPos[i]))
-                            _ropeAnchorGuidSet.insert(anchor->GetGUID());
+                            _anchorGuidSet.insert(anchor->GetGUID());
                 }
             }
 
@@ -571,7 +580,7 @@ class instance_deadmines : public InstanceMapScript
                         }
                         else
                         {
-                            for (auto itr = _ropeAnchorGuidSet.begin(); itr != _ropeAnchorGuidSet.end(); itr++, i++)
+                            for (auto itr = _anchorGuidSet.begin(); itr != _anchorGuidSet.end(); itr++, i++)
                             {
                                 if (Creature* anchor = instance->GetCreature((*itr)))
                                 {
@@ -885,9 +894,10 @@ class instance_deadmines : public InstanceMapScript
             GuidSet _helixNightmareGuidSet;
             GuidSet _mechanicalNightmareGuidSet;
             GuidSet _ripsnarlNightareGuidSet;
-            GuidSet _ropeAnchorGuidSet;
+            GuidSet _anchorGuidSet;
             std::vector<RopeAnchorPair> _ropeAnchorPairs;
             bool _firstCookieSpawn;
+            bool _cookieSpawnChecked;
             bool _noteSpawnChecked;
             bool _ropesSpawned;
         };
