@@ -21,6 +21,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
+#include "Unit.h"
 
 static bool IsMutualChase(Unit* owner, Unit* target)
 {
@@ -39,6 +40,15 @@ static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance,
     if (maxDistance && distSq > sq(*maxDistance))
         return false;
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
+}
+
+ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
+ChaseMovementGenerator::~ChaseMovementGenerator() = default;
+
+void ChaseMovementGenerator::Initialize(Unit* owner)
+{
+    owner->AddUnitState(UNIT_STATE_CHASE);
+    owner->SetWalk(false);
 }
 
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -172,6 +182,3 @@ void ChaseMovementGenerator::Finalize(Unit* owner)
     if (Creature* cOwner = owner->ToCreature())
         cOwner->SetCannotReachTarget(false);
 }
-
-ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
-ChaseMovementGenerator::~ChaseMovementGenerator() = default;

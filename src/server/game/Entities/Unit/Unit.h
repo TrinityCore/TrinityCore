@@ -1798,29 +1798,6 @@ class TC_GAME_API Unit : public WorldObject
         SpellHistory* m_spellHistory;
 };
 
-struct AbstractFollower
-{
-    public:
-        AbstractFollower(Unit* target = nullptr) { SetTarget(target); }
-        ~AbstractFollower() { SetTarget(nullptr); }
-
-        void SetTarget(Unit* unit)
-        {
-            if (unit == _target)
-                return;
-
-            if (_target)
-                _target->FollowerRemoved(this);
-            _target = unit;
-            if (_target)
-                _target->FollowerAdded(this);
-        }
-        Unit* GetTarget() const { return _target; }
-
-    private:
-        Unit* _target = nullptr;
-};
-
 namespace Trinity
 {
     // Binary predicate for sorting Units based on percent value of a power

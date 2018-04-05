@@ -18,11 +18,12 @@
 #ifndef TRINITY_CHASEMOVEMENTGENERATOR_H
 #define TRINITY_CHASEMOVEMENTGENERATOR_H
 
+#include "AbstractFollower.h"
 #include "MovementGenerator.h"
-#include "Unit.h"
 #include "Optional.h"
 
 class PathGenerator;
+class Unit;
 
 class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
 {
@@ -32,7 +33,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
         ~ChaseMovementGenerator();
 
-        void Initialize(Unit* owner) override { owner->AddUnitState(UNIT_STATE_CHASE); owner->SetWalk(false); }
+        void Initialize(Unit* owner) override;
         void Reset(Unit* owner) override { Initialize(owner); }
         bool Update(Unit* owner, uint32 diff) override;
         void Finalize(Unit* owner) override;

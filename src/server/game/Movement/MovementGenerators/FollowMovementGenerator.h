@@ -18,10 +18,11 @@
 #ifndef TRINITY_FOLLOWMOVEMENTGENERATOR_H
 #define TRINITY_FOLLOWMOVEMENTGENERATOR_H
 
+#include "AbstractFollower.h"
 #include "MovementGenerator.h"
-#include "Unit.h"
 
 class PathGenerator;
+class Unit;
 
 class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
 {
@@ -31,18 +32,10 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         FollowMovementGenerator(Unit* target, float range, ChaseAngle angle);
         ~FollowMovementGenerator();
 
-        void Initialize(Unit* owner) override
-        {
-            owner->AddUnitState(UNIT_STATE_FOLLOW);
-            UpdatePetSpeed(owner);
-        }
+        void Initialize(Unit* owner) override;
         void Reset(Unit* owner) override { Initialize(owner); }
         bool Update(Unit* owner, uint32 diff) override;
-        void Finalize(Unit* owner) override
-        {
-            owner->ClearUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
-            UpdatePetSpeed(owner);
-        }
+        void Finalize(Unit* owner) override;
 
         void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f); }
 

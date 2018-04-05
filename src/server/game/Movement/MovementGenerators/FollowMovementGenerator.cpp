@@ -20,6 +20,10 @@
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "Unit.h"
+
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
+FollowMovementGenerator::~FollowMovementGenerator() {}
 
 static inline float sq(float a) { return a*a; }
 static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
@@ -27,6 +31,12 @@ static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseA
     if (owner->GetExactDistSq(target) > sq(owner->GetCombatReach() + target->GetCombatReach() + range))
         return false;
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
+}
+
+void FollowMovementGenerator::Initialize(Unit* owner)
+{
+    owner->AddUnitState(UNIT_STATE_FOLLOW);
+    UpdatePetSpeed(owner);
 }
 
 bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -122,6 +132,12 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     return true;
 }
 
+void FollowMovementGenerator::Finalize(Unit* owner)
+{
+    owner->ClearUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
+    UpdatePetSpeed(owner);
+}
+
 void FollowMovementGenerator::UpdatePetSpeed(Unit* owner)
 {
     if (Pet* oPet = owner->ToPet())
@@ -132,6 +148,3 @@ void FollowMovementGenerator::UpdatePetSpeed(Unit* owner)
             oPet->UpdateSpeed(MOVE_SWIM);
         }
 }
-
-FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
-FollowMovementGenerator::~FollowMovementGenerator() {}
