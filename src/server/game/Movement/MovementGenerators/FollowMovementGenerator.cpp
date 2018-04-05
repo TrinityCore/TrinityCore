@@ -21,11 +21,11 @@
 #include "Pet.h"
 
 static inline float sq(float a) { return a*a; }
-static bool positionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
+static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
 {
     if (owner->GetExactDistSq(target) > sq(owner->GetCombatReach() + target->GetCombatReach() + range))
         return false;
-    return !angle || angle->isAngleOkay(target->GetRelativeAngle(owner));
+    return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }
 
 bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -52,7 +52,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         else
         {
             _checkTimer = CHECK_INTERVAL;
-            if (positionOkay(owner, target, _range, _angle))
+            if (PositionOkay(owner, target, _range, _angle))
             {
                 owner->StopMoving();
                 _path = nullptr;
@@ -69,7 +69,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     if (_lastTargetPosition.GetExactDistSq(target->GetPosition()) > 0.0f)
     {
         _lastTargetPosition = target->GetPosition();
-        if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !positionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
+        if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
         {
             if (!_path)
                 _path = std::make_unique<PathGenerator>(owner);
@@ -79,16 +79,16 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             // select angle
             float tAngle;
             float const curAngle = target->GetRelativeAngle(owner);
-            if (_angle.isAngleOkay(curAngle))
+            if (_angle.IsAngleOkay(curAngle))
                 tAngle = curAngle;
             else
             {
-                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.upperBound());
-                float const diffLower = Position::NormalizeOrientation(_angle.lowerBound() - curAngle);
+                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.UpperBound());
+                float const diffLower = Position::NormalizeOrientation(_angle.LowerBound() - curAngle);
                 if (diffUpper < diffLower)
-                    tAngle = _angle.upperBound();
+                    tAngle = _angle.UpperBound();
                 else
-                    tAngle = _angle.lowerBound();
+                    tAngle = _angle.LowerBound();
             }
 
             target->GetNearPoint(owner, x, y, z, _range, target->ToAbsoluteAngle(tAngle));

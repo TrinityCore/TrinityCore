@@ -87,30 +87,30 @@ enum RotateDirection
 
 struct ChaseRange
 {
-    ChaseRange(float range) : minRange(range > CONTACT_DISTANCE ? 0 : range - CONTACT_DISTANCE), minTolerance(range), maxRange(range + CONTACT_DISTANCE), maxTolerance(range) {}
-    ChaseRange(float min, float max) : minRange(min), minTolerance(std::min(min + CONTACT_DISTANCE, (min + max) / 2)), maxRange(max), maxTolerance(std::max(max - CONTACT_DISTANCE, minTolerance)) {}
-    ChaseRange(float min, float tMin, float tMax, float max) : minRange(min), minTolerance(tMin), maxRange(max), maxTolerance(tMax) {}
+    ChaseRange(float range) : MinRange(range > CONTACT_DISTANCE ? 0 : range - CONTACT_DISTANCE), MinTolerance(range), MaxRange(range + CONTACT_DISTANCE), MaxTolerance(range) {}
+    ChaseRange(float min, float max) : MinRange(min), MinTolerance(std::min(min + CONTACT_DISTANCE, (min + max) / 2)), MaxRange(max), MaxTolerance(std::max(max - CONTACT_DISTANCE, MinTolerance)) {}
+    ChaseRange(float min, float tMin, float tMax, float max) : MinRange(min), MinTolerance(tMin), MaxRange(max), MaxTolerance(tMax) {}
 
     // this contains info that informs how we should path!
-    float minRange;     // we have to move if we are within this range...    (min. attack range)
-    float minTolerance; // ...and if we are, we will move this far away
-    float maxRange;     // we have to move if we are outside this range...   (max. attack range)
-    float maxTolerance; // ...and if we are, we will move into this range
+    float MinRange;     // we have to move if we are within this range...    (min. attack range)
+    float MinTolerance; // ...and if we are, we will move this far away
+    float MaxRange;     // we have to move if we are outside this range...   (max. attack range)
+    float MaxTolerance; // ...and if we are, we will move into this range
 };
 
 struct ChaseAngle
 {
-    ChaseAngle(float angle, float tol = M_PI_4) : relativeAngle(Position::NormalizeOrientation(angle)), tolerance(tol) {}
+    ChaseAngle(float angle, float tol = M_PI_4) : RelativeAngle(Position::NormalizeOrientation(angle)), Tolerance(tol) {}
 
-    float relativeAngle; // we want to be at this angle relative to the target (0 = front, M_PI = back)
-    float tolerance;     // but we'll tolerate anything within +- this much
+    float RelativeAngle; // we want to be at this angle relative to the target (0 = front, M_PI = back)
+    float Tolerance;     // but we'll tolerate anything within +- this much
 
-    float upperBound() const { return Position::NormalizeOrientation(relativeAngle + tolerance); }
-    float lowerBound() const { return Position::NormalizeOrientation(relativeAngle - tolerance); }
-    bool isAngleOkay(float relAngle) const
+    float UpperBound() const { return Position::NormalizeOrientation(RelativeAngle + Tolerance); }
+    float LowerBound() const { return Position::NormalizeOrientation(RelativeAngle - Tolerance); }
+    bool IsAngleOkay(float relAngle) const
     {
-        float const diff = std::abs(relAngle - relativeAngle);
-        return (std::min(diff, float(2 * M_PI) - diff) <= tolerance);
+        float const diff = std::abs(relAngle - RelativeAngle);
+        return (std::min(diff, float(2 * M_PI) - diff) <= Tolerance);
     }
 };
 

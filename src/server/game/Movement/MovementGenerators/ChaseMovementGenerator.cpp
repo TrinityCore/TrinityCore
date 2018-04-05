@@ -17,30 +17,30 @@
 
 #include "ChaseMovementGenerator.h"
 #include "Creature.h"
+#include "G3DPosition.hpp"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
-#include "G3DPosition.hpp"
+#include "PathGenerator.h"
 
-static bool isMutualChase(Unit* owner, Unit* target)
+static bool IsMutualChase(Unit* owner, Unit* target)
 {
     MovementGenerator const* gen = target->GetMotionMaster()->top();
-    if (gen->GetMovementGeneratorType() != CHASE_MOTION_TYPE)
+    if (!gen || gen->GetMovementGeneratorType() != CHASE_MOTION_TYPE)
         return false;
     return (static_cast<ChaseMovementGenerator const*>(gen)->GetTarget() == owner);
 }
 
 inline static float sq(float a) { return a*a; }
-static bool positionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
+static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
 {
     float const distSq = owner->GetExactDistSq(target);
     if (minDistance && distSq < sq(*minDistance))
         return false;
     if (maxDistance && distSq > sq(*maxDistance))
         return false;
-    return !angle || angle->isAngleOkay(target->GetRelativeAngle(owner));
+    return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }
 
-static const Optional<float> NONE;
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 {
     // owner might be dead or gone (can we even get nullptr here?)
@@ -59,17 +59,16 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     // the owner might be unable to move (rooted or casting), pause movement
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
-
         owner->StopMoving();
         return true;
     }
 
-    bool  const mutualChase     = isMutualChase(owner, target);
+    bool  const mutualChase     = IsMutualChase(owner, target);
     float const hitboxSum       = owner->GetCombatReach() + target->GetCombatReach();
-    float const minRange        = _range ? _range->minRange + hitboxSum : CONTACT_DISTANCE;
-    float const minTarget       = (_range ? _range->minTolerance : 0.0f) + hitboxSum;
-    float const maxRange        = _range ? _range->maxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
-    float const maxTarget       = _range ? _range->maxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
+    float const minRange        = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    float const minTarget       = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
+    float const maxRange        = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
+    float const maxTarget       = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
     Optional<ChaseAngle> angle  = mutualChase ? Optional<ChaseAngle>() : _angle;
 
     // if we're already moving, periodically check if we're already in the expected range...
@@ -80,7 +79,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         else
         {
             _rangeCheckTimer = RANGE_CHECK_INTERVAL;
-            if (positionOkay(owner, target, _movingTowards ? NONE : minTarget, _movingTowards ? maxTarget : NONE, angle))
+            if (PositionOkay(owner, target, _movingTowards ? Optional<float>() : minTarget, _movingTowards ? maxTarget : Optional<float>(), angle))
             {
                 owner->StopMoving();
                 _path = nullptr;
@@ -95,7 +94,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
 
         // @todo is this really the right place to call ::Attack?
-        if (positionOkay(owner, target, minRange, maxRange, {}))
+        if (PositionOkay(owner, target, minRange, maxRange, {}))
         {
             owner->SetInFront(target);
             owner->Attack(target, true);
@@ -107,7 +106,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _lastTargetPosition = target->GetPosition();
         _mutualChase = mutualChase;
-        if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) || !positionOkay(owner, target, minRange, maxRange, angle))
+        if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) || !PositionOkay(owner, target, minRange, maxRange, angle))
         {
             Creature* const cOwner = owner->ToCreature();
             // can we get to the target?
@@ -138,7 +137,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             else
             {
                 // otherwise, we fall back to nearpoint finding
-                target->GetNearPoint(owner, x, y, z, (moveToward ? maxTarget : minTarget) - hitboxSum, angle ? target->ToAbsoluteAngle(angle->relativeAngle) : target->GetAbsoluteAngle(owner));
+                target->GetNearPoint(owner, x, y, z, (moveToward ? maxTarget : minTarget) - hitboxSum, angle ? target->ToAbsoluteAngle(angle->RelativeAngle) : target->GetAbsoluteAngle(owner));
                 shortenPath = false;
             }
 
@@ -180,3 +179,5 @@ void ChaseMovementGenerator::Finalize(Unit* owner)
     if (Creature* cOwner = owner->ToCreature())
         cOwner->SetCannotReachTarget(false);
 }
+
+ChaseMovementGenerator::~ChaseMovementGenerator() = default;
