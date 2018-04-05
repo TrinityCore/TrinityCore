@@ -21,14 +21,14 @@
 #include "PathGenerator.h"
 #include "Pet.h"
 #include "Unit.h"
+#include "Util.h"
 
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
 FollowMovementGenerator::~FollowMovementGenerator() {}
 
-static inline float sq(float a) { return a*a; }
 static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
 {
-    if (owner->GetExactDistSq(target) > sq(owner->GetCombatReach() + target->GetCombatReach() + range))
+    if (owner->GetExactDistSq(target) > square(owner->GetCombatReach() + target->GetCombatReach() + range))
         return false;
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }

@@ -22,6 +22,7 @@
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 #include "Unit.h"
+#include "Util.h"
 
 static bool IsMutualChase(Unit* owner, Unit* target)
 {
@@ -31,13 +32,12 @@ static bool IsMutualChase(Unit* owner, Unit* target)
     return (static_cast<ChaseMovementGenerator const*>(gen)->GetTarget() == owner);
 }
 
-inline static float sq(float a) { return a*a; }
 static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
 {
     float const distSq = owner->GetExactDistSq(target);
-    if (minDistance && distSq < sq(*minDistance))
+    if (minDistance && distSq < square(*minDistance))
         return false;
-    if (maxDistance && distSq > sq(*maxDistance))
+    if (maxDistance && distSq > square(*maxDistance))
         return false;
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }
@@ -102,6 +102,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _path = nullptr;
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
+        owner->SetInFront(target);
     }
 
     // if the target moved, we have to consider whether to adjust
