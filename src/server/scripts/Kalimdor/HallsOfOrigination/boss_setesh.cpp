@@ -340,7 +340,7 @@ public:
             float x = me->GetPositionX();
             float y = me->GetPositionY();
             float z = me->GetPositionZ();
-            Position dest = { x, y, me->GetMap()->GetWaterOrGroundLevel(me->GetPhases(), x, y, z) };
+            Position dest = { x, y, me->GetMap()->GetWaterOrGroundLevel(me->GetPhaseShift(), x, y, z) };
             const uint32 pathSize = 1;
             const Position path[pathSize] = { dest };
             me->GetMotionMaster()->MoveSmoothPath(POINT_GROUND, path, pathSize, true, true);
