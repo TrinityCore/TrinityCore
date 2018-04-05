@@ -549,7 +549,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
         bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasAreaTriggerUnkType  = false; // areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
+        bool hasCircularMovement    = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT);
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -570,7 +570,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(hasAreaTriggerPolygon);
         data->WriteBit(hasAreaTriggerCylinder);
         data->WriteBit(hasAreaTriggerSpline);
-        data->WriteBit(hasAreaTriggerUnkType);
+        data->WriteBit(hasCircularMovement);
 
         if (hasUnk3)
             data->WriteBit(0);
@@ -646,27 +646,33 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget);
         }
 
-        if (hasAreaTriggerUnkType)
+        if (hasCircularMovement)
         {
-            /*packet.ResetBitReader();
-            var unk1 = packet.ReadBit("AreaTriggerUnk1");
-            var hasCenter = packet.ReadBit("HasCenter", index);
-            packet.ReadBit("Unk bit 703 1", index);
-            packet.ReadBit("Unk bit 703 2", index);
+            bool hasAttachedCenter = !areaTrigger->GetCircularMovementCenterGUID().IsEmpty();
+            bool hasPositionCenter = !areaTrigger->GetCircularMovementCenterPosition().IsPositionEmpty();
 
-            packet.ReadUInt32();
-            packet.ReadInt32();
-            packet.ReadUInt32();
-            packet.ReadSingle("Radius", index);
-            packet.ReadSingle("BlendFromRadius", index);
-            packet.ReadSingle("InitialAngel", index);
-            packet.ReadSingle("ZOffset", index);
+            uint32 unkUint32 = 1;
 
-            if (unk1)
-                packet.ReadPackedGuid128("AreaTriggerUnkGUID", index);
+            data->FlushBits();
+            data->WriteBit(hasAttachedCenter);
+            data->WriteBit(hasPositionCenter);
+            data->WriteBit(areaTriggerMiscTemplate->CircularMovementInfo.CounterClockWise);
+            data->WriteBit(areaTriggerMiscTemplate->CircularMovementInfo.CanLoop);
 
-            if (hasCenter)
-                packet.ReadVector3("Center", index);*/
+            *data << uint32(areaTrigger->GetTimeToTarget());
+            *data << int32(areaTrigger->GetElapsedTimeForMovement());
+            *data << uint32(unkUint32);
+
+            *data << areaTriggerMiscTemplate->CircularMovementInfo.CircleRadius;
+            *data << areaTriggerMiscTemplate->CircularMovementInfo.BlendFromRadius;
+            *data << areaTriggerMiscTemplate->CircularMovementInfo.InitialAngle;
+            *data << areaTriggerMiscTemplate->CircularMovementInfo.ZOffset;
+
+            if (hasAttachedCenter)
+                *data << areaTrigger->GetCircularMovementCenterGUID();
+
+            if (hasPositionCenter)
+                *data << areaTrigger->GetCircularMovementCenterPosition().PositionXYZStream();
         }
     }
 

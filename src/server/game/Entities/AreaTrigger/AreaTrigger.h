@@ -98,6 +98,13 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
+        ObjectGuid GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
+        void SetCircularMovementCenterGUID(ObjectGuid guid) { _circularMovementCenterGUID = guid; }
+        void SetCasterAsCircularMovementCenter() { _circularMovementCenterGUID = GetCasterGuid(); }
+
+        Position const& GetCircularMovementCenterPosition() const;
+        void SetCircularMovementCenterPosition(Position pos) { _circularMovementCenterPosition = pos; }
+
         void UpdateShape();
 
     protected:
@@ -118,6 +125,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
+        void UpdateCircularMovementPosition();
         void UpdateSplinePosition(uint32 diff);
 
         void DebugVisualizePosition(); // Debug purpose only
@@ -146,6 +154,9 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ObjectGuid::LowType _spawnId;
         uint32 _guidScriptId;
         std::unique_ptr<AreaTriggerAI> _ai;
+
+        ObjectGuid _circularMovementCenterGUID;
+        Position _circularMovementCenterPosition;
 };
 
 #endif
