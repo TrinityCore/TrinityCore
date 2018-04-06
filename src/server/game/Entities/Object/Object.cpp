@@ -18,6 +18,7 @@
 
 #include "Object.h"
 #include "AreaTriggerTemplate.h"
+#include "AreaTriggerPackets.h"
 #include "BattlefieldMgr.h"
 #include "CellImpl.h"
 #include "CinematicMgr.h"
@@ -549,7 +550,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
         bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasAreaTriggerUnkType  = false; // areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
+        bool hasCircularMovement    = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT);
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -570,7 +571,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(hasAreaTriggerPolygon);
         data->WriteBit(hasAreaTriggerCylinder);
         data->WriteBit(hasAreaTriggerSpline);
-        data->WriteBit(hasAreaTriggerUnkType);
+        data->WriteBit(hasCircularMovement);
 
         if (hasUnk3)
             data->WriteBit(0);
@@ -646,28 +647,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget);
         }
 
-        if (hasAreaTriggerUnkType)
-        {
-            /*packet.ResetBitReader();
-            var unk1 = packet.ReadBit("AreaTriggerUnk1");
-            var hasCenter = packet.ReadBit("HasCenter", index);
-            packet.ReadBit("Unk bit 703 1", index);
-            packet.ReadBit("Unk bit 703 2", index);
-
-            packet.ReadUInt32();
-            packet.ReadInt32();
-            packet.ReadUInt32();
-            packet.ReadSingle("Radius", index);
-            packet.ReadSingle("BlendFromRadius", index);
-            packet.ReadSingle("InitialAngel", index);
-            packet.ReadSingle("ZOffset", index);
-
-            if (unk1)
-                packet.ReadPackedGuid128("AreaTriggerUnkGUID", index);
-
-            if (hasCenter)
-                packet.ReadVector3("Center", index);*/
-        }
+        if (hasCircularMovement)
+            *data << areaTrigger->GetAreaTriggerCircularMovementInfo();
     }
 
     if (HasGameObject)
