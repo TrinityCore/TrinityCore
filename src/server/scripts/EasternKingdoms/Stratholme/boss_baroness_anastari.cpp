@@ -98,7 +98,7 @@ struct boss_baroness_anastari : public BossAI
                     break;
                 case EVENT_SPELL_SILENCE:
                     DoCastVictim(SPELL_SILENCE);
-                    events.ScheduleEvent(EVENT_SPELL_SILENCE, 13s);
+                    events.Repeat(13s);
                     break;
                 case EVENT_SPELL_POSSESS:
                     if (Unit* possessTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false))
