@@ -35,9 +35,11 @@ enum
     // Heroic
     SPELL_CALL_SOULS                = 196078,
     SPELL_CALL_SOULS_VISUAL         = 196925,
-
     SPELL_SOULGORGE                 = 196930,
+
     SPELL_SOUL_BURST                = 196587,
+
+    ACTION_SOUL_KILLED              = 1,
 };
 
 // 98542
@@ -45,11 +47,43 @@ struct boss_amalgam_of_souls : public BossAI
 {
     boss_amalgam_of_souls(Creature* creature) : BossAI(creature, DATA_AMALGAM_OF_SOULS) { }
 
+    void Reset() override
+    {
+        BossAI::Reset();
+
+        restlessSoulsCount = 0;
+    }
+
     void ScheduleTasks() override
     {
         events.ScheduleEvent(SPELL_REAP_SOUL, 16s);
         events.ScheduleEvent(SPELL_SOUL_ECHOES, 10s, 20s);
         events.ScheduleEvent(SPELL_SWIRLING_SCYTHE, 12s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (IsHeroic())
+        {
+            if (me->HealthWillBeBelowPctDamaged(50, damage))
+            {
+                me->CastSpell(nullptr, SPELL_CALL_SOULS, false);
+                events.ScheduleEvent(SPELL_CALL_SOULS, 3s);
+                events.ScheduleEvent(SPELL_SOUL_BURST, 33s);
+            }
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action != ACTION_SOUL_KILLED)
+            return;
+
+        if (--restlessSoulsCount == 0)
+        {
+            me->RemoveAurasDueToSpell(SPELL_CALL_SOULS_VISUAL);
+            events.CancelEvent(SPELL_SOUL_BURST);
+        }
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -78,10 +112,30 @@ struct boss_amalgam_of_souls : public BossAI
                 events.Repeat(12s);
                 break;
             }
+            case SPELL_CALL_SOULS:
+            {
+                DoCastAOE(SPELL_CALL_SOULS_VISUAL);
+
+                // Summon 7 Restless Souls with 1 to 2 seconds separation
+                restlessSoulsCount = 7;
+                me->GetScheduler().Schedule(1s, 2s, [this](TaskContext context)
+                {
+                    Position pos;
+                    GetRandPosFromCenterInDist(me, 10.f, pos);
+                    me->SummonCreature(NPC_RESTLESS_SOUL, pos);
+
+                    if (context.GetRepeatCounter() <= 6)
+                        context.Repeat(1s, 2s);
+                });
+                break;
+            }
             default:
                 break;
         }
     }
+
+private:
+    uint8 restlessSoulsCount;
 };
 
 // 99090
@@ -102,6 +156,40 @@ struct npc_aos_soul_echo : public ScriptedAI
     }
 };
 
+// 99664
+struct npc_aos_restless_soul : public ScriptedAI
+{
+    npc_aos_restless_soul(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->GetMotionMaster()->MovePoint(1, *summoner, false);
+    }
+
+    void EnterCombat(Unit* /*who*/) override { }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == 1)
+        {
+            me->DespawnOrUnsummon();
+            me->CastSpell(nullptr, SPELL_SOULGORGE, true);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (TempSummon* meTempSummon = me->ToTempSummon())
+            if (Unit* summoner = meTempSummon->GetSummoner())
+                if (summoner->IsCreature() && summoner->IsAIEnabled)
+                    summoner->ToCreature()->AI()->DoAction(ACTION_SOUL_KILLED);
+    }
+};
+
 //AT : 9899
 //Spell : 195254
 struct at_aos_swirling_scythe : AreaTriggerAI
@@ -113,17 +201,13 @@ struct at_aos_swirling_scythe : AreaTriggerAI
         if (unit->IsPlayer())
             unit->CastSpell(unit, SPELL_SWIRLING_SCYTHE_DAMAGE, true);
     }
-
-    void OnDestinationReached() override
-    {
-        at->Remove();
-    }
 };
 
 void AddSC_boss_amalgam_of_souls()
 {
     RegisterCreatureAI(boss_amalgam_of_souls);
     RegisterCreatureAI(npc_aos_soul_echo);
+    RegisterCreatureAI(npc_aos_restless_soul);
 
     RegisterAreaTriggerAI(at_aos_swirling_scythe);
 }
