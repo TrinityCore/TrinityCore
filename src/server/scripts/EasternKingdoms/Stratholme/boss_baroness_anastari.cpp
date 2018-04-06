@@ -38,8 +38,7 @@ enum BaronessAnastariEvents
     EVENT_SPELL_BANSHEECURSE    = 2,
     EVENT_SPELL_SILENCE         = 3,
     EVENT_SPELL_POSSESS         = 4,
-    EVENT_INVISIBLE             = 5,
-    EVENT_CHECK_POSSESSED       = 6
+    EVENT_CHECK_POSSESSED       = 5
 };
 
 struct boss_baroness_anastari : public BossAI
@@ -112,23 +111,18 @@ struct boss_baroness_anastari : public BossAI
                     else
                         events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                     break;
-                case EVENT_INVISIBLE:
-                    // When there's a possessed target
-                    if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))
-                    {
-                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                        me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
-                        _possessedTargetGuid.Clear();
-                        events.CancelEvent(EVENT_CHECK_POSSESSED);
-                        events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
-                    }
-                    break;
                 case EVENT_CHECK_POSSESSED:
                     if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))
                     {
                         if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->HealthBelowPct(50))
-                            events.ScheduleEvent(EVENT_INVISIBLE, 0s);
+                        {
+                            possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                            possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                            me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
+                            _possessedTargetGuid.Clear();
+                            events.CancelEvent(EVENT_CHECK_POSSESSED);
+                            events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
+                        }
                         else
                             events.ScheduleEvent(EVENT_CHECK_POSSESSED, 1s);
                     }
