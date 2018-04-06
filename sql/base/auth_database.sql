@@ -1106,6 +1106,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,842),
 (196,843),
 (196,869),
+(196,872),
 (197,232),
 (197,236),
 (197,237),
@@ -2026,7 +2027,8 @@ INSERT INTO `rbac_permissions` VALUES
 (853,'Command: .reload conversation_template'),
 (854,'Command: .debug conversation'),
 (868,'Command: modify power'),
-(869,'Command: debug send playerchoice');
+(869,'Command: debug send playerchoice'),
+(872,'Command: server debug');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2074,7 +2076,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '26124',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '26365',
   `Region` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2089,7 +2091,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,26124,2,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,26365,2,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2233,7 +2235,9 @@ INSERT INTO `updates` VALUES
 ('2018_01_02_00_auth.sql','CD9B826B9D95697DC412DEF780E814FA3991D6CD','ARCHIVED','2018-01-02 20:40:37',0),
 ('2018_02_18_00_auth.sql','8489DD3EFFE14A7486B593435F0BA2BC69B6EABF','ARCHIVED','2018-02-18 16:35:55',0),
 ('2018_02_19_00_auth.sql','07CE658C5EF88693D3C047EF8E724F94ADA74C15','RELEASED','2018-02-19 22:33:32',233),
-('2018_02_28_00_auth.sql','E92EF4ABF7FA0C66649E1633DD0459F44C09EB83','RELEASED','2018-02-28 23:07:59',0);
+('2018_02_28_00_auth.sql','E92EF4ABF7FA0C66649E1633DD0459F44C09EB83','RELEASED','2018-02-28 23:07:59',0),
+('2018_03_14_00_auth.sql','2D71E93DF7419A30D0D21D8A80CF05698302575A','RELEASED','2018-03-14 23:07:59',0),
+('2018_04_06_00_auth.sql','D8416F0C4751763202B1997C81423F6EE2FCF9A6','RELEASED','2018-04-06 18:00:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

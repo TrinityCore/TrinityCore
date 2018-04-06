@@ -1,6 +1,6 @@
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
 
-[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cd3680a8932447ca898259ab95a876a5)](https://www.codacy.com/app/TrinityCore/TrinityCore?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TrinityCore/TrinityCore&amp;utm_campaign=Badge_Grade)
 
 ## Build Status
 
@@ -21,7 +21,7 @@ mechanics and functionality.
 
 It is completely open source; community involvement is highly encouraged.
 
-If you wish to contribute ideas or code please visit our site linked below or
+If you wish to contribute ideas or code, please visit our site linked below or
 make pull requests to our [Github repository](https://github.com/TrinityCore/TrinityCore/pulls).
 
 For further information on the TrinityCore project, please visit our project
@@ -56,7 +56,7 @@ reports are wasteful and are subject to deletion.
 
 C++ fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](https://community.trinitycore.org/topic/9002-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
-For SQL only fixes open a ticket or if a bug report exists for the bug post on existing ticket.
+For SQL only fixes, open a ticket; if a bug report exists for the bug, post on an existing ticket.
 
 
 ## Copyright

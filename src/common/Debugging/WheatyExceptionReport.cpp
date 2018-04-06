@@ -61,6 +61,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
 TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
+_invalid_parameter_handler WheatyExceptionReport::m_previousCrtHandler;
 HANDLE WheatyExceptionReport::m_hReportFile;
 HANDLE WheatyExceptionReport::m_hDumpFile;
 HANDLE WheatyExceptionReport::m_hProcess;
@@ -81,6 +82,7 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
 {
     // Install the unhandled exception filter function
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
+    m_previousCrtHandler = _set_invalid_parameter_handler(WheatyCrtHandler);
     m_hProcess = GetCurrentProcess();
     stackOverflowException = false;
     alreadyCrashed = false;
@@ -101,6 +103,8 @@ WheatyExceptionReport::~WheatyExceptionReport()
 {
     if (m_previousFilter)
         SetUnhandledExceptionFilter(m_previousFilter);
+    if (m_previousCrtHandler)
+        _set_invalid_parameter_handler(m_previousCrtHandler);
     ClearSymbols();
 }
 
@@ -187,6 +191,11 @@ PEXCEPTION_POINTERS pExceptionInfo)
         return m_previousFilter(pExceptionInfo);
     else
         return EXCEPTION_EXECUTE_HANDLER/*EXCEPTION_CONTINUE_SEARCH*/;
+}
+
+void __cdecl WheatyExceptionReport::WheatyCrtHandler(wchar_t const* /*expression*/, wchar_t const* /*function*/, wchar_t const* /*file*/, unsigned int /*line*/, uintptr_t /*pReserved*/)
+{
+    RaiseException(EXCEPTION_ACCESS_VIOLATION, 0, 0, nullptr);
 }
 
 BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxcount)

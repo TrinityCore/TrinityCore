@@ -804,6 +804,28 @@ namespace Trinity
             uint64 i_hp;
     };
 
+    class FriendlyBelowHpPctEntryInRange
+    {
+        public:
+            FriendlyBelowHpPctEntryInRange(Unit const* obj, uint32 entry, float range, uint8 pct, bool excludeSelf) : i_obj(obj), i_entry(entry), i_range(range), i_pct(pct), i_excludeSelf(excludeSelf) { }
+
+            bool operator()(Unit* u)
+            {
+                if (i_excludeSelf && i_obj->GetGUID() == u->GetGUID())
+                    return false;
+                if (u->GetEntry() == i_entry && u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->HealthBelowPct(i_pct))
+                    return true;
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            uint32 i_entry;
+            float i_range;
+            uint8 i_pct;
+            bool i_excludeSelf;
+    };
+
     class FriendlyCCedInRange
     {
         public:
