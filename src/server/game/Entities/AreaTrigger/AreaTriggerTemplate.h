@@ -92,15 +92,19 @@ struct AreaTriggerScaleInfo
     } ExtraScale[MAX_AREATRIGGER_SCALE];
 };
 
-struct AreaTriggerCicularMovementInfo
+struct AreaTriggerCircularMovementInfo
 {
-    float CircleRadius;
-    float BlendFromRadius;
-    float InitialAngle;
-    float ZOffset;
-
-    bool CounterClockWise;
-    bool CanLoop;
+    Optional<ObjectGuid> TargetGUID;
+    Optional<TaggedPosition<Position::XYZ>> Center;
+    bool CounterClockWise = false;
+    bool CanLoop = false;
+    uint32 TimeToTarget = 0;
+    int32 ElapsedTimeForMovement = 0;
+    uint32 UnkUInt2 = 0;
+    float Radius = 0.0f;
+    float BlendFromRadius = 0.0f;
+    float InitialAngle = 0.0f;
+    float ZOffset = 0.0f;
 };
 
 class AreaTriggerTemplate
@@ -193,7 +197,7 @@ public:
     Position TargetRollPitchYaw;
 
     AreaTriggerScaleInfo ScaleInfo;
-    AreaTriggerCicularMovementInfo CircularMovementInfo;
+    AreaTriggerCircularMovementInfo CircularMovementInfo;
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;

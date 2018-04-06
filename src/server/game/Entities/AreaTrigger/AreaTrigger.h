@@ -20,6 +20,7 @@
 
 #include "Object.h"
 #include "MapObject.h"
+#include "AreaTriggerTemplate.h"
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
@@ -97,6 +98,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool SetDestination(Position const& pos, uint32 timeToTarget);
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
+
+        AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const;
 
         ObjectGuid GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
         void SetCircularMovementCenterGUID(ObjectGuid guid) { _circularMovementCenterGUID = guid; }

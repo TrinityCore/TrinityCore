@@ -778,6 +778,28 @@ bool AreaTrigger::SetDestination(Position const& pos, uint32 timeToTarget)
     return true;
 }
 
+AreaTriggerCircularMovementInfo AreaTrigger::GetAreaTriggerCircularMovementInfo() const
+{
+    AreaTriggerCircularMovementInfo areaTriggerCircularMovementInfo;
+    AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = GetMiscTemplate();
+
+    if (!areaTriggerMiscTemplate)
+        return areaTriggerCircularMovementInfo;
+
+    areaTriggerCircularMovementInfo = areaTriggerMiscTemplate->CircularMovementInfo;
+
+    areaTriggerCircularMovementInfo.TimeToTarget = GetTimeToTarget();
+    areaTriggerCircularMovementInfo.ElapsedTimeForMovement = GetElapsedTimeForMovement();
+
+    if (!_circularMovementCenterGUID.IsEmpty())
+        areaTriggerCircularMovementInfo.TargetGUID = _circularMovementCenterGUID;
+
+    if (!_circularMovementCenterPosition.IsPositionEmpty())
+        areaTriggerCircularMovementInfo.Center = _circularMovementCenterPosition;
+
+    return areaTriggerCircularMovementInfo;
+}
+
 Position const& AreaTrigger::GetCircularMovementCenterPosition() const
 {
     if (_circularMovementCenterPosition.IsPositionEmpty() && !_circularMovementCenterGUID.IsEmpty())
@@ -793,7 +815,7 @@ void AreaTrigger::UpdateCircularMovementPosition()
         return;
 
     Position centerPos = GetCircularMovementCenterPosition();
-    AreaTriggerCicularMovementInfo const& cmi = GetMiscTemplate()->CircularMovementInfo;
+    AreaTriggerCircularMovementInfo const& cmi = GetMiscTemplate()->CircularMovementInfo;
 
     // AreaTrigger make exactly "TimeToTarget / Duration" loops during his life time
     float angleDiff = 2.0f * float(M_PI) / (float(GetTimeToTarget()) / float(GetDuration())) * (float(GetTimeSinceCreated()) / float(GetDuration()));
@@ -805,8 +827,8 @@ void AreaTrigger::UpdateCircularMovementPosition()
     if (!cmi.CanLoop && (angleDiff <= 0.0f || angleDiff >= 2.0f * float(M_PI)))
         angleDiff = 0.0f;
 
-    float x = centerPos.GetPositionX() + (cmi.CircleRadius * cos(cmi.InitialAngle + angleDiff));
-    float y = centerPos.GetPositionY() + (cmi.CircleRadius * sin(cmi.InitialAngle + angleDiff));
+    float x = centerPos.GetPositionX() + (cmi.Radius * cos(cmi.InitialAngle + angleDiff));
+    float y = centerPos.GetPositionY() + (cmi.Radius * sin(cmi.InitialAngle + angleDiff));
     float z = centerPos.GetPositionZ() + cmi.ZOffset;
 
     GetMap()->AreaTriggerRelocation(this, x, y, z, cmi.InitialAngle + angleDiff);
