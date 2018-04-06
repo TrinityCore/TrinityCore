@@ -124,7 +124,7 @@ struct boss_baroness_anastari : public BossAI
                             events.CancelEvent(EVENT_CHECK_POSSESSED);
                         }
                         else
-                            events.ScheduleEvent(EVENT_CHECK_POSSESSED, 1s);
+                            events.Repeat(1s);
                     }
                     break;
             }
