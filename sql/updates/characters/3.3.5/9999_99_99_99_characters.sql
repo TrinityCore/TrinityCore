@@ -1,2 +1,2 @@
 --
-DELETE FROM `pet_aura` WHERE `spell`=57634;
+DELETE FROM `pet_aura` WHERE `spell` IN (28801, 37025, 42201, 57634);
