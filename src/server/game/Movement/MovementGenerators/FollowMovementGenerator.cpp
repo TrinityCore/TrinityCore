@@ -65,8 +65,9 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             _checkTimer = CHECK_INTERVAL;
             if (PositionOkay(owner, target, _range, _angle))
             {
-                owner->StopMoving();
                 _path = nullptr;
+                owner->StopMoving();
+                return true;
             }
         }
     }

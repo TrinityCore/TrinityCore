@@ -91,8 +91,10 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             _rangeCheckTimer = RANGE_CHECK_INTERVAL;
             if (PositionOkay(owner, target, _movingTowards ? Optional<float>() : minTarget, _movingTowards ? maxTarget : Optional<float>(), angle))
             {
-                owner->StopMoving();
                 _path = nullptr;
+                owner->StopMoving();
+                owner->SetInFront(target);
+                return true;
             }
         }
     }
