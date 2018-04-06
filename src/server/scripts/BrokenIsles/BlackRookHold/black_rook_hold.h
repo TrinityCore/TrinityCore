@@ -37,12 +37,21 @@ enum Creatures
     NPC_DANTALIONAX                 = 99611,
 
     NPC_LATOSIUS                    = 98970,
+
+    // Amalgam of Souls
+    NPC_RESTLESS_SOUL               = 99664,
 };
 
 enum GameObjects
 {
     GOB_DOOR_AMALGAME_ENTER_1       = 247403,
     GOB_DOOR_AMALGAME_ENTER_2       = 247406,
+
+    GOB_DOOR_AMALGAME_ROOM_1        = 247403,
+    GOB_DOOR_AMALGAME_ROOM_2        = 247404,
+    GOB_DOOR_AMALGAME_ROOM_3        = 247405,
+    GOB_DOOR_AMALGAME_ROOM_4        = 247406,
+
     GOB_DOOR_AMALGAME_EXIT          = 247407,
 
     GOB_DOOR_ILLYSANNA_PORTCULLIS_1 = 245079,
