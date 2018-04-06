@@ -109,7 +109,7 @@ struct boss_baroness_anastari : public BossAI
                         events.ScheduleEvent(EVENT_CHECK_POSSESSED, 0s);
                     }
                     else
-                        events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
+                        events.Repeat(20s, 30s);
                     break;
                 case EVENT_CHECK_POSSESSED:
                     if (Player* possessedTarget = ObjectAccessor::GetPlayer(*me, _possessedTargetGuid))
