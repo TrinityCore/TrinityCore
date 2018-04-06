@@ -73,7 +73,7 @@ reports are wasteful and are subject to deletion.
 
 Fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](https://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
-NOTE: if a fix is valid also for 3.3.5a/6.x branches submit them also to [Github](https://github.com/TrinityCore/TrinityCore)
+NOTE: if a fix is valid also for 3.3.5a/master branches submit them also to [Github](https://github.com/TrinityCore/TrinityCore)
 
 
 ## Copyright
