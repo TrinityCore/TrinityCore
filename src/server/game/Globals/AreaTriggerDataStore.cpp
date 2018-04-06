@@ -17,6 +17,7 @@
 
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
+#include "AreaTriggerPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -234,11 +235,24 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             if (atSpellMiscItr == _areaTriggerTemplateSpellMisc.end())
                 continue;
 
-            AreaTriggerCicularMovementInfo& circularMovementInfo = atSpellMiscItr->second.CircularMovementInfo;
-            circularMovementInfo.CircleRadius       = circularMovementInfoFields[1].GetFloat();
-            circularMovementInfo.BlendFromRadius    = circularMovementInfoFields[2].GetFloat();
-            circularMovementInfo.InitialAngle       = circularMovementInfoFields[3].GetFloat();
-            circularMovementInfo.ZOffset            = circularMovementInfoFields[4].GetFloat();
+            AreaTriggerCircularMovementInfo& circularMovementInfo = atSpellMiscItr->second.CircularMovementInfo;
+
+#define VALIDATE_AND_SET_FLOAT(Float, Value) \
+            circularMovementInfo.Float = Value; \
+            if (!std::isfinite(circularMovementInfo.Float)) \
+            { \
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` has listed areatrigger (MiscId: %u) with invalid " #Float " (%u), set to 0!", \
+                    spellMiscId, circularMovementInfo.Float); \
+                circularMovementInfo.Float = 0.0f; \
+            }
+
+            VALIDATE_AND_SET_FLOAT(Radius,          circularMovementInfoFields[1].GetFloat());
+            VALIDATE_AND_SET_FLOAT(BlendFromRadius, circularMovementInfoFields[2].GetFloat());
+            VALIDATE_AND_SET_FLOAT(InitialAngle,    circularMovementInfoFields[3].GetFloat());
+            VALIDATE_AND_SET_FLOAT(ZOffset,         circularMovementInfoFields[4].GetFloat());
+
+#undef VALIDATE_AND_SET_FLOAT
+
             circularMovementInfo.CounterClockWise   = circularMovementInfoFields[5].GetBool();
             circularMovementInfo.CanLoop            = circularMovementInfoFields[6].GetBool();
         }

@@ -18,6 +18,7 @@
 
 #include "Object.h"
 #include "AreaTriggerTemplate.h"
+#include "AreaTriggerPackets.h"
 #include "BattlefieldMgr.h"
 #include "CellImpl.h"
 #include "CinematicMgr.h"
@@ -647,33 +648,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
 
         if (hasCircularMovement)
-        {
-            bool hasAttachedCenter = !areaTrigger->GetCircularMovementCenterGUID().IsEmpty();
-            bool hasPositionCenter = !areaTrigger->GetCircularMovementCenterPosition().IsPositionEmpty();
-
-            uint32 unkUint32 = 1;
-
-            data->FlushBits();
-            data->WriteBit(hasAttachedCenter);
-            data->WriteBit(hasPositionCenter);
-            data->WriteBit(areaTriggerMiscTemplate->CircularMovementInfo.CounterClockWise);
-            data->WriteBit(areaTriggerMiscTemplate->CircularMovementInfo.CanLoop);
-
-            *data << uint32(areaTrigger->GetTimeToTarget());
-            *data << int32(areaTrigger->GetElapsedTimeForMovement());
-            *data << uint32(unkUint32);
-
-            *data << areaTriggerMiscTemplate->CircularMovementInfo.CircleRadius;
-            *data << areaTriggerMiscTemplate->CircularMovementInfo.BlendFromRadius;
-            *data << areaTriggerMiscTemplate->CircularMovementInfo.InitialAngle;
-            *data << areaTriggerMiscTemplate->CircularMovementInfo.ZOffset;
-
-            if (hasAttachedCenter)
-                *data << areaTrigger->GetCircularMovementCenterGUID();
-
-            if (hasPositionCenter)
-                *data << areaTrigger->GetCircularMovementCenterPosition().PositionXYZStream();
-        }
+            *data << areaTrigger->GetAreaTriggerCircularMovementInfo();
     }
 
     if (HasGameObject)
