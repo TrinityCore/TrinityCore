@@ -2809,7 +2809,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         spellInfo->_InitializeExplicitTargetMask();
     }
 
-    // add attribute custom to liquid auras
+    // add custom attribute to liquid auras
     for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
         if (liquid->SpellId)
         {
