@@ -96,7 +96,7 @@ class boss_erekem : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-				_JustDied();
+                _JustDied();
             }
 
             bool CheckGuardAuras(Creature* guard) const

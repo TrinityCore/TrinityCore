@@ -17,12 +17,14 @@
  */
 
 #include "MotionMaster.h"
+#include "ChaseMovementGenerator.h"
 #include "ConfusedMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "DBCStores.h"
 #include "FleeingMovementGenerator.h"
 #include "FlightPathMovementGenerator.h"
+#include "FollowMovementGenerator.h"
 #include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
@@ -36,7 +38,6 @@
 #include "RandomMovementGenerator.h"
 #include "ScriptSystem.h"
 #include "SplineChainMovementGenerator.h"
-#include "TargetedMovementGenerator.h"
 #include "Unit.h"
 #include "WaypointDefines.h"
 #include "WaypointMovementGenerator.h"
@@ -219,7 +220,7 @@ void MotionMaster::MoveTargetedHome()
         if (target)
         {
             TC_LOG_DEBUG("misc", "Following %s (GUID: %u).", target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : ((Creature*)target)->GetSpawnId());
-            Mutate(new FollowMovementGenerator<Creature>(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE), MOTION_SLOT_ACTIVE);
+            Mutate(new FollowMovementGenerator(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE), MOTION_SLOT_ACTIVE);
         }
     }
     else
@@ -237,53 +238,33 @@ void MotionMaster::MoveRandom(float spawndist)
     }
 }
 
-void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlot slot)
+void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner)
         return;
 
-    //_owner->AddUnitState(UNIT_STATE_FOLLOW);
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        TC_LOG_DEBUG("misc", "Player (GUID: %u) follows %s (GUID: %u).", _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new FollowMovementGenerator<Player>(target, dist, angle), slot);
-    }
-    else
-    {
-        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) follows %s (GUID: %u).",
-            _owner->GetEntry(), _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new FollowMovementGenerator<Creature>(target, dist, angle), slot);
-    }
+    TC_LOG_DEBUG("misc", "%s (Entry: %u, GUID: %u) follows %s (Entry %u, GUID: %u).",
+        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
+        _owner->GetEntry(), _owner->GetGUID().GetCounter(),
+        target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+        target->GetEntry(), target->GetGUID().GetCounter());
+
+    Mutate(new FollowMovementGenerator(target, dist, angle), slot);
 }
 
-void MotionMaster::MoveChase(Unit* target, float dist, float angle)
+void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner)
         return;
 
-    //_owner->ClearUnitState(UNIT_STATE_FOLLOW);
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        TC_LOG_DEBUG("misc", "Player (GUID: %u) chase to %s (GUID: %u)",
-            _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new ChaseMovementGenerator<Player>(target, dist, angle), MOTION_SLOT_ACTIVE);
-    }
-    else
-    {
-        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) chase to %s (GUID: %u)",
-            _owner->GetEntry(), _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new ChaseMovementGenerator<Creature>(target, dist, angle), MOTION_SLOT_ACTIVE);
-    }
+    TC_LOG_DEBUG("misc", "%s (Entry: %u, GUID: %u) chase to %s (Entry: %u, GUID: %u)",
+        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
+        _owner->GetEntry(), _owner->GetGUID().GetCounter(),
+        target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+        target->GetEntry(), target->GetGUID().GetCounter());
+    Mutate(new ChaseMovementGenerator(target, dist, angle), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveConfused()
@@ -347,7 +328,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     float distanceToTravel = _owner->GetExactDist2d(target) - distance;
     if (distanceToTravel > 0.0f)
     {
-        float angle = _owner->GetAngle(target);
+        float angle = _owner->GetAbsoluteAngle(target);
         float destx = _owner->GetPositionX() + distanceToTravel * std::cos(angle);
         float desty = _owner->GetPositionY() + distanceToTravel * std::sin(angle);
         MovePoint(id, destx, desty, target->GetPositionZ());
@@ -436,7 +417,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    _owner->GetNearPoint(_owner, x, y, z, _owner->GetCombatReach(), dist, _owner->GetAngle(srcX, srcY) + float(M_PI));
+    _owner->GetNearPoint(_owner, x, y, z, dist, _owner->GetAbsoluteAngle(srcX, srcY) + float(M_PI));
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
@@ -457,7 +438,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetNearPoint2D(x, y, dist, _owner->GetOrientation() + angle);
+    _owner->GetNearPoint2D(nullptr, x, y, dist, _owner->GetOrientation() + angle);
     z = _owner->GetPositionZ();
     _owner->UpdateAllowedPositionZ(x, y, z);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
@@ -486,7 +467,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);
     Position const& pos = { x, y, z, 0.0f };
-    float angle = pos.GetAngle(_owner->GetPositionX(), _owner->GetPositionY());
+    float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
 
     Movement::MoveSplineInit init(_owner);
 
