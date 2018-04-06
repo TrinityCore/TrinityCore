@@ -146,7 +146,14 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     if (petType == HUNTER_PET)
     {
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
-        if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets()))
+
+        if (!creatureInfo)
+        {
+            owner->GetSession()->SendPetStableResult(STABLE_ERR_STABLE);
+            return false;
+        }
+
+        if (!creatureInfo->IsTameable(owner->CanTameExoticPets()))
         {
             owner->GetSession()->SendPetStableResult(STABLE_ERR_EXOTIC);
             return false;
