@@ -42,7 +42,7 @@ INSERT INTO playercreateinfo_action (race, class, button, action, type) VALUES
 DELETE FROM playercreateinfo_action WHERE race=9 AND class=1;
 INSERT INTO playercreateinfo_action (race, class, button, action, type) VALUES
 (9,1,1,1464,0),
-(9,1,9,69070,0)
+(9,1,9,69070,0),
 (9,1,10,69041,0);
 
 DELETE FROM playercreateinfo_action WHERE race=10 AND class=1;
