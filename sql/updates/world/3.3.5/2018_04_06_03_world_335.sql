@@ -1,3 +1,4 @@
+/*
 -- Ula'elek
 DELETE FROM `creature_text` WHERE `CreatureID`=6408;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -17,3 +18,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (640800,9,5,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ula'elek - On Script - Add Npc Flag Questgiver");
 
 UPDATE `creature` SET `position_x`=-811.458, `position_y`=-4939.82, `position_z`=20.4816, `orientation`=3.59002 WHERE `guid`=6490;
+*/

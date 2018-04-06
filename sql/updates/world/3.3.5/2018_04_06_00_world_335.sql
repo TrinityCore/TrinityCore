@@ -1,3 +1,4 @@
+/*
 -- Augustus the Touched
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=12384;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=12384 AND `source_type`=0;
@@ -9,3 +10,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (12384,0,0,"You won't find better prices anywhere!",14,0,100,22,0,0,7627,0,"Augustus the Touched"),
 (12384,0,1,"I'm Augustus, and my prices are INSANE!",14,0,100,22,0,0,7628,0,"Augustus the Touched"),
 (12384,0,2,"I'm Augustus!  You want it, I got it!  You wanna sell it, then I want it!",14,0,100,22,0,0,7629,0,"Augustus the Touched");
+*/

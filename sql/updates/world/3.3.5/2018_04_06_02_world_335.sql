@@ -1,3 +1,4 @@
+/*
 -- Thun'grim Firegaze
 DELETE FROM `creature_text` WHERE `CreatureID`=5878;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -32,3 +33,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (5878,4,-423.211,-3164.23,212.864,""),
 (5878,5,-423.713,-3167.24,212.779,""),
 (5878,6,-437.62,-3176.26,211.385,"");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Orm Stonehoof
 DELETE FROM `creature_text` WHERE `CreatureID`=6410;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -17,3 +18,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (641000,9,5,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Orm Stonehoof - On Script - Add Npc Flag Questgiver");
 
 UPDATE `creature` SET `position_x`=-1239.54, `position_y`=109.707, `position_z`=129.58, `orientation`=1.89658 WHERE `guid`=24678;
+*/

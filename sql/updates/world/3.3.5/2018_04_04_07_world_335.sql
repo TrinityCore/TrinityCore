@@ -1,3 +1,4 @@
+/*
 -- Joseph Redpath's Monument
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`=176145;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=176145 AND `source_type`=1;
@@ -8,3 +9,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=10936 AND `GroupID`=2;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (10936,2,0,"Save me...",15,0,100,0,0,0,6274,0,"Joseph Redpath");
+*/

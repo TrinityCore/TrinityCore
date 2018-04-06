@@ -1,3 +1,4 @@
+/*
 -- Brutal Armor set Quest chaining
 UPDATE `quest_template` SET `AllowableRaces`=16 WHERE `ID`=1841;
 UPDATE `quest_template` SET `AllowableRaces`=32 WHERE `ID`=1840;
@@ -21,3 +22,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=19 AND `SourceEntry` IN
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (19,0,1839,0,0,14,0,1842,0,0,0,0,0,"","Quest 'Ula'elek and the Brutal Gauntlets' can only be taken if quest 'Satyr Hooves' is not taken"),
 (19,0,1842,0,0,28,0,1839,0,0,1,0,0,"","Quest 'Satyr Hooves' can only be taken if quest 'Ula'elek and the Brutal Gauntlets' is not completed");
+*/

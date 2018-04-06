@@ -1,3 +1,4 @@
+/*
 -- Pathing for Scarlet Smith
 UPDATE `creature` SET `position_x`=2990.86, `position_y`=-1458.58, `position_z`=146.273, `spawndist`=0, `MovementType`=2 WHERE `guid`=61634;
 
@@ -34,3 +35,4 @@ DELETE FROM `waypoint_scripts` WHERE `id`=616340;
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (616340,1,1,69,1,0,0,0,0,0,5),
 (616340,18,1,0,1,0,0,0,0,0,6);
+*/

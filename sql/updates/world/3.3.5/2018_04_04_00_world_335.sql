@@ -1,3 +1,4 @@
+/*
 -- Add pool for Deathspeaker Selendre
 SET @GUID := 64986;
 SET @POOL := 386;
@@ -179,3 +180,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (867550,63,2626.28,-5483.26,157.083,0,0,0,0,100,0),
 (867550,64,2616.9,-5493.82,157.194,0,0,0,0,100,0),
 (867550,65,2616.39,-5504.67,158.186,0,0,0,0,100,0);
+*/

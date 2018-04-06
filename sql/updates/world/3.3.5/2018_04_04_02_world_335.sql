@@ -1,3 +1,4 @@
+/*
 -- Common Kitten
 DELETE FROM `creature_text` WHERE `CreatureID` IN (9937,9936);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -19,3 +20,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `gossip_menu` WHERE `MenuID`=55002; -- Add Gossip Text
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 (55002,3550,0);
+*/
