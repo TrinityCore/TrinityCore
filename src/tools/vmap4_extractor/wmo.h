@@ -18,8 +18,6 @@
 
 #ifndef WMO_H
 #define WMO_H
-#define TILESIZE (533.33333f)
-#define CHUNKSIZE ((TILESIZE) / 16.0f)
 
 #include <string>
 #include <set>
@@ -44,6 +42,7 @@ class WMOInstance;
 class WMOManager;
 class CASCFile;
 struct ADTOutputCache;
+namespace ADT { struct MODF; }
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
 static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
@@ -67,16 +66,16 @@ public:
     bool ConvertToVMAPRootWmo(FILE* output);
 };
 
+#pragma pack(push, 1)
+
 struct WMOLiquidHeader
 {
     int xverts, yverts, xtiles, ytiles;
     float pos_x;
     float pos_y;
     float pos_z;
-    short type;
+    short material;
 };
-
-#pragma pack(push, 1)
 
 struct WMOLiquidVert
 {
@@ -111,7 +110,7 @@ public:
     uint16 moprNItems;
     uint16 nBatchA;
     uint16 nBatchB;
-    uint32 nBatchC, fogIdx, liquidType, groupWMOID;
+    uint32 nBatchC, fogIdx, groupLiquid, groupWMOID;
 
     int mopy_size, moba_size;
     int LiquEx_size;
@@ -122,24 +121,14 @@ public:
     WMOGroup(std::string const& filename);
     ~WMOGroup();
 
-    bool open();
+    bool open(WMORoot* rootWMO);
     int ConvertToVMAPGroupWmo(FILE* output, WMORoot* rootWMO, bool preciseVectorData);
+    uint32 GetLiquidTypeId(uint32 liquidTypeId);
 };
 
-class WMOInstance
+namespace MapObject
 {
-    static std::set<int> ids;
-public:
-    std::string MapName;
-    int currx;
-    int curry;
-    WMOGroup* wmo;
-    int doodadset;
-    Vec3D pos;
-    Vec3D pos2, pos3, rot;
-    uint32 indx, id;
-
-    WMOInstance(CASCFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
-};
+    void Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+}
 
 #endif
