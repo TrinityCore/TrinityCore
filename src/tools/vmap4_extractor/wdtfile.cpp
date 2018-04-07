@@ -20,6 +20,7 @@
 #include "wdtfile.h"
 #include "adtfile.h"
 
+#include "StringFormat.h"
 #include <cstdio>
 
 char * wdtGetPlainName(char * FileName)
@@ -31,14 +32,14 @@ char * wdtGetPlainName(char * FileName)
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : gnWMO(0), WDT(file_name)
+WDTFile::WDTFile(char* file_name, char* file_name1) : _file(file_name)
 {
     filename.append(file_name1,strlen(file_name1));
 }
 
-bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
+bool WDTFile::init(uint32 mapId)
 {
-    if (WDT.isEof())
+    if (_file.isEof())
     {
         //printf("Can't find WDT file.\n");
         return false;
@@ -56,15 +57,15 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
         return false;
     }
 
-    while (!WDT.isEof())
+    while (!_file.isEof())
     {
-        WDT.read(fourcc,4);
-        WDT.read(&size, 4);
+        _file.read(fourcc,4);
+        _file.read(&size, 4);
 
         flipcc(fourcc);
         fourcc[4] = 0;
 
-        size_t nextpos = WDT.getPos() + size;
+        size_t nextpos = _file.getPos() + size;
 
         if (!strcmp(fourcc,"MAIN"))
         {
@@ -75,7 +76,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
             if (size)
             {
                 char *buf = new char[size];
-                WDT.read(buf, size);
+                _file.read(buf, size);
                 char *p = buf;
                 while (p < buf + size)
                 {
@@ -85,7 +86,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                     fixnamen(s, strlen(s));
                     fixname2(s, strlen(s));
                     p = p + strlen(p) + 1;
-                    gWmoInstansName.push_back(s);
+                    _wmoNames.push_back(s);
 
                     ExtractSingleWmo(path);
                 }
@@ -97,27 +98,26 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
             // global wmo instance data
             if (size)
             {
-                gnWMO = (int)size / 64;
-
-                for (int i = 0; i < gnWMO; ++i)
+                uint32 mapObjectCount = size / sizeof(ADT::MODF);
+                for (uint32 i = 0; i < mapObjectCount; ++i)
                 {
-                    int id;
-                    WDT.read(&id, 4);
-                    WMOInstance inst(WDT, gWmoInstansName[id].c_str(), mapID, 65, 65, dirfile);
+                    ADT::MODF mapObjDef;
+                    _file.read(&mapObjDef, sizeof(ADT::MODF));
+                    MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), mapId, 65, 65, dirfile);
                 }
             }
         }
-        WDT.seek((int)nextpos);
+        _file.seek((int)nextpos);
     }
 
-    WDT.close();
+    _file.close();
     fclose(dirfile);
     return true;
 }
 
 WDTFile::~WDTFile(void)
 {
-    WDT.close();
+    _file.close();
 }
 
 ADTFile* WDTFile::GetMap(int x, int z)

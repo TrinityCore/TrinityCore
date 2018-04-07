@@ -64,7 +64,6 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 char const* szWorkDirWmo = "./Buildings";
-char const* szRawVMAPMagic = "VMAP044";
 
 // Local testing functions
 
@@ -147,7 +146,7 @@ bool ExtractSingleWmo(std::string& fname)
 
             std::string s = groupFileName;
             WMOGroup fgroup(s);
-            if(!fgroup.open())
+            if (!fgroup.open(&froot))
             {
                 printf("Could not open all Group file for: %s\n", plain_name);
                 file_ok = false;
@@ -172,13 +171,11 @@ void ParsMapFiles()
 {
     char fn[512];
     //char id_filename[64];
-    char id[10];
     for (unsigned int i=0; i<map_count; ++i)
     {
-        sprintf(id,"%03u",map_ids[i].id);
         sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
-        if(WDT.init(id, map_ids[i].id))
+        if (WDT.init(map_ids[i].id))
         {
             printf("Processing Map %u\n[", map_ids[i].id);
             for (int x=0; x<64; ++x)

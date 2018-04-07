@@ -244,6 +244,14 @@ public:
         return { 0, 0 };
     }
 
+    uint16 GetLiquidType(adt_liquid_instance const* h) const
+    {
+        if (h->LiquidVertexFormat == LiquidVertexFormatType::Depth)
+            return 2;
+
+        return h->LiquidType;
+    }
+
     float GetLiquidHeight(adt_liquid_instance const* h, int32 pos) const
     {
         if (!h->OffsetVertexData)

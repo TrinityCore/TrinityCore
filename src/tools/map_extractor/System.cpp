@@ -261,7 +261,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.8";
+static char const* MAP_VERSION_MAGIC = "v1.9";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -310,8 +310,6 @@ struct map_heightHeader
 #define MAP_LIQUID_TYPE_SLIME       0x08
 
 #define MAP_LIQUID_TYPE_DARK_WATER  0x10
-#define MAP_LIQUID_TYPE_WMO_WATER   0x20
-
 
 #define MAP_LIQUID_NO_TYPE    0x0001
 #define MAP_LIQUID_NO_HEIGHT  0x0002
@@ -319,7 +317,8 @@ struct map_heightHeader
 struct map_liquidHeader
 {
     uint32 fourcc;
-    uint16 flags;
+    uint8 flags;
+    uint8 liquidFlags;
     uint16 liquidType;
     uint8  offsetX;
     uint8  offsetY;
@@ -351,6 +350,7 @@ uint16 liquid_entry[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 uint8 liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
+uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 
 int16 flight_box_max[3][3];
 int16 flight_box_min[3][3];
@@ -372,6 +372,8 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     memset(liquid_show, 0, sizeof(liquid_show));
     memset(liquid_flags, 0, sizeof(liquid_flags));
     memset(liquid_entry, 0, sizeof(liquid_entry));
+
+    memset(holes, 0, sizeof(holes));
 
     // Prepare map header
     map_fileheader map;
@@ -730,13 +732,14 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     //============================================
     // Pack liquid data
     //============================================
-    uint8 type = liquid_flags[0][0];
+    uint16 firstLiquidType = liquid_entry[0][0];
+    uint8 firstLiquidFlag = liquid_flags[0][0];
     bool fullType = false;
     for (int y=0;y<ADT_CELLS_PER_GRID;y++)
     {
         for(int x=0;x<ADT_CELLS_PER_GRID;x++)
         {
-            if (liquid_flags[y][x]!=type)
+            if (liquid_entry[y][x] != firstLiquidType || liquid_flags[y][x] != firstLiquidFlag)
             {
                 fullType = true;
                 y = ADT_CELLS_PER_GRID;
@@ -748,7 +751,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     map_liquidHeader liquidHeader;
 
     // no water data (if all grid have 0 liquid type)
-    if (type == 0 && !fullType)
+    if (firstLiquidFlag == 0 && !fullType)
     {
         // No liquid data
         map.liquidMapOffset = 0;
@@ -800,7 +803,10 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             liquidHeader.flags |= MAP_LIQUID_NO_TYPE;
 
         if (liquidHeader.flags & MAP_LIQUID_NO_TYPE)
-            liquidHeader.liquidType = type;
+        {
+            liquidHeader.liquidFlags = firstLiquidFlag;
+            liquidHeader.liquidType = firstLiquidType;
+        }
         else
             map.liquidMapSize += sizeof(liquid_entry) + sizeof(liquid_flags);
 
@@ -808,15 +814,6 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
     }
 
-    // map hole info
-    uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
-
-    if (map.liquidMapOffset)
-        map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
-    else
-        map.holesOffset = map.heightMapOffset + map.heightMapSize;
-
-    memset(holes, 0, sizeof(holes));
     bool hasHoles = false;
 
     for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
@@ -833,9 +830,19 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     }
 
     if (hasHoles)
+    {
+        if (map.liquidMapOffset)
+            map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
+        else
+            map.holesOffset = map.heightMapOffset + map.heightMapSize;
+
         map.holesSize = sizeof(holes);
+    }
     else
+    {
+        map.holesOffset = 0;
         map.holesSize = 0;
+    }
 
     // Ok all data prepared - store it
 

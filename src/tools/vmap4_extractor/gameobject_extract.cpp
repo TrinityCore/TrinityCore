@@ -20,7 +20,7 @@
 #include "dbcfile.h"
 #include "adtfile.h"
 #include "vmapexport.h"
-
+#include "VMapDefinitions.h"
 #include <algorithm>
 #include <stdio.h>
 
@@ -75,6 +75,8 @@ void ExtractGameobjectModels()
         return;
     }
 
+    fwrite(VMAP::RAW_VMAP_MAGIC, 1, 8, model_list);
+
     for (DBCFile::Iterator it = dbc.begin(); it != dbc.end(); ++it)
     {
         path = it->getString(1);
@@ -93,8 +95,10 @@ void ExtractGameobjectModels()
         strToLower(ch_ext);
 
         bool result = false;
+        uint8 isWmo = 0;
         if (!strcmp(ch_ext, ".wmo"))
         {
+            isWmo = 1;
             result = ExtractSingleWmo(path);
         }
         else if (!strcmp(ch_ext, ".mdl"))
@@ -112,6 +116,7 @@ void ExtractGameobjectModels()
             uint32 displayId = it->getUInt(0);
             uint32 path_length = strlen(name);
             fwrite(&displayId, sizeof(uint32), 1, model_list);
+            fwrite(&isWmo, sizeof(uint8), 1, model_list);
             fwrite(&path_length, sizeof(uint32), 1, model_list);
             fwrite(name, sizeof(char), path_length, model_list);
         }
