@@ -144,6 +144,7 @@ class TC_GAME_API MotionMaster
 
         bool empty() const { return (_top < 0); }
         int size() const { return _top + 1; }
+        MovementGenerator* topOrNull() const { return empty() ? nullptr : top(); }
         MovementGenerator* top() const { ASSERT(!empty()); return _slot[_top]; }
 
         void Initialize();

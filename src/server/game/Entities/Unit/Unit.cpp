@@ -8064,7 +8064,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
 
         if (creature->HasUnitTypeMask(UNIT_MASK_MINION) && !creature->IsInCombat())
         {
-            MovementGenerator* top = creature->GetMotionMaster()->top();
+            MovementGenerator* top = creature->GetMotionMaster()->topOrNull();
             if (top && top->GetMovementGeneratorType() == FOLLOW_MOTION_TYPE)
             {
                 Unit* followed = ASSERT_NOTNULL(dynamic_cast<AbstractFollower*>(top))->GetTarget();
