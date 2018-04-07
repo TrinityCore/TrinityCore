@@ -118,7 +118,7 @@ public:
     ~WMOGroup();
 
     bool open(WMORoot* rootWMO);
-    int ConvertToVMAPGroupWmo(FILE* output, WMORoot* rootWMO, bool preciseVectorData);
+    int ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData);
     uint32 GetLiquidTypeId(uint32 liquidTypeId);
 };
 
