@@ -130,7 +130,7 @@ public:
 
     struct boss_isisetAI : public BossAI
     {
-        boss_isisetAI(Creature* creature) : BossAI(creature, DATA_ISISET), _transitionPhase(false) { }
+        boss_isisetAI(Creature* creature) : BossAI(creature, DATA_ISISET), _transitionPhase(false), _mirrorImageDied(false) { }
 
         void Reset() override
         {
