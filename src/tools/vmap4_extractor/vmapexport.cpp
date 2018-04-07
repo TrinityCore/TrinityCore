@@ -70,7 +70,6 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP046";
 
 #define CASC_LOCALES_COUNT 17
 char const* CascLocaleNames[CASC_LOCALES_COUNT] =
@@ -214,7 +213,7 @@ bool ExtractSingleWmo(std::string& fname)
     {
         std::string s = Trinity::StringFormat("FILE%08X.xxx", froot.groupFileDataIDs[i]);
         WMOGroup fgroup(s);
-        if(!fgroup.open())
+        if (!fgroup.open(&froot))
         {
             printf("Could not open all Group file for: %s\n", plain_name);
             file_ok = false;

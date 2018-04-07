@@ -137,6 +137,12 @@ public:
     }
 };
 
+class AaBox3D
+{
+public:
+    Vec3D min;
+    Vec3D max;
+};
 
 class Vec2D
 {
