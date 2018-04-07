@@ -145,6 +145,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
 #endif
 
     owner = std::move(modelOwner);
+    isWmo = it->second.isWmo;
     return true;
 }
 
@@ -187,7 +188,7 @@ bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool sto
 
 void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const
 {
-    if (!isCollisionEnabled() || !owner->IsSpawned())
+    if (!isCollisionEnabled() || !owner->IsSpawned() || !isMapObject())
         return;
 
     if (!owner->IsInPhase(phaseShift))
