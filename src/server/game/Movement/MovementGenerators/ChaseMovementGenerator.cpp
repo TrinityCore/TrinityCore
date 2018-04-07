@@ -26,7 +26,7 @@
 
 static bool IsMutualChase(Unit* owner, Unit* target)
 {
-    MovementGenerator const* gen = target->GetMotionMaster()->top();
+    MovementGenerator const* gen = target->GetMotionMaster()->topOrNull();
     if (!gen || gen->GetMovementGeneratorType() != CHASE_MOTION_TYPE)
         return false;
     return (static_cast<ChaseMovementGenerator const*>(gen)->GetTarget() == owner);
