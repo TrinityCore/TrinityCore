@@ -2503,6 +2503,20 @@ bool Map::GetAreaInfo(float x, float y, float z, uint32 &flags, int32 &adtId, in
     return false;
 }
 
+// This returns vmap data!
+float Map::GetAreaInfoFloorZ(float x, float y, float z) const
+{
+    float vmap_z = z;
+    VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+    uint32 mogpFlags;
+    int32 adtId, rootId, groupId;
+
+    if (vmgr->getAreaInfo(GetId(), x, y, vmap_z, mogpFlags, adtId, rootId, groupId))
+        return vmap_z;
+
+    return VMAP_INVALID_HEIGHT_VALUE;
+}
+
 uint32 Map::GetAreaId(float x, float y, float z, bool *isOutdoors) const
 {
     uint32 mogpFlags;
