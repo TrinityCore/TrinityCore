@@ -220,7 +220,7 @@ bool ExtractSingleWmo(std::string& fname)
             break;
         }
 
-        Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, &froot, preciseVectorData);
+        Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
     }
 
     fseek(output, 8, SEEK_SET); // store the correct no of vertices
