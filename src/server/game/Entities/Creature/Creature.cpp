@@ -2745,6 +2745,15 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         SetFall(false);
 
+    if (GetCreatureTemplate()->InhabitType & INHABIT_WATER)
+    {
+        if (IsUnderWater())
+            AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+    }
+    else
+
     SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
 }
 

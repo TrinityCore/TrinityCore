@@ -14150,16 +14150,9 @@ bool Unit::SetSwim(bool enable)
         return false;
 
     if (enable)
-    {
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-        if (IsUnderWater())
-            SetDisableGravity(true);
-    }
     else
-    {
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-        SetDisableGravity(false);
-    }
 
     if (enable)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_START_SWIM, NULL_OPCODE).Send();
