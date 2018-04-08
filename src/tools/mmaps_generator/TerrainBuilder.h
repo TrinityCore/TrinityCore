@@ -51,7 +51,7 @@ namespace MMAP
     static const float GRID_PART_SIZE = GRID_SIZE/V8_SIZE;
 
     // see contrib/extractor/system.cpp, CONF_use_minHeight
-    static const float INVALID_MAP_LIQ_HEIGHT = -500.f;
+    static const float INVALID_MAP_LIQ_HEIGHT = -2000.f;
     static const float INVALID_MAP_LIQ_HEIGHT_MAX = 5000.0f;
 
     // see following files:
