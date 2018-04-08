@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,22 +14,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
+#include "AbstractFollower.h"
 #include "Unit.h"
-#include "TargetedMovementGenerator.h"
-#include "FollowerReference.h"
 
-void FollowerReference::targetObjectBuildLink()
+void AbstractFollower::SetTarget(Unit* unit)
 {
-    getTarget()->addFollower(this);
-}
+    if (unit == _target)
+        return;
 
-void FollowerReference::targetObjectDestroyLink()
-{
-    getTarget()->removeFollower(this);
-}
-
-void FollowerReference::sourceObjectDestroyLink()
-{
-    GetSource()->stopFollowing();
+    if (_target)
+        _target->FollowerRemoved(this);
+    _target = unit;
+    if (_target)
+        _target->FollowerAdded(this);
 }
