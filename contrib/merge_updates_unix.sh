@@ -1,2 +1,1 @@
-Make codacy happy
-cat ../sql/updates/world/*.sql > world_update.sql
+#!/bin/bashcat ../sql/updates/world/*.sql > world_update.sql
