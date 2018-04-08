@@ -4,8 +4,8 @@ UPDATE gameobject_template SET Data0 = 132625 WHERE entry = 216058;
 
 -- Fixing Portal to Stormshield --
 -- Fixing Portal to Ashran from Stormwind and Orgrimmar and Correct Default Name -
-UPDATE gameobject_template SET NAME = "Portal to Ashran" AND Data0 = 167221 WHERE entry = 237733; -- Orgrimmar
-UPDATE gameobject_template SET NAME = "Portal to Ashran" AND VerifiedBuild = 25996 WHERE entry = 243477; -- Stormwind
+UPDATE `gameobject_template` SET `name` = 'Portal to Ashran', `Data0` = 167221 WHERE (entry = 237733); -- Orgrimmar
+UPDATE `gameobject_template` SET `name` = 'Portal to Ashran', `VerifiedBuild` = 25996 WHERE (entry = 243477); -- Stormwind
 
 UPDATE gameobject SET id = 243477 WHERE guid = 1479210; -- Correct Spawn in Stormwind Keep
 
