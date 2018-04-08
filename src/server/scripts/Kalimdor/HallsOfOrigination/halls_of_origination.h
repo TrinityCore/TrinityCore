@@ -42,16 +42,37 @@ enum HOOData
     DATA_RAJH,
 
     // Temple Guardian Anhuur
-    DATA_ANHUUR_GUID,
-    DATA_ANHUUR_LEFT_BEACON,
-    DATA_ANHUUR_RIGHT_BEACON,
-    DATA_ANHUUR_BRIDGE,
     DATA_ANHUUR_DOOR,
 
     // Anraphet
-    DATA_BRANN_0_GUID,
+    DATA_BRANN_0,
+    DATA_VAULT_OF_LIGHTS_DOOR,
     DATA_DEAD_ELEMENTALS,
-    DATA_ANRAPHET_GUID,
+    DATA_LIGHTMACHINE_EARTH,
+    DATA_LIGHTMACHINE_AIR,
+    DATA_LIGHTMACHINE_FIRE,
+    DATA_LIGHTMACHINE_WATER,
+    DATA_LASERBEAMS_EARTH,
+    DATA_LASERBEAMS_AIR,
+    DATA_LASERBEAMS_FIRE,
+    DATA_LASERBEAMS_WATER,
+    DATA_UPDATE_LASERBEAMS,
+    DATA_ANRAPHET_SUN_MIRROR,
+    DATA_ANRAPHET_DOOR,
+
+    // Isiset
+    DATA_ISISET_PHASE,
+    DATA_ISISET_ASTRAL_RAIN_ALIVE,
+    DATA_ISISET_CELESTIAL_CALL_ALIVE,
+    DATA_ISISET_VEIL_OF_SKY_ALIVE,
+
+    // Ammunae
+
+    // Setesh
+    DATA_SETESH_ADD_STALKER,
+
+    // Misc
+    DATA_LIFT_OF_THE_MAKERS
 };
 
 enum HOOCreatures
@@ -59,13 +80,13 @@ enum HOOCreatures
     BOSS_TEMPLE_GUARDIAN_ANHUUR     = 39425,
     NPC_CAVE_IN_STALKER             = 40183,
     NPC_SEARING_LIGHT               = 40283,
-    NPC_PIT_SNAKE                   = 39444,
 
     BOSS_EARTHRAGER_PTAH            = 39428,
     NPC_BEETLE_STALKER              = 40459, // Summons both Jeweled Scarab and Dustbone Horror
-    NPC_JEWELED_SCARAB              = 40458,
-    NPC_DUSTBONE_HORROR             = 40450,
-    NPC_QUICKSAND                   = 40503, // Summoned by a spell not in dbc (75550)
+    NPC_JEWELED_SCARAB              = 40458, // Summoned by spell: 75462 Summon Jeweled Scarab
+    NPC_DUSTBONE_HORROR             = 40450, // Summoned by spell: 75521 Summon Dustbone Horror
+    NPC_QUICKSAND                   = 40503, // Summoned by spell: 75550 (server-side, not in dbc)
+    NPC_HOO_CAMEL                   = 39443,
 
     BOSS_ANRAPHET                   = 39788,
     NPC_FIRE_WARDEN                 = 39800,
@@ -73,58 +94,134 @@ enum HOOCreatures
     NPC_WATER_WARDEN                = 39802,
     NPC_AIR_WARDEN                  = 39803,
 
-    BOSS_RAJH                       = 39378,
-    NPC_INFERNO_LEAP                = 47040,
-    NPC_BLAZING_INFERNO             = 40927,
-
+    WARDEN_ENTRY_MAX_COUNT          = 4,
     WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - DATA_FIRE_WARDEN,
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,
     NPC_OMEGA_STANCE                = 41194,
+    NPC_ALPHA_BEAM                  = 41144,
+    NPC_STONE_TROGG_PILLAGER        = 39804,
+    NPC_STONE_TROGG_BRUTE           = 40251,
+    NPC_STONE_TROGG_ROCK_FLINGER    = 40252,
+
+    BOSS_ISISET                     = 39587,
+    NPC_SPATIAL_FLUX_TRASH          = 39612, // Isiset trash
+    NPC_ENERGY_FLUX_TRASH           = 44015,
+    NPC_SPATIAL_ANOMALY             = 40170,
+    NPC_FLUX_ANIMATOR               = 40033,
+    NPC_STAR_SHARD                  = 40106,
+
+    BOSS_AMMUNAE                    = 39731,
+
+    BOSS_SETESH                     = 39732,
+    NPC_SETESH_CHAOS_SEED           = 41126,
+    NPC_SETESH_CHAOS_BLAST          = 41041,
+    NPC_SETESH_CHAOS_PORTAL         = 41055,
+    NPC_SETESH_ADD_STALKER          = 41479,
+    NPC_SETESH_VOID_RIFT            = 39266, // Setesh trash
+
+    BOSS_RAJH                       = 39378,
+    NPC_INFERNO_LEAP                = 47040,
+    NPC_BLAZING_INFERNO             = 40927,
 };
 
 enum HOOGameObjects
 {
     GO_ANHUURS_BRIDGE               = 206506,
     GO_DOODAD_ULDUM_ELEVATOR_COL01  = 207725,
-    GO_ANHUURS_DOOR                 = 202307,
-    GO_ANHUURS_RIGHT_BEACON         = 203136,
-    GO_ANHUURS_LEFT_BEACON          = 203133,
+    GO_DOODAD_ULDUM_DOOR_14         = 202306,
+    GO_DOODAD_ULDUM_DOOR_15         = 202307,
 
     GO_VAULT_OF_LIGHTS_DOOR         = 202313,
     GO_SUN_MIRROR                   = 207726,
     GO_ANRAPHET_DOOR                = 202314,
 
-    GO_DOODAD_ULDUM_LIGHTMACHINE_01 = 207375,
-    GO_DOODAD_ULDUM_LIGHTMACHINE_02 = 207374,
-    GO_DOODAD_ULDUM_LIGHTMACHINE_03 = 207377,
-    GO_DOODAD_ULDUM_LIGHTMACHINE_04 = 207376,
+    GO_DOODAD_ULDUM_LIGHTMACHINE_02 = 207374, // South-West
+    GO_DOODAD_ULDUM_LIGHTMACHINE_01 = 207375, // South-East
+    GO_DOODAD_ULDUM_LIGHTMACHINE_04 = 207376, // North-West
+    GO_DOODAD_ULDUM_LIGHTMACHINE_03 = 207377, // North-East
 
-    GO_DOODAD_ULDUM_LASERBEAMS01    = 207662, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_02
-    GO_DOODAD_ULDUM_LASERBEAMS_01   = 207663, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_01
-    GO_DOODAD_ULDUM_LASERBEAMS_02   = 207664, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_04
-    GO_DOODAD_ULDUM_LASERBEAMS_03   = 207665, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_03
+    GO_DOODAD_ULDUM_LASERBEAMS01    = 207662, // South-West
+    GO_DOODAD_ULDUM_LASERBEAMS_01   = 207663, // South-East
+    GO_DOODAD_ULDUM_LASERBEAMS_02   = 207664, // North-West
+    GO_DOODAD_ULDUM_LASERBEAMS_03   = 207665, // North-East
+
+    GO_ULDUM_TEMPLE                 = 207802,
+    GO_REORIGINATION_MECHANISM_1    = 207445,
+    GO_REORIGINATION_MECHANISM_2    = 207449,
+    GO_REORIGINATION_MECHANISM_3    = 207452,
+    GO_REORIGINATION_MECHANISM_4    = 207454,
+    GO_REORIGINATION_MECHANISM_5    = 207456,
+
+    GO_HOO_TRANSIT_DEVICE           = 204979, // Spell ID: 82916 - Teleports the caster to the lower floor of Halls of Origination.
+    GO_HOO_TRANSIT_DEVICE_2         = 204972, // Spell ID: 82900 - Teleports the caster to the upper floor of Halls of Origination. (dbc desc is wrong)
+    GO_LIFT_OF_THE_MAKERS           = 207547,
+    GO_LIFT_GLASS_STAR              = 207673,
+    GO_LIFT_GLASS_STAR_2            = 207674
+};
+
+enum Achievements
+{
+    //    I Hate That Song
+    // Achievement.db2 ID 5293: ParentTree 19724
+    // CriteriaTree.db2 ID 19725: ParentTree 19724 - Criteria 15988
+    // Criteria.db2 ID 15988: on Anhuur kill, world state 5638 = value 0
+    //CRITERIA_I_HATE_THAT_SONG         = 15988,
+    WS_I_HATE_THIS_SONG                 =  5638,
+    
+    //    Straw That Broke the Camel's Back
+    // Achievement.db2 ID 5294: ParentTree 18221
+    // CriteriaTree.db2 ID 18222: ParentTree 18221 - Criteria 15989
+    // Criteria.db2 ID 15989: on Ptah kill, tree 2838?
+    CRITERIA_STRAW_BROKE_CAMELS_BACK    = 15989,
+
+    //    Faster Than The Speed Of Light
+    // Achievement.db2 ID 5296: ParentTree  17685
+    // CriteriaTree.db2 ID 17686: ParentTree 17685 - Criteria 16008
+    // Criteria.db2 ID 16008: spell 94067, startEvent 24212, tree 2615?, world state 5653 = value 0, type 69
+    ACHIEV_VAULT_OF_LIGHTS_START_EVENT  = 24212,
+    SPELL_VAULT_OF_LIGHTS_CREDIT        = 94067  // Achievement aura, not in DBC
 };
 
 enum HOOMisc
 {
-    AREA_TOMB_OF_THE_EARTHRAGER     = 4945,
-    ACHIEV_VAULT_OF_LIGHTS_EVENT    = 24212, // Faster Than The Speed Of Light
-    SPELL_VAULT_OF_LIGHTS_CREDIT    = 94067, // Not in DBC
+    AREA_TOMB_OF_THE_EARTHRAGER         = 4945,
+    SPELL_ZERO_ENERGY_NO_REGEN_AURA     = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
+//  SPELL_SHRINK                        = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
+
+    // Hmm... Do elementals use these spells to spawn on a random platform?
+    // Probably also 81796, 81798, 81799, 81800 (all hidden client-side).
+    SPELL_TELEPORT_EARTH                = 82329, // South-West
+    SPELL_TELEPORT_AIR                  = 82330, // South-East
+    SPELL_TELEPORT_FIRE                 = 82331, // North-West
+    SPELL_TELEPORT_WATER                = 82332  // North-East
 };
 
 enum HOOGlobalActions
 {
+    ACTION_PTAH_ADD_DIED,
     ACTION_ANRAPHET_INTRO,
     ACTION_ELEMENTAL_DIED,
     ACTION_ANRAPHET_DIED,
-    ACTION_OMEGA_TRIGGER,
+    ACTION_OMEGA_TRIGGER
 };
 
-template <class AI, class T>
-inline AI* GetHallsOfOriginationAI(T* obj)
+enum DataStates
 {
-    return GetInstanceAI<AI>(obj, HoOScriptName);
+    ACTIVATE_SHIELD_OF_LIGHT = 0,
+    DISABLE_SHIELD_OF_LIGHT
+};
+
+template<typename AI>
+inline AI* GetHallsOfOriginationAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, HoOScriptName);
+}
+
+template<typename AI>
+inline AI* GetHallsOfOriginationAI(GameObject* go)
+{
+    return GetInstanceAI<AI>(go, HoOScriptName);
 }
 
 #endif // HALLS_OF_ORIGINATION_H

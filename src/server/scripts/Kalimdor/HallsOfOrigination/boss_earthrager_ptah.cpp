@@ -15,80 +15,72 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+// To-do:
+// - Script "Sand Vortex", heroic mode ability.
+
 #include "halls_of_origination.h"
+#include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Weather.h"
 
 enum Texts
 {
-    SAY_AGGRO                       = 0,
-    SAY_DEATH                       = 1,
+    SAY_DEATH                       = 0,
+    SAY_AGGRO                       = 1,
+    SAY_PLAYER_KILL                 = 2,
+    SAY_SPECIAL                     = 3
 };
 
 enum Events
 {
-    EVENT_RAGING_SMASH              = 1,
-    EVENT_FLAME_BOLT                = 2,
-    EVENT_EARTH_SPIKE               = 3,
-    EVENT_PTAH_EXPLODE              = 4,
-    EVENT_QUICKSAND                 = 5,
+    // Earthrager Ptah
+    EVENT_RAGING_SMASH = 1,
+    EVENT_FLAME_BOLT,
+    EVENT_EARTH_SPIKE,
+    EVENT_PTAH_EXPLODE,
+    EVENT_QUICKSAND,
+
+    // Beetle Stalker
+    EVENT_SUMMON_JEWELED_SCARAB
 };
 
 enum Spells
 {
+    // Fight
     SPELL_RAGING_SMASH              = 83650,
     SPELL_FLAME_BOLT                = 77370,
     SPELL_EARTH_SPIKE_WARN          = 94974,
 
-    SPELL_PTAH_EXPLOSION            = 75519,
+    // Disperse
     SPELL_SANDSTORM                 = 75491,
+//  SPELL_TUMULTUOUS_EARTHSTORM     = 75517, // Server-side spell
+    SPELL_PTAH_EXPLOSION            = 75519,
+    SPELL_SUMMON_QUICKSAND          = 75550, // Server-side spell + hidden client-side flag!
 
-    SPELL_SUMMON_QUICKSAND          = 75550, // Spell not in DBC, no SMSG_SPELL_START/GO for it
-
-    SPELL_BEETLE_BURROW             = 75463,
-
+    // Beetle Stalker
+    SPELL_BEETLE_BURROW             = 75463, // Visual
     SPELL_SUMMON_JEWELED_SCARAB     = 75462,
-    SPELL_SUMMON_DUSTBONE_HORROR    = 75521,
+    SPELL_SUMMON_DUSTBONE_HORROR    = 75521
 };
 
 enum Phases
 {
-    PHASE_NORMAL                    = 1,
-    PHASE_DISPERSE                  = 2,
-
-    PHASE_MASK_DISPERSE             = (1 << PHASE_DISPERSE),
-    PHASE_MASK_NORMAL               = (1 << PHASE_NORMAL),
+    PHASE_FIGHT                     = 1,
+    PHASE_EARTHSTORM                = 2
 };
 
-enum PtahData
+enum Sounds
 {
-    DATA_SUMMON_DEATHS              = 0
+    SOUND_PTAH_EARTHQUAKE           = 18908
 };
 
-class SummonScarab : public BasicEvent
-{
-public:
-    SummonScarab(Unit* owner, InstanceScript* instance) : _owner(owner), _instance(instance) { }
-
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-    {
-        if (!_instance || _instance->GetBossState(DATA_EARTHRAGER_PTAH) != IN_PROGRESS)
-            return true;    // delete event
-
-        _owner->CastSpell(_owner, SPELL_SUMMON_JEWELED_SCARAB);
-        _owner->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
-        return true;
-    }
-protected:
-    Unit* _owner;
-    InstanceScript* _instance;
-};
-
+// 39428 Earthrager Ptah
 class boss_earthrager_ptah : public CreatureScript
 {
 public:
@@ -96,82 +88,35 @@ public:
 
     struct boss_earthrager_ptahAI : public BossAI
     {
-        boss_earthrager_ptahAI(Creature* creature) : BossAI(creature, DATA_EARTHRAGER_PTAH), _summonDeaths(0), _hasDispersed(false) { }
+        boss_earthrager_ptahAI(Creature* creature) : BossAI(creature, DATA_EARTHRAGER_PTAH)
+        { 
+            Initialize();
+        }
 
-        void Cleanup()
+        void Initialize()
         {
-            std::list<Creature*> units;
-
-            GetCreatureListWithEntryInGrid(units, me, NPC_DUSTBONE_HORROR, 100.0f);
-            for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
-                (*itr)->DespawnOrUnsummon();
-
-            GetCreatureListWithEntryInGrid(units, me, NPC_JEWELED_SCARAB, 100.0f);
-            for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
-                (*itr)->DespawnOrUnsummon();
+            _hasDispersed = false;
+            _summonsMaxCount = 0;
+            _summonsDeadCount = 0;
         }
 
         void Reset() override
         {
-            _summonDeaths = 0;
-            _hasDispersed = false;
+            Initialize();
             Cleanup();
             _Reset();
-            events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+            events.SetPhase(PHASE_FIGHT);
+            ScheduleEvents();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DoAction(int32 action) override
         {
-            if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_MASK_NORMAL) && !_hasDispersed)
-            {
-                events.SetPhase(PHASE_DISPERSE);
-                _hasDispersed = true;
+            if (action != ACTION_PTAH_ADD_DIED)
+                return;
 
-                me->AttackStop();
-                DoCast(me, SPELL_SANDSTORM);
-                me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
-                events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6000, 0, PHASE_DISPERSE);
-                events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
-
-                std::list<Creature*> stalkers;
-                GetCreatureListWithEntryInGrid(stalkers, me, NPC_BEETLE_STALKER, 100.0f);
-                std::list<Creature*> beetlers = stalkers;
-
-                Trinity::Containers::RandomResize(beetlers, 9); // Holds the summoners of Jeweled Scarab
-
-                for (std::list<Creature*>::iterator itr = beetlers.begin(); itr != beetlers.end(); ++itr)
-                {
-                    stalkers.remove((*itr)); // Remove it to prevent a single trigger from spawning multiple npcs.
-                    (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW); // Cast visual
-                    // Summon after 5 seconds.
-                    (*itr)->m_Events.AddEvent(new SummonScarab((*itr), instance), (*itr)->m_Events.CalculateTime(5000));
-                }
-
-                Trinity::Containers::RandomResize(stalkers, 2); // Holds the summoners of Dustbone Horror
-
-                for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
-                    (*itr)->CastSpell((*itr), SPELL_SUMMON_DUSTBONE_HORROR);
-            }
-        }
-
-        void SetData(uint32 index, uint32 /*value*/) override
-        {
-            if (index == DATA_SUMMON_DEATHS)
-            {
-                ++_summonDeaths;
-                if (_summonDeaths == 11) // All summons died
-                {
-                    me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
-                    me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
-                    events.SetPhase(PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
-                }
-            }
+            // Increase _summonsDeadCount and check if max reached.
+            if (++_summonsDeadCount == _summonsMaxCount)
+                ExitDispersePhase();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -179,6 +124,23 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
             _JustEngagedWith();
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            // About to die? One-hit cases...
+            if (int64(me->GetHealth()) - int64(damage) <= 0)
+                return;
+
+            // Earthquake phase happens at 50% health remaining.
+            if (me->HealthBelowPctDamaged(50, damage) && !_hasDispersed)
+                EnterDispersePhase();
+        }
+
+        void KilledUnit(Unit* victim) override
+        {
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_PLAYER_KILL);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -193,7 +155,6 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
-            instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
         }
 
         void UpdateAI(uint32 diff) override
@@ -212,42 +173,170 @@ public:
                 {
                     case EVENT_RAGING_SMASH:
                         DoCastVictim(SPELL_RAGING_SMASH);
-                        events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
+                        events.Repeat(Seconds(19));
                         break;
                     case EVENT_FLAME_BOLT:
                         DoCast(me, SPELL_FLAME_BOLT);
-                        events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
+                        events.Repeat(Seconds(21));
                         break;
                     case EVENT_EARTH_SPIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_EARTH_SPIKE_WARN);
-                        events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                        events.Repeat(Seconds(15));
                         break;
                     case EVENT_PTAH_EXPLODE:
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
+                        Talk(SAY_SPECIAL);
                         DoCast(me, SPELL_PTAH_EXPLOSION);
                         break;
                     case EVENT_QUICKSAND:
-                        // Spell not in DBC, it is not cast either, according to sniffs
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            if (Creature* quicksand = me->SummonCreature(NPC_QUICKSAND, *target))
-                                quicksand->SetUInt32Value(UNIT_CREATED_BY_SPELL, SPELL_SUMMON_QUICKSAND);
-                        events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                            DoCast(target, SPELL_SUMMON_QUICKSAND);
+                        events.Repeat(Seconds(21)); //Seconds(10)
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
-            if (events.GetPhaseMask() & PHASE_MASK_NORMAL) // Do not melee in the disperse phase
+            if (!events.IsInPhase(PHASE_EARTHSTORM)) // Do not melee in the disperse phase
                 DoMeleeAttackIfReady();
         }
 
-    protected:
-        uint8 _summonDeaths;
+    private:
+        void ScheduleEvents()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_RAGING_SMASH, Seconds(7), 0, PHASE_FIGHT); // Seconds(12)
+            events.ScheduleEvent(EVENT_FLAME_BOLT, Seconds(8), 0, PHASE_FIGHT);
+            events.ScheduleEvent(EVENT_EARTH_SPIKE, Seconds(15), 0, PHASE_FIGHT); // Seconds(21)
+        }
+
+        void EnterDispersePhase()
+        {
+            events.SetPhase(PHASE_EARTHSTORM);
+            _hasDispersed = true;
+
+            me->SetReactState(REACT_PASSIVE);
+            me->InterruptNonMeleeSpells(true);
+            me->AttackStop();
+            me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
+            DoCast(me, SPELL_SANDSTORM);
+
+            std::list<Creature*> stalkers;
+            GetCreatureListWithEntryInGrid(stalkers, me, NPC_BEETLE_STALKER, 100.0f);
+            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
+            {
+                ++_summonsMaxCount;
+                if (-400.f < (*itr)->GetPositionY() && (*itr)->GetPositionY() < -390.f) // 2 stalkers in the middle
+                    (*itr)->CastSpell((*itr), SPELL_SUMMON_DUSTBONE_HORROR);
+                else
+                    (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW);
+            }
+            
+            events.ScheduleEvent(EVENT_PTAH_EXPLODE, Seconds(6), 0, PHASE_EARTHSTORM);
+            events.ScheduleEvent(EVENT_QUICKSAND, Seconds(10), 0, PHASE_EARTHSTORM);
+        }
+        
+        void ExitDispersePhase()
+        {
+            me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
+            me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 2);
+            events.SetPhase(PHASE_FIGHT);
+            ScheduleEvents();
+        }
+
+        void Cleanup()
+        {
+            std::list<Creature*> units;
+
+            GetCreatureListWithEntryInGrid(units, me, NPC_BEETLE_STALKER, 100.0f);
+            for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
+            {
+                ++_summonsMaxCount;
+                if (-400.f < (*itr)->GetPositionY() && (*itr)->GetPositionY() < -390.f) // 2 stalkers in the middle
+                    (*itr)->RemoveAurasDueToSpell(SPELL_SUMMON_DUSTBONE_HORROR);
+                else
+                    (*itr)->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
+            }
+
+            units.clear();
+            GetCreatureListWithEntryInGrid(units, me, NPC_DUSTBONE_HORROR, 100.0f);
+            for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
+                (*itr)->DespawnOrUnsummon();
+
+            units.clear();
+            GetCreatureListWithEntryInGrid(units, me, NPC_JEWELED_SCARAB, 100.0f);
+            for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
+                (*itr)->DespawnOrUnsummon();
+        }
+
         bool _hasDispersed;
+        uint8 _summonsMaxCount;
+        uint8 _summonsDeadCount;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetHallsOfOriginationAI<boss_earthrager_ptahAI>(creature);
+    }
+};
+
+// 15989 (criteria ID) Straw That Broke the Camel's Back
+class achievement_straw_broke_camels_back : public AchievementCriteriaScript
+{
+public:
+    achievement_straw_broke_camels_back() : AchievementCriteriaScript("achievement_straw_broke_camels_back") { }
+
+    bool OnCheck(Player* player, Unit* /*target*/) override
+    {
+        if (Unit* vehicle = player->GetVehicleBase())
+            return vehicle->GetEntry() == NPC_HOO_CAMEL;
+        return false;
+    }
+};
+
+// 40459 Beetle Stalker
+class npc_ptah_beetle_stalker : public CreatureScript
+{
+public:
+    npc_ptah_beetle_stalker() : CreatureScript("npc_ptah_beetle_stalker") { }
+
+    struct npc_ptah_beetle_stalkerAI : public ScriptedAI
+    {
+        npc_ptah_beetle_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_BEETLE_BURROW)
+                events.ScheduleEvent(EVENT_SUMMON_JEWELED_SCARAB, Seconds(5), Seconds(6));
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (events.Empty())
+                return;
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_SUMMON_JEWELED_SCARAB)
+            {
+                DoCastAOE(SPELL_SUMMON_JEWELED_SCARAB);
+                me->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
+            }
+                
+        }
+
+    private:
+        EventMap events;
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetHallsOfOriginationAI<npc_ptah_beetle_stalkerAI>(creature);
     }
 };
 
@@ -277,6 +366,34 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
         }
 };
 
+// 75491 Sandstorm spell_earthrager_ptah_sandstorm
+class spell_earthrager_ptah_sandstorm : public SpellScriptLoader
+{
+public:
+    spell_earthrager_ptah_sandstorm() : SpellScriptLoader("spell_earthrager_ptah_sandstorm") { }
+
+    class spell_earthrager_ptah_sandstorm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_earthrager_ptah_sandstorm_SpellScript);
+
+        void PlaySound(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* player = GetHitUnit()->ToPlayer())
+                GetCaster()->PlayDirectSound(SOUND_PTAH_EARTHQUAKE, player);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_earthrager_ptah_sandstorm_SpellScript::PlaySound, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_earthrager_ptah_sandstorm_SpellScript();
+    }
+};
+
 class spell_earthrager_ptah_explosion : public SpellScriptLoader
 {
 public:
@@ -304,14 +421,14 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_earthrager_ptah_explosion_AuraScript::SetFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_earthrager_ptah_explosion_AuraScript::RemoveFlags, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_earthrager_ptah_explosion_AuraScript();
     }
@@ -320,6 +437,9 @@ public:
 void AddSC_boss_earthrager_ptah()
 {
     new boss_earthrager_ptah();
+    new achievement_straw_broke_camels_back();
+    new npc_ptah_beetle_stalker();
     new spell_earthrager_ptah_flame_bolt();
+    new spell_earthrager_ptah_sandstorm();
     new spell_earthrager_ptah_explosion();
 }

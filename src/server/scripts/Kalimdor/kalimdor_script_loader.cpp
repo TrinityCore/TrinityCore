@@ -99,9 +99,13 @@ void AddSC_boss_high_prophet_barim();
 void AddSC_boss_lockmaw_and_augh();
 void AddSC_boss_siamat();
 void AddSC_instance_halls_of_origination();  //Halls of Origination
+void AddSC_halls_of_origination();
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
+void AddSC_boss_ammunae();
+void AddSC_boss_isiset();
+void AddSC_boss_setesh();
 void AddSC_boss_rajh();
 void AddSC_vortex_pinnacle(); //Vortex Pinnacle
 void AddSC_instance_vortex_pinnacle();
@@ -214,9 +218,13 @@ void AddKalimdorScripts()
     AddSC_boss_lockmaw_and_augh();
     AddSC_boss_siamat();
     AddSC_instance_halls_of_origination();  //Halls of Origination
+    AddSC_halls_of_origination();
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
     AddSC_boss_anraphet();
+    AddSC_boss_ammunae();
+    AddSC_boss_isiset();
+    AddSC_boss_setesh();
     AddSC_boss_rajh();
     AddSC_vortex_pinnacle();
     AddSC_instance_vortex_pinnacle();
