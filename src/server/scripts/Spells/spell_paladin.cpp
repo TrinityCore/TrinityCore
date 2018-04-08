@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "Player.h"
@@ -1804,65 +1805,51 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
 };
 
 // 31789 - Righteous Defense
-class spell_pal_righteous_defense : public SpellScriptLoader
+class spell_pal_righteous_defense : public SpellScript
 {
-    public:
-        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
+    PrepareSpellScript(spell_pal_righteous_defense);
 
-        class spell_pal_righteous_defense_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->GetTypeId() != TYPEID_PLAYER)
+            return SPELL_FAILED_DONT_REPORT;
+
+        if (Unit* target = GetExplTargetUnit())
         {
-            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT });
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                else
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleTriggerSpellLaunch(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-            }
-
-            void HandleTriggerSpellHit(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT, true);
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
-                //! WORKAROUND
-                //! target select will be executed in hitphase of effect 0
-                //! so we must handle trigger spell also in hit phase (default execution in launch phase)
-                //! see issue #3718
-                OnEffectLaunchTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellLaunch, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellHit, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_righteous_defense_SpellScript();
+            if (!target->IsFriendlyTo(caster) || target == caster || target->getAttackers().empty())
+                return SPELL_FAILED_BAD_TARGETS;
         }
+        else
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            auto const& attackers = target->getAttackers();
+
+            std::vector<Unit*> list(attackers.cbegin(), attackers.cend());
+            Trinity::Containers::RandomResize(list, 3);
+
+            for (Unit* attacker : list)
+                GetCaster()->CastSpell(attacker, SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT, TRIGGERED_FULL_MASK);
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // -53380 - Righteous Vengeance
@@ -2454,7 +2441,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgements_of_the_wise();
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();
-    new spell_pal_righteous_defense();
+    RegisterSpellScript(spell_pal_righteous_defense);
     new spell_pal_righteous_vengeance();
     new spell_pal_sacred_shield();
     new spell_pal_sacred_shield_dummy();

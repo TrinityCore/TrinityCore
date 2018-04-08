@@ -234,26 +234,7 @@ namespace VMAP
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 
-    float VMapManager2::getCeil(unsigned int mapId, float x, float y, float z, float maxSearchDist)
-    {
-        if (isHeightCalcEnabled() && !IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_HEIGHT))
-        {
-            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
-            if (instanceTree != iInstanceMapTrees.end())
-            {
-                Vector3 pos = convertPositionToInternalRep(x, y, z);
-                float height = instanceTree->second->getCeil(pos, maxSearchDist);
-                if (!(height < G3D::finf()))
-                    return height = VMAP_INVALID_CEIL_VALUE; // No height
-
-                return height;
-            }
-        }
-
-        return VMAP_INVALID_CEIL_VALUE;
-    }
-
-    bool VMapManager2::getAreaInfo(unsigned int mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
+    bool VMapManager2::getAreaInfo(uint32 mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
         {
@@ -271,7 +252,7 @@ namespace VMAP
         return false;
     }
 
-    bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const
+    bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LIQUIDSTATUS))
         {
@@ -286,6 +267,7 @@ namespace VMAP
                     ASSERT(floor < std::numeric_limits<float>::max());
                     ASSERT(info.hitModel);
                     type = info.hitModel->GetLiquidType();  // entry from LiquidType.dbc
+                    mogpFlags = info.hitModel->GetMogpFlags();
                     if (reqLiquidType && !(GetLiquidFlagsPtr(type) & reqLiquidType))
                         return false;
                     ASSERT(info.hitInstance);

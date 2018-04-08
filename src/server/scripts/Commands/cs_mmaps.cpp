@@ -34,7 +34,6 @@
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "RBAC.h"
-#include "TargetedMovementGenerator.h"
 
 class mmaps_commandscript : public CommandScript
 {

@@ -89,6 +89,9 @@ inline T RoundToInterval(T& num, T floor, T ceil)
     return num = std::min(std::max(num, floor), ceil);
 }
 
+template <class T>
+inline T square(T x) { return x*x; }
+
 // UTF8 handling
 TC_COMMON_API bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr);
 

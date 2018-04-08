@@ -236,19 +236,6 @@ namespace VMAP
         return(height);
     }
 
-    float StaticMapTree::getCeil(const G3D::Vector3 & pPos, float maxSearchDist) const
-    {
-        float height = G3D::finf();
-        Vector3 dir = Vector3(0, 0, 1);
-        G3D::Ray ray(pPos, dir);   // direction with length of 1
-        float maxDist = maxSearchDist;
-        if (getIntersectionTime(ray, maxDist, false, ModelIgnoreFlags::Nothing))
-        {
-            height = pPos.z + maxDist;
-        }
-        return(height);
-    }
-
     //=========================================================
     LoadResult StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY)
     {
