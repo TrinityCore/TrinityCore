@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "Player.h"
