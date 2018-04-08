@@ -23,6 +23,7 @@
 #include "model.h"
 #include "StringFormat.h"
 #include "vmapexport.h"
+#include "VMapDefinitions.h"
 #include <CascLib.h>
 #include <algorithm>
 #include <cstdio>
@@ -101,6 +102,8 @@ void ExtractGameobjectModels()
         return;
     }
 
+    fwrite(VMAP::RAW_VMAP_MAGIC, 1, 8, model_list);
+
     for (uint32 rec = 0; rec < db2.GetRecordCount(); ++rec)
     {
         DB2Record record = db2.GetRecord(rec);
@@ -114,8 +117,12 @@ void ExtractGameobjectModels()
         if (!GetHeaderMagic(fileName, &header))
             continue;
 
+        uint8 isWmo = 0;
         if (header == MODEL_WMO)
+        {
+            isWmo = 1;
             result = ExtractSingleWmo(fileName);
+        }
         else if (header == MODEL_MD20 || header == MODEL_MD21)
             result = ExtractSingleModel(fileName);
         else
@@ -126,6 +133,7 @@ void ExtractGameobjectModels()
             uint32 displayId = record.GetId();
             uint32 path_length = fileName.length();
             fwrite(&displayId, sizeof(uint32), 1, model_list);
+            fwrite(&isWmo, sizeof(uint8), 1, model_list);
             fwrite(&path_length, sizeof(uint32), 1, model_list);
             fwrite(fileName.c_str(), sizeof(char), path_length, model_list);
         }

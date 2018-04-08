@@ -21,6 +21,7 @@
 #include "wmo.h"
 #include "adtfile.h"
 #include "cascfile.h"
+#include "VMapDefinitions.h"
 #include <cassert>
 #include <algorithm>
 #include <cstdio>
@@ -89,7 +90,7 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
         printf("Can't create the output file '%s'\n",outfilename);
         return false;
     }
-    fwrite(szRawVMAPMagic, 8, 1, output);
+    fwrite(VMAP::RAW_VMAP_MAGIC, 8, 1, output);
     uint32 nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
@@ -155,29 +156,17 @@ Vec3D fixCoordSystem2(Vec3D v)
     return Vec3D(v.x, v.z, v.y);
 }
 
-ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
-    : id(0), scale(0), flags(0)
+void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    float ff[3];
-    f.read(&id, 4);
-    f.read(ff, 12);
-    pos = fixCoords(Vec3D(ff[0], ff[1], ff[2]));
-    f.read(ff, 12);
-    rot = Vec3D(ff[0], ff[1], ff[2]);
-    f.read(&scale, 2);
-    f.read(&flags, 2);
     // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
-    sc = scale / 1024.0f;
+    float sc = doodadDef.Scale / 1024.0f;
 
     char tempname[512];
     sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
     FILE* input = fopen(tempname, "r+b");
 
     if (!input)
-    {
-        //printf("ModelInstance::ModelInstance couldn't open %s\n", tempname);
         return;
-    }
 
     fseek(input, 8, SEEK_SET); // get the correct no of vertices
     int nVertices;
@@ -187,22 +176,24 @@ ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapI
     if (count != 1 || nVertices == 0)
         return;
 
-    uint16 adtId = 0;// not used for models
+    Vec3D position = fixCoords(doodadDef.Position);
+
+    uint16 nameSet = 0;// not used for models
     uint32 tcflags = MOD_M2;
     if (tileX == 65 && tileY == 65)
         tcflags |= MOD_WORLDSPAWN;
     if (mapID != originalMapId)
         tcflags |= MOD_PARENT_SPAWN;
 
-    //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
+    //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
     fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
-    fwrite(&adtId, sizeof(uint16), 1, pDirfile);
-    fwrite(&id, sizeof(uint32), 1, pDirfile);
-    fwrite(&pos, sizeof(float), 3, pDirfile);
-    fwrite(&rot, sizeof(float), 3, pDirfile);
+    fwrite(&nameSet, sizeof(uint16), 1, pDirfile);
+    fwrite(&doodadDef.UniqueId, sizeof(uint32), 1, pDirfile);
+    fwrite(&position, sizeof(Vec3D), 1, pDirfile);
+    fwrite(&doodadDef.Rotation, sizeof(Vec3D), 1, pDirfile);
     fwrite(&sc, sizeof(float), 1, pDirfile);
     uint32 nlen = strlen(ModelInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
@@ -214,41 +205,25 @@ ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapI
         ADTOutputCache& cacheModelData = dirfileCache->back();
         cacheModelData.Flags = tcflags & ~MOD_PARENT_SPAWN;
         cacheModelData.Data.resize(
-            sizeof(uint16) +    // adtId
-            sizeof(uint32) +    // id
-            sizeof(float) * 3 + // pos
-            sizeof(float) * 3 + // rot
+            sizeof(uint16) +    // nameSet
+            sizeof(uint32) +    // doodadDef.UniqueId
+            sizeof(Vec3D) +     // position
+            sizeof(Vec3D) +     // doodadDef.Rotation
             sizeof(float) +     // sc
             sizeof(uint32) +    // nlen
             nlen);              // ModelInstName
 
         uint8* cacheData = cacheModelData.Data.data();
-#define CACHE_WRITE(value, size, count, dest) memcpy(dest, value, size * count); dest += size * count;
+#define CACHE_WRITE(value, size, cnt, dest) memcpy(dest, value, size * cnt); dest += size * cnt;
 
-        CACHE_WRITE(&adtId, sizeof(uint16), 1, cacheData);
-        CACHE_WRITE(&id, sizeof(uint32), 1, cacheData);
-        CACHE_WRITE(&pos, sizeof(float), 3, cacheData);
-        CACHE_WRITE(&rot, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&nameSet, sizeof(uint16), 1, cacheData);
+        CACHE_WRITE(&doodadDef.UniqueId, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(&position, sizeof(Vec3D), 1, cacheData);
+        CACHE_WRITE(&doodadDef.Rotation, sizeof(Vec3D), 1, cacheData);
         CACHE_WRITE(&sc, sizeof(float), 1, cacheData);
         CACHE_WRITE(&nlen, sizeof(uint32), 1, cacheData);
         CACHE_WRITE(ModelInstName, sizeof(char), nlen, cacheData);
 
 #undef CACHE_WRITE
     }
-
-    /* int realx1 = (int) ((float) pos.x / 533.333333f);
-    int realy1 = (int) ((float) pos.z / 533.333333f);
-    int realx2 = (int) ((float) pos.x / 533.333333f);
-    int realy2 = (int) ((float) pos.z / 533.333333f);
-
-    fprintf(pDirfile,"%s/%s %f,%f,%f_%f,%f,%f %f %d %d %d,%d %d\n",
-        MapName,
-        ModelInstName,
-        (float) pos.x, (float) pos.y, (float) pos.z,
-        (float) rot.x, (float) rot.y, (float) rot.z,
-        sc,
-        nVertices,
-        realx1, realy1,
-        realx2, realy2
-        ); */
 }
