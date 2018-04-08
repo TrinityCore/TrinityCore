@@ -30,6 +30,7 @@ enum ModelFlags
 };
 
 extern const char * szWorkDirWmo;
+extern const char * szRawVMAPMagic;                         // vmap magic string for extracted raw vmap data
 
 bool FileExists(const char * file);
 void strToLower(char* str);

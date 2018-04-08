@@ -105,16 +105,8 @@ namespace VMAP
     WmoLiquid::WmoLiquid(uint32 width, uint32 height, const Vector3 &corner, uint32 type):
         iTilesX(width), iTilesY(height), iCorner(corner), iType(type)
     {
-        if (width && height)
-        {
-            iHeight = new float[(width + 1) * (height + 1)];
-            iFlags = new uint8[width * height];
-        }
-        else
-        {
-            iHeight = new float[1];
-            iFlags = nullptr;
-        }
+        iHeight = new float[(width+1)*(height+1)];
+        iFlags = new uint8[width*height];
     }
 
     WmoLiquid::WmoLiquid(const WmoLiquid &other): iHeight(nullptr), iFlags(nullptr)
@@ -157,13 +149,6 @@ namespace VMAP
 
     bool WmoLiquid::GetLiquidHeight(const Vector3 &pos, float &liqHeight) const
     {
-        // simple case
-        if (!iFlags)
-        {
-            liqHeight = iHeight[0];
-            return true;
-        }
-
         float tx_f = (pos.x - iCorner.x)/LIQUID_TILE_SIZE;
         uint32 tx = uint32(tx_f);
         if (tx_f < 0.0f || tx >= iTilesX)
@@ -215,8 +200,8 @@ namespace VMAP
     {
         return 2 * sizeof(uint32) +
                 sizeof(Vector3) +
-                sizeof(uint32) +
-                (iFlags ? ((iTilesX + 1) * (iTilesY + 1) * sizeof(float) + iTilesX * iTilesY) : sizeof(float));
+                (iTilesX + 1)*(iTilesY + 1) * sizeof(float) +
+                iTilesX * iTilesY;
     }
 
     bool WmoLiquid::writeToFile(FILE* wf)
@@ -227,17 +212,12 @@ namespace VMAP
             fwrite(&iCorner, sizeof(Vector3), 1, wf) == 1 &&
             fwrite(&iType, sizeof(uint32), 1, wf) == 1)
         {
-            if (iTilesX && iTilesY)
+            uint32 size = (iTilesX + 1) * (iTilesY + 1);
+            if (fwrite(iHeight, sizeof(float), size, wf) == size)
             {
-                uint32 size = (iTilesX + 1) * (iTilesY + 1);
-                if (fwrite(iHeight, sizeof(float), size, wf) == size)
-                {
-                    size = iTilesX * iTilesY;
-                    result = fwrite(iFlags, sizeof(uint8), size, wf) == size;
-                }
+                size = iTilesX*iTilesY;
+                result = fwrite(iFlags, sizeof(uint8), size, wf) == size;
             }
-            else
-                result = fwrite(iHeight, sizeof(float), 1, wf) == 1;
         }
 
         return result;
@@ -253,21 +233,13 @@ namespace VMAP
             fread(&liquid->iCorner, sizeof(Vector3), 1, rf) == 1 &&
             fread(&liquid->iType, sizeof(uint32), 1, rf) == 1)
         {
-            if (liquid->iTilesX && liquid->iTilesY)
+            uint32 size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
+            liquid->iHeight = new float[size];
+            if (fread(liquid->iHeight, sizeof(float), size, rf) == size)
             {
-                uint32 size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
-                liquid->iHeight = new float[size];
-                if (fread(liquid->iHeight, sizeof(float), size, rf) == size)
-                {
-                    size = liquid->iTilesX * liquid->iTilesY;
-                    liquid->iFlags = new uint8[size];
-                    result = fread(liquid->iFlags, sizeof(uint8), size, rf) == size;
-                }
-            }
-            else
-            {
-                liquid->iHeight = new float[1];
-                result = fread(liquid->iHeight, sizeof(float), 1, rf) == 1;
+                size = liquid->iTilesX * liquid->iTilesY;
+                liquid->iFlags = new uint8[size];
+                result = fread(liquid->iFlags, sizeof(uint8), size, rf) == size;
             }
         }
 

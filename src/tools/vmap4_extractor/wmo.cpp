@@ -20,13 +20,15 @@
 #include "wmo.h"
 #include "adtfile.h"
 #include "vec3d.h"
-#include "VMapDefinitions.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
 #undef min
 #undef max
 #include "mpqfile.h"
+
+extern uint16 *LiqType;
 
 WMORoot::WMORoot(std::string &filename)
     : filename(filename), col(0), nTextures(0), nGroups(0), nP(0), nLights(0),
@@ -127,7 +129,7 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
 {
     //printf("Convert RootWmo...\n");
 
-    fwrite(VMAP::RAW_VMAP_MAGIC, 1, 8, pOutfile);
+    fwrite(szRawVMAPMagic, 1, 8, pOutfile);
     unsigned int nVectors = 0;
     fwrite(&nVectors,sizeof(nVectors), 1, pOutfile); // will be filled later
     fwrite(&nGroups, 4, 1, pOutfile);
@@ -139,14 +141,14 @@ WMOGroup::WMOGroup(const std::string &filename) :
     filename(filename), MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0),
     hlq(0), LiquEx(0), LiquBytes(0), groupName(0), descGroupName(0), mogpFlags(0),
     moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
-    groupLiquid(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
+    liquidType(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
     nVertices(0), nTriangles(0), liquflags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
     memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
-bool WMOGroup::open(WMORoot* rootWMO)
+bool WMOGroup::open()
 {
     MPQFile f(WorldMpq, filename.c_str());
     if (f.isEof ())
@@ -181,19 +183,8 @@ bool WMOGroup::open(WMORoot* rootWMO)
             f.read(&nBatchB, 2);
             f.read(&nBatchC, 4);
             f.read(&fogIdx, 4);
-            f.read(&groupLiquid, 4);
-            f.read(&groupWMOID, 4);
-
-            // according to WoW.Dev Wiki:
-            if (rootWMO->liquidType & 4)
-                groupLiquid = GetLiquidTypeId(groupLiquid);
-            else if (groupLiquid == 15)
-                groupLiquid = 0;
-            else
-                groupLiquid = GetLiquidTypeId(groupLiquid + 1);
-
-            if (groupLiquid)
-                liquflags |= 2;
+            f.read(&liquidType, 4);
+            f.read(&groupWMOID,4);
 
         }
         else if (!strcmp(fourcc,"MOPY"))
@@ -230,26 +221,13 @@ bool WMOGroup::open(WMORoot* rootWMO)
         {
             liquflags |= 1;
             hlq = new WMOLiquidHeader();
-            f.read(hlq, sizeof(WMOLiquidHeader));
+            f.read(hlq, 0x1E);
             LiquEx_size = sizeof(WMOLiquidVert) * hlq->xverts * hlq->yverts;
             LiquEx = new WMOLiquidVert[hlq->xverts * hlq->yverts];
             f.read(LiquEx, LiquEx_size);
             int nLiquBytes = hlq->xtiles * hlq->ytiles;
             LiquBytes = new char[nLiquBytes];
             f.read(LiquBytes, nLiquBytes);
-
-            // Determine legacy liquid type
-            if (!groupLiquid)
-            {
-                for (int i = 0; i < hlq->xtiles * hlq->ytiles; ++i)
-                {
-                    if ((LiquBytes[i] & 0xF) != 15)
-                    {
-                        groupLiquid = GetLiquidTypeId((LiquBytes[i] & 0xF) + 1);
-                        break;
-                    }
-                }
-            }
 
             /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
             llog << filename;
@@ -264,7 +242,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
     return true;
 }
 
-int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
+int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool preciseVectorData)
 {
     fwrite(&mogpFlags,sizeof(uint32),1,output);
     fwrite(&groupWMOID,sizeof(uint32),1,output);
@@ -423,52 +401,76 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
     }
 
     //------LIQU------------------------
-    if (liquflags & 3)
+    if (LiquEx_size != 0)
     {
-        int LIQU_totalSize = sizeof(uint32);
-        if (liquflags & 1)
-        {
-            LIQU_totalSize += sizeof(WMOLiquidHeader);
-            LIQU_totalSize += LiquEx_size / sizeof(WMOLiquidVert) * sizeof(float);
-            LIQU_totalSize += hlq->xtiles * hlq->ytiles;
-        }
-        int LIQU_h[] = { 0x5551494C, LIQU_totalSize };// "LIQU"
+        int LIQU_h[] = {0x5551494C, static_cast<int>(sizeof(WMOLiquidHeader) + LiquEx_size) + hlq->xtiles*hlq->ytiles};// "LIQU"
         fwrite(LIQU_h, 4, 2, output);
+
+        // according to WoW.Dev Wiki:
+        uint32 liquidEntry;
+        if (rootWMO->liquidType & 4)
+            liquidEntry = liquidType;
+        else if (liquidType == 15)
+            liquidEntry = 0;
+        else
+            liquidEntry = liquidType + 1;
+
+        if (!liquidEntry)
+        {
+            int v1; // edx@1
+            int v2; // eax@1
+
+            v1 = hlq->xtiles * hlq->ytiles;
+            v2 = 0;
+            if (v1 > 0)
+            {
+                while ((LiquBytes[v2] & 0xF) == 15)
+                {
+                    ++v2;
+                    if (v2 >= v1)
+                        break;
+                }
+
+                if (v2 < v1 && (LiquBytes[v2] & 0xF) != 15)
+                    liquidEntry = (LiquBytes[v2] & 0xF) + 1;
+            }
+        }
+
+        if (liquidEntry && liquidEntry < 21)
+        {
+            switch ((liquidEntry - 1) & 3)
+            {
+                case 0:
+                    liquidEntry = ((mogpFlags & 0x80000) != 0) + 13;
+                    break;
+                case 1:
+                    liquidEntry = 14;
+                    break;
+                case 2:
+                    liquidEntry = 19;
+                    break;
+                case 3:
+                    liquidEntry = 20;
+                    break;
+            }
+        }
+
+        hlq->type = liquidEntry;
 
         /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
         llog << filename;
         llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->liquidType << " group:" << liquidType << ")\n";
         llog.close(); */
 
-        fwrite(&groupLiquid, sizeof(uint32), 1, output);
-        if (liquflags & 1)
-        {
-            fwrite(hlq, sizeof(WMOLiquidHeader), 1, output);
-            // only need height values, the other values are unknown anyway
-            for (uint32 i = 0; i < LiquEx_size / sizeof(WMOLiquidVert); ++i)
-                fwrite(&LiquEx[i].height, sizeof(float), 1, output);
-            // todo: compress to bit field
-            fwrite(LiquBytes, 1, hlq->xtiles * hlq->ytiles, output);
-        }
+        fwrite(hlq, sizeof(WMOLiquidHeader), 1, output);
+        // only need height values, the other values are unknown anyway
+        for (uint32 i = 0; i<LiquEx_size/sizeof(WMOLiquidVert); ++i)
+            fwrite(&LiquEx[i].height, sizeof(float), 1, output);
+        // todo: compress to bit field
+        fwrite(LiquBytes, 1, hlq->xtiles*hlq->ytiles, output);
     }
 
     return nColTriangles;
-}
-
-uint32 WMOGroup::GetLiquidTypeId(uint32 liquidTypeId)
-{
-    if (liquidTypeId < 21 && liquidTypeId)
-    {
-        switch (((static_cast<uint8>(liquidTypeId) - 1) & 3))
-        {
-            case 0: return ((mogpFlags & 0x80000) != 0) + 13;
-            case 1: return 14;
-            case 2: return 19;
-            case 3: return 20;
-            default: break;
-        }
-    }
-    return liquidTypeId;
 }
 
 WMOGroup::~WMOGroup()
@@ -482,11 +484,33 @@ WMOGroup::~WMOGroup()
     delete [] LiquBytes;
 }
 
-void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
+WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
+    : currx(0), curry(0), wmo(nullptr), doodadset(0), pos(), indx(0), id(0)
 {
+    float ff[3];
+    f.read(&id, 4);
+    f.read(ff,12);
+    pos = Vec3D(ff[0],ff[1],ff[2]);
+    f.read(ff,12);
+    rot = Vec3D(ff[0],ff[1],ff[2]);
+    f.read(ff,12);
+    pos2 = Vec3D(ff[0],ff[1],ff[2]); // bounding box corners
+    f.read(ff,12);
+    pos3 = Vec3D(ff[0],ff[1],ff[2]); // bounding box corners
+
+    uint16 fflags;
+    f.read(&fflags, 2);
+
+    uint16 doodadSet;
+    f.read(&doodadSet, 2);
+
+    uint16 trash,adtId;
+    f.read(&adtId,2);
+    f.read(&trash,2);
+
     // destructible wmo, do not dump. we can handle the vmap for these
     // in dynamic tree (gameobject vmaps)
-    if ((mapObjDef.Flags & 0x1) != 0)
+    if ((fflags & 0x01) != 0)
         return;
 
     //-----------add_in _dir_file----------------
@@ -510,41 +534,37 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     if (count != 1 || nVertices == 0)
         return;
 
-    Vec3D position = mapObjDef.Position;
-
-    float x, z;
-    x = position.x;
-    z = position.z;
-    if (x == 0 && z == 0)
+    float x,z;
+    x = pos.x;
+    z = pos.z;
+    if (x==0 && z == 0)
     {
-        position.x = 533.33333f * 32;
-        position.z = 533.33333f * 32;
+        pos.x = 533.33333f*32;
+        pos.z = 533.33333f*32;
     }
-    position = fixCoords(position);
-    AaBox3D bounds;
-    bounds.min = fixCoords(mapObjDef.Bounds.min);
-    bounds.max = fixCoords(mapObjDef.Bounds.max);
+    pos = fixCoords(pos);
+    pos2 = fixCoords(pos2);
+    pos3 = fixCoords(pos3);
 
     float scale = 1.0f;
-    if (mapObjDef.Flags & 0x4)
-        scale = mapObjDef.Scale / 1024.0f;
     uint32 flags = MOD_HAS_BOUND;
     if (tileX == 65 && tileY == 65)
         flags |= MOD_WORLDSPAWN;
     if (mapID != originalMapId)
         flags |= MOD_PARENT_SPAWN;
 
-    //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
+    //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
     fwrite(&flags, sizeof(uint32), 1, pDirfile);
-    fwrite(&mapObjDef.NameSet, sizeof(uint16), 1, pDirfile);
-    fwrite(&mapObjDef.UniqueId, sizeof(uint32), 1, pDirfile);
-    fwrite(&position, sizeof(Vec3D), 1, pDirfile);
-    fwrite(&mapObjDef.Rotation, sizeof(Vec3D), 1, pDirfile);
+    fwrite(&adtId, sizeof(uint16), 1, pDirfile);
+    fwrite(&id, sizeof(uint32), 1, pDirfile);
+    fwrite(&pos, sizeof(float), 3, pDirfile);
+    fwrite(&rot, sizeof(float), 3, pDirfile);
     fwrite(&scale, sizeof(float), 1, pDirfile);
-    fwrite(&bounds, sizeof(AaBox3D), 1, pDirfile);
+    fwrite(&pos2, sizeof(float), 3, pDirfile);
+    fwrite(&pos3, sizeof(float), 3, pDirfile);
     uint32 nlen = strlen(WmoInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
     fwrite(WmoInstName, sizeof(char), nlen, pDirfile);
@@ -555,27 +575,41 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
         ADTOutputCache& cacheModelData = dirfileCache->back();
         cacheModelData.Flags = flags & ~MOD_PARENT_SPAWN;
         cacheModelData.Data.resize(
-            sizeof(uint16) +    // mapObjDef.NameSet
-            sizeof(uint32) +    // mapObjDef.UniqueId
-            sizeof(Vec3D) +     // position
-            sizeof(Vec3D) +     // mapObjDef.Rotation
+            sizeof(uint16) +    // adtId
+            sizeof(uint32) +    // id
+            sizeof(float) * 3 + // pos
+            sizeof(float) * 3 + // rot
             sizeof(float) +     // scale
-            sizeof(AaBox3D) +   // bounds
+            sizeof(float) * 3 + // pos2
+            sizeof(float) * 3 + // pos3
             sizeof(uint32) +    // nlen
             nlen);              // WmoInstName
 
         uint8* cacheData = cacheModelData.Data.data();
 #define CACHE_WRITE(value, size, count, dest) memcpy(dest, value, size * count); dest += size * count;
 
-        CACHE_WRITE(&mapObjDef.NameSet, sizeof(uint16), 1, cacheData);
-        CACHE_WRITE(&mapObjDef.UniqueId, sizeof(uint32), 1, cacheData);
-        CACHE_WRITE(&position, sizeof(Vec3D), 1, cacheData);
-        CACHE_WRITE(&mapObjDef.Rotation, sizeof(Vec3D), 1, cacheData);
+        CACHE_WRITE(&adtId, sizeof(uint16), 1, cacheData);
+        CACHE_WRITE(&id, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(&pos, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&rot, sizeof(float), 3, cacheData);
         CACHE_WRITE(&scale, sizeof(float), 1, cacheData);
-        CACHE_WRITE(&bounds, sizeof(AaBox3D), 1, cacheData);
+        CACHE_WRITE(&pos2, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&pos3, sizeof(float), 3, cacheData);
         CACHE_WRITE(&nlen, sizeof(uint32), 1, cacheData);
         CACHE_WRITE(WmoInstName, sizeof(char), nlen, cacheData);
 
 #undef CACHE_WRITE
     }
+
+    /* fprintf(pDirfile,"%s/%s %f,%f,%f_%f,%f,%f 1.0 %d %d %d,%d %d\n",
+        MapName,
+        WmoInstName,
+        (float) x, (float) pos.y, (float) z,
+        (float) rot.x, (float) rot.y, (float) rot.z,
+        nVertices,
+        realx1, realy1,
+        realx2, realy2
+        ); */
+
+    // fclose(dirfile);
 }

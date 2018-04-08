@@ -132,6 +132,7 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 char const* szWorkDirWmo = "./Buildings";
+char const* szRawVMAPMagic = "VMAP045";
 
 bool LoadLocaleMPQFile(int locale)
 {
@@ -416,14 +417,14 @@ bool ExtractSingleWmo(std::string& fname)
 
             std::string s = groupFileName;
             WMOGroup fgroup(s);
-            if (!fgroup.open(&froot))
+            if (!fgroup.open())
             {
                 printf("Could not open all Group file for: %s\n", plain_name);
                 file_ok = false;
                 break;
             }
 
-            Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
+            Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, &froot, preciseVectorData);
         }
     }
 
