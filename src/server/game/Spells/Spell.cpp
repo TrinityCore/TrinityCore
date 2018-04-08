@@ -4885,13 +4885,13 @@ void Spell::TakeRunePower(bool didHit)
                 {
                     // Apply bonus when in Unholy or Blood Presence
                     if (player->HasAura(48265) || player->HasAura(48263))
-                        AddPct(int32(rp), (*i)->GetAmount());
+                        AddPct(rp, (*i)->GetAmount());
                     continue;
                 }
                 else
-                    AddPct(int32(rp), (*i)->GetAmount());
+                    AddPct(rp, (*i)->GetAmount());
             }
-            player->ModifyPower(POWER_RUNIC_POWER, int32(rp));
+            player->ModifyPower(POWER_RUNIC_POWER, rp);
         }
 }
 
