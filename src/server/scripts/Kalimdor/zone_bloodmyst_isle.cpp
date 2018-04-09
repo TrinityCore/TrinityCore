@@ -68,9 +68,9 @@ public:
 
         void JustDied(Unit* killer) override
         {
-			if (!killer)
-				return;
-			
+            if (!killer)
+                return;
+
             uint32 spawnCreatureID = 0;
 
             switch (urand(0, 2))
@@ -265,10 +265,10 @@ public:
         {
             me->SetObjectScale(1.0f);
             _events.Reset();
-			
-			if (!killer)
-				return;
-			
+
+            if (!killer)
+                return;
+
             if (Creature* legoso = me->FindNearestCreature(NPC_LEGOSO, SIZE_OF_GRIDS))
             {
                 Group* group = me->GetLootRecipientGroup();

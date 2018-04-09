@@ -2,6 +2,8 @@
 
 [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a0ba43980b804281bdfe468300614fd3)](https://www.codacy.com/app/TrinityCore/TrinityCore_434?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TrinityCoreLegacy/TrinityCore&amp;utm_campaign=Badge_Grade)
+
 ## Build Status
 
 
@@ -71,7 +73,7 @@ reports are wasteful and are subject to deletion.
 
 Fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](https://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
-NOTE: if a fix is valid also for 3.3.5a/6.x branches submit them also to [Github](https://github.com/TrinityCore/TrinityCore)
+NOTE: if a fix is valid also for 3.3.5a/master branches submit them also to [Github](https://github.com/TrinityCore/TrinityCore)
 
 
 ## Copyright

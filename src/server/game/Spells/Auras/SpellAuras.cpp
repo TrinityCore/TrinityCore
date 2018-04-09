@@ -992,6 +992,10 @@ bool Aura::CanBeSaved() const
             return false;
     }
 
+    // don't save liquid auras
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_LIQUID_AURA))
+        return false;
+
     // Can't be saved - aura handler relies on calculated amount and changes it
     if (HasEffectType(SPELL_AURA_CONVERT_RUNE))
         return false;

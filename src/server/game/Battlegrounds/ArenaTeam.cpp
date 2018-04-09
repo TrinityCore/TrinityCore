@@ -18,6 +18,7 @@
 
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -314,9 +315,33 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
 
 void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
 {
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    Group* group = (player && player->GetGroup()) ? player->GetGroup() : nullptr;
+
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
+        // Remove queues of members
+        if (Player* playerMember = ObjectAccessor::FindConnectedPlayer(itr->Guid))
+        {
+            if (group && playerMember->GetGroup() && group->GetGUID() == playerMember->GetGroup()->GetGUID())
+            {
+                if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, GetType()))
+                {
+                    GroupQueueInfo ginfo;
+                    BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
+                    if (queue.GetPlayerGroupInfoData(playerMember->GetGUID(), &ginfo))
+                        if (!ginfo.IsInvitedToBGInstanceGUID)
+                        {
+                            WorldPacket data;
+                            playerMember->RemoveBattlegroundQueueId(bgQueue);
+                            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, playerMember, playerMember->GetBattlegroundQueueIndex(bgQueue), STATUS_NONE, 0, 0, GetType());
+                            queue.RemovePlayer(playerMember->GetGUID(), true);
+                            playerMember->GetSession()->SendPacket(&data);
+                        }
+                }
+            }
+        }
         if (itr->Guid == guid)
         {
             Members.erase(itr);
@@ -326,7 +351,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
     }
 
     // Remove arena team info from player data
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (player)
     {
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
