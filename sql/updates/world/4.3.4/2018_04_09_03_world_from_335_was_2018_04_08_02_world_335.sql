@@ -1,3 +1,4 @@
+/*
 -- Rayne --> Add gossip chatter
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (7123,7124,7125);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -17,3 +18,4 @@ INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `BroadcastTextID0`, `lang0`,
 (8385,"We are all drawn here for different reasons, $c.$B$B<Rayne smiles.>$B$BI am here to meet with Rimblat of the Earthen Ring. He has some interesting theories on cleansing these lands.","",12016,0,1,0,1,0,1,0,0),
 (8386,"I think not. Rimblat has already proven that new life can grow from the sundered earth. Now we must find a way to reproduce and, more importantly, sustain the growth.$B$BWhile I am here, I am also offering my services to adventurers entering Naxxramas.","",12018,0,1,0,1,0,1,0,0),
 (8387,"I am a crafter of some renown, $c. With the proper materials, I am able to craft an armor known as Dreamwalker. Druids - and even some shaman - are drawn to this armor due to its magical properties. Are you interested?","",12020,0,1,0,1,0,1,0,6);
+*/

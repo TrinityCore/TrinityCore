@@ -1,3 +1,4 @@
+/*
 -- Rohan the Assassin --> Add gossip option
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (7118,7119,7120,7121,7122);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -23,3 +24,4 @@ INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `BroadcastTextID0`, `lang0`,
 (8382,"Yes, Bonescythe. You see, it was our tenor, an ornery fellow known as Don Julio, who got me started on the whole thing. In his travels throughout Lordaeron, Don Julio picked up many interesting skills, one of them being the ability to take the bones of fallen Scourge and fashion them into a lethal set of leather armor - perfectly suited for an assassin.","",12008,0,1,0,1,0,1,0,25),
 (8383,"I'm as sane as the next guy, $g fella:lady;. Believe what you will, but I AM capable of fashioning this armor. If you're interested, maybe we can make a deal. The sooner I can get out of the assassination business, the better.","",12010,0,1,0,1,0,1,0,0),
 (8384,"Members only, scrub!","",12012,0,1,0,273,0,25,0,0);
+*/

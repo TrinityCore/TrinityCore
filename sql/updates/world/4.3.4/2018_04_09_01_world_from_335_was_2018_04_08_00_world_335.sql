@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (6042,6022,6133,6135,6136,6163,6144,14349,14350);
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`) VALUES
@@ -16,3 +17,4 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 
 UPDATE `quest_template` SET `RewardNextQuest`=0 WHERE `ID`=6144;
 UPDATE `quest_offer_reward` SET `RewardText`="The Grand Crusader sits safely in the Scarlet Bastion while his forces pour into our lands, desecrate our structures and monuments and murder our people.$B$BThe time has come to deal with this pest. You will become the instrument of our reckoning." WHERE `ID`=6144;
+*/
