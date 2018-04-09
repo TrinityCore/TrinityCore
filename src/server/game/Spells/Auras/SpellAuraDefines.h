@@ -448,7 +448,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE                = 376,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING_2                         = 377,  // NYI
     SPELL_AURA_378                                          = 378,
-    SPELL_AURA_379                                          = 379,
+    SPELL_AURA_MOD_MANA_REGEN_PCT                           = 379,
     SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE                 = 380,  // Allows melee abilities to benefit from haste GCD reduction
     SPELL_AURA_381                                          = 381,
     SPELL_AURA_MOD_PET_STAT_PCT                             = 382,  // NYI
