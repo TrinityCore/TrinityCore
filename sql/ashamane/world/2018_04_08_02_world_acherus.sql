@@ -1,4 +1,5 @@
 -- Table `quest_offer_reward_locale`
+DELETE FROM `quest_offer_reward_locale` WHERE ID = '12593' OR ID = '12619' OR ID = '12842' OR ID = '12848' OR ID = '12636' OR ID ='12641' OR ID = '12657' OR ID ='12850' OR ID ='12849' OR ID ='12670' OR ID ='12680' OR ID ='12687';
 INSERT INTO `quest_offer_reward_locale` VALUES ('12593', 'frFR', 'Vous avez entendu l’appel du roi-liche, $c. L’heure de répondre à votre maître a sonné.', '0');
 INSERT INTO `quest_offer_reward_locale` VALUES ('12619', 'frFR', 'Très bien, $N. Vous avez créé votre première arme runique. Avec elle, vous sèmerez chaos et destruction ! Vous laisserez une traînée de carnage derrière vous, jonchée des cadavres de tous ceux qui osent s’opposer au Fléau.', '0');
 INSERT INTO `quest_offer_reward_locale` VALUES ('12842', 'frFR', 'Souvenez-vous de ces paroles, chevalier de la mort : les forgerunes sont des instruments du Fléau. Il n\'en existe qu\'à Achérus, à Naxxramas et au coeur de la Couronne de glace ! Vous ne pouvez blasonner votre arme qu\'à proximité d\'une forgerune.$B$BRevenez souvent, et blasonnez toutes vos armes. Un chevalier de la mort doit être prêt à affronter tous ceux qui s\'opposent à lui !', '0');
@@ -13,6 +14,7 @@ INSERT INTO `quest_offer_reward_locale` VALUES ('12680', 'frFR', 'Et maintenant,
 INSERT INTO `quest_offer_reward_locale` VALUES ('12687', 'frFR', 'Vous avez réussi là où la plupart des initiés échouent, $n. Vous serez grassement récompensé.', '0');
 
 -- Table `quest_request_items_locale`
+DELETE FROM `quest_request_items_locale` WHERE ID = '12619' OR ID = '12641';
 INSERT INTO `quest_request_items_locale` VALUES ('12619', 'frFR', 'La lame runique est une extension de votre être ! Sans lame runique, vous ne pourrez pas vous battre.', '0');
 INSERT INTO `quest_request_items_locale` VALUES ('12641', 'frFR', 'Notre assaut contre la Croisade écarlate entrera dans la légende.', '0');
 
