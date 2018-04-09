@@ -7645,7 +7645,8 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
 
 void Player::CastAllObtainSpells()
 {
-    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+    uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
+    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < inventoryEnd; ++slot)
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
             ApplyItemObtainSpells(item, true);
 
