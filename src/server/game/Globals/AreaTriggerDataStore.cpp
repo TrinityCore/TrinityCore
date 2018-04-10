@@ -241,7 +241,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             circularMovementInfo.Float = Value; \
             if (!std::isfinite(circularMovementInfo.Float)) \
             { \
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` has listed areatrigger (MiscId: %u) with invalid " #Float " (%u), set to 0!", \
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` has listed areatrigger (MiscId: %u) with invalid " #Float " (%f), set to 0!", \
                     spellMiscId, circularMovementInfo.Float); \
                 circularMovementInfo.Float = 0.0f; \
             }
