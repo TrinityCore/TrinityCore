@@ -704,14 +704,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     std::shared_ptr<WorldPackets::Character::CharacterCreateInfo> createInfo = charCreate.CreateInfo;
-    // Reserve the name for the duration of callback chain
-    createInfo->NameToken = sCharacterCache->TryCreateCharacterWithName(createInfo->Name);
-    if (!createInfo->NameToken)
-    {
-        SendCharCreate(CHAR_CREATE_NAME_IN_USE);
-        return;
-    }
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, charCreate.CreateInfo->Name);
 
@@ -833,6 +825,13 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             if (checkDemonHunterReqs && !hasDemonHunterReqLevel)
             {
                 SendCharCreate(CHAR_CREATE_NEW_PLAYER);
+                return;
+            }
+
+            // Check name uniqueness in the same step as saving to database
+            if (sCharacterCache->GetCharacterCacheByName(createInfo->Name))
+            {
+                SendCharCreate(CHAR_CREATE_NAME_IN_USE);
                 return;
             }
 
