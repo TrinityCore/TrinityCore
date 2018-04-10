@@ -284,6 +284,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     SetDisplayId(goInfo->displayId);
 
     m_model = CreateModel();
+    if (m_model && m_model->isMapObject())
+        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_MAP_OBJECT);
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goInfo->type));
     m_prevGoState = goState;
@@ -2406,6 +2408,8 @@ void GameObject::UpdateModel()
     m_model = CreateModel();
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);
+
+    ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_MAP_OBJECT, m_model && m_model->isMapObject());
 }
 
 Player* GameObject::GetLootRecipient() const
