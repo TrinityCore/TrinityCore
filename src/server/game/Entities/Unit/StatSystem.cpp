@@ -24,6 +24,7 @@
 #include "Pet.h"
 #include "Creature.h"
 #include "GameTables.h"
+#include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
@@ -791,26 +792,18 @@ void Player::UpdateManaRegen()
     if (manaIndex == MAX_POWERS)
         return;
 
-    // Base Mana Pool = 5% of Base Mana
-    float regenPct = 5.0f;
-
     // Get base of Mana Pool in sBaseMPGameTable
     uint32 basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basemana);
-    float base_regen = basemana * regenPct / 100.f;
+    float base_regen = basemana / 100.f;
 
     base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
-
-    // Calculate for 1 second, the client multiplies the field values by 5
-    base_regen /= 5;
 
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
     base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
     // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
-    auto auraEffects = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_PCT);
-        for (auto it = auraEffects.begin(); it != auraEffects.end(); ++it)
-            AddPct(base_regen, (*it)->GetAmount());
+    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, base_regen);
