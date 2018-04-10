@@ -397,6 +397,14 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         }
     }
 
+    // Reserve the name for the duration of callback chain
+    createInfo->NameToken = sCharacterCache->TryCreateCharacterWithName(createInfo->Name);
+    if (!createInfo->NameToken)
+    {
+        SendCharCreate(CHAR_CREATE_NAME_IN_USE);
+        return;
+    }
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, createInfo->Name);
 
