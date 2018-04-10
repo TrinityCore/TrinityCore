@@ -29,6 +29,7 @@ namespace
 {
     std::unordered_map<ObjectGuid, CharacterCacheEntry> _characterCacheStore;
     std::unordered_map<std::string, CharacterCacheEntry*> _characterCacheByNameStore;
+    std::unordered_set<std::string> _characterCreationNameStore;
 }
 
 CharacterCache::CharacterCache()
@@ -199,6 +200,21 @@ CharacterCacheEntry const* CharacterCache::GetCharacterCacheByName(std::string c
         return itr->second;
 
     return nullptr;
+}
+
+std::shared_ptr<std::string const> CharacterCache::TryCreateCharacterWithName(std::string const& name) const
+{
+    auto itr = _characterCacheByNameStore.find(name);
+    if (itr != _characterCacheByNameStore.end())
+        return nullptr;
+
+    auto insertResult = _characterCreationNameStore.insert(name);
+    if (!insertResult.second)
+        return nullptr;
+
+    // shared_ptr with custom deleter that erases its held value from _characterCreationNameStore instead of deleting it (points to value inside the container)
+    return std::shared_ptr<std::string const>(&(*insertResult.first),
+        [this](std::string const* storedName) { _characterCreationNameStore.erase(*storedName); });
 }
 
 ObjectGuid CharacterCache::GetCharacterGuidByName(std::string const& name) const
