@@ -234,7 +234,6 @@ class CharacterCreateInfo
 
         /// Server side data
         uint8 CharCount = 0;
-        std::shared_ptr<std::string const> NameToken;
 };
 
 struct CharacterRenameInfo

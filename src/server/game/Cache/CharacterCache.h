@@ -55,7 +55,7 @@ class TC_GAME_API CharacterCache
         bool HasCharacterCacheEntry(ObjectGuid const& guid) const;
         CharacterCacheEntry const* GetCharacterCacheByGuid(ObjectGuid const& guid) const;
         CharacterCacheEntry const* GetCharacterCacheByName(std::string const& name) const;
-        std::shared_ptr<std::string const> TryCreateCharacterWithName(std::string const& name) const;
+
         ObjectGuid GetCharacterGuidByName(std::string const& name) const;
         bool GetCharacterNameByGuid(ObjectGuid guid, std::string& name) const;
         uint32 GetCharacterTeamByGuid(ObjectGuid guid) const;
