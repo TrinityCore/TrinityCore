@@ -67,7 +67,7 @@ class boss_cyanigosa : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-				_JustDied();
+                _JustDied();
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }

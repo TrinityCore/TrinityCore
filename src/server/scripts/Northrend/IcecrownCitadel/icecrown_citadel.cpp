@@ -1290,7 +1290,7 @@ struct npc_argent_captainAI : public ScriptedAI
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
                 {
                     me->SetReactState(REACT_DEFENSIVE);
-                    FollowAngle = me->GetAngle(crok) + me->GetOrientation();
+                    FollowAngle = me->GetAbsoluteAngle(crok) + me->GetOrientation();
                     FollowDist = me->GetDistance2d(crok);
                     me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
                 }
