@@ -657,7 +657,12 @@ void WorldPackets::Guild::GuildBankSwapItems::Read()
     _worldPacket >> BankTab;
     _worldPacket >> BankSlot;
     _worldPacket >> PlayerSlot;
-    _worldPacket >> PlayerBag;
+
+    bool hasPlayerBag = _worldPacket.ReadBit();
+    _worldPacket.ResetBitPos();
+
+    if (hasPlayerBag)
+        _worldPacket >> PlayerBag;
 }
 
 void WorldPackets::Guild::GuildBankSwapItemsAuto::Read()
