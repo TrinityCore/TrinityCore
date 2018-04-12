@@ -6080,11 +6080,39 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
+    std::map<uint32, uint32> mapOverrides;
+
+    /// Special case for taxi in garrison phased map
+    for (uint32 i = 0; i < sGarrSiteLevelStore.GetNumRows(); ++i)
+    {
+        if (GarrSiteLevelEntry const* entry = sGarrSiteLevelStore.LookupEntry(i);)
+        {
+            mapOverrides[entry->MapID] = MAP_DRAENOR;
+
+            if (entry->MapID == mapid)
+                mapid = MAP_DRAENOR;
+        }
+    }
+
+    switch (mapid)
+    {
+        // Tanaan
+        case MAP_TANAAN_JUNGLE:
+            mapid = MAP_DRAENOR;
+            break;
+        default:
+            break;
+    }
+
     uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        if (!node || node->ContinentID != mapid || !(node->Flags & requireFlag))
+        if (!node || !(node->Flags & requireFlag))
             continue;
+
+        if (node->ContinentID != mapid)
+            if (mapOverrides.find(node->ContinentID) != mapOverrides.end() && mapOverrides[node->ContinentID] != mapid)
+                continue;
 
         uint8  field   = (uint8)((node->ID - 1) / 8);
         uint32 submask = 1 << ((node->ID - 1) % 8);
