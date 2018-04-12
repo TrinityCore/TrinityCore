@@ -293,6 +293,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         if (itr->AreaConditions && !sConditionMgr->IsObjectMeetToConditions(srcInfo, *itr->AreaConditions))
         {
             newSuppressions.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References);
+            phaseShift.ModifyPhasesReferences(itr, -itr->References);
             itr = phaseShift.Phases.erase(itr);
         }
         else
@@ -304,6 +305,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         if (sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
         {
             changed = phaseShift.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References) || changed;
+            suppressedPhaseShift.ModifyPhasesReferences(itr, -itr->References);
             itr = suppressedPhaseShift.Phases.erase(itr);
         }
         else
