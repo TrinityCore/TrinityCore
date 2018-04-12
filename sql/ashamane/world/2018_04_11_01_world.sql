@@ -1,2 +1,3 @@
-DELETE FROM `spell_proc` WHERE `SpellId` = 223817;
-INSERT INTO `spell_proc` (`SpellId`, `SpellFamilyName`, `SpellFamilyMask1`, `SpellFamilyMask2`) VALUES ('223817', '10', '131072', '8192'); 
+-- 
+DELETE FROM `creature_queststarter` WHERE `id` IN (34835,34876,34877,34878,35175,35200,37203);
+DELETE FROM `creature_addon` WHERE guid IN (253116,253244,253268,253269,253270);
