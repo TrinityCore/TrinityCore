@@ -26591,15 +26591,14 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
         }
     }
 
-    EquipmentSetInfo& eqSlot = _equipmentSets[newEqSet.Guid];
+    uint64 setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : sObjectMgr->GenerateEquipmentSetGuid();
 
-    EquipmentSetUpdateState oldState = eqSlot.State;
-
+    EquipmentSetInfo& eqSlot = _equipmentSets[setGuid];
     eqSlot.Data = newEqSet;
 
     if (eqSlot.Data.Guid == 0)
     {
-        eqSlot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
+        eqSlot.Data.Guid = setGuid;
 
         WorldPackets::EquipmentSet::EquipmentSetID data;
         data.GUID = eqSlot.Data.Guid;
@@ -26608,7 +26607,7 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
         SendDirectMessage(data.Write());
     }
 
-    eqSlot.State = oldState == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
+    eqSlot.State = eqSlot.State == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
 }
 
 void Player::_SaveEquipmentSets(SQLTransaction& trans)
