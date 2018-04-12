@@ -241,6 +241,7 @@ class TC_GAME_API AuraEffect
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModManaRegenPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseMaxHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -250,6 +251,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
