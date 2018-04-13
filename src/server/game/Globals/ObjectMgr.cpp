@@ -6085,7 +6085,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     /// Special case for taxi in garrison phased map
     for (uint32 i = 0; i < sGarrSiteLevelStore.GetNumRows(); ++i)
     {
-        if (GarrSiteLevelEntry const* entry = sGarrSiteLevelStore.LookupEntry(i);)
+        if (GarrSiteLevelEntry const* entry = sGarrSiteLevelStore.LookupEntry(i))
         {
             mapOverrides[entry->MapID] = MAP_DRAENOR;
 
@@ -6098,6 +6098,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     {
         // Tanaan
         case MAP_TANAAN_JUNGLE:
+            mapOverrides[mapid] = MAP_DRAENOR;
             mapid = MAP_DRAENOR;
             break;
         default:

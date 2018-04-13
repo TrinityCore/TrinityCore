@@ -390,6 +390,8 @@ public:
 
     ImmunityInfo const* GetImmunityInfo() const { return &_immunityInfo; }
 
+    bool HasSameTargets(SpellEffectInfo const* effect) const { return TargetA.GetTarget() == effect->TargetA.GetTarget() && TargetB.GetTarget() == effect->TargetB.GetTarget(); }
+
 private:
     struct StaticData
     {

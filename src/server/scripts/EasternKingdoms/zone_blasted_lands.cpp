@@ -255,7 +255,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
                 teleportPos = { 4055.08f, -2018.38f, 73.20f, 3.14f };
             }
 
-            player->TeleportTo(MAP_WOD_TANAAN_JUNGLE_INTRO, teleportPos);
+            player->TeleportTo(MAP_TANAAN_JUNGLE_INTRO, teleportPos);
 
             return true;
         }

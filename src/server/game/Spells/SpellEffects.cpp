@@ -2883,6 +2883,8 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 {
+    SpellEffectInfo const* currentEffect = GetEffect(effIndex);
+
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
@@ -2891,11 +2893,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
-    // and handle all effects at once
+    // and handle all effects with same targets at once
     for (uint8 index = effIndex + 1; index < MAX_SPELL_EFFECTS; ++index)
     {
         SpellEffectInfo const* effect = GetEffect(index);
-        if (!effect)
+        if (!effect || !effect->HasSameTargets(currentEffect))
             continue;
         switch (effect->Effect)
         {
@@ -2997,7 +2999,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     float weaponDamagePercentMod = 1.0f;
     for (SpellEffectInfo const* effect : GetEffects())
     {
-        if (!effect)
+        if (!effect || !effect->HasSameTargets(currentEffect))
             continue;
         switch (effect->Effect)
         {
@@ -3043,7 +3045,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     // Sequence is important
     for (SpellEffectInfo const* effect : GetEffects())
     {
-        if (!effect)
+        if (!effect || !effect->HasSameTargets(currentEffect))
             continue;
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod
