@@ -296,7 +296,8 @@ struct CreatureLevelScaling
 {
     uint16 MinLevel;
     uint16 MaxLevel;
-    int16 DeltaLevel;
+    int16 DeltaLevelMin;
+    int16 DeltaLevelMax;
 };
 
 // from `creature_template` table
