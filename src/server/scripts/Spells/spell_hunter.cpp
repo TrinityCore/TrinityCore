@@ -1099,12 +1099,16 @@ class spell_hun_piercing_shot : public SpellScript
     PrepareSpellScript(spell_hun_piercing_shot);
 
     int32 m_ExtraSpellCost = 0;
-    bool m_ExtraSpellCostRemoved = false;
 
     bool Load() override
     {
         m_ExtraSpellCost = std::min(GetCaster()->GetPower(POWER_FOCUS), 80);
         return true;
+    }
+
+    void HandleTakePower(Powers& power, int32& powerCount)
+    {
+        powerCount += m_ExtraSpellCost;
     }
 
     void CalcDamage(SpellEffIndex /*effIndex*/)
@@ -1117,14 +1121,6 @@ class spell_hun_piercing_shot : public SpellScript
         int32 damage = GetHitDamage();
         damage *= float(20 + m_ExtraSpellCost) / 100.f;
 
-        if (!m_ExtraSpellCostRemoved)
-        {
-            int32 newFocus = caster->GetPower(POWER_FOCUS) - m_ExtraSpellCost;
-            caster->SetPower(POWER_FOCUS, std::max(0, newFocus));
-
-            m_ExtraSpellCostRemoved = true;
-        }
-
         //Here we just check the target. If the target is a player, we divide the damage by 2 because this spell deals 50% in PvP.*
         if (target->IsPlayer())
             damage /= 2;
@@ -1134,6 +1130,7 @@ class spell_hun_piercing_shot : public SpellScript
 
     void Register() override
     {
+        OnTakePower += SpellOnTakePowerFn(spell_hun_piercing_shot::HandleTakePower);
         OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot::CalcDamage, EFFECT_2, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
         OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot::CalcDamage, EFFECT_4, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
     }
