@@ -1,3 +1,4 @@
+/*
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN (16114,16115,16113,16256,16116,16134,16135);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -155,3 +156,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (16134,0,0,0,1,0,100,0,1000,15000,150000,180000,80,1613400,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rimblat Earthshatter - Out of Combat - Run Script"),
 (1613400,9,0,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rimblat Earthshatter - On Script - Say Line 0"),
 (1613400,9,1,0,0,0,100,0,6000,6000,0,0,1,0,0,0,0,0,0,19,16135,0,0,0,0,0,0,"Rimblat Earthshatter - On Script - Say Line 0 (Rayne)");
+*/
