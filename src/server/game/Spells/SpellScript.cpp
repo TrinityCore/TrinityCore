@@ -222,6 +222,16 @@ SpellScript::OnSummonHandler::OnSummonHandler(SpellOnSummonFnType OnSummonHandle
     _onSummonHandlerScript = OnSummonHandlerScript;
 }
 
+void SpellScript::OnTakePowerHandler::Call(SpellScript* spellScript, Powers& power, int32& powerCost)
+{
+    (spellScript->*_onTakePowerHandlerScript)(power, powerCost);
+}
+
+SpellScript::OnTakePowerHandler::OnTakePowerHandler(SpellOnTakePowerFnType OnTakePowerHandlerScript)
+{
+    _onTakePowerHandlerScript = OnTakePowerHandlerScript;
+}
+
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {

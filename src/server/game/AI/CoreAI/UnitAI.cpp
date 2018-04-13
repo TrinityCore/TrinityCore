@@ -265,7 +265,7 @@ bool DefaultTargetSelector::operator()(Unit const* target) const
     if (!target)
         return false;
 
-    if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+    if (m_playerOnly && !target->IsPlayer())
         return false;
 
     if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))

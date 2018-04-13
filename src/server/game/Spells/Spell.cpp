@@ -4703,17 +4703,15 @@ void Spell::TakePower()
         return;
 
     //Don't take power if the spell is cast while .cheat power is enabled.
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
+    if (m_caster->IsPlayer())
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_POWER))
             return;
-    }
 
     for (SpellPowerCost& cost : m_powerCost)
     {
         Powers powerType = Powers(cost.Power);
         bool hit = true;
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (m_caster->IsPlayer())
         {
             if (powerType == POWER_RAGE || powerType == POWER_ENERGY || powerType == POWER_RUNES)
             {
@@ -4738,19 +4736,22 @@ void Spell::TakePower()
             }
         }
 
+        int32 powerCost = cost.Amount;
+        CallScriptOnTakePowerHandlers(powerType, powerCost);
+
         if (powerType == POWER_RUNES)
         {
             TakeRunePower(hit);
             continue;
         }
 
-        if (!cost.Amount)
+        if (!powerCost)
             continue;
 
         // health as power used
         if (powerType == POWER_HEALTH)
         {
-            m_caster->ModifyHealth(-cost.Amount);
+            m_caster->ModifyHealth(-powerCost);
             continue;
         }
 
@@ -4761,9 +4762,9 @@ void Spell::TakePower()
         }
 
         if (hit)
-            m_caster->ModifyPower(powerType, -cost.Amount);
+            m_caster->ModifyPower(powerType, -powerCost);
         else
-            m_caster->ModifyPower(powerType, -irand(0, cost.Amount / 4));
+            m_caster->ModifyPower(powerType, -irand(0, powerCost / 4));
     }
 }
 
@@ -7491,6 +7492,19 @@ void Spell::CallScriptAfterCastHandlers()
         auto hookItrEnd = (*scritr)->AfterCast.end(), hookItr = (*scritr)->AfterCast.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
             (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptOnTakePowerHandlers(Powers& power, int32& powerCost)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_TAKE_POWER);
+        auto hookItrEnd = (*scritr)->OnTakePower.end(), hookItr = (*scritr)->OnTakePower.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr, power, powerCost);
 
         (*scritr)->_FinishScriptCall();
     }

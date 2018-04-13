@@ -174,6 +174,7 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_BEFORE_CAST,
     SPELL_SCRIPT_HOOK_ON_CAST,
     SPELL_SCRIPT_HOOK_AFTER_CAST,
+    SPELL_SCRIPT_HOOK_TAKE_POWER,
     SPELL_SCRIPT_HOOK_ON_PREPARE,
     SPELL_SCRIPT_HOOK_ON_SUMMON
 };
@@ -199,7 +200,8 @@ class TC_GAME_API SpellScript : public _SpellScript
             typedef void(CLASSNAME::*SpellObjectTargetSelectFnType)(WorldObject*&); \
             typedef void(CLASSNAME::*SpellOnPrepareFnType)(); \
             typedef void(CLASSNAME::*SpellDestinationTargetSelectFnType)(SpellDestination&); \
-            typedef void(CLASSNAME::*SpellOnSummonFnType)(Creature* summon);
+            typedef void(CLASSNAME::*SpellOnSummonFnType)(Creature* summon); \
+            typedef void(CLASSNAME::*SpellOnTakePowerFnType)(Powers& power, int32& powerCost);
 
         SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
 
@@ -237,6 +239,15 @@ class TC_GAME_API SpellScript : public _SpellScript
             void Call(SpellScript* spellScript, Creature* creature);
         private:
             SpellOnSummonFnType _onSummonHandlerScript;
+        };
+
+        class TC_GAME_API OnTakePowerHandler
+        {
+        public:
+            OnTakePowerHandler(SpellOnTakePowerFnType OnTakePowerHandlerScript);
+            void Call(SpellScript* spellScript, Powers& power, int32& powerCost);
+        private:
+            SpellOnTakePowerFnType _onTakePowerHandlerScript;
         };
 
         class TC_GAME_API EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
@@ -312,6 +323,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         class CastHandlerFunction : public SpellScript::CastHandler { public: CastHandlerFunction(SpellCastFnType _pCastHandlerScript) : SpellScript::CastHandler((SpellScript::SpellCastFnType)_pCastHandlerScript) { } }; \
         class OnPrepareHandlerFunction : public SpellScript::OnPrepareHandler { public: OnPrepareHandlerFunction(SpellOnPrepareFnType _onPrepareHandlerScript) : SpellScript::OnPrepareHandler((SpellScript::SpellOnPrepareFnType)_onPrepareHandlerScript) {} }; \
         class OnSummonHandlerFunction : public SpellScript::OnSummonHandler { public: OnSummonHandlerFunction(SpellOnSummonFnType _onSummonHandlerScript) : SpellScript::OnSummonHandler((SpellScript::SpellOnSummonFnType)_onSummonHandlerScript) {} }; \
+        class OnTakePowerHandlerFunction : public SpellScript::OnTakePowerHandler { public: OnTakePowerHandlerFunction(SpellOnTakePowerFnType _onTakePowerHandlerScript) : SpellScript::OnTakePowerHandler((SpellScript::SpellOnTakePowerFnType)_onTakePowerHandlerScript) {} }; \
         class CheckCastHandlerFunction : public SpellScript::CheckCastHandler { public: CheckCastHandlerFunction(SpellCheckCastFnType _checkCastHandlerScript) : SpellScript::CheckCastHandler((SpellScript::SpellCheckCastFnType)_checkCastHandlerScript) { } }; \
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) { } }; \
@@ -400,6 +412,11 @@ class TC_GAME_API SpellScript : public _SpellScript
         // where function is void function(Creature* creature)
         HookList<OnSummonHandler> OnEffectSummon;
         #define SpellOnEffectSummonFn(F) OnSummonHandlerFunction(&F)
+
+        // example: OnTakePower += SpellOnTakePowerFn(class::function);
+        // where function is void function(Powers& power, int32& powerCount)
+        HookList<OnTakePowerHandler> OnTakePower;
+        #define SpellOnTakePowerFn(F) OnTakePowerHandlerFunction(&F)
 
         // hooks are executed in following order, at specified event of spell:
         // 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
