@@ -1094,102 +1094,48 @@ public:
 };
 
 // Piercing Shot - 198670
-class spell_hun_piercing_shot : public SpellScriptLoader
+class spell_hun_piercing_shot : public SpellScript
 {
-public:
-    spell_hun_piercing_shot() : SpellScriptLoader("spell_hun_piercing_shot") {}
+    PrepareSpellScript(spell_hun_piercing_shot);
 
-    class spell_hun_piercing_shot_SpellScript : public SpellScript
+    int32 m_ExtraSpellCost = 0;
+    bool m_ExtraSpellCostRemoved = false;
+
+    bool Load() override
     {
-        PrepareSpellScript(spell_hun_piercing_shot_SpellScript);
+        m_ExtraSpellCost = std::min(GetCaster()->GetPower(POWER_FOCUS), 80);
+        return true;
+    }
 
-        int32 m_ExtraSpellCost;
-        bool extraSpellCostRemoved = false;
-
-        bool Load() override
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return false;
-
-            m_ExtraSpellCost = std::min(caster->GetPower(POWER_FOCUS), 80);
-            return true;
-        }
-
-        void RecalculateDamage(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            int32 damage = GetHitDamage();
-            if (target->GetTypeId() != TYPEID_PLAYER)
-                damage /= 2;
-
-            if (Unit* target = GetHitUnit())
-            {
-                if (Unit* expltarget = GetExplTargetUnit())
-                {
-                    if (target != expltarget)
-                        SetHitDamage(damage / 307.5f);
-                    else
-                        SetHitDamage(damage / 153.7f);
-                }
-            }
-        }
-
-        void CalcDamage(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            //Formula for weapon damage : (damage + TotalAttackPower / 3.5 * weaponSpeed) * TotalDamageMultiplier
-            //Multiplied by 6.75 because the spell does it
-            //((caster->GetWeaponDamageRange(RANGED_ATTACK, MAXDAMAGE) + caster->GetTotalAttackPowerValue() / 3.5 * caster->GetAPMultiplier(RANGED_ATTACK, true)))
-
-            int32 damage = GetHitDamage();
-            damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE, GetSpellInfo()->GetEffect(EFFECT_1));
-
-            //damage /= 153.7f; //I really don't know why this was applied before... but it's needed or else I get 65 million damage lol
-            //Damage is applied linearly : If we spent 20 focus (base cost) we have the 20% default
-            //Then for every focus point spent, we have +1%, up to extraSpellCost of 80, which is 100 focus total. This cost means we do 100% of the damage.
-            damage *= (0.2 + (m_ExtraSpellCost / 100));
-
-            if (Unit* caster = GetCaster())
-            {
-                if (!extraSpellCostRemoved)
-                {
-                    int32 m_newFocus = caster->GetPower(POWER_FOCUS) - m_ExtraSpellCost;
-                    if (m_newFocus < 0)
-                        m_newFocus = 0;
-                    caster->SetPower(POWER_FOCUS, m_newFocus);
-                    if (Player* player = caster->ToPlayer())
-                        player->SendPowerUpdate(POWER_FOCUS, m_newFocus);
-                }
-                extraSpellCostRemoved = true;
-            }
-
-            //Here we just check the target. If the target is a player, we divide the damage by 2 because this spell deals 50% in PvP.*
-            if (target->GetTypeId() != TYPEID_PLAYER)
-                damage /= 2;
-
-            SetHitDamage(damage);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::RecalculateDamage, EFFECT_4, SPELL_EFFECT_NORMALIZED_WEAPON_DMG); //This should be deprecated
-            //OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::CalcDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE); //This is the explicit target one
-            //OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::CalcDamage, EFFECT_3, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE); //This is for other targets
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void CalcDamage(SpellEffIndex /*effIndex*/)
     {
-        return new spell_hun_piercing_shot_SpellScript();
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        int32 damage = GetHitDamage();
+        damage *= float(20 + m_ExtraSpellCost) / 100.f;
+
+        if (!m_ExtraSpellCostRemoved)
+        {
+            int32 newFocus = caster->GetPower(POWER_FOCUS) - m_ExtraSpellCost;
+            caster->SetPower(POWER_FOCUS, std::max(0, newFocus));
+
+            m_ExtraSpellCostRemoved = true;
+        }
+
+        //Here we just check the target. If the target is a player, we divide the damage by 2 because this spell deals 50% in PvP.*
+        if (target->IsPlayer())
+            damage /= 2;
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot::CalcDamage, EFFECT_2, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+        OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot::CalcDamage, EFFECT_4, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
     }
 };
 
@@ -3123,7 +3069,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_dire_beast();
     new spell_hun_kill_command();
     new spell_hun_kill_command_proc();
-    new spell_hun_piercing_shot();
+    RegisterSpellScript(spell_hun_piercing_shot);
     new spell_hun_arcane_shot();
     new spell_hun_multi_shot();
     new spell_hun_marked_shot();
