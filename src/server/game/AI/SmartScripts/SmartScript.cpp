@@ -568,7 +568,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                                 me->GetDistance(target) < spellInfo->GetMinRange(true) ||
                                 !me->IsWithinLOSInMap(target) ||
                                 mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask())||
-                                !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+                                me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
                                 allowMove = true;
 
                             ENSURE_AI(SmartAI, me->AI())->SetCombatMove(allowMove);
