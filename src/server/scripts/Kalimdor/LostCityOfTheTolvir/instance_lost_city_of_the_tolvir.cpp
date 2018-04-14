@@ -96,6 +96,8 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
                 if (creature->GetEntry() == NPC_ADD_STALKER)
                     addStalkerGUIDs.push_back(creature->GetGUID());
+                else if (creature->GetEntry() == NPC_WIND_TUNNEL)
+                    creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

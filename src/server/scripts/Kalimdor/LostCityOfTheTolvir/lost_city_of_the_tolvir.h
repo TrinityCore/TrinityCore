@@ -71,7 +71,8 @@ enum LCTCreatureIds
     NPC_SERVANT_OF_SIAMAT_3         = 45269,
     NPC_MINION_OF_SIAMAT            = 44704,
     NPC_MINION_OF_SIAMAT_STORM      = 44713,
-    NPC_CLOUD_BURST                 = 44541
+    NPC_CLOUD_BURST                 = 44541,
+    NPC_WIND_TUNNEL                 = 48092
 };
 
 enum LCTGameObjectIds
