@@ -1,3 +1,4 @@
+/*
 -- Rimblat Earthshatter --> Add gossip chatter
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (7113,7114,7115);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -16,3 +17,4 @@ INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `BroadcastTextID0`, `lang0`,
 (8371,"In the last war, tauren fought. Shaman were sent in defense of this world against the Scourge invasion. Most lost their lives. Many were otherwise ripped asunder, their body parts used for foul experiments in that cursed citadel. I mourn their passing but my heart swells with pride at their courage.","",11984,0,1,0,1,0,1,0,1),
 (8372,"I was a young tauren, barely having reached adolescence at the time, but I knew that those that would brave the battles for our freedom were well protected in my namesake's vestments.","",11986,0,1,0,1,0,1,0,0),
 (8373,"The name of Earthshatter has been one held by my family for hundreds of years. And like my father and his father before him, I too have inherited the right to create the vestments of my namesake.","",11987,0,1,0,1,0,1,0,0);
+*/

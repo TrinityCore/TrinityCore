@@ -1,3 +1,4 @@
+/*
 -- Quest "A Call to Arms: The Plaguelands!"
 DELETE FROM `quest_details` WHERE `ID` IN (5094,5066,5090,5091,10373,5093,10374,5095);
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -889,3 +890,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (9664,66,1,1,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=1 WHERE `ID`=9664;
 UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=1 WHERE `ID`=9664;
+*/
