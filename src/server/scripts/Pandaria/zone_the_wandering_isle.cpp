@@ -172,6 +172,21 @@ public:
     }
 };
 
+class q_the_way_of_the_tushui : public QuestScript
+{
+public:
+    q_the_way_of_the_tushui() : QuestScript("q_the_way_of_the_tushui") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->RemoveAura(SPELL_MEDITATION_TIMER_BAR);
+            PhasingHandler::OnConditionChange(player);
+        }
+    }
+};
+
 class spell_summon_living_air : public SpellScriptLoader
 {
 public:
@@ -375,27 +390,31 @@ public:
                 {
                     case 6986:
                     case 6987:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_FROG) && player->GetPositionZ() > 117.0f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                            player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6986)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6987)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_FROG))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
                         break;
                     case 6988:
                     case 6989:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK) && player->GetPositionZ() > 114.8f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                            player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6988)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6989)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
                         break;
                     case 6990:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_CROCODILE) && !player->HasUnitState(UNIT_STATE_JUMPING))
+                        if (player->HasAura(SPELL_CURSE_OF_THE_CROCODILE))
                             player->RemoveAura(SPELL_CURSE_OF_THE_CROCODILE);
                         break;
                     case 6991:
                     case 6992:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_CRANE) && player->GetPositionZ() > 79.7f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                            player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6991)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6992)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_CRANE))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
                         break;
                     case 7011:
                     case 7012:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE) && player->GetPositionZ() > 106.4f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                            player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(7011)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(7012)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
                         break;
                 }
             }
@@ -2532,6 +2551,7 @@ void AddSC_the_wandering_isle()
     new spell_summon_troublemaker();
     new spell_meditation_timer_bar();
     new spell_cave_of_scrolls_comp_timer_aura();
+    new q_the_way_of_the_tushui();
     new spell_summon_living_air();
     new q_only_the_worthy_shall_pass();
     new spell_fan_the_flames();
