@@ -302,13 +302,94 @@ void WorldSession::HandleGuildBankSwapItemsLegacy(WorldPackets::Guild::GuildBank
     }
 }
 
-void WorldSession::HandleGuildBankSwapItemsPlayerBank(WorldPackets::Guild::GuildBankSwapItems& packet)
+void WorldSession::HandleGuildBankMoveItemsPlayerBank(WorldPackets::Guild::GuildBankSwapItems& packet)
 {
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, 0);
+}
+
+void WorldSession::HandleGuildBankMoveItemsBankPlayer(WorldPackets::Guild::GuildBankSwapItems& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, 0);
+}
+
+void WorldSession::HandleGuildBankMoveItemsBankBank(WorldPackets::Guild::GuildBankSwapItemsBankBank& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, 0);
+}
+
+void WorldSession::HandleGuildBankMoveItemsPlayerBankCount(WorldPackets::Guild::GuildBankSwapItemsCount& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankMoveItemsBankPlayerCount(WorldPackets::Guild::GuildBankSwapItemsCount& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankMoveItemsBankPlayerAuto(WorldPackets::Guild::GuildBankSwapItemsAuto& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, NULL_BAG, NULL_SLOT, 0);
+}
+
+void WorldSession::HandleGuildBankMoveItemsBankBankCount(WorldPackets::Guild::GuildBankSwapItemsBankBankCount& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankMergeItemsPlayerBank(WorldPackets::Guild::GuildBankSwapItemsCount& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankMergeItemsBankPlayer(WorldPackets::Guild::GuildBankSwapItemsCount& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankMergeItemsBankBank(WorldPackets::Guild::GuildBankSwapItemsBankBankCount& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, packet.StackCount);
 }
 
 void WorldSession::HandleGuildBankSwapItemsBankPlayer(WorldPackets::Guild::GuildBankSwapItems& packet)
@@ -320,49 +401,13 @@ void WorldSession::HandleGuildBankSwapItemsBankPlayer(WorldPackets::Guild::Guild
         guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, 0);
 }
 
-void WorldSession::HandleGuildBankSwapItemsBankBank(WorldPackets::Guild::GuildBankSwapItems& packet)
+void WorldSession::HandleGuildBankSwapItemsBankBank(WorldPackets::Guild::GuildBankSwapItemsBankBank& packet)
 {
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
 
     if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.PlayerSlot, packet.PlayerBag, 0);
-}
-
-void WorldSession::HandleGuildBankSwapItemsPlayerBankCount(WorldPackets::Guild::GuildBankSwapItemsCount& packet)
-{
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
-        return;
-
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, packet.StackCount);
-}
-
-void WorldSession::HandleGuildBankSwapItemsBankPlayerCount(WorldPackets::Guild::GuildBankSwapItemsCount& packet)
-{
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
-        return;
-
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, packet.PlayerBag ? packet.PlayerBag : INVENTORY_SLOT_BAG_0, packet.PlayerSlot, packet.StackCount);
-}
-
-void WorldSession::HandleGuildBankSwapItemsBankPlayerAuto(WorldPackets::Guild::GuildBankSwapItemsAuto& packet)
-{
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
-        return;
-
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, NULL_BAG, NULL_SLOT, 0);
-}
-
-void WorldSession::HandleGuildBankSwapItemsBankBankCount(WorldPackets::Guild::GuildBankSwapItemsBankBankCount& packet)
-{
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
-        return;
-
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, packet.StackCount);
+        guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, 0);
 }
 
 void WorldSession::HandleGuildBankBuyTab(WorldPackets::Guild::GuildBankBuyTab& packet)

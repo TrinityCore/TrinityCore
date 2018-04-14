@@ -665,6 +665,15 @@ void WorldPackets::Guild::GuildBankSwapItems::Read()
         _worldPacket >> PlayerBag;
 }
 
+void WorldPackets::Guild::GuildBankSwapItemsBankBank::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> NewBankTab;
+    _worldPacket >> NewBankSlot;
+}
+
 void WorldPackets::Guild::GuildBankSwapItemsAuto::Read()
 {
     _worldPacket >> Banker;
@@ -679,7 +688,12 @@ void WorldPackets::Guild::GuildBankSwapItemsCount::Read()
     _worldPacket >> BankSlot;
     _worldPacket >> PlayerSlot;
     _worldPacket >> StackCount;
-    _worldPacket >> PlayerBag;
+
+    bool hasPlayerBag = _worldPacket.ReadBit();
+    _worldPacket.ResetBitPos();
+
+    if (hasPlayerBag)
+        _worldPacket >> PlayerBag;
 }
 
 void WorldPackets::Guild::GuildBankSwapItemsBankBankCount::Read()
