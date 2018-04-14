@@ -52,11 +52,21 @@ struct boss_illysanna_ravencrest : public BossAI
 
     void ScheduleTasks() override
     {
-        events.ScheduleEvent(SPELL_VENGEFUL_SHEAR,  16s,        0, PHASE_VENGEANCE);
-        events.ScheduleEvent(SPELL_DARK_RUSH,       10s, 20s,   0, PHASE_VENGEANCE);
-        events.ScheduleEvent(SPELL_BRUTAL_GLAIVE,   12s,        0, PHASE_VENGEANCE);
+        events.ScheduleEvent(SPELL_VENGEFUL_SHEAR,  16s,        PHASE_VENGEANCE);
+        events.ScheduleEvent(SPELL_DARK_RUSH,       10s, 20s,   PHASE_VENGEANCE);
+        events.ScheduleEvent(SPELL_BRUTAL_GLAIVE,   12s,        PHASE_VENGEANCE);
+    }
 
-        events.ScheduleEvent(SPELL_EYE_BEAMS,       12s,        0, PHASE_FURY);
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthWillBeBelowPctDamaged(50, damage))
+        {
+            events.CancelEventGroup(PHASE_VENGEANCE);
+
+            events.ScheduleEvent(SPELL_EYE_BEAMS,           12s, PHASE_FURY);
+            events.ScheduleEvent(NPC_SOUL_TORN_VANGUARD,    15s, PHASE_FURY);
+            events.ScheduleEvent(NPC_RISEN_ARCANIST,        20s, PHASE_FURY);
+        }
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -91,6 +101,18 @@ struct boss_illysanna_ravencrest : public BossAI
                     DoCast(target, SPELL_EYE_BEAMS);
 
                 events.Repeat(10s, 20s);
+                break;
+            }
+            case NPC_SOUL_TORN_VANGUARD:
+            {
+                me->SummonCreature(NPC_SOUL_TORN_VANGUARD, 3098.55f, 7311.77f, 103.40f, 0.449529f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                events.Repeat(15s);
+                break;
+            }
+            case NPC_RISEN_ARCANIST:
+            {
+                me->SummonCreature(NPC_RISEN_ARCANIST, 3098.55f, 7311.77f, 103.40f, 0.449529f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                events.Repeat(20s);
                 break;
             }
             default:

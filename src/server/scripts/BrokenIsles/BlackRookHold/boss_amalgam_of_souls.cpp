@@ -121,7 +121,9 @@ struct boss_amalgam_of_souls : public BossAI
                 me->GetScheduler().Schedule(1s, 2s, [this](TaskContext context)
                 {
                     Position pos;
-                    GetRandPosFromCenterInDist(me, 10.f, pos);
+                    GetRandPosFromCenterInDist(me, 30.f, pos);
+                    pos.m_positionZ = 20.0f;
+
                     me->SummonCreature(NPC_RESTLESS_SOUL, pos);
 
                     if (context.GetRepeatCounter() <= 6)
@@ -163,6 +165,9 @@ struct npc_aos_restless_soul : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        me->SetSpeed(MOVE_FLIGHT, 1.f);
+        me->SetSpeed(MOVE_RUN,    1.f);
+
         me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MovePoint(1, *summoner, false);
     }
