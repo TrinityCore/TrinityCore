@@ -150,11 +150,13 @@ void ScriptedAI::AttackStart(Unit* who)
         AttackStartNoMove(who);
 }
 
-void ScriptedAI::UpdateAI(uint32 /*diff*/)
+void ScriptedAI::UpdateAI(uint32 diff)
 {
     //Check if we have a current target
     if (!UpdateVictim())
         return;
+
+    events.Update(diff);
 
     DoMeleeAttackIfReady();
 }
