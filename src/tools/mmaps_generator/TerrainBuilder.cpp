@@ -19,10 +19,11 @@
 #include "TerrainBuilder.h"
 
 #include "MapBuilder.h"
-
-#include "VMapManager2.h"
+#include "MapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
 #include <map>
 
 // ******************************************
