@@ -2182,6 +2182,13 @@ bool Player::IsInAreaTriggerRadius(const AreaTriggerEntry* trigger) const
     return true;
 }
 
+bool Player::IsInAreaTriggerRadius(uint32 triggerId) const
+{
+    AreaTriggerEntry const* trigger = sAreaTriggerStore.LookupEntry(triggerId);
+
+    return IsInAreaTriggerRadius(trigger);
+}
+
 void Player::SetGameMaster(bool on)
 {
     if (on)
