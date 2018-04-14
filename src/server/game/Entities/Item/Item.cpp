@@ -2342,7 +2342,7 @@ uint16 Item::GetVisibleAppearanceModId(Player const* owner) const
 
 uint32 Item::GetVisibleEnchantmentId(Player const* owner) const
 {
-    ItemModifier illusionModifier = ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS;
+    ItemModifier illusionModifier = ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS;
     if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, IllusionModifierMaskSpecSpecific))
         illusionModifier = IllusionModifierSlotBySpec[owner->GetActiveTalentGroup()];
 
