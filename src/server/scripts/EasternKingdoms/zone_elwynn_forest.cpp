@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
