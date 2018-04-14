@@ -1075,6 +1075,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInWater() const override { return m_isInWater; }
         bool IsUnderWater() const override;
         bool IsInAreaTriggerRadius(const AreaTriggerEntry* trigger) const;
+        bool IsInAreaTriggerRadius(uint32 triggerId) const;
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
