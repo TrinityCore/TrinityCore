@@ -847,7 +847,21 @@ namespace WorldPackets
             uint8 BankTab;
             uint8 BankSlot;
             uint8 PlayerSlot;
-            uint8 PlayerBag;
+            uint8 PlayerBag = 0;
+        };
+
+        class GuildBankSwapItemsBankBank final : public ClientPacket
+        {
+        public:
+            GuildBankSwapItemsBankBank(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab;
+            uint8 BankSlot;
+            uint8 NewBankTab;
+            uint8 NewBankSlot;
         };
 
         class GuildBankSwapItemsAuto final : public ClientPacket
@@ -873,7 +887,7 @@ namespace WorldPackets
             uint8 BankTab;
             uint8 BankSlot;
             uint8 PlayerSlot;
-            uint8 PlayerBag;
+            uint8 PlayerBag = 0;
             uint32 StackCount;
         };
 
