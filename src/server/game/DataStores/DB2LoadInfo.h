@@ -3760,6 +3760,22 @@ struct RewardPackLoadInfo
     }
 };
 
+struct RewardPackXCurrencyTypeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "CurrencyTypeID" },
+            { true, FT_INT, "Quantity" },
+            { false, FT_INT, "RewardPackID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RewardPackXCurrencyTypeMeta::Instance(), HOTFIX_SEL_REWARD_PACK_X_CURRENCY_TYPE);
+        return &loadInfo;
+    }
+};
+
 struct RewardPackXItemLoadInfo
 {
     static DB2LoadInfo const* Instance()
