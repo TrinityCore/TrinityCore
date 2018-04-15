@@ -29,8 +29,8 @@ DoorData const doorData[] =
     { GOB_DOOR_AMALGAME_ROOM_3,         DATA_AMALGAM_OF_SOULS,      DOOR_TYPE_ROOM      },
     { GOB_DOOR_AMALGAME_ROOM_4,         DATA_AMALGAM_OF_SOULS,      DOOR_TYPE_ROOM      },
     { GOB_DOOR_AMALGAME_EXIT,           DATA_AMALGAM_OF_SOULS,      DOOR_TYPE_PASSAGE   },
-    { GOB_DOOR_ILLYSANNA_PORTCULLIS_1,  DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_ROOM      },
-    { GOB_DOOR_ILLYSANNA_PORTCULLIS_2,  DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_ROOM      },
+    { GOB_DOOR_ILLYSANNA_PORTCULLIS_1,  DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_PASSAGE   },
+    { GOB_DOOR_ILLYSANNA_PORTCULLIS_2,  DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_PASSAGE   },
     { GOB_DOOR_ILLYSANNA_ENTER,         DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_ROOM      },
     { GOB_DOOR_ILLYSANNA_EXIT_1,        DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_PASSAGE   },
     { GOB_DOOR_ILLYSANNA_EXIT_2,        DATA_ILLYSANNA_RAVENCREST,  DOOR_TYPE_PASSAGE   },
@@ -83,7 +83,7 @@ struct instance_black_rook_hold : public InstanceScript
         }
     }
 
-    void OnUnitDeath(Unit* unit)
+    void OnUnitDeath(Unit* unit) override
     {
         if (!unit->IsCreature())
             return;
@@ -105,6 +105,14 @@ struct instance_black_rook_hold : public InstanceScript
                         jumpPos.m_positionZ = 86.412155f;
 
                         creature->GetMotionMaster()->MoveJump(jumpPos, 10.f, 10.f);
+
+                        creature->GetScheduler().Schedule(2s, [](TaskContext context)
+                        {
+                            if (Player* player = GetContextCreature()->SelectNearestPlayer())
+                                GetContextCreature()->Attack(player, true);
+
+                            GetContextCreature()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        });
                     }
                 }
             }

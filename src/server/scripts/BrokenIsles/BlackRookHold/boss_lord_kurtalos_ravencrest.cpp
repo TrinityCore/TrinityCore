@@ -62,6 +62,16 @@ enum Spells
     SPELL_SHADOW_BOLT_VOLLEY        = 202019,
 };
 
+Position centerPosition = { 3185.36f, 7409.95f, 270.38f, 1.079803f };
+
+Position blastPositions[4] =
+{
+    { 3206.10f, 7416.93f, 276.54f, 3.451702f },
+    { 3178.82f, 7432.61f, 276.54f, 4.995077f },
+    { 3163.59f, 7403.73f, 276.54f, 0.283480f },
+    { 3192.63f, 7387.68f, 276.54f, 1.869188f },
+};
+
 // 98965
 struct boss_kurtalos_ravencrest : public BossAI
 {
@@ -168,7 +178,9 @@ struct npc_kurtalos_whirling_blade : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         spawnPos = me->GetPosition();
         collisionPos = me->GetFirstCollisionPosition(30.f);
-        me->GetMotionMaster()->MovePoint(1, collisionPos, false);
+
+        if (collisionPos != spawnPos)
+            me->GetMotionMaster()->MovePoint(1, collisionPos, false);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -237,7 +249,8 @@ struct npc_latosius : public ScriptedAI
             me->CastSpell(nullptr, SPELL_TELEPORT_OUT, true);
 
             me->SetDisableGravity(true);
-            me->NearTeleportTo({ 3206.10f, 7416.93f, 276.54f, 3.451702f });
+            me->SetHover(true);
+            me->NearTeleportTo(blastPositions[0]);
 
             events.ScheduleEvent(SPELL_DARK_BLAST, 10s);
             events.ScheduleEvent(SPELL_SHADOW_BOLT, 5s);
@@ -246,7 +259,7 @@ struct npc_latosius : public ScriptedAI
         {
             events.ScheduleEvent(SPELL_SHADOW_BOLT_VOLLEY,          5s);
             events.ScheduleEvent(SPELL_CLOUD_OF_HYPNOSIS_SUMMON,    10s);
-            //events.ScheduleEvent(SPELL_DREADLORDS_GUILE,            20s);
+            events.ScheduleEvent(SPELL_DREADLORDS_GUILE,            20s);
 
             if (IsHeroic())
                 events.ScheduleEvent(SPELL_STINGING_SWARM, 1s);
@@ -259,10 +272,9 @@ struct npc_latosius : public ScriptedAI
         if (IsLatosius() && action == SPECIAL)
         {
             events.Reset();
+            me->CastStop();
 
-            me->SetDisableGravity(false);
-            me->CastSpell(nullptr, SPELL_TELEPORT_IN, true);
-            me->NearTeleportTo({ 3185.36f, 7409.95f, 270.38f, 1.079803f });
+            TeleportToCenter();
 
             me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
             {
@@ -320,18 +332,49 @@ struct npc_latosius : public ScriptedAI
                 events.Repeat(5s);
                 break;
             case SPELL_CLOUD_OF_HYPNOSIS_SUMMON:
-                me->CastSpell(nullptr, SPELL_CLOUD_OF_HYPNOSIS_SUMMON, false);
+            {
+                Position summonPos;
+                GetRandPosFromCenterInDist(me, 20.f, summonPos);
+                me->CastSpell(summonPos, SPELL_CLOUD_OF_HYPNOSIS_SUMMON, false);
+
                 events.Repeat(20s);
                 break;
-            //TODO
+            }
             case SPELL_DREADLORDS_GUILE:
                 me->CastSpell(nullptr, SPELL_DREADLORDS_GUILE, false);
+                events.DelayEvents(21s); // 5s spell cast + 15s event + 1s security
                 break;
             case SPELL_STINGING_SWARM:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
                     me->SummonCreature(NPC_STINGING_SWARM, *target, TEMPSUMMON_CORPSE_DESPAWN);
                 events.Repeat(15s);
                 break;
+        }
+    }
+
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_DREADLORDS_GUILE)
+        {
+            me->SetDisableGravity(true);
+            me->SetHover(true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+
+            me->GetScheduler().Schedule(1s, [this](TaskContext context)
+            {
+                if (context.GetRepeatCounter() >= 4)
+                    return;
+
+                me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
+                me->NearTeleportTo(blastPositions[context.GetRepeatCounter()]);
+                me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
+                context.Repeat(4s);
+
+            }).Schedule(19s, [this](TaskContext /*context*/)
+            {
+                me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
+                TeleportToCenter();
+            });
         }
     }
 
@@ -339,6 +382,15 @@ private:
     inline bool IsLatosius() const
     {
         return me->GetEntry() == NPC_LATOSIUS;
+    }
+
+    void TeleportToCenter()
+    {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+        me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
+        me->NearTeleportTo(centerPosition);
+        me->SetDisableGravity(false);
+        me->SetHover(false);
     }
 
     ObjectGuid kurtalosSoulGUID;
@@ -351,6 +403,7 @@ struct npc_kurtalos_soul : public ScriptedAI
 
     void Reset() override
     {
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         Talk(0);
 
         me->GetScheduler().Schedule(3s, [this](TaskContext /*context*/)
@@ -422,9 +475,10 @@ struct npc_dantalionax_stinging_swarm : public ScriptedAI
         });
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        me->CastSpell(nullptr, SPELL_STINGING_SWARM_REMOVAL, true);
+        if (me->GetHealth() <= damage)
+            me->CastSpell(nullptr, SPELL_STINGING_SWARM_REMOVAL, true);
     }
 
 private:

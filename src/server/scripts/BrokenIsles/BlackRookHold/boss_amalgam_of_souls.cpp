@@ -68,6 +68,7 @@ struct boss_amalgam_of_souls : public BossAI
             if (me->HealthWillBeBelowPctDamaged(50, damage))
             {
                 me->CastSpell(nullptr, SPELL_CALL_SOULS, false);
+                events.DelayEvents(33s);
                 events.ScheduleEvent(SPELL_CALL_SOULS, 3s);
                 events.ScheduleEvent(SPELL_SOUL_BURST, 33s);
             }
@@ -80,10 +81,7 @@ struct boss_amalgam_of_souls : public BossAI
             return;
 
         if (--restlessSoulsCount == 0)
-        {
             me->RemoveAurasDueToSpell(SPELL_CALL_SOULS_VISUAL);
-            events.CancelEvent(SPELL_SOUL_BURST);
-        }
     }
 
     void ExecuteEvent(uint32 eventId) override
