@@ -904,8 +904,16 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             SetBonusDamage(val * 0.15f);
 
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+            if (pInfo)
+            {
+                SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(pInfo->minDamage));
+                SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(pInfo->maxDamage));
+            }
+            else
+            {
+                SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+                SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+            }
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
             break;
