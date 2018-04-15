@@ -59,7 +59,7 @@ enum Creatures
     NPC_BOULDER                     = 111706,
 
     // Lord Corvaltus
-    NPC_LORD_KURTALOS_RAVENCREST    = 94923,
+    NPC_LORD_KURTALOS_RAVENCREST    = 98965, // 94923?
     NPC_LATOSIUS                    = 98970,
     NPC_DANTALIONAX                 = 99611,
     NPC_SOUL_OF_RAVENCREST          = 101054,

@@ -58,6 +58,9 @@ struct instance_black_rook_hold : public InstanceScript
     {
         InstanceScript::OnCreatureCreate(creature);
 
+        if (creature->isDead())
+            return;
+
         switch (creature->GetEntry())
         {
             case NPC_SOUL_TORN_CHAMPION:
@@ -137,7 +140,7 @@ struct instance_black_rook_hold : public InstanceScript
                 uint8 boulderSide = urand(0, 1);
                 if (Creature* boulder = instance->SummonCreature(NPC_BOULDER, firstBoulderPositions[boulderSide][0]))
                     boulder->GetMotionMaster()->MoveSmoothPath(1, firstBoulderPositions[boulderSide], FIRST_BOULDER_PATH_SIZE);
-                events.Repeat(3s);
+                events.Repeat(4s);
                 break;
             }
             case DATA_STAIRS_BOULDER_2:
@@ -151,7 +154,7 @@ struct instance_black_rook_hold : public InstanceScript
                 uint8 boulderSide = urand(0, 1);
                 if (Creature* boulder = instance->SummonCreature(NPC_BOULDER, secondBoulderPositions[boulderSide][0]))
                     boulder->GetMotionMaster()->MoveSmoothPath(2, secondBoulderPositions[boulderSide], SECOND_BOULDER_PATH_SIZE);
-                events.Repeat(3s);
+                events.Repeat(5s);
                 break;
             }
         }

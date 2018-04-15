@@ -165,8 +165,8 @@ struct npc_aos_restless_soul : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        me->SetSpeed(MOVE_FLIGHT, 1.f);
-        me->SetSpeed(MOVE_RUN,    1.f);
+        me->SetSpeed(MOVE_FLIGHT, 1.5f);
+        me->SetSpeed(MOVE_RUN,    1.5f);
 
         me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MovePoint(1, *summoner, false);
@@ -183,15 +183,26 @@ struct npc_aos_restless_soul : public ScriptedAI
         {
             me->DespawnOrUnsummon();
             me->CastSpell(nullptr, SPELL_SOULGORGE, true);
+
+            if (CreatureAI* ai = GetSummonerAI())
+                ai->DoAction(ACTION_SOUL_KILLED);
         }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
+        if (CreatureAI* ai = GetSummonerAI())
+            ai->DoAction(ACTION_SOUL_KILLED);
+    }
+private:
+    CreatureAI* GetSummonerAI()
+    {
         if (TempSummon* meTempSummon = me->ToTempSummon())
             if (Unit* summoner = meTempSummon->GetSummoner())
                 if (summoner->IsCreature() && summoner->IsAIEnabled)
-                    summoner->ToCreature()->AI()->DoAction(ACTION_SOUL_KILLED);
+                    return summoner->ToCreature()->AI();
+
+        return nullptr;
     }
 };
 
