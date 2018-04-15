@@ -1106,7 +1106,7 @@ class spell_hun_piercing_shot : public SpellScript
         return true;
     }
 
-    void HandleTakePower(Powers& power, int32& powerCount)
+    void HandleTakePower(Powers& /*power*/, int32& powerCount)
     {
         powerCount += m_ExtraSpellCost;
     }
