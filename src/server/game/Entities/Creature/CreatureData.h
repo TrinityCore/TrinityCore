@@ -294,7 +294,10 @@ const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 struct CreatureLevelScaling
 {
-    int16 DeltaLevel;
+    uint16 MinLevel;
+    uint16 MaxLevel;
+    int16 DeltaLevelMin;
+    int16 DeltaLevelMax;
 };
 
 // from `creature_template` table

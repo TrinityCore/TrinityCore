@@ -15,45 +15,19 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include <limits.h>
 
-#include "PathCommon.h"
 #include "MapBuilder.h"
-#include "StringFormat.h"
-
+#include "MapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "PathCommon.h"
+#include "StringFormat.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-
-#include "DetourNavMeshBuilder.h"
-#include "DetourNavMesh.h"
-#include "DetourCommon.h"
-
-#define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 8
-
-struct MmapTileHeader
-{
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    char usesLiquids;
-    char padding[3];
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() {}
-};
-
-// All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
-static_assert(sizeof(MmapTileHeader) == 20, "MmapTileHeader size is not correct, adjust the padding field size");
-static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
-                                         sizeof(MmapTileHeader::dtVersion) +
-                                         sizeof(MmapTileHeader::mmapVersion) +
-                                         sizeof(MmapTileHeader::size) +
-                                         sizeof(MmapTileHeader::usesLiquids) +
-                                         sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
+#include <DetourCommon.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
+#include <climits>
 
 namespace MMAP
 {
@@ -1003,6 +977,8 @@ namespace MMAP
                 case 1010:  // CTF3
                 case 1105:  // Deepwind Gorge
                 case 1280:  // Southshore vs. Tarren Mill
+                case 1681:  // Arathi Basin Winter
+                case 1803:  // Seething Shore
                     return true;
                 default:
                     break;
@@ -1082,6 +1058,13 @@ namespace MMAP
             case 1639:
             case 1649:
             case 1650:
+            case 1711:
+            case 1751:
+            case 1752:
+            case 1856:
+            case 1857:
+            case 1902:
+            case 1903:
                 return true;
             default:
                 return false;
