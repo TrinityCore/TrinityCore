@@ -46,6 +46,8 @@ enum Spells
     SPELL_ARCANE_BLITZ          = 197797,
 };
 
+Position centerPos = { 3086.38f, 7295.11f, 103.53f };
+
 // 98696
 struct boss_illysanna_ravencrest : public BossAI
 {
@@ -108,13 +110,17 @@ struct boss_illysanna_ravencrest : public BossAI
             }
             case NPC_SOUL_TORN_VANGUARD:
             {
-                me->SummonCreature(NPC_SOUL_TORN_VANGUARD, 3098.55f, 7311.77f, 103.40f, 0.449529f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                Position summonPos;
+                GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
+                me->SummonCreature(NPC_SOUL_TORN_VANGUARD, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(15s);
                 break;
             }
             case NPC_RISEN_ARCANIST:
             {
-                me->SummonCreature(NPC_RISEN_ARCANIST, 3098.55f, 7311.77f, 103.40f, 0.449529f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                Position summonPos;
+                GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
+                me->SummonCreature(NPC_RISEN_ARCANIST, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(20s);
                 break;
             }

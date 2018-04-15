@@ -134,6 +134,12 @@ struct boss_amalgam_of_souls : public BossAI
         }
     }
 
+    void JustDied(Unit* killer)
+    {
+        BossAI::JustDied(killer);
+        me->RemoveAurasDueToSpell(SPELL_CALL_SOULS_VISUAL);
+    }
+
 private:
     uint8 restlessSoulsCount;
 };

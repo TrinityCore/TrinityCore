@@ -32,8 +32,7 @@ UPDATE creature_template SET scriptname = "npc_dantalionax_stinging_swarm" WHERE
 
 DELETE FROM creature WHERE id IN (100861, 101054, 111833);
 UPDATE `creature_template` SET `minlevel` = 112 , `maxlevel` = 112 , `faction` = 16 , `BaseAttackTime` = 2000 , `RangeAttackTime` = 2000 , `unit_flags` = 32768 , `unit_flags2` = 2099200 , `type` = 3 WHERE `entry` = 99611; 
-UPDATE `creature_template` SET `minlevel` = 112 , `maxlevel` = 112 , `faction` = 16 , `BaseAttackTime` = 2000 , `RangeAttackTime` = 2000 WHERE `entry` = 99664;
-UPDATE `creature_template` SET `minlevel` = 112 , `maxlevel` = 112 , `faction` = 16 , `BaseAttackTime` = 2000 , `RangeAttackTime` = 2000 WHERE `entry` = 101008;
+UPDATE `creature_template` SET `minlevel` = 112 , `maxlevel` = 112 , `faction` = 16 , `BaseAttackTime` = 2000 , `RangeAttackTime` = 2000 WHERE `entry` IN (101008, 100485, 100486);
 
 DELETE FROM creature_template_addon WHERE entry IN (101008);
 INSERT INTO creature_template_addon (`entry`, `auras`) VALUES
@@ -41,3 +40,9 @@ INSERT INTO creature_template_addon (`entry`, `auras`) VALUES
 
 DELETE FROM `spell_area` WHERE `spell` = 199368;
 INSERT INTO `spell_area` (`spell`, `area`, `flags`) VALUES (199368, 7805, 2);
+
+UPDATE `areatrigger` SET ScriptName = "" WHERE guid IN (5, 6);
+DELETE FROM `areatrigger_teleport` WHERE ID IN (-5, -6);
+INSERT INTO `areatrigger_teleport` VALUES
+(-5, 5352, "BlackRook Hold entrance"),
+(-6, 5353, "BlackRook Hold exit");

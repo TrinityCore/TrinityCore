@@ -58,6 +58,11 @@ struct instance_black_rook_hold : public InstanceScript
     {
         InstanceScript::OnCreatureCreate(creature);
 
+        if (instance->IsHeroic())
+            creature->SetHealth(creature->GetHealth() * 2.f);
+        if (instance->IsMythic())
+            creature->SetHealth(creature->GetHealth() * 1.33f);
+
         if (creature->isDead())
             return;
 
@@ -71,7 +76,10 @@ struct instance_black_rook_hold : public InstanceScript
                 if (creature->GetPositionZ() < 90.f)
                     m_illysannaPreEventLowerMobs.push_back(creature->GetGUID());
                 else if (creature->GetPositionZ() > 100.f)
+                {
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                     m_illysannaPreEventUpperMobs.push_back(creature->GetGUID());
+                }
 
                 break;
             }
@@ -111,7 +119,7 @@ struct instance_black_rook_hold : public InstanceScript
                             if (Player* player = GetContextCreature()->SelectNearestPlayer())
                                 GetContextCreature()->Attack(player, true);
 
-                            GetContextCreature()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                            GetContextCreature()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                         });
                     }
                 }

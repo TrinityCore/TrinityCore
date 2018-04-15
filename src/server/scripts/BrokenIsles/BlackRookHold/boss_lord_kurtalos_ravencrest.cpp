@@ -241,7 +241,7 @@ struct npc_latosius : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* attacker) override
     {
         if (IsLatosius())
         {
@@ -376,6 +376,12 @@ struct npc_latosius : public ScriptedAI
                 TeleportToCenter();
             });
         }
+    }
+
+    void JustDied(Unit* /*killer*/)
+    {
+        if (Creature* kurtalos = instance->GetCreature(NPC_LORD_KURTALOS_RAVENCREST))
+            kurtalos->KillSelf();
     }
 
 private:

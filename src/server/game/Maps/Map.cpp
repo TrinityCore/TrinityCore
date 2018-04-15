@@ -3799,6 +3799,11 @@ bool Map::IsHeroic() const
     return false;
 }
 
+bool Map::IsMythic() const
+{
+    return i_spawnMode == DIFFICULTY_MYTHIC;
+}
+
 bool Map::Is25ManRaid() const
 {
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);

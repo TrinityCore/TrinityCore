@@ -56,8 +56,6 @@ void AddSC_legion_portal_at_scripts()
 {
     new at_legion_instance_portal("at_legion_portal_aovh_entrance",    1544,    4581.607f, 3993.067f,  83.48759f, 64.80991f);
     new at_legion_instance_portal("at_legion_portal_aovh_exit",        1220,   -953.0573f, 4333.46f,   740.1838f,  53.1857f);
-    new at_legion_instance_portal("at_legion_portal_brh_entrance",     1501,    3484.258f, 7645.708f,  -9.67725f, 191.7235f);
-    new at_legion_instance_portal("at_legion_portal_brh_exit",         1220,    3105.248f, 7543.426f,  31.97511f, 221.8234f);
     new at_legion_instance_portal("at_legion_portal_coen_entrance",    1677,     -699.75f,  2528.56f,    332.08f,     1.52f);
     new at_legion_instance_portal("at_legion_portal_coen_exit",        1220,    -425.364f,  2428.47f,   108.398f,  39.4553f);
     new at_legion_instance_portal("at_legion_portal_cos_entrance",     1571,    1016.066f, 3819.521f,  4.816927f, 258.2893f);

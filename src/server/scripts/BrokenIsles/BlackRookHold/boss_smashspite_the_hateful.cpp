@@ -66,8 +66,6 @@ struct boss_smashspite_the_hateful : public BossAI
                     hatefulGazeTargetGUID = target->GetGUID();
                 }
 
-                me->GetMotionMaster()->MoveCharge(0, 0, 0);
-
                 events.ScheduleEvent(SPELL_HATEFUL_CHARGE, 5s);
                 events.Repeat(30s);
                 break;
@@ -75,7 +73,9 @@ struct boss_smashspite_the_hateful : public BossAI
             case SPELL_HATEFUL_CHARGE:
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, hatefulGazeTargetGUID))
+                {
                     me->CastSpell(target, SPELL_HATEFUL_CHARGE, true);
+                }
 
                 hatefulGazeTargetGUID = ObjectGuid::Empty;
                 break;
@@ -99,7 +99,7 @@ class aura_smashspite_brutality : public AuraScript
 
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->ModifyPower(POWER_ENERGY, 1);
+        GetTarget()->ModifyPower(POWER_ENERGY, 5);
 
         if (GetTarget()->GetPower(POWER_ENERGY) == 100)
         {
