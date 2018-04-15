@@ -77,7 +77,7 @@ struct boss_kurtalos_ravencrest : public BossAI
 {
     boss_kurtalos_ravencrest(Creature* creature) : BossAI(creature, DATA_LORD_RAVENCREST) { }
 
-    void Reset()
+    void Reset() override
     {
         BossAI::Reset();
 
