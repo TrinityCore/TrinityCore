@@ -2688,12 +2688,14 @@ public:
 
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
-            amount = 1000000000;
+            amount = std::numeric_limits<int32>::max();
         }
 
         void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
         {
-            if (roll_chance_i(15))
+            int32 absorbChance = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
+
+            if (roll_chance_i(absorbChance))
                 absorbAmount = dmgInfo.GetDamage();
             else
                 absorbAmount = 0;
