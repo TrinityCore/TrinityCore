@@ -1428,8 +1428,26 @@ void WorldSession::LoadRecoveries()
         std::string spells      = fields[9].GetString();
         uint32 at_login         = fields[10].GetUInt32();
 
-        WorldPackets::Character::CharacterCreateInfo* createInfo = new WorldPackets::Character::CharacterCreateInfo("Recovery", race, cclass, 0, 0, 0, 0, 0, 0, 0);
+        uint8 hairID        = 0;
+        uint8 hairColor     = 0;
+        uint8 faceID        = 0;
+        uint8 facialHairID  = 0;
+        uint8 skinColor     = 0;
+
+        if (cclass == CLASS_DEATH_KNIGHT)
+        {
+            hairID          = 6;
+            hairColor       = 6;
+            faceID          = 11;
+            facialHairID    = 3;
+            skinColor       = 7;
+        }
+
+        WorldPackets::Character::CharacterCreateInfo* createInfo = new WorldPackets::Character::CharacterCreateInfo("Recovery", race, cclass, 0, skinColor, faceID, hairID, hairColor, facialHairID, 0);
         createInfo->withStartOutfit = false;
+
+        if (cclass == CLASS_DEMON_HUNTER)
+            createInfo->CustomDisplay = { 18, 1, 4 };
 
         Player newChar(this);
         if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo))
