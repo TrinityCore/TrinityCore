@@ -108,4 +108,6 @@ inline AI* GetStratholmeAI(T* obj)
     return GetInstanceAI<AI>(obj, StratholmeScriptName);
 }
 
+#define RegisterStratholmeCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetStratholmeAI)
+
 #endif
