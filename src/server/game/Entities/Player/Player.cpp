@@ -6446,6 +6446,11 @@ void Player::RewardPlayerWithRewardPack(RewardPackEntry const* rewardPackEntry)
         SetTitle(charTitlesEntry);
 
     ModifyMoney(rewardPackEntry->Money);
+
+    if (std::vector<RewardPackXCurrencyTypeEntry const*> const* rewardCurrencyTypes = sDB2Manager.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry->ID))
+        for (RewardPackXCurrencyTypeEntry const* currency : *rewardCurrencyTypes)
+            ModifyCurrency(currency->CurrencyTypeID, currency->Quantity);
+
     if (std::vector<RewardPackXItemEntry const*> const* rewardPackXItems = sDB2Manager.GetRewardPackItemsByRewardID(rewardPackEntry->ID))
         for (RewardPackXItemEntry const* rewardPackXItem : *rewardPackXItems)
             AddItem(rewardPackXItem->ItemID, rewardPackXItem->ItemQuantity);
