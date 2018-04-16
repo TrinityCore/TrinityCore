@@ -134,7 +134,7 @@ struct boss_amalgam_of_souls : public BossAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* killer) override
     {
         BossAI::JustDied(killer);
         me->RemoveAurasDueToSpell(SPELL_CALL_SOULS_VISUAL);

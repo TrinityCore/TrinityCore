@@ -130,7 +130,7 @@ struct npc_brh_felbat : public ScriptedAI
                 ObjectGuid attackableUnitGUID = attackableUnit->GetGUID();
                 me->CastSpell(attackableUnit, SPELL_FEL_VOMIT_TARGET, false);
 
-                me->GetScheduler().Schedule(6s, [this, attackableUnitGUID](TaskContext context)
+                me->GetScheduler().Schedule(6s, [this, attackableUnitGUID](TaskContext /*context*/)
                 {
                     if (Unit* attackableUnit = ObjectAccessor::GetUnit(*me, attackableUnitGUID))
                         me->CastSpell(attackableUnit, SPELL_FEL_VOMIT, false);

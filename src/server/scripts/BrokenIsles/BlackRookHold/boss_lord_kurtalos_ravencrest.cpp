@@ -378,7 +378,7 @@ struct npc_latosius : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         if (Creature* kurtalos = instance->GetCreature(NPC_LORD_KURTALOS_RAVENCREST))
             kurtalos->KillSelf();
