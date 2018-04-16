@@ -41,14 +41,30 @@ enum BoTDataTypes
     DATA_FELUDIUS               = 9,
     DATA_TERRASTRA              = 10,
     DATA_ARION                  = 11,
-    DATA_ELEMENTIUM_MONSTROSITY = 12
+    DATA_ELEMENTIUM_MONSTROSITY = 12,
+
+    // GameObject Types
+    DATA_WHELP_CAGE             = 13,
+
+    // Encounter Related
+    /*Halfus Wyrmbreaker*/
+    DATA_UNRESPONSIVE_DRAGON_FIRST,
+    DATA_UNRESPONSIVE_DRAGON_SECOND,
+    DATA_CAST_DRAGON_BUFFS,
+    DATA_DRAGON_TO_BIND,
+    DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE
+};
+
+enum BoTDataStates
+{
+    DRAGON_BUFFS_HALFUS_WYRMBREAKER,
+    DRAGON_BUFFS_PROTO_BEHEMOTH,
 };
 
 enum BoTCreatures
 {
     // Bosses
     BOSS_HALFUS_WYRMBREAKER     = 44600,
-    BOSS_PROTO_BEHEMOTH         = 44687,
     BOSS_THERALION              = 45993,
     BOSS_VALIONA                = 45992,
     BOSS_IGNACIOUS              = 43686,
@@ -57,7 +73,17 @@ enum BoTCreatures
     BOSS_ARION                  = 43688,
     BOSS_ELEMENTIUM_MONSTROSITY = 43735,
     BOSS_CHOGALL                = 43324,
-    BOSS_SINESTRA               = 45213
+    BOSS_SINESTRA               = 45213,
+
+    // Encounter related
+    /*Halfus Wyrmbreaker*/
+    NPC_PROTO_BEHEMOTH          = 44687,
+    NPC_NETHER_SCION            = 44645,
+    NPC_SLATE_DRAGON            = 44652,
+    NPC_STORM_RIDER             = 44650,
+    NPC_TIME_WARDEN             = 44797,
+    NPC_ORPHANED_EMERALD_WELP   = 44641,
+    NPC_SPIKE                   = 44765
 };
 
 enum BoTGameObjects
@@ -68,12 +94,19 @@ enum BoTGameObjects
     GO_DRAGON_SIBLINGS_DOOR_EXIT        = 205225,
     GO_ASCENDANT_COUNCIL_ENTRANCE       = 205226,
     GO_ASCENDANT_COUNCIL_EXIT           = 205227,
-    GO_CHOGALL_ENTRANCE                 = 205228
+    GO_CHOGALL_ENTRANCE                 = 205228,
+    GO_WHELP_CAGE                       = 205087
 };
 
-enum UnresponsiveDragonCases
+enum BoTActions
 {
-
+    ACTION_ENABLE_MALEVOLENT_STRIKES    = 1,
+    ACTION_ENABLE_FRENZIED_ASSAULT      = 2,
+    ACTION_ENABLE_SHADOW_NOVA           = 3,
+    ACTION_ENABLE_FIREBALL_BARRAGE      = 1,
+    ACTION_ENABLE_SCORCHING_BREATH      = 2,
+    ACTION_CAST_DRAGONS_VENGEANCE       = 3,
+    ACTION_MOVE_OUT_OF_CAGE             = 4
 };
 
 template<class AI>
