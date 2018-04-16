@@ -658,6 +658,13 @@ bool Guild::Member::CheckStats() const
     return true;
 }
 
+float Guild::Member::GetInactiveDays() const
+{
+    if (IsOnline())
+        return 0.0f;
+    return float(::time(nullptr) - GetLogoutTime()) / float(DAY);
+}
+
 // Decreases amount of slots left for today.
 void Guild::Member::UpdateBankTabWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount)
 {
@@ -1321,7 +1328,7 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.AreaID = int32(member->GetZoneId());
         memberData.PersonalAchievementPoints = int32(member->GetAchievementPoints());
         memberData.GuildReputation = int32(member->GetTotalReputation());
-        memberData.LastSave = float(member->IsOnline() ? 0.0f : float(::time(nullptr) - member->GetLogoutTime()) / DAY);
+        memberData.LastSave = member->GetInactiveDays();
 
         //GuildRosterProfessionData
 
@@ -1504,28 +1511,48 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     }
 }
 
-void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name)
+void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name, bool isSelfPromote)
 {
     Player* player = session->GetPlayer();
-    // Only the guild master can throne a new guild master
-    if (!_IsLeader(player))
-        SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
-    // Old GM must be a guild member
-    else if (Member* oldGuildMaster = GetMember(player->GetGUID()))
+
+    Member* oldGuildMaster = GetMember(GetLeaderGUID());
+    ASSERT(oldGuildMaster);
+
+    Member* newGuildMaster;
+
+    if (isSelfPromote)
     {
-        // Same for the new one
-        if (Member* newGuildMaster = GetMember(name))
+        newGuildMaster = GetMember(player->GetGUID());
+        if (!newGuildMaster)
+            return;
+
+        if (!newGuildMaster->IsRankNotLower(GR_MEMBER) || uint32(oldGuildMaster->GetInactiveDays()) < GUILD_MASTER_DETHRONE_INACTIVE_DAYS)
         {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-            _SetLeader(trans, newGuildMaster);
-            oldGuildMaster->ChangeRank(trans, GR_INITIATE);
-
-            SendEventNewLeader(newGuildMaster, oldGuildMaster);
-
-            CharacterDatabase.CommitTransaction(trans);
+            SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+            return;
         }
     }
+    else
+    {
+        if (!_IsLeader(player))
+        {
+            SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+            return;
+        }
+
+        newGuildMaster = GetMember(name);
+        if (!newGuildMaster)
+            return;
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    _SetLeader(trans, newGuildMaster);
+    oldGuildMaster->ChangeRank(trans, GR_INITIATE);
+
+    SendEventNewLeader(newGuildMaster, oldGuildMaster, isSelfPromote);
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon)
