@@ -2207,6 +2207,14 @@ struct RewardPackEntry
     uint32 TreasurePickerID;
 };
 
+struct RewardPackXCurrencyTypeEntry
+{
+    uint32 ID;
+    uint32 CurrencyTypeID;
+    int32 Quantity;
+    uint32 RewardPackID;
+};
+
 struct RewardPackXItemEntry
 {
     uint32 ID;
