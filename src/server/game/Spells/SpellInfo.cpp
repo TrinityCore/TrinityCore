@@ -1288,6 +1288,9 @@ bool SpellInfo::CasterCanTurnDuringCast() const
     if (HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
         return false;
 
+    if (AttributesCu & SPELL_ATTR0_CU_DONT_TURN_DURING_CAST)
+        return false;
+
     // Todo : Find more generic way ?
     if (HasTarget(TARGET_UNIT_CONE_ENEMY_54) ||
         HasTarget(TARGET_UNIT_CONE_ENEMY_104))
