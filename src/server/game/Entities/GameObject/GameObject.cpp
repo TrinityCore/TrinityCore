@@ -2479,6 +2479,9 @@ float GameObject::GetInteractionDistance() const
         case GAMEOBJECT_TYPE_FISHINGHOLE:
         case GAMEOBJECT_TYPE_FISHINGNODE:
             return 20.0f + CONTACT_DISTANCE; // max spell range
+        case GAMEOBJECT_TYPE_DOOR:
+        case GAMEOBJECT_TYPE_QUESTGIVER:
+            return INTERACTION_DISTANCE + GetFloatValue(OBJECT_FIELD_SCALE_X);
         default:
             return INTERACTION_DISTANCE;
     }
