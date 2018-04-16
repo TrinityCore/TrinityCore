@@ -241,7 +241,7 @@ struct npc_latosius : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* attacker) override
+    void EnterCombat(Unit* /*attacker*/) override
     {
         if (IsLatosius())
         {

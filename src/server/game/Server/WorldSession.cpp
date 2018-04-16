@@ -1447,7 +1447,11 @@ void WorldSession::LoadRecoveries()
         createInfo->withStartOutfit = false;
 
         if (cclass == CLASS_DEMON_HUNTER)
-            createInfo->CustomDisplay = { 18, 1, 4 };
+        {
+            createInfo->CustomDisplay[0] = 18;
+            createInfo->CustomDisplay[1] = 1;
+            createInfo->CustomDisplay[2] = 4;
+        }
 
         Player newChar(this);
         if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo))

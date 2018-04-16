@@ -119,7 +119,7 @@ struct npc_brh_felbat : public ScriptedAI
 {
     npc_brh_felbat(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         me->GetScheduler().Schedule(5s, [this](TaskContext context)
         {
