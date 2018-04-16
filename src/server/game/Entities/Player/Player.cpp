@@ -12102,7 +12102,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         }
 
         if (addToCollection)
-            GetSession()->GetCollectionMgr()->OnItemAdded(item);
+            GetSession()->GetCollectionMgr()->OnItemAdded(item, this);
 
         if (ItemChildEquipmentEntry const* childItemEntry = sDB2Manager.GetItemChildEquipment(itemId))
         {
