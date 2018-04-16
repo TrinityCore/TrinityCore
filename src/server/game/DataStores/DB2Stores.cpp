@@ -199,6 +199,7 @@ DB2Storage<QuestV2Entry>                        sQuestV2Store("QuestV2.db2", Que
 DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", QuestXpLoadInfo::Instance());
 DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPoints.db2", RandPropPointsLoadInfo::Instance());
 DB2Storage<RewardPackEntry>                     sRewardPackStore("RewardPack.db2", RewardPackLoadInfo::Instance());
+DB2Storage<RewardPackXCurrencyTypeEntry>        sRewardPackXCurrencyTypeStore("RewardPackXCurrencyType.db2", RewardPackXCurrencyTypeLoadInfo::Instance());
 DB2Storage<RewardPackXItemEntry>                sRewardPackXItemStore("RewardPackXItem.db2", RewardPackXItemLoadInfo::Instance());
 DB2Storage<RulesetItemUpgradeEntry>             sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeLoadInfo::Instance());
 DB2Storage<SandboxScalingEntry>                 sSandboxScalingStore("SandboxScaling.db2", SandboxScalingLoadInfo::Instance());
@@ -375,6 +376,7 @@ namespace
     PvpTalentsByPosition _pvpTalentsByPosition;
     uint32 _pvpTalentUnlock[MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
     QuestPackageItemContainer _questPackages;
+    std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
@@ -632,6 +634,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sQuestXPStore);
     LOAD_DB2(sRandPropPointsStore);
     LOAD_DB2(sRewardPackStore);
+    LOAD_DB2(sRewardPackXCurrencyTypeStore);
     LOAD_DB2(sRewardPackXItemStore);
     LOAD_DB2(sRulesetItemUpgradeStore);
     LOAD_DB2(sSandboxScalingStore);
@@ -990,6 +993,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         else
             _questPackages[questPackageItem->PackageID].second.push_back(questPackageItem);
     }
+
+    for (RewardPackXCurrencyTypeEntry const* rewardPackXCurrencyType : sRewardPackXCurrencyTypeStore)
+        _rewardPackCurrencyTypes[rewardPackXCurrencyType->RewardPackID].push_back(rewardPackXCurrencyType);
 
     for (RewardPackXItemEntry const* rewardPackXItem : sRewardPackXItemStore)
         _rewardPackItems[rewardPackXItem->RewardPackID].push_back(rewardPackXItem);
@@ -2008,6 +2014,15 @@ uint8 DB2Manager::GetPvpItemLevelBonus(uint32 itemId) const
         return itr->second;
 
     return 0;
+}
+
+std::vector<RewardPackXCurrencyTypeEntry const*> const* DB2Manager::GetRewardPackCurrencyTypesByRewardID(uint32 rewardPackID) const
+{
+    auto itr = _rewardPackCurrencyTypes.find(rewardPackID);
+    if (itr != _rewardPackCurrencyTypes.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
