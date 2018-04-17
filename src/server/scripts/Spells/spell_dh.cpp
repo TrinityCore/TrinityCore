@@ -54,6 +54,8 @@ enum DHSpells
     SPELL_DH_BLOODLET_DOT                   = 207690,
     SPELL_DH_BLUR                           = 198589,
     SPELL_DH_BURNING_ALIVE                  = 207739,
+    SPELL_DH_CHAOS_CLEAVE                   = 206475,
+    SPELL_DH_CHAOS_CLEAVE_DAMAGE            = 236237,
     SPELL_DH_CHAOS_NOVA                     = 179057,
     SPELL_DH_CHAOS_STRIKE                   = 162794,
     SPELL_DH_CHAOS_STRIKE_MAIN_HAND         = 199547,
@@ -1702,10 +1704,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_ERUPTION) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DH_FEL_ERUPTION_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_DH_FEL_ERUPTION, SPELL_DH_FEL_ERUPTION_DAMAGE });
         }
 
         void HandleOnHit(SpellEffIndex /*effIndex*/)
@@ -2043,7 +2042,6 @@ public:
 
         void Register() override
         {
-            //DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_dash_AuraScript::CalcSpeed, EFFECT_1, SPELL_AURA_INCREASE_MIN_SWIM_SPEED);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_dash_AuraScript::CalcSpeed, EFFECT_3, SPELL_AURA_MOD_MINIMUM_SPEED);
             AfterEffectRemove += AuraEffectRemoveFn(spell_dh_fel_rush_dash_AuraScript::AfterRemove, EFFECT_9, SPELL_AURA_MOD_MINIMUM_SPEED_RATE, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK);
         }
@@ -2088,11 +2086,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_RUSH_DASH))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_RUSH_AIR))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_DH_FEL_RUSH_DASH, SPELL_DH_FEL_RUSH_AIR });
         }
 
         void HandleDashGround(SpellEffIndex /*effIndex*/)
@@ -2529,9 +2523,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_CHAOS_STRIKE_PROC))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_DH_CHAOS_STRIKE_PROC });
         }
 
         void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -2873,6 +2865,23 @@ public:
     }
 };
 
+// 206475
+class aura_dh_chaos_cleave : public AuraScript
+{
+    PrepareAuraScript(aura_dh_chaos_cleave);
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        int32 bp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 10);
+        GetTarget()->CastCustomSpell(nullptr, SPELL_DH_CHAOS_CLEAVE_DAMAGE, &bp, nullptr, nullptr, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(aura_dh_chaos_cleave::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // Sigil of Misery - 207684
 // AreaTriggerID - 6351
 struct at_dh_sigil_of_misery : AreaTriggerAI
@@ -3117,6 +3126,7 @@ void AddSC_demon_hunter_spell_scripts()
     new spell_dh_vengeful_retreat_fury_refiller();
     new spell_dh_vengeful_retreat_trigger();
     RegisterSpellScript(spell_dh_felblade);
+    RegisterAuraScript(aura_dh_chaos_cleave);
 
     /// AreaTrigger Scripts
     RegisterAreaTriggerAI(at_dh_darkness);
