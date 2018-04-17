@@ -455,19 +455,19 @@ class npc_halfus_enslaved_dragon : public CreatureScript
 
                             switch (me->GetEntry())
                             {
-                                case NPC_NETHER_SCION:
+                                case NPC_NETHER_SCION_ENCOUNTER:
                                     me->SetFacingToObject(halfus);
                                     DoCastSelf(SPELL_NETHER_BLINDNESS, true);
                                     break;
-                                case NPC_SLATE_DRAGON:
+                                case NPC_SLATE_DRAGON_ENCOUNTER:
                                     me->SetFacingToObject(halfus);
                                     DoCastSelf(SPELL_STONE_TOUCH, true);
                                     break;
-                                case NPC_STORM_RIDER:
+                                case NPC_STORM_RIDER_ENCOUNTER:
                                     me->SetFacingToObject(halfus);
                                     DoCastSelf(SPELL_CYCLONE_WINDS, true);
                                     break;
-                                case NPC_TIME_WARDEN:
+                                case NPC_TIME_WARDEN_ENCOUNTER:
                                     me->SetFacingToObject(protoBehemoth);
                                     DoCastSelf(SPELL_TIME_DILATION, true);
                                     break;

@@ -181,7 +181,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
                                         if (creature->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
                                             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-
                                     }
                                 }
                             }
