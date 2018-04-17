@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,16 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Baron_Rivendare
-SD%Complete: 70
-SDComment: aura applied/defined in database
-SDCategory: Stratholme
-EndScriptData */
-
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "stratholme.h"
 
 enum Says
@@ -51,7 +43,16 @@ enum Spells
     SPELL_RAISE_DEAD3           = 17477,
     SPELL_RAISE_DEAD4           = 17478,
     SPELL_RAISE_DEAD5           = 17479,
-    SPELL_RAISE_DEAD6           = 17480,
+    SPELL_RAISE_DEAD6           = 17480
+};
+
+enum BaronRivendareEvents
+{
+    EVENT_SPELL_SHADOWBOLT      = 1,
+    EVENT_SPELL_CLEAVE          = 2,
+    EVENT_SPELL_MORTALSTRIKE    = 3,
+    EVENT_SPELL_RAISEDEAD       = 4,
+    EVENT_SUMMON_SKELETON       = 5
 };
 
 // Define Add positions
@@ -62,124 +63,96 @@ Position const ADD_POS_4 = {4048.877197f, -3363.223633f, 115.054253f, 3.627735f}
 Position const ADD_POS_5 = {4051.777588f, -3350.893311f, 115.055351f, 3.066176f};
 Position const ADD_POS_6 = {4048.375977f, -3339.966309f, 115.055222f, 2.457497f};
 
-class boss_baron_rivendare : public CreatureScript
-{
-public:
-    boss_baron_rivendare() : CreatureScript("boss_baron_rivendare") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+struct boss_baron_rivendare : public BossAI
+{
+    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON) { }
+
+    void Reset() override
     {
-        return GetStratholmeAI<boss_baron_rivendareAI>(creature);
+        if (instance->GetData(TYPE_RAMSTEIN) == DONE)
+            instance->SetData(TYPE_BARON, NOT_STARTED);
+
+        events.Reset();
     }
 
-    struct boss_baron_rivendareAI : public ScriptedAI
+    // can't use entercombat(), boss' dmg aura sets near
+    // players in combat, before entering the room's door
+    void AttackStart(Unit* who) override
     {
-        boss_baron_rivendareAI(Creature* creature) : ScriptedAI(creature)
+        if (instance->GetData(TYPE_BARON) == NOT_STARTED)
+            instance->SetData(TYPE_BARON, IN_PROGRESS);
+
+        events.ScheduleEvent(EVENT_SPELL_SHADOWBOLT, 5s);
+        events.ScheduleEvent(EVENT_SPELL_CLEAVE, 8s);
+        events.ScheduleEvent(EVENT_SPELL_MORTALSTRIKE, 12s);
+        events.ScheduleEvent(EVENT_SPELL_RAISEDEAD, 30s);
+        events.ScheduleEvent(EVENT_SUMMON_SKELETON, 34s);
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        // the skeletons will almost always immediately aggro the healer
+        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+            summoned->AI()->AttackStart(target);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        instance->SetData(TYPE_BARON, DONE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Initialize();
-            instance = me->GetInstanceScript();
-        }
+            switch (eventId)
+            {
+                case EVENT_SPELL_SHADOWBOLT:
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
+                    events.Repeat(10s);
+                    break;
+                case EVENT_SPELL_CLEAVE:
+                    SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    events.Repeat(13s);
+                    break;
+                case EVENT_SPELL_MORTALSTRIKE:
+                    DoCastVictim(SPELL_MORTALSTRIKE);
+                    events.Repeat(13s);
+                    break;
+                case EVENT_SPELL_RAISEDEAD:
+                    DoCast(EVENT_SPELL_RAISEDEAD);
+                    events.Repeat(45s);
+                    break;
+                case EVENT_SUMMON_SKELETON:
+                    me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    events.Repeat(32s);
+                    break;
+            }
 
-        void Initialize()
-        {
-            ShadowBolt_Timer = 5000;
-            Cleave_Timer = 8000;
-            MortalStrike_Timer = 12000;
-            //        RaiseDead_Timer = 30000;
-            SummonSkeletons_Timer = 34000;
-        }
-
-        InstanceScript* instance;
-
-        uint32 ShadowBolt_Timer;
-        uint32 Cleave_Timer;
-        uint32 MortalStrike_Timer;
-        //    uint32 RaiseDead_Timer;
-        uint32 SummonSkeletons_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-            if (instance->GetData(TYPE_RAMSTEIN) == DONE)
-                instance->SetData(TYPE_BARON, NOT_STARTED);
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            //can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
-            if (instance->GetData(TYPE_BARON) == NOT_STARTED)
-                instance->SetData(TYPE_BARON, IN_PROGRESS);
-            ScriptedAI::AttackStart(who);
-        }
-
-        void JustSummoned(Creature* summoned) override
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                summoned->AI()->AttackStart(target);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(TYPE_BARON, DONE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            //ShadowBolt
-            if (ShadowBolt_Timer <= diff)
-            {
-                if (SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCastVictim(SPELL_SHADOWBOLT);
-
-                ShadowBolt_Timer = 10000;
-            } else ShadowBolt_Timer -= diff;
-
-            //Cleave
-            if (Cleave_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CLEAVE);
-                //13 seconds until we should cast this again
-                Cleave_Timer = 7000 + (rand32() % 10000);
-            } else Cleave_Timer -= diff;
-
-            //MortalStrike
-            if (MortalStrike_Timer <= diff)
-            {
-                DoCastVictim(SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = 10000 + (rand32() % 15000);
-            } else MortalStrike_Timer -= diff;
-
-            //RaiseDead
-            //            if (RaiseDead_Timer <= diff)
-            //          {
-            //      DoCast(me, SPELL_RAISEDEAD);
-            //                RaiseDead_Timer = 45000;
-            //            } else RaiseDead_Timer -= diff;
-
-            //SummonSkeletons
-            if (SummonSkeletons_Timer <= diff)
-            {
-                me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
-
-                //34 seconds until we should cast this again
-                SummonSkeletons_Timer = 40000;
-            } else SummonSkeletons_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
 };
+
 
 void AddSC_boss_baron_rivendare()
 {
-    new boss_baron_rivendare();
+    RegisterStratholmeCreatureAI(boss_baron_rivendare);
 }
