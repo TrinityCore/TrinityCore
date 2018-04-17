@@ -503,9 +503,15 @@ SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto)
     SpellEffectInfoVector effects = proto->GetEffectsForDifficulty(diff);
     ASSERT(effects.size() <= MAX_SPELL_EFFECTS);
     memset(EffectBasePoints, 0, sizeof(EffectBasePoints));
+    memset(EffectTriggerSpell, 0, sizeof(EffectTriggerSpell));
     for (SpellEffectInfo const* effect : effects)
+    {
         if (effect)
+        {
             EffectBasePoints[effect->EffectIndex] = effect->BasePoints;
+            EffectTriggerSpell[effect->EffectIndex] = effect->TriggerSpell;
+        }
+    }
 
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
@@ -7406,6 +7412,13 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
     {
         if (SpellEffectInfo const* effect = GetEffect(mod))
             m_spellValue->EffectBasePoints[mod] = effect->CalcBaseValue(value);
+        return;
+    }
+
+    if (mod >= SPELLVALUE_TRIGGER_SPELL && mod < SPELLVALUE_TRIGGER_SPELL_END)
+    {
+        if (SpellEffectInfo const* effect = GetEffect(mod - SPELLVALUE_TRIGGER_SPELL))
+            m_spellValue->EffectTriggerSpell[mod - SPELLVALUE_TRIGGER_SPELL] = (uint32)value;
         return;
     }
 

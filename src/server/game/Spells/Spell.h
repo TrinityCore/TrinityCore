@@ -301,6 +301,7 @@ struct SpellValue
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
+    uint32    EffectTriggerSpell[MAX_SPELL_EFFECTS];
 };
 
 enum SpellState
