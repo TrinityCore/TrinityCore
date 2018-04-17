@@ -188,10 +188,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         else if (state == FAIL)
                         {
                             if (Creature* protoBehemoth = GetCreature(DATA_PROTO_BEHEMOTH))
-                            {
-                                protoBehemoth->AI()->EnterEvadeMode();
                                 protoBehemoth->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
-                            }
 
                             for (ObjectGuid guid : _halfusEncounterGUIDs)
                                 if (Creature* creature = instance->GetCreature(guid))
