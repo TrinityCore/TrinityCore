@@ -15269,8 +15269,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
-    if (quest->GetRewOrReqMoney())
-        moneyRew += quest->GetRewOrReqMoney();
+    // Do not reward the default reward money for max level dungeon quests
+    if (!quest->IsDFQuest() && getLevel() == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (quest->GetRewOrReqMoney())
+            moneyRew += quest->GetRewOrReqMoney();
 
     if (moneyRew)
     {
@@ -15309,7 +15311,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    if ((quest->IsDaily() || quest->IsDFQuest()) && !quest->IsRepeatable())
+    if ((quest->IsDaily() || quest->IsDFQuest()) && !quest->IsRepeatable() && !quest->IsWeekly())
     {
         SetDailyQuestStatus(quest_id);
         if (quest->IsDaily())

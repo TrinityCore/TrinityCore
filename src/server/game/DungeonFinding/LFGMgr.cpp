@@ -1509,16 +1509,20 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             // we give reward without informing client (retail does this)
             player->RewardQuest(quest, 0, nullptr, false);
         }
+
         uint8 tmpRole = 0;
         if (Group *group = player->GetGroup())
             tmpRole = group->GetLfgRoles(player->GetGUID());
 
         if (IsCallToArmsEligible(player->getLevel(), rDungeonId & 0x00FFFFFF))
+        {
             if (player->GetCallToArmsTempRoles() & tmpRole)
             {
                 const Quest* q = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST);
                 player->RewardQuest(q, 0, nullptr, false);
             }
+        }
+
         player->SetTempCallToArmsRoles(0);
 
         // Give rewards
