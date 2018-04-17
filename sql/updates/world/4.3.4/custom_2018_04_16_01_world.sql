@@ -137,3 +137,8 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Re
 -- 25 Player Heroic
 (46211, 462100, 100, 1, 462100, 4),
 (46211, 462101, 100, 1, 462101, 2);
+
+-- Achievements
+DELETE FROM `achievement_criteria_data` WHERE `ScriptName`= 'achievement_the_only_escape';
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(15094, 11, 0, 0, 'achievement_the_only_escape');

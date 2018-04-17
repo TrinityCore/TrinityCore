@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -62,6 +62,7 @@ enum Events
     // Halfus Wyrmbreaker
     EVENT_SHADOW_NOVA = 1,
     EVENT_FURIOUS_ROAR,
+    EVENT_RESET_ACHIEVEMT,
 
     // Proto-Behemoth
     EVENT_FIREBALL,
@@ -75,9 +76,9 @@ enum Events
     EVENT_MOVE_OUT_OF_CAGE
 };
 
-enum Actions
+enum AchievementData
 {
-
+    DATA_THE_ONLY_ESCAPE = 1,
 };
 
 enum Texts
@@ -104,9 +105,10 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             void Initialize()
             {
                 _allowShadowNovaCasts = false;
-                _announcedEmeraldBinding = false;
+                _announcedOrphanedEmeraldWhelpBinding = false;
                 _furiousRoarEnabled = false;
                 _furiousRoarCount = 0;
+                _theOnlyEscapeAchievementState = NOT_STARTED;
             }
 
             void Reset() override
@@ -153,15 +155,31 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 if (!caster)
                     return;
 
-                if (spell->Id == SPELL_BIND_WILL)
+                switch (spell->Id)
                 {
-                    if (caster->GetEntry() == NPC_ORPHANED_EMERALD_WELP && !_announcedEmeraldBinding)
-                    {
-                        Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
-                        _announcedEmeraldBinding = true;
-                    }
-                    else if (caster->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
-                        Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
+                    case SPELL_BIND_WILL:
+                        if (caster->GetEntry() == NPC_ORPHANED_EMERALD_WELP && !_announcedOrphanedEmeraldWhelpBinding)
+                        {
+                            Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
+                            _announcedOrphanedEmeraldWhelpBinding = true;
+                        }
+                        else if (caster->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
+                            Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
+                        break;
+                    case SPELL_DRAGONS_VENGEANCE:
+                        if (_theOnlyEscapeAchievementState == NOT_STARTED)
+                        {
+                            _theOnlyEscapeAchievementState = IN_PROGRESS;
+                            events.ScheduleEvent(EVENT_RESET_ACHIEVEMT, Seconds(10));
+                        }
+                        else if (_theOnlyEscapeAchievementState == IN_PROGRESS)
+                        {
+                            _theOnlyEscapeAchievementState = DONE;
+                            events.CancelEvent(EVENT_RESET_ACHIEVEMT);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -190,6 +208,14 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            uint32 GetData(uint32 type) const override
+            {
+                if (type == DATA_THE_ONLY_ESCAPE)
+                    return _theOnlyEscapeAchievementState;
+
+                return 0;
             }
 
             void UpdateAI(uint32 diff) override
@@ -227,6 +253,9 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                                 _furiousRoarCount = 0;
                             }
                             break;
+                        case EVENT_RESET_ACHIEVEMT:
+                            _theOnlyEscapeAchievementState = NOT_STARTED;
+                            break;
                         default:
                             break;
                     }
@@ -237,8 +266,9 @@ class boss_halfus_wyrmbreaker : public CreatureScript
 
         private:
             bool _allowShadowNovaCasts;
-            bool _announcedEmeraldBinding;
+            bool _announcedOrphanedEmeraldWhelpBinding;
             bool _furiousRoarEnabled;
+            uint8 _theOnlyEscapeAchievementState;
             uint8 _furiousRoarCount;
         };
 
@@ -359,7 +389,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 me->SetDisableGravity(false);
-                me->SendSetPlayHoverAnim(false); // TODO: fix unsetting hover on respawn.
+                me->SendSetPlayHoverAnim(false);
 
                 if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
                     if (Creature* protoBehemoth = _instance->GetCreature(DATA_PROTO_BEHEMOTH))
@@ -612,6 +642,20 @@ class spell_halfus_stone_touch : public SpellScriptLoader
         }
 };
 
+class achievement_the_only_escape : public AchievementCriteriaScript
+{
+    public:
+        achievement_the_only_escape() : AchievementCriteriaScript("achievement_the_only_escape") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (target && target->IsAIEnabled)
+                return (target->GetAI()->GetData(DATA_THE_ONLY_ESCAPE) == DONE);
+
+            return false;
+        }
+};
+
 void AddSC_boss_halfus_wyrmbreaker()
 {
     new boss_halfus_wyrmbreaker();
@@ -621,4 +665,5 @@ void AddSC_boss_halfus_wyrmbreaker()
     new spell_halfus_bind_will();
     new spell_halfus_fireball();
     new spell_halfus_stone_touch();
+    new achievement_the_only_escape();
 }

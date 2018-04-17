@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -93,14 +93,14 @@ class instance_bastion_of_twilight : public InstanceMapScript
             void GenerateHalfusDragonData()
             {
                 for (uint8 i = 0; i < 5; i++)
-                    _activetDragonEntries.insert(HalfusDragonEntries[i]);
+                    _activeDragonEntries.insert(HalfusDragonEntries[i]);
 
                 if (!instance->IsHeroic())
                 {
                     for (uint8 i = 0; i < 2; i++)
                     {
-                        uint32 entry = Trinity::Containers::SelectRandomContainerElement(_activetDragonEntries);
-                        _activetDragonEntries.erase(entry);
+                        uint32 entry = Trinity::Containers::SelectRandomContainerElement(_activeDragonEntries);
+                        _activeDragonEntries.erase(entry);
                         if (i == 0)
                             _unresponsiveDragonEntryFirst = entry;
                         else
@@ -219,7 +219,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         {
                             if (Creature* halfus = GetCreature(DATA_HALFUS_WYRMBREAKER))
                             {
-                                for (uint32 entry : _activetDragonEntries)
+                                for (uint32 entry : _activeDragonEntries)
                                 {
                                     if (entry == NPC_SLATE_DRAGON)
                                         halfus->AI()->DoAction(ACTION_ENABLE_MALEVOLENT_STRIKES);
@@ -234,7 +234,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         {
                             if (Creature* protoBehemoth = GetCreature(DATA_PROTO_BEHEMOTH))
                             {
-                                for (uint32 entry : _activetDragonEntries)
+                                for (uint32 entry : _activeDragonEntries)
                                 {
                                     if (entry == NPC_ORPHANED_EMERALD_WELP)
                                         protoBehemoth->AI()->DoAction(ACTION_ENABLE_SCORCHING_BREATH);
@@ -299,7 +299,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
         protected:
             GuidSet _halfusEncounterGUIDs;
             GuidSet _spikeGUIDs;
-            std::set<uint32> _activetDragonEntries;
+            std::set<uint32> _activeDragonEntries;
             uint32 _unresponsiveDragonEntryFirst;
             uint32 _unresponsiveDragonEntrySecond;
             uint32 _dragonToBindEntry;
