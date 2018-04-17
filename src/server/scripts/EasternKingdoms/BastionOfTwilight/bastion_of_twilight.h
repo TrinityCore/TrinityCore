@@ -83,7 +83,10 @@ enum BoTCreatures
     NPC_STORM_RIDER             = 44650,
     NPC_TIME_WARDEN             = 44797,
     NPC_ORPHANED_EMERALD_WELP   = 44641,
-    NPC_SPIKE                   = 44765
+    NPC_SPIKE                   = 44765,
+
+    // Generic Creatures
+    NPC_INVISIBLE_STALKER       = 42098
 };
 
 enum BoTGameObjects
@@ -107,6 +110,16 @@ enum BoTActions
     ACTION_ENABLE_SCORCHING_BREATH      = 2,
     ACTION_CAST_DRAGONS_VENGEANCE       = 3,
     ACTION_MOVE_OUT_OF_CAGE             = 4
+};
+
+enum BoTEvents
+{
+    EVENT_CAST_DANCING_FLAMES = 1
+};
+
+enum BoTSpells
+{
+    SPELL_DANCING_FLAMES_VISUAL = 83962
 };
 
 template<class AI>

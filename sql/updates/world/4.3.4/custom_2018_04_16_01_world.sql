@@ -44,13 +44,17 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_halfus_bind_will',
 'spell_halfus_fireball',
-'spell_halfus_stone_touch');
+'spell_halfus_stone_touch',
+'spell_halfus_cyclone_winds',
+'spell_halfus_dancing_flames');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (84246, 'spell_halfus_bind_will'),
 (86058, 'spell_halfus_fireball'),
 (83719, 'spell_halfus_fireball'),
-(83603, 'spell_halfus_stone_touch');
+(83603, 'spell_halfus_stone_touch'),
+(83612, 'spell_halfus_cyclone_winds'),
+(83962, 'spell_halfus_dancing_flames');
 
 -- Spellclick Spells
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (44645, 44652, 44650, 44797);
@@ -61,7 +65,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (44797, 83447, 1, 1);
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceEntry` IN (83487, 83611, 83603, 84092, 87683, 83601, 83609, 84246) AND `SourceTypeOrReferenceId`= 13;
+DELETE FROM `conditions` WHERE `SourceEntry` IN (83487, 83611, 83603, 84092, 87683, 83601, 83609, 84246, 83962) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
 (13, 1, 83487, 0, 0, 31, 0, 3, 44645, 0, 0, 0, '', 'Chain - Target Nether Scion'),
 (13, 1, 83487, 0, 1, 31, 0, 3, 44652, 0, 0, 0, '', 'Chain - Target Slate Dragon'),
@@ -73,7 +77,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 87683, 0, 0, 31, 0, 3, 44600, 0, 0, 0, '', 'Dragon''s Vengeance - Target Halfus Wyrmbreaker'),
 (13, 1, 84246, 0, 0, 31, 0, 3, 44600, 0, 0, 0, '', 'Bind Will - Target Halfus Wyrmbreaker'),
 (13, 1, 83601, 0, 0, 31, 0, 3, 44687, 0, 0, 0, '', 'Time Dilation - Target Proto-Behemoth'),
-(13, 1, 83609, 0, 0, 31, 0, 3, 44687, 0, 0, 0, '', 'Atrophic Poison - Target Proto-Behemoth');
+(13, 1, 83609, 0, 0, 31, 0, 3, 44687, 0, 0, 0, '', 'Atrophic Poison - Target Proto-Behemoth'),
+(13, 1, 83962, 0, 0, 31, 0, 3, 42098, 0, 0, 0, '', 'Dancing Flames - Target Cataclysm Stalker');
 
 -- Creature Spike 44765 SAI
 SET @ENTRY := 44765;
@@ -142,3 +147,11 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Re
 DELETE FROM `achievement_criteria_data` WHERE `ScriptName`= 'achievement_the_only_escape';
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (15094, 11, 0, 0, 'achievement_the_only_escape');
+
+-- Currency loot
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (44600, 46209, 46210, 46211);
+INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
+(44600, 396, 10000),
+(46209, 396, 10000),
+(46210, 396, 10000),
+(46211, 396, 10000);

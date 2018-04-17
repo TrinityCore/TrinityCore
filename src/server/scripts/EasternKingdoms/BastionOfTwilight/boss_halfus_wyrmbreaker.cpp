@@ -642,6 +642,89 @@ class spell_halfus_stone_touch : public SpellScriptLoader
         }
 };
 
+class spell_halfus_cyclone_winds : public SpellScriptLoader
+{
+    public:
+        spell_halfus_cyclone_winds() : SpellScriptLoader("spell_halfus_cyclone_winds") { }
+
+        class spell_halfus_cyclone_winds_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halfus_cyclone_winds_SpellScript);
+
+            void SetDestPosition(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    float angle = caster->GetOrientation();
+                    float x = caster->GetPositionX() + cos(angle) * 7.0f;
+                    float y = caster->GetPositionY() + sin(angle) * 7.0f;
+                    float z = caster->GetPositionZ();
+
+                    const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(x, y, z);
+                    GetHitDest()->Relocate(x, y, z);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_halfus_cyclone_winds_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halfus_cyclone_winds_SpellScript();
+        }
+};
+
+class DancingFlamesDistanceCheck
+{
+    public:
+        DancingFlamesDistanceCheck(Unit* caster) : _caster(caster) { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (object->GetDistance2d(_caster) <= 40.0f || object->GetDistance2d(_caster) >= 100.0f);
+        }
+    private:
+        Unit* _caster;
+};
+
+class spell_halfus_dancing_flames : public SpellScriptLoader
+{
+    public:
+        spell_halfus_dancing_flames() : SpellScriptLoader("spell_halfus_dancing_flames") { }
+
+        class spell_halfus_dancing_flames_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halfus_dancing_flames_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    targets.remove_if(DancingFlamesDistanceCheck(caster));
+
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halfus_dancing_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_halfus_dancing_flames_SpellScript();
+        }
+};
+
 class achievement_the_only_escape : public AchievementCriteriaScript
 {
     public:
@@ -665,5 +748,7 @@ void AddSC_boss_halfus_wyrmbreaker()
     new spell_halfus_bind_will();
     new spell_halfus_fireball();
     new spell_halfus_stone_touch();
+    new spell_halfus_cyclone_winds();
+    new spell_halfus_dancing_flames();
     new achievement_the_only_escape();
 }

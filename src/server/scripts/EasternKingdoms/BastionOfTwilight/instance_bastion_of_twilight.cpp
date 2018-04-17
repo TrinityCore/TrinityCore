@@ -123,6 +123,10 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     case NPC_SPIKE:
                         _halfusEncounterGUIDs.insert(creature->GetGUID());
                         break;
+                    case NPC_INVISIBLE_STALKER:
+                        if (creature->GetPositionZ() < 850.0f)
+                            _dancingFlamesInvisibleStalkerGUIDs.insert(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -179,6 +183,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             }
 
                             _deadOrphanedEmeraldWhelps = 0;
+                            events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
                         else if (state == DONE)
                         {
@@ -191,6 +196,8 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
                             if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
                                 cage->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                            events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
                         break;
                     default:
@@ -239,7 +246,10 @@ class instance_bastion_of_twilight : public InstanceMapScript
                                     if (entry == NPC_ORPHANED_EMERALD_WELP)
                                         protoBehemoth->AI()->DoAction(ACTION_ENABLE_SCORCHING_BREATH);
                                     if (entry == NPC_TIME_WARDEN)
+                                    {
                                         protoBehemoth->AI()->DoAction(ACTION_ENABLE_FIREBALL_BARRAGE);
+                                        events.RescheduleEvent(EVENT_CAST_DANCING_FLAMES, Milliseconds(500), Seconds(1));
+                                    }
                                 }
                             }
                         }
@@ -272,6 +282,27 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 return 0;
             }
 
+            void Update(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CAST_DANCING_FLAMES:
+                            if (ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_dancingFlamesInvisibleStalkerGUIDs))
+                                if (Creature* cataclysmStalker = instance->GetCreature(guid))
+                                    cataclysmStalker->CastSpell(cataclysmStalker, SPELL_DANCING_FLAMES_VISUAL, true);
+
+                            events.Repeat(Milliseconds(500), Seconds(1));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             void WriteSaveDataMore(std::ostringstream& data) override
             {
                 data << _unresponsiveDragonEntryFirst << ' '
@@ -290,15 +321,11 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     && _unresponsiveDragonEntrySecond != NPC_ORPHANED_EMERALD_WELP);
             }
 
-            /*
-            void Update(uint32 diff) override
-            {
-            }
-            */
-
         protected:
+            EventMap events;
             GuidSet _halfusEncounterGUIDs;
             GuidSet _spikeGUIDs;
+            GuidSet _dancingFlamesInvisibleStalkerGUIDs;
             std::set<uint32> _activeDragonEntries;
             uint32 _unresponsiveDragonEntryFirst;
             uint32 _unresponsiveDragonEntrySecond;
