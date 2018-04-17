@@ -1213,15 +1213,15 @@ public:
             if (!caster || !target)
                 return;
 
-            // We are working with 30%, need further info
-            if (roll_chance_i(30))
+            if (roll_chance_i(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints))
             {
-                int32 bp;
+                uint32 triggerSpellId = 0;
                 if (target->GetCreatureType() == CREATURE_TYPE_DEMON)
-                    bp = SPELL_DH_SHATTERED_SOULS_AT_DEMON;
+                    triggerSpellId = SPELL_DH_SHATTERED_SOULS_AT_DEMON;
                 else
-                    bp = SPELL_DH_SHATTERED_SOULS_AT_NORMAL;
-                caster->CastCustomSpell(caster, SPELL_DH_SHATTERED_SOULS_MISSILE, &bp, NULL, NULL, true);
+                    triggerSpellId = SPELL_DH_SHATTERED_SOULS_AT_NORMAL;
+
+                caster->CastCustomSpell(SPELL_DH_SHATTERED_SOULS_MISSILE, SpellValueMod(SPELLVALUE_TRIGGER_SPELL + EFFECT_1), triggerSpellId, caster);
             }
         }
 
