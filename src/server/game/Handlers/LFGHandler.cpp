@@ -330,27 +330,27 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         data << uint8(firstCompletion);
 
-        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
-        int8 valorPointsField = -1;
-
+        uint32 rewValorPoints = 0;
         for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
             if (quest && quest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
-                valorPointsField = i;
+                rewValorPoints += quest->RewardCurrencyCount[i];
 
-        if (currency && quest)
+        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
+
+        if (currency && rewValorPoints && !quest->IsWeekly())
         {
-            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);  // currencyQuantity
-            data << uint32(player->GetCurrencyWeekCap(currency));                                      // some sort of overall cap/weekly cap
-            data << uint32(CURRENCY_TYPE_VALOR_POINTS);                                                // currency name above the limit bar indicator
-            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // current raid finder valor points
-            data << uint32(player->GetCurrencyWeekCap(currency));                                      // raid finder valor points limit
-            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // overall valor points from dungeon quantity
-            data << uint32(player->GetCurrencyWeekCap(currency));                                      // overall valor points from dungeon limit
-            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // current weekly valor points amount
-            data << uint32(player->GetCurrencyWeekCap(currency));                                      // overall valor points weekly cap
-            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // purseQuantity
-            data << uint32(player->GetCurrencyTotalCap(currency));                                     // purseLimit
-            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);  // some sort of reward for completion
+            data << uint32(rewValorPoints);                                                 // currencyQuantity (valor points from selected dungeon)
+            data << uint32(player->GetCurrencyWeekCap(currency));                           // some sort of overall cap/weekly cap
+            data << uint32(CURRENCY_TYPE_VALOR_POINTS);                                     // currencyID (displays name above the cap bar)
+            data << uint32(0);                                                              // tier1Quantity (current valor points from lfr)
+            data << uint32(player->GetCurrencyWeekCap(currency));                           // tier1Limit (total valor points from lfr - always 10000)
+            data << uint32(0);                                                              // overallQuantity (current valor points from lfg - always 0)
+            data << uint32(player->GetCurrencyWeekCap(currency));                           // overallLimit (total valor points from lfg)
+            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));   // periodPurseQuantity (valor points this week)
+            data << uint32(player->GetCurrencyWeekCap(currency));                           // periodPurseLimit (weekly cap)
+            data << uint32(player->GetCurrency(CURRENCY_TYPE_VALOR_POINTS, false));         // purseQuantity (overall valor points)
+            data << uint32(0);                                                              // purseLimit
+            data << uint32(rewValorPoints);                                                 // some sort of reward for completion
         }
         else
         {
