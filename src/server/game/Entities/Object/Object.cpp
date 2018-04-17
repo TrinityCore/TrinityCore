@@ -1671,6 +1671,13 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 if (z < ground_z)
                     z = ground_z;
             }
+
+            // Creatures that are simulating flight effects or actual flight should use HoverHeight
+            if (ToUnit() && (ToUnit()->IsFlying() || ToUnit()->IsHovering() || ToUnit()->IsLevitating()))
+            {
+                uint32 hoverHeight = GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                z += hoverHeight;
+            }
             break;
         }
         case TYPEID_PLAYER:
