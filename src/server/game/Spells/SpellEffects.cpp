@@ -727,6 +727,10 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
         values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
     }
 
+    uint32 triggerMask = TRIGGERED_FULL_MASK;
+    if ((spellInfo->AttributesEx3 & SPELL_ATTR3_CANT_TRIGGER_PROC) != SPELL_ATTR3_CANT_TRIGGER_PROC)
+        triggerMask &= ~TRIGGERED_DISALLOW_PROC_EVENTS;
+
     // MiscValue is the delay between the trigger and the action
     if (effectInfo->MiscValue)
     {
