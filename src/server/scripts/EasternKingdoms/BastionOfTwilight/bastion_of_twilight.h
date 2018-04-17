@@ -79,9 +79,13 @@ enum BoTCreatures
     /*Halfus Wyrmbreaker*/
     NPC_PROTO_BEHEMOTH          = 44687,
     NPC_NETHER_SCION            = 44645,
+    NPC_NETHER_SCION_ENCOUNTER  = 44828,
     NPC_SLATE_DRAGON            = 44652,
+    NPC_SLATE_DRAGON_ENCOUNTER  = 44829,
     NPC_STORM_RIDER             = 44650,
+    NPC_STORM_RIDER_ENCOUNTER   = 44826,
     NPC_TIME_WARDEN             = 44797,
+    NPC_TIME_WARDEN_ENCOUNTER   = 44653,
     NPC_ORPHANED_EMERALD_WELP   = 44641,
     NPC_SPIKE                   = 44765,
 

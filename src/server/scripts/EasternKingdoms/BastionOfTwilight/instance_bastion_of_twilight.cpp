@@ -159,10 +159,29 @@ class instance_bastion_of_twilight : public InstanceMapScript
                                         && creature->GetEntry() != _unresponsiveDragonEntryFirst
                                         && creature->GetEntry() != _unresponsiveDragonEntrySecond)
                                     {
+                                        switch (creature->GetEntry())
+                                        {
+                                            case NPC_NETHER_SCION:
+                                                creature->UpdateEntry(NPC_NETHER_SCION_ENCOUNTER);
+                                                break;
+                                            case NPC_SLATE_DRAGON:
+                                                creature->UpdateEntry(NPC_SLATE_DRAGON_ENCOUNTER);
+                                                break;
+                                            case NPC_STORM_RIDER:
+                                                creature->UpdateEntry(NPC_STORM_RIDER_ENCOUNTER);
+                                                break;
+                                            case NPC_TIME_WARDEN:
+                                                creature->UpdateEntry(NPC_TIME_WARDEN_ENCOUNTER);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
                                         creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                                         if (creature->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
                                             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
                                     }
                                 }
                             }

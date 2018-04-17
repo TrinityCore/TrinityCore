@@ -8,20 +8,17 @@ UPDATE `creature_template` SET `difficulty_entry_1`= 46227, `difficulty_entry_2`
 UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `faction`= 16, `mechanic_immune_mask`= 617299839, `flags_extra`= 0x40000000, `InhabitType`= 12 WHERE `entry` IN (44687, 46227, 46228, 46229);
 -- Enslaved Dragons
 UPDATE `creature_template` SET `ScriptName`= 'npc_halfus_enslaved_dragon' WHERE `entry` IN (44645, 44652, 44650, 44797, 44641);
-UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `faction`= 35, `npcflag`= 1, `DamageModifier`= 30, `flags_extra`= 0x00000200 | 0x40000000, `HoverHeight`= 7.875, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (46212, 46213, 46214, 46215, 46216, 46217, 46218, 46219, 46220, 46221, 46222, 46223, 44645, 44652, 44650, 44797);
+UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `faction`= 35, `npcflag`= 1, `DamageModifier`= 30, `flags_extra`= 0x00000200 | 0x40000000, `HoverHeight`= 7.875, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (46212, 46213, 46214, 46215, 46216, 46217, 46218, 46219, 46220, 46221, 46222, 46223, 44828, 44829, 44826, 44653);
 UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `faction`= 35, `npcflag`= 1, `DamageModifier`= 3.5, `flags_extra`= 0x40000000, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (46224, 46225, 46226, 44641);
 -- Nether Scion
-UPDATE `creature_template` SET `difficulty_entry_1`= 46212, `difficulty_entry_2`= 46213, `difficulty_entry_3`= 46214 WHERE `entry`= 44645;
-UPDATE `creature_template` SET `gossip_menu_id`= 12077 WHERE `entry` IN (46212, 46213, 46214, 44645);
+UPDATE `creature_template` SET `difficulty_entry_1`= 46212, `difficulty_entry_2`= 46213, `difficulty_entry_3`= 46214 WHERE `entry`= 44828;
+UPDATE `creature_template` SET `gossip_menu_id`= 12077 WHERE `entry`= 44645;
 -- Slate Dragon
-UPDATE `creature_template` SET `difficulty_entry_1`= 46215, `difficulty_entry_2`= 46216, `difficulty_entry_3`= 46217 WHERE `entry`= 44652;
-UPDATE `creature_template` SET `gossip_menu_id`= 12078 WHERE `entry` IN (46215, 46216, 46217);
+UPDATE `creature_template` SET `difficulty_entry_1`= 46215, `difficulty_entry_2`= 46216, `difficulty_entry_3`= 46217 WHERE `entry`= 44829;
 -- Storm Rider
-UPDATE `creature_template` SET `difficulty_entry_1`= 46218, `difficulty_entry_2`= 46219, `difficulty_entry_3`= 46220 WHERE `entry`= 44650;
-UPDATE `creature_template` SET `gossip_menu_id`= 12079 WHERE `entry` IN (46218, 46219, 46220);
+UPDATE `creature_template` SET `difficulty_entry_1`= 46218, `difficulty_entry_2`= 46219, `difficulty_entry_3`= 46220 WHERE `entry`= 44826;
 -- Time Warden
-UPDATE `creature_template` SET `difficulty_entry_1`= 46221, `difficulty_entry_2`= 46222, `difficulty_entry_3`= 46223 WHERE `entry`= 44797;
-UPDATE `creature_template` SET `gossip_menu_id`= 12076 WHERE `entry` IN (46221, 46222, 46223);
+UPDATE `creature_template` SET `difficulty_entry_1`= 46221, `difficulty_entry_2`= 46222, `difficulty_entry_3`= 46223 WHERE `entry`= 44653;
 -- Orphaned Emerald Whelp
 UPDATE `creature_template` SET `difficulty_entry_1`= 46224, `difficulty_entry_2`= 46225, `difficulty_entry_3`= 46226 WHERE `entry`= 44641;
 UPDATE `creature_template` SET `gossip_menu_id`= 11884 WHERE `entry` IN (46224, 46225, 46226);
@@ -57,12 +54,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (83962, 'spell_halfus_dancing_flames');
 
 -- Spellclick Spells
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (44645, 44652, 44650, 44797);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (44828, 44829, 44826, 44653);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
-(44645, 83589, 1, 1),
-(44652, 83590, 1, 1),
-(44650, 83591, 1, 1),
-(44797, 83447, 1, 1);
+(44828, 83589, 1, 1),
+(44829, 83590, 1, 1),
+(44826, 83591, 1, 1),
+(44653, 83447, 1, 1);
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceEntry` IN (83487, 83611, 83603, 84092, 87683, 83601, 83609, 84246, 83962) AND `SourceTypeOrReferenceId`= 13;
