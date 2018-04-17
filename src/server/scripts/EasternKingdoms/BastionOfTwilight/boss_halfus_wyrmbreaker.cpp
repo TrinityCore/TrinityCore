@@ -390,6 +390,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
             {
                 me->SetDisableGravity(false);
                 me->SendSetPlayHoverAnim(false);
+                me->DespawnOrUnsummon(Seconds(6));
 
                 if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
                     if (Creature* protoBehemoth = _instance->GetCreature(DATA_PROTO_BEHEMOTH))
