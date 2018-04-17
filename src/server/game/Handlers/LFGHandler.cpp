@@ -316,19 +316,19 @@ void WorldSession::SendLfgPlayerLockInfo()
         data << uint32(dungeonId);                         // Dungeon Entry (id + type)
         lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(dungeonId, level);
         Quest const* quest = nullptr;
-        bool done = false;
+        bool firstCompletion = true;
         if (reward)
         {
             quest = sObjectMgr->GetQuestTemplate(reward->firstQuest);
             if (quest)
             {
-                done = !player->CanRewardQuest(quest, false);
-                if (done)
+                firstCompletion = player->CanRewardQuest(quest, false);
+                if (!firstCompletion)
                     quest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
             }
         }
 
-        data << uint8(done);
+        data << uint8(firstCompletion);
 
         CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
         int8 valorPointsField = -1;
@@ -350,7 +350,7 @@ void WorldSession::SendLfgPlayerLockInfo()
             data << uint32(player->GetCurrencyWeekCap(currency));                                      // overall valor points weekly cap
             data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // purseQuantity
             data << uint32(player->GetCurrencyTotalCap(currency));                                     // purseLimit
-            data << uint32(0);  // some sort of reward for completion
+            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);  // some sort of reward for completion
         }
         else
         {

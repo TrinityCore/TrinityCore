@@ -15311,7 +15311,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    if ((quest->IsDaily() || quest->IsDFQuest()) && !quest->IsRepeatable() && !quest->IsWeekly())
+    if ((quest->IsDaily() || (quest->IsDFQuest()) && !quest->IsRepeatable()) && !quest->IsWeekly())
     {
         SetDailyQuestStatus(quest_id);
         if (quest->IsDaily())
