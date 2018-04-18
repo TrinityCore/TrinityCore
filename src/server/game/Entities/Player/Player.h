@@ -2407,10 +2407,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         struct LFGRewardInfo
         {
             LFGRewardInfo(uint8 _completionsThisPeriod = 0, bool _isDaily = false) :
-                completionsThisPeriod(_completionsThisPeriod), isDaily(_isDaily) { }
+                CompletionsThisPeriod(_completionsThisPeriod), IsDaily(_isDaily) { }
 
-            uint8 completionsThisPeriod;
-            bool isDaily;
+            uint8 CompletionsThisPeriod;
+            bool IsDaily;
         };
 
         typedef std::unordered_map<uint32, LFGRewardInfo> LFGRewardStatusMap;

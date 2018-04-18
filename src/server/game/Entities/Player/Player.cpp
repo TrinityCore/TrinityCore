@@ -16107,7 +16107,7 @@ bool Player::SatisfyFirstLFGReward(uint32 dungeonId, uint8 maxRewCount) const
 {
     LFGRewardStatusMap::const_iterator lfgdungeon = m_lfgrewardstatus.find(dungeonId);
     if (lfgdungeon != m_lfgrewardstatus.end())
-        return lfgdungeon->second.completionsThisPeriod && lfgdungeon->second.completionsThisPeriod < maxRewCount;
+        return lfgdungeon->second.CompletionsThisPeriod && lfgdungeon->second.CompletionsThisPeriod < maxRewCount;
 
     return true;
 }
@@ -16116,7 +16116,7 @@ uint8 Player::GetFirstRewardCountForDungeonId(uint32 dungeonId)
 {
     LFGRewardStatusMap::const_iterator lfgdungeon = m_lfgrewardstatus.find(dungeonId);
     if (lfgdungeon != m_lfgrewardstatus.end())
-        return lfgdungeon->second.completionsThisPeriod;
+        return lfgdungeon->second.CompletionsThisPeriod;
 
     return 0;
 }
@@ -20555,8 +20555,8 @@ void Player::_SaveLFGRewardStatus(SQLTransaction& trans)
     for (LFGRewardStatusMap::const_iterator itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end(); ++itr)
     {
         uint32 dungeonId = itr->first;
-        uint8 rewardCount = itr->second.completionsThisPeriod;
-        uint8 dailyReset = itr->second.isDaily;
+        uint8 rewardCount = itr->second.CompletionsThisPeriod;
+        uint8 dailyReset = itr->second.IsDaily;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG);
         stmt->setUInt32(0, GetGUID().GetCounter());
@@ -24163,7 +24163,7 @@ void Player::SetLFGRewardStatus(uint32 dungeon_id, bool daily_reset)
     LFGRewardStatusMap::iterator lfgdungeon = m_lfgrewardstatus.find(dungeon_id);
 
     if (lfgdungeon != m_lfgrewardstatus.end())
-        lfgdungeon->second.completionsThisPeriod++;
+        lfgdungeon->second.CompletionsThisPeriod++;
     else
         m_lfgrewardstatus[dungeon_id] = LFGRewardInfo(1, daily_reset);
 
@@ -24215,7 +24215,7 @@ void Player::ResetWeeklyLFGRewardStatus()
 {
     for (auto itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end();)
     {
-        if (!itr->second.isDaily)
+        if (!itr->second.IsDaily)
         {
             itr = m_lfgrewardstatus.erase(itr);
             continue;
@@ -24231,7 +24231,7 @@ void Player::ResetDailyLFGRewardStatus()
 {
     for (auto itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end();)
     {
-        if (itr->second.isDaily)
+        if (itr->second.IsDaily)
         {
             itr = m_lfgrewardstatus.erase(itr);
             continue;
