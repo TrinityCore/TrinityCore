@@ -59,9 +59,9 @@ struct instance_black_rook_hold : public InstanceScript
         InstanceScript::OnCreatureCreate(creature);
 
         if (instance->IsHeroic())
-            creature->SetHealth(creature->GetHealth() * 2.f);
+            creature->SetMaxHealth(creature->GetMaxHealth() * 2.f);
         if (instance->IsMythic())
-            creature->SetHealth(creature->GetHealth() * 1.33f);
+            creature->SetMaxHealth(creature->GetMaxHealth() * 1.33f);
 
         if (creature->isDead())
             return;
@@ -114,12 +114,15 @@ struct instance_black_rook_hold : public InstanceScript
 
                         creature->GetMotionMaster()->MoveJump(jumpPos, 10.f, 10.f);
 
-                        creature->GetScheduler().Schedule(2s, [](TaskContext context)
+                        creature->GetScheduler().Schedule(3s, [](TaskContext context)
                         {
                             if (Player* player = GetContextCreature()->SelectNearestPlayer())
+                            {
+                                GetContextCreature()->GetMotionMaster()->MoveChase(player);
                                 GetContextCreature()->Attack(player, true);
+                            }
 
-                            GetContextCreature()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                            GetContextCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                         });
                     }
                 }

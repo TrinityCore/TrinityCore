@@ -50,6 +50,7 @@ enum Creatures
 
     // Smashspite the Hateful
     NPC_SMASHSPITE_THE_HATEFUL      = 98948,
+    NPC_SMASHSPITE_FELBAT           = 100759,
 
     // Illysanna Ravencrest
     NPC_ILLYSANNA_RAVENCREST        = 98696,

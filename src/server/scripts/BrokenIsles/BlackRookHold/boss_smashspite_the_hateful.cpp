@@ -35,6 +35,8 @@ enum Spells
 
     EVENT_SUMMON_FELBAT         = 1,
 };
+
+Position felBatSumCenter = { 3294.11f, 7263.07f, 267.738312f };
  
 // 98949
 struct boss_smashspite_the_hateful : public BossAI
@@ -75,6 +77,20 @@ struct boss_smashspite_the_hateful : public BossAI
                 if (Unit* target = ObjectAccessor::GetUnit(*me, hatefulGazeTargetGUID))
                 {
                     me->CastSpell(target, SPELL_HATEFUL_CHARGE, true);
+
+                    me->GetScheduler().Schedule(250ms, [this](TaskContext context)
+                    {
+                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != EFFECT_MOTION_TYPE)
+                            return;
+
+                        if (Player* player = me->SelectNearestPlayer(6.f))
+                        {
+                            me->CastSpell(player, SPELL_HATEFUL_CHARGE_DAMAGE, true);
+                            return;
+                        }
+
+                        context.Repeat();
+                    });
                 }
 
                 hatefulGazeTargetGUID = ObjectGuid::Empty;
@@ -82,7 +98,11 @@ struct boss_smashspite_the_hateful : public BossAI
             }
             case EVENT_SUMMON_FELBAT:
             {
-
+                Position sumPos = felBatSumCenter;
+                GetRandPosFromCenterInDist(&felBatSumCenter, 14.f, sumPos);
+                sumPos.m_positionZ += frand(-10.f, 10.f);
+                me->SummonCreature(NPC_SMASHSPITE_FELBAT, sumPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                events.Repeat(15s);
                 break;
             }
         }
@@ -103,7 +123,7 @@ class aura_smashspite_brutality : public AuraScript
 
         if (GetTarget()->GetPower(POWER_ENERGY) == 100)
         {
-            GetTarget()->CastSpell(GetTarget()->GetVictim(), SPELL_BRUTAL_HAYMAKER, false);
+            GetTarget()->CastSpell(GetTarget()->GetVictim(), SPELL_BRUTAL_HAYMAKER, true);
             GetTarget()->SetPower(POWER_ENERGY, 0);
         }
     }
@@ -133,7 +153,7 @@ struct npc_brh_felbat : public ScriptedAI
                 me->GetScheduler().Schedule(6s, [this, attackableUnitGUID](TaskContext /*context*/)
                 {
                     if (Unit* attackableUnit = ObjectAccessor::GetUnit(*me, attackableUnitGUID))
-                        me->CastSpell(attackableUnit, SPELL_FEL_VOMIT, false);
+                        me->CastSpell(attackableUnit, SPELL_FEL_VOMIT, true);
                 });
             }
 

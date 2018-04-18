@@ -3512,6 +3512,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF THE WANDERING ISLE SPELLS
 
+    // BlackRook Hold - Bloodthirsty Leap
+    ApplySpellFix({ 225963 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_NONE,   EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_HEROIC, EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_MYTHIC, EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
+    });
+
+    ApplySpellFix({ 196930 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
+    });    
+
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {

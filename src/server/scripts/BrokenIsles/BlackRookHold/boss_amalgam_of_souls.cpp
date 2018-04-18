@@ -129,6 +129,9 @@ struct boss_amalgam_of_souls : public BossAI
                 });
                 break;
             }
+            case SPELL_SOUL_BURST:
+                DoCastAOE(SPELL_SOUL_BURST);
+                break;
             default:
                 break;
         }
