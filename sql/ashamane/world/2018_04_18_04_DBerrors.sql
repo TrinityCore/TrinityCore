@@ -124,7 +124,6 @@ UPDATE gameobject_template SET ScriptName="go_shadowmoon_voidblade" WHERE entry=
 DELETE FROM areatrigger_scripts WHERE entry IN (172189,164556,169224,183790,153072,152684,152691,170038);
 INSERT INTO areatrigger_scripts (entry, ScriptName) VALUES
 (172189, "areatrigger_aqualir_submerge"),
-(150306, "at_bramble_patch"),
 (164556, "at_unchecked_growth"),
 (169224, "at_toxic_gas"),
 (183790, "areatrigger_black_hole"),
