@@ -2200,7 +2200,7 @@ void World::Update(uint32 diff)
 
     /// Handle weekly quests reset time
     if (currentGameTime  > m_NextWeeklyQuestReset)
-        ResetWeeklyQuests();
+        ResetWeeklyQuestsAndRewards();
 
     /// Handle monthly quests reset time
     if (currentGameTime  > m_NextMonthlyQuestReset)
@@ -3204,16 +3204,26 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
         KickAllLess(m_allowedSecurityLevel);
 }
 
-void World::ResetWeeklyQuests()
+void World::ResetWeeklyQuestsAndRewards()
 {
-    TC_LOG_INFO("misc", "Weekly quests reset for all characters.");
+    TC_LOG_INFO("misc", "Weekly quests and rewards reset for all characters.");
 
+    // Reset Weekly quests
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
 
+    // Reset Weekly lfg rewards
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG);
+    CharacterDatabase.Execute(stmt);
+
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
         if (itr->second->GetPlayer())
+        {
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
+            itr->second->GetPlayer()->ResetLFGRewardStatus();
+        }
+    }
 
     m_NextWeeklyQuestReset = time_t(m_NextWeeklyQuestReset + WEEK);
     sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));

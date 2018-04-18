@@ -784,6 +784,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 35,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION         = 36,
     PLAYER_LOGIN_QUERY_LOAD_ALL_PETS                = 37,
+    PLAYER_LOGIN_QUERY_LOAD_LFG_REWARD_STATUS       = 38,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1385,16 +1386,20 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         void SendQuestUpdate(uint32 questId);
         QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
+        bool SatisfyFirstLFGReward(uint32 dungeonId, uint8 maxRewCount) const;
+        uint8 GetFirstRewardCountForDungeonId(uint32 dungeon);
 
         void SetDailyQuestStatus(uint32 quest_id);
         bool IsDailyQuestDone(uint32 quest_id);
         void SetWeeklyQuestStatus(uint32 quest_id);
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
+        void SetLFGRewardStatus(uint32 dungeon_id);
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
+        void ResetLFGRewardStatus();
 
         uint16 FindQuestSlot(uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const;
@@ -2186,9 +2191,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasValidLFGLeavePoint(uint32 mapid);
         void SetLFGLeavePoint();
 
-        typedef std::set<uint32> DFQuestsDoneList;
-        DFQuestsDoneList m_DFQuests;
-
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
@@ -2400,10 +2402,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> QuestSet;
         typedef std::set<uint32> SeasonalQuestSet;
         typedef std::unordered_map<uint32, SeasonalQuestSet> SeasonalEventQuestMap;
+        typedef std::unordered_map<uint32, uint8> LFGRewardStatusMap;
+
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
         QuestSet m_monthlyquests;
         SeasonalEventQuestMap m_seasonalquests;
+        LFGRewardStatusMap m_lfgrewardstatus;
 
         ObjectGuid m_playerSharingQuest;
         uint32 m_sharedQuestId;
@@ -2442,6 +2447,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
+        void _LoadLFGRewardStatus(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2467,6 +2473,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCUFProfiles(SQLTransaction& trans);
+        void _SaveLFGRewardStatus(SQLTransaction& trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2577,6 +2584,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool   m_WeeklyQuestChanged;
         bool   m_MonthlyQuestChanged;
         bool   m_SeasonalQuestChanged;
+        bool   m_LFGRewardStatusChanged;
         time_t m_lastDailyQuestTime;
 
         uint32 m_hostileReferenceCheckTimer;

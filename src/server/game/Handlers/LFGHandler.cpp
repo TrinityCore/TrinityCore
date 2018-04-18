@@ -323,6 +323,9 @@ void WorldSession::SendLfgPlayerLockInfo()
             if (quest)
             {
                 firstCompletion = player->CanRewardQuest(quest, false);
+                if (reward->completionsPerWeek)
+                    firstCompletion = player->SatisfyFirstLFGReward(dungeonId & 0x00FFFFFF, reward->completionsPerWeek);
+
                 if (!firstCompletion)
                     quest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
             }
@@ -337,7 +340,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
 
-        if (currency && rewValorPoints && !quest->IsWeekly())
+        if (currency && rewValorPoints && !reward->completionsPerWeek)
         {
             data << uint32(rewValorPoints);                                                 // currencyQuantity (valor points from selected dungeon)
             data << uint32(player->GetCurrencyWeekCap(currency));                           // some sort of overall cap/weekly cap
@@ -351,6 +354,21 @@ void WorldSession::SendLfgPlayerLockInfo()
             data << uint32(player->GetCurrency(CURRENCY_TYPE_VALOR_POINTS, false));         // purseQuantity (overall valor points)
             data << uint32(0);                                                              // purseLimit
             data << uint32(rewValorPoints);                                                 // some sort of reward for completion
+        }
+        else if (firstCompletion && reward && reward->completionsPerWeek)
+        {
+            data << uint32(1);                                                                  // currencyQuantity
+            data << uint32(reward->completionsPerWeek);                                         // some sort of overall cap/weekly cap
+            data << uint32(0);                                                                  // currencyID
+            data << uint32(0);                                                                  // tier1Quantity
+            data << uint32(reward->completionsPerWeek);                                         // tier1Limit
+            data << uint32(player->GetFirstRewardCountForDungeonId(dungeonId & 0x00FFFFFF));    // overallQuantity
+            data << uint32(reward->completionsPerWeek);                                         // overallLimit
+            data << uint32(0);                                                                  // periodPurseQuantity
+            data << uint32(0);                                                                  // periodPurseLimit
+            data << uint32(0);                                                                  // purseQuantity
+            data << uint32(0);                                                                  // purseLimit
+            data << uint32(1);                                                                  // some sort of reward for completion
         }
         else
         {
@@ -762,7 +780,6 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
         GetPlayerInfo().c_str(), rewardData.rdungeonEntry, rewardData.sdungeonEntry, rewardData.done);
 
     uint8 itemNum = rewardData.quest->GetRewItemsCount() + rewardData.quest->GetRewCurrencyCount();
-
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
     data << uint32(rewardData.rdungeonEntry);                               // Random Dungeon Finished
     data << uint32(rewardData.sdungeonEntry);                               // Dungeon Finished

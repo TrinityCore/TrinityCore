@@ -822,7 +822,7 @@ class TC_GAME_API World
         void InitGuildResetTime();
         void InitCurrencyResetTime();
         void ResetDailyQuests();
-        void ResetWeeklyQuests();
+        void ResetWeeklyQuestsAndRewards();
         void ResetMonthlyQuests();
         void ResetRandomBG();
         void ResetGuildCap();

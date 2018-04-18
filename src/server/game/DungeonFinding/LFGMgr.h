@@ -210,6 +210,7 @@ struct LfgPlayerRewardData
 {
     LfgPlayerRewardData(uint32 random, uint32 current, bool _done, Quest const* _quest):
         rdungeonEntry(random), sdungeonEntry(current), done(_done), quest(_quest) { }
+
     uint32 rdungeonEntry;
     uint32 sdungeonEntry;
     bool done;
@@ -219,12 +220,13 @@ struct LfgPlayerRewardData
 /// Reward info
 struct LfgReward
 {
-    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0):
-        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest) { }
+    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0, uint8 _completionsPerWeek = 0):
+        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest), completionsPerWeek(_completionsPerWeek) { }
 
     uint32 maxLevel;
     uint32 firstQuest;
     uint32 otherQuest;
+    uint8 completionsPerWeek;
 };
 
 /// Stores player data related to proposal to join

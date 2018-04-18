@@ -395,6 +395,8 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_SeasonalQuestChanged = false;
 
+    m_LFGRewardStatusChanged = false;
+
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
@@ -4495,6 +4497,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_FISHINGSTEPS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_REWARDSTATUS_LFG);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
@@ -15311,7 +15317,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    if ((quest->IsDaily() || (quest->IsDFQuest()) && !quest->IsRepeatable()) && !quest->IsWeekly())
+    if (quest->IsDaily() && !quest->IsDFQuest())
     {
         SetDailyQuestStatus(quest_id);
         if (quest->IsDaily())
@@ -15866,14 +15872,6 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg) const
     if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
         return true;
 
-    if (qInfo->IsDFQuest() && !qInfo->IsRepeatable())
-    {
-        if (m_DFQuests.find(qInfo->GetQuestId()) != m_DFQuests.end())
-            return false;
-
-        return true;
-    }
-
     bool have_slot = false;
     for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
     {
@@ -16103,6 +16101,24 @@ void Player::SendQuestUpdate(uint32 questId)
 
     UpdateForQuestWorldObjects();
     PhasingHandler::OnConditionChange(this);
+}
+
+bool Player::SatisfyFirstLFGReward(uint32 dungeonId, uint8 maxRewCount) const
+{
+    LFGRewardStatusMap::const_iterator lfgdungeon = m_lfgrewardstatus.find(dungeonId);
+    if (lfgdungeon != m_lfgrewardstatus.end())
+        return lfgdungeon->second && lfgdungeon->second < maxRewCount;
+
+    return true;
+}
+
+uint8 Player::GetFirstRewardCountForDungeonId(uint32 dungeonId)
+{
+    LFGRewardStatusMap::const_iterator lfgdungeon = m_lfgrewardstatus.find(dungeonId);
+    if (lfgdungeon != m_lfgrewardstatus.end())
+        return lfgdungeon->second;
+
+    return 0;
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
@@ -17804,6 +17820,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
     _LoadWeeklyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS));
     _LoadSeasonalQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS));
     _LoadMonthlyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS));
+    _LoadLFGRewardStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_LFG_REWARD_STATUS));
     _LoadRandomBGStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG));
 
     // after spell and quest load
@@ -18895,8 +18912,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
     for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
         SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, 0);
 
-    m_DFQuests.clear();
-
     //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, time FROM character_queststatus_daily WHERE guid = '%u'", GetGUID().GetCounter());
 
     if (result)
@@ -18906,15 +18921,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(fields[0].GetUInt32()))
-            {
-                if (qQuest->IsDFQuest())
-                {
-                    m_DFQuests.insert(qQuest->GetQuestId());
-                    m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
-                    continue;
-                }
-            }
 
             if (quest_daily_idx >= PLAYER_MAX_DAILY_QUESTS)  // max amount with exist data in query
             {
@@ -19015,6 +19021,27 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
     }
 
     m_MonthlyQuestChanged = false;
+}
+
+void Player::_LoadLFGRewardStatus(PreparedQueryResult result)
+{
+    m_lfgrewardstatus.clear();
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 dungeon_id = fields[0].GetUInt16();
+            uint8 reward_count = fields[1].GetUInt8();
+
+            m_lfgrewardstatus[dungeon_id] = reward_count;
+            TC_LOG_DEBUG("entities.player.loading", "Player::_LFGQuestStatus: Loaded LFG quest first reward cooldown (DungeonID: %u) for player '%s' (%s)",
+                dungeon_id, GetName().c_str(), GetGUID().ToString().c_str());
+        } while (result->NextRow());
+    }
+
+    m_LFGRewardStatusChanged = false;
 }
 
 void Player::_LoadSpells(PreparedQueryResult result)
@@ -19906,6 +19933,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveWeeklyQuestStatus(trans);
     _SaveSeasonalQuestStatus(trans);
     _SaveMonthlyQuestStatus(trans);
+    _SaveLFGRewardStatus(trans);
     _SaveTalents(trans);
     _SaveSpells(trans);
     GetSpellHistory()->SaveToDB<Player>(trans);
@@ -20436,18 +20464,6 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
             trans->Append(stmt);
         }
     }
-
-    if (!m_DFQuests.empty())
-    {
-        for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_QUESTSTATUS_DAILY);
-            stmt->setUInt32(0, GetGUID().GetCounter());
-            stmt->setUInt32(1, (*itr));
-            stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
-            trans->Append(stmt);
-        }
-    }
 }
 
 void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
@@ -20523,6 +20539,31 @@ void Player::_SaveMonthlyQuestStatus(SQLTransaction& trans)
     }
 
     m_MonthlyQuestChanged = false;
+}
+
+void Player::_SaveLFGRewardStatus(SQLTransaction& trans)
+{
+    if (!m_LFGRewardStatusChanged || m_lfgrewardstatus.empty())
+        return;
+
+    // we don't need transactions here.
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_REWARDSTATUS_LFG);
+    stmt->setUInt32(0, GetGUID().GetCounter());
+    trans->Append(stmt);
+
+    for (LFGRewardStatusMap::const_iterator itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end(); ++itr)
+    {
+        uint32 dungeonId = itr->first;
+        uint8 rewardCount = itr->second;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt32(1, dungeonId);
+        stmt->setUInt32(2, rewardCount);
+        trans->Append(stmt);
+    }
+
+    m_LFGRewardStatusChanged = false;
 }
 
 void Player::_SaveSkills(SQLTransaction& trans)
@@ -24061,23 +24102,15 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
 {
     if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
     {
-        if (!qQuest->IsDFQuest())
+        for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
         {
-            for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+            if (!GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1 + quest_daily_idx))
             {
-                if (!GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx))
-                {
-                    SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, quest_id);
-                    m_lastDailyQuestTime = time(nullptr);              // last daily quest time
-                    m_DailyQuestChanged = true;
-                    break;
-                }
+                SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1 + quest_daily_idx, quest_id);
+                m_lastDailyQuestTime = time(nullptr);              // last daily quest time
+                m_DailyQuestChanged = true;
+                break;
             }
-        } else
-        {
-            m_DFQuests.insert(quest_id);
-            m_lastDailyQuestTime = time(nullptr);
-            m_DailyQuestChanged = true;
         }
     }
 }
@@ -24122,12 +24155,22 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
     m_MonthlyQuestChanged = true;
 }
 
+void Player::SetLFGRewardStatus(uint32 dungeon_id)
+{
+    LFGRewardStatusMap::iterator lfgdungeon = m_lfgrewardstatus.find(dungeon_id);
+
+    if (lfgdungeon != m_lfgrewardstatus.end())
+        lfgdungeon->second++;
+    else
+        m_lfgrewardstatus[dungeon_id] = 1;
+
+    m_LFGRewardStatusChanged = true;
+}
+
 void Player::ResetDailyQuestStatus()
 {
     for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
         SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, 0);
-
-    m_DFQuests.clear(); // Dungeon Finder Quests.
 
     // DB data deleted in caller
     m_DailyQuestChanged = false;
@@ -24163,6 +24206,16 @@ void Player::ResetMonthlyQuestStatus()
     m_monthlyquests.clear();
     // DB data deleted in caller
     m_MonthlyQuestChanged = false;
+}
+
+void Player::ResetLFGRewardStatus()
+{
+    if (!m_lfgrewardstatus.empty())
+        return;
+
+    m_lfgrewardstatus.clear();
+    // DB data deleted in caller
+    m_LFGRewardStatusChanged = false;
 }
 
 Battleground* Player::GetBattleground() const
