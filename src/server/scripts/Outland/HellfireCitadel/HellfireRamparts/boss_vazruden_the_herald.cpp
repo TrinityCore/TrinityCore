@@ -97,7 +97,6 @@ class boss_nazan : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
-                   // VazrudenGUID = summoner->GetGUID();
 					Vazruden = me->FindNearestCreature(NPC_VAZRUDEN, 5000);
             }
 
@@ -134,7 +133,6 @@ class boss_nazan : public CreatureScript
 
                 if (flight) // phase 1 - the flight
                 {
-                    //Creature* Vazruden = ObjectAccessor::GetCreature(*me, VazrudenGUID);
                     if (Fly_Timer < diff || !(Vazruden && Vazruden->IsAlive() && Vazruden->HealthAbovePct(20)))
                     {
                         flight = false;
@@ -195,7 +193,7 @@ class boss_nazan : public CreatureScript
                 uint32 Fly_Timer;
                 uint32 Turn_Timer;
                 bool flight;
-				Creature* Vazruden;
+				Creature* Vazruden;  //just i don't know how to use guid to start attack,so I change to Creature*, pls help me.
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -353,7 +351,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
 					{
 						NazanGUID = Nazan->GetGUID();
-						Unit* player = Nazan->SelectNearestPlayer(60.00f);
+						Unit* player = Nazan->SelectNearestPlayer(60.00f);//nazan start attack
 						Nazan->AI()->AttackStart(player);
 					}
                     summoned = true;
