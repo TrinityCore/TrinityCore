@@ -124,7 +124,7 @@ void LFGMgr::LoadRewards()
     RewardMapStore.clear();
 
     // ORDER BY is very important for GetRandomDungeonReward!
-    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId, completionsPerWeek FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId, completionsPerPeriod, dailyReset FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
     if (!result)
     {
@@ -142,7 +142,8 @@ void LFGMgr::LoadRewards()
         uint32 maxLevel = fields[1].GetUInt8();
         uint32 firstQuestId = fields[2].GetUInt32();
         uint32 otherQuestId = fields[3].GetUInt32();
-        uint32 completionsPerWeek = fields[4].GetUInt8();
+        uint32 completionsPerPeriod = fields[4].GetUInt8();
+        bool dailyReset = fields[5].GetUInt8();
 
         if (!GetLFGDungeonEntry(dungeonId))
         {
@@ -168,7 +169,7 @@ void LFGMgr::LoadRewards()
             otherQuestId = 0;
         }
 
-        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId, completionsPerWeek)));
+        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId, completionsPerPeriod, dailyReset)));
         ++count;
     }
     while (result->NextRow());
@@ -1498,11 +1499,11 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (!quest)
             continue;
 
-        // CanRewardQuest to check currency caps, SatisfyFirstLFGReward to check weekly reward caps for first quest
-        if (player->CanRewardQuest(quest, false) && player->SatisfyFirstLFGReward(rDungeonId, reward->completionsPerWeek))
+        // CanRewardQuest to check currency caps, SatisfyFirstLFGReward to check weekly/daily reward caps for first quest
+        if (player->CanRewardQuest(quest, false) && player->SatisfyFirstLFGReward(rDungeonId, reward->completionsPerPeriod))
         {
-            if (reward->completionsPerWeek)
-                player->SetLFGRewardStatus(rDungeonId);
+            if (reward->completionsPerPeriod)
+                player->SetLFGRewardStatus(rDungeonId, reward->dailyReset);
 
             player->RewardQuest(quest, 0, nullptr, false);
         }

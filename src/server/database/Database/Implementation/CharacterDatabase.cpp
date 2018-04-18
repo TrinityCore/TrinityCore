@@ -93,10 +93,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY, "DELETE FROM character_queststatus_monthly", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT, "DELETE FROM character_queststatus_seasonal WHERE event = ?", CONNECTION_ASYNC);
 
-    PrepareStatement(CHAR_SEL_CHARACTER_REWARDSTATUS_LFG, "SELECT dungeonId, rewardCount FROM character_rewardstatus_lfg WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_REWARDSTATUS_LFG, "SELECT dungeonId, rewardCount, dailyReset FROM character_rewardstatus_lfg WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHARACTER_REWARDSTATUS_LFG, "DELETE FROM character_rewardstatus_lfg WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG, "INSERT INTO character_rewardstatus_lfg (guid, dungeonId, rewardCount) VALUES (?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG, "DELETE FROM character_rewardstatus_lfg", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG, "INSERT INTO character_rewardstatus_lfg (guid, dungeonId, rewardCount, dailyReset) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_WEEKLY, "DELETE FROM character_rewardstatus_lfg WHERE dailyReset = 0", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_DAILY, "DELETE FROM character_rewardstatus_lfg WHERE dailyReset = 1", CONNECTION_ASYNC);
 
     PrepareStatement(CHAR_SEL_CHARACTER_REPUTATION, "SELECT faction, standing, flags FROM character_reputation WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_INVENTORY, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, bag, slot, "

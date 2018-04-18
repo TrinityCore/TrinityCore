@@ -220,13 +220,14 @@ struct LfgPlayerRewardData
 /// Reward info
 struct LfgReward
 {
-    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0, uint8 _completionsPerWeek = 0):
-        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest), completionsPerWeek(_completionsPerWeek) { }
+    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0, uint8 _completionsPerPeriod = 0, bool _dailyReset = 0):
+        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest), completionsPerPeriod(_completionsPerPeriod), dailyReset(_dailyReset) { }
 
     uint32 maxLevel;
     uint32 firstQuest;
     uint32 otherQuest;
-    uint8 completionsPerWeek;
+    uint8 completionsPerPeriod;
+    bool dailyReset;
 };
 
 /// Stores player data related to proposal to join

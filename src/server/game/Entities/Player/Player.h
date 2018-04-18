@@ -1394,12 +1394,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetWeeklyQuestStatus(uint32 quest_id);
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
-        void SetLFGRewardStatus(uint32 dungeon_id);
+        void SetLFGRewardStatus(uint32 dungeon_id, bool daily_reset);
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
-        void ResetLFGRewardStatus();
+        void ResetWeeklyLFGRewardStatus();
+        void ResetDailyLFGRewardStatus();
 
         uint16 FindQuestSlot(uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const;
@@ -2402,7 +2403,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> QuestSet;
         typedef std::set<uint32> SeasonalQuestSet;
         typedef std::unordered_map<uint32, SeasonalQuestSet> SeasonalEventQuestMap;
-        typedef std::unordered_map<uint32, uint8> LFGRewardStatusMap;
+
+        struct LFGRewardInfo
+        {
+            LFGRewardInfo(uint8 _completionsThisPeriod = 0, bool _isDaily = false) :
+                completionsThisPeriod(_completionsThisPeriod), isDaily(_isDaily) { }
+
+            uint8 completionsThisPeriod;
+            bool isDaily;
+        };
+
+        typedef std::unordered_map<uint32, LFGRewardInfo> LFGRewardStatusMap;
 
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;

@@ -324,8 +324,8 @@ void WorldSession::SendLfgPlayerLockInfo()
             if (Quest const* firstQuest = sObjectMgr->GetQuestTemplate(reward->firstQuest))
             {
                 firstCompletion = player->CanRewardQuest(firstQuest, false);
-                if (reward->completionsPerWeek)
-                    firstCompletion = player->SatisfyFirstLFGReward(dungeonId & 0x00FFFFFF, reward->completionsPerWeek);
+                if (reward->completionsPerPeriod)
+                    firstCompletion = player->SatisfyFirstLFGReward(dungeonId & 0x00FFFFFF, reward->completionsPerPeriod);
 
                 if (firstCompletion)
                     currentQuest = firstQuest;
@@ -350,7 +350,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
 
-        if (currency && rewValorPoints && !reward->completionsPerWeek)
+        if (currency && rewValorPoints && !reward->completionsPerPeriod)
         {
             data << uint32(rewValorPoints);                                                 // currencyQuantity (valor points from selected dungeon)
             data << uint32(player->GetCurrencyWeekCap(currency));                           // some sort of overall cap/weekly cap
@@ -365,15 +365,15 @@ void WorldSession::SendLfgPlayerLockInfo()
             data << uint32(0);                                                              // purseLimit
             data << uint32(rewValorPoints);                                                 // some sort of reward for completion
         }
-        else if (firstCompletion && reward && reward->completionsPerWeek)
+        else if (firstCompletion && reward && reward->completionsPerPeriod && !reward->dailyReset)
         {
             data << uint32(1);                                                                  // currencyQuantity
-            data << uint32(reward->completionsPerWeek);                                         // some sort of overall cap/weekly cap
+            data << uint32(reward->completionsPerPeriod);                                       // some sort of overall cap/weekly cap
             data << uint32(0);                                                                  // currencyID
             data << uint32(0);                                                                  // tier1Quantity
-            data << uint32(reward->completionsPerWeek);                                         // tier1Limit
+            data << uint32(reward->completionsPerPeriod);                                       // tier1Limit
             data << uint32(player->GetFirstRewardCountForDungeonId(dungeonId & 0x00FFFFFF));    // overallQuantity
-            data << uint32(reward->completionsPerWeek);                                         // overallLimit
+            data << uint32(reward->completionsPerPeriod);                                       // overallLimit
             data << uint32(0);                                                                  // periodPurseQuantity
             data << uint32(0);                                                                  // periodPurseLimit
             data << uint32(0);                                                                  // purseQuantity
@@ -400,7 +400,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEligible(level, dungeonId & 0x00FFFFFF);
 
-        data << uint8(isCallToArmsEligible);                                               // Call to Arms eligible
+        data << uint8(isCallToArmsEligible);                            // Call to Arms eligible
         Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(lfg::LFG_CALL_TO_ARMS_QUEST);
 
         if (isCallToArmsEligible && ctaQuest)

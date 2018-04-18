@@ -821,7 +821,7 @@ class TC_GAME_API World
         void InitRandomBGResetTime();
         void InitGuildResetTime();
         void InitCurrencyResetTime();
-        void ResetDailyQuests();
+        void ResetDailyQuestsAndRewards();
         void ResetWeeklyQuestsAndRewards();
         void ResetMonthlyQuests();
         void ResetRandomBG();

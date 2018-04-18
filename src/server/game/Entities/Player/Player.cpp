@@ -16107,7 +16107,7 @@ bool Player::SatisfyFirstLFGReward(uint32 dungeonId, uint8 maxRewCount) const
 {
     LFGRewardStatusMap::const_iterator lfgdungeon = m_lfgrewardstatus.find(dungeonId);
     if (lfgdungeon != m_lfgrewardstatus.end())
-        return lfgdungeon->second && lfgdungeon->second < maxRewCount;
+        return lfgdungeon->second.completionsThisPeriod && lfgdungeon->second.completionsThisPeriod < maxRewCount;
 
     return true;
 }
@@ -16116,7 +16116,7 @@ uint8 Player::GetFirstRewardCountForDungeonId(uint32 dungeonId)
 {
     LFGRewardStatusMap::const_iterator lfgdungeon = m_lfgrewardstatus.find(dungeonId);
     if (lfgdungeon != m_lfgrewardstatus.end())
-        return lfgdungeon->second;
+        return lfgdungeon->second.completionsThisPeriod;
 
     return 0;
 }
@@ -19034,8 +19034,9 @@ void Player::_LoadLFGRewardStatus(PreparedQueryResult result)
             Field* fields = result->Fetch();
             uint32 dungeon_id = fields[0].GetUInt16();
             uint8 reward_count = fields[1].GetUInt8();
+            uint8 daily_reset = fields[2].GetUInt8();
 
-            m_lfgrewardstatus[dungeon_id] = reward_count;
+            m_lfgrewardstatus[dungeon_id] = LFGRewardInfo(reward_count, daily_reset);
             TC_LOG_DEBUG("entities.player.loading", "Player::_LFGQuestStatus: Loaded LFG quest first reward cooldown (DungeonID: %u) for player '%s' (%s)",
                 dungeon_id, GetName().c_str(), GetGUID().ToString().c_str());
         } while (result->NextRow());
@@ -20554,12 +20555,14 @@ void Player::_SaveLFGRewardStatus(SQLTransaction& trans)
     for (LFGRewardStatusMap::const_iterator itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end(); ++itr)
     {
         uint32 dungeonId = itr->first;
-        uint8 rewardCount = itr->second;
+        uint8 rewardCount = itr->second.completionsThisPeriod;
+        uint8 dailyReset = itr->second.isDaily;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG);
         stmt->setUInt32(0, GetGUID().GetCounter());
         stmt->setUInt32(1, dungeonId);
-        stmt->setUInt32(2, rewardCount);
+        stmt->setUInt8(2, rewardCount);
+        stmt->setUInt8(3, dailyReset);
         trans->Append(stmt);
     }
 
@@ -24155,14 +24158,14 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
     m_MonthlyQuestChanged = true;
 }
 
-void Player::SetLFGRewardStatus(uint32 dungeon_id)
+void Player::SetLFGRewardStatus(uint32 dungeon_id, bool daily_reset)
 {
     LFGRewardStatusMap::iterator lfgdungeon = m_lfgrewardstatus.find(dungeon_id);
 
     if (lfgdungeon != m_lfgrewardstatus.end())
-        lfgdungeon->second++;
+        lfgdungeon->second.completionsThisPeriod++;
     else
-        m_lfgrewardstatus[dungeon_id] = 1;
+        m_lfgrewardstatus[dungeon_id] = LFGRewardInfo(1, daily_reset);
 
     m_LFGRewardStatusChanged = true;
 }
@@ -24208,12 +24211,34 @@ void Player::ResetMonthlyQuestStatus()
     m_MonthlyQuestChanged = false;
 }
 
-void Player::ResetLFGRewardStatus()
+void Player::ResetWeeklyLFGRewardStatus()
 {
-    if (!m_lfgrewardstatus.empty())
-        return;
+    for (auto itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end();)
+    {
+        if (!itr->second.isDaily)
+        {
+            itr = m_lfgrewardstatus.erase(itr);
+            continue;
+        }
+        itr++;
+    }
 
-    m_lfgrewardstatus.clear();
+    // DB data deleted in caller
+    m_LFGRewardStatusChanged = false;
+}
+
+void Player::ResetDailyLFGRewardStatus()
+{
+    for (auto itr = m_lfgrewardstatus.begin(); itr != m_lfgrewardstatus.end();)
+    {
+        if (itr->second.isDaily)
+        {
+            itr = m_lfgrewardstatus.erase(itr);
+            continue;
+        }
+        itr++;
+    }
+
     // DB data deleted in caller
     m_LFGRewardStatusChanged = false;
 }

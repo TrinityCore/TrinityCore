@@ -2194,7 +2194,7 @@ void World::Update(uint32 diff)
     /// Handle daily quests reset time
     if (currentGameTime  > m_NextDailyQuestReset)
     {
-        ResetDailyQuests();
+        ResetDailyQuestsAndRewards();
         InitDailyQuestResetTime(false);
     }
 
@@ -3158,16 +3158,26 @@ void World::InitCurrencyResetTime()
         sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
 }
 
-void World::ResetDailyQuests()
+void World::ResetDailyQuestsAndRewards()
 {
-    TC_LOG_INFO("misc", "Daily quests reset for all characters.");
+    TC_LOG_INFO("misc", "Daily quests and rewards reset for all characters.");
 
+    // Reset daily quest status
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
     CharacterDatabase.Execute(stmt);
 
+    // Reset daily lfg rewards
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_DAILY);
+    CharacterDatabase.Execute(stmt);
+
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
         if (itr->second->GetPlayer())
+        {
             itr->second->GetPlayer()->ResetDailyQuestStatus();
+            itr->second->GetPlayer()->ResetDailyLFGRewardStatus();
+        }
+    }
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
@@ -3208,12 +3218,12 @@ void World::ResetWeeklyQuestsAndRewards()
 {
     TC_LOG_INFO("misc", "Weekly quests and rewards reset for all characters.");
 
-    // Reset Weekly quests
+    // Reset weekly quests
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
 
-    // Reset Weekly lfg rewards
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG);
+    // Reset weekly lfg rewards
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_WEEKLY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -3221,7 +3231,7 @@ void World::ResetWeeklyQuestsAndRewards()
         if (itr->second->GetPlayer())
         {
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
-            itr->second->GetPlayer()->ResetLFGRewardStatus();
+            itr->second->GetPlayer()->ResetWeeklyLFGRewardStatus();
         }
     }
 
