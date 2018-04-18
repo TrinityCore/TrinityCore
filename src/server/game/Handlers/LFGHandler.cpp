@@ -315,28 +315,38 @@ void WorldSession::SendLfgPlayerLockInfo()
         uint32 dungeonId = *it;
         data << uint32(dungeonId);                         // Dungeon Entry (id + type)
         lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(dungeonId, level);
-        Quest const* quest = nullptr;
-        bool firstCompletion = true;
+        bool firstCompletion = false;
+        Quest const* currentQuest = nullptr;
+        uint32 rewValorPoints = 0;
+
         if (reward)
         {
-            quest = sObjectMgr->GetQuestTemplate(reward->firstQuest);
-            if (quest)
+            if (Quest const* firstQuest = sObjectMgr->GetQuestTemplate(reward->firstQuest))
             {
-                firstCompletion = player->CanRewardQuest(quest, false);
+                firstCompletion = player->CanRewardQuest(firstQuest, false);
                 if (reward->completionsPerWeek)
                     firstCompletion = player->SatisfyFirstLFGReward(dungeonId & 0x00FFFFFF, reward->completionsPerWeek);
 
+                if (firstCompletion)
+                    currentQuest = firstQuest;
+
+                for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
+                    if (firstQuest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
+                        rewValorPoints += firstQuest->RewardCurrencyCount[i];
+            }
+
+            if (Quest const* otherQuest = sObjectMgr->GetQuestTemplate(reward->otherQuest))
+            {
                 if (!firstCompletion)
-                    quest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
+                    currentQuest = otherQuest;
+
+                for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
+                    if (otherQuest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
+                        rewValorPoints += otherQuest->RewardCurrencyCount[i];
             }
         }
 
         data << uint8(firstCompletion);
-
-        uint32 rewValorPoints = 0;
-        for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
-            if (quest && quest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
-                rewValorPoints += quest->RewardCurrencyCount[i];
 
         CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
 
@@ -432,8 +442,8 @@ void WorldSession::SendLfgPlayerLockInfo()
                 data << uint32(0);
         }
 
-        if (quest)
-            BuildQuestReward(data, quest, player);
+        if (currentQuest)
+            BuildQuestReward(data, currentQuest, player);
         else
         {
             data << uint32(0);                                          // Money
