@@ -110,7 +110,7 @@ struct boss_illysanna_ravencrest : public BossAI
             }
             case NPC_SOUL_TORN_VANGUARD:
             {
-                Position summonPos = centerPos;
+                Position summonPos;
                 GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
                 me->SummonCreature(NPC_SOUL_TORN_VANGUARD, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(15s);
@@ -118,7 +118,7 @@ struct boss_illysanna_ravencrest : public BossAI
             }
             case NPC_RISEN_ARCANIST:
             {
-                Position summonPos = centerPos;
+                Position summonPos;
                 GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
                 me->SummonCreature(NPC_RISEN_ARCANIST, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(20s);

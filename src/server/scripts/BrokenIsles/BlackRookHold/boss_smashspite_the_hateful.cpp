@@ -98,7 +98,7 @@ struct boss_smashspite_the_hateful : public BossAI
             }
             case EVENT_SUMMON_FELBAT:
             {
-                Position sumPos = felBatSumCenter;
+                Position sumPos;
                 GetRandPosFromCenterInDist(&felBatSumCenter, 14.f, sumPos);
                 sumPos.m_positionZ += frand(-10.f, 10.f);
                 me->SummonCreature(NPC_SMASHSPITE_FELBAT, sumPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
@@ -141,6 +141,7 @@ struct npc_brh_felbat : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
+        me->SetReactState(REACT_PASSIVE);
         me->GetScheduler().Schedule(5s, [this](TaskContext context)
         {
             DoZoneInCombat();
