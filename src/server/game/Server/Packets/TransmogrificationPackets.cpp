@@ -46,3 +46,10 @@ WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::W
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Transmogrification::OpenTransmogrifier::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
