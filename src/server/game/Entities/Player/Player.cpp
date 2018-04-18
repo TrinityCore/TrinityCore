@@ -14322,6 +14322,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GOSSIP_OPTION_PETITIONER:
                 case GOSSIP_OPTION_TABARDDESIGNER:
                 case GOSSIP_OPTION_AUCTIONEER:
+                case GOSSIP_OPTION_TRANSMOGRIFIER:
                     break;                                  // no checks
                 case GOSSIP_OPTION_OUTDOORPVP:
                     if (!sOutdoorPvPMgr->CanTalkTo(this, creature, itr->second))
@@ -14530,6 +14531,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menu
             sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
+        case GOSSIP_OPTION_TRANSMOGRIFIER:
+            GetSession()->SendOpenTransmogrifier(guid);
+            break;
     }
 
     ModifyMoney(-cost);

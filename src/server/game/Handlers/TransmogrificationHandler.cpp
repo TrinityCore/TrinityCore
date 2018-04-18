@@ -284,3 +284,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         }
     }
 }
+
+void WorldSession::SendOpenTransmogrifier(ObjectGuid const& guid)
+{
+    SendPacket(WorldPackets::Transmogrification::OpenTransmogrifier(guid).Write());
+}
