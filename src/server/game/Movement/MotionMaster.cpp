@@ -357,8 +357,8 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
         Movement::MoveSplineInit init(_owner);
         init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         init.SetFacing(target);
-        init.Launch();
-        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
+
+        Mutate(new EffectMovementGenerator(std::move(init), id), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -372,8 +372,8 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos)
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
     init.SetAnimation(Movement::ToGround);
-    init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
+
+    Mutate(new EffectMovementGenerator(std::move(init), id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
@@ -386,8 +386,8 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
     init.SetAnimation(Movement::ToFly);
-    init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
+
+    Mutate(new EffectMovementGenerator(std::move(init), id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/)
@@ -442,23 +442,24 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     init.SetParabolic(max_height, 0);
     init.SetOrientationFixed(true);
     init.SetVelocity(speedXY);
-    init.Launch();
-    Mutate(new EffectMovementGenerator(0), MOTION_SLOT_CONTROLLED);
+
+    Mutate(new EffectMovementGenerator(std::move(init), 0), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 {
-    //this function may make players fall below map
+    // this function may make players fall below map
     if (_owner->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    float x, y, z;
+    float x, y, z = _owner->GetPositionZ();
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
+
     _owner->GetNearPoint2D(nullptr, x, y, dist, _owner->GetOrientation() + angle);
-    z = _owner->GetPositionZ();
     _owner->UpdateAllowedPositionZ(x, y, z);
+
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 
@@ -482,8 +483,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     init.SetVelocity(speedXY);
     if (hasOrientation)
         init.SetFacing(o);
-    init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+
+    Mutate(new EffectMovementGenerator(std::move(init), id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
@@ -520,7 +521,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         init.SetCyclic();
     }
 
-    init.Launch();
+    Mutate(new EffectMovementGenerator(std::move(init), 0), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk)
@@ -536,14 +537,11 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
-    init.Launch();
 
     // This code is not correct
     // EffectMovementGenerator does not affect UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE
     // need to call PointMovementGenerator with various pointIds
-    Mutate(new EffectMovementGenerator(pointId), MOTION_SLOT_ACTIVE);
-    //Position pos(pathPoints[pathSize - 1].x, pathPoints[pathSize - 1].y, pathPoints[pathSize - 1].z);
-    //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
+    Mutate(new EffectMovementGenerator(std::move(init), pointId), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
@@ -606,8 +604,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz + _owner->GetHoverOffset(), false);
     init.SetFall();
-    init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(std::move(init), id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveSeekAssistance(float x, float y, float z)
@@ -716,6 +713,11 @@ void MotionMaster::MoveFormation(uint32 id, Position destination, uint32 moveTyp
         TC_LOG_DEBUG("misc", "MotionMaster::MoveFormation: creature (GUID: %u) targeted point (Id: %u X: %f Y: %f Z: %f).", _owner->GetGUID().GetCounter(), id, destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
         Mutate(new FormationMovementGenerator(id, destination, moveType, forceRun, forceOrientation), MOTION_SLOT_ACTIVE);
     }
+}
+
+void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*= 0*/, MovementSlot slot/*= MOTION_SLOT_ACTIVE*/)
+{
+    Mutate(new EffectMovementGenerator(std::move(init), id), slot);
 }
 
 /******************** Private methods ********************/

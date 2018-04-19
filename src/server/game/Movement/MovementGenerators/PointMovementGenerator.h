@@ -20,7 +20,9 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "MoveSplineInit.h"
 #include "Optional.h"
+#include "Timer.h"
 
 class Creature;
 
@@ -64,9 +66,10 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        explicit EffectMovementGenerator(uint32 id) : _pointId(id) { }
+        explicit EffectMovementGenerator(uint32 id) : _pointId(id), _duration(0) { }
+        EffectMovementGenerator(Movement::MoveSplineInit&& splineInit, uint32 id) : _pointId(id), _splineInit(std::move(splineInit)), _duration(0) { }
 
-        void Initialize(Unit*) override { }
+        void Initialize(Unit*) override;
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
         bool Update(Unit*, uint32) override;
@@ -76,6 +79,8 @@ class EffectMovementGenerator : public MovementGenerator
         void MovementInform(Unit*);
 
         uint32 _pointId;
+        Optional<Movement::MoveSplineInit> _splineInit;
+        TimeTrackerSmall _duration;
 };
 
 #endif

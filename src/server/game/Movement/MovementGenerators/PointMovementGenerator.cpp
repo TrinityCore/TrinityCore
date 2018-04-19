@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
-#include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "World.h"
 
@@ -162,8 +161,21 @@ void AssistanceMovementGenerator::Finalize(Unit* owner)
 
 //---- EffectMovementGenerator
 
-bool EffectMovementGenerator::Update(Unit* owner, uint32 /*diff*/)
+void EffectMovementGenerator::Initialize(Unit* owner)
 {
+    if (_splineInit.is_initialized())
+        _duration.Reset(_splineInit->Launch());
+}
+
+bool EffectMovementGenerator::Update(Unit* owner, uint32 diff)
+{
+    if (!_duration.Passed())
+    {
+        _duration.Update(diff);
+        if (_duration.Passed())
+            return false;
+    }
+
     return !owner->movespline->Finalized();
 }
 
