@@ -145,7 +145,6 @@ class TC_GAME_API Item : public Object
         ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner() const;
-        Player* GetConnectedOwner() const;
 
         ItemBondingType GetBonding() const { return _bonusData.Bonding; }
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }

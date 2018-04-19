@@ -12340,9 +12340,6 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
     // only set if not merged to existing stack (pItem can be deleted already but we can compare pointers any way)
     if (pLastItem == pItem)
     {
-        pItem->SetFixedLevel(getLevel());
-        pItem->UpdateItemSuffixFactor();
-
         // update owner for last item (this can be original item with wrong owner
         if (pLastItem->GetOwnerGUID() != GetGUID())
             pLastItem->SetOwnerGUID(GetGUID());

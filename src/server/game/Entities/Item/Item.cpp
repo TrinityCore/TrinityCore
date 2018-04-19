@@ -759,9 +759,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[43].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[44].GetUInt32());
 
-    if (Player* owner = GetConnectedOwner())
-        SetFixedLevel(owner->getLevel());
-
     // Enchants must be loaded after all other bonus/scaling data
     _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
@@ -901,11 +898,6 @@ Player* Item::GetOwner() const
     return ObjectAccessor::FindPlayer(GetOwnerGUID());
 }
 
-Player* Item::GetConnectedOwner() const
-{
-    return ObjectAccessor::FindConnectedPlayer(GetOwnerGUID());
-}
-
 // Just a "legacy shortcut" for proto->GetSkill()
 uint32 Item::GetSkill()
 {
@@ -960,7 +952,7 @@ void Item::UpdateItemSuffixFactor()
         return;
 
     uint32 suffixFactor = 0;
-    if (Player* owner = GetConnectedOwner())
+    if (Player* owner = GetOwner())
         suffixFactor = GetRandomPropertyPoints(GetItemLevel(owner), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
     else
         suffixFactor = GenerateEnchSuffixFactor(GetEntry());
