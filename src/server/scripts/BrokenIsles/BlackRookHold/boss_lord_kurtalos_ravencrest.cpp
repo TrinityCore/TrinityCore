@@ -87,6 +87,7 @@ struct boss_kurtalos_ravencrest : public BossAI
         me->SetReactState(REACT_DEFENSIVE);
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEGACY_OF_THE_RAVENCREST);
     }
 
     void ScheduleTasks() override
@@ -172,6 +173,7 @@ struct boss_kurtalos_ravencrest : public BossAI
     {
         BossAI::JustDied(attacker);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEGACY_OF_THE_RAVENCREST);
     }
 
 private:
@@ -243,6 +245,8 @@ struct npc_latosius : public ScriptedAI
         me->SetDisableGravity(false);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         me->UpdateEntry(NPC_LATOSIUS);
+        me->SetCurrentEquipmentId(me->GetOriginalEquipmentId());
+        me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
         if (!kurtalosSoulGUID.IsEmpty())
         {
@@ -260,6 +264,7 @@ struct npc_latosius : public ScriptedAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
             me->CastSpell(nullptr, SPELL_TELEPORT_OUT, true);
 
+            me->AddUnitState(UNIT_STATE_CANNOT_TURN);
             me->SetDisableGravity(true);
             me->NearTeleportTo(blastPositions[0]);
 
@@ -286,14 +291,17 @@ struct npc_latosius : public ScriptedAI
             me->CastStop();
 
             TeleportToCenter();
+            me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
             me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
             {
+                me->CastStop();
                 me->CastSpell(nullptr, SPELL_SAP_SOUL, false);
             }).
             Schedule(9s, [this](TaskContext /*context*/)
             {
                 me->UpdateEntry(NPC_DANTALIONAX);
+                me->SetCurrentEquipmentId(0);
                 me->CastSpell(me, SPELL_DREADLORD_CONVERSATION, true);
                 me->CastSpell(me, SPELL_TRANSFORM, true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -353,8 +361,10 @@ struct npc_latosius : public ScriptedAI
                 break;
             }
             case SPELL_DREADLORDS_GUILE:
+                me->CastStop();
                 me->CastSpell(nullptr, SPELL_DREADLORDS_GUILE, false);
-                events.DelayEvents(21s); // 5s spell cast + 15s event + 1s security
+                events.Repeat(30s);
+                events.DelayEvents(25s); // 5s spell cast + 19s event + 1s security
                 break;
             case SPELL_STINGING_SWARM:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, -SPELL_STINGING_SWARM))
@@ -368,6 +378,7 @@ struct npc_latosius : public ScriptedAI
     {
         if (spell->Id == SPELL_DREADLORDS_GUILE)
         {
+            me->GetMotionMaster()->Clear();
             me->SetDisableGravity(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
@@ -376,6 +387,7 @@ struct npc_latosius : public ScriptedAI
                 if (context.GetRepeatCounter() >= 4)
                     return;
 
+                me->AddUnitState(UNIT_STATE_CANNOT_TURN);
                 me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
                 me->NearTeleportTo(blastPositions[context.GetRepeatCounter()]);
                 me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
@@ -384,6 +396,7 @@ struct npc_latosius : public ScriptedAI
             }).Schedule(19s, [this](TaskContext /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
+                me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
                 TeleportToCenter();
             });
         }
