@@ -160,7 +160,7 @@ struct boss_kurtalos_ravencrest : public BossAI
         {
             case SPELL_WHIRLING_BLADE:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0.f, true))
                     if (Creature* whirlingBlade = me->SummonCreature(NPC_WHIRLING_BLADE, me->GetPosition()))
                         whirlingBlade->AI()->SetGUID(target->GetGUID());
 
@@ -245,7 +245,7 @@ struct npc_latosius : public ScriptedAI
         me->SetDisableGravity(false);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         me->UpdateEntry(NPC_LATOSIUS);
-        me->SetCurrentEquipmentId(me->GetOriginalEquipmentId());
+        SetEquipmentSlots(true);
         me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
         if (!kurtalosSoulGUID.IsEmpty())
@@ -301,7 +301,7 @@ struct npc_latosius : public ScriptedAI
             Schedule(9s, [this](TaskContext /*context*/)
             {
                 me->UpdateEntry(NPC_DANTALIONAX);
-                me->SetCurrentEquipmentId(0);
+                SetEquipmentSlots(false, 0, 0, 0);
                 me->CastSpell(me, SPELL_DREADLORD_CONVERSATION, true);
                 me->CastSpell(me, SPELL_TRANSFORM, true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -353,9 +353,8 @@ struct npc_latosius : public ScriptedAI
                 break;
             case SPELL_CLOUD_OF_HYPNOSIS_SUMMON:
             {
-                Position summonPos;
-                GetRandPosFromCenterInDist(&centerPosition, 20.f, summonPos);
-                me->CastSpell(summonPos, SPELL_CLOUD_OF_HYPNOSIS_SUMMON, false);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+                    me->CastSpell(target->GetPosition(), SPELL_CLOUD_OF_HYPNOSIS_SUMMON, false);
 
                 events.Repeat(20s);
                 break;
@@ -364,7 +363,7 @@ struct npc_latosius : public ScriptedAI
                 me->CastStop();
                 me->CastSpell(nullptr, SPELL_DREADLORDS_GUILE, false);
                 events.Repeat(30s);
-                events.DelayEvents(25s); // 5s spell cast + 19s event + 1s security
+                events.DelayEvents(29s); // 5s spell cast + 23s event + 1s security
                 break;
             case SPELL_STINGING_SWARM:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, -SPELL_STINGING_SWARM))
@@ -390,10 +389,13 @@ struct npc_latosius : public ScriptedAI
                 me->AddUnitState(UNIT_STATE_CANNOT_TURN);
                 me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
                 me->NearTeleportTo(blastPositions[context.GetRepeatCounter()]);
-                me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
-                context.Repeat(4s);
+                context.Schedule(1s, [this](TaskContext context)
+                {
+                    me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
+                });
+                context.Repeat(5s);
 
-            }).Schedule(19s, [this](TaskContext /*context*/)
+            }).Schedule(23s, [this](TaskContext /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
                 me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
