@@ -139,9 +139,16 @@ struct npc_brh_felbat : public ScriptedAI
 {
     npc_brh_felbat(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
+        me->SetSpeed(MOVE_WALK,     0.1f);
+        me->SetSpeed(MOVE_RUN,      0.1f);
+        me->SetSpeed(MOVE_FLIGHT,   0.1f);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
         me->GetScheduler().Schedule(5s, [this](TaskContext context)
         {
             DoZoneInCombat();

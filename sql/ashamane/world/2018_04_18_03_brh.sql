@@ -90,3 +90,5 @@ INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `lan
 (98970, @GROUP_ID+0, @ID+0, 'Burn away!', 14, 0, 100, 0, 0, 54539, 0, 'Latosius'),
 
 (99857, @GROUP_ID+0, @ID+0, 'I... understand now. You... you must find Kur''talos. You must put a stop to this.', 12, 0, 100, 0, 0, 54558, 0, 'Lord Etheldrin Ravencrest to Player');
+
+UPDATE `creature_template` SET `flags_extra` = 128 WHERE (entry = 103662);

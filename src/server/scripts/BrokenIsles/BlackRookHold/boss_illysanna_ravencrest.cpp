@@ -113,7 +113,7 @@ struct boss_illysanna_ravencrest : public BossAI
                 Position summonPos;
                 GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
                 me->SummonCreature(NPC_SOUL_TORN_VANGUARD, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-                events.Repeat(10s);
+                events.Repeat(30s);
                 break;
             }
             case NPC_RISEN_ARCANIST:
@@ -121,7 +121,7 @@ struct boss_illysanna_ravencrest : public BossAI
                 Position summonPos;
                 GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
                 me->SummonCreature(NPC_RISEN_ARCANIST, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-                events.Repeat(15s);
+                events.Repeat(45s);
                 break;
             }
             default:
@@ -142,7 +142,7 @@ struct npc_soultorn_vanguard : public ScriptedAI
         me->GetScheduler().Schedule(5s, 10s, [](TaskContext context)
         {
             GetContextUnit()->CastSpell(nullptr, SPELL_BONECRUSHING_STRIKE, false);
-            context.Repeat();
+            context.Repeat(10s, 20s);
         });
     }
 };

@@ -65,14 +65,6 @@ enum Spells
 
 Position centerPosition = { 3185.36f, 7409.95f, 270.38f, 1.079803f };
 
-Position blastPositions[4] =
-{
-    { 3206.10f, 7416.93f, 276.54f, 3.451702f },
-    { 3178.82f, 7432.61f, 276.54f, 4.995077f },
-    { 3163.59f, 7403.73f, 276.54f, 0.283480f },
-    { 3192.63f, 7387.68f, 276.54f, 1.869188f },
-};
-
 // 98965
 struct boss_kurtalos_ravencrest : public BossAI
 {
@@ -266,7 +258,7 @@ struct npc_latosius : public ScriptedAI
 
             me->AddUnitState(UNIT_STATE_CANNOT_TURN);
             me->SetDisableGravity(true);
-            me->NearTeleportTo(blastPositions[0]);
+            me->NearTeleportTo({ 3206.10f, 7416.93f, 276.54f, 3.451702f });
 
             events.ScheduleEvent(SPELL_DARK_BLAST, 10s);
             events.ScheduleEvent(SPELL_SHADOW_BOLT, 5s);
@@ -363,7 +355,7 @@ struct npc_latosius : public ScriptedAI
                 me->CastStop();
                 me->CastSpell(nullptr, SPELL_DREADLORDS_GUILE, false);
                 events.Repeat(30s);
-                events.DelayEvents(29s); // 5s spell cast + 23s event + 1s security
+                events.DelayEvents(25s); // 5s spell cast + 17s event + 2s security
                 break;
             case SPELL_STINGING_SWARM:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, -SPELL_STINGING_SWARM))
@@ -380,26 +372,49 @@ struct npc_latosius : public ScriptedAI
             me->GetMotionMaster()->Clear();
             me->SetDisableGravity(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            obliterationAngle = frand(0, 2.f * float(M_PI));
+            me->AddUnitState(UNIT_STATE_CANNOT_TURN);
 
-            me->GetScheduler().Schedule(1s, [this](TaskContext context)
+            me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
             {
-                if (context.GetRepeatCounter() >= 4)
-                    return;
+                Position movePos;
+                GetPositionWithDistInOrientation(&centerPosition, 20.f, obliterationAngle, movePos);
+                movePos.m_positionZ = 273.f;
 
-                me->AddUnitState(UNIT_STATE_CANNOT_TURN);
                 me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
-                me->NearTeleportTo(blastPositions[context.GetRepeatCounter()]);
-                context.Schedule(1s, [this](TaskContext context)
-                {
-                    me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
-                });
-                context.Repeat(5s);
+                me->NearTeleportTo(movePos);
+                me->SetFacingTo(me->GetAngle(centerPosition));
+                me->SetOrientation(me->GetAngle(centerPosition));
 
-            }).Schedule(23s, [this](TaskContext /*context*/)
+            }).Schedule(2s, [this](TaskContext /*context*/)
             {
-                me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
-                me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
-                TeleportToCenter();
+                me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
+            }).Schedule(5s, [this](TaskContext context)
+            {
+                if (context.GetRepeatCounter() >= 12)
+                {
+                    TeleportToCenter();
+                    me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
+                    me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
+                    me->GetMotionMaster()->MoveChase(me->GetVictim());
+                    return;
+                }
+
+                Position movePos;
+                obliterationAngle += float(M_PI) / 12.f;
+                GetPositionWithDistInOrientation(&centerPosition, 20.f, obliterationAngle, movePos);
+                movePos.m_positionZ = 273.f;
+
+                me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
+                me->NearTeleportTo(movePos);
+                me->SetFacingTo(me->GetAngle(centerPosition));
+                me->SetOrientation(me->GetAngle(centerPosition));
+
+                context.Schedule(500ms, [this](TaskContext /*context*/)
+                {
+                    me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, true);
+                });
+                context.Repeat(1s);
             });
         }
     }
@@ -425,6 +440,7 @@ private:
     }
 
     ObjectGuid kurtalosSoulGUID;
+    float obliterationAngle;
 };
 
 // 101054
@@ -453,6 +469,9 @@ struct npc_dantalionax_cloud_of_hypnosis : public ScriptedAI
     void Reset() override
     {
         me->CastSpell(me, SPELL_CLOUD_OF_HYPNOSIS_AT, true);
+        me->SetSpeed(MOVE_WALK, 1.0f);
+        me->SetSpeed(MOVE_RUN, 1.0f);
+        me->GetMotionMaster()->MoveRandom(20.0f);
     }
 };
 
@@ -509,7 +528,12 @@ struct npc_dantalionax_stinging_swarm : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (me->GetHealth() <= damage)
+        {
             me->CastSpell(nullptr, SPELL_STINGING_SWARM_REMOVAL, true);
+
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                player->RemoveAurasDueToSpell(SPELL_STINGING_SWARM);
+        }
     }
 
 private:
