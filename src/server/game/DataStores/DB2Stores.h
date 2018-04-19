@@ -285,6 +285,7 @@ public:
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
     bool HasItemCurrencyCost(uint32 itemId) const;
+    std::vector<ItemLimitCategoryConditionEntry const*> const* GetItemLimitCategoryConditions(uint32 categoryId) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetDefaultItemModifiedAppearance(uint32 itemId) const;
