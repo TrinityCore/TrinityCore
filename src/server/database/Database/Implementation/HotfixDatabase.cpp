@@ -513,6 +513,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_ITEM_LIMIT_CATEGORY, "SELECT ID, Name, Quantity, Flags FROM item_limit_category ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_LIMIT_CATEGORY, "SELECT ID, Name_lang FROM item_limit_category_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // ItemLimitCategoryCondition.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_LIMIT_CATEGORY_CONDITION, "SELECT ID, AddQuantity, PlayerConditionID, ParentItemLimitCategoryID "
+        " FROM item_limit_category_condition ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemModifiedAppearance.db2
     PrepareStatement(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE, "SELECT ItemID, ID, ItemAppearanceModifierID, ItemAppearanceID, OrderIndex, "
         "TransmogSourceTypeEnum FROM item_modified_appearance ORDER BY ID DESC", CONNECTION_SYNCH);

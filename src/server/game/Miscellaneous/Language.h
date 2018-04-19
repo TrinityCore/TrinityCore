@@ -926,7 +926,8 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_UNLINKED          = 1188,
     LANG_ACCOUNT_BNET_NOT_LINKED        = 1189,
     LANG_DISALLOW_TICKETS_CONFIG        = 1190,
-    // Room for more level 3              1191-1198 not used
+    LANG_BAN_EXISTS                     = 1191,
+    // Room for more level 3              1192-1198 not used
 
     // Debug commands
     LANG_DEBUG_AREATRIGGER_LEFT         = 1999,

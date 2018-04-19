@@ -1500,6 +1500,14 @@ struct ItemLimitCategoryEntry
     uint8 Flags;
 };
 
+struct ItemLimitCategoryConditionEntry
+{
+    uint32 ID;
+    int8 AddQuantity;
+    uint32 PlayerConditionID;
+    int32 ParentItemLimitCategoryID;
+};
+
 struct ItemModifiedAppearanceEntry
 {
     int32 ItemID;
