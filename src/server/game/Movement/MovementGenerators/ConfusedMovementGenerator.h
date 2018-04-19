@@ -19,16 +19,20 @@
 #define TRINITY_CONFUSEDGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Position.h"
 #include "Timer.h"
+
+class PathGenerator;
 
 template<class T>
 class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
 {
     public:
-        explicit ConfusedMovementGenerator() : _path(nullptr), _timer(0), _reference(0.f, 0.f, 0.f), _interrupt(false) { }
+        explicit ConfusedMovementGenerator() : _timer(0), _reference(0.f, 0.f, 0.f), _interrupt(false) { }
         ~ConfusedMovementGenerator();
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return CONFUSED_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
+        void UnitSpeedChanged() override { } //TODO
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -36,7 +40,7 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
         bool DoUpdate(T*, uint32);
 
     private:
-        PathGenerator* _path;
+        std::unique_ptr<PathGenerator> _path;
         TimeTracker _timer;
         Position _reference;
         bool _interrupt;

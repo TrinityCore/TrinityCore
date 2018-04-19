@@ -43,14 +43,14 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true);
         explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true);
 
-        ~WaypointMovementGenerator();
+        ~WaypointMovementGenerator() { _path = nullptr; }
 
         void DoInitialize(Creature*);
         void DoFinalize(Creature*);
         void DoReset(Creature*);
         bool DoUpdate(Creature*, uint32 diff);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return WAYPOINT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
         void UnitSpeedChanged() override { _recalculateSpeed = true; }
         void Pause(uint32 timer = 0) override;
         void Resume(uint32 overrideTimer = 0) override;

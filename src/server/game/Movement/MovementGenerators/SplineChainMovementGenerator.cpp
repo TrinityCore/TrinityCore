@@ -18,6 +18,8 @@
 #include "SplineChainMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Log.h"
@@ -132,6 +134,11 @@ bool SplineChainMovementGenerator::Update(Unit* me, uint32 diff)
     return true;
 }
 
+MovementGeneratorType SplineChainMovementGenerator::GetMovementGeneratorType() const
+{
+    return SPLINE_CHAIN_MOTION_TYPE;
+}
+
 SplineChainResumeInfo SplineChainMovementGenerator::GetResumeInfo(Unit const* me) const
 {
     if (!_nextIndex)
@@ -148,11 +155,11 @@ SplineChainResumeInfo SplineChainMovementGenerator::GetResumeInfo(Unit const* me
 
 /* static */ void SplineChainMovementGenerator::GetResumeInfo(Unit const* me, SplineChainResumeInfo& info)
 {
-    if (MovementGenerator const* activeGen = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
+    if (MovementGenerator const* activeGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
     {
-        if (activeGen->GetMovementGeneratorType() == SPLINE_CHAIN_MOTION_TYPE)
+        if (activeGenerator->GetMovementGeneratorType() == SPLINE_CHAIN_MOTION_TYPE)
         {
-            info = reinterpret_cast<SplineChainMovementGenerator const*>(activeGen)->GetResumeInfo(me);
+            info = reinterpret_cast<SplineChainMovementGenerator const*>(activeGenerator)->GetResumeInfo(me);
             return;
         }
     }

@@ -16,8 +16,9 @@
  */
 
 #include "IdleMovementGenerator.h"
-#include "CreatureAI.h"
 #include "Creature.h"
+#include "CreatureAI.h"
+#include "MovementDefines.h"
 #include <G3D/g3dmath.h>
 
 // StopMoving is needed to make unit stop if its last movement generator expires
@@ -31,6 +32,11 @@ void IdleMovementGenerator::Reset(Unit* owner)
 {
     if (!owner->IsStopped())
         owner->StopMoving();
+}
+
+MovementGeneratorType IdleMovementGenerator::GetMovementGeneratorType() const
+{
+    return IDLE_MOTION_TYPE;
 }
 
 //----------------------------------------------------//
@@ -62,6 +68,11 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     return true;
+}
+
+MovementGeneratorType RotateMovementGenerator::GetMovementGeneratorType() const
+{
+    return ROTATE_MOTION_TYPE;
 }
 
 void RotateMovementGenerator::Finalize(Unit* owner)
@@ -103,7 +114,17 @@ bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 diff)
     return true;
 }
 
+MovementGeneratorType DistractMovementGenerator::GetMovementGeneratorType() const
+{
+    return DISTRACT_MOTION_TYPE;
+}
+
 //----------------------------------------------------//
+
+MovementGeneratorType AssistanceDistractMovementGenerator::GetMovementGeneratorType() const
+{
+    return ASSISTANCE_DISTRACT_MOTION_TYPE;
+}
 
 void AssistanceDistractMovementGenerator::Finalize(Unit* owner)
 {

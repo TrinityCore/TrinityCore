@@ -20,6 +20,7 @@
 
 #include "MovementGenerator.h"
 #include "PathMovementBase.h"
+#include <deque>
 
 class Player;
 struct TaxiPathNodeEntry;
@@ -38,7 +39,7 @@ public:
     void DoReset(Player*);
     void DoFinalize(Player*);
     bool DoUpdate(Player*, uint32);
-    MovementGeneratorType GetMovementGeneratorType() const override { return FLIGHT_MOTION_TYPE; }
+    MovementGeneratorType GetMovementGeneratorType() const override;
 
     std::vector<TaxiPathNodeEntry const*> const& GetPath() { return _path; }
     uint32 GetPathAtMapEnd() const;

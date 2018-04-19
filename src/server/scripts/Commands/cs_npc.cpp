@@ -32,6 +32,8 @@ EndScriptData */
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
