@@ -39,7 +39,8 @@ INSERT INTO creature_template_addon (`entry`, `auras`) VALUES
 (101008, "199160");
 
 DELETE FROM `spell_area` WHERE `spell` = 199368;
-INSERT INTO `spell_area` (`spell`, `area`, `flags`) VALUES (199368, 7805, 2);
+INSERT INTO `spell_area` (`spell`, `area`, `flags`) VALUES
+(199368, 7805, 2);
 
 UPDATE `areatrigger` SET ScriptName = "" WHERE guid IN (5, 6);
 DELETE FROM `areatrigger_teleport` WHERE ID IN (-5, -6);
@@ -50,3 +51,5 @@ INSERT INTO `areatrigger_teleport` VALUES
 UPDATE creature SET orientation = 5.646474 WHERE guid = 21012083;
 UPDATE creature SET orientation = 5.925279 WHERE guid = 21012097;
 UPDATE creature SET orientation = 2.159289 WHERE guid = 21012096;
+
+UPDATE creature_template SET mechanic_immune_mask = 617299839, flags_extra = 268435456 WHERE entry IN (99611, 98970);

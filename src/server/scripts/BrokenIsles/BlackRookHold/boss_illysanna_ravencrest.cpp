@@ -67,10 +67,10 @@ struct boss_illysanna_ravencrest : public BossAI
             events.CancelEventGroup(PHASE_VENGEANCE);
 
             events.ScheduleEvent(SPELL_EYE_BEAMS,           12s, PHASE_FURY);
-            events.ScheduleEvent(NPC_SOUL_TORN_VANGUARD,    15s, PHASE_FURY);
+            events.ScheduleEvent(NPC_SOUL_TORN_VANGUARD,    1s, PHASE_FURY);
 
             if (IsHeroic())
-                events.ScheduleEvent(NPC_RISEN_ARCANIST,        20s, PHASE_FURY);
+                events.ScheduleEvent(NPC_RISEN_ARCANIST,        5s, PHASE_FURY);
         }
     }
 
@@ -113,7 +113,7 @@ struct boss_illysanna_ravencrest : public BossAI
                 Position summonPos;
                 GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
                 me->SummonCreature(NPC_SOUL_TORN_VANGUARD, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-                events.Repeat(15s);
+                events.Repeat(10s);
                 break;
             }
             case NPC_RISEN_ARCANIST:
@@ -121,7 +121,7 @@ struct boss_illysanna_ravencrest : public BossAI
                 Position summonPos;
                 GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
                 me->SummonCreature(NPC_RISEN_ARCANIST, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-                events.Repeat(20s);
+                events.Repeat(15s);
                 break;
             }
             default:
