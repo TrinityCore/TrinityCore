@@ -385,6 +385,7 @@ struct npc_latosius : public ScriptedAI
                 me->NearTeleportTo(movePos);
                 me->SetFacingTo(me->GetAngle(centerPosition));
                 me->SetOrientation(me->GetAngle(centerPosition));
+                me->SetTarget(ObjectGuid::Empty);
 
             }).Schedule(2s, [this](TaskContext /*context*/)
             {
@@ -397,6 +398,7 @@ struct npc_latosius : public ScriptedAI
                     me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
                     me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
+                    me->SetTarget(me->GetVictim()->GetGUID());
                     return;
                 }
 
@@ -408,10 +410,10 @@ struct npc_latosius : public ScriptedAI
                 me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
                 me->NearTeleportTo(movePos);
                 me->SetFacingTo(me->GetAngle(centerPosition));
-                me->SetOrientation(me->GetAngle(centerPosition));
 
                 context.Schedule(500ms, [this](TaskContext /*context*/)
                 {
+                    me->SetOrientation(me->GetAngle(centerPosition));
                     me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, true);
                 });
                 context.Repeat(1s);
@@ -535,6 +537,8 @@ struct npc_dantalionax_stinging_swarm : public ScriptedAI
                 player->RemoveAurasDueToSpell(SPELL_STINGING_SWARM);
         }
     }
+
+    void UpdateAI(uint32 /*diff*/) override { }
 
 private:
     ObjectGuid playerGUID;
