@@ -19,6 +19,7 @@
 #include "DBCStores.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
@@ -175,6 +176,11 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
     }
 
     return _currentNode < (_path.size() - 1);
+}
+
+MovementGeneratorType FlightPathMovementGenerator::GetMovementGeneratorType() const
+{
+    return FLIGHT_MOTION_TYPE;
 }
 
 void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()

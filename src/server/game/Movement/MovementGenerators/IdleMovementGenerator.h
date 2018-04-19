@@ -22,6 +22,8 @@
 #include "MovementGenerator.h"
 #include "Timer.h"
 
+enum RotateDirection : uint8;
+
 class IdleMovementGenerator : public MovementGenerator
 {
     public:
@@ -29,7 +31,7 @@ class IdleMovementGenerator : public MovementGenerator
         void Finalize(Unit*) override {  }
         void Reset(Unit*) override;
         bool Update(Unit*, uint32) override { return true; }
-        MovementGeneratorType GetMovementGeneratorType() const override { return IDLE_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 };
 
 class RotateMovementGenerator : public MovementGenerator
@@ -41,7 +43,7 @@ class RotateMovementGenerator : public MovementGenerator
         void Finalize(Unit*) override;
         void Reset(Unit* owner) override { Initialize(owner); }
         bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override { return ROTATE_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
         uint32 _duration, _maxDuration;
@@ -57,7 +59,7 @@ class DistractMovementGenerator : public MovementGenerator
         void Finalize(Unit*) override;
         void Reset(Unit* owner) override { Initialize(owner); }
         bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override { return DISTRACT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
         uint32 _timer;
@@ -68,7 +70,7 @@ class AssistanceDistractMovementGenerator : public DistractMovementGenerator
     public:
         explicit AssistanceDistractMovementGenerator(uint32 timer) : DistractMovementGenerator(timer) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
         void Finalize(Unit*) override;
 };
 

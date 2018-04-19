@@ -115,7 +115,11 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 #endif
 
 #ifndef M_PI
-#define M_PI            3.14159265358979323846
+#define M_PI 3.14159265358979323846
+#endif
+
+#ifndef M_PI_4
+#define M_PI_4 0.785398163397448309616
 #endif
 
 #define MAX_QUERY_LEN 32*1024
