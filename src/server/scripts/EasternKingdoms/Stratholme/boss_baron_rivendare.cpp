@@ -49,8 +49,7 @@ enum BaronRivendareEvents
     EVENT_SPELL_SHADOWBOLT      = 1,
     EVENT_SPELL_CLEAVE          = 2,
     EVENT_SPELL_MORTALSTRIKE    = 3,
-    EVENT_SPELL_RAISEDEAD       = 4,
-    EVENT_SUMMON_SKELETON       = 5
+    EVENT_SUMMON_SKELETON       = 4
 };
 
 // Define Add positions
@@ -66,11 +65,14 @@ struct boss_baron_rivendare : public BossAI
 {
     boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON) { }
 
+    bool RaiseDead;
+
     void Reset() override
     {
         if (instance->GetData(TYPE_RAMSTEIN) == DONE)
             instance->SetData(TYPE_BARON, NOT_STARTED);
 
+        RaiseDead = false;
         events.Reset();
     }
 
@@ -84,8 +86,7 @@ struct boss_baron_rivendare : public BossAI
         events.ScheduleEvent(EVENT_SPELL_SHADOWBOLT, 5s);
         events.ScheduleEvent(EVENT_SPELL_CLEAVE, 8s);
         events.ScheduleEvent(EVENT_SPELL_MORTALSTRIKE, 12s);
-        events.ScheduleEvent(EVENT_SPELL_RAISEDEAD, 30s);
-        events.ScheduleEvent(EVENT_SUMMON_SKELETON, 34s);
+        events.ScheduleEvent(EVENT_SUMMON_SKELETON, 15s);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -126,21 +127,24 @@ struct boss_baron_rivendare : public BossAI
                     DoCastVictim(SPELL_MORTALSTRIKE);
                     events.Repeat(10s, 25s);
                     break;
-                case EVENT_SPELL_RAISEDEAD:
-                    // If these skeletons survive long enough, he casts Death Pact
-                    // on them, killing them but healing himself. 
-                    if (me->FindNearestCreature(NPC_SEKELETON, 500.0f, true))
-                        DoCast(SPELL_RAISEDEAD);
-                    events.Repeat(45s);
-                    break;
                 case EVENT_SUMMON_SKELETON:
-                    me->SummonCreature(NPC_SEKELETON, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(NPC_SEKELETON, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(NPC_SEKELETON, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(NPC_SEKELETON, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(NPC_SEKELETON, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(NPC_SEKELETON, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    events.Repeat(32s);
+                    if (!RaiseDead)
+                    {
+                        DoCast(SPELL_RAISEDEAD);
+                        RaiseDead = true;
+                        events.Repeat(1s);
+                    }
+                    else
+                    {
+                        me->SummonCreature(NPC_SEKELETON, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        me->SummonCreature(NPC_SEKELETON, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        me->SummonCreature(NPC_SEKELETON, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        me->SummonCreature(NPC_SEKELETON, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        me->SummonCreature(NPC_SEKELETON, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        me->SummonCreature(NPC_SEKELETON, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        RaiseDead = false;
+                        events.Repeat(15s);
+                    }
                     break;
             }
 
