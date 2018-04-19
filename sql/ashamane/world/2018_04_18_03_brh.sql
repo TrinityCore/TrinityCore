@@ -53,3 +53,40 @@ UPDATE creature SET orientation = 5.925279 WHERE guid = 21012097;
 UPDATE creature SET orientation = 2.159289 WHERE guid = 21012096;
 
 UPDATE creature_template SET mechanic_immune_mask = 617299839, flags_extra = 268435456 WHERE entry IN (99611, 98970);
+
+SET @GROUP_ID := 0;
+SET @ID := 0;
+
+DELETE FROM `creature_text` WHERE `CreatureID` IN (98542, 98696, 98706, 98792, 98810, 98900, 98949, 98965, 98970, 99857);
+INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
+(98542, 200,         @ID+0, 'Consume! Devour!', 14, 0, 100, 0, 0, 54518, 0, 'Amalgam of Souls'),
+(98542, 201,         @ID+0, 'The harvest has come!', 14, 0, 100, 0, 0, 54516, 0, 'Amalgam of Souls to Player'),
+(98542, 0,           @ID+0, 'Leave this meager vessel, and join us...', 14, 0, 100, 0, 0, 54564, 0, 'Amalgam of Souls to Player'),
+(98542, 202,         @ID+0, 'I feed on your essence...', 14, 0, 100, 0, 0, 54522, 0, 'Amalgam of Souls'),
+
+(98696, 200,         @ID+0, 'We will bury you here, fools.', 14, 0, 100, 0, 0, 54515, 0, 'Illysanna Ravencrest'),
+(98696, 201,         @ID+0, 'You can not escape.', 14, 0, 100, 0, 0, 54561, 0, 'Illysanna Ravencrest to Player'),
+(98696, @GROUP_ID+0, @ID+0, 'The hunt is eternal...', 14, 0, 100, 0, 0, 54513, 0, 'Illysanna Ravencrest'),
+(98696, 202,         @ID+0, 'No! I can see now... betrayed...', 14, 0, 100, 0, 0, 54514, 0, 'Illysanna Ravencrest to Player'),
+
+(98706, @GROUP_ID+0, @ID+0, 'Brothers and Sisters, the invaders come for us. Repel them! Attack!', 14, 0, 100, 0, 0, 0, 0, 'Commander Shemdah''sohn to Risen Archer'),
+
+(98792, @GROUP_ID+0, @ID+0, 'Ha! We''ll get ''em wit'' these big rocks!', 14, 0, 100, 0, 0, 0, 0, 'Wyrmtongue Scavenger to Player'),
+(98792, @GROUP_ID+1, @ID+0, 'Ahh! They coming! RUN!', 14, 0, 100, 0, 0, 0, 0, 'Wyrmtongue Scavenger to Player'),
+(98792, @GROUP_ID+2, @ID+0, 'Graa.... Ooh... oooWAAAAAHHHH!!!!', 14, 0, 100, 0, 0, 0, 0, 'Wyrmtongue Scavenger to Player'),
+(98792, @GROUP_ID+3, @ID+0, 'AHHH! WE SORRY! WE PROMISE!', 14, 0, 100, 0, 0, 0, 0, 'Wyrmtongue Scavenger to Player'),
+
+(98810, @GROUP_ID+0, @ID+0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 0, 'Wrathguard Bladelord'),
+
+(98900, @GROUP_ID+0, @ID+0, 'Ok! We definitely got ''em this time!', 14, 0, 100, 0, 0, 0, 0, 'Wyrmtongue Trickster to Player'),
+
+(98949, 200,         @ID+0, 'I will paint this keep with your blood!', 14, 0, 100, 0, 0, 54504, 0, 'Smashspite the Hateful'),
+(98949, 201,         @ID+0, 'Tremble beneath me.', 14, 0, 100, 0, 0, 54501, 0, 'Smashspite the Hateful'),
+(98949, 202,         @ID+0, 'But... I can''t... lose...', 14, 0, 100, 0, 0, 54636, 0, 'Smashspite the Hateful to Player'),
+
+(98965, 200,         @ID+0, 'Fiends, you shall never have our world!', 14, 0, 100, 0, 0, 54536, 0, 'Kur''talos Ravencrest'),
+(98965, 0,           @ID+0, 'I shall cleave you in twain!', 14, 0, 100, 0, 0, 54526, 0, 'Kur''talos Ravencrest to Player'),
+
+(98970, @GROUP_ID+0, @ID+0, 'Burn away!', 14, 0, 100, 0, 0, 54539, 0, 'Latosius'),
+
+(99857, @GROUP_ID+0, @ID+0, 'I... understand now. You... you must find Kur''talos. You must put a stop to this.', 12, 0, 100, 0, 0, 54558, 0, 'Lord Etheldrin Ravencrest to Player');
