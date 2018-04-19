@@ -76,6 +76,13 @@ enum EncounterState
     TO_BE_DECIDED = 5
 };
 
+enum BossTalk
+{
+    BOSS_TALK_ENTER_COMBAT  = 200,
+    BOSS_TALK_KILL_PLAYER   = 201,
+    BOSS_TALK_JUST_DIED     = 202,
+};
+
 enum DoorType
 {
     DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress

@@ -478,11 +478,18 @@ void BossAI::_JustDied()
     me->GetScheduler().CancelAll();
     if (instance)
         instance->SetBossState(_bossId, DONE);
+    Talk(BOSS_TALK_JUST_DIED);
 }
 
 void BossAI::_JustReachedHome()
 {
     me->setActive(false);
+}
+
+void BossAI::_KilledUnit(Unit* victim)
+{
+    if (victim->IsPlayer() && urand(0, 1))
+        Talk(BOSS_TALK_KILL_PLAYER);
 }
 
 void BossAI::_EnterCombat()
@@ -502,6 +509,7 @@ void BossAI::_EnterCombat()
     me->setActive(true);
     DoZoneInCombat();
     ScheduleTasks();
+    Talk(BOSS_TALK_ENTER_COMBAT);
 }
 
 void BossAI::TeleportCheaters()
