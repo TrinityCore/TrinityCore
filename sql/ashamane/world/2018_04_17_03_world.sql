@@ -1,15 +1,17 @@
+DELETE FROM updates WHERE name = '2018_04_18_00_world.sql';
+
 -- DB/Creature: William and Donna Event first two free GUID 90, 91
 DELETE FROM `creature` WHERE `guid` IN (90,91);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (90, 2533, 0, 0, 0, 1, 169, 0, 0, 0, -8731.58, 541.932, 101.111, 0.8330327, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26365), 
 (91, 2532, 0, 0, 0, 1, 169, 0, 0, 0, -8731.58, 541.932, 101.111, 0.6576703, 120, 0, 0, 0, 0, 2, 0, 0, 0, 26365);
 
-DELETE FROM `creature_formations` WHERE `leaderGUID`=252245;
+DELETE FROM `creature_formations` WHERE `leaderGUID`=91;
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`) VALUES
 (91,91,4,0,515),
 (91,90,4,0,515);
 
-DELETE FROM `creature_addon` WHERE `guid`=252245;
+DELETE FROM `creature_addon` WHERE `guid`=91;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
 (91,910,0,0,0,0, '');
 
