@@ -635,8 +635,8 @@ struct AccountInfo
         BattleNet.Id = fields[10].GetUInt32();
         BattleNet.Name = fields[11].GetString();
         Game.Security = AccountTypes(fields[12].GetUInt8());
-        BattleNet.IsBanned = fields[13].GetUInt64() != 0;
-        Game.IsBanned = fields[14].GetUInt64() != 0;
+        BattleNet.IsBanned = fields[13].GetUInt32() != 0;
+        Game.IsBanned = fields[14].GetUInt32() != 0;
         Game.IsRectuiter = fields[15].GetUInt32() != 0;
 
         if (BattleNet.Locale >= TOTAL_LOCALES)
@@ -756,7 +756,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     {
         if (account.BattleNet.LastIP != address)
         {
-            SendAuthResponseError(ERROR_DENIED);
+            SendAuthResponseError(ERROR_RISK_ACCOUNT_LOCKED);
             TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", account.BattleNet.LastIP.c_str(), address.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
             sScriptMgr->OnFailedAccountLogin(account.Game.Id);
@@ -768,7 +768,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     {
         if (account.BattleNet.LockCountry != _ipCountry)
         {
-            SendAuthResponseError(ERROR_DENIED);
+            SendAuthResponseError(ERROR_RISK_ACCOUNT_LOCKED);
             TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account country differs. Original country: %s, new country: %s).", account.BattleNet.LockCountry.c_str(), _ipCountry.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
             sScriptMgr->OnFailedAccountLogin(account.Game.Id);
@@ -791,7 +791,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     if (account.IsBanned())
     {
-        SendAuthResponseError(ERROR_DENIED);
+        SendAuthResponseError(ERROR_GAME_ACCOUNT_BANNED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         sScriptMgr->OnFailedAccountLogin(account.Game.Id);
         DelayedCloseSocket();
@@ -803,7 +803,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     TC_LOG_DEBUG("network", "Allowed Level: %u Player Level %u", allowedAccountType, account.Game.Security);
     if (allowedAccountType > SEC_PLAYER && account.Game.Security < allowedAccountType)
     {
-        SendAuthResponseError(ERROR_DENIED);
+        SendAuthResponseError(ERROR_SERVER_IS_PRIVATE);
         TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         sScriptMgr->OnFailedAccountLogin(account.Game.Id);
         DelayedCloseSocket();
