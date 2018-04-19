@@ -400,6 +400,18 @@ std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::strin
     return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength());
 }
 
+bool AccountMgr::IsBannedAccount(std::string const& name)
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);
+    stmt->setString(0, name);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    if (!result)
+        return false;
+
+    return true;
+}
+
 bool AccountMgr::IsPlayerAccount(uint32 gmlevel)
 {
     return gmlevel == SEC_PLAYER;
