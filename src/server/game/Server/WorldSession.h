@@ -1008,6 +1008,7 @@ class TC_GAME_API WorldSession
         void SendTabardVendorActivate(ObjectGuid guid);
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
+        void SendOpenTransmogrifier(ObjectGuid const& guid);
 
         void SendAttackStop(Unit const* enemy);
 
