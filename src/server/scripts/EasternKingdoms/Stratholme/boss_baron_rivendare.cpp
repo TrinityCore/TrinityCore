@@ -78,7 +78,7 @@ struct boss_baron_rivendare : public BossAI
 
     // can't use entercombat(), boss' dmg aura sets near
     // players in combat, before entering the room's door
-    void AttackStart(Unit* who) override
+    void AttackStart(Unit* /*who*/) override
     {
         if (instance->GetData(TYPE_BARON) == NOT_STARTED)
             instance->SetData(TYPE_BARON, IN_PROGRESS);
@@ -92,8 +92,7 @@ struct boss_baron_rivendare : public BossAI
 
     void JustSummoned(Creature* summoned) override
     {
-        // the skeletons will almost always immediately aggro the healer
-        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             summoned->AI()->AttackStart(target);
     }
 
@@ -117,16 +116,17 @@ struct boss_baron_rivendare : public BossAI
             switch (eventId)
             {
                 case EVENT_SPELL_SHADOWBOLT:
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SHADOWBOLT);
                     events.Repeat(10s);
                     break;
                 case EVENT_SPELL_CLEAVE:
-                    SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    events.Repeat(13s);
+                    DoCastVictim(EVENT_SPELL_CLEAVE);
+                    events.Repeat(7s, 17s);
                     break;
                 case EVENT_SPELL_MORTALSTRIKE:
                     DoCastVictim(SPELL_MORTALSTRIKE);
-                    events.Repeat(13s);
+                    events.Repeat(10s, 25s);
                     break;
                 case EVENT_SPELL_RAISEDEAD:
                     DoCast(EVENT_SPELL_RAISEDEAD);
