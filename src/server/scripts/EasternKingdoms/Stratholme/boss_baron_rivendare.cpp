@@ -34,10 +34,8 @@ enum Spells
     SPELL_SHADOWBOLT            = 17393,
     SPELL_CLEAVE                = 15284,
     SPELL_MORTALSTRIKE          = 15708,
-
     SPELL_UNHOLY_AURA           = 15284,
-    SPELL_RAISEDEAD             = 15708,  //triggers death pact (17471)
-
+    SPELL_RAISEDEAD             = 17473,  //triggers death pact (17471)
     SPELL_RAISE_DEAD1           = 17475,
     SPELL_RAISE_DEAD2           = 17476,
     SPELL_RAISE_DEAD3           = 17477,
@@ -129,16 +127,19 @@ struct boss_baron_rivendare : public BossAI
                     events.Repeat(10s, 25s);
                     break;
                 case EVENT_SPELL_RAISEDEAD:
-                    DoCast(EVENT_SPELL_RAISEDEAD);
+                    // If these skeletons survive long enough, he casts Death Pact
+                    // on them, killing them but healing himself. 
+                    if (me->FindNearestCreature(NPC_SEKELETON, 500.0f, true))
+                        DoCast(SPELL_RAISEDEAD);
                     events.Repeat(45s);
                     break;
                 case EVENT_SUMMON_SKELETON:
-                    me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                    me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(NPC_SEKELETON, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(NPC_SEKELETON, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(NPC_SEKELETON, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(NPC_SEKELETON, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(NPC_SEKELETON, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                    me->SummonCreature(NPC_SEKELETON, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
                     events.Repeat(32s);
                     break;
             }
