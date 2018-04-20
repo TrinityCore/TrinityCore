@@ -2293,7 +2293,7 @@ class aura_hun_volley : public AuraScript
 {
     PrepareAuraScript(aura_hun_volley);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         return GetTarget()->GetPower(POWER_FOCUS) >= GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
     }
