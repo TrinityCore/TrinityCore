@@ -2328,7 +2328,7 @@ class aura_trailblazer : public AuraScript
     void RescheduleBuff()
     {
         Unit* target = GetTarget();
-        target->RemoveAurasDueToItemSpell(SPELL_HUNTER_TRAILBLAZER_BUFF);
+        target->RemoveAurasDueToSpell(SPELL_HUNTER_TRAILBLAZER_BUFF);
         target->GetScheduler().CancelGroup(SPELL_HUNTER_TRAILBLAZER);
         target->GetScheduler().Schedule(Milliseconds(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints), SPELL_HUNTER_TRAILBLAZER, [](TaskContext context)
         {
