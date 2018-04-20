@@ -64,16 +64,14 @@ Position const PosSkeleton[6] =
 
 struct boss_baron_rivendare : public BossAI
 {
-    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON) { }
-
-    bool RaiseDead;
+    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON), _raiseDead(false) { }
 
     void Reset() override
     {
         if (instance->GetData(TYPE_RAMSTEIN) == DONE)
             instance->SetData(TYPE_BARON, NOT_STARTED);
 
-        RaiseDead = false;
+        _raiseDead = false;
         events.Reset();
     }
 
@@ -129,10 +127,10 @@ struct boss_baron_rivendare : public BossAI
                     events.Repeat(10s, 25s);
                     break;
                 case EVENT_SUMMON_SKELETON:
-                    if (!RaiseDead)
+                    if (!_raiseDead)
                     {
                         DoCast(SPELL_RAISEDEAD);
-                        RaiseDead = true;
+                        _raiseDead = true;
                         events.Repeat(1s);
                     }
                     else
@@ -140,7 +138,7 @@ struct boss_baron_rivendare : public BossAI
                         for (uint8 i = 0; i < sizeof(PosSkeleton[0]); ++i)
                             me->SummonCreature(NPC_SEKELETON, PosSkeleton[i], TEMPSUMMON_TIMED_DESPAWN, 13000);
 
-                        RaiseDead = false;
+                        _raiseDead = false;
                         events.Repeat(15s);
                     }
                     break;
@@ -152,6 +150,9 @@ struct boss_baron_rivendare : public BossAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _raiseDead;
 };
 
 
