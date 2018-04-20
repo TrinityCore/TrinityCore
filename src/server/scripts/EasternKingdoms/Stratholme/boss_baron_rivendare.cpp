@@ -102,7 +102,7 @@ struct boss_baron_rivendare : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim()) 
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
