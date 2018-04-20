@@ -353,7 +353,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Creature* Vazruden = me->SummonCreature(NPC_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                     {
                         VazrudenGUID = Vazruden->GetGUID();
-                        if (Creature* Nazan = Vazruden->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000);)
+                        if (Creature* Nazan = Vazruden->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         {
                             NazanGUID = Nazan->GetGUID();
                             Unit* player = Nazan->GetThreatManager().GetAnyTarget();
