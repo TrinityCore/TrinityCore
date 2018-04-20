@@ -17,14 +17,22 @@
  */
 
 #include "PointMovementGenerator.h"
-#include "CreatureAI.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "Player.h"
+#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "World.h"
 
 //----- Point Movement Generator
+
+template<class T>
+MovementGeneratorType PointMovementGenerator<T>::GetMovementGeneratorType() const
+{
+    return POINT_MOTION_TYPE;
+}
 
 template<class T>
 void PointMovementGenerator<T>::DoInitialize(T* owner)
@@ -124,6 +132,8 @@ void PointMovementGenerator<Creature>::MovementInform(Creature* owner)
         owner->AI()->MovementInform(POINT_MOTION_TYPE, _movementId);
 }
 
+template MovementGeneratorType PointMovementGenerator<Player>::GetMovementGeneratorType() const;
+template MovementGeneratorType PointMovementGenerator<Creature>::GetMovementGeneratorType() const;
 template void PointMovementGenerator<Player>::DoInitialize(Player*);
 template void PointMovementGenerator<Creature>::DoInitialize(Creature*);
 template void PointMovementGenerator<Player>::DoFinalize(Player*);
@@ -134,6 +144,11 @@ template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
 //---- AssistanceMovementGenerator
+
+MovementGeneratorType AssistanceMovementGenerator::GetMovementGeneratorType() const
+{
+    return ASSISTANCE_MOTION_TYPE;
+}
 
 void AssistanceMovementGenerator::Finalize(Unit* owner)
 {
@@ -150,6 +165,11 @@ void AssistanceMovementGenerator::Finalize(Unit* owner)
 bool EffectMovementGenerator::Update(Unit* owner, uint32 /*diff*/)
 {
     return !owner->movespline->Finalized();
+}
+
+MovementGeneratorType EffectMovementGenerator::GetMovementGeneratorType() const
+{
+    return EFFECT_MOTION_TYPE;
 }
 
 void EffectMovementGenerator::Finalize(Unit* owner)

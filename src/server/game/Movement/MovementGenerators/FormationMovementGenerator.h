@@ -19,6 +19,7 @@
 #define TRINITY_FORMATIONMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Position.h"
 
 class Creature;
 
@@ -27,7 +28,7 @@ class FormationMovementGenerator : public MovementGeneratorMedium< Creature, For
     public:
         explicit FormationMovementGenerator(uint32 id, Position destination, uint32 moveType, bool run, bool orientation) : _movementId(id), _destination(destination), _moveType(moveType), _run(run), _orientation(orientation), _recalculateSpeed(false), _interrupt(false) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return FORMATION_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(Creature*);
         void DoFinalize(Creature*);

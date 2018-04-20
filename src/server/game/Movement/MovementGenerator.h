@@ -20,12 +20,13 @@
 #define TRINITY_MOVEMENTGENERATOR_H
 
 #include "Define.h"
-#include "ObjectRegistry.h"
 #include "FactoryHolder.h"
-#include "Common.h"
-#include "MotionMaster.h"
+#include "ObjectRegistry.h"
 
+class Creature;
 class Unit;
+
+enum MovementGeneratorType : uint8;
 
 class TC_GAME_API MovementGenerator
 {
@@ -42,32 +43,31 @@ class TC_GAME_API MovementGenerator
         virtual void Pause(uint32/* timer = 0*/) { } // timer in ms
         virtual void Resume(uint32/* overrideTimer = 0*/) { } // timer in ms
 
-        // used by Evade code for select point to evade with expected restart default movement
-        virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
+        virtual bool GetResetPosition(Unit*, float&/* x*/, float&/* y*/, float&/* z*/) { return false; } // used by Evade code for select point to evade with expected restart default movement
 };
 
 template<class T, class D>
 class MovementGeneratorMedium : public MovementGenerator
 {
     public:
-        void Initialize(Unit* u) override
+        void Initialize(Unit* owner) override
         {
-            (static_cast<D*>(this))->DoInitialize(static_cast<T*>(u));
+            (static_cast<D*>(this))->DoInitialize(static_cast<T*>(owner));
         }
 
-        void Finalize(Unit* u) override
+        void Finalize(Unit* owner) override
         {
-            (static_cast<D*>(this))->DoFinalize(static_cast<T*>(u));
+            (static_cast<D*>(this))->DoFinalize(static_cast<T*>(owner));
         }
 
-        void Reset(Unit* u) override
+        void Reset(Unit* owner) override
         {
-            (static_cast<D*>(this))->DoReset(static_cast<T*>(u));
+            (static_cast<D*>(this))->DoReset(static_cast<T*>(owner));
         }
 
-        bool Update(Unit* u, uint32 time_diff) override
+        bool Update(Unit* owner, uint32 diff) override
         {
-            return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(u), time_diff);
+            return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(owner), diff);
         }
 };
 
@@ -86,7 +86,21 @@ struct MovementGeneratorFactory : public MovementGeneratorCreator
 
 struct IdleMovementFactory : public MovementGeneratorCreator
 {
-    IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
+    IdleMovementFactory();
+
+    MovementGenerator* Create(Unit* object) const override;
+};
+
+struct RandomMovementFactory : public MovementGeneratorCreator
+{
+    RandomMovementFactory();
+
+    MovementGenerator* Create(Unit* object) const override;
+};
+
+struct WaypointMovementFactory : public MovementGeneratorCreator
+{
+    WaypointMovementFactory();
 
     MovementGenerator* Create(Unit* object) const override;
 };
