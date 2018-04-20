@@ -148,7 +148,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 -- Currency loot
 DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (44600, 46209, 46210, 46211);
 INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
-(44600, 396, 10000),
-(46209, 396, 10000),
-(46210, 396, 10000),
-(46211, 396, 10000);
+(44600, 396, 11500),
+(46209, 396, 13500),
+(46210, 396, 11500),
+(46211, 396, 13500);
