@@ -119,6 +119,8 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_FOCUS_PROC                  = 193534,
     SPELL_HUNTER_STICKY_BOMB_PROC                   = 191244,
     SPELL_HUNTER_THOWING_AXES_DAMAGE                = 200167,
+    SPELL_HUNTER_TRAILBLAZER                        = 199921,
+    SPELL_HUNTER_TRAILBLAZER_BUFF                   = 231390,
     SPELL_HUNTER_VULNERABLE                         = 187131,
     SPELL_HUNTER_WILD_CALL_AURA                     = 185791,
 };
@@ -2308,6 +2310,39 @@ class aura_hun_volley : public AuraScript
     }
 };
 
+// 199921
+class aura_trailblazer : public AuraScript
+{
+    PrepareAuraScript(aura_trailblazer);
+
+    void EffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        RescheduleBuff();
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        RescheduleBuff();
+    }
+
+    void RescheduleBuff()
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToItemSpell(SPELL_HUNTER_TRAILBLAZER_BUFF);
+        target->GetScheduler().CancelGroup(SPELL_HUNTER_TRAILBLAZER);
+        target->GetScheduler().Schedule(Milliseconds(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints), SPELL_HUNTER_TRAILBLAZER, [](TaskContext context)
+        {
+            GetContextUnit()->CastSpell(GetContextUnit(), SPELL_HUNTER_TRAILBLAZER_BUFF, true);
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(aura_trailblazer::EffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc += AuraEffectProcFn(aura_trailblazer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // Last Stand (Pet) - 53478
 class spell_hun_pet_last_stand : public SpellScriptLoader
 {
@@ -3139,6 +3174,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_explosive_shot_detonate);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterAuraScript(aura_hun_volley);
+    RegisterAuraScript(aura_trailblazer);
 
     // Spell Pet scripts
     new spell_hun_pet_last_stand();
