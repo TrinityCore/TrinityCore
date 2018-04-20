@@ -314,12 +314,8 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 
 void Quest::InitializeQueryData()
 {
-    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-    {
-        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
-        QueryData[loc] = queryTemp;
-    }
+        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
 }
 
 WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
@@ -432,7 +428,8 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         response.Info.ObjectiveText[i] = locQuestObjectiveText[i];
 
-    return *response.Write();
+    response.Write();
+    return response.Move();
 }
 
 void Quest::AddQuestLevelToTitle(std::string &title, int32 level)

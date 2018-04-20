@@ -32,6 +32,8 @@ EndScriptData */
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -353,12 +355,11 @@ public:
             data.id = id;
             data.phaseMask = chr->GetPhaseMaskForSpawn();
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
-
-            Creature* creature = trans->CreateNPCPassenger(guid, &data);
-
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMaskForSpawn());
-
-            sObjectMgr->AddCreatureToGrid(guid, &data);
+            if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
+            {
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMaskForSpawn());
+                sObjectMgr->AddCreatureToGrid(guid, &data);
+            }
             return true;
         }
 

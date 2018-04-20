@@ -74,11 +74,13 @@ class TC_SHARED_API ByteBuffer
             _storage.reserve(reserve);
         }
 
-        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(std::move(buf._storage)) { }
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos), _storage(std::move(buf._storage))
+        {
+            buf._rpos = 0;
+            buf._wpos = 0;
+        }
 
-        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _storage(right._storage) { }
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos), _storage(right._storage) { }
 
         ByteBuffer(MessageBuffer&& buffer);
 
@@ -89,6 +91,20 @@ class TC_SHARED_API ByteBuffer
                 _rpos = right._rpos;
                 _wpos = right._wpos;
                 _storage = right._storage;
+            }
+
+            return *this;
+        }
+
+        ByteBuffer& operator=(ByteBuffer&& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                right._rpos = 0;
+                _wpos = right._wpos;
+                right._wpos = 0;
+                _storage = std::move(right._storage);
             }
 
             return *this;
