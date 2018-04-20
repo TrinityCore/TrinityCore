@@ -18,6 +18,7 @@
 
 #include "ConfusedMovementGenerator.h"
 #include "Creature.h"
+#include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
@@ -25,9 +26,12 @@
 #include "Random.h"
 
 template<class T>
-ConfusedMovementGenerator<T>::~ConfusedMovementGenerator()
+ConfusedMovementGenerator<T>::~ConfusedMovementGenerator() = default;
+
+template<class T>
+MovementGeneratorType ConfusedMovementGenerator<T>::GetMovementGeneratorType() const
 {
-    delete _path;
+    return CONFUSED_MOTION_TYPE;
 }
 
 template<class T>
@@ -42,6 +46,7 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
 
     _timer.Reset(0);
     owner->GetPosition(_x, _y, _z);
+    _path = nullptr;
 }
 
 template<class T>
@@ -60,6 +65,7 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
     {
         _interrupt = true;
         owner->StopMoving();
+        _path = nullptr;
         return true;
     }
     else
@@ -78,9 +84,11 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
         owner->MovePositionToFirstCollision(destination, distance, angle);
 
         if (!_path)
-            _path = new PathGenerator(owner);
+        {
+            _path = std::make_unique<PathGenerator>(owner);
+            _path->SetPathLengthLimit(30.0f);
+        }
 
-        _path->SetPathLengthLimit(30.0f);
         bool result = _path->CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
         if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
         {
@@ -120,6 +128,8 @@ void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* unit)
 
 template ConfusedMovementGenerator<Player>::~ConfusedMovementGenerator();
 template ConfusedMovementGenerator<Creature>::~ConfusedMovementGenerator();
+template MovementGeneratorType ConfusedMovementGenerator<Player>::GetMovementGeneratorType() const;
+template MovementGeneratorType ConfusedMovementGenerator<Creature>::GetMovementGeneratorType() const;
 template void ConfusedMovementGenerator<Player>::DoInitialize(Player*);
 template void ConfusedMovementGenerator<Creature>::DoInitialize(Creature*);
 template void ConfusedMovementGenerator<Player>::DoReset(Player*);

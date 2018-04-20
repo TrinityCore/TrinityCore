@@ -149,12 +149,8 @@ void ItemTemplate::_LoadTotalAP()
 
 void ItemTemplate::InitializeQueryData()
 {
-    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-    {
-        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
-        QueryData[loc] = queryTemp;
-    }
+        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
 }
 
 WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
@@ -270,5 +266,6 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     response.Stats.ItemLimitCategory = ItemLimitCategory;
     response.Stats.HolidayId = HolidayId;
 
-    return *response.Write();
+    response.Write();
+    return response.Move();
 }
