@@ -2407,58 +2407,32 @@ public:
 };
 
 // Rune of Power - 116011
-// AreaTriggerID - 304
-class at_mage_rune_of_power : public AreaTriggerEntityScript
+// AreaTriggerID - 2947
+struct at_mage_rune_of_power : AreaTriggerAI
 {
-public:
-    at_mage_rune_of_power() : AreaTriggerEntityScript("at_mage_rune_of_power") { }
+    at_mage_rune_of_power(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_mage_rune_of_powerAI : AreaTriggerAI
+    enum UsingSpells
     {
-        at_mage_rune_of_powerAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        enum UsingSpells
-        {
-            SPELL_MAGE_RUNE_OF_POWER_AURA = 116014
-        };
-
-        void OnCreate() override
-        {
-            at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 25943);
-        }
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (caster->IsFriendlyTo(unit) && unit->GetGUID() == caster->GetGUID())
-                caster->CastSpell(unit, SPELL_MAGE_RUNE_OF_POWER_AURA, true);
-        }
-
-        void OnUnitExit(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (unit->HasAura(SPELL_MAGE_RUNE_OF_POWER_AURA))
-                unit->RemoveAurasDueToSpell(SPELL_MAGE_RUNE_OF_POWER_AURA);
-        }
+        SPELL_MAGE_RUNE_OF_POWER_AURA = 116014
     };
 
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnCreate() override
     {
-        return new at_mage_rune_of_powerAI(areatrigger);
+        at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 25943);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (unit->GetGUID() == caster->GetGUID())
+                caster->CastSpell(unit, SPELL_MAGE_RUNE_OF_POWER_AURA, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (unit->HasAura(SPELL_MAGE_RUNE_OF_POWER_AURA))
+            unit->RemoveAurasDueToSpell(SPELL_MAGE_RUNE_OF_POWER_AURA);
     }
 };
 
@@ -2822,7 +2796,7 @@ void AddSC_mage_spell_scripts()
     new at_mage_meteor_timer();
     new at_mage_meteor_burn();
     new at_mage_blizzard();
-    new at_mage_rune_of_power();
+    RegisterAreaTriggerAI(at_mage_rune_of_power);
     new at_mage_frozen_orb();
     new at_mage_arcane_orb();
 
