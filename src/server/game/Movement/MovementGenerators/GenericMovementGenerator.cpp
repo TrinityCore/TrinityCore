@@ -22,7 +22,7 @@
 #include "MoveSplineInit.h"
 #include "Unit.h"
 
-void GenericMovementGenerator::Initialize(Unit* owner)
+void GenericMovementGenerator::Initialize(Unit*/* owner*/)
 {
     _duration.Reset(_splineInit.Launch());
 }
