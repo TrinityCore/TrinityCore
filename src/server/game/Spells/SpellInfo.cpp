@@ -1662,7 +1662,7 @@ bool SpellInfo::IsAffected(uint32 familyName, flag128 const& familyFlags) const
     if (familyName != SpellFamilyName)
         return false;
 
-    if (!familyFlags || (familyFlags & SpellFamilyFlags) != familyFlags)
+    if (!familyFlags || !(familyFlags & SpellFamilyFlags))
         return false;
 
     return true;
