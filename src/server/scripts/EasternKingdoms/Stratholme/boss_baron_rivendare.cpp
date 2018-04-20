@@ -64,7 +64,7 @@ Position const PosSkeleton[6] =
 
 struct boss_baron_rivendare : public BossAI
 {
-    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON), Summons(me), _raiseDead(false) { }
+    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON), _raiseDead(false) { }
 
     void Reset() override
     {
@@ -72,7 +72,7 @@ struct boss_baron_rivendare : public BossAI
             instance->SetData(TYPE_BARON, NOT_STARTED);
 
         _raiseDead = false;
-        Summons.DespawnAll();
+        summons.DespawnAll();
         events.Reset();
     }
 
@@ -92,7 +92,7 @@ struct boss_baron_rivendare : public BossAI
         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             summoned->AI()->AttackStart(target);
 
-        Summons.Summon(summoned);
+        summons.Summon(summoned);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -154,7 +154,6 @@ struct boss_baron_rivendare : public BossAI
     }
 
 private:
-    SummonList Summons;
     bool _raiseDead;
 };
 
