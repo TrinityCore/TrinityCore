@@ -34,7 +34,7 @@ enum Spells
     SPELL_SHADOWBOLT            = 17393,
     SPELL_CLEAVE                = 15284,
     SPELL_MORTALSTRIKE          = 15708,
-    SPELL_UNHOLY_AURA           = 17467,    // Unholy aura is handled via DB
+    SPELL_UNHOLY_AURA           = 17467,    // Unholy Aura is handled via DB
     SPELL_RAISEDEAD             = 17473,    // Triggers death pact (17471)
     SPELL_RAISE_DEAD1           = 17475,
     SPELL_RAISE_DEAD2           = 17476,
@@ -52,14 +52,15 @@ enum BaronRivendareEvents
     EVENT_SUMMON_SKELETON       = 4
 };
 
-// Define Add positions
-Position const ADD_POS_1 = {4017.403809f, -3339.703369f, 115.057655f, 5.487860f};
-Position const ADD_POS_2 = {4013.189209f, -3351.808350f, 115.052254f, 0.134280f};
-Position const ADD_POS_3 = {4017.738037f, -3363.478016f, 115.057274f, 0.723313f};
-Position const ADD_POS_4 = {4048.877197f, -3363.223633f, 115.054253f, 3.627735f};
-Position const ADD_POS_5 = {4051.777588f, -3350.893311f, 115.055351f, 3.066176f};
-Position const ADD_POS_6 = {4048.375977f, -3339.966309f, 115.055222f, 2.457497f};
-
+Position const PosSkeleton[6] =
+{
+    { 4017.403809f, -3339.703369f, 115.057655f, 5.487860f },
+    { 4013.189209f, -3351.808350f, 115.052254f, 0.134280f },
+    { 4017.738037f, -3363.478016f, 115.057274f, 0.723313f },
+    { 4048.877197f, -3363.223633f, 115.054253f, 3.627735f },
+    { 4051.777588f, -3350.893311f, 115.055351f, 3.066176f },
+    { 4048.375977f, -3339.966309f, 115.055222f, 2.457497f }
+};
 
 struct boss_baron_rivendare : public BossAI
 {
@@ -136,12 +137,9 @@ struct boss_baron_rivendare : public BossAI
                     }
                     else
                     {
-                        me->SummonCreature(NPC_SEKELETON, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 13000);
-                        me->SummonCreature(NPC_SEKELETON, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 13000);
-                        me->SummonCreature(NPC_SEKELETON, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 13000);
-                        me->SummonCreature(NPC_SEKELETON, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 13000);
-                        me->SummonCreature(NPC_SEKELETON, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 13000);
-                        me->SummonCreature(NPC_SEKELETON, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        for (uint8 i = 0; i < sizeof(PosSkeleton[0]); ++i)
+                            me->SummonCreature(NPC_SEKELETON, PosSkeleton[i], TEMPSUMMON_TIMED_DESPAWN, 13000);
+
                         RaiseDead = false;
                         events.Repeat(15s);
                     }
