@@ -112,7 +112,7 @@ class TC_GAME_API MotionMaster
         void MoveRotate(uint32 time, RotateDirection direction);
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
 
-        void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementSlot slot = MOTION_SLOT_ACTIVE, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
         typedef std::vector<MovementGenerator*> MovementList;
 

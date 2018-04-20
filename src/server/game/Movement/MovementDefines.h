@@ -43,7 +43,9 @@ enum MovementGeneratorType : uint8
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
-    MAX_MOTION_TYPE                          // limit
+    MAX_MOTION_TYPE,                         // limit
+
+    INVALID_MOTION_TYPE = MAX_DB_MOTION_TYPE | MAX_MOTION_TYPE
 };
 
 enum MovementSlot : uint8
@@ -91,5 +93,7 @@ struct TC_GAME_API ChaseAngle
     float LowerBound() const;
     bool IsAngleOkay(float relativeAngle) const;
 };
+
+inline bool IsInvalidMovementGeneratorType(MovementGeneratorType const type) { return (INVALID_MOTION_TYPE & type) != 0; }
 
 #endif
