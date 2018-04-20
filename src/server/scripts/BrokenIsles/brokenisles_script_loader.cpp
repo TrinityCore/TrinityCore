@@ -92,13 +92,13 @@ void AddSC_boss_warlord_parjesh();
 //void AddSC_boss_wrath_of_azshara();
 
 // Halls of Valor
-//void AddSC_instance_halls_of_valor();
-//void AddSC_halls_of_valor();
-//void AddSC_boss_hymdall();
-//void AddSC_boss_hyrja();
-//void AddSC_boss_fenryr();
-//void AddSC_boss_godking_skovald();
-//void AddSC_boss_odyn();
+void AddSC_instance_halls_of_valor();
+void AddSC_halls_of_valor();
+void AddSC_boss_odyn();
+void AddSC_boss_hyrja();
+void AddSC_boss_hymdall();
+void AddSC_boss_godking_skovald();
+void AddSC_boss_fenryr();
 
 // Maw of Souls
 void AddSC_instance_maw_of_souls();
@@ -245,13 +245,13 @@ void AddBrokenIslesScripts()
     //AddSC_boss_wrath_of_azshara();
 
     // Halls of Valor
-    //AddSC_instance_halls_of_valor();
-    //AddSC_halls_of_valor();
-    //AddSC_boss_hymdall();
-    //AddSC_boss_hyrja();
-    //AddSC_boss_fenryr();
-    //AddSC_boss_godking_skovald();
-    //AddSC_boss_odyn();
+    AddSC_instance_halls_of_valor();
+    AddSC_halls_of_valor();
+    AddSC_boss_odyn();
+    AddSC_boss_hyrja();
+    AddSC_boss_hymdall();
+    AddSC_boss_godking_skovald();
+    AddSC_boss_fenryr();
 
     // Maw of Souls
     AddSC_instance_maw_of_souls();
@@ -289,6 +289,7 @@ void AddBrokenIslesScripts()
     //AddSC_boss_saelorn();
     //AddSC_boss_fel_lord_betrug();
 
+    // Court of Stars
     AddSC_boss_patrol_captain_gerdo();
     AddSC_talixae_flamewreath();
     AddSC_boss_advisor_melandrus();
