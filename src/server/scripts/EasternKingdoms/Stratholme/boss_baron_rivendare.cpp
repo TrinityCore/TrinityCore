@@ -157,7 +157,6 @@ private:
     bool _raiseDead;
 };
 
-
 void AddSC_boss_baron_rivendare()
 {
     RegisterStratholmeCreatureAI(boss_baron_rivendare);
