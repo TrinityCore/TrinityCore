@@ -327,6 +327,8 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
                 m_declinedname->name[i] = fields2[i].GetString();
             }
         }
+
+        CastSpell(this, HUNTER_PET_ACTIVE_SPELL, true);
     }
 
     //set last used pet number (for use in BG's)
