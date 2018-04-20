@@ -23,6 +23,7 @@
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include "World.h"
 
 //----- Point Movement Generator
