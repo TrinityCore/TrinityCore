@@ -45,80 +45,82 @@
 
 enum HunterSpells
 {
-    SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
-    SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
-    SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
-    SPELL_HUNTER_MISDIRECTION                       = 34477,
-    SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
-    SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
-    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
-    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
-    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
-    SPELL_HUNTER_BEAST_CLEAVE_AURA                  = 115939,
-    SPELL_HUNTER_BEAST_CLEAVE_DAMAGE                = 118459,
-    SPELL_HUNTER_BEAST_CLEAVE_PROC                  = 118455,
-    SPELL_HUNTER_BLINK_STRIKES                      = 130392,
-    SPELL_HUNTER_BLINK_STRIKES_TELEPORT             = 130393,
-    SPELL_HUNTER_FRENZY_STACKS                      = 19615,
-    SPELL_HUNTER_HUNTERS_MARK                       = 185987,
-    SPELL_HUNTER_HUNTERS_MARK_AURA                  = 185365, //This one is the graphics (The arrow effect)
-    SPELL_HUNTER_HUNTERS_MARK_AURA_2                = 185743, //This one is enabling "Marked Shot"
-    SPELL_HUNTER_KILL_COMMAND                       = 34026,
-    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,
-    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,
-    SPELL_HUNTER_MONGOOSE_BITE                      = 190928,
-    SPELL_HUNTER_MONGOOSE_FURY                      = 190931,
-    SPELL_HUNTER_RAPTOR_STRIKE                      = 186270,
-    SPELL_HUNTER_HARPOON                            = 190925,
-    SPELL_HUNTER_HARPOON_ROOT                       = 190927,
-    SPELL_HUNTER_MARKING_TARGETS                    = 223138,
-    SPELL_HUNTER_FLARE_EFFECT                       = 28822,
-    SPELL_HUNTER_ASPECT_OF_THE_CHEETAH_EFFECT_2     = 186258,
-    SPELL_HUNTER_EXHILARATION                       = 194291,
     SPELL_HUNTER_A_MURDER_OF_CROWS_1                = 131894,
     SPELL_HUNTER_A_MURDER_OF_CROWS_2                = 206505,
     SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
-    SPELL_HUNTER_INTIMIDATION_STUN                  = 24394,
-    SPELL_HUNTER_COBRA_SHOT                         = 193455,
-    SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
-    SPELL_HUNTER_POSTHAST                           = 109215,
-    SPELL_HUNTER_POSTHAST_SPEED                     = 118922,
-    SPELL_HUNTER_DISENGAGE                          = 781,
-    SPELL_HUNTER_THOWING_AXES_DAMAGE                = 200167,
-    SPELL_HUNTER_RANGERS_NET_INCREASE_SPEED         = 206755,
-    SPELL_HUNTER_STICKY_BOMB_PROC                   = 191244,
-    SPELL_HUNTER_CAMOUFLAGE                         = 199483,
+    SPELL_HUNTER_ANIMAL_INSTINCTS                   = 204315,
+    SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH           = 204324,
+    SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE          = 204333,
+    SPELL_HUNTER_ANIMAL_INSTINCTS_RAPTOR            = 204321,
+    SPELL_HUNTER_ARCANE_SHOT                        = 185358,
+    SPELL_HUNTER_ASPECT_OF_THE_CHEETAH_EFFECT_2     = 186258,
+    SPELL_HUNTER_ASPECT_OF_THE_EAGLE                = 186289,
     SPELL_HUNTER_AUTO_SHOT                          = 75,
-    SPELL_HUNTER_DIRE_BEAST_GENERIC                 = 120679,
-    SPELL_HUNTER_WILD_CALL_AURA                     = 185791,
+    SPELL_HUNTER_BARRAGE                            = 120360,
     SPELL_HUNTER_BASIC_ATTACK_COST_MODIFIER         = 62762,
-    SPELL_HUNTER_SPIKED_COLLAR                      = 53184,
-    SPELL_HUNTER_MULTISHOT                          = 2643,
+    SPELL_HUNTER_BEAST_CLEAVE_AURA                  = 115939,
+    SPELL_HUNTER_BEAST_CLEAVE_DAMAGE                = 118459,
+    SPELL_HUNTER_BEAST_CLEAVE_PROC                  = 118455,
+    SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_BLACK_ARROW                        = 194599,
+    SPELL_HUNTER_BLINK_STRIKES                      = 130392,
+    SPELL_HUNTER_BLINK_STRIKES_TELEPORT             = 130393,
+    SPELL_HUNTER_CAMOUFLAGE                         = 199483,
+    SPELL_HUNTER_COBRA_SHOT                         = 193455,
+    SPELL_HUNTER_DIRE_BEAST_GENERIC                 = 120679,
     SPELL_HUNTER_DIRE_FRENZY                        = 217200,
     SPELL_HUNTER_DIRE_FRENZY_DAMAGE                 = 217207,
-    SPELL_HUNTER_ANIMAL_INSTINCTS                   = 204315,
-    SPELL_HUNTER_ANIMAL_INSTINCTS_RAPTOR            = 204321,
-    SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE          = 204333,
-    SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH           = 204324,
-    SPELL_HUNTER_LACERATE                           = 185855,
-    SPELL_HUNTER_SERPENT_STING                      = 87935,
-    SPELL_HUNTER_SERPENT_STING_DAMAGE               = 118253,
+    SPELL_HUNTER_DISENGAGE                          = 781,
+    SPELL_HUNTER_EXHILARATION                       = 109304,
+    SPELL_HUNTER_EXHILARATION_PET                   = 128594,
+    SPELL_HUNTER_EXHILARATION_PET_AURA              = 231546,
+    SPELL_HUNTER_EXPLOSIVE_SHOT                     = 212431,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DETONATE            = 212679,
+    SPELL_HUNTER_FLANKING_STRIKE                    = 202800,
     SPELL_HUNTER_FLANKING_STRIKE_PROC               = 204740,
     SPELL_HUNTER_FLANKING_STRIKE_PROC_UP            = 206933,
-    SPELL_HUNTER_VULNERABLE                         = 187131,
+    SPELL_HUNTER_FLARE_EFFECT                       = 28822,
+    SPELL_HUNTER_FRENZY_STACKS                      = 19615,
+    SPELL_HUNTER_HARPOON                            = 190925,
+    SPELL_HUNTER_HARPOON_ROOT                       = 190927,
+    SPELL_HUNTER_HUNTERS_MARK                       = 185987,
+    SPELL_HUNTER_HUNTERS_MARK_AURA                  = 185365, //This one is the graphics (The arrow effect)
+    SPELL_HUNTER_HUNTERS_MARK_AURA_2                = 185743, //This one is enabling "Marked Shot"
+    SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
+    SPELL_HUNTER_INTIMIDATION_STUN                  = 24394,
+    SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
+    SPELL_HUNTER_KILL_COMMAND                       = 34026,
+    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,
+    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,
+    SPELL_HUNTER_LACERATE                           = 185855,
     SPELL_HUNTER_MARKED_SHOT                        = 185901,
     SPELL_HUNTER_MARKED_SHOT_DAMAGE                 = 212621,
+    SPELL_HUNTER_MARKING_TARGETS                    = 223138,
+    SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
+    SPELL_HUNTER_MISDIRECTION                       = 34477,
+    SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
+    SPELL_HUNTER_MONGOOSE_BITE                      = 190928,
+    SPELL_HUNTER_MONGOOSE_FURY                      = 190931,
+    SPELL_HUNTER_MULTISHOT                          = 2643,
+    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
+    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
+    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
+    SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
+    SPELL_HUNTER_POSTHAST                           = 109215,
+    SPELL_HUNTER_POSTHAST_SPEED                     = 118922,
+    SPELL_HUNTER_RANGERS_NET_INCREASE_SPEED         = 206755,
+    SPELL_HUNTER_RAPTOR_STRIKE                      = 186270,
     SPELL_HUNTER_SENTINEL                           = 206817,
-    SPELL_HUNTER_BARRAGE                            = 120360,
-    SPELL_HUNTER_ARCANE_SHOT                        = 185358,
+    SPELL_HUNTER_SERPENT_STING                      = 87935,
+    SPELL_HUNTER_SERPENT_STING_DAMAGE               = 118253,
+    SPELL_HUNTER_SPIKED_COLLAR                      = 53184,
     SPELL_HUNTER_STEADY_FOCUS                       = 193533,
     SPELL_HUNTER_STEADY_FOCUS_PROC                  = 193534,
-    SPELL_HUNTER_FLANKING_STRIKE                    = 202800,
-    SPELL_HUNTER_ASPECT_OF_THE_EAGLE                = 186289,
-    SPELL_HUNTER_EXPLOSIVE_SHOT                     = 212431,
-    SPELL_HUNTER_EXPLOSIVE_SHOT_DETONATE            = 212679,
-    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_STICKY_BOMB_PROC                   = 191244,
+    SPELL_HUNTER_THOWING_AXES_DAMAGE                = 200167,
+    SPELL_HUNTER_VULNERABLE                         = 187131,
+    SPELL_HUNTER_WILD_CALL_AURA                     = 185791,
 };
 
 enum AncientHysteriaSpells
@@ -2267,6 +2269,23 @@ class spell_hun_explosive_shot_detonate : public SpellScript
     }
 };
 
+// Exhilaration - 109304
+class spell_hun_exhilaration : public SpellScript
+{
+    PrepareSpellScript(spell_hun_exhilaration);
+
+    void HandeHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->HasAura(SPELL_HUNTER_EXHILARATION_PET_AURA))
+            GetCaster()->CastSpell(nullptr, SPELL_HUNTER_EXHILARATION_PET, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_exhilaration::HandeHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+    }
+};
+
 // Last Stand (Pet) - 53478
 class spell_hun_pet_last_stand : public SpellScriptLoader
 {
@@ -3096,6 +3115,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_carve();
     new spell_hun_true_aim();
     RegisterSpellScript(spell_hun_explosive_shot_detonate);
+    RegisterSpellScript(spell_hun_exhilaration);
 
     // Spell Pet scripts
     new spell_hun_pet_last_stand();
