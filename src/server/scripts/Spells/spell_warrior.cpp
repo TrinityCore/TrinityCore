@@ -2049,7 +2049,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                amount = (float)(28 * caster->GetTotalAttackPowerValue(BASE_ATTACK)) * ((m_ExtraSpellCost+200) / 600.0f);
+                amount = (float)(22.3f * caster->GetTotalAttackPowerValue(BASE_ATTACK)) * (float(m_ExtraSpellCost+200) / 600.0f);
                 int32 m_newRage = caster->GetPower(POWER_RAGE) - m_ExtraSpellCost;
                 if (m_newRage < 0)
                     m_newRage = 0;
