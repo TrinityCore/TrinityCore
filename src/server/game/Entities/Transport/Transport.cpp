@@ -300,9 +300,12 @@ void Transport::RemovePassenger(WorldObject* passenger)
 Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
 {
     Map* map = GetMap();
+    if (map->GetCreatureRespawnTime(guid))
+        return nullptr;
+
     Creature* creature = new Creature();
 
-    if (!creature->LoadFromDB(guid, map, false, true))
+    if (!creature->LoadFromDB(guid, map, false, false))
     {
         delete creature;
         return nullptr;
@@ -345,6 +348,9 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
 GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     Map* map = GetMap();
+    if (map->GetGORespawnTime(guid))
+        return nullptr;
+
     GameObject* go = new GameObject();
 
     if (!go->LoadFromDB(guid, map, false))

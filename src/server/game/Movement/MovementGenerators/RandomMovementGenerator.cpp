@@ -19,19 +19,24 @@
 #include "RandomMovementGenerator.h"
 #include "Creature.h"
 #include "Map.h"
+#include "MovementDefines.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "PathGenerator.h"
 #include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::~RandomMovementGenerator() { }
+RandomMovementGenerator<T>::~RandomMovementGenerator() = default;
 
-template<>
-RandomMovementGenerator<Creature>::~RandomMovementGenerator()
+template RandomMovementGenerator<Creature>::~RandomMovementGenerator();
+
+template<class T>
+MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() const
 {
-    delete _path;
+    return RANDOM_MOTION_TYPE;
 }
+
+template MovementGeneratorType RandomMovementGenerator<Creature>::GetMovementGeneratorType() const;
 
 template<class T>
 void RandomMovementGenerator<T>::DoInitialize(T*) { }
@@ -50,6 +55,7 @@ void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
         _wanderDistance = owner->GetRespawnRadius();
 
     _timer.Reset(0);
+    _path = nullptr;
 }
 
 template<class T>
@@ -85,6 +91,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     {
         _interrupt = true;
         owner->StopMoving();
+        _path = nullptr;
         return;
     }
 
@@ -98,9 +105,11 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     uint32 resetTimer = roll_chance_i(50) ? urand(5000, 10000) : urand(1000, 2000);
 
     if (!_path)
-        _path = new PathGenerator(owner);
+    {
+        _path = std::make_unique<PathGenerator>(owner);
+        _path->SetPathLengthLimit(30.0f);
+    }
 
-    _path->SetPathLengthLimit(30.0f);
     bool result = _path->CalculatePath(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
     if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
     {
@@ -134,6 +143,7 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     {
         _interrupt = true;
         owner->StopMoving();
+        _path = nullptr;
         return true;
     }
     else

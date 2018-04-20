@@ -18,18 +18,20 @@
 #include "FollowMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "Optional.h"
 #include "PathGenerator.h"
 #include "Pet.h"
 #include "Unit.h"
 #include "Util.h"
 
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
-FollowMovementGenerator::~FollowMovementGenerator() {}
+FollowMovementGenerator::~FollowMovementGenerator() = default;
 
 static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
 {
     if (owner->GetExactDistSq(target) > square(owner->GetCombatReach() + target->GetCombatReach() + range))
         return false;
+
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }
 
@@ -37,6 +39,7 @@ void FollowMovementGenerator::Initialize(Unit* owner)
 {
     owner->AddUnitState(UNIT_STATE_FOLLOW);
     UpdatePetSpeed(owner);
+    _path = nullptr;
 }
 
 bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -142,10 +145,12 @@ void FollowMovementGenerator::Finalize(Unit* owner)
 void FollowMovementGenerator::UpdatePetSpeed(Unit* owner)
 {
     if (Pet* oPet = owner->ToPet())
+    {
         if (!GetTarget() || GetTarget()->GetGUID() == owner->GetOwnerGUID())
         {
             oPet->UpdateSpeed(MOVE_RUN);
             oPet->UpdateSpeed(MOVE_WALK);
             oPet->UpdateSpeed(MOVE_SWIM);
         }
+    }
 }
