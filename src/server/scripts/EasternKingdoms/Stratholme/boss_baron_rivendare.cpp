@@ -138,7 +138,7 @@ struct boss_baron_rivendare : public BossAI
                     else
                     {
                         for (Position const& skeletonPos : PosSkeleton)
-                            me->SummonCreature(NPC_SEKELETON, skeletonPos, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                            me->SummonCreature(NPC_SKELETON, skeletonPos, TEMPSUMMON_TIMED_DESPAWN, 13000);
 
                         _raiseDead = false;
                         events.Repeat(15s);
