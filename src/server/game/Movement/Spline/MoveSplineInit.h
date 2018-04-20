@@ -53,10 +53,7 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
-        MoveSplineInit(MoveSplineInit&& init) : args(std::move(init.args))
-        {
-            unit = init.unit;
-        }
+        MoveSplineInit(MoveSplineInit&& init) = default;
 
         ~MoveSplineInit();
         MoveSplineInit(MoveSplineInit const&) = delete;
