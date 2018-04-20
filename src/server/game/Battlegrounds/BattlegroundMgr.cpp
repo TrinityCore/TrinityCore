@@ -172,7 +172,7 @@ void BattlegroundMgr::Update(uint32 diff)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
 
-                time_t arenaDistributionTime = (time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME)) < GameTime::GetGameTime() ? GameTime::GetGameTime() : sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
+                time_t arenaDistributionTime = (time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME)) < GameTime::GetGameTime()) ? GameTime::GetGameTime() : sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME);
                 m_NextAutoDistributionTime = arenaDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
                 sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionTime));
             }
