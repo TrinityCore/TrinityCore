@@ -34,8 +34,8 @@ enum Spells
     SPELL_SHADOWBOLT            = 17393,
     SPELL_CLEAVE                = 15284,
     SPELL_MORTALSTRIKE          = 15708,
-    SPELL_UNHOLY_AURA           = 15284,
-    SPELL_RAISEDEAD             = 17473,  //triggers death pact (17471)
+    SPELL_UNHOLY_AURA           = 17467,    // Unholy aura is handled via DB
+    SPELL_RAISEDEAD             = 17473,    // Triggers death pact (17471)
     SPELL_RAISE_DEAD1           = 17475,
     SPELL_RAISE_DEAD2           = 17476,
     SPELL_RAISE_DEAD3           = 17477,
