@@ -2286,6 +2286,28 @@ class spell_hun_exhilaration : public SpellScript
     }
 };
 
+// 194386
+class aura_hun_volley : public AuraScript
+{
+    PrepareAuraScript(aura_hun_volley);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return GetTarget()->GetPower(POWER_FOCUS) >= GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        GetTarget()->ModifyPower(POWER_FOCUS, -GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(aura_hun_volley::CheckProc);
+        OnEffectProc += AuraEffectProcFn(aura_hun_volley::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // Last Stand (Pet) - 53478
 class spell_hun_pet_last_stand : public SpellScriptLoader
 {
@@ -3116,6 +3138,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_true_aim();
     RegisterSpellScript(spell_hun_explosive_shot_detonate);
     RegisterSpellScript(spell_hun_exhilaration);
+    RegisterAuraScript(aura_hun_volley);
 
     // Spell Pet scripts
     new spell_hun_pet_last_stand();
