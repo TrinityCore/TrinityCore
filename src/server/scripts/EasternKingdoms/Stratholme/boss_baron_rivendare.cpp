@@ -64,7 +64,7 @@ Position const PosSkeleton[6] =
 
 struct boss_baron_rivendare : public BossAI
 {
-    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON), _raiseDead(false) { }
+    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON), Summons(me), _raiseDead(false) { }
 
     void Reset() override
     {
@@ -72,12 +72,11 @@ struct boss_baron_rivendare : public BossAI
             instance->SetData(TYPE_BARON, NOT_STARTED);
 
         _raiseDead = false;
+        Summons.DespawnAll();
         events.Reset();
     }
 
-    // can't use entercombat(), boss' dmg aura sets near
-    // players in combat, before entering the room's door
-    void AttackStart(Unit* /*who*/) override
+    void EnterCombat()
     {
         if (instance->GetData(TYPE_BARON) == NOT_STARTED)
             instance->SetData(TYPE_BARON, IN_PROGRESS);
@@ -92,6 +91,8 @@ struct boss_baron_rivendare : public BossAI
     {
         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             summoned->AI()->AttackStart(target);
+
+        Summons.Summon(summoned);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -101,7 +102,7 @@ struct boss_baron_rivendare : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
+        if (!UpdateVictim()) 
             return;
 
         events.Update(diff);
@@ -116,10 +117,11 @@ struct boss_baron_rivendare : public BossAI
                 case EVENT_SPELL_SHADOWBOLT:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_SHADOWBOLT);
+
                     events.Repeat(10s);
                     break;
                 case EVENT_SPELL_CLEAVE:
-                    DoCastVictim(EVENT_SPELL_CLEAVE);
+                    DoCastVictim(SPELL_CLEAVE);
                     events.Repeat(7s, 17s);
                     break;
                 case EVENT_SPELL_MORTALSTRIKE:
@@ -135,8 +137,8 @@ struct boss_baron_rivendare : public BossAI
                     }
                     else
                     {
-                        for (uint8 i = 0; i < sizeof(PosSkeleton[0]); ++i)
-                            me->SummonCreature(NPC_SEKELETON, PosSkeleton[i], TEMPSUMMON_TIMED_DESPAWN, 13000);
+                        for (Position const& skeletonPos : PosSkeleton)
+                            me->SummonCreature(NPC_SEKELETON, skeletonPos, TEMPSUMMON_TIMED_DESPAWN, 13000);
 
                         _raiseDead = false;
                         events.Repeat(15s);
@@ -152,6 +154,7 @@ struct boss_baron_rivendare : public BossAI
     }
 
 private:
+    SummonList Summons;
     bool _raiseDead;
 };
 
