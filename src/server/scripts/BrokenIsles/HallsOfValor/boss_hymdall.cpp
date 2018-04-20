@@ -69,7 +69,7 @@ struct npc_hymdall_dancing_blade : public ScriptedAI
 {
     npc_hymdall_dancing_blade(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
     }
 };
@@ -79,7 +79,7 @@ struct npc_hymdall_drake : public ScriptedAI
 {
     npc_hymdall_drake(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
     }
 };
