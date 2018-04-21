@@ -79,8 +79,6 @@ struct boss_baron_rivendare : public BossAI
 
     void JustDied(Unit* killer) override
     {
-        instance->SetData(TYPE_BARON, DONE);
-
         BossAI::JustDied(killer);
     }
 
