@@ -99,6 +99,7 @@ namespace Battlenet
             uint32 Id;
             std::string Name;
             std::string DisplayName;
+            uint32 UnbanDate;
             bool IsBanned;
             bool IsPermanenetlyBanned;
             AccountTypes SecurityLevel;
