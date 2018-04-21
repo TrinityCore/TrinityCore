@@ -3959,13 +3959,8 @@ void Unit::RemoveNotOwnSingleTargetAuras(bool onPhaseChange /*= false*/)
         Aura* aura = *iter;
         if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && (!onPhaseChange || !aura->GetUnitOwner()->IsInPhase(this)))
         {
-            //if ((newPhase == 0x0 && !phaseid) || ((!aura->GetEffect(0) || aura->GetEffect(0)->GetAuraType() != SPELL_AURA_CONTROL_VEHICLE) && (!aura->GetEffect(1) || aura->GetEffect(1)->GetAuraType() != SPELL_AURA_CONTROL_VEHICLE)))
-            //{
-                aura->Remove();
-                iter = scAuras.begin();
-            //}
-            //else
-            //    ++iter;
+            aura->Remove();
+            iter = scAuras.begin();
         }
         else
             ++iter;

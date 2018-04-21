@@ -1711,11 +1711,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             else
             {
                 float x, y, z;
-                if (e.action.MoveToPos.closePoint)
-                    target->GetClosePoint(x, y, z, target->GetObjectSize(), e.action.MoveToPos.distance, frand(0, 2 * (float)M_PI));
-                else
-                    target->GetPosition(x, y, z);
-
+                target->GetPosition(x, y, z);
+                if (e.action.MoveToPos.ContactDistance > 0)
+                    target->GetContactPoint(me, x, y, z, e.action.MoveToPos.ContactDistance);
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, x, y, z, e.action.MoveToPos.disablePathfinding == 0);
             }
             break;
