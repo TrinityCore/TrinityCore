@@ -351,10 +351,16 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             if (bossInfo->state == state)
                 return false;
 
-            if (bossInfo->state == DONE)
+            if (bossInfo->state == DONE && state != SPECIAL)
             {
                 TC_LOG_ERROR("map", "InstanceScript: Tried to set instance boss %u state from %s back to %s for map %u, instance id %u. Blocked!", id, GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
                 return false;
+            }
+            if (bossInfo->state == DONE && state == SPECIAL)
+            {
+                bossInfo->state = state;
+                SaveToDB();//Not quite sure if this is necessary
+                return true;
             }
 
             if (state == DONE)
