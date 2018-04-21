@@ -11,4 +11,4 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 -- Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself
 DELETE FROM `conditions` WHERE `SourceEntry` = 17471;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `Comment`) VALUES 
-(13, 0, 17471, 0, 0, 29, 1, 11197, 0, 1, 0, 0, 0, 'Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself)';
+(13, 0, 17471, 0, 0, 29, 1, 11197, 0, 1, 0, 0, 0, 'Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself');
