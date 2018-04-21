@@ -29502,7 +29502,11 @@ void Player::UpdateShop(uint32 diff)
             }
             case 1: // SPELL
             {
-                LearnSpell(itemId, false);
+                if (itemCount < 0)
+                    RemoveSpell(itemId);
+                else
+                    LearnSpell(itemId, false);
+
                 delivered = true;
                 break;
             }
