@@ -21,10 +21,7 @@
 #include "StringFormat.h"
 #include <algorithm>
 #include <cstdio>
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include "Errors.h"
 
 char const* GetPlainName(char const* FileName)
 {
@@ -63,11 +60,12 @@ void FixNameCase(char* name, size_t len)
 
 void FixNameSpaces(char* name, size_t len)
 {
-    for (size_t i=0; i<len-3; i++)
-    {
-        if(name[i] == ' ')
+    if (len < 3)
+        return;
+
+    for (size_t i = 0; i < len - 3; i++)
+        if (name[i] == ' ')
             name[i] = '_';
-    }
 }
 
 char* GetExtension(char* FileName)
@@ -137,7 +135,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
-                    ModelInstanceNames.push_back(s);
+                    ModelInstanceNames.emplace_back(s);
 
                     ExtractSingleModel(path);
 
@@ -161,7 +159,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
-                    WmoInstanceNames.push_back(s);
+                    WmoInstanceNames.emplace_back(s);
 
                     ExtractSingleWmo(path);
 
@@ -207,12 +205,14 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                     if (!(mapObjDef.Flags & 0x8))
                     {
                         MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
+                        Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
                     }
                     else
                     {
                         std::string fileName = Trinity::StringFormat("FILE%08X.xxx", mapObjDef.Id);
-                        ExtractSingleModel(fileName);
+                        ExtractSingleWmo(fileName);
                         MapObject::Extract(mapObjDef, fileName.c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
+                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
                     }
                 }
 
