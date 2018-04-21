@@ -24,8 +24,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,9,1,0,0,0,100,0,3000,3000,0,0,19,770,0,0,0,0,0,1,0,0,0,0,0,0,0,"On Script - Remove Flags Not Attackable & Immune To Players & Immune To NPC's"),
 (@ENTRY,9,2,0,0,0,100,0,0,0,0,0,49,0,0,0,0,0,0,21,20,0,0,0,0,0,0,"On Script - Start Attacking");
 
-DELETE FROM `creature_text` WHERE `entry`=23789;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
+DELETE FROM `creature_text` WHERE `CreatureID`=23789;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES 
 (23789, 0, 0, 'Pitiful mortal, Onyxia answers to no one!', 14, 0, 100, 0, 0, 0, 22285, 'Smolderwing'),
 (23789, 1, 0, 'Your pathetic challenge has not gone unnoticed. I shall enjoy toying with you before you die.', 14, 0, 100, 0, 0, 0, 22286, 'Smolderwing');
 
