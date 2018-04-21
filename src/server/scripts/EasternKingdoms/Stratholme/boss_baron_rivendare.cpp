@@ -46,20 +46,10 @@ enum Spells
 
 enum BaronRivendareEvents
 {
-    EVENT_SPELL_SHADOWBOLT      = 1,
-    EVENT_SPELL_CLEAVE          = 2,
-    EVENT_SPELL_MORTALSTRIKE    = 3,
-    EVENT_SUMMON_SKELETON       = 4
-};
-
-Position const PosSkeleton[6] =
-{
-    { 4017.403809f, -3339.703369f, 115.057655f, 5.487860f },
-    { 4013.189209f, -3351.808350f, 115.052254f, 0.134280f },
-    { 4017.738037f, -3363.478016f, 115.057274f, 0.723313f },
-    { 4048.877197f, -3363.223633f, 115.054253f, 3.627735f },
-    { 4051.777588f, -3350.893311f, 115.055351f, 3.066176f },
-    { 4048.375977f, -3339.966309f, 115.055222f, 2.457497f }
+    EVENT_SHADOWBOLT            = 1,
+    EVENT_CLEAVE                = 2,
+    EVENT_MORTALSTRIKE          = 3,
+    EVENT_RAISEDEAD             = 4
 };
 
 struct boss_baron_rivendare : public BossAI
@@ -81,10 +71,10 @@ struct boss_baron_rivendare : public BossAI
         if (instance->GetData(TYPE_BARON) == NOT_STARTED)
             instance->SetData(TYPE_BARON, IN_PROGRESS);
 
-        events.ScheduleEvent(EVENT_SPELL_SHADOWBOLT, 5s);
-        events.ScheduleEvent(EVENT_SPELL_CLEAVE, 8s);
-        events.ScheduleEvent(EVENT_SPELL_MORTALSTRIKE, 12s);
-        events.ScheduleEvent(EVENT_SUMMON_SKELETON, 15s);
+        events.ScheduleEvent(EVENT_SHADOWBOLT, 5s);
+        events.ScheduleEvent(EVENT_CLEAVE, 8s);
+        events.ScheduleEvent(EVENT_MORTALSTRIKE, 12s);
+        events.ScheduleEvent(EVENT_RAISEDEAD, 15s);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -114,21 +104,23 @@ struct boss_baron_rivendare : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_SPELL_SHADOWBOLT:
+                case EVENT_SHADOWBOLT:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_SHADOWBOLT);
 
                     events.Repeat(10s);
                     break;
-                case EVENT_SPELL_CLEAVE:
+                case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
                     events.Repeat(7s, 17s);
                     break;
-                case EVENT_SPELL_MORTALSTRIKE:
+                case EVENT_MORTALSTRIKE:
                     DoCastVictim(SPELL_MORTALSTRIKE);
                     events.Repeat(10s, 25s);
                     break;
-                case EVENT_SUMMON_SKELETON:
+                case EVENT_RAISEDEAD:
+                    // After 12 seconds, if the servant still lives,
+                    // it will sacrifice itself to heal the caster
                     if (!_raiseDead)
                     {
                         DoCast(SPELL_RAISEDEAD);
@@ -137,11 +129,8 @@ struct boss_baron_rivendare : public BossAI
                     }
                     else
                     {
-                        for (Position const& skeletonPos : PosSkeleton)
-                            me->SummonCreature(NPC_SKELETON, skeletonPos, TEMPSUMMON_TIMED_DESPAWN, 13000);
-
                         _raiseDead = false;
-                        events.Repeat(15s);
+                        events.Repeat(12s);
                     }
                     break;
             }

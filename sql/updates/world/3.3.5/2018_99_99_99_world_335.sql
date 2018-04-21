@@ -15,6 +15,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- Stratholme - Baron Rivendare - Unholy Aura does not trigger combat
 SET @SPELL_ATTR0_CU_NO_INITIAL_THREAT = 16;
-DELETE FROM `spell_custom_attr` WHERE `entry`=17467;
+DELETE FROM `spell_custom_attr` WHERE `entry` = 17467;
 INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
 (17467, @SPELL_ATTR0_CU_NO_INITIAL_THREAT);
