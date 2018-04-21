@@ -32,6 +32,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <map>
 #include <vector>
 #include <errno.h>
 
@@ -59,11 +60,18 @@ char output_path[128]=".";
 char input_path[1024]=".";
 bool hasInputPathParam = false;
 bool preciseVectorData = false;
+std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
 
-//static const char * szWorkDirMaps = ".\\Maps";
 char const* szWorkDirWmo = "./Buildings";
+
+std::map<std::pair<uint32, uint16>, uint32> uniqueObjectIds;
+
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
+{
+    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), uniqueObjectIds.size() + 1).first->second;
+}
 
 // Local testing functions
 
@@ -89,11 +97,13 @@ void strToLower(char* str)
 bool ExtractSingleWmo(std::string& fname)
 {
     // Copy files from archive
+    std::string originalName = fname;
 
     char szLocalFile[1024];
-    const char * plain_name = GetPlainName(fname.c_str());
+    char* plain_name = GetPlainName(&fname[0]);
+    fixnamen(plain_name, strlen(plain_name));
+    fixname2(plain_name, strlen(plain_name));
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
-    fixnamen(szLocalFile,strlen(szLocalFile));
 
     if (FileExists(szLocalFile))
         return true;
@@ -117,9 +127,9 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     bool file_ok = true;
-    printf("Extracting %s\n", fname.c_str());
-    WMORoot froot(fname);
-    if(!froot.open())
+    printf("Extracting %s\n", originalName.c_str());
+    WMORoot froot(originalName);
+    if (!froot.open())
     {
         printf("Couldn't open RootWmo!!!\n");
         return true;
@@ -131,6 +141,8 @@ bool ExtractSingleWmo(std::string& fname)
         return false;
     }
     froot.ConvertToVMAPRootWmo(output);
+    WMODoodadData& doodads = WmoDoodads[plain_name];
+    std::swap(doodads, froot.DoodadData);
     int Wmo_nVertices = 0;
     //printf("root has %d groups\n", froot->nGroups);
     if (froot.nGroups !=0)
@@ -154,6 +166,17 @@ bool ExtractSingleWmo(std::string& fname)
             }
 
             Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
+            for (uint16 groupReference : fgroup.DoodadReferences)
+            {
+                if (groupReference >= doodads.Spawns.size())
+                    continue;
+
+                uint32 doodadNameIndex = doodads.Spawns[groupReference].NameIndex;
+                if (froot.ValidDoodadNames.find(doodadNameIndex) == froot.ValidDoodadNames.end())
+                    continue;
+
+                doodads.References.insert(groupReference);
+            }
         }
     }
 

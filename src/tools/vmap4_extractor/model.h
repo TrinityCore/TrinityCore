@@ -25,9 +25,10 @@
 #include <vector>
 
 class MPQFile;
-namespace ADT { struct MDDF; }
+struct WMODoodadData;
+namespace ADT { struct MDDF; struct MODF; }
 
-Vec3D fixCoordSystem(Vec3D v);
+Vec3D fixCoordSystem(Vec3D const& v);
 
 class Model
 {
@@ -55,6 +56,8 @@ public:
 namespace Doodad
 {
     void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
+
+    void ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 }
 
 #endif

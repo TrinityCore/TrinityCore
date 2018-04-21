@@ -21,10 +21,7 @@
 #include "StringFormat.h"
 #include <algorithm>
 #include <cstdio>
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include "Errors.h"
 
 char const* GetPlainName(char const* FileName)
 {
@@ -46,7 +43,10 @@ char* GetPlainName(char* FileName)
 
 void fixnamen(char* name, size_t len)
 {
-    for (size_t i = 0; i < len-3; i++)
+    if (len < 3)
+        return;
+
+    for (size_t i = 0; i < len - 3; i++)
     {
         if (i > 0 && name[i] >= 'A' && name[i] <= 'Z' && isalpha(name[i-1]))
             name[i] |= 0x20;
@@ -60,11 +60,12 @@ void fixnamen(char* name, size_t len)
 
 void fixname2(char* name, size_t len)
 {
-    for (size_t i=0; i<len-3; i++)
-    {
-        if(name[i] == ' ')
+    if (len < 3)
+        return;
+
+    for (size_t i = 0; i < len - 3; i++)
+        if (name[i] == ' ')
         name[i] = '_';
-    }
 }
 
 char* GetExtension(char* FileName)
@@ -123,7 +124,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     char* s = GetPlainName(p);
                     fixname2(s, strlen(s));
 
-                    ModelInstanceNames.push_back(s);
+                    ModelInstanceNames.emplace_back(s);
 
                     std::string path(p);
                     ExtractSingleModel(path);
@@ -147,7 +148,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     char* s = GetPlainName(p);
                     fixnamen(s, strlen(s));
                     fixname2(s, strlen(s));
-                    WmoInstanceNames.push_back(s);
+                    WmoInstanceNames.emplace_back(s);
 
                     ExtractSingleWmo(path);
 
@@ -180,6 +181,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     ADT::MODF mapObjDef;
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
                     MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), map_num, tileX, tileY, dirfile);
+                    Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, map_num, tileX, tileY, dirfile);
                 }
             }
         }

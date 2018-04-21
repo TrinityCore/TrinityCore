@@ -253,4 +253,9 @@ inline void rotate(float x0, float y0, float* x, float* y, float angle)
     *y = xa*sinf(angle) + ya*cosf(angle) + y0;
 }
 
+struct Quaternion
+{
+    float X, Y, Z, W;
+};
+
 #endif

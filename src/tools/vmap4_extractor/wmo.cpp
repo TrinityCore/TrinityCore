@@ -18,18 +18,20 @@
 
 #include "vmapexport.h"
 #include "adtfile.h"
-#include "wmo.h"
 #include "vec3d.h"
 #include "mpq_libmpq04.h"
 
 #include "VMapDefinitions.h"
+#include "wmo.h"
+#include <fstream>
+#include <map>
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
 #undef min
 #undef max
 
-WMORoot::WMORoot(std::string &filename)
+WMORoot::WMORoot(std::string const& filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
     nDoodadNames(0), nDoodadDefs(0), nDoodadSets(0), RootWMOID(0), flags(0)
 {
@@ -73,7 +75,37 @@ bool WMORoot::open()
             f.read(bbcorn1, 12);
             f.read(bbcorn2, 12);
             f.read(&flags, 4);
-            break;
+        }
+        else if (!strcmp(fourcc, "MODS"))
+        {
+            DoodadData.Sets.resize(size / sizeof(WMO::MODS));
+            f.read(DoodadData.Sets.data(), size);
+        }
+        else if (!strcmp(fourcc,"MODN"))
+        {
+            char* ptr = f.getPointer();
+            char* end = ptr + size;
+            DoodadData.Paths = std::make_unique<char[]>(size);
+            memcpy(DoodadData.Paths.get(), ptr, size);
+            while (ptr < end)
+            {
+                std::string path = ptr;
+
+                char* s = GetPlainName(ptr);
+                fixnamen(s, strlen(s));
+                fixname2(s, strlen(s));
+
+                uint32 doodadNameIndex = ptr - f.getPointer();
+                ptr += path.length() + 1;
+
+                if (ExtractSingleModel(path))
+                    ValidDoodadNames.insert(doodadNameIndex);
+            }
+        }
+        else if (!strcmp(fourcc,"MODD"))
+        {
+            DoodadData.Spawns.resize(size / sizeof(WMO::MODD));
+            f.read(DoodadData.Spawns.data(), size);
         }
         /*
         else if (!strcmp(fourcc,"MOTX"))
@@ -89,15 +121,6 @@ bool WMORoot::open()
         {
         }
         else if (!strcmp(fourcc,"MOLT"))
-        {
-        }
-        else if (!strcmp(fourcc,"MODN"))
-        {
-        }
-        else if (!strcmp(fourcc,"MODS"))
-        {
-        }
-        else if (!strcmp(fourcc,"MODD"))
         {
         }
         else if (!strcmp(fourcc,"MOSB"))
@@ -225,6 +248,11 @@ bool WMOGroup::open(WMORoot* rootWMO)
             MOBA = new uint16[size/2];
             moba_size = size/2;
             f.read(MOBA, size);
+        }
+        else if (!strcmp(fourcc,"MODR"))
+        {
+            DoodadReferences.resize(size / sizeof(uint16));
+            f.read(DoodadReferences.data(), size);
         }
         else if (!strcmp(fourcc,"MLIQ"))
         {
@@ -526,6 +554,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     bounds.max = fixCoords(mapObjDef.Bounds.max);
 
     float scale = 1.0f;
+    uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0);
     uint32 flags = MOD_HAS_BOUND;
     if (tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
     //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
@@ -534,7 +563,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
     fwrite(&flags, sizeof(uint32), 1, pDirfile);
     fwrite(&mapObjDef.NameSet, sizeof(uint16), 1, pDirfile);
-    fwrite(&mapObjDef.UniqueId, sizeof(uint32), 1, pDirfile);
+    fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
     fwrite(&position, sizeof(Vec3D), 1, pDirfile);
     fwrite(&mapObjDef.Rotation, sizeof(Vec3D), 1, pDirfile);
     fwrite(&scale, sizeof(float), 1, pDirfile);
