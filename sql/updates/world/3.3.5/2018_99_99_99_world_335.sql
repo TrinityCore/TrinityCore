@@ -12,3 +12,9 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 DELETE FROM `conditions` WHERE `SourceEntry` = 17471;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `Comment`) VALUES 
 (13, 0, 17471, 0, 0, 29, 1, 11197, 0, 1, 0, 0, 0, 'Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself');
+
+-- Stratholme - Baron Rivendare - Unholy Aura does not trigger combat
+SET @SPELL_ATTR0_CU_NO_INITIAL_THREAT = 16;
+DELETE FROM `spell_custom_attr` WHERE `entry`=17467;
+INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
+(17467, @SPELL_ATTR0_CU_NO_INITIAL_THREAT);
