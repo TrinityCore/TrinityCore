@@ -364,34 +364,6 @@ class spell_warr_glyph_of_sunder_armor : public SpellScriptLoader
         }
 };
 
-// 59725 - Improved Spell Reflection
-class spell_warr_improved_spell_reflection : public SpellScriptLoader
-{
-    public:
-        spell_warr_improved_spell_reflection() : SpellScriptLoader("spell_warr_improved_spell_reflection") { }
-
-        class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                if (GetCaster())
-                    unitList.remove(GetCaster());
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_improved_spell_reflection_SpellScript();
-        }
-};
-
 // 5246 - Intimidating Shout
 class spell_warr_intimidating_shout : public SpellScriptLoader
 {
@@ -1084,7 +1056,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_deep_wounds();
     new spell_warr_execute();
     new spell_warr_glyph_of_sunder_armor();
-    new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
