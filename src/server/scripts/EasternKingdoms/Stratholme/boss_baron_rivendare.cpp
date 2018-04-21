@@ -62,32 +62,26 @@ struct boss_baron_rivendare : public BossAI
             instance->SetData(TYPE_BARON, NOT_STARTED);
 
         _raiseDead = false;
-        summons.DespawnAll();
+
         events.Reset();
+        scheduler.CancelAll();
     }
 
-    void EnterCombat()
+    void JustEngagedWith(Unit* who) override
     {
-        if (instance->GetData(TYPE_BARON) == NOT_STARTED)
-            instance->SetData(TYPE_BARON, IN_PROGRESS);
-
         events.ScheduleEvent(EVENT_SHADOWBOLT, 5s);
         events.ScheduleEvent(EVENT_CLEAVE, 8s);
         events.ScheduleEvent(EVENT_MORTALSTRIKE, 12s);
         events.ScheduleEvent(EVENT_RAISEDEAD, 15s);
+
+        BossAI::JustEngagedWith(who);
     }
 
-    void JustSummoned(Creature* summoned) override
-    {
-        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-            summoned->AI()->AttackStart(target);
-
-        summons.Summon(summoned);
-    }
-
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
         instance->SetData(TYPE_BARON, DONE);
+
+        BossAI::JustDied(killer);
     }
 
     void UpdateAI(uint32 diff) override
