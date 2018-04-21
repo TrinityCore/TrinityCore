@@ -161,9 +161,13 @@ void MotionMaster::MovementExpired(bool reset /*= true*/)
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
 {
     if (empty())
-        return IDLE_MOTION_TYPE;
+        return MAX_MOTION_TYPE;
 
-    return top()->GetMovementGeneratorType();
+    MovementGenerator* movement = top();
+    if (!movement)
+        return MAX_MOTION_TYPE;
+
+    return movement->GetMovementGeneratorType();
 }
 
 MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
