@@ -238,9 +238,6 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
 
 bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const
 {
-    if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
-        return true;
-
     uint32 spec = player->GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID);
     if (!spec)
         spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
@@ -252,6 +249,9 @@ bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alway
 
 bool ItemTemplate::IsUsableBySpecialization(uint32 spec, uint32 level, bool alwaysAllowBoundToAccount) const
 {
+    if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
+        return true;
+
     ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(spec);
     if (!chrSpecialization)
         return false;
