@@ -1270,6 +1270,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
         void AutoUnequipOffhandIfNeed(bool force = false);
+        void AutoUnequip(uint8 slot);
+        void AutoUnequip(Item* item);
         void EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem);
         void AutoUnequipChildItem(Item* parentItem);
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count, ItemContext context = ItemContext(0));
@@ -1673,6 +1675,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void LearnSpecializationSpells();
         void RemoveSpecializationSpells();
+        void RemoveEquipedSpecializationItems();
         void SendSpellCategoryCooldowns() const;
 
         void SetReputation(uint32 factionentry, int32 value);

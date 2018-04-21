@@ -25400,24 +25400,39 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     if (!force && (CanTitanGrip() || (offItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON && !IsTwoHandUsed())))
         return;
 
-    ItemPosCountVec off_dest;
-    if (CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) == EQUIP_ERR_OK)
+    AutoUnequip(offItem);
+}
+
+void Player::AutoUnequip(uint8 slot)
+{
+    AutoUnequip(GetItemByPos(INVENTORY_SLOT_BAG_0, slot));
+}
+
+void Player::AutoUnequip(Item* item)
+{
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    if (CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK)
     {
-        RemoveItem(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
-        StoreItem(off_dest, offItem, true);
+        RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
+        StoreItem(dest, item, true);
     }
     else
     {
-        MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
+        MoveItemFromInventory(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
-        offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
+        item->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
+        item->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
         std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
-        MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+        MailDraft(subject, "There were problems with equipping one or several items").AddItem(item).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
 
         CharacterDatabase.CommitTransaction(trans);
     }
+
+    AutoUnequipChildItem(item);
 }
 
 OutdoorPvP* Player::GetOutdoorPvP() const
@@ -26967,6 +26982,7 @@ void Player::ResetTalentSpecialization()
     SetActiveTalentGroup(defaultSpec->OrderIndex);
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, defaultSpec->ID);
 
+    RemoveEquipedSpecializationItems();
     LearnSpecializationSpells();
 
     SendTalentsInfoData();
@@ -27804,6 +27820,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
     }
 
     LearnSpecializationSpells();
+    RemoveEquipedSpecializationItems();
 
     if (CanUseMastery())
         for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
@@ -29165,6 +29182,14 @@ void Player::RemoveSpecializationSpells()
                     RemoveAurasDueToSpell(mastery);
         }
     }
+}
+
+void Player::RemoveEquipedSpecializationItems()
+{
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (!item->GetTemplate()->IsUsableBySpecialization(GetSpecializationId(), getLevel(), false) || CanUseItem(item) != EQUIP_ERR_OK)
+                AutoUnequip(item);
 }
 
 void Player::RemoveSocial()

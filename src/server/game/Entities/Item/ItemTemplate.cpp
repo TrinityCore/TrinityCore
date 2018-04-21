@@ -247,14 +247,19 @@ bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alway
     if (!spec)
         spec = player->GetDefaultSpecId();
 
+    return IsUsableBySpecialization(spec, player->getLevel(), alwaysAllowBoundToAccount);
+}
+
+bool ItemTemplate::IsUsableBySpecialization(uint32 spec, uint32 level, bool alwaysAllowBoundToAccount) const
+{
     ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(spec);
     if (!chrSpecialization)
         return false;
 
     std::size_t levelIndex = 0;
-    if (player->getLevel() >= 110)
+    if (level >= 110)
         levelIndex = 2;
-    else if (player->getLevel() > 40)
+    else if (level > 40)
         levelIndex = 1;
 
     if (Specializations[levelIndex].none())

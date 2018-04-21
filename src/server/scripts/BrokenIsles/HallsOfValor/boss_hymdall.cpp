@@ -46,7 +46,12 @@ struct boss_hymdall : public BossAI
     {
         switch (eventId)
         {
+            case SPELL_BLODDLETTING_SWEEP:
+                break;
+            case SPELL_DANCING_BLADE:
+                break;
             default:
+                me->CastSpell(nullptr, eventId, false);
                 break;
         }
     }
