@@ -653,6 +653,7 @@ NavTerrain PathGenerator::GetNavTerrain(float x, float y, float z)
     if (liquidStatus == LIQUID_MAP_NO_WATER)
         return NAV_GROUND;
 
+    data.type_flags &= ~MAP_LIQUID_TYPE_DARK_WATER;
     switch (data.type_flags)
     {
         case MAP_LIQUID_TYPE_WATER:
