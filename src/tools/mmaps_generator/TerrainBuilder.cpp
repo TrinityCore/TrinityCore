@@ -18,6 +18,7 @@
 
 #include "TerrainBuilder.h"
 #include "MapBuilder.h"
+#include "MapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 #include "VMapFactory.h"
