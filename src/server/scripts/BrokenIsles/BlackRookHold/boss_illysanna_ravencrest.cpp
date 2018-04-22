@@ -97,7 +97,7 @@ struct boss_illysanna_ravencrest : public BossAI
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     DoCast(target, SPELL_BRUTAL_GLAIVE);
 
-                events.Repeat(12s);
+                events.Repeat(35s);
                 break;
             }
             case SPELL_EYE_BEAMS:
