@@ -1757,8 +1757,8 @@ public:
                     if (!dispelList.empty())
                     {
                         for (DispelChargesList::iterator itr = dispelList.begin(); itr != dispelList.end(); itr++)
-                            if (_player->HasAura(itr->first->GetId()))
-                                _player->RemoveAura(itr->first);
+                            if (_player->HasAura(itr->GetAura()->GetId()))
+                                _player->RemoveAura(itr->GetAura());
                     }
                 }
             }
