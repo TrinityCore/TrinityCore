@@ -681,6 +681,11 @@ enum MapFlags
     MAP_FLAG_GARRISON               = 0x4000000
 };
 
+enum MapFlags2
+{
+    MAP_FLAG2_WORLD_PVP             = 0x40,
+};
+
 enum AbilytyLearnType
 {
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
