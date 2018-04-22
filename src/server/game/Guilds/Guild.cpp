@@ -1559,13 +1559,11 @@ void Guild::HandleSetMemberNote(WorldSession* session, std::string const& note, 
         else
             member->SetOfficerNote(note);
 
-        HandleRoster(session); // FIXME - We should send SMSG_GUILD_MEMBER_UPDATE_NOTE
-
         WorldPackets::Guild::GuildMemberUpdateNote updateNote;
         updateNote.Member = guid;
         updateNote.IsPublic = isPublic;
         updateNote.Note = note;
-        session->SendPacket(updateNote.Write()); // @todo - Verify receiver of this packet...
+        BroadcastPacket(updateNote.Write());
     }
 }
 
