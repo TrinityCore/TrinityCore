@@ -65,6 +65,8 @@ struct boss_baron_rivendare : public BossAI
 
     void Reset() override
     {
+        DoCastSelf(SPELL_UNHOLY_AURA);
+
         if (instance->GetData(TYPE_RAMSTEIN) == DONE)
             instance->SetData(TYPE_BARON, NOT_STARTED);
 
