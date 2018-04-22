@@ -24,6 +24,8 @@
 #include "QueryHolder.h"
 #include "AccountMgr.h"
 #include "AuthenticationPackets.h"
+#include "BattlePet.h"
+#include "BattlePetDataStore.h"
 #include "BattlePetMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"

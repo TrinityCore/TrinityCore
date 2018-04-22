@@ -485,6 +485,84 @@ struct BarberShopStyleLoadInfo
     }
 };
 
+struct BattlePetAbilityLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { true,  FT_INT, "IconFileDataID" },
+            { false, FT_SHORT, "BattlePetVisualID" },
+            { true,  FT_BYTE, "PetTypeEnum" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_INT, "Cooldown" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetAbilityMeta::Instance(), HOTFIX_SEL_BATTLE_PET_ABILITY);
+        return &loadInfo;
+    }
+};
+
+struct BattlePetAbilityEffectLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_SHORT, "BattlePetAbilityTurnID" },
+            { false, FT_SHORT, "BattlePetVisualID" },
+            { false, FT_SHORT, "AuraBattlePetAbilityID" },
+            { false, FT_SHORT, "BattlePetEffectPropertiesID" },
+            { true,  FT_SHORT, "Param1" },
+            { true,  FT_SHORT, "Param2" },
+            { true,  FT_SHORT, "Param3" },
+            { true,  FT_SHORT, "Param4" },
+            { true,  FT_SHORT, "Param5" },
+            { true,  FT_SHORT, "Param6" },
+            { false, FT_BYTE,  "OrderIndex" },
+            { false, FT_INT,   "ID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetAbilityEffectMeta::Instance(), HOTFIX_SEL_BATTLE_PET_ABILITY_EFFECT);
+        return &loadInfo;
+    }
+};
+
+struct BattlePetAbilityStateLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT,   "ID" },
+            { true,  FT_INT,   "Value" },
+            { false, FT_BYTE,  "BattlePetStateID" },
+            { false, FT_SHORT, "BattlePetAbilityID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetAbilityStateMeta::Instance(), HOTFIX_SEL_BATTLE_PET_ABILITY_STATE);
+        return &loadInfo;
+    }
+};
+
+struct BattlePetAbilityTurnLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_SHORT,  "BattlePetAbilityID" },
+            { false, FT_SHORT,  "BattlePetVisualID" },
+            { false, FT_BYTE,   "OrderIndex" },
+            { false, FT_BYTE,   "TurnTypeEnum" },
+            { true,  FT_BYTE,   "EventTypeEnum" },
+            { false, FT_INT,    "ID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetAbilityTurnMeta::Instance(), HOTFIX_SEL_BATTLE_PET_ABILITY_TURN);
+        return &loadInfo;
+    }
+};
+
 struct BattlePetBreedQualityLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -551,6 +629,23 @@ struct BattlePetSpeciesStateLoadInfo
             { false, FT_SHORT, "BattlePetSpeciesID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetSpeciesStateMeta::Instance(), HOTFIX_SEL_BATTLE_PET_SPECIES_STATE);
+        return &loadInfo;
+    }
+};
+
+struct BattlePetSpeciesXAbilityLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT,    "ID" },
+            { false, FT_SHORT,  "BattlePetAbilityID" },
+            { false, FT_BYTE,   "RequiredLevel" },
+            { true,  FT_BYTE,   "SlotEnum" },
+            { false, FT_SHORT,  "BattlePetSpeciesID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetSpeciesXAbilityMeta::Instance(), HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY);
         return &loadInfo;
     }
 };

@@ -1199,7 +1199,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     {
         if (entry->SummonSpellID == spellToLearn)
         {
-            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, sBattlePetDataStore->RollPetBreed(entry->ID), sBattlePetDataStore->GetDefaultPetQuality(entry->ID));
             _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
             break;
         }

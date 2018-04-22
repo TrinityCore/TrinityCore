@@ -31,7 +31,7 @@
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetRpcErrorCodes.h"
-#include "BattlePetMgr.h"
+#include "BattlePetDataStore.h"
 #include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
@@ -2204,7 +2204,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadRealmNames();
 
     TC_LOG_INFO("server.loading", "Loading battle pets info...");
-    BattlePetMgr::Initialize();
+    sBattlePetDataStore->Initialize();
 
     TC_LOG_INFO("server.loading", "Loading scenarios");
     sScenarioMgr->LoadDB2Data();

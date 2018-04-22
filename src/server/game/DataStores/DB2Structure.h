@@ -307,6 +307,47 @@ struct BarberShopStyleEntry
     uint32 ID;
 };
 
+struct BattlePetAbilityEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    int32 IconFileDataID;
+    uint16 BattlePetVisualID;
+    int8 PetTypeEnum;
+    uint8 Flags;
+    uint32 Cooldown;
+};
+
+struct BattlePetAbilityEffectEntry
+{
+    uint16 BattlePetAbilityTurnID;
+    uint16 BattlePetVisualID;
+    uint16 AuraBattlePetAbilityID;
+    uint16 BattlePetEffectPropertiesID;
+    int16 Param[6];
+    uint8 OrderIndex;
+    uint32 ID;
+};
+
+struct BattlePetAbilityStateEntry
+{
+    uint32 ID;
+    int32 Value;
+    uint8 BattlePetStateID;
+    uint16 BattlePetAbilityID;
+};
+
+struct BattlePetAbilityTurnEntry
+{
+    uint16 BattlePetAbilityID;
+    uint16 BattlePetVisualID;
+    uint8 OrderIndex;
+    uint8 TurnTypeEnum;
+    int8 EventTypeEnum;
+    uint32 ID;
+};
+
 struct BattlePetBreedQualityEntry
 {
     uint32 ID;
@@ -342,6 +383,15 @@ struct BattlePetSpeciesStateEntry
     uint32 ID;
     int32 Value;
     uint8 BattlePetStateID;
+    uint16 BattlePetSpeciesID;
+};
+
+struct BattlePetSpeciesXAbilityEntry
+{
+    uint32 ID;
+    uint16 BattlePetAbilityID;
+    uint8 RequiredLevel;
+    int8 SlotEnum;
     uint16 BattlePetSpeciesID;
 };
 

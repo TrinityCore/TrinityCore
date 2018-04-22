@@ -32,6 +32,8 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "BattlePet.h"
+#include "BattlePetDataStore.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "Channel.h"
@@ -3322,7 +3324,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         if (entry->SummonSpellID == int32(spellId) && GetSession()->GetBattlePetMgr()->GetPetCount(entry->ID) == 0)
         {
-            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, sBattlePetDataStore->RollPetBreed(entry->ID), sBattlePetDataStore->GetDefaultPetQuality(entry->ID));
             UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
             break;
         }

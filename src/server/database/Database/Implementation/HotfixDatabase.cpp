@@ -123,6 +123,22 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BARBER_SHOP_STYLE, "SELECT ID, DisplayName_lang, Description_lang FROM barber_shop_style_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // BattlePetAbility.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT ID, Name, Description, IconFileDataID, BattlePetVisualID, PetTypeEnum, Flags, Cooldown "
+        "FROM battle_pet_ability ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT ID, Name_lang, Description_lang FROM battle_pet_ability_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // BattlePetAbilityEffect.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_EFFECT, "SELECT BattlePetAbilityTurnID, BattlePetVisualID, AuraBattlePetAbilityID, BattlePetEffectPropertiesID, "
+        "Param1, Param2, Param3, Param4, Param5, Param6, OrderIndex, ID FROM battle_pet_ability_effect ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetAbilityState.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_STATE, "SELECT ID, Value, BattlePetStateID, BattlePetAbilityID FROM battle_pet_ability_state ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetAbilityTurn.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_TURN, "SELECT BattlePetAbilityID, BattlePetVisualID, OrderIndex, TurnTypeEnum, EventTypeEnum, ID "
+        "FROM battle_pet_ability_turn ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // BattlePetBreedQuality.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_BREED_QUALITY, "SELECT ID, StateMultiplier, QualityEnum FROM battle_pet_breed_quality ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -137,6 +153,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // BattlePetSpeciesState.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES_STATE, "SELECT ID, Value, BattlePetStateID, BattlePetSpeciesID FROM battle_pet_species_state"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetSpeciesXAbility.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY, "SELECT ID, BattlePetAbilityID, RequiredLevel, SlotEnum, BattlePetSpeciesID FROM battle_pet_species_x_abitily"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // BattlemasterList.db2
