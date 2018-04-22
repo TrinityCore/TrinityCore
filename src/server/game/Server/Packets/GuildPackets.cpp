@@ -320,8 +320,8 @@ void WorldPackets::Guild::GuildSetRankPermissions::Read()
 WorldPacket const* WorldPackets::Guild::GuildEventNewLeader::Write()
 {
     _worldPacket.WriteBit(SelfPromoted);
-    _worldPacket.WriteBits(NewLeaderName.length(), 6);
     _worldPacket.WriteBits(OldLeaderName.length(), 6);
+    _worldPacket.WriteBits(NewLeaderName.length(), 6);
     _worldPacket.FlushBits();
 
     _worldPacket << OldLeaderGUID;
@@ -329,8 +329,8 @@ WorldPacket const* WorldPackets::Guild::GuildEventNewLeader::Write()
     _worldPacket << NewLeaderGUID;
     _worldPacket << NewLeaderVirtualRealmAddress;
 
-    _worldPacket.WriteString(NewLeaderName);
     _worldPacket.WriteString(OldLeaderName);
+    _worldPacket.WriteString(NewLeaderName);
 
     return &_worldPacket;
 }
