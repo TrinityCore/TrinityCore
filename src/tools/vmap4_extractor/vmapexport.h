@@ -19,7 +19,9 @@
 #ifndef VMAPEXPORT_H
 #define VMAPEXPORT_H
 
+#include "Define.h"
 #include <string>
+#include <unordered_map>
 
 enum ModelFlags
 {
@@ -29,10 +31,14 @@ enum ModelFlags
     MOD_PARENT_SPAWN = 1 << 3
 };
 
+struct WMODoodadData;
+
 extern const char * szWorkDirWmo;
+extern std::unordered_map<std::string, WMODoodadData> WmoDoodads;
+
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId);
 
 bool FileExists(const char * file);
-void strToLower(char* str);
 
 bool ExtractSingleWmo(std::string& fname);
 bool ExtractSingleModel(std::string& fname);

@@ -206,7 +206,7 @@ class TC_GAME_API Aura
         bool IsSingleTargetWith(Aura const* aura) const;
         void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
         void UnregisterSingleTarget();
-        int32 CalcDispelChance(Unit* auraTarget, bool offensive) const;
+        int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
         /**
         * @fn AuraKey Aura::GenerateKey(uint32& recalculateMask) const

@@ -30,7 +30,11 @@
 
 bool ExtractSingleModel(std::string& fname)
 {
-    if (fname.substr(fname.length() - 4, 4) == ".mdx")
+    if (fname.length() < 4)
+        return false;
+
+    std::string extension = fname.substr(fname.length() - 4, 4);
+    if (extension == ".mdx" || extension == ".MDX" || extension == ".mdl" || extension == ".MDL")
     {
         fname.erase(fname.length() - 2, 2);
         fname.append("2");
