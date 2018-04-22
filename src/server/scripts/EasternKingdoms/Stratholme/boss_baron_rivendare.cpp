@@ -22,41 +22,41 @@
 
 enum Texts
 {
-    EMOTE_RAISE_DEAD = 0,    // %s raises an undead servant back to life!
-    EMOTE_DEATH_PACT = 1     // %s attempts to cast Death Pact on his servants!     
+    EMOTE_RAISE_DEAD            = 0,    // %s raises an undead servant back to life!
+    EMOTE_DEATH_PACT            = 1     // %s attempts to cast Death Pact on his servants!     
 };
 
 enum BaronRun
 {
-    YELL_BARON_RUN_START = 0,    // Intruders! More pawns of the Argent Dawn, no doubt. I already count one of their number among my prisoners. Withdraw from my domain before she is executed!
-    YELL_BARON_RUN_BOSS_KILL = 1,    // The Ash'ari Crystals have been destroyed! The Slaughterhouse is vulnerable!
-    YELL_BARON_RUN_FAIL = 2,    // Unknown
-    YELL_EVENT_RAMSTEIN = 3,    // So you see fit to toy with the Lich King's creations? Ramstein, be sure to give the intruders a proper greeting.
-    YELL_EVENT_BARON = 4,    // Time to take matters into my own hands. Come. Enter my domain and challenge the might of the Scourge!
+    YELL_BARON_RUN_START        = 0,    // Intruders! More pawns of the Argent Dawn, no doubt. I already count one of their number among my prisoners. Withdraw from my domain before she is executed!
+    YELL_BARON_RUN_BOSS_KILL    = 1,    // The Ash'ari Crystals have been destroyed! The Slaughterhouse is vulnerable!
+    YELL_BARON_RUN_FAIL         = 2,    // Unknown
+    YELL_EVENT_RAMSTEIN         = 3,    // So you see fit to toy with the Lich King's creations? Ramstein, be sure to give the intruders a proper greeting.
+    YELL_EVENT_BARON            = 4,    // Time to take matters into my own hands. Come. Enter my domain and challenge the might of the Scourge!
 };
 
 enum Spells
 {
-    SPELL_SHADOWBOLT = 17393,
-    SPELL_CLEAVE = 15284,
-    SPELL_MORTALSTRIKE = 15708,
-    SPELL_DEATH_PACT = 17471,
-    SPELL_RAISE_DEAD = 17473,
-    SPELL_UNHOLY_AURA = 17467,
-    SPELL_RAISE_DEAD1 = 17475,
-    SPELL_RAISE_DEAD2 = 17476,
-    SPELL_RAISE_DEAD3 = 17477,
-    SPELL_RAISE_DEAD4 = 17478,
-    SPELL_RAISE_DEAD5 = 17479,
-    SPELL_RAISE_DEAD6 = 17480
+    SPELL_SHADOWBOLT            = 17393,
+    SPELL_CLEAVE                = 15284,
+    SPELL_MORTALSTRIKE          = 15708,
+    SPELL_DEATH_PACT            = 17471,
+    SPELL_RAISE_DEAD            = 17473,
+    SPELL_UNHOLY_AURA           = 17467,
+    SPELL_RAISE_DEAD1           = 17475,
+    SPELL_RAISE_DEAD2           = 17476,
+    SPELL_RAISE_DEAD3           = 17477,
+    SPELL_RAISE_DEAD4           = 17478,
+    SPELL_RAISE_DEAD5           = 17479,
+    SPELL_RAISE_DEAD6           = 17480
 };
 
 enum BaronRivendareEvents
 {
-    EVENT_SHADOWBOLT = 1,
-    EVENT_CLEAVE = 2,
-    EVENT_MORTALSTRIKE = 3,
-    EVENT_RAISE_DEAD = 4
+    EVENT_SHADOWBOLT            = 1,
+    EVENT_CLEAVE                = 2,
+    EVENT_MORTALSTRIKE          = 3,
+    EVENT_RAISE_DEAD            = 4
 };
 
 struct boss_baron_rivendare : public BossAI
