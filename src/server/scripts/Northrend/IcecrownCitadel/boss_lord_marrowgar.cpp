@@ -473,7 +473,7 @@ class npc_bone_spike : public CreatureScript
                 Movement::MoveSplineInit init(passenger);
                 init.DisableTransportPathTransformations();
                 init.MoveTo(-0.02206125f, -0.02132235f, 5.514783f, false);
-                passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_CONTROLLED);
+                passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_SLOT_CONTROLLED);
             }
 
             void UpdateAI(uint32 diff) override

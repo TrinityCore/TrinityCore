@@ -468,7 +468,7 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     Movement::MoveSplineInit init(this);
     init.MoveTo(x, y, z, generatePath, forceDestination);
     init.SetVelocity(speed);
-    GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE);
+    GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
 }
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
@@ -12620,7 +12620,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
-    init.Launch();
+    GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_EXIT, MOTION_SLOT_CONTROLLED);
 
     if (player)
         player->ResummonPetTemporaryUnSummonedIfAny();
