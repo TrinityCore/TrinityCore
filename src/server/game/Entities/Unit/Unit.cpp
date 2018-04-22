@@ -105,6 +105,11 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
     3.14f                  // MOVE_PITCH_RATE
 };
 
+bool DispelableAura::RollDispel() const
+{
+    return roll_chance_i(_chance);
+}
+
 DamageInfo::DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
     : m_attacker(attacker), m_victim(victim), m_damage(damage), m_spellInfo(spellInfo), m_schoolMask(schoolMask), m_damageType(damageType), m_attackType(attackType),
     m_absorb(0), m_resist(0), m_block(0), m_hitMask(0)
@@ -1636,18 +1641,21 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
     // Apply Player CR_ARMOR_PENETRATION rating
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        float maxArmorPen = 0;
+        float arpPct = ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION);
+
+        // no more than 100%
+        RoundToInterval(arpPct, 0.f, 100.f);
+
+        float maxArmorPen = 0.f;
         if (victim->GetLevelForTarget(attacker) < 60)
             maxArmorPen = float(400 + 85 * victim->GetLevelForTarget(attacker));
         else
             maxArmorPen = 400 + 85 * victim->GetLevelForTarget(attacker) + 4.5f * 85 * (victim->GetLevelForTarget(attacker) - 59);
 
         // Cap armor penetration to this number
-        maxArmorPen = std::min((armor + maxArmorPen) / 3, armor);
+        maxArmorPen = std::min((armor + maxArmorPen) / 3.f, armor);
         // Figure out how much armor do we ignore
-        float armorPen = CalculatePct(maxArmorPen, ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION));
-        // Got the value, apply it
-        armor -= std::min(armorPen, maxArmorPen);
+        armor -= CalculatePct(maxArmorPen, arpPct);
     }
 
     if (G3D::fuzzyLe(armor, 0.0f))
@@ -4363,13 +4371,13 @@ Aura* Unit::GetAuraOfRankedSpell(uint32 spellId, ObjectGuid casterGUID, ObjectGu
     return aurApp ? aurApp->GetBase() : NULL;
 }
 
-void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList)
+void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList, bool isReflect /*= false*/)  const
 {
     AuraMap const& auras = GetOwnedAuras();
-    for (AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+    for (auto itr = auras.begin(); itr != auras.end(); ++itr)
     {
         Aura* aura = itr->second;
-        AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
+        AuraApplication const* aurApp = aura->GetApplicationOfTarget(GetGUID());
         if (!aurApp)
             continue;
 
@@ -4380,17 +4388,23 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
         if (aura->GetSpellInfo()->GetDispelMask() & dispelMask)
         {
             // do not remove positive auras if friendly target
-            //               negative auras if non-friendly target
-            if (aurApp->IsPositive() == IsFriendlyTo(caster))
+            //               negative auras if non-friendly
+            // unless we're reflecting (dispeller eliminates one of it's benefitial buffs)
+            if (isReflect != (aurApp->IsPositive() == IsFriendlyTo(caster)))
+                continue;
+
+            // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
+            int32 chance = aura->CalcDispelChance(this, !IsFriendlyTo(caster));
+            if (!chance)
                 continue;
 
             // The charges / stack amounts don't count towards the total number of auras that can be dispelled.
             // Ie: A dispel on a target with 5 stacks of Winters Chill and a Polymorph has 1 / (1 + 1) -> 50% chance to dispell
             // Polymorph instead of 1 / (5 + 1) -> 16%.
-            bool dispelCharges = aura->GetSpellInfo()->HasAttribute(SPELL_ATTR7_DISPEL_CHARGES);
+            bool const dispelCharges = aura->GetSpellInfo()->HasAttribute(SPELL_ATTR7_DISPEL_CHARGES);
             uint8 charges = dispelCharges ? aura->GetCharges() : aura->GetStackAmount();
             if (charges > 0)
-                dispelList.push_back(std::make_pair(aura, charges));
+                dispelList.emplace_back(aura, chance, charges);
         }
     }
 }
