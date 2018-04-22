@@ -31,7 +31,9 @@
 #define MAX_QUIET_DISTANCE 43.0f
 
 template<class T>
-FleeingMovementGenerator<T>::~FleeingMovementGenerator() = default;
+FleeingMovementGenerator<T>::~FleeingMovementGenerator()
+{
+}
 
 template<class T>
 MovementGeneratorType FleeingMovementGenerator<T>::GetMovementGeneratorType() const
