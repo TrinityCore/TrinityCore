@@ -17,20 +17,17 @@
  */
 
 #include "vmapexport.h"
-#include "wmo.h"
 #include "adtfile.h"
+#include "cascfile.h"
 #include "vec3d.h"
 #include "VMapDefinitions.h"
+#include "wmo.h"
+#include <fstream>
+#include <map>
 #include <cstdio>
 #include <cstdlib>
-#include <cassert>
-#include <map>
-#include <fstream>
-#undef min
-#undef max
-#include "cascfile.h"
 
-WMORoot::WMORoot(std::string &filename)
+WMORoot::WMORoot(std::string const& filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
     nDoodadNames(0), nDoodadDefs(0), nDoodadSets(0), RootWMOID(0), flags(0), numLod(0)
 {
@@ -78,6 +75,37 @@ bool WMORoot::open()
             f.read(&flags, 2);
             f.read(&numLod, 2);
         }
+        else if (!strcmp(fourcc, "MODS"))
+        {
+            DoodadData.Sets.resize(size / sizeof(WMO::MODS));
+            f.read(DoodadData.Sets.data(), size);
+        }
+        else if (!strcmp(fourcc,"MODN"))
+        {
+            char* ptr = f.getPointer();
+            char* end = ptr + size;
+            DoodadData.Paths = std::make_unique<char[]>(size);
+            memcpy(DoodadData.Paths.get(), ptr, size);
+            while (ptr < end)
+            {
+                std::string path = ptr;
+
+                char* s = GetPlainName(ptr);
+                FixNameCase(s, strlen(s));
+                FixNameSpaces(s, strlen(s));
+
+                uint32 doodadNameIndex = ptr - f.getPointer();
+                ptr += path.length() + 1;
+
+                if (ExtractSingleModel(path))
+                    ValidDoodadNames.insert(doodadNameIndex);
+            }
+        }
+        else if (!strcmp(fourcc,"MODD"))
+        {
+            DoodadData.Spawns.resize(size / sizeof(WMO::MODD));
+            f.read(DoodadData.Spawns.data(), size);
+        }
         else if (!strcmp(fourcc, "GFID"))
         {
             // full LOD reading code for reference
@@ -117,15 +145,6 @@ bool WMORoot::open()
         {
         }
         else if (!strcmp(fourcc,"MOLT"))
-        {
-        }
-        else if (!strcmp(fourcc,"MODN"))
-        {
-        }
-        else if (!strcmp(fourcc,"MODS"))
-        {
-        }
-        else if (!strcmp(fourcc,"MODD"))
         {
         }
         else if (!strcmp(fourcc,"MOSB"))
@@ -250,6 +269,11 @@ bool WMOGroup::open(WMORoot* rootWMO)
             MOBA = new uint16[size/2];
             moba_size = size/2;
             f.read(MOBA, size);
+        }
+        else if (!strcmp(fourcc,"MODR"))
+        {
+            DoodadReferences.resize(size / sizeof(uint16));
+            f.read(DoodadReferences.data(), size);
         }
         else if (!strcmp(fourcc,"MLIQ"))
         {
@@ -555,6 +579,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     float scale = 1.0f;
     if (mapObjDef.Flags & 0x4)
         scale = mapObjDef.Scale / 1024.0f;
+    uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0);
     uint32 flags = MOD_HAS_BOUND;
     if (tileX == 65 && tileY == 65)
         flags |= MOD_WORLDSPAWN;
@@ -567,7 +592,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
     fwrite(&flags, sizeof(uint32), 1, pDirfile);
     fwrite(&mapObjDef.NameSet, sizeof(uint16), 1, pDirfile);
-    fwrite(&mapObjDef.UniqueId, sizeof(uint32), 1, pDirfile);
+    fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
     fwrite(&position, sizeof(Vec3D), 1, pDirfile);
     fwrite(&mapObjDef.Rotation, sizeof(Vec3D), 1, pDirfile);
     fwrite(&scale, sizeof(float), 1, pDirfile);
@@ -583,7 +608,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
         cacheModelData.Flags = flags & ~MOD_PARENT_SPAWN;
         cacheModelData.Data.resize(
             sizeof(uint16) +    // mapObjDef.NameSet
-            sizeof(uint32) +    // mapObjDef.UniqueId
+            sizeof(uint32) +    // uniqueId
             sizeof(Vec3D) +     // position
             sizeof(Vec3D) +     // mapObjDef.Rotation
             sizeof(float) +     // scale
@@ -595,7 +620,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
 #define CACHE_WRITE(value, size, count, dest) memcpy(dest, value, size * count); dest += size * count;
 
         CACHE_WRITE(&mapObjDef.NameSet, sizeof(uint16), 1, cacheData);
-        CACHE_WRITE(&mapObjDef.UniqueId, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(&uniqueId, sizeof(uint32), 1, cacheData);
         CACHE_WRITE(&position, sizeof(Vec3D), 1, cacheData);
         CACHE_WRITE(&mapObjDef.Rotation, sizeof(Vec3D), 1, cacheData);
         CACHE_WRITE(&scale, sizeof(float), 1, cacheData);

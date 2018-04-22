@@ -228,7 +228,33 @@ namespace WorldPackets
 }
 
 typedef std::list<Unit*> UnitList;
-typedef std::list<std::pair<Aura*, uint8>> DispelChargesList;
+
+class DispelableAura
+{
+    public:
+        DispelableAura(Aura* aura, int32 dispelChance, uint8 dispelCharges) :
+            _aura(aura), _chance(dispelChance), _charges(dispelCharges) { }
+
+        Aura* GetAura() const { return _aura; }
+        bool RollDispel() const;
+        uint8 GetDispelCharges() const { return _charges; }
+
+        void IncrementCharges() { ++_charges; }
+        bool DecrementCharge()
+        {
+            if (!_charges)
+                return false;
+
+            --_charges;
+            return _charges > 0;
+        }
+
+    private:
+        Aura* _aura;
+        int32 _chance;
+        uint8 _charges;
+};
+typedef std::vector<DispelableAura> DispelChargesList;
 
 typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmuneContainer;
 
@@ -1471,7 +1497,7 @@ class TC_GAME_API Unit : public WorldObject
         AuraApplication * GetAuraApplicationOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication * except = NULL) const;
         Aura* GetAuraOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
 
-        void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList);
+        void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList, bool isReflect = false) const;
 
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster = ObjectGuid::Empty) const;
         uint32 GetAuraCount(uint32 spellId) const;

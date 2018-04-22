@@ -31,6 +31,11 @@
 
 using namespace MMAP;
 
+namespace
+{
+    std::unordered_map<uint32, uint8> _liquidTypes;
+}
+
 bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 {
     if (getDirContents(dbcLocales, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
@@ -260,6 +265,43 @@ int finish(const char* message, int returnValue)
     return returnValue;
 }
 
+std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale)
+{
+    DB2FileLoader liquidDb2;
+    std::unordered_map<uint32, uint8> liquidData;
+    DB2FileSystemSource liquidTypeSource((boost::filesystem::path("dbc") / locale / "LiquidType.db2").string());
+    if (liquidDb2.Load(&liquidTypeSource, LiquidTypeLoadInfo::Instance()))
+    {
+        for (uint32 x = 0; x < liquidDb2.GetRecordCount(); ++x)
+        {
+            DB2Record record = liquidDb2.GetRecord(x);
+            liquidData[record.GetId()] = record.GetUInt8("SoundBank");
+        }
+    }
+
+    return liquidData;
+}
+
+std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& locale)
+{
+    DB2FileLoader mapDb2;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
+    if (mapDb2.Load(&mapSource, MapLoadInfo::Instance()))
+    {
+        for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
+        {
+            DB2Record record = mapDb2.GetRecord(x);
+            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
+            int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
+            if (parentMapId != -1)
+                mapData[parentMapId].push_back(record.GetId());
+        }
+    }
+
+    return mapData;
+}
+
 int main(int argc, char** argv)
 {
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
@@ -302,25 +344,20 @@ int main(int argc, char** argv)
     if (!checkDirectories(debugOutput, dbcLocales))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
-    DB2FileLoader mapDb2;
-    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    _liquidTypes = LoadLiquid(dbcLocales[0]);
+    if (_liquidTypes.empty())
+        return silent ? -5 : finish("Failed to load LiquidType.db2", -5);
+
+    std::unordered_map<uint32, std::vector<uint32>> mapData = LoadMap(dbcLocales[0]);
+    if (mapData.empty())
+        return silent ? -4 : finish("Failed to load Map.db2", -4);
+
+    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
+    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
     {
-        DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / dbcLocales[0] / "Map.db2").string());
-        if (!mapDb2.Load(&mapSource, MapLoadInfo::Instance()))
-            return silent ? -4 : finish("Failed to load Map.db2", -4);
-
-        for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
-        {
-            DB2Record record = mapDb2.GetRecord(x);
-
-            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
-            int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
-            if (parentMapId != -1)
-                mapData[parentMapId].push_back(record.GetId());
-        }
-
-        static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
-    }
+        auto itr = _liquidTypes.find(liquidId);
+        return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
+    };
 
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
