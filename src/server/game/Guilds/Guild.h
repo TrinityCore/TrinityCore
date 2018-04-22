@@ -929,7 +929,7 @@ class TC_GAME_API Guild
         bool _IsLeader(Player* player) const;
         void _DeleteBankItems(SQLTransaction& trans, bool removeItemsFromDB = false);
         bool _ModifyBankMoney(SQLTransaction& trans, uint64 amount, bool add);
-        void _SetLeaderGUID(Member* pLeader);
+        void _SetLeader(SQLTransaction& trans, Member* leader);
 
         void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
         void _SetRankBankTabRightsAndSlots(uint8 rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);
