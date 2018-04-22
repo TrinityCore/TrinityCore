@@ -23,5 +23,5 @@ INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
 -- Stratholme - Baron Rivendare - Add missing emotes
 DELETE FROM `creature_text` WHERE `CreatureID` IN (10440);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
-(10440, 0, 0, '%s raises an undead servant back to life!', 14, 0, 0, 0, 0, 0, 0, 0, 'Baron Rivendare - EMOTE_RAISE_DEAD'),
-(10440, 1, 0, '%s attempts to cast Death Pact on his servants!', 14, 0, 0, 0, 0, 0, 0, 0, 'Baron Rivendare - EMOTE_DEATH_PACT');
+(10440, 0, 0, '%s raises an undead servant back to life!', 16, 0, 0, 0, 0, 0, 0, 0, 'Baron Rivendare - EMOTE_RAISE_DEAD'),
+(10440, 1, 0, '%s attempts to cast Death Pact on his servants!', 16, 0, 0, 0, 0, 0, 0, 0, 'Baron Rivendare - EMOTE_DEATH_PACT');
