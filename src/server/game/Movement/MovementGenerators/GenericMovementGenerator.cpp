@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "Unit.h"
 
 void GenericMovementGenerator::Initialize(Unit* /*owner*/)
