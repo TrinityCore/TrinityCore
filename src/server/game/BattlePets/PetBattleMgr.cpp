@@ -18,13 +18,14 @@
 #include "BattlePet.h"
 #include "ObjectAccessor.h"
 #include "PetBattleMgr.h"
+#include "WildBattlePet.h"
 
 PetBattleMgr::PetBattleMgr()
 {
     m_MaxPetBattleID = 0;
 }
 
-void PetBattleMgr::WildRequest(Player* player, PetBattleRequest request)
+void PetBattleMgr::HandleWildRequest(Player* player, PetBattleRequest request)
 {
     PetBattleRequestResult result = CanPlayerEnterInPetBattle(player, request);
 
@@ -35,6 +36,13 @@ void PetBattleMgr::WildRequest(Player* player, PetBattleRequest request)
     }
 
     SendFinalizeLocation(player, request);
+
+    // Checked in CanPlayerEnterInPetBattle
+    Creature* npc = player->GetNPCIfCanInteractWith(request.opponentGUID, UNIT_NPC_FLAG_WILD_BATTLE_PET);
+
+    // TEMP SOLUTION - NEED REMOVAL
+    player->GetSession()->GetBattlePetMgr()->AddPet(npc->GetWildBattlePet()->GetBattlePet());
+    npc->DisappearAndDie();
 }
 
 PetBattleRequestResult PetBattleMgr::CanPlayerEnterInPetBattle(Player* player, PetBattleRequest& request)
@@ -51,10 +59,10 @@ PetBattleRequestResult PetBattleMgr::CanPlayerEnterInPetBattle(Player* player, P
 
     if (request.opponentGUID.IsCreature())
     {
-        if (!player->GetNPCIfCanInteractWith(request.opponentGUID, UNIT_NPC_FLAG_WILD_BATTLE_PET))
-            return PET_BATTLE_REQUEST_TARGET_INVALID;
+        Creature* creature = player->GetNPCIfCanInteractWith(request.opponentGUID, UNIT_NPC_FLAG_WILD_BATTLE_PET);
 
-        Creature* creature = ObjectAccessor::GetCreature(*player, request.opponentGUID);
+        if (!creature)
+            return PET_BATTLE_REQUEST_TARGET_INVALID;
 
         if (creature->IsInPetBattle())
             return PET_BATTLE_REQUEST_WILD_PET_TAPPED;
@@ -74,8 +82,6 @@ PetBattleRequestResult PetBattleMgr::CanPlayerEnterInPetBattle(Player* player, P
         return PET_BATTLE_REQUEST_NOT_WHILE_IN_COMBAT;
 
     // TODO : Check Location
-
-    uint32 l_OpponentTeamID = PET_BATTLE_TEAM_PVE;
 
     // Load player pets
     BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr();
@@ -106,7 +112,7 @@ void PetBattleMgr::SendFinalizeLocation(Player* player, PetBattleRequest request
     player->GetSession()->SendPacket(finalizeLocation.Write());
 }
 
-void PetBattleMgr::StartPetBattle(Player* player, PetBattleRequest request)
+void PetBattleMgr::StartPetBattle(Player* /*player*/, PetBattleRequest /*request*/)
 {
     uint64 petBattleID = ++m_MaxPetBattleID;
     //m_petBattles[petBattleID] = new PetBattle(petBattleID);

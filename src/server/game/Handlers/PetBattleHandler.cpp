@@ -18,10 +18,15 @@
 #include "WorldSession.h"
 #include "BattlePet.h"
 #include "BattlePetMgr.h"
+#include "PetBattleMgr.h"
 #include "PetBattlePackets.h"
 #include "Player.h"
 
 void WorldSession::HandlePetBattleRequestWild(WorldPackets::PetBattle::RequestWild& requestWild)
 {
+    PetBattleRequest request;
+    request.Location = requestWild.Location;
+    request.opponentGUID = requestWild.TargetGUID;
 
+    sPetBattleMgr->HandleWildRequest(GetPlayer(), request);
 }

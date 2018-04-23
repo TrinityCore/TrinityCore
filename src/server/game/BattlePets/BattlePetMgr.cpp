@@ -168,6 +168,11 @@ BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
     return Trinity::Containers::MapGetValuePtr(_pets, guid.GetCounter());
 }
 
+void BattlePetMgr::AddPet(BattlePet* battlePet)
+{
+    AddPet(battlePet->Species, battlePet->CreatureID, battlePet->Breed, battlePet->Quality, battlePet->Level);
+}
+
 void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level /*= 1*/)
 {
     BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(species);

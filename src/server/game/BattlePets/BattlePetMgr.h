@@ -34,6 +34,7 @@ public:
     void SaveToDB(SQLTransaction& trans);
 
     BattlePet* GetPet(ObjectGuid guid);
+    void AddPet(BattlePet* battlePet);
     void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
 

@@ -18,21 +18,25 @@
 #ifndef TRINITYCORE_WILDBATTLEPET_H
 #define TRINITYCORE_WILDBATTLEPET_H
 
+class BattlePet;
 class Creature;
 
 class TC_GAME_API WildBattlePet
 {
     public:
         WildBattlePet(Creature* creature);
-        virtual ~WildBattlePet() { }
+        ~WildBattlePet();
 
         void Initialize();
 
         Creature* GetCreature() { return m_creature; }
-        uint8 GetLevel() { return GetCreature()->GetUInt32Value(UNIT_FIELD_WILD_BATTLEPET_LEVEL); }
+        BattlePet* GetBattlePet() { return m_battlePet; }
+
+        uint8 GetLevel() { return m_battlePet->Level; }
 
     private:
         Creature* m_creature;
+        BattlePet* m_battlePet;
 };
 
 #endif

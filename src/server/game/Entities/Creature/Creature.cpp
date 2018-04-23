@@ -18,6 +18,7 @@
 
 #include "Creature.h"
 #include "BattlegroundMgr.h"
+#include "BattlePet.h"
 #include "CellImpl.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -218,6 +219,8 @@ Creature::~Creature()
 {
     delete i_AI;
     i_AI = nullptr;
+
+    delete m_wildBattlePet;
 
     //if (m_uint32Values)
     //    TC_LOG_ERROR("entities.unit", "Deconstruct Creature Entry = %u", GetEntry());

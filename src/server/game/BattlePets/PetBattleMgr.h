@@ -69,7 +69,7 @@ class PetBattleMgr
 public:
     PetBattleMgr();
 
-    void WildRequest(Player* player, PetBattleRequest request);
+    void HandleWildRequest(Player* player, PetBattleRequest request);
     void StartPetBattle(Player* player, PetBattleRequest request);
     void EndPetBattle(uint64 petBattleId);
 
