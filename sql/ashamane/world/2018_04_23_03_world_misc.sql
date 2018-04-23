@@ -6,7 +6,7 @@ UPDATE `creature` SET `PhaseId` = 171 WHERE `id` IN (28892,28893,28897,28898);
 UPDATE `creature` SET `PhaseId` = 169 WHERE `map` = 609 AND (`PhaseId` = 0) AND (`PhaseGroup` = 0);
 UPDATE `gameobject` SET `PhaseId` = 169 WHERE `map` = 609 AND (`PhaseId` = 0) AND (`PhaseGroup` = 0);
 -- Add Missing Spell to Scarlet Cannon
-UPDATE `creature_template` SET `spell5` = 52588 WHERE `entry` = `28833`;
+UPDATE `creature_template` SET `spell5` = 52588 WHERE `entry` = 28833;
 -- Fix The Dreghood Elders Quest
 UPDATE `creature_template` SET `gossip_menu_id` = 8162 WHERE `entry` = 20677;
 UPDATE `creature_template` SET `gossip_menu_id` = 8163 WHERE `entry` = 20678;
