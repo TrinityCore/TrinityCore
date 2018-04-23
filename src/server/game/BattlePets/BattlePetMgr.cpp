@@ -63,19 +63,19 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
             }
 
             BattlePet pet;
-            pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
-            pet.PacketInfo.Species = species;
-            pet.PacketInfo.Breed = fields[2].GetUInt16();
-            pet.PacketInfo.Level = fields[3].GetUInt16();
-            pet.PacketInfo.Exp = fields[4].GetUInt16();
-            pet.PacketInfo.Health = fields[5].GetUInt32();
-            pet.PacketInfo.Quality = fields[6].GetUInt8();
-            pet.PacketInfo.Flags = fields[7].GetUInt16();
-            pet.PacketInfo.Name = fields[8].GetString();
-            pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
+            pet.Guid = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
+            pet.Species = species;
+            pet.Breed = fields[2].GetUInt16();
+            pet.Level = fields[3].GetUInt16();
+            pet.Exp = fields[4].GetUInt16();
+            pet.Health = fields[5].GetUInt32();
+            pet.Quality = fields[6].GetUInt8();
+            pet.Flags = fields[7].GetUInt16();
+            pet.Name = fields[8].GetString();
+            pet.CreatureID = speciesEntry->CreatureID;
             pet.SaveInfo = BATTLE_PET_UNCHANGED;
             pet.CalculateStats();
-            _pets[pet.PacketInfo.Guid.GetCounter()] = pet;
+            _pets[pet.Guid.GetCounter()] = pet;
 
         } while (pets->NextRow());
     }
@@ -90,7 +90,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
             _slots[i].Index = fields[0].GetUInt8();
             auto itr = _pets.find(fields[1].GetUInt64());
             if (itr != _pets.end())
-                _slots[i].Pet = itr->second.PacketInfo;
+                _slots[i].Pet = &itr->second;
             _slots[i].Locked = fields[2].GetBool();
             ++i;
         } while (slots->NextRow());
@@ -109,26 +109,26 @@ void BattlePetMgr::SaveToDB(SQLTransaction& trans)
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BATTLE_PETS);
                 stmt->setUInt64(0, itr->first);
                 stmt->setUInt32(1, _owner->GetBattlenetAccountId());
-                stmt->setUInt32(2, itr->second.PacketInfo.Species);
-                stmt->setUInt16(3, itr->second.PacketInfo.Breed);
-                stmt->setUInt16(4, itr->second.PacketInfo.Level);
-                stmt->setUInt16(5, itr->second.PacketInfo.Exp);
-                stmt->setUInt32(6, itr->second.PacketInfo.Health);
-                stmt->setUInt8(7, itr->second.PacketInfo.Quality);
-                stmt->setUInt16(8, itr->second.PacketInfo.Flags);
-                stmt->setString(9, itr->second.PacketInfo.Name);
+                stmt->setUInt32(2, itr->second.Species);
+                stmt->setUInt16(3, itr->second.Breed);
+                stmt->setUInt16(4, itr->second.Level);
+                stmt->setUInt16(5, itr->second.Exp);
+                stmt->setUInt32(6, itr->second.Health);
+                stmt->setUInt8(7, itr->second.Quality);
+                stmt->setUInt16(8, itr->second.Flags);
+                stmt->setString(9, itr->second.Name);
                 trans->Append(stmt);
                 itr->second.SaveInfo = BATTLE_PET_UNCHANGED;
                 ++itr;
                 break;
             case BATTLE_PET_CHANGED:
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BATTLE_PETS);
-                stmt->setUInt16(0, itr->second.PacketInfo.Level);
-                stmt->setUInt16(1, itr->second.PacketInfo.Exp);
-                stmt->setUInt32(2, itr->second.PacketInfo.Health);
-                stmt->setUInt8(3, itr->second.PacketInfo.Quality);
-                stmt->setUInt16(4, itr->second.PacketInfo.Flags);
-                stmt->setString(5, itr->second.PacketInfo.Name);
+                stmt->setUInt16(0, itr->second.Level);
+                stmt->setUInt16(1, itr->second.Exp);
+                stmt->setUInt32(2, itr->second.Health);
+                stmt->setUInt8(3, itr->second.Quality);
+                stmt->setUInt16(4, itr->second.Flags);
+                stmt->setString(5, itr->second.Name);
                 stmt->setUInt32(6, _owner->GetBattlenetAccountId());
                 stmt->setUInt64(7, itr->first);
                 trans->Append(stmt);
@@ -157,7 +157,7 @@ void BattlePetMgr::SaveToDB(SQLTransaction& trans)
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BATTLE_PET_SLOTS);
         stmt->setUInt8(0, slot.Index);
         stmt->setUInt32(1, _owner->GetBattlenetAccountId());
-        stmt->setUInt64(2, slot.Pet.Guid.GetCounter());
+        stmt->setUInt64(2, slot.Pet->Guid.GetCounter());
         stmt->setBool(3, slot.Locked);
         trans->Append(stmt);
     }
@@ -175,20 +175,20 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
         return;
 
     BattlePet pet;
-    pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
-    pet.PacketInfo.Species = species;
-    pet.PacketInfo.CreatureID = creatureId;
-    pet.PacketInfo.Level = level;
-    pet.PacketInfo.Exp = 0;
-    pet.PacketInfo.Flags = 0;
-    pet.PacketInfo.Breed = breed;
-    pet.PacketInfo.Quality = quality;
-    pet.PacketInfo.Name = "";
+    pet.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+    pet.Species = species;
+    pet.CreatureID = creatureId;
+    pet.Level = level;
+    pet.Exp = 0;
+    pet.Flags = 0;
+    pet.Breed = breed;
+    pet.Quality = quality;
+    pet.Name = "";
     pet.CalculateStats();
-    pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
+    pet.Health = pet.MaxHealth;
     pet.SaveInfo = BATTLE_PET_NEW;
 
-    _pets[pet.PacketInfo.Guid.GetCounter()] = pet;
+    _pets[pet.Guid.GetCounter()] = pet;
 
     std::vector<std::reference_wrapper<BattlePet>> updates;
     updates.push_back(std::ref(pet));
@@ -206,16 +206,24 @@ void BattlePetMgr::RemovePet(ObjectGuid guid)
     pet->SaveInfo = BATTLE_PET_REMOVED;
 
     // spell is not unlearned on retail
-    /*if (GetPetCount(pet->PacketInfo.Species) == 0)
-        if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
+    /*if (GetPetCount(pet->Species) == 0)
+        if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->Species))
             _owner->GetPlayer()->RemoveSpell(speciesEntry->SummonSpellID);*/
+}
+
+uint8 BattlePetMgr::GetPetCount(bool aliveOnly /*= false*/) const
+{
+    return uint8(std::count_if(_pets.begin(), _pets.end(), [aliveOnly](std::pair<uint64 const, BattlePet> const& pet)
+    {
+        return (!aliveOnly || pet.second.Health != 0) && pet.second.SaveInfo != BATTLE_PET_REMOVED;
+    }));
 }
 
 uint8 BattlePetMgr::GetPetCount(uint32 species) const
 {
     return uint8(std::count_if(_pets.begin(), _pets.end(), [species](std::pair<uint64 const, BattlePet> const& pet)
     {
-        return pet.second.PacketInfo.Species == species && pet.second.SaveInfo != BATTLE_PET_REMOVED;
+        return pet.second.Species == species && pet.second.SaveInfo != BATTLE_PET_REMOVED;
     }));
 }
 
@@ -238,7 +246,7 @@ uint16 BattlePetMgr::GetMaxPetLevel() const
     uint16 level = 0;
     for (auto& pet : _pets)
         if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
-            level = std::max(level, pet.second.PacketInfo.Level);
+            level = std::max(level, pet.second.Level);
 
     return level;
 }
@@ -258,10 +266,10 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     if (!item)
         return;
 
-    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, pet->PacketInfo.Species);
-    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, pet->PacketInfo.Breed | (pet->PacketInfo.Quality << 24));
-    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, pet->PacketInfo.Level);
-    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, pet->PacketInfo.CreatureID);
+    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, pet->Species);
+    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, pet->Breed | (pet->Quality << 24));
+    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, pet->Level);
+    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, pet->CreatureID);
 
     // FIXME: "You create: ." - item name missing in chat
     _owner->GetPlayer()->SendNewItem(item, 1, true, false);
@@ -280,11 +288,11 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
     std::vector<std::reference_wrapper<BattlePet>> updates;
 
     for (auto& pet : _pets)
-        if (pet.second.PacketInfo.Health != pet.second.PacketInfo.MaxHealth)
+        if (pet.second.Health != pet.second.MaxHealth)
         {
-            pet.second.PacketInfo.Health += CalculatePct(pet.second.PacketInfo.MaxHealth, pct);
+            pet.second.Health += CalculatePct(pet.second.MaxHealth, pct);
             // don't allow Health to be greater than MaxHealth
-            pet.second.PacketInfo.Health = std::min(pet.second.PacketInfo.Health, pet.second.PacketInfo.MaxHealth);
+            pet.second.Health = std::min(pet.second.Health, pet.second.MaxHealth);
             if (pet.second.SaveInfo != BATTLE_PET_NEW)
                 pet.second.SaveInfo = BATTLE_PET_CHANGED;
             updates.push_back(std::ref(pet.second));
@@ -299,7 +307,7 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
     if (!pet)
         return;
 
-    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species);
+    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->Species);
     if (!speciesEntry)
         return;
 
@@ -328,7 +336,7 @@ void BattlePetMgr::SendJournal()
 
     for (auto& pet : _pets)
         if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
-            battlePetJournal.Pets.push_back(std::ref(pet.second.PacketInfo));
+            battlePetJournal.Pets.push_back(std::ref(pet.second));
 
     battlePetJournal.Slots.reserve(_slots.size());
     std::transform(_slots.begin(), _slots.end(), std::back_inserter(battlePetJournal.Slots), [](WorldPackets::BattlePet::BattlePetSlot& slot) { return std::ref(slot); });
@@ -339,7 +347,7 @@ void BattlePetMgr::SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pe
 {
     WorldPackets::BattlePet::BattlePetUpdates updates;
     for (BattlePet& pet : pets)
-        updates.Pets.push_back(std::ref(pet.PacketInfo));
+        updates.Pets.push_back(std::ref(pet));
 
     updates.PetAdded = petAdded;
     _owner->SendPacket(updates.Write());

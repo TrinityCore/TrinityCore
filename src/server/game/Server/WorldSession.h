@@ -566,6 +566,11 @@ namespace WorldPackets
         class PetSetAction;
     }
 
+    namespace PetBattle
+    {
+        class RequestWild;
+    }
+
     namespace Petition
     {
         class DeclinePetition;
@@ -1735,6 +1740,9 @@ class TC_GAME_API WorldSession
         void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
+        // Pet Battles
+        void HandlePetBattleRequestWild(WorldPackets::PetBattle::RequestWild& requestWild);
 
         // Warden
         void HandleWardenData(WorldPackets::Warden::WardenData& packet);

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,41 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "BattlePet.h"
 #include "BattlePetMgr.h"
-#include "BattlePetPackets.h"
+#include "PetBattlePackets.h"
+#include "Player.h"
 
-#ifndef BattlePet_h__
-#define BattlePet_h__
-
-struct BattlePetOwnerInfo
+void WorldSession::HandlePetBattleRequestWild(WorldPackets::PetBattle::RequestWild& requestWild)
 {
-    ObjectGuid Guid;
-    uint32 PlayerVirtualRealm = 0;
-    uint32 PlayerNativeRealm = 0;
-};
 
-class BattlePet
-{
-public:
-    void CalculateStats();
-
-    BattlePetSaveInfo SaveInfo;
-
-    ObjectGuid Guid;
-    uint32 Species = 0;
-    uint32 CreatureID = 0;
-    uint32 CollarID = 0;
-    uint16 Breed = 0;
-    uint16 Level = 0;
-    uint16 Exp = 0;
-    uint16 Flags = 0;
-    uint32 Power = 0;
-    uint32 Health = 0;
-    uint32 MaxHealth = 0;
-    uint32 Speed = 0;
-    uint8 Quality = 0;
-    Optional<BattlePetOwnerInfo> OwnerInfo;
-    std::string Name;
-};
-
-#endif // BattlePet_h__
+}

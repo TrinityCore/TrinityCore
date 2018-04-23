@@ -23,39 +23,15 @@
 #include "Optional.h"
 #include "UnitDefines.h"
 
+class BattlePet;
+
 namespace WorldPackets
 {
     namespace BattlePet
     {
-        struct BattlePetOwnerInfo
-        {
-            ObjectGuid Guid;
-            uint32 PlayerVirtualRealm = 0;
-            uint32 PlayerNativeRealm = 0;
-        };
-
-        struct BattlePet
-        {
-            ObjectGuid Guid;
-            uint32 Species = 0;
-            uint32 CreatureID = 0;
-            uint32 CollarID = 0;
-            uint16 Breed = 0;
-            uint16 Level = 0;
-            uint16 Exp = 0;
-            uint16 Flags = 0;
-            uint32 Power = 0;
-            uint32 Health = 0;
-            uint32 MaxHealth = 0;
-            uint32 Speed = 0;
-            uint8 Quality = 0;
-            Optional<BattlePetOwnerInfo> OwnerInfo;
-            std::string Name;
-        };
-
         struct BattlePetSlot
         {
-            BattlePet Pet;
+            ::BattlePet* Pet;
             uint32 CollarID = 0;
             uint8 Index = 0;
             bool Locked = true;
@@ -71,7 +47,7 @@ namespace WorldPackets
             uint16 Trap = 0;
             bool HasJournalLock = true;
             std::vector<std::reference_wrapper<BattlePetSlot>> Slots;
-            std::vector<std::reference_wrapper<BattlePet>> Pets;
+            std::vector<std::reference_wrapper<::BattlePet>> Pets;
             int32 MaxPets = 1000;
         };
 
@@ -98,7 +74,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<std::reference_wrapper<BattlePet>> Pets;
+            std::vector<std::reference_wrapper<::BattlePet>> Pets;
             bool PetAdded = false;
         };
 
@@ -201,5 +177,8 @@ namespace WorldPackets
         };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& slot);
+ByteBuffer& operator<<(ByteBuffer& data, ::BattlePet const& pet);
 
 #endif // BattlePetPackets_h__

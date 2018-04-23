@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlePet.h"
 #include "BattlePetPackets.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& slot)
 {
-    data << (slot.Pet.Guid.IsEmpty() ? ObjectGuid::Create<HighGuid::BattlePet>(0) : slot.Pet.Guid);
+    data << (slot.Pet->Guid.IsEmpty() ? ObjectGuid::Create<HighGuid::BattlePet>(0) : slot.Pet->Guid);
     data << uint32(slot.CollarID);
     data << uint8(slot.Index);
     data.WriteBit(slot.Locked);
@@ -28,7 +29,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& pet)
+ByteBuffer& operator<<(ByteBuffer& data, ::BattlePet const& pet)
 {
     data << pet.Guid;
     data << uint32(pet.Species);
@@ -72,7 +73,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
 
-    for (BattlePet const& pet : Pets)
+    for (::BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

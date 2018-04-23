@@ -17,6 +17,7 @@
  */
 
 #include "WorldPacket.h"
+#include "BattlePet.h"
 #include "BattlePetMgr.h"
 #include "Common.h"
 #include "Creature.h"

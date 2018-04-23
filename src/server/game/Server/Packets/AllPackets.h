@@ -57,6 +57,7 @@
 #include "PacketUtilities.h"
 #include "PartyPackets.h"
 #include "PetPackets.h"
+#include "PetBattlePackets.h"
 #include "PetitionPackets.h"
 #include "PetPackets.h"
 #include "QueryPackets.h"

@@ -112,7 +112,7 @@ uint8 BattlePetDataStore::GetDefaultPetQuality(uint32 species) const
     return itr->second;
 }
 
-BattlePetStateMap const* BattlePetDataStore::GetPetBreedStats(uint16 BreedID) const
+BattlePetStateMap* BattlePetDataStore::GetPetBreedStats(uint16 BreedID)
 {
     auto breedState = _battlePetBreedStates.find(BreedID);
     if (breedState == _battlePetBreedStates.end()) // non existing breed id
@@ -121,7 +121,7 @@ BattlePetStateMap const* BattlePetDataStore::GetPetBreedStats(uint16 BreedID) co
     return &breedState->second;
 }
 
-BattlePetStateMap const* BattlePetDataStore::GetPetSpeciesStats(uint16 SpeciesID) const
+BattlePetStateMap* BattlePetDataStore::GetPetSpeciesStats(uint16 SpeciesID)
 {
     auto speciesState = _battlePetSpeciesStates.find(SpeciesID);
     if (speciesState == _battlePetSpeciesStates.end())

@@ -35,6 +35,7 @@ class Group;
 class Quest;
 class Player;
 class SpellInfo;
+class WildBattlePet;
 class WorldSession;
 enum MovementGeneratorType : uint8;
 
@@ -347,6 +348,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
 
+        WildBattlePet* GetWildBattlePet() { return m_wildBattlePet; }
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -423,6 +425,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
         CreatureTextRepeatGroup m_textRepeat;
+
+        WildBattlePet* m_wildBattlePet;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

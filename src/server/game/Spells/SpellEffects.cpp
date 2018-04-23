@@ -21,6 +21,7 @@
 #include "AreaTrigger.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "BattlePet.h"
 #include "BattlePetMgr.h"
 #include "ClassHall.h"
 #include "CombatLogPackets.h"

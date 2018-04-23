@@ -36,27 +36,27 @@ void BattlePet::CalculateStats()
     float speed = 0.0f;
 
     // get base breed stats
-    BattlePetStateMap const* breedState = sBattlePetDataStore->GetPetBreedStats(PacketInfo.Breed);
+    BattlePetStateMap* breedState = sBattlePetDataStore->GetPetBreedStats(Breed);
     if (!breedState) // non existing breed id
         return;
 
-    health = breedState->at(STATE_STAT_STAMINA);
-    power = breedState->at(STATE_STAT_POWER);
-    speed = breedState->at(STATE_STAT_SPEED);
+    health = (*breedState)[STATE_STAT_STAMINA];
+    power = (*breedState)[STATE_STAT_POWER];
+    speed = (*breedState)[STATE_STAT_SPEED];
 
     // modify stats depending on species - not all pets have this
-    BattlePetStateMap const* speciesState = sBattlePetDataStore->GetPetSpeciesStats(PacketInfo.Species);
+    BattlePetStateMap* speciesState = sBattlePetDataStore->GetPetSpeciesStats(Species);
     if (speciesState)
     {
-        health += speciesState->at(STATE_STAT_STAMINA);
-        power += speciesState->at(STATE_STAT_POWER);
-        speed += speciesState->at(STATE_STAT_SPEED);
+        health += (*speciesState)[STATE_STAT_STAMINA];
+        power += (*speciesState)[STATE_STAT_POWER];
+        speed += (*speciesState)[STATE_STAT_SPEED];
     }
 
     // modify stats by quality
     for (BattlePetBreedQualityEntry const* battlePetBreedQuality : sBattlePetBreedQualityStore)
     {
-        if (battlePetBreedQuality->QualityEnum == PacketInfo.Quality)
+        if (battlePetBreedQuality->QualityEnum == Quality)
         {
             health *= battlePetBreedQuality->StateMultiplier;
             power *= battlePetBreedQuality->StateMultiplier;
@@ -67,13 +67,13 @@ void BattlePet::CalculateStats()
     }
 
     // scale stats depending on level
-    health *= PacketInfo.Level;
-    power *= PacketInfo.Level;
-    speed *= PacketInfo.Level;
+    health *= Level;
+    power *= Level;
+    speed *= Level;
 
     // set stats
     // round, ceil or floor? verify this
-    PacketInfo.MaxHealth = uint32((round(health / 20) + 100));
-    PacketInfo.Power = uint32(round(power / 100));
-    PacketInfo.Speed = uint32(round(speed / 100));
+    MaxHealth = uint32((round(health / 20) + 100));
+    Power = uint32(round(power / 100));
+    Speed = uint32(round(speed / 100));
 }

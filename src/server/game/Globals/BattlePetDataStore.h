@@ -97,8 +97,8 @@ public:
     uint16 RollPetBreed(uint32 species) const;
     uint8 GetDefaultPetQuality(uint32 species) const;
 
-    BattlePetStateMap const* GetPetBreedStats(uint16 BreedID) const;
-    BattlePetStateMap const* GetPetSpeciesStats(uint16 SpeciesID) const;
+    BattlePetStateMap* GetPetBreedStats(uint16 BreedID);
+    BattlePetStateMap* GetPetSpeciesStats(uint16 SpeciesID);
 
     static BattlePetDataStore* Instance();
 
