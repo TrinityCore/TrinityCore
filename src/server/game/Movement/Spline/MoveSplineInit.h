@@ -52,6 +52,8 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
+        MoveSplineInit(MoveSplineInit&& init) = default;
+
         ~MoveSplineInit();
         MoveSplineInit(MoveSplineInit const&) = delete;
         MoveSplineInit& operator=(MoveSplineInit const&) = delete;

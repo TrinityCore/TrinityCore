@@ -99,4 +99,6 @@ struct JumpArrivalCastArgs
     ObjectGuid Target;
 };
 
+inline bool IsInvalidMovementGeneratorType(MovementGeneratorType const type) { return type == MAX_DB_MOTION_TYPE || type == MAX_MOTION_TYPE; }
+
 #endif
