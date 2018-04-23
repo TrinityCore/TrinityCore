@@ -362,7 +362,7 @@ public:
             Movement::MoveSplineInit init(who);
             init.DisableTransportPathTransformations();
             init.MoveTo(0.3320355f, 0.05355075f, 5.196949f, false);
-            init.Launch();
+            who->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_SLOT_CONTROLLED);
 
             me->setActive(true);
             me->SetFarVisible(true);

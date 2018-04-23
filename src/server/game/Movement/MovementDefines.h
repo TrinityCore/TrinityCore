@@ -92,4 +92,6 @@ struct TC_GAME_API ChaseAngle
     bool IsAngleOkay(float relativeAngle) const;
 };
 
+inline bool IsInvalidMovementGeneratorType(MovementGeneratorType const type) { return type == MAX_DB_MOTION_TYPE || type == MAX_MOTION_TYPE; }
+
 #endif

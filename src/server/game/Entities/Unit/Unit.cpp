@@ -468,7 +468,7 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     Movement::MoveSplineInit init(this);
     init.MoveTo(x, y, z, generatePath, forceDestination);
     init.SetVelocity(speed);
-    init.Launch();
+    GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
 }
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
@@ -12620,7 +12620,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
-    init.Launch();
+    GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_EXIT, MOTION_SLOT_CONTROLLED);
 
     if (player)
         player->ResummonPetTemporaryUnSummonedIfAny();
@@ -13041,7 +13041,7 @@ void Unit::SetFacingTo(float ori, bool force)
     if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && GetTransGUID())
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
-    init.Launch();
+    GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_SLOT_CONTROLLED);
 }
 
 void Unit::SetFacingToObject(WorldObject const* object, bool force)
@@ -13054,7 +13054,7 @@ void Unit::SetFacingToObject(WorldObject const* object, bool force)
     Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
     init.SetFacing(GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
-    init.Launch();
+    GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_SLOT_CONTROLLED);
 }
 
 bool Unit::SetWalk(bool enable)
