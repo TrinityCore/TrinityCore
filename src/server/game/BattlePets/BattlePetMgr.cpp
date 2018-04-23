@@ -179,6 +179,9 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
     if (!battlePetSpecies) // should never happen
         return;
 
+    if (GetPetCount(species) >= MAX_BATTLE_PETS_PER_SPECIES)
+        return;
+
     BattlePet pet;
     pet.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
     pet.Species = species;
