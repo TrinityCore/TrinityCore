@@ -100,7 +100,7 @@ void PetBattle::FillPlayerUpdate(Player* player, WorldPackets::PetBattle::PetBat
     }
 }
 
-void PetBattle::FillPlayerUpdate(WildBattlePet* wildBattlePet, WorldPackets::PetBattle::PetBattlePlayerUpdate& playerUpdate)
+void PetBattle::FillPlayerUpdate(WildBattlePet* /*wildBattlePet*/, WorldPackets::PetBattle::PetBattlePlayerUpdate& /*playerUpdate*/)
 {
 }
 

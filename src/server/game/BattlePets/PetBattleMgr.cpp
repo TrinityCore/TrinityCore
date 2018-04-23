@@ -16,6 +16,7 @@
  */
 
 #include "BattlePet.h"
+#include "BattlePetDataStore.h"
 #include "ObjectAccessor.h"
 #include "PetBattleMgr.h"
 #include "WildBattlePet.h"
