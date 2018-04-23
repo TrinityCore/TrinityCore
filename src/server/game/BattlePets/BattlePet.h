@@ -16,11 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlePetMgr.h"
 #include "BattlePetPackets.h"
 
 #ifndef BattlePet_h__
 #define BattlePet_h__
+
+enum BattlePetSaveInfo
+{
+    BATTLE_PET_UNCHANGED = 0,
+    BATTLE_PET_CHANGED   = 1,
+    BATTLE_PET_NEW       = 2,
+    BATTLE_PET_REMOVED   = 3
+};
 
 struct BattlePetOwnerInfo
 {

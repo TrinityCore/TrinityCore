@@ -79,14 +79,6 @@ enum BattlePetState
     STATE_COSMETIC_SPECTRAL_BLUE    = 196
 };
 
-enum BattlePetSaveInfo
-{
-    BATTLE_PET_UNCHANGED = 0,
-    BATTLE_PET_CHANGED   = 1,
-    BATTLE_PET_NEW       = 2,
-    BATTLE_PET_REMOVED   = 3
-};
-
 typedef std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type>> BattlePetStateMap;
 
 class TC_GAME_API BattlePetDataStore

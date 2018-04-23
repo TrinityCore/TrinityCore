@@ -57,7 +57,7 @@ void PetBattle::BuildPlayerUpdate(uint8 index, WorldPackets::PetBattle::PetBattl
         FillPlayerUpdate(GetPlayer1(), playerUpdate);
     else
     {
-        if (m_battleType = PET_BATTLE_PVE)
+        if (m_battleType == PET_BATTLE_PVE)
             FillPlayerUpdate(GetOriginalWildPet(), playerUpdate);
         else
             FillPlayerUpdate(GetPlayer2(), playerUpdate);

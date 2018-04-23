@@ -19,12 +19,11 @@
 #ifndef BattlePetMgr_h__
 #define BattlePetMgr_h__
 
+#include "BattlePet.h"
 #include "BattlePetDataStore.h"
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
 #include <unordered_map>
-
-class BattlePet;
 
 class BattlePetMgr
 {
