@@ -65,7 +65,7 @@ SmartScript::~SmartScript()
 bool SmartScript::IsSmart(Creature* c /*= nullptr*/)
 {
     bool smart = true;
-    if (c && c->GetAIName() != "SmartAI")
+    if (!dynamic_cast<SmartAI*>(c->AI()))
         smart = false;
 
     if (!me || me->GetAIName() != "SmartAI")
@@ -80,7 +80,7 @@ bool SmartScript::IsSmart(Creature* c /*= nullptr*/)
 bool SmartScript::IsSmartGO(GameObject* g /*= nullptr*/)
 {
     bool smart = true;
-    if (g && g->GetAIName() != "SmartGameObjectAI")
+    if (!dynamic_cast<SmartGameObjectAI*>(g->AI()))
         smart = false;
 
     if (!go || go->GetAIName() != "SmartGameObjectAI")
