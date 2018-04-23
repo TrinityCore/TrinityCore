@@ -137,7 +137,7 @@ void MotionMaster::Clear(bool reset /*= true*/)
 
 void MotionMaster::Clear(MovementSlot slot)
 {
-    if (empty() || slot >= MAX_MOTION_SLOT)
+    if (empty() || IsInvalidMovementSlot(slot))
         return;
 
     if (_cleanFlag & MOTIONMMASTER_CLEANFLAG_UPDATE)
@@ -174,7 +174,7 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
 
 MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
 {
-    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
+    if (empty() || IsInvalidMovementSlot(slot) || !_slot[slot])
         return MAX_MOTION_TYPE;
 
     return _slot[slot]->GetMovementGeneratorType();
@@ -182,7 +182,7 @@ MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
 
 MovementGenerator* MotionMaster::GetMotionSlot(MovementSlot slot) const
 {
-    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
+    if (empty() || IsInvalidMovementSlot(slot) || !_slot[slot])
         return nullptr;
 
     return _slot[slot];
