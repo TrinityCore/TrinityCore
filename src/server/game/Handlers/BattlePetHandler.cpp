@@ -29,7 +29,7 @@ void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::Battle
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
     if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
-        GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot)->Pet = pet;
+        GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot)->Pet = *pet;
 }
 
 void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName)

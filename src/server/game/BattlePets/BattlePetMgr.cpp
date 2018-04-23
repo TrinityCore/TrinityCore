@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlePetMgr.h"
 #include "BattlePet.h"
+#include "BattlePetMgr.h"
 #include "DB2Stores.h"
 #include "Containers.h"
 #include "Creature.h"
@@ -90,7 +90,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
             _slots[i].Index = fields[0].GetUInt8();
             auto itr = _pets.find(fields[1].GetUInt64());
             if (itr != _pets.end())
-                _slots[i].Pet = &itr->second;
+                _slots[i].Pet = itr->second;
             _slots[i].Locked = fields[2].GetBool();
             ++i;
         } while (slots->NextRow());
@@ -157,7 +157,7 @@ void BattlePetMgr::SaveToDB(SQLTransaction& trans)
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BATTLE_PET_SLOTS);
         stmt->setUInt8(0, slot.Index);
         stmt->setUInt32(1, _owner->GetBattlenetAccountId());
-        stmt->setUInt64(2, slot.Pet->Guid.GetCounter());
+        stmt->setUInt64(2, slot.Pet.Guid.GetCounter());
         stmt->setBool(3, slot.Locked);
         trans->Append(stmt);
     }

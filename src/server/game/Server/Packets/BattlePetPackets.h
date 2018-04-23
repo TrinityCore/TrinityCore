@@ -18,6 +18,7 @@
 #ifndef BattlePetPackets_h__
 #define BattlePetPackets_h__
 
+#include "BattlePet.h"
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -31,7 +32,7 @@ namespace WorldPackets
     {
         struct BattlePetSlot
         {
-            ::BattlePet* Pet;
+            ::BattlePet Pet;
             uint32 CollarID = 0;
             uint8 Index = 0;
             bool Locked = true;
