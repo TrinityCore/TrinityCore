@@ -107,41 +107,41 @@ struct boss_baron_rivendare : public BossAI
         {
             switch (eventId)
             {
-            case EVENT_SHADOWBOLT:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_SHADOWBOLT);
+                case EVENT_SHADOWBOLT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SHADOWBOLT);
 
-                events.Repeat(10s);
-                break;
-            case EVENT_CLEAVE:
-                DoCastVictim(SPELL_CLEAVE);
-                events.Repeat(7s, 17s);
-                break;
-            case EVENT_MORTALSTRIKE:
-                DoCastVictim(SPELL_MORTALSTRIKE);
-                events.Repeat(10s, 25s);
-                break;
-            case EVENT_RAISE_DEAD:
-                if (!RaiseDead)
-                {
-                    DoCast(SPELL_RAISE_DEAD);
-                    DoCastSelf(SPELL_RAISE_DEAD1, true);
-                    DoCastSelf(SPELL_RAISE_DEAD2, true);
-                    DoCastSelf(SPELL_RAISE_DEAD3, true);
-                    DoCastSelf(SPELL_RAISE_DEAD4, true);
-                    DoCastSelf(SPELL_RAISE_DEAD5, true);
-                    DoCastSelf(SPELL_RAISE_DEAD6, true);
-                    RaiseDead = true;
-                    Talk(EMOTE_RAISE_DEAD);
-                }
-                else
-                {
-                    DoCast(SPELL_DEATH_PACT);
-                    RaiseDead = false;
-                    Talk(EMOTE_DEATH_PACT);
-                }
-                events.Repeat(12s, 15s);
-                break;
+                    events.Repeat(10s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.Repeat(7s, 17s);
+                    break;
+                case EVENT_MORTALSTRIKE:
+                    DoCastVictim(SPELL_MORTALSTRIKE);
+                    events.Repeat(10s, 25s);
+                    break;
+                case EVENT_RAISE_DEAD:
+                    if (!RaiseDead)
+                    {
+                        DoCast(SPELL_RAISE_DEAD);
+                        DoCastSelf(SPELL_RAISE_DEAD1, true);
+                        DoCastSelf(SPELL_RAISE_DEAD2, true);
+                        DoCastSelf(SPELL_RAISE_DEAD3, true);
+                        DoCastSelf(SPELL_RAISE_DEAD4, true);
+                        DoCastSelf(SPELL_RAISE_DEAD5, true);
+                        DoCastSelf(SPELL_RAISE_DEAD6, true);
+                        RaiseDead = true;
+                        Talk(EMOTE_RAISE_DEAD);
+                    }
+                    else
+                    {
+                        DoCast(SPELL_DEATH_PACT);
+                        RaiseDead = false;
+                        Talk(EMOTE_DEATH_PACT);
+                    }
+                    events.Repeat(12s, 15s);
+                    break;
             }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
