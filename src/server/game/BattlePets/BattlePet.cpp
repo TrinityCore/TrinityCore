@@ -77,3 +77,8 @@ void BattlePet::CalculateStats()
     Power = uint32(round(power / 100));
     Speed = uint32(round(speed / 100));
 }
+
+BattlePetSpeciesEntry const* BattlePet::GetSpecies()
+{
+    return sBattlePetSpeciesStore.LookupEntry(Species);
+}

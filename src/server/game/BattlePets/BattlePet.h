@@ -40,6 +40,7 @@ class BattlePet
 {
 public:
     void CalculateStats();
+    BattlePetSpeciesEntry const* GetSpecies();
 
     BattlePetSaveInfo SaveInfo;
 

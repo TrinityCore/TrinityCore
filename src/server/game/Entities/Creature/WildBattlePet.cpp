@@ -19,6 +19,7 @@
 #include "BattlePetDataStore.h"
 #include "Creature.h"
 #include "DB2Stores.h"
+#include "DBCEnums.h"
 #include "WildBattlePet.h"
 
 WildBattlePet::WildBattlePet(Creature* creature) : m_creature(creature)
@@ -35,6 +36,10 @@ void WildBattlePet::Initialize()
 {
     BattlePetSpeciesEntry const* species = sDB2Manager.GetBattlePetSpeciesByCreatureID(GetCreature()->GetEntry());
     if (!species)
+        return;
+
+    // Some battle pets are spawned as visual but can not be fighted
+    if (species->SourceTypeEnum != BATTLE_PET_SPECIES_SOURCE_WILD_PET)
         return;
 
     GetCreature()->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_WILD_BATTLE_PET | UNIT_FLAG_IMMUNE_TO_NPC);

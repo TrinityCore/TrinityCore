@@ -42,8 +42,7 @@ void PetBattleMgr::HandleWildRequest(Player* player, PetBattleRequest request)
     Creature* npc = player->GetNPCIfCanInteractWith(request.opponentGUID, UNIT_NPC_FLAG_WILD_BATTLE_PET);
 
     // TEMP SOLUTION - NEED REMOVAL
-    player->GetSession()->GetBattlePetMgr()->AddPet(npc->GetWildBattlePet()->GetBattlePet());
-    npc->DisappearAndDie();
+    DoCapture(player, npc->GetWildBattlePet());
 }
 
 PetBattleRequestResult PetBattleMgr::CanPlayerEnterInPetBattle(Player* player, PetBattleRequest& request)
@@ -130,6 +129,15 @@ void PetBattleMgr::EndPetBattle(uint64 petBattleId)
     petBattle->End();
     delete petBattle;
     m_petBattles.erase(petBattleId);
+}
+
+void PetBattleMgr::DoCapture(Player* player, WildBattlePet* wildBattlePet)
+{
+    if (wildBattlePet->GetBattlePet()->GetSpecies()->Flags & BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE)
+        return;
+
+    player->GetSession()->GetBattlePetMgr()->AddPet(wildBattlePet->GetBattlePet());
+    wildBattlePet->GetCreature()->DisappearAndDie();
 }
 
 PetBattleMgr* PetBattleMgr::Instance()

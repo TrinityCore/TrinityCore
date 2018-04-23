@@ -2007,7 +2007,7 @@ class aura_dru_astral_form : public AuraScript
         target->RemoveAura(SPELL_DRUID_SHADOWY_GHOST);
     }
 
-    void Register()
+    void Register() override
     {
         switch (m_scriptSpellId)
         {

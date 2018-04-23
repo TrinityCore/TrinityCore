@@ -75,6 +75,8 @@ public:
 
     PetBattleRequestResult CanPlayerEnterInPetBattle(Player* player, PetBattleRequest& request);
 
+    void DoCapture(Player* player, WildBattlePet* wildBattlePet);
+
     void SendRequestFailed(Player* player, PetBattleRequestResult reason);
     void SendFinalizeLocation(Player* player, PetBattleRequest request);
 
