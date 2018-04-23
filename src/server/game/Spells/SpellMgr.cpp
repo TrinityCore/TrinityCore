@@ -4797,7 +4797,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
     });
 
-    // Baron Rivendare - Stratholme - Unholy Aura
+    // Stratholme - Baron Rivendare - Unholy Aura + Trigger
     ApplySpellFix({ 17466, 17467 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;

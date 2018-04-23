@@ -1,5 +1,5 @@
 -- Stratholme - Baron Rivendare - Set position for each Raise Dead spell (1-6)
-DELETE FROM `spell_target_position` WHERE `ID` BETWEEN 17475 AND 17480;
+DELETE FROM `spell_target_position` WHERE `ID` IN (17475, 17476, 17477, 17478, 17479, 17480);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES 
 (17475, 0, 329, 4017.403809, -3339.703369, 115.057655, 5.487860, 0),
 (17476, 0, 329, 4013.189209, -3351.808350, 115.052254, 0.134280, 0),
@@ -12,13 +12,6 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 DELETE FROM `conditions` WHERE `SourceEntry` = 17471;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `Comment`) VALUES 
 (13, 1, 17471, 0, 0, 31, 1, 3, 11197, 0, 0, 0, 0, 'Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself');
-
--- Stratholme - Baron Rivendare - Unholy Aura does not trigger combat (Aura and Trigger of Aura)
-SET @SPELL_ATTR0_CU_NO_INITIAL_THREAT = 16;
-DELETE FROM `spell_custom_attr` WHERE `entry` IN (17466, 17467);
-INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
-(17466, @SPELL_ATTR0_CU_NO_INITIAL_THREAT),
-(17467, @SPELL_ATTR0_CU_NO_INITIAL_THREAT);
 
 -- Stratholme - Baron Rivendare - Add missing emotes
 DELETE FROM `creature_text` WHERE `CreatureID` IN (10440);
