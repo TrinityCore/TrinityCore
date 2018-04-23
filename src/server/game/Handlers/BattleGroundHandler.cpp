@@ -158,7 +158,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             return;
         }
 
-        if (_player->InBattlegroundQueue() && bgTypeId == BATTLEGROUND_RB)
+        if (_player->InBattlegroundQueue(true) && bgTypeId == BATTLEGROUND_RB)
         {
             // player is already in queue, can't start random queue
             WorldPacket data;
@@ -668,6 +668,15 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
     if (!asGroup)
     {
+        if (_player->isUsingLfg())
+        {
+            // player is using dungeon finder or raid finder
+            WorldPacket data;
+            sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_LFG_CANT_USE_BATTLEGROUND);
+            _player->SendDirectMessage(&data);
+            return;
+        }
+
         // check if already in queue
         if (_player->GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
             //player is already in this queue

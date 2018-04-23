@@ -1859,8 +1859,13 @@ void ObjectMgr::LoadCreatures()
         }
 
         // Skip spawnMask check for transport maps
-        if (!IsTransportMap(data.spawnPoint.GetMapId()) && data.spawnMask & ~spawnMasks[data.spawnPoint.GetMapId()])
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.spawnPoint.GetMapId());
+        if (!IsTransportMap(data.spawnPoint.GetMapId()))
+        {
+            if (data.spawnMask & ~spawnMasks[data.spawnPoint.GetMapId()])
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.spawnPoint.GetMapId());
+        }
+        else
+            data.spawnGroupData = &_spawnGroupDataStore[1]; // force compatibility group for transport spawns
 
         bool ok = true;
         for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
@@ -2173,8 +2178,13 @@ void ObjectMgr::LoadGameObjects()
 
         data.spawnMask      = fields[14].GetUInt8();
 
-        if (!IsTransportMap(data.spawnPoint.GetMapId()) && data.spawnMask & ~spawnMasks[data.spawnPoint.GetMapId()])
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including unsupported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.spawnPoint.GetMapId());
+        if (!IsTransportMap(data.spawnPoint.GetMapId()))
+        {
+            if (data.spawnMask & ~spawnMasks[data.spawnPoint.GetMapId()])
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including unsupported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.spawnPoint.GetMapId());
+        }
+        else
+            data.spawnGroupData = &_spawnGroupDataStore[1]; // force compatibility group for transport spawns
 
         data.phaseMask      = fields[15].GetUInt32();
         int16 gameEvent     = fields[16].GetInt8();
@@ -3322,8 +3332,8 @@ void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0               1      2   3     4    5    6    7     8    9
-    QueryResult result = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
+    //                                                 0               1      2   3     4    5    6    7     8    9      10       11
+    QueryResult result = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");
 
     if (!result)
     {
@@ -3372,6 +3382,8 @@ void ObjectMgr::LoadPetLevelInfo()
         pLevelInfo->health = fields[2].GetUInt16();
         pLevelInfo->mana   = fields[3].GetUInt16();
         pLevelInfo->armor  = fields[9].GetUInt32();
+        pLevelInfo->minDamage = fields[10].GetUInt16();
+        pLevelInfo->maxDamage = fields[11].GetUInt16();
 
         for (uint8 i = 0; i < MAX_STATS; i++)
             pLevelInfo->stats[i] = fields[i + 4].GetUInt16();

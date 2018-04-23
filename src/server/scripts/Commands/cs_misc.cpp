@@ -35,6 +35,8 @@
 #include "LFG.h"
 #include "Log.h"
 #include "MMapFactory.h"
+#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

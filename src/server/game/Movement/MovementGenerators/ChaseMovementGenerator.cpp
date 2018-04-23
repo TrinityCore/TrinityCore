@@ -18,6 +18,7 @@
 #include "ChaseMovementGenerator.h"
 #include "Creature.h"
 #include "G3DPosition.hpp"
+#include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
@@ -26,10 +27,10 @@
 
 static bool IsMutualChase(Unit* owner, Unit* target)
 {
-    MovementGenerator const* gen = target->GetMotionMaster()->topOrNull();
-    if (!gen || gen->GetMovementGeneratorType() != CHASE_MOTION_TYPE)
+    if (target->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
         return false;
-    return (static_cast<ChaseMovementGenerator const*>(gen)->GetTarget() == owner);
+
+    return (static_cast<ChaseMovementGenerator const*>(target->GetMotionMaster()->top())->GetTarget() == owner);
 }
 
 static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
@@ -49,6 +50,7 @@ void ChaseMovementGenerator::Initialize(Unit* owner)
 {
     owner->AddUnitState(UNIT_STATE_CHASE);
     owner->SetWalk(false);
+    _path = nullptr;
 }
 
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
