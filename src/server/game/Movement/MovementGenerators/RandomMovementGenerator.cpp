@@ -26,7 +26,9 @@
 #include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::~RandomMovementGenerator() = default;
+RandomMovementGenerator<T>::~RandomMovementGenerator()
+{
+}
 
 template RandomMovementGenerator<Creature>::~RandomMovementGenerator();
 
