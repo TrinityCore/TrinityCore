@@ -9785,7 +9785,7 @@ void Unit::StopMoving()
 
 void Unit::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/, bool forced/* = true*/)
 {
-    if (slot >= MAX_MOTION_SLOT)
+    if (IsInvalidMovementSlot(slot))
         return;
 
     if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MovementSlot(slot)))
@@ -9797,7 +9797,7 @@ void Unit::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/, bool forced/*
 
 void Unit::ResumeMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
 {
-    if (slot >= MAX_MOTION_SLOT)
+    if (IsInvalidMovementSlot(slot))
         return;
 
     if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MovementSlot(slot)))
