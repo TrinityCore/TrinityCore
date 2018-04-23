@@ -30,11 +30,8 @@
 
 enum DruidSpells
 {
-    //7.3.2.25549
     SPELL_DRUID_THRASH_PERIODIC_DAMAGE              = 192090,
-    //7.3.2.25549 END
 
-    //7.3.5.25996
     SPELL_DRUID_BLESSING_OF_THE_ANCIENTS            = 202360,
     SPELL_DRUID_BLESSING_OF_ELUNE                   = 202737,
     SPELL_DRUID_BLESSING_OF_ANSHE                   = 202739,
@@ -42,7 +39,11 @@ enum DruidSpells
     SPELL_DRUID_STARLORD_DUMMY                      = 202345,
     SPELL_DRUID_STARLORD_SOLAR                      = 202416,
     SPELL_DRUID_STARLORD_LUNAR                      = 202423,
-    //7.3.5.25996 END
+
+    SPELL_DRUID_GLYPH_OF_STARS                      = 114301,
+    SPELL_DRUID_CHOSEN_OF_ELUNE                     = 102560,
+    SPELL_DRUID_BLUE_COLOR                          = 108268,
+    SPELL_DRUID_SHADOWY_GHOST                       = 165114,
 };
 
 enum ShapeshiftFormSpells
@@ -1972,6 +1973,58 @@ public:
     }
 };
 
+// 24858  Moonkin Form
+// 102560 Chosen of Elune
+class aura_dru_astral_form : public AuraScript
+{
+    PrepareAuraScript(aura_dru_astral_form);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARS });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DRUID_GLYPH_OF_STARS))
+        {
+            target->SetDisplayId(target->GetNativeDisplayId());
+            target->AddAura(SPELL_DRUID_BLUE_COLOR, target);
+            target->AddAura(SPELL_DRUID_SHADOWY_GHOST, target);
+            target->CastSpell(target, sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_STARS)->GetEffect(EFFECT_0)->BasePoints, true);
+        }
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DRUID_MOONKIN_FORM) || target->HasAura(SPELL_DRUID_CHOSEN_OF_ELUNE))
+            return;
+
+        target->RemoveAura(sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_STARS)->GetEffect(EFFECT_0)->BasePoints);
+        target->RemoveAura(SPELL_DRUID_BLUE_COLOR);
+        target->RemoveAura(SPELL_DRUID_SHADOWY_GHOST);
+    }
+
+    void Register()
+    {
+        switch (m_scriptSpellId)
+        {
+            case SPELL_DRUID_MOONKIN_FORM:
+                AfterEffectApply += AuraEffectApplyFn(aura_dru_astral_form::AfterApply, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(aura_dru_astral_form::AfterRemove, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                break;
+            case SPELL_DRUID_CHOSEN_OF_ELUNE:
+                AfterEffectApply += AuraEffectApplyFn(aura_dru_astral_form::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(aura_dru_astral_form::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
 enum StarfallSpells
 {
     SPELL_DRUID_STARFALL_DAMAGE      = 191037,
@@ -2222,6 +2275,7 @@ void AddSC_druid_spell_scripts()
 
     RegisterAuraScript(aura_dru_solar_empowerment);
     RegisterAuraScript(aura_dru_lunar_empowerment);
+    RegisterAuraScript(aura_dru_astral_form);
     //7.3.5.25996 END
 
     // AreaTrigger Scripts
