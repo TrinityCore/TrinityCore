@@ -75,7 +75,6 @@ bool WMORoot::open()
             f.read(bbcorn1, 12);
             f.read(bbcorn2, 12);
             f.read(&liquidType, 4);
-            break;
         }
         else if (!strcmp(fourcc, "MODS"))
         {
