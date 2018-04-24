@@ -51,6 +51,8 @@ public:
     void End();
 
     uint64 GetBattleId() { return m_battleId; }
+    uint32 GetCurrentRound() { return m_currentRound; }
+
     Player* GetPlayer1() { return ObjectAccessor::FindPlayer(m_player1); }
     Player* GetPlayer2() { return ObjectAccessor::FindPlayer(m_player2); }
     WildBattlePet* GetOriginalWildPet();
@@ -59,7 +61,7 @@ private:
     PetBattleType m_battleType;
 
     uint64 m_battleId;
-    int32 m_currentRound;
+    uint32 m_currentRound;
 
     ObjectGuid m_player1;
     ObjectGuid m_player2;

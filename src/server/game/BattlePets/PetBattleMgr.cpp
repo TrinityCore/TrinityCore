@@ -125,9 +125,8 @@ void PetBattleMgr::EndPetBattle(uint64 petBattleId)
     if (petBattleItr == m_petBattles.end())
         return;
 
-    PetBattle* petBattle = petBattleItr->second;
-    petBattle->End();
-    delete petBattle;
+    petBattleItr->second->End();
+    delete petBattleItr->second;
     m_petBattles.erase(petBattleId);
 }
 

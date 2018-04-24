@@ -23,7 +23,7 @@
 #include "Player.h"
 
 PetBattle::PetBattle(uint64 battleID, Player* player1, Player* player2, ObjectGuid wildBattlePet) :
-    m_battleId(battleID), m_player1(player1->GetGUID()), m_player2(player2->GetGUID()), m_wildBattlePet(wildBattlePet)
+    m_battleId(battleID), m_currentRound(0), m_player1(player1->GetGUID()), m_player2(player2->GetGUID()), m_wildBattlePet(wildBattlePet)
 {
     // Player1 must have at least 1 opponent
     ASSERT(!m_player2.IsEmpty() || !m_wildBattlePet.IsEmpty());
