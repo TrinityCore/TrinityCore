@@ -729,18 +729,8 @@ struct QuestPOI
 typedef std::vector<QuestPOI> QuestPOIVector;
 typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
 
-struct QuestGreeting
-{
-    uint16 greetEmoteType;
-    uint32 greetEmoteDelay;
-    std::string greeting;
-
-    QuestGreeting() : greetEmoteType(0), greetEmoteDelay(0) { }
-    QuestGreeting(uint16 _greetEmoteType, uint32 _greetEmoteDelay, std::string _greeting)
-        : greetEmoteType(_greetEmoteType), greetEmoteDelay(_greetEmoteDelay), greeting(_greeting) { }
-};
-
-typedef std::unordered_map<uint8, std::unordered_map<uint32, QuestGreeting const*>> QuestGreetingContainer;
+typedef std::array<std::unordered_map<uint32, QuestGreeting>, 2> QuestGreetingContainer;
+typedef std::array<std::unordered_map<uint32, QuestGreetingLocale>, 2> QuestGreetingLocaleContainer;
 
 struct GraveYardData
 {
@@ -1067,7 +1057,8 @@ class TC_GAME_API ObjectMgr
         }
 
         NpcText const* GetNpcText(uint32 textID) const;
-        QuestGreeting const* GetQuestGreeting(ObjectGuid guid) const;
+        QuestGreeting const* GetQuestGreeting(TypeID type, uint32 id) const;
+        QuestGreetingLocale const* GetQuestGreetingLocale(TypeID type, uint32 id) const;
 
         WorldSafeLocsEntry const* GetDefaultGraveYard(uint32 team) const;
         WorldSafeLocsEntry const* GetClosestGraveYard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const;
@@ -1212,6 +1203,7 @@ class TC_GAME_API ObjectMgr
         void LoadItemScriptNames();
         void LoadQuestTemplateLocale();
         void LoadQuestObjectivesLocale();
+        void LoadQuestGreetingLocales();
         void LoadQuestOfferRewardLocale();
         void LoadQuestRequestItemsLocale();
         void LoadPageTextLocales();
@@ -1627,6 +1619,7 @@ class TC_GAME_API ObjectMgr
         GameObjectForQuestContainer _gameObjectForQuestStore;
         NpcTextContainer _npcTextStore;
         QuestGreetingContainer _questGreetingStore;
+        QuestGreetingLocaleContainer _questGreetingLocaleStore;
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
