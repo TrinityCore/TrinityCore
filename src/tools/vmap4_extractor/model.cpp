@@ -221,8 +221,6 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
     if (wmo.DoodadSet >= doodadData.Sets.size())
         return;
 
-    printf(" if (wmo.DoodadSet >= doodadData.Sets.size()) passed! /n");
-
     G3D::Vector3 wmoPosition(wmo.Position.z, wmo.Position.x, wmo.Position.y);
     G3D::Matrix3 wmoRotation = G3D::Matrix3::fromEulerAnglesZYX(G3D::toRadians(wmo.Rotation.y), G3D::toRadians(wmo.Rotation.x), G3D::toRadians(wmo.Rotation.z));
 
@@ -253,11 +251,9 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
 
         char tempname[512];
         sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
-        printf("opened doodad set! name: %s /n", tempname);
         FILE* input = fopen(tempname, "r+b");
         if (!input)
             continue;
-        printf("found doodad set /n");
 
         fseek(input, 8, SEEK_SET); // get the correct no of vertices
         int nVertices;
