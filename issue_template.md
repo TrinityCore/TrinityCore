@@ -25,6 +25,10 @@ CHANGEME Tell us what should happen instead.
 
 CHANGEME Mandatory if Project == compiled master repo from Git, found it in first line of Server.log
 
+**Database version**
+
+CHANGEME What DB do you use, TDB, ADB, other.
+
 **Operating system:** CHANGEME OS
 
 
