@@ -85,7 +85,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 LoadObjectData(creatureData, gameobjectData);
                 _unresponsiveDragonEntryFirst = 0;
                 _unresponsiveDragonEntrySecond = 0;
-                _dragonToBindEntry = 0;
                 _deadOrphanedEmeraldWhelps = 0;
                 GenerateHalfusDragonData();
             }
@@ -272,9 +271,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             }
                         }
                         break;
-                    case DATA_DRAGON_TO_BIND:
-                        _dragonToBindEntry = data;
-                        break;
                     case DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE:
                         for (ObjectGuid guid : _halfusEncounterGUIDs)
                             if (Creature* orphanedEmeraldWhelp = instance->GetCreature(guid))
@@ -294,8 +290,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         return _unresponsiveDragonEntryFirst;
                     case DATA_UNRESPONSIVE_DRAGON_SECOND:
                         return _unresponsiveDragonEntrySecond;
-                    case DATA_DRAGON_TO_BIND:
-                        return _dragonToBindEntry;
                 }
                 return 0;
             }
@@ -347,7 +341,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
             std::set<uint32> _activeDragonEntries;
             uint32 _unresponsiveDragonEntryFirst;
             uint32 _unresponsiveDragonEntrySecond;
-            uint32 _dragonToBindEntry;
             uint8 _deadOrphanedEmeraldWhelps;
         };
 

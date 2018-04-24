@@ -431,7 +431,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                         {
                             Position pos = me->GetPosition();
                             me->SetDisableGravity(true);
-                            me->SendSetPlayHoverAnim(true); // TODO: fix unsetting hover on respawn.
+                            me->SendSetPlayHoverAnim(true);
                             me->GetMotionMaster()->MoveTakeoff(0, pos);
                             _events.ScheduleEvent(EVENT_CAST_DEBUFF, Seconds(1) + Milliseconds(750));
                             break;
@@ -484,10 +484,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                         }
                         case EVENT_BIND_TO_HALFUS_WILL:
                             if (Creature* halfus = _instance->GetCreature(DATA_HALFUS_WYRMBREAKER))
-                            {
-                                _instance->SetData(DATA_DRAGON_TO_BIND, me->GetEntry());
                                 DoCastSelf(SPELL_BIND_WILL, true);
-                            }
                             break;
                         default:
                             break;

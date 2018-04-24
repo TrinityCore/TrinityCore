@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -51,7 +51,6 @@ enum BoTDataTypes
     DATA_UNRESPONSIVE_DRAGON_FIRST,
     DATA_UNRESPONSIVE_DRAGON_SECOND,
     DATA_CAST_DRAGON_BUFFS,
-    DATA_DRAGON_TO_BIND,
     DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE
 };
 
