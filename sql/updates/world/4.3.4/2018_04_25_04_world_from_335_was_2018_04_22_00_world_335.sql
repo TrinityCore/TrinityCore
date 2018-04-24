@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `npc_text` WHERE `ID` IN (15520,15521,15522,15525,15587,15841,16396,16660,16859,17482,17519);
 INSERT INTO `npc_text` (`ID`, `text0_0`, `BroadcastTextID0`, `Probability0`, em0_0) VALUES 
@@ -12,3 +13,4 @@ INSERT INTO `npc_text` (`ID`, `text0_0`, `BroadcastTextID0`, `Probability0`, em0
 (16859, "No thanks!  Maybe sometime in the future.  Or the past.  Not today.",45667, 1, 1),
 (17482, "Thank you for saving me! But don't tell Ferli, ok? I said I busted out on my own!",48726, 1, 0),
 (17519, "I wasn't expecting anyone down here. Come to keep me company, or just looking for a way out?",48894, 1, 0);
+*/

@@ -1,3 +1,4 @@
+/*
 -- Quest "Ancient Spirit"
 UPDATE `quest_template_addon` SET `SpecialFlags`=2 WHERE `ID`=4261; -- Prevents quest from auto completing
 -- Arei
@@ -94,3 +95,4 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 (9598,0,1,7139,6573.321,-1195.213,442.489,5.544130,3,300000),
 (9598,0,1,7138,6573.240,-1213.475,443.643,2.371120,3,300000),
 (9598,0,1,7138,6583.354,-1209.811,444.769,2.452802,3,300000);
+*/
