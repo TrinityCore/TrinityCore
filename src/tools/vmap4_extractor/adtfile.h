@@ -67,8 +67,8 @@ private:
 public:
     ADTFile(char* filename, bool cache);
     ~ADTFile();
-    std::string* WmoInstanceNames;
-    std::string* ModelInstanceNames;
+    std::vector<std::string> WmoInstanceNames;
+    std::vector<std::string> ModelInstanceNames;
     bool init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId);
     bool initFromCache(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId);
 };

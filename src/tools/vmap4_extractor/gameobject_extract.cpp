@@ -99,12 +99,12 @@ void ExtractGameobjectModels()
 
         bool result = false;
         uint8 isWmo = 0;
-        if (!strcmp(ch_ext, ".WMO") && !strcmp(ch_ext, ".wmo"))
+        if (!strcmp(ch_ext, ".wmo"))
         {
             isWmo = 1;
             result = ExtractSingleWmo(path);
         }
-        else if (!strcmp(ch_ext, ".MDL") && !strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
+        else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
             continue;
         else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
             result = ExtractSingleModel(path);

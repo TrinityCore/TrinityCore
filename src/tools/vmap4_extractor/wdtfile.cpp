@@ -19,7 +19,6 @@
 #include "vmapexport.h"
 #include "wdtfile.h"
 #include "adtfile.h"
-#include "StringFormat.h"
 #include <cstdio>
 
 char * wdtGetPlainName(char * FileName)
@@ -109,18 +108,8 @@ bool WDTFile::init(uint32 mapId)
                 {
                     ADT::MODF mapObjDef;
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
-                    if (!(mapObjDef.Flags & 0x8))
-                    {
-                        MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), mapId, 65, 65, mapId, dirfile, nullptr);
-                        Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, mapId, 65, 65, mapId, dirfile, nullptr);
-                    }
-                    else
-                    {
-                        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", mapObjDef.Id);
-                        ExtractSingleWmo(fileName);
-                        MapObject::Extract(mapObjDef, fileName.c_str(), mapId, 65, 65, mapId, dirfile, nullptr);
-                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, mapId, 65, 65, mapId, dirfile, nullptr);
-                    }
+                    MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), mapId, 65, 65, mapId, dirfile, nullptr);
+                    Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, mapId, 65, 65, mapId, dirfile, nullptr);
                 }
             }
         }
