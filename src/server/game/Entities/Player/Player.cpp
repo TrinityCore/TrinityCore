@@ -11904,6 +11904,9 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
             if (pItem->IsBindedNotWith(this))
                 return EQUIP_ERR_NOT_OWNER;
 
+            if (getLevel() < pItem->GetRequiredLevel())
+                return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
+
             InventoryResult res = CanUseItem(pProto);
             if (res != EQUIP_ERR_OK)
                 return res;
@@ -12090,6 +12093,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         item->SetItemRandomProperties(randomPropertyId);
 
         item = StoreItem(pos, item, update);
+
+        item->SetFixedLevel(getLevel());
+        item->SetItemRandomProperties(randomPropertyId);
 
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
