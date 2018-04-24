@@ -382,12 +382,10 @@ class npc_eye_of_acherus : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
 
-                me->GetMotionMaster()->MovePoint(POINT_EYE_FALL, EyeOFAcherusFallPoint, false);
-
                 Movement::MoveSplineInit init(me);
                 init.MoveTo(EyeOFAcherusFallPoint.GetPositionX(), EyeOFAcherusFallPoint.GetPositionY(), EyeOFAcherusFallPoint.GetPositionZ(), false);
                 init.SetFall();
-                init.Launch();
+                me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_FALL, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
             }
 
             void OnCharmed(bool /*apply*/) override { }
