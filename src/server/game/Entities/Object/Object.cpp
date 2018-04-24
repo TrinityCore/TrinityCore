@@ -1673,7 +1673,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             }
 
             // Creatures that are simulating flight effects or actual flight should use HoverHeight
-            if (ToUnit() && (ToUnit()->IsFlying() || ToUnit()->IsHovering() || ToUnit()->IsLevitating()))
+            if ((ToUnit() && (ToUnit()->IsFlying() || ToUnit()->IsHovering() || ToUnit()->IsLevitating())) && !ToUnit()->IsUnderWater())
             {
                 uint32 hoverHeight = GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
                 z += hoverHeight;
