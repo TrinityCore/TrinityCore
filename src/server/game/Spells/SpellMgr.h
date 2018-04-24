@@ -597,6 +597,8 @@ struct SpellInfoLoadHelper
     SpellTotemsEntry const* Totems = nullptr;
 };
 
+typedef std::map<std::pair<uint32 /*SpellId*/, uint8 /*RaceId*/>, uint32 /*DisplayId*/> SpellTotemModelMap;
+
 class TC_GAME_API SpellMgr
 {
     // Constructors
@@ -689,6 +691,8 @@ class TC_GAME_API SpellMgr
 
         void LoadPetFamilySpellsStore();
 
+        uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
+
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
@@ -722,6 +726,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
         void LoadSpellInfoImmunities();
+        void LoadSpellTotemModel();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -750,6 +755,7 @@ class TC_GAME_API SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
+        SpellTotemModelMap         mSpellTotemModel;
 };
 
 #define sSpellMgr SpellMgr::instance()
