@@ -27591,14 +27591,14 @@ float Player::GetAverageItemLevel() const
     float sum = 0;
     uint32 count = 0;
 
-    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
-        // don't check tabard, ranged, offhand or shirt
-        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
+        // don't check tabard or shirt
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_BODY)
             continue;
 
         if (m_items[i])
-            sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
+            sum += m_items[i]->GetTemplate()->ItemLevel;
 
         ++count;
     }
