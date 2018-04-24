@@ -19,12 +19,11 @@
 #ifndef BattlePetMgr_h__
 #define BattlePetMgr_h__
 
+#include "BattlePet.h"
 #include "BattlePetDataStore.h"
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
 #include <unordered_map>
-
-class BattlePet;
 
 class BattlePetMgr
 {
@@ -35,9 +34,11 @@ public:
     void SaveToDB(SQLTransaction& trans);
 
     BattlePet* GetPet(ObjectGuid guid);
+    void AddPet(BattlePet* battlePet);
     void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
 
+    uint8 GetPetCount(bool aliveOnly = false) const;
     uint8 GetPetCount(uint32 species) const;
 
     WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return &_slots[slot]; }
@@ -46,6 +47,8 @@ public:
     WorldSession* GetOwner() const { return _owner; }
 
     uint16 GetTrapLevel() const { return _trapLevel; }
+    int32 GetTrapAbilityId() const { return 0; }
+
     uint16 GetMaxPetLevel() const;
     std::vector<WorldPackets::BattlePet::BattlePetSlot> const& GetSlots() const { return _slots; }
 

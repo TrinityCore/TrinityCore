@@ -149,9 +149,6 @@ class boss_lord_rhyolith : public CreatureScript
                 me->setActive(true);
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetSpeed(MOVE_WALK, 0.3f);
-                pController = nullptr;
-                pRightFoot = nullptr;
-                pLeftFoot = nullptr;
                 curMove = 0;
                 bAchieve = true;
                 players_count = 0;
@@ -192,6 +189,10 @@ class boss_lord_rhyolith : public CreatureScript
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BALANCE_BAR);
                 instance->SetData(DATA_RHYOLITH_HEALTH_SHARED, me->GetMaxHealth() / 2);
+
+                controllerGUID  = ObjectGuid::Empty;
+                leftFootGUID    = ObjectGuid::Empty;
+                rightFootGUID   = ObjectGuid::Empty;
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -220,16 +221,20 @@ class boss_lord_rhyolith : public CreatureScript
                 phase = 0;
                 players_count = instance->instance->GetPlayers().getSize();
 
-                pController = me->SummonCreature(NPC_MOVEMENT_CONTROLLER, movePos[curMove]);
-                pRightFoot = me->FindNearestCreature(NPC_RIGHT_FOOT, 100.0f);
-                pLeftFoot = me->FindNearestCreature(NPC_LEFT_FOOT, 100.0f);
+                Creature* controller = me->SummonCreature(NPC_MOVEMENT_CONTROLLER, movePos[curMove]);
 
-                if (pController)
+                if (Creature* rightFoot = me->FindNearestCreature(NPC_RIGHT_FOOT, 100.0f))
+                    rightFootGUID = rightFoot->GetGUID();
+
+                if (Creature* leftFoot = me->FindNearestCreature(NPC_LEFT_FOOT, 100.0f))
+                    leftFootGUID = leftFoot->GetGUID();
+
+                if (controller)
                 {
                     me->SetSpeed(MOVE_RUN, 0.3f);
                     me->SetSpeed(MOVE_WALK, 0.3f);
                     me->SetWalk(true);
-                    me->GetMotionMaster()->MoveFollow(pController, 0.0f, 0.0f);
+                    me->GetMotionMaster()->MoveFollow(controller, 0.0f, 0.0f);
                 }
                 instance->SetData(DATA_RHYOLITH_HEALTH_SHARED, me->GetMaxHealth() / 2);
 
@@ -253,33 +258,36 @@ class boss_lord_rhyolith : public CreatureScript
 
             void DoAction(const int32 action) override
             {
+                Creature* leftFoot = ObjectAccessor::GetCreature(*me, leftFootGUID);
+                Creature* rightFoot = ObjectAccessor::GetCreature(*me, rightFootGUID);
+
                 switch(action)
                 {
                     case ACTION_ADD_MOLTEN_ARMOR:
                         me->CastSpell(me, SPELL_MOLTEN_ARMOR, true);
-                        if (pLeftFoot)
-                            pLeftFoot->CastSpell(pLeftFoot, SPELL_MOLTEN_ARMOR, true);
-                        if (pRightFoot)
-                            pRightFoot->CastSpell(pRightFoot, SPELL_MOLTEN_ARMOR, true);
+                        if (leftFoot)
+                            leftFoot->CastSpell(leftFoot, SPELL_MOLTEN_ARMOR, true);
+                        if (rightFoot)
+                            rightFoot->CastSpell(rightFoot, SPELL_MOLTEN_ARMOR, true);
                         break;
                     case ACTION_REMOVE_MOLTEN_ARMOR:
                         me->RemoveAuraFromStack(SPELL_MOLTEN_ARMOR);
-                        if (pLeftFoot)
-                            pLeftFoot->RemoveAuraFromStack(SPELL_MOLTEN_ARMOR);
-                        if (pRightFoot)
-                            pRightFoot->RemoveAuraFromStack(SPELL_MOLTEN_ARMOR);
+                        if (leftFoot)
+                            leftFoot->RemoveAuraFromStack(SPELL_MOLTEN_ARMOR);
+                        if (rightFoot)
+                            rightFoot->RemoveAuraFromStack(SPELL_MOLTEN_ARMOR);
                         break;
                     case ACTION_ADD_OBSIDIAN_ARMOR:
-                        if (pLeftFoot)
-                            pLeftFoot->CastSpell(pLeftFoot, SPELL_OBSIDIAN_ARMOR, true);
-                        if (pRightFoot)
-                            pRightFoot->CastSpell(pRightFoot, SPELL_OBSIDIAN_ARMOR, true);
+                        if (leftFoot)
+                            leftFoot->CastSpell(leftFoot, SPELL_OBSIDIAN_ARMOR, true);
+                        if (rightFoot)
+                            rightFoot->CastSpell(rightFoot, SPELL_OBSIDIAN_ARMOR, true);
                         break;
                     case ACTION_REMOVE_OBSIDIAN_ARMOR:
-                        if (pLeftFoot)
-                            pLeftFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR);
-                        if (pRightFoot)
-                            pRightFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR);
+                        if (leftFoot)
+                            leftFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR);
+                        if (rightFoot)
+                            rightFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR);
                         break;
                 }
             }
@@ -324,20 +332,20 @@ class boss_lord_rhyolith : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ERUPTION_DMG);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BALANCE_BAR);
 
-                    if (pController)
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, controllerGUID))
                     {
-                        pController->DespawnOrUnsummon();
-                        pController = nullptr;
+                        controller->DespawnOrUnsummon();
+                        controller = nullptr;
                     }
-                    if (pLeftFoot)
+                    if (Creature* leftFoot = ObjectAccessor::GetCreature(*me, leftFootGUID))
                     {
-                        pLeftFoot->DespawnOrUnsummon();
-                        pLeftFoot = nullptr;
+                        leftFoot->DespawnOrUnsummon();
+                        leftFoot = nullptr;
                     }
-                    if (pRightFoot)
+                    if (Creature* rightFoot = ObjectAccessor::GetCreature(*me, rightFootGUID))
                     {
-                        pRightFoot->DespawnOrUnsummon();
-                        pRightFoot = nullptr;
+                        rightFoot->DespawnOrUnsummon();
+                        rightFoot = nullptr;
                     }
                     return;
                 }
@@ -353,9 +361,13 @@ class boss_lord_rhyolith : public CreatureScript
                     {
                         case EVENT_CHECK_MOVE:
                         {
-                            if (pController)
+                            Creature* controller = ObjectAccessor::GetCreature(*me, controllerGUID);
+                            Creature* leftFoot = ObjectAccessor::GetCreature(*me, leftFootGUID);
+                            Creature* rightFoot = ObjectAccessor::GetCreature(*me, rightFootGUID);
+
+                            if (controller)
                             {
-                                if (me->GetDistance2d(pController) <= 2.0f)
+                                if (me->GetDistance2d(controller) <= 2.0f)
                                 {
                                     me->StopMoving();
                                     me->CastSpell(me, SPELL_DRINK_MAGMA);
@@ -364,18 +376,18 @@ class boss_lord_rhyolith : public CreatureScript
                                     return;
                                 }
                             }
-                            if (pController && pLeftFoot && pRightFoot)
+                            if (controller && leftFoot && rightFoot)
                             {
-                                int32 l_dmg = pLeftFoot->AI()->GetData(DATA_HITS);
-                                int32 r_dmg = pRightFoot->AI()->GetData(DATA_HITS);
+                                int32 l_dmg = leftFoot->AI()->GetData(DATA_HITS);
+                                int32 r_dmg = rightFoot->AI()->GetData(DATA_HITS);
 
                                 if (!l_dmg && !r_dmg)
                                 {
                                     //me->RemoveAura(SPELL_BURNING_FEET);
-                                    if (pLeftFoot)
-                                        pLeftFoot->RemoveAura(SPELL_BURNING_FEET);
-                                    if (pRightFoot)
-                                        pRightFoot->RemoveAura(SPELL_BURNING_FEET);
+                                    if (leftFoot)
+                                        leftFoot->RemoveAura(SPELL_BURNING_FEET);
+                                    if (rightFoot)
+                                        rightFoot->RemoveAura(SPELL_BURNING_FEET);
                                     instance->DoSetAlternatePowerOnPlayers(25);
                                     events.ScheduleEvent(EVENT_CHECK_MOVE, 1000);
                                     return;
@@ -388,20 +400,20 @@ class boss_lord_rhyolith : public CreatureScript
                                 if (i != curMove)
                                 {
                                     //me->RemoveAura(SPELL_BURNING_FEET);
-                                    if (pLeftFoot)
-                                        pLeftFoot->RemoveAura(SPELL_BURNING_FEET);
-                                    if (pRightFoot)
-                                        pRightFoot->RemoveAura(SPELL_BURNING_FEET);
+                                    if (leftFoot)
+                                        leftFoot->RemoveAura(SPELL_BURNING_FEET);
+                                    if (rightFoot)
+                                        rightFoot->RemoveAura(SPELL_BURNING_FEET);
                                     curMove = i;
-                                    pController->NearTeleportTo(movePos[curMove].GetPositionX(), movePos[curMove].GetPositionY(), movePos[curMove].GetPositionZ(), 0.0f);
+                                    controller->NearTeleportTo(movePos[curMove].GetPositionX(), movePos[curMove].GetPositionY(), movePos[curMove].GetPositionZ(), 0.0f);
                                 }
                                 else
                                 {
                                     //DoCast(me, SPELL_BURNING_FEET, true);
-                                    if (pLeftFoot)
-                                        pLeftFoot->CastSpell(pLeftFoot, SPELL_BURNING_FEET, true);
-                                    if (pRightFoot)
-                                        pRightFoot->CastSpell(pRightFoot, SPELL_BURNING_FEET, true);
+                                    if (leftFoot)
+                                        leftFoot->CastSpell(leftFoot, SPELL_BURNING_FEET, true);
+                                    if (rightFoot)
+                                        rightFoot->CastSpell(rightFoot, SPELL_BURNING_FEET, true);
                                 }
                             }
                             events.ScheduleEvent(EVENT_CHECK_MOVE, 1000);
@@ -481,9 +493,9 @@ class boss_lord_rhyolith : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         private:
-            Creature* pController;
-            Creature* pRightFoot;
-            Creature* pLeftFoot;
+            ObjectGuid controllerGUID;
+            ObjectGuid rightFootGUID;
+            ObjectGuid leftFootGUID;
             int32 curMove;
             bool bAchieve;
             uint8 players_count;
@@ -683,8 +695,8 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
             {
                 if (Creature* pRhyolith = me->FindNearestCreature(NPC_RHYOLITH, 300.0f))
                     DoZoneInCombat(pRhyolith);
-                if (Creature* pLeftFoot = me->FindNearestCreature(NPC_LEFT_FOOT, 300.0f))
-                    DoZoneInCombat(pLeftFoot);
+                if (Creature* leftFoot = me->FindNearestCreature(NPC_LEFT_FOOT, 300.0f))
+                    DoZoneInCombat(leftFoot);
             }
 
             uint32 GetData(uint32 type) const override
@@ -782,8 +794,8 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
             {
                 if (Creature* pRhyolith = me->FindNearestCreature(NPC_RHYOLITH, 300.0f))
                     DoZoneInCombat(pRhyolith);
-                if (Creature* pRightFoot = me->FindNearestCreature(NPC_RIGHT_FOOT, 300.0f))
-                    DoZoneInCombat(pRightFoot);
+                if (Creature* rightFoot = me->FindNearestCreature(NPC_RIGHT_FOOT, 300.0f))
+                    DoZoneInCombat(rightFoot);
             }
 
             uint32 GetData(uint32 type) const override

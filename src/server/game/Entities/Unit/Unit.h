@@ -518,7 +518,7 @@ enum UnitTypeMask
     UNIT_MASK_PUPPET                = 0x00000040,
     UNIT_MASK_HUNTER_PET            = 0x00000080,
     UNIT_MASK_CONTROLABLE_GUARDIAN  = 0x00000100,
-    UNIT_MASK_ACCESSORY             = 0x00000200
+    UNIT_MASK_ACCESSORY             = 0x00000200,
 };
 
 struct DiminishingReturn
@@ -1224,6 +1224,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsServiceProvider() const;
         bool IsSpiritService() const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITHEALER | UNIT_NPC_FLAG_SPIRITGUIDE); }
         bool IsCritter() const { return GetCreatureType() == CREATURE_TYPE_CRITTER; }
+        bool IsWildBattlePet() const { return GetCreatureType() == CREATURE_TYPE_WILD_PET; }
 
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
 
@@ -1906,14 +1907,14 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool IsLoading() const { return false; }
         bool IsDuringRemoveFromWorld() const {return m_duringRemoveFromWorld;}
 
-        Pet* ToPet() { if (IsPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
-        Pet const* ToPet() const { if (IsPet()) return reinterpret_cast<Pet const*>(this); else return NULL; }
+        Pet* ToPet() { if (IsPet()) return reinterpret_cast<Pet*>(this); else return nullptr; }
+        Pet const* ToPet() const { if (IsPet()) return reinterpret_cast<Pet const*>(this); else return nullptr; }
 
-        Totem* ToTotem() { if (IsTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
-        Totem const* ToTotem() const { if (IsTotem()) return reinterpret_cast<Totem const*>(this); else return NULL; }
+        Totem* ToTotem() { if (IsTotem()) return reinterpret_cast<Totem*>(this); else return nullptr; }
+        Totem const* ToTotem() const { if (IsTotem()) return reinterpret_cast<Totem const*>(this); else return nullptr; }
 
-        TempSummon* ToTempSummon() { if (IsSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
-        TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return NULL; }
+        TempSummon* ToTempSummon() { if (IsSummon()) return reinterpret_cast<TempSummon*>(this); else return nullptr; }
+        TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
 
         ObjectGuid GetTarget() const { return GetGuidValue(UNIT_FIELD_TARGET); }
         virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
@@ -1954,6 +1955,11 @@ class TC_GAME_API Unit : public WorldObject
         void GetAreaTriggerListWithSpellIDInRange(std::list<AreaTrigger*>& list, uint32 spellid, float fMaxSearchRange) const;
 
         void DestroyForPlayer(Player* target) const override;
+
+        // Pet Battle
+        void SetCurrentPetBattle(uint32 petBattleId) { m_currentPetBattleId = petBattleId; }
+        uint32 GetCurrentPetBattle() const { return m_currentPetBattleId; }
+        bool IsInPetBattle() const { return GetCurrentPetBattle() != 0; }
 
     protected:
         explicit Unit (bool isWorldObject);
@@ -2087,6 +2093,8 @@ class TC_GAME_API Unit : public WorldObject
         uint32 _lastUpdatePower[MAX_POWERS_PER_CLASS];
 
         std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> _movementForces;
+
+        uint32 m_currentPetBattleId;
 };
 
 namespace Trinity

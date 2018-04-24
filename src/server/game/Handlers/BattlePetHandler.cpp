@@ -29,14 +29,14 @@ void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::Battle
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
     if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
-        GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot)->Pet = pet->PacketInfo;
+        GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot)->Pet = *pet;
 }
 
 void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName)
 {
     if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetModifyName.PetGuid))
     {
-        pet->PacketInfo.Name = battlePetModifyName.Name;
+        pet->Name = battlePetModifyName.Name;
 
         if (pet->SaveInfo != BATTLE_PET_NEW)
             pet->SaveInfo = BATTLE_PET_CHANGED;
@@ -53,9 +53,9 @@ void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSet
     if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
         if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)
-            pet->PacketInfo.Flags |= battlePetSetFlags.Flags;
+            pet->Flags |= battlePetSetFlags.Flags;
         else // FLAGS_CONTROL_TYPE_REMOVE
-            pet->PacketInfo.Flags &= ~battlePetSetFlags.Flags;
+            pet->Flags &= ~battlePetSetFlags.Flags;
 
         if (pet->SaveInfo != BATTLE_PET_NEW)
             pet->SaveInfo = BATTLE_PET_CHANGED;

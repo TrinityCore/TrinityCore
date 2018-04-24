@@ -36,9 +36,7 @@ public:
         if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneShootingGallery))
             return;
 
-        player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
-        player->AddAura(TanaanPhases::PhaseFinalCanonDeco, player);
-        player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
+        ResetAurasOnCancel(player);
     }
 
     void OnQuestAbandon(Player* player, const Quest* quest) override
@@ -46,9 +44,7 @@ public:
         if (player && quest && quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
         {
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneShootingGallery);
-            player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
-            player->AddAura(TanaanPhases::PhaseFinalCanonDeco, player);
-            player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
+            ResetAurasOnCancel(player);
         }
     }
 
@@ -61,9 +57,16 @@ public:
             player->KilledMonsterCredit(TanaanKillCredits::CreditIronHordeSlain);
         else if (triggerEvent == "CancelGame")
         {
-            player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
             player->GetSceneMgr().CancelScene(sceneInstanceId);
+            ResetAurasOnCancel(player);
         }
+    }
+
+    void ResetAurasOnCancel(Player* player)
+    {
+        player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
+        player->AddAura(TanaanPhases::PhaseFinalCanonDeco, player);
+        player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
     }
 };
 

@@ -345,6 +345,7 @@ namespace WorldPackets
         class RequestGuildRewardsList;
         class GuildQueryNews;
         class GuildNewsUpdateSticky;
+        class GuildReplaceGuildMaster;
         class GuildSetGuildMaster;
         class GuildChallengeUpdateRequest;
         class SaveGuildEmblem;
@@ -564,6 +565,11 @@ namespace WorldPackets
         class PetAction;
         class PetCancelAura;
         class PetSetAction;
+    }
+
+    namespace PetBattle
+    {
+        class RequestWild;
     }
 
     namespace Petition
@@ -1320,6 +1326,7 @@ class TC_GAME_API WorldSession
         void HandleGuildAssignRank(WorldPackets::Guild::GuildAssignMemberRank& packet);
         void HandleGuildLeave(WorldPackets::Guild::GuildLeave& leave);
         void HandleGuildDelete(WorldPackets::Guild::GuildDelete& packet);
+        void HandleGuildReplaceGuildMaster(WorldPackets::Guild::GuildReplaceGuildMaster& replaceGuildMaster);
         void HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet);
         void HandleGuildGetAchievementMembers(WorldPackets::Achievement::GuildGetAchievementMembers& getAchievementMembers);
         void HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet);
@@ -1735,6 +1742,9 @@ class TC_GAME_API WorldSession
         void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
+        // Pet Battles
+        void HandlePetBattleRequestWild(WorldPackets::PetBattle::RequestWild& requestWild);
 
         // Warden
         void HandleWardenData(WorldPackets::Warden::WardenData& packet);

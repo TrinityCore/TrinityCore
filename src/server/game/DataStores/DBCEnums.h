@@ -165,6 +165,22 @@ enum ArtifactPowerFlag : uint8
 
 #define BATTLE_PET_SPECIES_MAX_ID 2164
 
+enum BattlePetSpeciesFlags
+{
+    BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE  = 0x400
+};
+
+enum BattlePetSpeciesSourceType
+{
+    BATTLE_PET_SPECIES_SOURCE_LOOT          = 0,
+    BATTLE_PET_SPECIES_SOURCE_QUEST         = 1,
+    BATTLE_PET_SPECIES_SOURCE_VENDOR        = 2,
+    BATTLE_PET_SPECIES_SOURCE_PROFESSION    = 3,
+    BATTLE_PET_SPECIES_SOURCE_WILD_PET      = 4,
+    BATTLE_PET_SPECIES_SOURCE_ACHIEVEMENT   = 5,
+    BATTLE_PET_SPECIES_SOURCE_WORLD_EVENT   = 6,
+};
+
 enum ChrSpecializationFlag
 {
     CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,

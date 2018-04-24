@@ -468,7 +468,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GUILD_QUERY_MEMBER_RECIPES,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_GUILD_QUERY_NEWS,                                   STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildQueryNews);
     DEFINE_HANDLER(CMSG_GUILD_QUERY_RECIPES,                                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_GUILD_REPLACE_GUILD_MASTER,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_GUILD_REPLACE_GUILD_MASTER,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildReplaceGuildMaster);
     DEFINE_HANDLER(CMSG_GUILD_SET_ACHIEVEMENT_TRACKING,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetAchievementTracking);
     DEFINE_HANDLER(CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetFocusedAchievement);
     DEFINE_HANDLER(CMSG_GUILD_SET_GUILD_MASTER,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetGuildMaster);
@@ -632,7 +632,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_PET_BATTLE_REPLACE_FRONT_PET,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_BATTLE_REQUEST_PVP,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_BATTLE_REQUEST_UPDATE,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_PET_BATTLE_REQUEST_WILD,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_PET_BATTLE_REQUEST_WILD,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetBattleRequestWild);
     DEFINE_HANDLER(CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_BATTLE_WILD_LOCATION_FAIL,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_CANCEL_AURA,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetCancelAuraOpcode);

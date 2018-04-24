@@ -18,6 +18,7 @@
 
 #include "Creature.h"
 #include "BattlegroundMgr.h"
+#include "BattlePet.h"
 #include "CellImpl.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -49,6 +50,7 @@
 #include "Transport.h"
 #include "Util.h"
 #include "Vehicle.h"
+#include "WildBattlePet.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
@@ -193,7 +195,8 @@ _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f)
+m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr),
+m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), m_wildBattlePet(nullptr)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -216,6 +219,8 @@ Creature::~Creature()
 {
     delete i_AI;
     i_AI = nullptr;
+
+    delete m_wildBattlePet;
 
     //if (m_uint32Values)
     //    TC_LOG_ERROR("entities.unit", "Deconstruct Creature Entry = %u", GetEntry());
@@ -961,6 +966,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
     }
 
+    if (IsWildBattlePet())
+    {
+        m_wildBattlePet = new WildBattlePet(this);
+        m_wildBattlePet->Initialize();
+    }
+
     return true;
 }
 
@@ -1000,7 +1011,7 @@ Creature* Creature::CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, 
 
 void Creature::InitializeReactState()
 {
-    if (IsTotem() || IsTrigger() || IsCritter() || IsSpiritService())
+    if (IsTotem() || IsTrigger() || IsCritter() || IsSpiritService() || IsWildBattlePet())
         SetReactState(REACT_PASSIVE);
     /*
     else if (IsCivilian())

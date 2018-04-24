@@ -340,6 +340,15 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             switch (state)
             {
+                case NOT_STARTED:
+                {
+                    if (bossInfo->state == IN_PROGRESS)
+                    {
+                        ResetCombatResurrections();
+                        SendEncounterEnd();
+                    }
+                    break;
+                }
                 case IN_PROGRESS:
                 {
                     uint32 resInterval = GetCombatResurrectionChargeInterval();

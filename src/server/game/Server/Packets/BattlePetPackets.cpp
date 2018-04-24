@@ -28,7 +28,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& pet)
+ByteBuffer& operator<<(ByteBuffer& data, ::BattlePet const& pet)
 {
     data << pet.Guid;
     data << uint32(pet.Species);
@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
 
-    for (BattlePet const& pet : Pets)
+    for (::BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

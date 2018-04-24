@@ -391,6 +391,8 @@ Unit::Unit(bool isWorldObject) :
     _isWalkingBeforeCharm = false;
 
     memset(&_lastUpdatePower, 0, sizeof(uint32));
+
+    m_currentPetBattleId = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -9232,7 +9234,7 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
 
 uint32 Unit::GetCreatureType() const
 {
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
     {
         ShapeshiftForm form = GetShapeshiftForm();
         SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
@@ -12661,6 +12663,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 return 21244;
             case FORM_MOONKIN_FORM:
             {
+                // Glyph of Stars
+                if (HasAura(114301))
+                    return GetNativeDisplayId();
+
                 switch (getRace())
                 {
                     case RACE_NIGHTELF:
