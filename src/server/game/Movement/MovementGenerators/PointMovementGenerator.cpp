@@ -22,8 +22,8 @@
 #include "Player.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
-#include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include "World.h"
 
 //----- Point Movement Generator
@@ -158,28 +158,4 @@ void AssistanceMovementGenerator::Finalize(Unit* owner)
     owner->ToCreature()->CallAssistance();
     if (owner->IsAlive())
         owner->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
-}
-
-//---- EffectMovementGenerator
-
-bool EffectMovementGenerator::Update(Unit* owner, uint32 /*diff*/)
-{
-    return !owner->movespline->Finalized();
-}
-
-MovementGeneratorType EffectMovementGenerator::GetMovementGeneratorType() const
-{
-    return EFFECT_MOTION_TYPE;
-}
-
-void EffectMovementGenerator::Finalize(Unit* owner)
-{
-    MovementInform(owner);
-}
-
-void EffectMovementGenerator::MovementInform(Unit* owner)
-{
-    if (Creature* creature = owner->ToCreature())
-        if (creature->AI())
-            creature->AI()->MovementInform(EFFECT_MOTION_TYPE, _pointId);
 }

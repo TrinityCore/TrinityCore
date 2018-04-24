@@ -33,6 +33,11 @@ struct SplineChainLink;
 struct SplineChainResumeInfo;
 struct WaypointPath;
 
+namespace Movement
+{
+    class MoveSplineInit;
+}
+
 class TC_GAME_API MotionMaster
 {
     public:
@@ -77,17 +82,14 @@ class TC_GAME_API MotionMaster
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {});
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {});
-
         /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
             Only works in 2D.
             This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
         */
         void MoveCloserAndStop(uint32 id, Unit* target, float distance);
-
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
-
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
@@ -101,7 +103,6 @@ class TC_GAME_API MotionMaster
         void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);
         void ResumeSplineChain(SplineChainResumeInfo const& info);
         void MoveFall(uint32 id = 0);
-
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
@@ -109,9 +110,9 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 pathId, bool repeatable);
         void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
-
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
 
+        void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementSlot slot = MOTION_SLOT_ACTIVE, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
         typedef std::vector<MovementGenerator*> MovementList;
 
