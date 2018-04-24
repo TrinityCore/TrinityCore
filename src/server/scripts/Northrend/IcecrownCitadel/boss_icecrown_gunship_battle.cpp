@@ -473,12 +473,10 @@ public:
         if (!_owner->IsAlive())
             return true;
 
-        _owner->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, *_owner, false);
-
         Movement::MoveSplineInit init(_owner);
         init.DisableTransportPathTransformations();
         init.MoveTo(_dest.GetPositionX(), _dest.GetPositionY(), _dest.GetPositionZ(), false);
-        init.Launch();
+        _owner->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
 
         return true;
     }
@@ -569,12 +567,10 @@ struct gunship_npc_AI : public ScriptedAI
             me->GetTransport()->CalculatePassengerPosition(hx, hy, hz, &ho);
             me->SetHomePosition(hx, hy, hz, ho);
 
-            me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, Slot->TargetPosition, false);
-
             Movement::MoveSplineInit init(me);
             init.DisableTransportPathTransformations();
             init.MoveTo(x, y, z, false);
-            init.Launch();
+            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
         }
     }
 
@@ -943,16 +939,11 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
                 else if (action == ACTION_EXIT_SHIP)
                 {
-                    Position pos;
-                    pos.Relocate(SaurfangExitPath[SaurfangExitPathSize - 1].x, SaurfangExitPath[SaurfangExitPathSize - 1].y, SaurfangExitPath[SaurfangExitPathSize - 1].z);
-                    me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, pos, false);
-
                     Movement::PointsArray path(SaurfangExitPath, SaurfangExitPath + SaurfangExitPathSize);
-
                     Movement::MoveSplineInit init(me);
                     init.DisableTransportPathTransformations();
                     init.MovebyPath(path, 0);
-                    init.Launch();
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
 
                     me->DespawnOrUnsummon(18000);
                 }
@@ -1212,16 +1203,11 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
                 else if (action == ACTION_EXIT_SHIP)
                 {
-                    Position pos;
-                    pos.Relocate(MuradinExitPath[MuradinExitPathSize - 1].x, MuradinExitPath[MuradinExitPathSize - 1].y, MuradinExitPath[MuradinExitPathSize - 1].z);
-                    me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, pos, false);
-
                     Movement::PointsArray path(MuradinExitPath, MuradinExitPath + MuradinExitPathSize);
-
                     Movement::MoveSplineInit init(me);
                     init.DisableTransportPathTransformations();
                     init.MovebyPath(path, 0);
-                    init.Launch();
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
 
                     me->DespawnOrUnsummon(18000);
                 }
