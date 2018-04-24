@@ -1765,7 +1765,10 @@ void Creature::setDeathState(DeathState s)
     if (s == JUST_DIED)
     {
         m_corpseRemoveTime = time(NULL) + m_corpseDelay;
-        m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
+        m_respawnTime = time(NULL) + m_respawnDelay;
+
+        // Respawn time cannot be lower than corpse remove time
+        m_respawnTime = std::max(m_corpseRemoveTime, m_respawnTime);
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
@@ -2525,7 +2528,7 @@ void Creature::AllLootRemovedFromCorpse()
     else
         m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);
 
-    m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
+    m_respawnTime = std::max(m_respawnTime, m_corpseRemoveTime);
 }
 
 bool Creature::HasScalableLevels() const
