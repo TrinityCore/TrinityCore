@@ -20,13 +20,17 @@
 #include "dbcfile.h"
 #include "adtfile.h"
 #include "vmapexport.h"
-
+#include "VMapDefinitions.h"
 #include <algorithm>
 #include <stdio.h>
 
 bool ExtractSingleModel(std::string& fname)
 {
-    if (fname.substr(fname.length() - 4, 4) == ".mdx")
+    if (fname.length() < 4)
+        return false;
+
+    std::string extension = fname.substr(fname.length() - 4, 4);
+    if (extension == ".mdx" || extension == ".MDX" || extension == ".mdl" || extension == ".MDL")
     {
         fname.erase(fname.length() - 2, 2);
         fname.append("2");
@@ -76,6 +80,8 @@ void ExtractGameobjectModels()
         return;
     }
 
+    fwrite(VMAP::RAW_VMAP_MAGIC, 1, 8, model_list);
+
     for (DBCFile::Iterator it = dbc.begin(); it != dbc.end(); ++it)
     {
         path = it->getString(1);
@@ -91,12 +97,14 @@ void ExtractGameobjectModels()
         if (!ch_ext)
             continue;
 
-        strToLower(ch_ext);
-
         bool result = false;
-        if (!strcmp(ch_ext, ".wmo"))
+        uint8 isWmo = 0;
+        if (!strcmp(ch_ext, ".WMO") && !strcmp(ch_ext, ".wmo"))
+        {
+            isWmo = 1;
             result = ExtractSingleWmo(path);
-        else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
+        }
+        else if (!strcmp(ch_ext, ".MDL") && !strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
             continue;
         else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
             result = ExtractSingleModel(path);
@@ -106,6 +114,7 @@ void ExtractGameobjectModels()
             uint32 displayId = it->getUInt(0);
             uint32 path_length = strlen(name);
             fwrite(&displayId, sizeof(uint32), 1, model_list);
+            fwrite(&isWmo, sizeof(uint8), 1, model_list);
             fwrite(&path_length, sizeof(uint32), 1, model_list);
             fwrite(name, sizeof(char), path_length, model_list);
         }

@@ -25,8 +25,10 @@
 
 class MPQFile;
 struct ADTOutputCache;
+struct WMODoodadData;
+namespace ADT { struct MDDF; struct MODF; }
 
-Vec3D fixCoordSystem(Vec3D v);
+Vec3D fixCoordSystem(Vec3D const& v);
 
 class Model
 {
@@ -51,17 +53,13 @@ public:
     ~Model() { _unload(); }
 };
 
-class ModelInstance
+namespace Doodad
 {
-public:
-    uint32 id;
-    Vec3D pos, rot;
-    uint16 scale, flags;
-    float sc;
+    void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId,
+        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
 
-    ModelInstance() : id(0), scale(0), flags(0), sc(0.0f) {}
-    ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
-
-};
+    void ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId,
+        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+}
 
 #endif

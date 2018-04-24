@@ -15,6 +15,9 @@
 
 #include "ostream.h"
 
+#undef min
+#undef max
+
 namespace fmt {
 namespace internal {
 

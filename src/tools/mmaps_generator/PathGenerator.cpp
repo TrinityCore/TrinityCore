@@ -28,6 +28,11 @@
 
 using namespace MMAP;
 
+namespace
+{
+    std::unordered_map<uint32, uint8> _liquidTypes;
+}
+
 bool checkDirectories(bool debugOutput)
 {
     std::vector<std::string> dirFiles;
@@ -258,6 +263,49 @@ int finish(char const* message, int returnValue)
     return returnValue;
 }
 
+std::unordered_map<uint32, uint8> LoadLiquid()
+{
+    bool silent = false;
+
+    DBCFileLoader* liquidDbc = new DBCFileLoader();
+    std::unordered_map<uint32, uint8> liquidData;
+    std::string liquidTypeSource = (boost::filesystem::path("dbc") / "LiquidType.dbc").string();
+    char const* liquidTypeFmt = "nxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
+    if (liquidDbc->Load(liquidTypeSource.c_str(), liquidTypeFmt))
+    {
+        for (uint32 x = 0; x < liquidDbc->GetNumRows(); ++x)
+        {
+            DBCFileLoader::Record record = liquidDbc->getRecord(x);
+            liquidData[record.getUInt(0)] = record.getUInt(3);
+        }
+    }
+
+    return liquidData;
+}
+
+std::unordered_map<uint32, std::vector<uint32>> LoadMap()
+{
+    DBCFileLoader* mapDbc = new DBCFileLoader;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    std::string mapSource = (boost::filesystem::path("dbc") / "Map.dbc").string();
+    char const* mapFmt = "nxxxxxxxxxxxxxxxxxxi";
+
+    if (mapDbc->Load(mapSource.c_str(), mapFmt))
+    {
+        for (uint32 x = 0; x < mapDbc->GetNumRows(); ++x)
+        {
+            DBCFileLoader::Record record = mapDbc->getRecord(x);
+            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.getUInt(0)), std::forward_as_tuple());
+            int16 parentMapId = int16(record.getUInt(19));
+            if (parentMapId != -1)
+                mapData[parentMapId].push_back(record.getUInt(0));
+        }
+    }
+
+    return mapData;
+}
+
 int main(int argc, char** argv)
 {
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
@@ -299,28 +347,6 @@ int main(int argc, char** argv)
 
     if (!checkDirectories(debugOutput))
         return silent ? -3 : finish("Press ENTER to close...", -3);
-
-    std::string mapPath = (boost::filesystem::path("dbc") / "Map.dbc").string();
-
-    std::unordered_map<uint32, std::vector<uint32>> mapData;
-    {
-        DBCFileLoader* loader = new DBCFileLoader();
-        char const* mapFmt = "nxxxxxxxxxxxxxxxxxxi";
-        if (!loader->Load(mapPath.c_str(), mapFmt))
-        {
-            delete loader;
-            return silent ? -4 : finish("Failed to load Map.dbc", -4);
-        }
-        for (uint32 x = 0; x < loader->GetNumRows(); ++x)
-        {
-            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(loader->getRecord(x).getUInt(0)), std::forward_as_tuple());
-            int16 parentMapId = int16(loader->getRecord(x).getUInt(19));
-            if (parentMapId != -1)
-                mapData[parentMapId].push_back(loader->getRecord(x).getUInt(0));
-        }
-
-        static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
-    }
 
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
