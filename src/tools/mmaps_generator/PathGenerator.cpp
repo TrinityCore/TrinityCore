@@ -348,6 +348,21 @@ int main(int argc, char** argv)
     if (!checkDirectories(debugOutput))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
+    _liquidTypes = LoadLiquid();
+    if (_liquidTypes.empty())
+        return silent ? -5 : finish("Failed to load LiquidType.db2", -5);
+
+    std::unordered_map<uint32, std::vector<uint32>> mapData = LoadMap();
+    if (mapData.empty())
+        return silent ? -4 : finish("Failed to load Map.db2", -4);
+
+    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
+    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
+    {
+        auto itr = _liquidTypes.find(liquidId);
+        return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
+    };
+
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
