@@ -10,4 +10,4 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (26573, 81297);
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
-(81297, -1, 0, 0.04, 0, 'Paladin - Consecration');
+(81297, 0.04, 0, 0.04, 0, 'Paladin - Consecration');
