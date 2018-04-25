@@ -109,7 +109,7 @@ namespace WorldPackets
         struct PetBattleFullUpdate
         {
             PetBattlePlayerUpdate PetBattlePlayerUpdates[2];
-            PetBattleEnviroUpdate PetBattleEnviroUpdate[3];
+            PetBattleEnviroUpdate PetBattleEnviroUpdates[3];
 
             int16 WaitingForFrontPetsMaxSecs;
             int16 PvpMaxRoundTime;
