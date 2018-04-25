@@ -1582,7 +1582,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (item->GetPos() == dstpos)
             continue;
 
-        if (_player->CanEquipItem(NULL_SLOT, dstpos, item, false) != EQUIP_ERR_OK)
+        if (_player->CanEquipItem(NULL_SLOT, dstpos, item, true) != EQUIP_ERR_OK)
             continue;
 
         _player->SwapItem(item->GetPos(), dstpos);
