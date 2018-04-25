@@ -8,11 +8,6 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (17479, 0, 329, 4051.777588, -3350.893311, 115.055351, 3.066176, 0),
 (17480, 0, 329, 4048.375977, -3339.966309, 115.055222, 2.457497, 0);
 
--- Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself
-DELETE FROM `conditions` WHERE `SourceEntry` = 17471;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `Comment`) VALUES 
-(13, 1, 17471, 0, 0, 31, 1, 3, 11197, 0, 0, 0, 0, 'Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself');
-
 -- Stratholme - Baron Rivendare - Add missing emotes
 DELETE FROM `creature_text` WHERE `CreatureID` IN (10440);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
