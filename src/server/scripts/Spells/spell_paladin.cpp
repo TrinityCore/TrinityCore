@@ -22,7 +22,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "DynamicObject.h"
 #include "Group.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
