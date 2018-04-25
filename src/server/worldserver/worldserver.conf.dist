@@ -1076,6 +1076,12 @@ Guild.BankEventLogRecordsCount = 25
 
 Guild.NewsLogRecordsCount = 250
 
+#    Guild.SaveInterval
+#    Description: Time (in min) for Guild save interval.
+#    Default: 15 - (15 min)
+
+Guild.SaveInterval = 15
+
 #
 #    MaxPrimaryTradeSkill
 #        Description: Maximum number of primary professions a character can learn.
