@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "DynamicObject.h"
 #include "Group.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
@@ -40,6 +41,7 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
+    SPELL_PALADIN_CONSECRATION_TRIGGERED         = 81297,
     SPELL_PALADIN_CRUSADER_STRIKE                = 35395,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
@@ -81,6 +83,11 @@ enum MiscSpells
 enum PaladinSpellIcons
 {
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
+};
+
+enum PaladinCreatures
+{
+    NPC_PALADIN_CONSECRATION                     = 43499
 };
 
 /*
@@ -339,6 +346,54 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_pal_blessing_of_faith_SpellScript();
+        }
+};
+
+// 26573 - Consecration
+class spell_pal_consecration : public SpellScriptLoader
+{
+    public:
+        spell_pal_consecration() : SpellScriptLoader("spell_pal_consecration") { }
+
+        class spell_pal_consecration_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_consecration_AuraScript);
+
+            bool Load() override
+            {
+                // Store the position of the initial Consecration cast for triggering the damage
+                castPos = GetCaster()->GetPosition();
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PALADIN_CONSECRATION_TRIGGERED });
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                // For some reason Consecration also applies on nearby enemies
+                // In this case the following code should not happen
+                if (GetTarget() != GetCaster())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(castPos.GetPositionX(), castPos.GetPositionY(), castPos.GetPositionZ(), SPELL_PALADIN_CONSECRATION_TRIGGERED, true, nullptr, aurEff);
+            }
+
+        private:
+            Position castPos;
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_consecration_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_consecration_AuraScript();
         }
 };
 
@@ -1335,6 +1390,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
+    new spell_pal_consecration();
     new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
