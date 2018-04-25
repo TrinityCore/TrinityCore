@@ -968,7 +968,7 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId, 
     }
 }
 
-void Item::UpdateItemSuffixFactor(Player const* owner/* = nullptr*/)
+void Item::UpdateItemSuffixFactor(Player const* /*owner*//* = nullptr*/)
 {
     if (!GetTemplate()->GetRandomSuffix())
         return;
