@@ -42,13 +42,14 @@ enum Spells
     SPELL_MORTALSTRIKE          = 15708,
     SPELL_DEATH_PACT            = 17471,
     SPELL_RAISE_DEAD            = 17473,
-    SPELL_UNHOLY_AURA           = 17467,
-    SPELL_RAISE_DEAD1           = 17475,
-    SPELL_RAISE_DEAD2           = 17476,
-    SPELL_RAISE_DEAD3           = 17477,
-    SPELL_RAISE_DEAD4           = 17478,
-    SPELL_RAISE_DEAD5           = 17479,
-    SPELL_RAISE_DEAD6           = 17480
+    SPELL_UNHOLY_AURA           = 17467
+};
+
+// Raise Dead (1-6) - Summon Skeletons (positions defined in database)
+uint32 const RaiseDeadSpells[6] =
+{
+    17475, 17476, 17477,
+    17478, 17479, 17480
 };
 
 enum BaronRivendareEvents
@@ -125,12 +126,10 @@ struct boss_baron_rivendare : public BossAI
                     if (!RaiseDead)
                     {
                         DoCast(SPELL_RAISE_DEAD);
-                        DoCastSelf(SPELL_RAISE_DEAD1, true);
-                        DoCastSelf(SPELL_RAISE_DEAD2, true);
-                        DoCastSelf(SPELL_RAISE_DEAD3, true);
-                        DoCastSelf(SPELL_RAISE_DEAD4, true);
-                        DoCastSelf(SPELL_RAISE_DEAD5, true);
-                        DoCastSelf(SPELL_RAISE_DEAD6, true);
+
+                        for (uint32 const& summonSkeletons : RaiseDeadSpells)
+                            DoCastSelf(summonSkeletons, true);
+
                         RaiseDead = true;
                         Talk(EMOTE_RAISE_DEAD);
                     }
