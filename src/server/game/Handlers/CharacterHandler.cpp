@@ -1986,7 +1986,7 @@ void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmen
         if (item->GetPos() == dstPos)
             continue;
 
-        if (_player->CanEquipItem(NULL_SLOT, dstPos, item, false) != EQUIP_ERR_OK)
+        if (_player->CanEquipItem(NULL_SLOT, dstPos, item, true) != EQUIP_ERR_OK)
             continue;
 
         _player->SwapItem(item->GetPos(), dstPos);
