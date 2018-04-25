@@ -2,6 +2,8 @@
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (43499, '81298');
 
+UPDATE `creature_template` SET `unit_flags`= 33554440 WHERE `entry`= 43499;
+
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_pal_consecration';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (26573, 'spell_pal_consecration');
