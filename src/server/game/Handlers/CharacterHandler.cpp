@@ -1707,7 +1707,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
             if (msg == EQUIP_ERR_OK)
             {
-                if (_player->CanEquipItem(NULL_SLOT, dstpos, uItem, false) != EQUIP_ERR_OK)
+                if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
                     continue;
 
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
@@ -1722,7 +1722,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (item->GetPos() == dstpos)
             continue;
 
-        if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
+        if (_player->CanEquipItem(NULL_SLOT, dstpos, item, false) != EQUIP_ERR_OK)
             continue;
 
         _player->SwapItem(item->GetPos(), dstpos);
