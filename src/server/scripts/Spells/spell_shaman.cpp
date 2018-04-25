@@ -1617,7 +1617,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_healing_rain_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_TRIGGERED });
             }
