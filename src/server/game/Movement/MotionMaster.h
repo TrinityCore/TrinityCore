@@ -20,14 +20,20 @@
 #define MOTIONMASTER_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
 #include "MovementDefines.h"
+#include "MovementGenerator.h"
 #include "SharedDefines.h"
+#include <boost/container/set.hpp>
+#include <deque>
+#include <functional>
+#include <unordered_map>
 #include <vector>
 
-class MovementGenerator;
-class Unit;
+class MotionMasterDelayedAction;
 class PathGenerator;
+class Unit;
 struct Position;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
@@ -38,38 +44,87 @@ namespace Movement
     class MoveSplineInit;
 }
 
+enum MotionMasterFlags : uint8
+{
+    MOTIONMASTER_FLAG_NONE                          = 0x0,
+    MOTIONMASTER_FLAG_UPDATE                        = 0x1, // Update in progress
+    MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2
+};
+
+enum MotionMasterDelayedActionType : uint8
+{
+    MOTIONMASTER_DELAYED_CLEAR = 0,
+    MOTIONMASTER_DELAYED_CLEAR_SLOT,
+    MOTIONMASTER_DELAYED_CLEAR_MODE,
+    MOTIONMASTER_DELAYED_CLEAR_PRIORITY,
+    MOTIONMASTER_DELAYED_ADD,
+    MOTIONMASTER_DELAYED_REMOVE,
+    MOTIONMASTER_DELAYED_REMOVE_TYPE,
+    MOTIONMASTER_DELAYED_INITIALIZE
+};
+
+struct MovementGeneratorDeleter
+{
+    void operator()(MovementGenerator* a);
+};
+
+typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
+
+struct MovementGeneratorComparator
+{
+    public:
+        bool operator()(MovementGeneratorPointer const& a, MovementGeneratorPointer const& b) const;
+};
+
+struct MovementGeneratorInformation
+{
+    MovementGeneratorInformation(MovementGeneratorType type, ObjectGuid targetGUID, std::string const& targetName);
+
+    MovementGeneratorType Type;
+    ObjectGuid TargetGUID;
+    std::string TargetName;
+};
+
 class TC_GAME_API MotionMaster
 {
     public:
-        explicit MotionMaster(Unit* unit) : _owner(unit), _top(-1), _cleanFlag(MOTIONMMASTER_CLEANFLAG_NONE)
-        {
-            for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
-            {
-                _slot[i] = nullptr;
-                _initialize[i] = true;
-            }
-        }
+        explicit MotionMaster(Unit* unit);
         ~MotionMaster();
 
-        bool empty() const { return (_top < 0); }
-        int size() const { return _top + 1; }
-        MovementGenerator* top() const;
-
         void Initialize();
-        void InitDefault();
+        void InitializeDefault();
 
-        void UpdateMotion(uint32 diff);
-
-        void Clear(bool reset = true);
-        void Clear(MovementSlot slot);
-        void MovementExpired(bool reset = true);
-
+        bool Empty() const;
+        uint32 Size() const;
+        std::vector<MovementGeneratorInformation> GetMovementGeneratorsInformation() const;
+        MovementSlot GetCurrentSlot() const;
+        MovementGenerator* GetCurrentMovementGenerator() const;
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
-        MovementGeneratorType GetMotionSlotType(MovementSlot slot) const;
-        MovementGenerator* GetMotionSlot(MovementSlot slot) const;
+        MovementGeneratorType GetCurrentMovementGeneratorType(MovementSlot slot) const;
+        MovementGenerator* GetCurrentMovementGenerator(MovementSlot slot) const;
+        // Returns first found MovementGenerator that matches the given criteria
+        MovementGenerator* GetMovementGenerator(std::function<bool(MovementGenerator*)> const& filter, MovementSlot slot = MOTION_SLOT_ACTIVE) const;
+        bool HasMovementGenerator(std::function<bool(MovementGenerator*)> const& filter, MovementSlot slot = MOTION_SLOT_ACTIVE) const;
 
+        void Update(uint32 diff);
+        void Add(MovementGenerator* movement, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
+        void Remove(MovementGenerator* movement, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        // Removes first found movement
+        // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
+        void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        // NOTE: NOTE: MOTION_SLOT_DEFAULT wont be affected
+        void Clear();
+        // Removes all movements for the given MovementSlot
+        // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
+        void Clear(MovementSlot slot);
+        // Removes all movements with the given MovementGeneratorMode
+        // NOTE: MOTION_SLOT_DEFAULT wont be affected
+        void Clear(MovementGeneratorMode mode);
+        // Removes all movements with the given MovementGeneratorPriority
+        // NOTE: MOTION_SLOT_DEFAULT wont be affected
+        void Clear(MovementGeneratorPriority priority);
         void PropagateSpeedChange();
-
         bool GetDestination(float &x, float &y, float &z);
 
         void MoveIdle();
@@ -82,10 +137,11 @@ class TC_GAME_API MotionMaster
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {});
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {});
-        /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
-            Only works in 2D.
-            This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
-        */
+        /*
+         *  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
+         *  Only works in 2D.
+         *  This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
+         */
         void MoveCloserAndStop(uint32 id, Unit* target, float distance);
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
@@ -106,39 +162,123 @@ class TC_GAME_API MotionMaster
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
-        void MoveDistract(uint32 time);
+        void MoveDistract(uint32 time, float orientation);
         void MovePath(uint32 pathId, bool repeatable);
         void MovePath(WaypointPath& path, bool repeatable);
-        void MoveRotate(uint32 time, RotateDirection direction);
+        void MoveRotate(uint32 id, uint32 time, RotateDirection direction);
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
 
-        void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementSlot slot = MOTION_SLOT_ACTIVE, MovementGeneratorType type = EFFECT_MOTION_TYPE);
+        void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
-        typedef std::vector<MovementGenerator*> MovementList;
+        typedef boost::container::multiset<MovementGeneratorPointer, MovementGeneratorComparator> MotionMasterContainer;
 
-        void pop();
+        void AddFlag(uint8 const flag) { _flags |= flag; }
+        bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
+        void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
-        bool NeedInitTop() const;
-        void InitTop();
+        MovementGeneratorPointer const& Top() const;
+        void Pop(bool active, bool movementInform);
+        void DirectInitialize();
+        void DirectClear();
+        void DirectClearDefault();
+        void DirectClear(std::function<bool(MovementGeneratorPointer const&)> const& filter);
+        void DirectAdd(MovementGenerator* movement, MovementSlot slot);
 
-        void Mutate(MovementGenerator* m, MovementSlot slot);
+        void Delete(MovementGeneratorPointer&& movement, bool active, bool movementInform);
+        void DeleteDefault(bool active, bool movementInform);
+        void AddBaseUnitState(MovementGenerator const* movement);
+        void ClearBaseUnitState(MovementGenerator const* movement);
+        void ClearBaseUnitStates();
 
-        void DirectClean(bool reset);
-        void DelayedClean();
-        void DirectClean(MovementSlot slot);
-        void DelayedClean(MovementSlot slot);
-        void DirectExpire(bool reset);
-        void DelayedExpire();
-        void DirectDelete(MovementGenerator* curr);
-        void DelayedDelete(MovementGenerator* curr);
-        void ClearExpireList();
-
-        MovementGenerator* _slot[MAX_MOTION_SLOT];
-        bool _initialize[MAX_MOTION_SLOT];
-        MovementList _expireList;
         Unit* _owner;
-        int _top;
-        uint8 _cleanFlag;
+        MovementGeneratorPointer _defaultGenerator;
+        MotionMasterContainer _generators;
+        std::unordered_multimap<uint32, MovementGenerator const*> _baseUnitStatesMap;
+        std::deque<std::unique_ptr<MotionMasterDelayedAction>> _delayedActions;
+        uint8 _flags;
+};
+
+class MotionMasterDelayedAction
+{
+    public:
+        MotionMasterDelayedAction(MotionMaster* master, uint8 type) : Master(master), Type(type) { }
+        virtual void Resolve() = 0;
+
+        MotionMaster* Master;
+        uint8 Type;
+};
+
+class MotionMasterDelayedClear : public MotionMasterDelayedAction
+{
+    public:
+        MotionMasterDelayedClear(MotionMaster* master) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR), Value(0) { }
+        MotionMasterDelayedClear(MotionMaster* master, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR_SLOT), Value(slot) { }
+        MotionMasterDelayedClear(MotionMaster* master, MovementGeneratorMode mode) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR_MODE), Value(mode) { }
+        MotionMasterDelayedClear(MotionMaster* master, MovementGeneratorPriority priority) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR_PRIORITY), Value(priority) { }
+        void Resolve() override
+        {
+            switch (Type)
+            {
+                case MOTIONMASTER_DELAYED_CLEAR:
+                    Master->Clear();
+                    break;
+                case MOTIONMASTER_DELAYED_CLEAR_SLOT:
+                    Master->Clear(MovementSlot(Value));
+                    break;
+                case MOTIONMASTER_DELAYED_CLEAR_MODE:
+                    Master->Clear(MovementGeneratorMode(Value));
+                    break;
+                case MOTIONMASTER_DELAYED_CLEAR_PRIORITY:
+                    Master->Clear(MovementGeneratorPriority(Value));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        uint32 Value;
+};
+
+class MotionMasterDelayedAdd : public MotionMasterDelayedAction
+{
+    public:
+        MotionMasterDelayedAdd(MotionMaster* master, MovementGenerator* movement, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_ADD), Movement(movement), Slot(slot) { }
+        void Resolve() override { Master->Add(Movement, MovementSlot(Slot)); }
+
+        MovementGenerator* Movement;
+        uint8 Slot;
+};
+
+class MotionMasterDelayedRemove : public MotionMasterDelayedAction
+{
+    public:
+        MotionMasterDelayedRemove(MotionMaster* master, MovementGenerator* movement, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_REMOVE), Movement(movement), MovementType(MAX_MOTION_TYPE), Slot(slot) { }
+        MotionMasterDelayedRemove(MotionMaster* master, MovementGeneratorType movementType, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_REMOVE_TYPE), Movement(nullptr), MovementType(movementType), Slot(slot) { }
+        void Resolve() override
+        {
+            switch (Type)
+            {
+                case MOTIONMASTER_DELAYED_REMOVE:
+                    Master->Remove(Movement, MovementSlot(Slot));
+                    break;
+                case MOTIONMASTER_DELAYED_REMOVE_TYPE:
+                    Master->Remove(MovementGeneratorType(MovementType), MovementSlot(Slot));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        MovementGenerator* Movement;
+        uint8 MovementType;
+        uint8 Slot;
+};
+
+class MotionMasterDelayedInitialize : public MotionMasterDelayedAction
+{
+    public:
+        MotionMasterDelayedInitialize(MotionMaster* master) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_INITIALIZE) { }
+        void Resolve() override { Master->Initialize(); }
 };
 
 #endif // MOTIONMASTER_H

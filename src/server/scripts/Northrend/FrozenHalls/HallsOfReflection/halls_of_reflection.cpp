@@ -2123,13 +2123,10 @@ enum EscapeEvents
     EVENT_LUMBERING_ABOMINATION_CLEAVE
 };
 
-namespace hor
-{
-
-class StartMovementEvent : public BasicEvent
+class HoRStartMovementEvent : public BasicEvent
 {
     public:
-        StartMovementEvent(Creature* owner) : _owner(owner) { }
+        HoRStartMovementEvent(Creature* owner) : _owner(owner) { }
 
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
@@ -2142,8 +2139,6 @@ class StartMovementEvent : public BasicEvent
     private:
         Creature* _owner;
 };
-
-} // namespace hor
 
 struct npc_escape_event_trash : public ScriptedAI
 {
@@ -2197,7 +2192,7 @@ class npc_raging_ghoul : public CreatureScript
                 me->CastSpell(me, SPELL_RAGING_GHOUL_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new hor::StartMovementEvent(me), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5000));
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2263,7 +2258,7 @@ class npc_risen_witch_doctor : public CreatureScript
                 me->CastSpell(me, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new hor::StartMovementEvent(me), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5000));
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
