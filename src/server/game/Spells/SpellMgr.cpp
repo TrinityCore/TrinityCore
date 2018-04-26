@@ -2910,6 +2910,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
     });
 
+    // Immolate
+    ApplySpellFix({ 348 }, [](SpellInfo* spellInfo)
+    {
+        // copy SP scaling data from direct damage to DoT
+        spellInfo->Effects[EFFECT_0].BonusMultiplier = spellInfo->Effects[EFFECT_1].BonusMultiplier;
+    });
+
     // Howl of Azgalor
     ApplySpellFix({ 31344 }, [](SpellInfo* spellInfo)
     {
