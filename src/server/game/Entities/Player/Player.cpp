@@ -15276,8 +15276,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     // Do not reward the default reward money for max level dungeon quests
-    if (!quest->IsDFQuest() && getLevel() == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        if (quest->GetRewOrReqMoney())
+    if (quest->GetRewOrReqMoney())
+        if ((quest->IsDFQuest() && getLevel() != sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) || !quest->IsDFQuest())
             moneyRew += quest->GetRewOrReqMoney();
 
     if (moneyRew)
