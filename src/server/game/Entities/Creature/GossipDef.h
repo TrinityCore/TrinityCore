@@ -24,6 +24,7 @@
 #include "NPCHandler.h"
 #include <map>
 
+class Object;
 class Quest;
 class WorldSession;
 
@@ -278,7 +279,7 @@ class TC_GAME_API PlayerMenu
         /*********************************************************/
         void SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const;
 
-        void SendQuestGiverQuestListMessage(ObjectGuid npcGUID);
+        void SendQuestGiverQuestListMessage(Object* questgiver);
 
         void SendQuestQueryResponse(Quest const* quest) const;
         void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const;
