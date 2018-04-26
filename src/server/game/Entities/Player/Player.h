@@ -1357,7 +1357,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         }
 
         void PrepareQuestMenu(ObjectGuid guid);
-        void SendPreparedQuest(ObjectGuid guid);
+        void SendPreparedQuest(WorldObject* source);
         bool IsActiveQuest(uint32 quest_id) const;
         Quest const* GetNextQuest(ObjectGuid guid, Quest const* quest) const;
         bool CanSeeStartQuest(Quest const* quest);

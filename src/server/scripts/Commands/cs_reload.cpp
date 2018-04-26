@@ -1060,10 +1060,12 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Quest Locale ... ");
         sObjectMgr->LoadQuestTemplateLocale();
         sObjectMgr->LoadQuestObjectivesLocale();
+        sObjectMgr->LoadQuestGreetingLocales();
         sObjectMgr->LoadQuestOfferRewardLocale();
         sObjectMgr->LoadQuestRequestItemsLocale();
         handler->SendGlobalGMSysMessage("DB table `quest_template_locale` reloaded.");
         handler->SendGlobalGMSysMessage("DB table `quest_objectives_locale` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `quest_greeting_locale` reloaded.");
         handler->SendGlobalGMSysMessage("DB table `quest_offer_reward_locale` reloaded.");
         handler->SendGlobalGMSysMessage("DB table `quest_request_items_locale` reloaded.");
         return true;
