@@ -132,7 +132,7 @@ namespace VMAP
         {
             std::string mapFileName = getMapFileName(mapId);
             StaticMapTree* newTree = new StaticMapTree(mapId, basePath);
-            if (!newTree->InitMap(mapFileName, this))
+            if (!newTree->InitMap(mapFileName))
             {
                 delete newTree;
                 return false;
