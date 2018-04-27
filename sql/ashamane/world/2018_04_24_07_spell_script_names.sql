@@ -1,0 +1,1 @@
+REPLACE INTO spell_script_names VALUES ('97462', 'spell_warr_commanding_shout');

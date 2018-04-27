@@ -201,6 +201,7 @@ enum WarlockSpells
     SPELL_WARLOCK_FEL_FIREBOLT                      = 104318,
     SPELL_WARLOCK_PHANTOMATIC_SINGULARITY           = 205179,
     SPELL_WARLOCK_PHANTOMATIC_SINGULARITY_DAMAGE    = 205246,
+    SPELL_WARLOCK_SUMMON_DREADSTALKER               = 193332,
 };
 
 enum WarlockSpellIcons
@@ -240,8 +241,12 @@ class spell_warl_call_dreadstalker : public SpellScript
             return;
 
         if (caster->HasAura(SPELL_WARLOCK_IMPROVED_DREADSTALKERS))
+        {
             for (int32 i = 0; i < 2; i++)
                 caster->CastSpell(caster, SPELL_WARLOCK_HAND_OF_GULDAN_SUMMON, true);
+        }
+        else
+            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_DREADSTALKER, true);
     }
 
     void Register() override
@@ -447,8 +452,11 @@ class spell_warl_shadow_bolt : public SpellScript
 
     void HandleOnCast()
     {
-        Unit* caster = GetCaster();
+		Unit* caster = GetCaster();
         caster->CastSpell(caster, SPELL_WARLOCK_SHADOW_BOLT_SHOULSHARD, true);
+
+        if (caster->HasAura(SPELL_WARLOCK_SHADOWY_INSPIRATION_EFFECT))
+            caster->RemoveAura(SPELL_WARLOCK_SHADOWY_INSPIRATION_EFFECT);
     }
 
     void Register() override
