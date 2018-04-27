@@ -17,14 +17,14 @@
  */
 
 #include "TileAssembler.h"
-#include "MapTree.h"
 #include "BoundingIntervalHierarchy.h"
+#include "MapTree.h"
+#include "StringFormat.h"
 #include "VMapDefinitions.h"
-
-#include <set>
-#include <iomanip>
-#include <sstream>
 #include <boost/filesystem.hpp>
+#include <iomanip>
+#include <set>
+#include <sstream>
 
 using G3D::Vector3;
 using G3D::AABox;

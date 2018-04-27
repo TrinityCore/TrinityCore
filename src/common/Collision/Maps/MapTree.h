@@ -82,7 +82,7 @@ namespace VMAP
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
             bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
-            bool InitMap(const std::string &fname, VMapManager2* vm);
+            bool InitMap(std::string const& fname);
             void UnloadMap(VMapManager2* vm);
             bool LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
