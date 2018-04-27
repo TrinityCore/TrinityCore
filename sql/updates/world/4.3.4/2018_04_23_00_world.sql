@@ -1,4 +1,4 @@
-﻿-- Druid
+-- Druid
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (
 50464, -- Nourish
 5176, -- Wrath
