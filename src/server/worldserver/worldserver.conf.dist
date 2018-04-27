@@ -953,6 +953,14 @@ Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
 
 #
+#    Instance.IgnoreDungeonsBind
+#        Description: Ignore bind for non-raid instances.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Instance.IgnoreDungeonsBind = 0
+
+#
 #    Instance.ResetTimeHour
 #        Description: Hour of the day when the global instance reset occurs.
 #        Range:       0-23

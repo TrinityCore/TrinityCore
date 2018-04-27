@@ -11250,7 +11250,9 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
             if (instanceMap->IsDungeon() && (creditedPlayer || this == victim))
             {
-                if (instanceMap->IsRaidOrHeroicDungeon())
+                bool shouldIgnoreBind = instanceMap->IsNonRaidDungeon() && sWorld->getBoolConfig(CONFIG_IGNORE_DUNGEONS_BIND);
+
+                if (instanceMap->IsRaidOrHeroicDungeon() && !shouldIgnoreBind)
                 {
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap*)instanceMap)->PermBindAllPlayers();
