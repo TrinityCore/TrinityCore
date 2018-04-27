@@ -266,8 +266,7 @@ namespace VMAP
         FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
             return false;
-        /// @todo check magic number when implemented...
-        char tiled;
+
         char chunk[8];
         if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
         {
@@ -289,7 +288,7 @@ namespace VMAP
 
     //=========================================================
 
-    bool StaticMapTree::InitMap(const std::string &fname, VMapManager2* vm)
+    bool StaticMapTree::InitMap(std::string const& fname)
     {
         TC_LOG_DEBUG("maps", "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
         bool success = false;
