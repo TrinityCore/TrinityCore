@@ -69,8 +69,8 @@ public:
     ~ADTFile();
     std::vector<std::string> WmoInstanceNames;
     std::vector<std::string> ModelInstanceNames;
-    bool init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId);
-    bool initFromCache(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId);
+    bool init(uint32 map_num, uint32 originalMapId);
+    bool initFromCache(uint32 map_num, uint32 originalMapId);
 };
 
 char const* GetPlainName(char const* FileName);

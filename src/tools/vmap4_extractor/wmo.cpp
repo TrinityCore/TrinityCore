@@ -533,7 +533,7 @@ WMOGroup::~WMOGroup()
     delete [] LiquBytes;
 }
 
-void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
+void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, bool isGlobalWmo, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
     // destructible wmo, do not dump. we can handle the vmap for these
     // in dynamic tree (gameobject vmaps)
@@ -544,10 +544,9 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
 
     char tempname[512];
     sprintf(tempname, "%s/%s", szWorkDirWmo, WmoInstName);
-    FILE *input;
-    input = fopen(tempname, "r+b");
+    FILE* input = fopen(tempname, "r+b");
 
-    if(!input)
+    if (!input)
     {
         printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname);
         return;
@@ -561,35 +560,27 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     if (count != 1 || nVertices == 0)
         return;
 
-    Vec3D position = mapObjDef.Position;
-
-    float x, z;
-    x = position.x;
-    z = position.z;
-    if (x == 0 && z == 0)
-    {
-        position.x = 533.33333f * 32;
-        position.z = 533.33333f * 32;
-    }
-    position = fixCoords(position);
+    Vec3D position = fixCoords(mapObjDef.Position);
     AaBox3D bounds;
     bounds.min = fixCoords(mapObjDef.Bounds.min);
     bounds.max = fixCoords(mapObjDef.Bounds.max);
+
+    if (isGlobalWmo)
+    {
+        position += Vec3D(533.33333f * 32, 533.33333f * 32, 0.0f);
+        bounds += Vec3D(533.33333f * 32, 533.33333f * 32, 0.0f);
+    }
 
     float scale = 1.0f;
     if (mapObjDef.Flags & 0x4)
         scale = mapObjDef.Scale / 1024.0f;
     uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0);
     uint32 flags = MOD_HAS_BOUND;
-    if (tileX == 65 && tileY == 65)
-        flags |= MOD_WORLDSPAWN;
     if (mapID != originalMapId)
         flags |= MOD_PARENT_SPAWN;
 
-    //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
+    //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
-    fwrite(&tileX, sizeof(uint32), 1, pDirfile);
-    fwrite(&tileY, sizeof(uint32), 1, pDirfile);
     fwrite(&flags, sizeof(uint32), 1, pDirfile);
     fwrite(&mapObjDef.NameSet, sizeof(uint16), 1, pDirfile);
     fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
