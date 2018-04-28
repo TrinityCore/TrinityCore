@@ -60,6 +60,7 @@ bool Model::open()
     }
 
     memcpy(&header, f.getBuffer() + m2start, sizeof(ModelHeader));
+    bounds = header.collisionBox;
     if (header.nBoundingTriangles > 0)
     {
         f.seek(m2start);
@@ -96,18 +97,18 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     uint32 nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
-    fwrite(&nofgroups,sizeof(uint32), 1, output);
-    fwrite(N,4*3,1,output);// rootwmoid, flags, groupid
-    fwrite(N,sizeof(float),3*2,output);//bbox, only needed for WMO currently
-    fwrite(N,4,1,output);// liquidflags
-    fwrite("GRP ",4,1,output);
+    fwrite(&nofgroups, sizeof(uint32), 1, output);
+    fwrite(N, 4 * 3, 1, output);// rootwmoid, flags, groupid
+    fwrite(&bounds, sizeof(AaBox3D), 1, output);//bbox, only needed for WMO currently
+    fwrite(N, 4, 1, output);// liquidflags
+    fwrite("GRP ", 4, 1, output);
     uint32 branches = 1;
     int wsize;
     wsize = sizeof(branches) + sizeof(uint32) * branches;
     fwrite(&wsize, sizeof(int), 1, output);
-    fwrite(&branches,sizeof(branches), 1, output);
+    fwrite(&branches, sizeof(branches), 1, output);
     uint32 nIndexes = header.nBoundingTriangles;
-    fwrite(&nIndexes,sizeof(uint32), 1, output);
+    fwrite(&nIndexes, sizeof(uint32), 1, output);
     fwrite("INDX",4, 1, output);
     wsize = sizeof(uint32) + sizeof(unsigned short) * nIndexes;
     fwrite(&wsize, sizeof(int), 1, output);
@@ -147,14 +148,12 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     return true;
 }
 
-
 Vec3D fixCoordSystem(Vec3D const& v)
 {
     return Vec3D(v.x, v.z, -v.y);
 }
 
-void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId,
-    FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
+void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
     char tempname[512];
     sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
@@ -179,15 +178,11 @@ void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint
     uint16 nameSet = 0;// not used for models
     uint32 uniqueId = GenerateUniqueObjectId(doodadDef.UniqueId, 0);
     uint32 tcflags = MOD_M2;
-    if (tileX == 65 && tileY == 65)
-        tcflags |= MOD_WORLDSPAWN;
     if (mapID != originalMapId)
         tcflags |= MOD_PARENT_SPAWN;
 
-    //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
+    //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
-    fwrite(&tileX, sizeof(uint32), 1, pDirfile);
-    fwrite(&tileY, sizeof(uint32), 1, pDirfile);
     fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
     fwrite(&nameSet, sizeof(uint16), 1, pDirfile);
     fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
@@ -225,7 +220,7 @@ void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint
     }
 }
 
-void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId,
+void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, bool isGlobalWmo, uint32 mapID, uint32 originalMapId,
     FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
     if (wmo.DoodadSet >= doodadData.Sets.size())
@@ -233,6 +228,9 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
 
     G3D::Vector3 wmoPosition(wmo.Position.z, wmo.Position.x, wmo.Position.y);
     G3D::Matrix3 wmoRotation = G3D::Matrix3::fromEulerAnglesZYX(G3D::toRadians(wmo.Rotation.y), G3D::toRadians(wmo.Rotation.x), G3D::toRadians(wmo.Rotation.z));
+
+    if (isGlobalWmo)
+        wmoPosition += G3D::Vector3(533.33333f * 32, 533.33333f * 32, 0.0f);
 
     uint16 doodadId = 0;
     WMO::MODS const& doodadSetData = doodadData.Sets[wmo.DoodadSet];
@@ -290,15 +288,11 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
         uint16 nameSet = 0;     // not used for models
         uint32 uniqueId = GenerateUniqueObjectId(wmo.UniqueId, doodadId);
         uint32 tcflags = MOD_M2;
-        if (tileX == 65 && tileY == 65)
-            tcflags |= MOD_WORLDSPAWN;
         if (mapID != originalMapId)
             tcflags |= MOD_PARENT_SPAWN;
 
-        //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
+        //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
         fwrite(&mapID, sizeof(uint32), 1, pDirfile);
-        fwrite(&tileX, sizeof(uint32), 1, pDirfile);
-        fwrite(&tileY, sizeof(uint32), 1, pDirfile);
         fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
         fwrite(&nameSet, sizeof(uint16), 1, pDirfile);
         fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);

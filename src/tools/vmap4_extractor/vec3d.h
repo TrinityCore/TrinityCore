@@ -142,6 +142,13 @@ class AaBox3D
 public:
     Vec3D min;
     Vec3D max;
+
+    AaBox3D& operator+=(Vec3D const& offset)
+    {
+        min += offset;
+        max += offset;
+        return *this;
+    }
 };
 
 class Vec2D
