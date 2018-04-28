@@ -35,9 +35,8 @@ namespace VMAP
     enum ModelFlags
     {
         MOD_M2 = 1,
-        MOD_WORLDSPAWN = 1 << 1,
-        MOD_HAS_BOUND = 1 << 2,
-        MOD_PARENT_SPAWN = 1 << 3
+        MOD_HAS_BOUND = 1 << 1,
+        MOD_PARENT_SPAWN = 1 << 2
     };
 
     class TC_COMMON_API ModelSpawn

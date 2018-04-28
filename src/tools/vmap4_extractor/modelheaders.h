@@ -19,7 +19,8 @@
 #ifndef MODELHEADERS_H
 #define MODELHEADERS_H
 
-#include "cascfile.h"    // integer typedefs
+#include "Define.h"
+#include "vec3d.h"
 
 #pragma pack(push,1)
 
@@ -65,7 +66,10 @@ struct ModelHeader
     uint32 ofsTransLookup;
     uint32 nTexAnimLookup;
     uint32 ofsTexAnimLookup;
-    float floats[14];
+    AaBox3D boundingBox;
+    float boundingSphereRadius;
+    AaBox3D collisionBox;
+    float collisionSphereRadius;
     uint32 nBoundingTriangles;
     uint32 ofsBoundingTriangles;
     uint32 nBoundingVertices;

@@ -280,14 +280,14 @@ void ParsMapFiles()
                     bool success = false;
                     if (ADTFile* ADT = WDT->GetMap(x, y))
                     {
-                        success = ADT->init(itr->first, x, y, itr->first);
+                        success = ADT->init(itr->first, itr->first);
                         WDT->FreeADT(ADT);
                     }
                     if (!success && parentWDT)
                     {
                         if (ADTFile* ADT = parentWDT->GetMap(x, y))
                         {
-                            ADT->init(itr->first, x, y, itr->second.parent_id);
+                            ADT->init(itr->first, itr->second.parent_id);
                             parentWDT->FreeADT(ADT);
                         }
                     }
