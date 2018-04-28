@@ -3400,6 +3400,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             {
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
+                case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
+                case 71204: // Touch of Insignificance, Lady Deathwhisper, Icecrown Citadel
                     return false;
                 case 30877: // Tag Murloc
                 case 61716: // Rabbit Costume
