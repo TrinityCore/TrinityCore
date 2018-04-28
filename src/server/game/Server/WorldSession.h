@@ -134,6 +134,7 @@ namespace WorldPackets
         class PVPLogDataRequest;
         class BattlemasterJoin;
         class BattlemasterJoinArena;
+        class BattlemasterJoinArenaSkirmish;
         class BattlefieldLeave;
         class BattlefieldPort;
         class BattlefieldListRequest;
@@ -1087,7 +1088,7 @@ class TC_GAME_API WorldSession
         void SendDiscoverNewTaxiNode(uint32 nodeid);
 
         // Guild/Arena Team
-        void SendNotInArenaTeamPacket(uint8 type);
+        void SendNotInArenaGroupPacket(uint8 type);
         void SendPetitionShowList(ObjectGuid guid);
 
         void DoLootRelease(ObjectGuid lguid);
@@ -1547,6 +1548,7 @@ class TC_GAME_API WorldSession
         void HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& battlefieldList);
         void HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& battlefieldLeave);
         void HandleBattlemasterJoinArena(WorldPackets::Battleground::BattlemasterJoinArena& packet);
+        void HandleBattlemasterJoinArenaSkirmish(WorldPackets::Battleground::BattlemasterJoinArenaSkirmish& BattlemasterJoinArenaSkirmish);
         void HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& reportPvPPlayerAFK);
         void HandleRequestRatedBattlefieldInfo(WorldPackets::Battleground::RequestRatedBattlefieldInfo& packet);
         void HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& getPvPOptionsEnabled);

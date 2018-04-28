@@ -16,7 +16,6 @@
  */
 
 #include "AccountMgr.h"
-#include "ArenaTeamMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"

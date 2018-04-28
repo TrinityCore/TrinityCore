@@ -18,7 +18,6 @@
 
 #include "ObjectMgr.h"
 #include "AreaTriggerDataStore.h"
-#include "ArenaTeamMgr.h"
 #include "Chat.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
@@ -6763,10 +6762,6 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
         _mailId = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
-    if (result)
-        sArenaTeamMgr->SetNextArenaTeamId((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
     if (result)

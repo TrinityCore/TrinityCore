@@ -18,8 +18,6 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
-#include "ArenaTeam.h"
-#include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
@@ -754,14 +752,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
     {
         sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
         SendCharDelete(CHAR_DELETE_FAILED_GUILD_LEADER);
-        return;
-    }
-
-    // is arena team captain
-    if (sArenaTeamMgr->GetArenaTeamByCaptain(charDelete.Guid))
-    {
-        sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
-        SendCharDelete(CHAR_DELETE_FAILED_ARENA_CAPTAIN);
         return;
     }
 
@@ -1858,12 +1848,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         }
     }
 
-    if (sArenaTeamMgr->GetArenaTeamByCaptain(factionChangeInfo->Guid))
-    {
-        SendCharFactionChange(CHAR_CREATE_CHARACTER_ARENA_LEADER, factionChangeInfo.get());
-        return;
-    }
-
     // All checks are fine, deal with race change now
     ObjectGuid::LowType lowGuid = factionChangeInfo->Guid.GetCounter();
 
@@ -2009,8 +1993,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 if (PreparedQueryResult memberResult = CharacterDatabase.Query(stmt))
                     if (Guild* guild = sGuildMgr->GetGuildById(memberResult->Fetch()[0].GetUInt64()))
                         guild->DeleteMember(trans, factionChangeInfo->Guid, false, false, true);
-
-                Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
 
             if (!HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))

@@ -193,7 +193,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinOpcode);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_ARENA,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinArena);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_BRAWL,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_SKIRMISH,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_SKIRMISH,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinArenaSkirmish);
     DEFINE_HANDLER(CMSG_BATTLENET_CHALLENGE_RESPONSE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_BATTLENET_REQUEST,                                  STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleBattlenetRequest);
     DEFINE_HANDLER(CMSG_BATTLENET_REQUEST_REALM_LIST_TICKET,                STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleBattlenetRequestRealmListTicket);

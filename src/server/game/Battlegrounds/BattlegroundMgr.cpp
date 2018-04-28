@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArenaHelper.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAB.h"
 #include "BattlegroundAV.h"
@@ -386,13 +387,13 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         uint32 maxPlayersPerTeam = 0;
         switch (arenaType)
         {
-            case ARENA_TYPE_2v2:
+            case SLOT_ARENA_2V2:
                 maxPlayersPerTeam = 2;
                 break;
-            case ARENA_TYPE_3v3:
+            case SLOT_ARENA_3V3:
                 maxPlayersPerTeam = 3;
                 break;
-            case ARENA_TYPE_5v5:
+            case SLOT_ARENA_5V5:
                 maxPlayersPerTeam = 5;
                 break;
         }
@@ -681,11 +682,11 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
         case BATTLEGROUND_TVA:
             switch (arenaType)
             {
-                case ARENA_TYPE_2v2:
+                case ArenaType::Arena2v2:
                     return BATTLEGROUND_QUEUE_2v2;
-                case ARENA_TYPE_3v3:
+                case ArenaType::Arena3v3:
                     return BATTLEGROUND_QUEUE_3v3;
-                case ARENA_TYPE_5v5:
+                case ArenaType::Arena5v5:
                     return BATTLEGROUND_QUEUE_5v5;
                 default:
                     return BATTLEGROUND_QUEUE_NONE;
@@ -731,11 +732,11 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
     switch (bgQueueTypeId)
     {
         case BATTLEGROUND_QUEUE_2v2:
-            return ARENA_TYPE_2v2;
+            return SLOT_ARENA_2V2;
         case BATTLEGROUND_QUEUE_3v3:
-            return ARENA_TYPE_3v3;
+            return SLOT_ARENA_3V3;
         case BATTLEGROUND_QUEUE_5v5:
-            return ARENA_TYPE_5v5;
+            return SLOT_ARENA_5V5;
         default:
             return 0;
     }

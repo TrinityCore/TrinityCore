@@ -90,11 +90,11 @@ Battleground::Battleground()
     m_StartMaxDist      = 0.0f;
     ScriptId            = 0;
 
-    m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamIds[TEAM_HORDE]      = 0;
+    m_ArenaGroupIds[TEAM_ALLIANCE]   = 0;
+    m_ArenaGroupIds[TEAM_HORDE]      = 0;
 
-    m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamMMR[TEAM_HORDE]      = 0;
+    m_ArenaGroupMMR[TEAM_ALLIANCE]   = 0;
+    m_ArenaGroupMMR[TEAM_HORDE]      = 0;
 
     m_BgRaids[TEAM_ALLIANCE]         = NULL;
     m_BgRaids[TEAM_HORDE]            = NULL;
@@ -519,7 +519,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
-                    player->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                    player->RemoveAurasDueToSpell(SPELL_BG_PREPARATION);
                     player->ResetAllPowers();
                 }
             // Announce BG starting
@@ -1022,7 +1022,7 @@ void Battleground::StartBattleground()
     sBattlegroundMgr->AddBattleground(this);
 
     if (m_IsRated)
-        TC_LOG_DEBUG("bg.arena", "Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE]);
+        TC_LOG_DEBUG("bg.arena", "Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaGroupIds[TEAM_ALLIANCE], m_ArenaGroupIds[TEAM_HORDE]);
 }
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
@@ -1082,7 +1082,7 @@ void Battleground::AddPlayer(Player* player)
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
-            player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+            player->CastSpell(player, SPELL_BG_PREPARATION, true);   // reduces all mana cost of spells.
 
             int32 countdownMaxForBGType = isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
             WorldPacket data(SMSG_START_TIMER, 4+4+4);

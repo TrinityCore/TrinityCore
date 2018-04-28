@@ -16,7 +16,6 @@
  */
 
 #include "CriteriaHandler.h"
-#include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -680,21 +679,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                 else // login case
                 {
                     for (uint8 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
-                    {
-                        uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
-                        if (!teamId)
-                            continue;
-
-                        ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
-                        if (!team || team->GetType() != reqTeamType)
-                            continue;
-
-                        if (ArenaTeamMember const* member = team->GetMember(referencePlayer->GetGUID()))
-                        {
-                            SetCriteriaProgress(criteria, member->PersonalRating, referencePlayer, PROGRESS_HIGHEST);
-                            break;
-                        }
-                    }
+                        SetCriteriaProgress(criteria, referencePlayer->GetArenaPersonalRating(arena_slot), referencePlayer, PROGRESS_HIGHEST);
                 }
                 break;
             }
@@ -1734,7 +1719,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING: // 64
-            if (referencePlayer->GetRBGPersonalRating() < reqValue)
+            //if (referencePlayer->GetRBGPersonalRating() < reqValue)
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91

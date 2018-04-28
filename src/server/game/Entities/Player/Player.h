@@ -19,6 +19,8 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "Arena.h"
+#include "ArenaHelper.h"
 #include "Unit.h"
 #include "CUFProfile.h"
 #include "DatabaseEnvFwd.h"
@@ -756,19 +758,6 @@ enum InstanceResetWarningType
     RAID_INSTANCE_WARNING_MIN_SOON  = 3,                    // WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
     RAID_INSTANCE_WELCOME           = 4,                    // Welcome to %s. This raid instance is scheduled to reset in %s.
     RAID_INSTANCE_EXPIRED           = 5
-};
-
-// PLAYER_FIELD_ARENA_TEAM_INFO_1_1 offsets
-enum ArenaTeamInfoType
-{
-    ARENA_TEAM_ID                = 0,
-    ARENA_TEAM_TYPE              = 1,                       // new in 3.2 - team type?
-    ARENA_TEAM_MEMBER            = 2,                       // 0 - captain, 1 - member
-    ARENA_TEAM_GAMES_WEEK        = 3,
-    ARENA_TEAM_GAMES_SEASON      = 4,
-    ARENA_TEAM_WINS_SEASON       = 5,
-    ARENA_TEAM_PERSONAL_RATING   = 6,
-    ARENA_TEAM_END               = 7
 };
 
 class InstanceSave;
@@ -1830,16 +1819,25 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ObjectGuid::LowType GetGuildIdInvited() const { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid);
 
-        // Arena Team
-        void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type);
-        void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value);
-        static uint32 GetArenaTeamIdFromDB(ObjectGuid guid, uint8 slot);
-        static void LeaveAllArenaTeams(ObjectGuid guid);
-        uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
-        uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
-        void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
-        uint32 GetArenaTeamIdInvited() const { return m_ArenaTeamIdInvited; }
-        uint32 GetRBGPersonalRating() const { return 0; }
+        // Arena
+        uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaPersonalRating[slot]; }
+        uint32 GetBestRatingOfWeek(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfWeek[slot]; }
+        uint32 GetBestRatingOfSeason(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfSeason[slot]; }
+        uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekWins[slot]; }
+        uint32 GetPrevWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekWins[slot]; }
+        uint32 GetPrevWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekGames[slot]; }
+        uint32 GetSeasonWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonWins[slot]; }
+        uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekGames[slot]; }
+        uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonGames[slot]; }
+        uint32 GetArenaMatchMakerRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaMatchMakerRating[slot]; }
+        uint32 GetMaxRating() const;
+        void SetArenaPersonalRating(uint8 p_Slot, uint32 p_Value);
+        void SetArenaMatchMakerRating(uint8 slot, uint32 value);
+        void IncrementWeekGames(uint8 slot);
+        void IncrementWeekWins(uint8 slot);
+        void IncrementSeasonGames(uint8 slot);
+        void IncrementSeasonWins(uint8 slot);
+        void FinishWeek();
 
         Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
         Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
@@ -2472,6 +2470,19 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // End Garrisons
 
+        // Arena
+        uint32 m_ArenaPersonalRating[MAX_PVP_SLOT];
+        uint32 m_BestRatingOfWeek[MAX_PVP_SLOT];
+        uint32 m_BestRatingOfSeason[MAX_PVP_SLOT];
+        uint32 m_ArenaMatchMakerRating[MAX_PVP_SLOT];
+        uint32 m_WeekWins[MAX_PVP_SLOT];
+        uint32 m_PrevWeekWins[MAX_PVP_SLOT];
+        uint32 m_PrevWeekGames[MAX_PVP_SLOT];
+        uint32 m_SeasonWins[MAX_PVP_SLOT];
+        uint32 m_WeekGames[MAX_PVP_SLOT];
+        uint32 m_SeasonGames[MAX_PVP_SLOT];
+        // End Arena
+
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
@@ -2581,7 +2592,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadSpells(PreparedQueryResult result);
         bool _LoadHomeBind(PreparedQueryResult result);
         void _LoadDeclinedNames(PreparedQueryResult result);
-        void _LoadArenaTeamInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
         void _LoadTransmogOutfits(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
@@ -2681,7 +2691,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SkillStatusMap mSkillStatus;
 
         ObjectGuid::LowType m_GuildIdInvited;
-        uint32 m_ArenaTeamIdInvited;
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
