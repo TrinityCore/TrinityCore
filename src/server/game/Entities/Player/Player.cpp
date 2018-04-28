@@ -5139,8 +5139,13 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_PVP_POWER:
         case CR_CLEAVE:
+            break;
         case CR_VERSATILITY_DAMAGE_DONE:
+            UpdateVersatilityDamageDone();
+            break;
         case CR_VERSATILITY_HEALING_DONE:
+            UpdateHealingDonePercentMod();
+            break;
         case CR_VERSATILITY_DAMAGE_TAKEN:
         case CR_UNUSED_12:
             break;
@@ -14111,6 +14116,12 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+                            break;
+                        case ITEM_MOD_VERSATILITY:
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u VERSATILITY", enchant_amount);
                             break;
                         default:
                             break;
