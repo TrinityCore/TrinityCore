@@ -10004,7 +10004,7 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
 
     if (inBankAlso)
     {
-        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; i++)
+        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; i++)
         {
             Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
@@ -12525,7 +12525,7 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
     {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
-            if (item && item->GetEntry() == itemEntry && !item->IsInTrade())
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
             {
                 if (item->GetCount() + remcount <= count)
                 {
@@ -12608,6 +12608,36 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                             return;
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // in bank bag list
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+    {
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
+            {
+                if (item->GetCount() + remcount <= count)
+                {
+                    if (!unequip_check || CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | i, false) == EQUIP_ERR_OK)
+                    {
+                        remcount += item->GetCount();
+                        DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+                        if (remcount >= count)
+                            return;
+                    }
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(item->GetEntry(), count - remcount);
+                    item->SetCount(item->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        item->SendUpdateToPlayer(this);
+                    item->SetState(ITEM_CHANGED, this);
+                    return;
                 }
             }
         }
