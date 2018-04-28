@@ -157,6 +157,7 @@ enum WarriorSpells
     SPELL_WARRIOR_WHIRLWIND_MAINHAND                = 199667,
     SPELL_WARRIOR_WHIRLWIND_OFFHAND                 = 44949,
     SPELL_WARRIOR_WRECKING_BALL_EFFECT              = 215570,
+    SPELL_WARRIOR_COMMANDING_SHOUT                  = 97463,
 
     WARRIOR_NPC_MOCKING_BANNER                      = 59390,
 };
@@ -173,6 +174,23 @@ enum MiscSpells
     SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
     SPELL_PRIEST_RENEWED_HOPE                       = 63944
+};
+
+// 97462 Commanding Shout 7.3.5
+class spell_warr_commanding_shout : public SpellScript
+{
+    PrepareSpellScript(spell_warr_commanding_shout);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_WARRIOR_COMMANDING_SHOUT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_commanding_shout::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // Jump to Skyhold Jump - 192085
@@ -2929,6 +2947,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_wrecking_ball_effect();
     new spell_warr_rallying_cry();
     new spell_warr_jump_to_skyhold();
+    RegisterSpellScript(spell_warr_commanding_shout);
     RegisterAuraScript(spell_warr_ravager);
 
     new npc_warr_ravager();
