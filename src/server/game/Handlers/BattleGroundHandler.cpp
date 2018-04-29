@@ -665,7 +665,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPackets::Battlegroun
             return;
 
         ObjectGuid errorGuid;
-        err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg->GetMaxPlayersPerTeam(), false, 0, errorGuid);
+        err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, arenaType, bg->GetMaxPlayersPerTeam(), false, 0, errorGuid);
         isPremade = (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
 
         BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
