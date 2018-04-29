@@ -625,7 +625,7 @@ void Item::SaveToDB(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* /*owner*//* = nullptr*/)
+bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* owner/* = nullptr*/)
 {
     //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
@@ -771,7 +771,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     {
         SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(m_randomEnchantment.Id));
         // recalculate suffix factor
-        UpdateItemSuffixFactor();
+        UpdateItemSuffixFactor(owner);
     }
 
     // Remove bind flag for items vs BIND_NONE set
@@ -968,14 +968,16 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId, 
     }
 }
 
-void Item::UpdateItemSuffixFactor(Player const* /*owner*//* = nullptr*/)
+void Item::UpdateItemSuffixFactor(Player const* owner/* = nullptr*/)
 {
     if (!GetTemplate()->GetRandomSuffix())
         return;
 
     uint32 suffixFactor = 0;
-    if (Player* owner = GetOwner())
-        suffixFactor = GetRandomPropertyPoints(GetItemLevel(owner), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
+    Player* currentOwner = GetOwner();
+
+    if (currentOwner || owner)
+        suffixFactor = GetRandomPropertyPoints(GetItemLevel(currentOwner ? currentOwner: owner), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
     else
         suffixFactor = GenerateEnchSuffixFactor(GetEntry());
 

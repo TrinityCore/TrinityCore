@@ -12048,11 +12048,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             item->AddBonuses(bonusListID);
 
         item->SetItemRandomProperties(randomPropertyId);
+        item->SetFixedLevel(getLevel());
 
         item = StoreItem(pos, item, update);
-
-        item->SetFixedLevel(getLevel());
-        item->SetItemRandomProperties(randomPropertyId);
 
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
