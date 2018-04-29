@@ -11847,22 +11847,24 @@ void Unit::SetControlled(bool apply, UnitState state)
                 return;
         }
 
-        ClearUnitState(state);
-
-        // Unit States might have been already cleared but auras still present. I need to check with HasAuraType
-        if (HasAuraType(SPELL_AURA_MOD_STUN))
-            SetStunned(true);
-        else
-        {
-            if (HasAuraType(SPELL_AURA_MOD_ROOT))
-                SetRooted(true);
-
-            if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
-                SetConfused(true);
-            else if (HasAuraType(SPELL_AURA_MOD_FEAR))
-                SetFeared(true);
-        }
+        ApplyControlStatesIfNeeded();
     }
+}
+
+void Unit::ApplyControlStatesIfNeeded()
+{
+    // Unit States might have been already cleared but auras still present. I need to check with HasAuraType
+    if (HasUnitState(UNIT_STATE_STUNNED) || HasAuraType(SPELL_AURA_MOD_STUN))
+        SetStunned(true);
+
+    if (HasUnitState(UNIT_STATE_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT))
+        SetRooted(true);
+
+    if (HasUnitState(UNIT_STATE_CONFUSED) || HasAuraType(SPELL_AURA_MOD_CONFUSE))
+        SetConfused(true);
+
+    if (HasUnitState(UNIT_STATE_FLEEING) || HasAuraType(SPELL_AURA_MOD_FEAR))
+        SetFeared(true);
 }
 
 void Unit::SetStunned(bool apply)
@@ -11971,9 +11973,12 @@ void Unit::SetConfused(bool apply)
         }
     }
 
-    if (Player* player = ToPlayer())
-        if (!player->HasUnitState(UNIT_STATE_POSSESSED))
-            player->SetClientControl(this, !apply);
+    // block / allow control to real player in control (eg charmer)
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        if (m_playerMovingMe)
+            m_playerMovingMe->SetClientControl(this, !apply);
+    }
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
@@ -12131,6 +12136,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 break;
         }
     }
+
+    AddUnitState(UNIT_STATE_CHARMED);
     return true;
 }
 
@@ -12236,6 +12243,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
             NeedChangeAI = true;
             IsAIEnabled = false;
         }
+
         player->SetClientControl(this, true);
     }
 
@@ -12244,6 +12252,10 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         playerCharmer->SendRemoveControlBar();
     else if (GetTypeId() == TYPEID_PLAYER || (GetTypeId() == TYPEID_UNIT && !IsGuardian()))
         DeleteCharmInfo();
+
+    // reset confused movement for example
+    ApplyControlStatesIfNeeded();
+    ClearUnitState(UNIT_STATE_CHARMED);
 }
 
 void Unit::RestoreFaction()
