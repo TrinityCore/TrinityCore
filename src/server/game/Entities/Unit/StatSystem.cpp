@@ -443,6 +443,10 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
+    float versaDmgMod = 1.0f;
+
+    AddPct(versaDmgMod, GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + float(GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY)));
+
     SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
     if (shapeshift && shapeshift->CombatRoundTime)
     {
@@ -462,8 +466,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weaponMaxDamage = BASE_MAXDAMAGE;
     }
 
-    minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct;
-    maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct;
+    minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
+    maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
 }
 
 void Player::UpdateBlockPercentage()
@@ -570,6 +574,29 @@ void Player::UpdateMastery()
             }
         }
     }
+}
+
+void Player::UpdateVersatilityDamageDone()
+{
+    // No proof that CR_VERSATILITY_DAMAGE_DONE is allways = PLAYER_VERSATILITY
+    SetUInt32Value(PLAYER_VERSATILITY, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_VERSATILITY_DAMAGE_DONE));
+
+    if (getClass() == CLASS_HUNTER)
+        UpdateDamagePhysical(RANGED_ATTACK);
+    else
+        UpdateDamagePhysical(BASE_ATTACK);
+}
+
+void Player::UpdateHealingDonePercentMod()
+{
+    float value = 1.0f;
+
+    AddPct(value, GetRatingBonusValue(CR_VERSATILITY_HEALING_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+
+    for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT))
+        AddPct(value, auraEffect->GetAmount());
+
+    SetStatFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PCT, value);
 }
 
 const float m_diminishing_k[MAX_CLASSES] =
