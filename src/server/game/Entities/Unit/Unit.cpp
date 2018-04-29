@@ -6505,6 +6505,10 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
+    // Versatility
+    if (Player* modOwner = GetSpellModOwner())
+        AddPct(DoneTotalMod, modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+
     float maxModDamagePercentSchool = 0.0f;
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -6586,6 +6590,14 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     {
         // get all auras from caster that allow the spell to ignore resistance (sanctified wrath)
         TakenTotalCasterMod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_IGNORE_TARGET_RESIST, spellProto->GetSchoolMask());
+
+        // Versatility
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
+            float versaBonus = modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) / 2.0f;
+            AddPct(TakenTotalMod, -(modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + versaBonus));
+        }
 
         // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
         // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
@@ -6961,6 +6973,9 @@ float Unit::SpellHealingPctDone(Unit* /*victim*/, SpellInfo const* spellProto) c
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return 1.0f;
+
+    if (IsPlayer())
+        return GetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PCT);
 
     float DoneTotalMod = 1.0f;
 
@@ -7425,6 +7440,14 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
     else
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
+
+    // Versatility
+    if (Player* modOwner = GetSpellModOwner())
+    {
+        // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
+        float versaBonus = modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) / 2.0f;
+        AddPct(TakenTotalMod, -(modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + versaBonus));
+    }
 
     float tmpDamage = 0.0f;
 
