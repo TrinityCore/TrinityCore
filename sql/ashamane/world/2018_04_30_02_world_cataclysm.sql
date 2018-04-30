@@ -119,7 +119,7 @@ UPDATE `creature_template` SET `MovementType` = 1, `InhabitType` = 5 WHERE `entr
 DELETE FROM `creature_template_addon` WHERE (`entry`=44337);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (44337, 0, 0, 0, 1, 233, '');
 UPDATE `creature_loot_template` SET `Chance` = '55' , `MinCount` = '2' , `MaxCount` = '4' WHERE `Entry` = '42336' AND `Item` = '57177'; 
-UPDATE `world`.`creature_loot_template` SET `Chance` = '55' WHERE `Entry` = '42338' AND `Item` = '57179'; 
+UPDATE `creature_loot_template` SET `Chance` = '55' WHERE `Entry` = '42338' AND `Item` = '57179'; 
 DELETE FROM `creature_template_addon` WHERE (`entry`=41193);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (41193, 0, 0, 0, 1, 0, 84063);
 UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (41158,306,307);
