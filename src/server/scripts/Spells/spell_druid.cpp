@@ -78,24 +78,20 @@ enum GoreSpells
 };
 
 // 210706 - Gore 7.3.5
- class spell_dru_gore_AuraScript : public AuraScript
+ class spell_dru_gore : public AuraScript
  {
-        PrepareAuraScript(spell_dru_gore_AuraScript);
+    PrepareAuraScript(spell_dru_gore);
 
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            bool _spellCanProc = (eventInfo.GetSpellInfo()->Id == SPELL_DRUID_THRASH || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_MAUL || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_MOONFIRE || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_SWIPE);
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        bool _spellCanProc = (eventInfo.GetSpellInfo()->Id == SPELL_DRUID_THRASH || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_MAUL || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_MOONFIRE || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_SWIPE);
+        return (eventInfo.GetHitMask() & PROC_HIT_NORMAL) && _spellCanProc;
+    }
 
-            if ((eventInfo.GetHitMask() & PROC_HIT_NORMAL) && _spellCanProc)
-                return true;
-
-            return false;
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_dru_gore_AuraScript::CheckProc);
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_gore::CheckProc);
+    }
  };
 
 //7.3.2.25549
