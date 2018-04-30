@@ -21901,62 +21901,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     }
 }
 
-// Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId /*= 0*/, Aura* aura /*= nullptr*/)
-{
-    if (!spell || spell->m_appliedMods.empty())
-        return;
-
-    std::vector<Aura*> aurasQueue;
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
-    {
-        for (uint8 j = 0; j < SPELLMOD_END; ++j)
-        {
-            for (SpellModifier* mod : m_spellMods[i][j])
-            {
-                // Spellmods without charged aura set cannot be charged
-                if (!mod->ownerAura->IsUsingCharges())
-                    continue;
-
-                // Restore only specific owner aura mods
-                if (ownerAuraId && mod->spellId != ownerAuraId)
-                    continue;
-
-                if (aura && mod->ownerAura != aura)
-                    continue;
-
-                // Check if mod affected this spell
-                // First, check if the mod aura applied at least one spellmod to this spell
-                Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
-                if (iterMod == spell->m_appliedMods.end())
-                    continue;
-                // Second, check if the current mod is one of those applied by the mod aura
-                if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
-                    continue;
-
-                // remove from list - This will be done after all mods have been gone through
-                // to ensure we iterate over all mods of an aura before removing said aura
-                // from applied mods (Else, an aura with two mods on the current spell would
-                // only see the first of its modifier restored)
-                aurasQueue.push_back(mod->ownerAura);
-
-                // add charges back to aura
-                mod->ownerAura->ModCharges(1);
-            }
-        }
-    }
-
-    for (Aura* aura : aurasQueue)
-        spell->m_appliedMods.erase(aura);
-}
-
-void Player::RestoreAllSpellMods(uint32 ownerAuraId /*= 0*/, Aura* aura /*= nullptr*/)
-{
-    for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
-        if (Spell* spell = m_currentSpells[i])
-            RestoreSpellMods(spell, ownerAuraId, aura);
-}
-
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
     if (!spell)
