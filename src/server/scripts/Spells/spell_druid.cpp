@@ -44,6 +44,8 @@ enum DruidSpells
     SPELL_DRUID_CHOSEN_OF_ELUNE                     = 102560,
     SPELL_DRUID_BLUE_COLOR                          = 108268,
     SPELL_DRUID_SHADOWY_GHOST                       = 165114,
+
+    SPELL_DRUID_GORE                                = 210706,
 };
 
 enum ShapeshiftFormSpells
@@ -66,6 +68,35 @@ enum EfflorescenceSpells
     SPELL_DRUID_EFFLORESCENCE_HEAL   = 81269,
     SPELL_DRUID_EFFLORESCENCE_DUMMY  = 81262
 };
+
+enum GoreSpells
+{
+    SPELL_DRUID_THRASH = 106832,
+    SPELL_DRUID_MAUL = 6807,
+    SPELL_DRUID_MOONFIRE = 8921,
+    SPELL_DRUID_SWIPE = 213764
+};
+
+// 210706 - Gore 7.3.5
+ class spell_dru_gore_AuraScript : public AuraScript
+ {
+        PrepareAuraScript(spell_dru_gore_AuraScript);
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            bool _spellCanProc = (eventInfo.GetSpellInfo()->Id == SPELL_DRUID_THRASH || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_MAUL || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_MOONFIRE || eventInfo.GetSpellInfo()->Id == SPELL_DRUID_SWIPE);
+
+            if ((eventInfo.GetHitMask() & PROC_HIT_NORMAL) && _spellCanProc)
+                return true;
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dru_gore_AuraScript::CheckProc);
+        }
+ };
 
 //7.3.2.25549
 // 77758 - Thrash
@@ -2273,6 +2304,7 @@ void AddSC_druid_spell_scripts()
     //7.3.5.25996
     RegisterSpellScript(spell_dru_blessing_of_the_ancients);
 
+    RegisterAuraScript(spell_dru_gore);
     RegisterAuraScript(aura_dru_solar_empowerment);
     RegisterAuraScript(aura_dru_lunar_empowerment);
     RegisterAuraScript(aura_dru_astral_form);
