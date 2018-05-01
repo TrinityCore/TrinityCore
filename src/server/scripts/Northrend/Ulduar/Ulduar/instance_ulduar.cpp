@@ -1042,9 +1042,8 @@ class instance_ulduar : public InstanceMapScript
                             for (auto const& vehicleGuid : LeviathanVehicleGUIDs)
                             {
                                 if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
-                                {
                                     DespawnLeviatanVehicle(vehicleCreature);                                   
-                                }
+                                
                             }
                             break;
                         case EVENT_LEVIATHAN_BREAK_DOOR:
