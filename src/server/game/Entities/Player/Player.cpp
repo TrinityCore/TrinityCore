@@ -24773,8 +24773,10 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
             return;
 
         // profession specialization can be re-learned from npc
-        if (learnedInfo->GetEffect(EFFECT_0)->Effect == SPELL_EFFECT_TRADE_SKILL && learnedInfo->GetEffect(EFFECT_1)->Effect == 0 && !learnedInfo->SpellLevel)
-            return;
+        if (SpellEffectInfo const* learnedInfoEffect0 = learnedInfo->GetEffect(EFFECT_0))
+            if (SpellEffectInfo const* learnedInfoEffect1 = learnedInfo->GetEffect(EFFECT_1))
+                if (learnedInfoEffect0->Effect == SPELL_EFFECT_TRADE_SKILL && learnedInfoEffect1->Effect == 0 && !learnedInfo->SpellLevel)
+                    return;
     }
 
     CastSpell(this, spell_id, true);
@@ -24784,13 +24786,8 @@ void Player::LearnQuestRewardedSpells()
 {
     // learn spells received from quest completing
     for (RewardedQuestSet::const_iterator itr = m_RewardedQuests.begin(); itr != m_RewardedQuests.end(); ++itr)
-    {
-        Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
-        if (!quest)
-            continue;
-
-        LearnQuestRewardedSpells(quest);
-    }
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(*itr))
+            LearnQuestRewardedSpells(quest);
 }
 
 void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
