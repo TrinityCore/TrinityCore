@@ -1040,11 +1040,8 @@ class instance_ulduar : public InstanceMapScript
                             // Eject all players from vehicles and make them untargetable.
                             // They will be despawned after a while
                             for (auto const& vehicleGuid : LeviathanVehicleGUIDs)
-                            {
                                 if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
-                                    DespawnLeviatanVehicle(vehicleCreature);                                   
-                                
-                            }
+                                    DespawnLeviatanVehicle(vehicleCreature);
                             break;
                         case EVENT_LEVIATHAN_BREAK_DOOR:
                             if (Creature* leviathan = GetCreature(BOSS_LEVIATHAN))
