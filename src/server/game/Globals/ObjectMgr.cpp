@@ -8512,6 +8512,8 @@ void ObjectMgr::LoadCreatureOutfits()
                 uint32 item_entry = static_cast<uint32>(displayInfo);
                 if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item_entry))
                     co->outfitdisplays[slot] = proto->DisplayInfoID;
+                else if (auto * dbcentry = sItemStore.LookupEntry(item_entry))
+                    co->outfitdisplays[slot] = dbcentry->DisplayId;
                 else
                 {
                     TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has invalid item entry: %u. Ignoring.", entry, item_entry);
