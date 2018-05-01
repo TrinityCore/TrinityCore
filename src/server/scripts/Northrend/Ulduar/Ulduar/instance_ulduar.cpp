@@ -281,7 +281,10 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_SALVAGED_DEMOLISHER:
                     case NPC_SALVAGED_SIEGE_ENGINE:
                     case NPC_SALVAGED_CHOPPER:
-                        LeviathanVehicleGUIDs.push_back(creature->GetGUID());
+                        if (GetBossState(BOSS_LEVIATHAN) == DONE)
+                            DespawnLeviatanVehicle(creature);
+                        else
+                            LeviathanVehicleGUIDs.push_back(creature->GetGUID());
                         break;
 
                     // XT-002 Deconstructor
@@ -1040,12 +1043,7 @@ class instance_ulduar : public InstanceMapScript
                             {
                                 if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
                                 {
-                                    if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
-                                    {
-                                        vehicle->RemoveAllPassengers();
-                                        vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                        vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
-                                    }
+                                    DespawnLeviatanVehicle(vehicleCreature);                                   
                                 }
                             }
                             break;
@@ -1056,6 +1054,16 @@ class instance_ulduar : public InstanceMapScript
                                 gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                             break;
                     }
+                }
+            }
+
+            void DespawnLeviatanVehicle(Creature* vehicleCreature)
+            {
+                if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
+                {
+                    vehicle->RemoveAllPassengers();
+                    vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
                 }
             }
 
