@@ -1592,75 +1592,57 @@ class spell_pri_shadowform : public SpellScriptLoader
 };
 
 // 15286 - Vampiric Embrace
-class spell_pri_vampiric_embrace : public SpellScriptLoader
+class spell_pri_vampiric_embrace : public AuraScript
 {
-    public:
-        spell_pri_vampiric_embrace() : SpellScriptLoader("spell_pri_vampiric_embrace") { }
+    PrepareAuraScript(spell_pri_vampiric_embrace);
 
-        class spell_pri_vampiric_embrace_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_vampiric_embrace_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL))
-                    return false;
-                return true;
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (!eventInfo.GetDamageInfo())
+            return false;
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                // Not proc from Mind Sear
-                return !(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x80000);
-            }
+        if (!eventInfo.GetDamageInfo()->GetSpellInfo())
+            return false;
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                int32 self = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                int32 team = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount() / 2));
+        // Not proc from Mind Sear
+        return !(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x80000);
+    }
 
-                GetTarget()->CastCustomSpell((Unit*)NULL, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, &team, &self, NULL, true, NULL, aurEff);
-            }
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        int32 self = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+        int32 team = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount() / 2));
 
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_embrace_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_embrace_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
+        GetTarget()->CastCustomSpell((Unit*)NULL, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, &team, &self, NULL, true, NULL, aurEff);
+    }
 
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_vampiric_embrace_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_embrace::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_embrace::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 15290 - Vampiric Embrace (heal)
-class spell_pri_vampiric_embrace_target : public SpellScriptLoader
+class spell_pri_vampiric_embrace_target : public SpellScript
 {
-    public:
-        spell_pri_vampiric_embrace_target() : SpellScriptLoader("spell_pri_vampiric_embrace_target") { }
+    PrepareSpellScript(spell_pri_vampiric_embrace_target);
 
-        class spell_pri_vampiric_embrace_target_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_vampiric_embrace_target_SpellScript);
+    void FilterTargets(std::list<WorldObject*>& unitList)
+    {
+        unitList.remove(GetCaster());
+    }
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                unitList.remove(GetCaster());
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_vampiric_embrace_target_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_vampiric_embrace_target_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_vampiric_embrace_target::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+    }
 };
 
 // 34914 - Vampiric Touch
@@ -2892,8 +2874,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_shadowform();
     new spell_pri_spirit_shell();
     new spell_pri_strength_of_soul();
-    new spell_pri_vampiric_embrace();
-    new spell_pri_vampiric_embrace_target();
+    RegisterAuraScript(spell_pri_vampiric_embrace);
+    RegisterSpellScript(spell_pri_vampiric_embrace_target);
     new spell_pri_vampiric_touch();
     new spell_pri_void_bolt();
     new spell_pri_void_eruption();
