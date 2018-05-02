@@ -135,11 +135,10 @@ struct boss_baron_rivendare : public BossAI
                     }
                     else
                     {
-                        DoCast(SPELL_DEATH_PACT);
                         RaiseDead = false;
                         Talk(EMOTE_DEATH_PACT);
                     }
-                    events.Repeat(12s, 15s);
+                    events.Repeat(12s);
                     break;
             }
 
