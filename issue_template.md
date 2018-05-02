@@ -18,8 +18,8 @@ CHANGEME Tell us what should happen instead.
 
 **Project(s): <-- Mandatory**
 
- [ ] Issue found playing in Live Ashamane Private Server.
- [ ] Issue found in a compiled master repo from Git.
+- [ ] Issue found playing in Live Ashamane Private Server.
+- [ ] Issue found in a compiled master repo from Git.
 
 **TC rev. hash/commit:** 
 
