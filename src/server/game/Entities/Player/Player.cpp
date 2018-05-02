@@ -26346,19 +26346,23 @@ bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
 
 void Player::EnablePvpRules(bool dueToCombat /*= false*/)
 {
-    if (HasPvpRulesEnabled())
-        return;
+    if (!HasPvpRulesEnabled())
+    {
+        if (!HasSpell(195710)) // Honorable Medallion
+            CastSpell(this, 208682, true); // Learn Gladiator's Medallion
 
-    if (!HasSpell(195710)) // Honorable Medallion
-        CastSpell(this, 208682); // Learn Gladiator's Medallion
+        CastSpell(this, SPELL_PVP_RULES_ENABLED, true);
+    }
 
-    CastSpell(this, SPELL_PVP_RULES_ENABLED);
     if (!dueToCombat)
     {
         if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         {
-            aura->SetMaxDuration(-1);
-            aura->SetDuration(-1);
+            if (!aura->IsPermanent())
+            {
+                aura->SetMaxDuration(-1);
+                aura->SetDuration(-1);
+            }
         }
     }
 
