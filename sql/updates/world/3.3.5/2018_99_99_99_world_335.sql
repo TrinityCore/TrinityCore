@@ -13,3 +13,8 @@ DELETE FROM `creature_text` WHERE `CreatureID` IN (10440);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
 (10440, 0, 0, '%s raises an undead servant back to life!'      , 16, 0, 0, 0, 0, 0, 6511, 0, 'Baron Rivendare - EMOTE_RAISE_DEAD'),
 (10440, 1, 0, '%s attempts to cast Death Pact on his servants!', 16, 0, 0, 0, 0, 0, 6512, 0, 'Baron Rivendare - EMOTE_DEATH_PACT');
+
+-- Stratholme - Baron Rivendare - Kill Skeleton (if alive) and Heal himself
+DELETE FROM `conditions` WHERE `SourceEntry` = 17471;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `Comment`) VALUES 
+(13, 1, 17471, 0, 0, 31, 0, 3, 11197, 0, 0, 0, 0, 'Stratholme - Baron Rivendare - Kill Skeleton and Heal himself');
