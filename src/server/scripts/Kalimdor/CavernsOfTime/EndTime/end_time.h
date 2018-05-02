@@ -41,6 +41,15 @@ enum DataTypes
     DATA_BOSS_COUNT,
 };
 
+enum Npcs
+{
+    NPC_ECHO_OF_BAINE       = 54431,
+    NPC_ECHO_OF_JAINA       = 54445,
+    NPC_ECHO_OF_SYLVANAS    = 54123,
+    NPC_ECHO_OF_TYRANDE     = 54544,
+    NPC_ECHO_OF_MUROZOND    = 54432,
+};
+
 enum TeleporterSpells
 {
     AZURE_DRAGONSHIRINE_TELEPORT    = 102126,

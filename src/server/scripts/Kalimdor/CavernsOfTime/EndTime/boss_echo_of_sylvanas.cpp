@@ -92,7 +92,6 @@ enum Events
 
 enum Misc
 {
-    NPC_SYLVANAS                    = 54123,
     NPC_GHOUL_SUMMONER              = 54197,
     NPC_RISEN_GHOUL                 = 54191
 };
@@ -308,7 +307,8 @@ class mob_ghoul_summoner : public CreatureScript
                 me->GetMotionMaster()->Clear();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetTarget(GetClosestCreatureWithEntry(me, NPC_SYLVANAS, 100.0f)->GetGUID());
+                if (Creature* sylvanas = instance->GetCreature(NPC_ECHO_OF_SYLVANAS))
+                    me->SetTarget(sylvanas->GetGUID());
                 me->SetSpeed(MOVE_WALK, 0.4f);
                 me->SetWalk(true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -324,7 +324,6 @@ class mob_ghoul_summoner : public CreatureScript
 
 
             void UpdateAI(uint32 diff) override
-
             {
                 if (!UpdateVictim())
                     return;
@@ -387,7 +386,8 @@ class mob_risen_ghoul : public CreatureScript
             {
                 me->GetMotionMaster()->Clear();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetTarget(GetClosestCreatureWithEntry(me, NPC_SYLVANAS, 100.0f)->GetGUID());
+                if (Creature* sylvanas = instance->GetCreature(NPC_ECHO_OF_SYLVANAS))
+                    me->SetTarget(sylvanas->GetGUID());
                 me->SetSpeed(MOVE_WALK, 0.4f);
                 me->SetWalk(true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -414,15 +414,14 @@ class mob_risen_ghoul : public CreatureScript
             }
 
             void UpdateAI(uint32 diff) override
-
             {
                 events.Update(diff);
 
                 // We have to check if a player is between two adjacent ghouls
                 // First step: we make a list of all ghouls in 30 ys
                 // nextGhoul1 & nextGhoul2 are the two nearby ghoul (one to the left and one to the right)
-                Unit* nextGhoul1 = NULL;
-                Unit* nextGhoul2 = NULL;
+                Unit* nextGhoul1 = nullptr;
+                Unit* nextGhoul2 = nullptr;
                 std::list<Unit*> Ghouls;
                 Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, Ghouls, u_check);
@@ -433,7 +432,7 @@ class mob_risen_ghoul : public CreatureScript
                     if ((*iter)->GetEntry() != NPC_RISEN_GHOUL && nextGhoul1 && nextGhoul2)
                         continue;
 
-                    if (Unit* sylvanas = GetClosestCreatureWithEntry(me, NPC_SYLVANAS, 100.0f))
+                    if (Creature* sylvanas = instance->GetCreature(NPC_ECHO_OF_SYLVANAS))
                     {
                         // We have to check if the angle between ghoul (me), sylvanas and the adjacent ghoul
                         float meX = me->GetPositionX();
@@ -559,18 +558,6 @@ class mob_risen_ghoul : public CreatureScript
         }
 };
 
-class GhoulCheck
-{
-public:
-    bool operator()(const WorldObject* target) const
-    {
-        if (target->GetEntry() != NPC_RISEN_GHOUL)
-            return true;
-
-        return false;
-    }
-};
-
 class spell_wracking_pain_link : public SpellScriptLoader
 {
     public:
@@ -582,7 +569,10 @@ class spell_wracking_pain_link : public SpellScriptLoader
 
             void CountTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(GhoulCheck());
+                targets.remove_if([](const WorldObject* target)
+                {
+                    return target->GetEntry() != NPC_RISEN_GHOUL;
+                });
             }
 
             void Register() override
@@ -632,7 +622,6 @@ class mob_blighted_arrows : public CreatureScript
             }
 
             void UpdateAI(uint32 diff) override
-
             {
                 events.Update(diff);
 

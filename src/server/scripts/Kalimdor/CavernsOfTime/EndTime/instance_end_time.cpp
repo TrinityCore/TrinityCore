@@ -38,146 +38,129 @@ enum Bosses
     BOSS_ECHO_OF_BAINE
 };
 
-class instance_end_time : public InstanceMapScript
+struct instance_end_time_InstanceMapScript : public InstanceScript
 {
-    public:
-        instance_end_time() : InstanceMapScript(EndTimeScriptName, 938) { }
+    instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+    {
+        TeamInInstance = 0;
+        murozondStarted = false;
+        bossCount = 0;
+    }
 
-        struct instance_end_time_InstanceMapScript : public InstanceScript
+    void OnPlayerEnter(Player* player) override
+    {
+        if (!TeamInInstance)
         {
-            instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
-            {
-                TeamInInstance = 0;
-                MurozondGUID = ObjectGuid::Empty;
-                murozondStarted = false;
-                bossCount = 0;
-            }
+            TeamInInstance = player->GetTeam();
 
-            void OnPlayerEnter(Player* player) override
-            {
-                if (!TeamInInstance)
-                {
-                    TeamInInstance = player->GetTeam();
+            uint32 boss1 = urand(0, 3);
+            uint32 boss2 = urand(0, 3);
 
-                    uint32 boss1 = urand(0, 3);
-                    uint32 boss2 = urand(0, 3);
+            while (boss1 == boss2)
+                boss2 = urand(0, 3);
 
-                    while (boss1 == boss2)
-                        boss2 = urand(0, 3);
+            SetData(FIRST_BOSS, boss1);
+            SetData(SECOND_BOSS, boss2);
 
-                    this->SetData(FIRST_BOSS, boss1);
-                    this->SetData(SECOND_BOSS, boss2);
-
-                }
-
-                if (!GetData(DATA_MUROZOND_STARTED))
-                    player->RemoveAura(102668);
-            }
-
-            void OnUnitDeath(Unit* unit) override
-            {
-                Creature* creature = unit->ToCreature();
-                if (!creature)
-                    return;
-
-                if (GetData(DATA_MUROZOND_STARTED))
-                    return;
-
-                switch (creature->GetEntry())
-                {
-                case NPC_INFINITE_SUPPRESSOR:
-                    MurozondTrash.erase(creature->GetSpawnId());
-                    if (MurozondTrash.empty() && bossCount > 1)
-                    {
-                        if (Creature* murozond = instance->GetCreature(MurozondGUID))
-                            murozond->AI()->DoAction(ACTION_MUROZOND_START);
-                    }
-                    break;
-                case NPC_INFINITE_WARDEN:
-                    MurozondTrash.erase(creature->GetSpawnId());
-                    if (MurozondTrash.empty() && bossCount > 1)
-                    {
-                        if (Creature* murozond = instance->GetCreature(MurozondGUID))
-                            murozond->AI()->DoAction(ACTION_MUROZOND_START);
-                    }
-                    break;
-                }
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                case NPC_BOSS_MUROZOND:
-                    MurozondGUID = creature->GetGUID();
-                    break;
-                }
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                switch (type)
-                {
-                case FIRST_BOSS:
-                    firstBoss = data;
-                    break;
-                case SECOND_BOSS:
-                    secondBoss = data;
-                    break;
-                case DATA_MUROZOND_TRASH:
-                    MurozondTrash.insert(data);
-                    break;
-                case DATA_MUROZOND_STARTED:
-                    murozondStarted = data;
-                    break;
-                case DATA_BOSS_COUNT:
-                    //sLog->outError(LOG_FILTER_GENERAL, "bossCount = %u", bossCount);
-                    bossCount++;
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            uint32 GetData(uint32 type) const override 
-            {
-                switch (type)
-                {
-                case FIRST_BOSS:
-                    return firstBoss;
-                case SECOND_BOSS:
-                    return secondBoss;
-                case DATA_MUROZOND_TRASH:
-                    return MurozondTrash.size();
-                case DATA_MUROZOND_STARTED:
-                    return murozondStarted;
-                case DATA_BOSS_COUNT:
-                    return bossCount;
-                default:
-                    break;
-                }
-
-                return 0;
-            }
-
-
-        protected:
-            uint32 TeamInInstance;
-            uint32 firstBoss;
-            uint32 secondBoss;
-            ObjectGuid MurozondGUID;
-            bool murozondStarted;
-            std::set<uint32> MurozondTrash;
-
-            uint32 bossCount;
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_end_time_InstanceMapScript(map);
         }
-};
 
+        if (!GetData(DATA_MUROZOND_STARTED))
+            player->RemoveAura(102668);
+    }
+
+    void OnUnitDeath(Unit* unit) override
+    {
+        Creature* creature = unit->ToCreature();
+        if (!creature)
+            return;
+
+        if (GetData(DATA_MUROZOND_STARTED))
+            return;
+
+        switch (creature->GetEntry())
+        {
+            case NPC_INFINITE_SUPPRESSOR:
+            case NPC_INFINITE_WARDEN:
+            {
+                MurozondTrash.erase(creature->GetSpawnId());
+                if (MurozondTrash.empty() && bossCount > 1)
+                    if (Creature* murozond = instance->GetCreature(MurozondGUID))
+                        murozond->AI()->DoAction(ACTION_MUROZOND_START);
+
+                break;
+            }
+        }
+    }
+
+    void OnCreatureCreate(Creature* creature) override
+    {
+        InstanceScript::OnCreatureCreate(creature);
+
+        switch (creature->GetEntry())
+        {
+            case NPC_BOSS_MUROZOND:
+                MurozondGUID = creature->GetGUID();
+                break;
+        }
+    }
+
+    void SetData(uint32 type, uint32 data) override
+    {
+        switch (type)
+        {
+            case FIRST_BOSS:
+                firstBoss = data;
+                break;
+            case SECOND_BOSS:
+                secondBoss = data;
+                break;
+            case DATA_MUROZOND_TRASH:
+                MurozondTrash.insert(data);
+                break;
+            case DATA_MUROZOND_STARTED:
+                murozondStarted = data;
+                break;
+            case DATA_BOSS_COUNT:
+                //sLog->outError(LOG_FILTER_GENERAL, "bossCount = %u", bossCount);
+                bossCount++;
+                break;
+            default:
+                break;
+        }
+    }
+
+    uint32 GetData(uint32 type) const override 
+    {
+        switch (type)
+        {
+            case FIRST_BOSS:
+                return firstBoss;
+            case SECOND_BOSS:
+                return secondBoss;
+            case DATA_MUROZOND_TRASH:
+                return MurozondTrash.size();
+            case DATA_MUROZOND_STARTED:
+                return murozondStarted;
+            case DATA_BOSS_COUNT:
+                return bossCount;
+            default:
+                break;
+        }
+
+        return 0;
+    }
+
+
+protected:
+    uint32 TeamInInstance;
+    uint32 firstBoss;
+    uint32 secondBoss;
+    ObjectGuid MurozondGUID;
+    bool murozondStarted;
+    std::set<uint32> MurozondTrash;
+
+    uint32 bossCount;
+};
 
 class time_deliver_device : public GameObjectScript
 {
@@ -245,6 +228,6 @@ class time_deliver_device : public GameObjectScript
 
 void AddSC_instance_end_time()
 {
+    RegisterInstanceScript(instance_end_time, 938);
     new time_deliver_device();
-    new instance_end_time();
 }
