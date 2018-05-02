@@ -5300,10 +5300,12 @@ void Player::UpdateRating(CombatRating cr)
             UpdateMastery();
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
-        case CR_VERSATILITY_HEALING_DONE:
-        case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVersatility();
+            UpdateVersatilityDamageDone();
             break;
+        case CR_VERSATILITY_HEALING_DONE:
+            UpdateHealingDonePercentMod();
+            break;
+        case CR_VERSATILITY_DAMAGE_TAKEN:
         case CR_PVP_POWER:
         case CR_CLEAVE:
         case CR_UNUSED_12:
@@ -22470,65 +22472,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     }
 }
 
-// Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId /*= 0*/, Aura* aura /*= nullptr*/)
-{
-    if (!spell || spell->m_appliedMods.empty())
-        return;
-
-    std::vector<Aura*> aurasQueue;
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
-    {
-        for (uint8 j = 0; j < SPELLMOD_END; ++j)
-        {
-            for (SpellModifier* mod : m_spellMods[i][j])
-            {
-                if (!mod->ownerAura)
-                    continue;
-
-                // Spellmods without charged aura set cannot be charged
-                if (!mod->ownerAura->IsUsingCharges())
-                    continue;
-
-                // Restore only specific owner aura mods
-                if (ownerAuraId && mod->spellId != ownerAuraId)
-                    continue;
-
-                if (aura && mod->ownerAura != aura)
-                    continue;
-
-                // Check if mod affected this spell
-                // First, check if the mod aura applied at least one spellmod to this spell
-                Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
-                if (iterMod == spell->m_appliedMods.end())
-                    continue;
-                // Second, check if the current mod is one of those applied by the mod aura
-                if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
-                    continue;
-
-                // remove from list - This will be done after all mods have been gone through
-                // to ensure we iterate over all mods of an aura before removing said aura
-                // from applied mods (Else, an aura with two mods on the current spell would
-                // only see the first of its modifier restored)
-                aurasQueue.push_back(mod->ownerAura);
-
-                // add charges back to aura
-                mod->ownerAura->ModCharges(1);
-            }
-        }
-    }
-
-    for (Aura* aura : aurasQueue)
-        spell->m_appliedMods.erase(aura);
-}
-
-void Player::RestoreAllSpellMods(uint32 ownerAuraId /*= 0*/, Aura* aura /*= nullptr*/)
-{
-    for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
-        if (Spell* spell = m_currentSpells[i])
-            RestoreSpellMods(spell, ownerAuraId, aura);
-}
-
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
     if (!spell || !mod || !mod->ownerAura)
@@ -27078,19 +27021,23 @@ bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
 
 void Player::EnablePvpRules(bool dueToCombat /*= false*/)
 {
-    if (HasPvpRulesEnabled())
-        return;
+    if (!HasPvpRulesEnabled())
+    {
+        if (!HasSpell(195710)) // Honorable Medallion
+            CastSpell(this, 208682, true); // Learn Gladiator's Medallion
 
-    if (!HasSpell(195710)) // Honorable Medallion
-        CastSpell(this, 208682); // Learn Gladiator's Medallion
+        CastSpell(this, SPELL_PVP_RULES_ENABLED, true);
+    }
 
-    CastSpell(this, SPELL_PVP_RULES_ENABLED);
     if (!dueToCombat)
     {
         if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         {
-            aura->SetMaxDuration(-1);
-            aura->SetDuration(-1);
+            if (!aura->IsPermanent())
+            {
+                aura->SetMaxDuration(-1);
+                aura->SetDuration(-1);
+            }
         }
     }
 

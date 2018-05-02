@@ -202,7 +202,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModIncreaseHealthPercent,              //133 SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT
     &AuraEffect::HandleAuraModRegenInterrupt,                     //134 SPELL_AURA_MOD_MANA_REGEN_INTERRUPT
     &AuraEffect::HandleModHealingDone,                            //135 SPELL_AURA_MOD_HEALING_DONE
-    &AuraEffect::HandleNoImmediateEffect,                         //136 SPELL_AURA_MOD_HEALING_DONE_PERCENT   implemented in Unit::SpellHealingBonus
+    &AuraEffect::HandleModHealingDonePct,                         //136 SPELL_AURA_MOD_HEALING_DONE_PERCENT
     &AuraEffect::HandleModTotalPercentStat,                       //137 SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE
     &AuraEffect::HandleModMeleeSpeedPct,                          //138 SPELL_AURA_MOD_MELEE_HASTE
     &AuraEffect::HandleForceReaction,                             //139 SPELL_AURA_FORCE_REACTION
@@ -3447,6 +3447,15 @@ void AuraEffect::HandleModHealingDone(AuraApplication const* aurApp, uint8 mode,
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
+void AuraEffect::HandleModHealingDonePct(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    if (Player* player = aurApp->GetTarget()->ToPlayer())
+        player->UpdateHealingDonePercentMod();
+}
+
 void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
@@ -3591,24 +3600,17 @@ void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* au
     target->UpdateAttackPowerAndDamage(true);
 }
 
-void AuraEffect::HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    float value = target->ToPlayer()->GetFloatValue(PLAYER_VERSATILITY_BONUS);
-
-    if (apply)
-        target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value + GetAmount()));
-    else
-        target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value - GetAmount()));
-
-    target->ToPlayer()->UpdateVersatility();
+    if (Player* target = aurApp->GetTarget()->ToPlayer())
+    {
+        target->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, target->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+        target->UpdateHealingDonePercentMod();
+        target->UpdateVersatilityDamageDone();
+    }
 }
 
 void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const

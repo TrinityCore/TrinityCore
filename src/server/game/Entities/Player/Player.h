@@ -1734,8 +1734,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr);
         template <class T>
         void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
-        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
-        void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
         void SendSpellModifiers() const;
@@ -1875,8 +1873,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
         void UpdateMastery();
+        void UpdateVersatilityDamageDone();
+        void UpdateHealingDonePercentMod();
         bool CanUseMastery() const;
-        void UpdateVersatility();
         void UpdateAverageItemLevel();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;

@@ -38,9 +38,9 @@ enum Bosses
     BOSS_ECHO_OF_BAINE
 };
 
-struct instance_end_time_InstanceMapScript : public InstanceScript
+struct instance_end_time : public InstanceScript
 {
-    instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+    instance_end_time(InstanceMap* map) : InstanceScript(map)
     {
         TeamInInstance = 0;
         murozondStarted = false;
