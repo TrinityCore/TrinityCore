@@ -31,29 +31,32 @@
 
 enum SpellIds
 {
+    SPELL_DH_FURY_OF_THE_ILLIDARI_AT                = 202796,
+    SPELL_DH_FURY_OF_THE_ILLIDARI_MH                = 201628,
+    SPELL_DH_FURY_OF_THE_ILLIDARI_OH                = 201789,
     SPELL_DRUID_NEW_MOON                            = 202767,
     SPELL_DRUID_NEW_MOON_OVERRIDE                   = 202787,
     SPELL_DRUID_HALF_MOON                           = 202768,
     SPELL_DRUID_HALF_MOON_OVERRIDE                  = 202788,
     SPELL_DRUID_FULL_MOON                           = 202771,
     SPELL_DRUID_FULL_MOON_OVERRIDE                  = 202789,
+    SPELL_MAGE_BRAIN_FREEZE_AURA                    = 190446,
     SPELL_MAGE_IMMOLATION                           = 211918,
     SPELL_MAGE_PHOENIX_FLAMES                       = 194466,
     SPELL_MAGE_PHOENIX_FLAMES_TRIGGER               = 224637,
-    SPELL_DH_FURY_OF_THE_ILLIDARI_MH                = 201628,
-    SPELL_DH_FURY_OF_THE_ILLIDARI_OH                = 201789,
+    SPELL_PRIEST_CALL_OF_THE_VOID                   = 193371,
+    SPELL_PRIEST_CALL_OF_THE_VOID_SUMMON            = 193470,
+    SPELL_PRIEST_MIND_FLAY                          = 193473,
     SPELL_SHAMAN_CARESS_OF_THE_TIDEMOTHER           = 207354,
     SPELL_SHAMAN_HEALING_STREAM_TOTEM               = 5394,
     SPELL_SHAMAN_REINCARNATION                      = 20608,
     SPELL_SHAMAN_SERVANT_OF_THE_QUEEN               = 207357,
-    SPELL_DH_FURY_OF_THE_ILLIDARI_AT                = 202796,
     SPELL_WARLOCK_DEADWIND_HARVERST                 = 216708,
     SPELL_WARLOCK_TORMENTED_SOULS                   = 216695,
     SPELL_WARLOCK_THALKIELS_CONSUMPTION_DAMAGE      = 211715,
     SPELL_WARLOCK_TEAR_CHAOS_BARRAGE                = 187394,
     SPELL_WARLOCK_TEAR_CHAOS_BOLT                   = 215279,
     SPELL_WARLOCK_TEAR_SHADOW_BOLT                  = 196657,
-    SPELL_MAGE_BRAIN_FREEZE_AURA                    = 190446
 };
 
 // Ebonbolt - 214634
@@ -459,7 +462,6 @@ struct npc_warl_shadowy_tear : public ScriptedAI
     int32 counter = 0;
 
     void UpdateAI(uint32 diff) override
-
     {
         if (counter >= 7)
             return;
@@ -560,6 +562,40 @@ class spell_arti_dru_full_moon : public SpellScript
     }
 };
 
+// 193371 - Call to the Void
+class spell_arti_pri_call_of_the_void : public AuraScript
+{
+    PrepareAuraScript(spell_arti_pri_call_of_the_void);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_CALL_OF_THE_VOID, SPELL_PRIEST_CALL_OF_THE_VOID_SUMMON });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_CALL_OF_THE_VOID_SUMMON, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_arti_pri_call_of_the_void::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 98167 - Void Tendril
+struct npc_arti_priest_void_tendril : public ScriptedAI
+{
+    npc_arti_priest_void_tendril(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (Unit* target = ObjectAccessor::GetUnit(*summoner, summoner->GetTarget()))
+            me->CastSpell(target, SPELL_PRIEST_MIND_FLAY, false);
+    }
+};
+
 void AddSC_artifact_spell_scripts()
 {
     RegisterSpellScript(spell_arti_dru_new_moon);
@@ -584,4 +620,7 @@ void AddSC_artifact_spell_scripts()
     RegisterAreaTriggerAI(at_dh_fury_of_the_illidari);
 
     RegisterSpellScript(spell_arti_mage_ebonbolt);
+
+    RegisterAuraScript(spell_arti_pri_call_of_the_void);
+    RegisterCreatureAI(npc_arti_priest_void_tendril);
 }
