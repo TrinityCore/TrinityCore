@@ -3500,6 +3500,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 1;
     });
 
+    // Priest void form insanity regen rate
+    ApplySpellFix({ 194249 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->BasePoints /= 10;
+    });
+
     ApplySpellFix({
         104012, // Break Gong Credit
         105002, // Summon Hot Air Balloon

@@ -536,6 +536,12 @@ public:
     {
         PrepareAuraScript(spell_pri_voidform_AuraScript);
 
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                caster->RemoveAurasDueToSpell(SPELL_PRIEST_LINGERING_INSANITY);
+        }
+
         void HandlePeriodic(AuraEffect const* aurEff)
         {
             Unit* caster = GetCaster();
@@ -590,22 +596,11 @@ public:
             caster->CastCustomSpell(SPELL_PRIEST_LINGERING_INSANITY, mod, caster, TRIGGERED_FULL_MASK);
         }
 
-        void RemoveLingering(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->RemoveAurasDueToSpell(SPELL_PRIEST_LINGERING_INSANITY);
-            /*if (Player* player = caster->ToPlayer())
-                player->ResetInsanityTimer();*/
-        }
-
         void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_voidform_AuraScript::HandlePeriodic, EFFECT_4, SPELL_AURA_PERIODIC_DUMMY);
             AfterEffectRemove += AuraEffectRemoveFn(spell_pri_voidform_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectApply += AuraEffectApplyFn(spell_pri_voidform_AuraScript::RemoveLingering, EFFECT_4, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_pri_voidform_AuraScript::HandleApply, EFFECT_4, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
