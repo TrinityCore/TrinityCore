@@ -74,7 +74,7 @@ void ThreatReference::UpdateOnlineState()
 {
     if (a->GetTypeId() == TYPEID_UNIT && a->ToCreature()->IsTrigger())
         return false;
-    if (a->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
+    if (a->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
     {
         if (b->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
             return false;
