@@ -73,8 +73,7 @@ class instance_dragon_soul : public InstanceMapScript
                 if (!uiTeamInInstance)
                     uiTeamInInstance = pPlayer->GetTeam();
 
-                if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
-                if (pInstance->GetBossState(BOSS_ULTRAXION) != DONE)
+                if (GetBossState(BOSS_ULTRAXION) != DONE)
                 {
                     StartEventWyrmrest(pPlayer, NPC_HARBRINGER_OF_TWILIGHT);
                     StartEventWyrmrest(pPlayer, NPC_HARBRINGER_OF_DESTRUCTION);
@@ -88,8 +87,7 @@ class instance_dragon_soul : public InstanceMapScript
                     StartEventWyrmrest(pPlayer, NPC_DEATHWING_TOWER);
                 }
 
-                if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
-                if (pInstance->GetBossState(DATA_ZONOZZ) != IN_PROGRESS || pInstance->GetBossState(DATA_YORSAHJ) != IN_PROGRESS)
+                if (GetBossState(DATA_ZONOZZ) != IN_PROGRESS || GetBossState(DATA_YORSAHJ) != IN_PROGRESS)
                 {
                     std::list<Creature*> portalEternity;
                     std::list<Creature*> portalBase;
@@ -348,17 +346,11 @@ class instance_dragon_soul : public InstanceMapScript
 
                 switch (type)
                 {
-                case DATA_MORCHOK:
-                    switch (data)
+                    case DATA_MORCHOK:
                     {
-                    case NOT_STARTED:
-                    case IN_PROGRESS:
-                    case FAIL:
-                    case DONE:
+                        MorchokEvent = data;
                         break;
                     }
-                    MorchokEvent = data;
-                    break;
                 }
             }
 
@@ -379,31 +371,13 @@ class instance_dragon_soul : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
-                switch (type)
-                {
-                case BOSS_MORCHOK:
-                    if (state == NOT_STARTED)
-                    {
-
-                    }
-                    break;
-                case BOSS_WARLORD:
-                case BOSS_UNSLEEPING:
-                case BOSS_HAGARA:
-                case BOSS_WARMASTER:
-                case BOSS_DEATHWING:
-                case BOSS_ULTRAXION:
-                case DATA_PORTALS_ON_OFF:
-                    break;
-                }
-
                 if (type == DATA_BLACKHORN)
-                if (Creature* pDeck = instance->GetCreature(uiDeckGUID))
-                    pDeck->SetVisible(state == DONE ? true : false);
+                    if (Creature* pDeck = instance->GetCreature(uiDeckGUID))
+                        pDeck->SetVisible(state == DONE ? true : false);
 
                 if (type == DATA_SPINE)
-                if (Creature* pMaelstorm = instance->GetCreature(uiMaelstormGUID))
-                    pMaelstorm->SetVisible(state == DONE ? true : false);
+                    if (Creature* pMaelstorm = instance->GetCreature(uiMaelstormGUID))
+                        pMaelstorm->SetVisible(state == DONE ? true : false);
 
                 if (state == DONE)
                     if (!instance->IsHeroic())
@@ -453,46 +427,34 @@ class instance_dragon_soul : public InstanceMapScript
                     Trinity::Containers::RandomResize(targetRock, 1);
                     if (Creature* target = targetRock.front())
                     {
-                            morchok->CastSpell(target, SPELL_MORCHOK_SIEGE_MISSILE_2, true);
+                        morchok->CastSpell(target, SPELL_MORCHOK_SIEGE_MISSILE_2, true);
                     }
                 }
             }
 
             void RemoveEncounterAuras()
             {
-                if (!plrList.isEmpty())
+                if (GetBossState(BOSS_ULTRAXION) == NOT_STARTED)
                 {
-                    for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-                    {
-                        if (Player* pPlayer = i->GetSource())
-                        {
-                            if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
-                            {
-                                if (pInstance->GetBossState(BOSS_ULTRAXION) == NOT_STARTED)
-                                {
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_SHIFT);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HEROIC_WILL_AOE);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HEROIC_WILL);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GIFT_OF_LIVE_AURA);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ESSENCE_OF_DREAMS_AURA);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOURCE_OF_MAGIC_AURA);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TIMELOOP);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_DK);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_PALADIN);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_DRUID);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_WARRIOR);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_MONK);
-                                }
-                                if (pInstance->GetBossState(DATA_SPINE) == DONE && pInstance->GetBossState(DATA_MADNESS) != DONE)
-                                {
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_YSERA_PRESENCE);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_YSERA_PRESENCE_AURA);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THE_DREAMER);
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ENTER_THE_DREAM);
-                                }
-                            }
-                        }
-                    }
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_SHIFT);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_HEROIC_WILL_AOE);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_HEROIC_WILL);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_GIFT_OF_LIVE_AURA);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_ESSENCE_OF_DREAMS_AURA);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_SOURCE_OF_MAGIC_AURA);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_TIMELOOP);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_DK);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_PALADIN);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_DRUID);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_WARRIOR);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_MONK);
+                }
+                if (GetBossState(DATA_SPINE) == DONE && GetBossState(DATA_MADNESS) != DONE)
+                {
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_YSERA_PRESENCE);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_YSERA_PRESENCE_AURA);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_THE_DREAMER);
+                    DoRemoveAurasDueToSpellOnPlayers(SPELL_ENTER_THE_DREAM);
                 }
             }
 
@@ -524,38 +486,39 @@ class instance_dragon_soul : public InstanceMapScript
             {
                 if (playerTimer <= diff)
                 {
-                    if (!plrList.isEmpty())
                     for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-                    if (Player* pPlayer = i->GetSource())
                     {
-                        if (pInstance->GetBossState(BOSS_MORCHOK) != DONE)
-                        if (pPlayer->GetPositionZ() < 50.0f && !pPlayer->IsBeingTeleported())
-                            pPlayer->NearTeleportTo(morchokPos.GetPositionX(), morchokPos.GetPositionY(), morchokPos.GetPositionZ(), morchokPos.GetOrientation());
+                        if (Player* pPlayer = i->GetSource())
+                        {
+                            if (GetBossState(BOSS_MORCHOK) != DONE)
+                                if (pPlayer->GetPositionZ() < 50.0f && !pPlayer->IsBeingTeleported())
+                                    pPlayer->NearTeleportTo(morchokPos.GetPositionX(), morchokPos.GetPositionY(), morchokPos.GetPositionZ(), morchokPos.GetOrientation());
 
-                        if (pInstance->GetBossState(BOSS_ULTRAXION) == IN_PROGRESS)
-                        if (pPlayer->GetPositionZ() < 310.0f && !pPlayer->IsBeingTeleported())
-                            pPlayer->NearTeleportTo(-1761.76f, -2388.99f, 341.59f, 0);
+                            if (GetBossState(BOSS_ULTRAXION) == IN_PROGRESS)
+                                if (pPlayer->GetPositionZ() < 310.0f && !pPlayer->IsBeingTeleported())
+                                    pPlayer->NearTeleportTo(-1761.76f, -2388.99f, 341.59f, 0);
 
-                        if (pInstance->GetBossState(DATA_BLACKHORN) == DONE && pInstance->GetBossState(DATA_SPINE) == NOT_STARTED)
-                        if (pPlayer->isDead())
-                            pPlayer->NearTeleportTo(skyfirePos.GetPositionX(), skyfirePos.GetPositionY(), skyfirePos.GetPositionZ(), skyfirePos.GetOrientation());
+                            if (GetBossState(DATA_BLACKHORN) == DONE && GetBossState(DATA_SPINE) == NOT_STARTED)
+                                if (pPlayer->isDead())
+                                    pPlayer->NearTeleportTo(skyfirePos.GetPositionX(), skyfirePos.GetPositionY(), skyfirePos.GetPositionZ(), skyfirePos.GetOrientation());
 
-                        if (pInstance->GetBossState(BOSS_MORCHOK) == DONE && pInstance->GetBossState(DATA_ZONOZZ) != DONE)
-                        if (pPlayer->GetPositionZ() < -250.0f && !pPlayer->IsBeingTeleported())
-                            pPlayer->NearTeleportTo(-1769.329956f, -1916.869995f, -226.28f, 0.0f);
+                            if (GetBossState(BOSS_MORCHOK) == DONE && GetBossState(DATA_ZONOZZ) != DONE)
+                                if (pPlayer->GetPositionZ() < -250.0f && !pPlayer->IsBeingTeleported())
+                                    pPlayer->NearTeleportTo(-1769.329956f, -1916.869995f, -226.28f, 0.0f);
 
-                        if (pInstance->GetBossState(DATA_SPINE) == DONE && pInstance->GetBossState(DATA_MADNESS) == NOT_STARTED)
-                        if (pPlayer->isDead())
-                            ExitBlistering(pPlayer);
+                            if (GetBossState(DATA_SPINE) == DONE && GetBossState(DATA_MADNESS) == NOT_STARTED)
+                                if (pPlayer->isDead())
+                                    ExitBlistering(pPlayer);
 
-                        if (pInstance->GetBossState(DATA_MADNESS) == DONE || pInstance->GetBossState(DATA_MADNESS) == NOT_STARTED)
-                        if (pPlayer->HasSpell(SPELL_DREAM))
-                            pPlayer->RemoveAurasDueToSpell(SPELL_DREAM);
+                            if (GetBossState(DATA_MADNESS) == DONE || GetBossState(DATA_MADNESS) == NOT_STARTED)
+                                if (pPlayer->HasSpell(SPELL_DREAM))
+                                    pPlayer->RemoveAurasDueToSpell(SPELL_DREAM);
 
-                        if (pInstance->GetBossState(DATA_MADNESS) == NOT_STARTED && pInstance->GetBossState(DATA_SPINE) == DONE)
-                        if (Creature* trall = instance->GetCreature(uiTrallMaelstrom))
-                        if (trall->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                            trall->AI()->DoAction(ACTION_RESET_BATTLE);
+                            if (GetBossState(DATA_MADNESS) == NOT_STARTED && GetBossState(DATA_SPINE) == DONE)
+                                if (Creature* trall = instance->GetCreature(uiTrallMaelstrom))
+                                    if (trall->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                                        trall->AI()->DoAction(ACTION_RESET_BATTLE);
+                        }
                     }
                     playerTimer = 2000;
                 }
@@ -564,18 +527,16 @@ class instance_dragon_soul : public InstanceMapScript
 
                 if (trownStoneTimer <= diff)
                 {
-                    if (!plrList.isEmpty())
                     for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-                    if (Player* pPlayer = i->GetSource())
-                    if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
-                    if (pInstance->GetBossState(BOSS_MORCHOK) == NOT_STARTED)
-                    {
-                        if (Creature* morchok = instance->GetCreature(uiMorchokGUID))
-                        {
-                            morchok->CastSpell(morchok, SPELL_MORCHOK_SIEGE_MISSILE_1, true);
-                            TrownRock(NPC_TARGET_DUMMY);
-                        }
-                    }
+                        if (Player* pPlayer = i->GetSource())
+                            if (GetBossState(BOSS_MORCHOK) == NOT_STARTED)
+                            {
+                                if (Creature* morchok = instance->GetCreature(uiMorchokGUID))
+                                {
+                                    morchok->CastSpell(morchok, SPELL_MORCHOK_SIEGE_MISSILE_1, true);
+                                    TrownRock(NPC_TARGET_DUMMY);
+                                }
+                            }
                     trownStoneTimer = 7000;
                 }
                 else
@@ -616,7 +577,6 @@ class instance_dragon_soul : public InstanceMapScript
                 uint32 isHeroicFailed;
                 uint32 MorchokEvent;
                 Map::PlayerList const &plrList = instance->GetPlayers();
-                InstanceScript* pInstance;
         };
 };
 
