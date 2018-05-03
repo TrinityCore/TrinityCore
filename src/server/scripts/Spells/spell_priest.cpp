@@ -181,7 +181,8 @@ enum PriestSpells
     SPELL_PRIEST_SMITE_AURA                         = 208772,
     SPELL_PRIEST_FOCUSED_WILL_BUFF                  = 45242,
     SPELL_PRIEST_HOLY_FIRE                          = 14914,
-    SPELL_PRIEST_SHADOW_MEND_HEAL                   = 186263
+    SPELL_PRIEST_SHADOW_MEND_HEAL                   = 186263,
+    SPELL_PRIEST_MISERY                             = 238558,
 };
 
 enum PriestSpellIcons
@@ -1646,57 +1647,51 @@ class spell_pri_vampiric_embrace_target : public SpellScript
 };
 
 // 34914 - Vampiric Touch
-class spell_pri_vampiric_touch : public SpellScriptLoader
+class spell_pri_vampiric_touch : public AuraScript
 {
-    public:
-        spell_pri_vampiric_touch() : SpellScriptLoader("spell_pri_vampiric_touch") { }
+    PrepareAuraScript(spell_pri_vampiric_touch);
 
-        class spell_pri_vampiric_touch_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, SPELL_GEN_REPLENISHMENT });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_REPLENISHMENT))
-                    return false;
-                return true;
-            }
+    void HandleDispel(DispelInfo* /*dispelInfo*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Unit* target = GetUnitOwner())
+                if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+                {
+                    int32 damage = aurEff->GetAmount() * 8;
+                    // backfire damage
+                    caster->CastCustomSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                }
+    }
 
-            void HandleDispel(DispelInfo* /*dispelInfo*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetUnitOwner())
-                        if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-                        {
-                            int32 damage = aurEff->GetAmount() * 8;
-                            // backfire damage
-                            caster->CastCustomSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
-                        }
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() == GetCaster();
+    }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetProcTarget() == GetCaster();
-            }
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetProcTarget()->CastSpell((Unit*)NULL, SPELL_GEN_REPLENISHMENT, true, NULL, aurEff);
+    }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                eventInfo.GetProcTarget()->CastSpell((Unit*)NULL, SPELL_GEN_REPLENISHMENT, true, NULL, aurEff);
-            }
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_PRIEST_MISERY))
+                caster->CastSpell(GetTarget(), SPELL_PRIEST_SHADOW_WORD_PAIN, true);
+    }
 
-            void Register() override
-            {
-                AfterDispel += AuraDispelFn(spell_pri_vampiric_touch_AuraScript::HandleDispel);
-                DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_touch_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch_AuraScript::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_vampiric_touch_AuraScript();
-        }
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_pri_vampiric_touch::HandleDispel);
+        DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_touch::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_vampiric_touch::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_LEECH, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 73325
@@ -2876,7 +2871,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_strength_of_soul();
     RegisterAuraScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
-    new spell_pri_vampiric_touch();
+    RegisterAuraScript(spell_pri_vampiric_touch);
     new spell_pri_void_bolt();
     new spell_pri_void_eruption();
     new spell_pri_void_shift();
