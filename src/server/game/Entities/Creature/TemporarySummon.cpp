@@ -218,7 +218,7 @@ void TempSummon::InitStats(uint32 duration)
         setFaction(owner->getFaction());
 }
 
-void TempSummon::InitSummon()
+void TempSummon::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
     Unit* owner = GetSummoner();
     if (owner)
@@ -226,7 +226,12 @@ void TempSummon::InitSummon()
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
             owner->ToCreature()->AI()->JustSummoned(this);
         if (IsAIEnabled)
+        {
             AI()->IsSummonedBy(owner);
+
+            if (summonSpell)
+                AI()->IsSummonedBy(summonSpell);
+        }
     }
 }
 
@@ -378,9 +383,9 @@ void Guardian::InitStats(uint32 duration)
     SetReactState(REACT_AGGRESSIVE);
 }
 
-void Guardian::InitSummon()
+void Guardian::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
-    TempSummon::InitSummon();
+    TempSummon::InitSummon(summonSpell);
 
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER
             && GetOwner()->GetMinionGUID() == GetGUID()
@@ -404,9 +409,9 @@ void Puppet::InitStats(uint32 duration)
     SetReactState(REACT_PASSIVE);
 }
 
-void Puppet::InitSummon()
+void Puppet::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
-    Minion::InitSummon();
+    Minion::InitSummon(summonSpell);
     if (!SetCharmedBy(GetOwner(), CHARM_TYPE_POSSESS))
         ABORT();
 }

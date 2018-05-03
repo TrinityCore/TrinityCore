@@ -84,7 +84,7 @@ class TC_GAME_API TempSummon : public Creature
         virtual ~TempSummon() { }
         void Update(uint32 time) override;
         virtual void InitStats(uint32 lifetime);
-        virtual void InitSummon();
+        virtual void InitSummon(Spell const* summonSpell = nullptr);
         void UpdateObjectVisibilityOnCreate() override;
         virtual void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld() override;
@@ -146,7 +146,7 @@ class TC_GAME_API Guardian : public Minion
         Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         void InitStats(uint32 duration) override;
         bool InitStatsForLevel(uint8 level);
-        void InitSummon() override;
+        void InitSummon(Spell const* summonSpell = nullptr) override;
 
         bool UpdateAllStats() override;
         void UpdateResistances(uint32 school) override;
@@ -170,7 +170,7 @@ class TC_GAME_API Puppet : public Minion
     public:
         Puppet(SummonPropertiesEntry const* properties, Unit* owner);
         void InitStats(uint32 duration) override;
-        void InitSummon() override;
+        void InitSummon(Spell const* summonSpell = nullptr) override;
         void Update(uint32 time) override;
         void RemoveFromWorld() override;
 };

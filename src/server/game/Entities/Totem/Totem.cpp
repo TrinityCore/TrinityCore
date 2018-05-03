@@ -83,7 +83,7 @@ void Totem::InitStats(uint32 duration)
     SetLevel(GetOwner()->getLevel());
 }
 
-void Totem::InitSummon()
+void Totem::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
         CastSpell(this, GetSpell(), true);
