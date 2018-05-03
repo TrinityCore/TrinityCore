@@ -2447,7 +2447,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     summon->SetVisibleBySummonerOnly(visibleBySummonerOnly);
 
     AddToMap(summon->ToCreature());
-    summon->InitSummon();
+    summon->InitSummon(summonSpell);
 
     // call MoveInLineOfSight for nearby creatures
     Trinity::AIRelocationNotifier notifier(*summon);
