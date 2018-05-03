@@ -29,6 +29,7 @@ class Creature;
 class DynamicObject;
 class GameObject;
 class PlayerAI;
+class Spell;
 class WorldObject;
 struct Position;
 

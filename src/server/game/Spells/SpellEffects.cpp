@@ -2130,7 +2130,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             // randomize position for multiple summons
                             pos = m_caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration, 0, personalSpawn, this);
+                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration, 0, personalSpawn);
                         if (!summon)
                             continue;
 

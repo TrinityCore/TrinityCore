@@ -50,6 +50,7 @@ class MapInstanced;
 class Object;
 class PhaseShift;
 class Player;
+class Spell;
 class TempSummon;
 class Unit;
 class Weather;
