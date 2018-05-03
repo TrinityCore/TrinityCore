@@ -383,7 +383,7 @@ bool BlackMarketTemplate::LoadFromDB(Field* fields)
 
 BlackMarketTemplate const* BlackMarketEntry::GetTemplate() const
 {
-    return sBlackMarketMgr->GetTemplateByID(_marketId);
+    return sBlackMarketMgr->GetTemplateByID(GetMarketId());
 }
 
 uint32 BlackMarketEntry::GetSecondsRemaining() const
@@ -417,13 +417,6 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     _startTime =  static_cast<time_t>(fields[2].GetInt32());
     _numBids = fields[3].GetInt32();
     _bidder = fields[4].GetUInt64();
-
-    // Either no bidder or existing player
-    if (_bidder && !sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(_bidder))) // Probably a better way to check if player exists
-    {
-        TC_LOG_ERROR("misc", "Black market auction %i does not have a valid bidder (GUID: " UI64FMTD " ).", _marketId, _bidder);
-        return false;
-    }
 
     return true;
 }
@@ -462,7 +455,7 @@ bool BlackMarketEntry::ValidateBid(uint64 bid) const
     return true;
 }
 
-void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, SQLTransaction& trans)   //Updated
+void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, SQLTransaction& trans)
 {
     if (bid < _currentBid)
         return;
@@ -474,15 +467,12 @@ void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, SQLTransaction& tran
 
     player->ModifyMoney(-static_cast<int64>(bid));
 
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTIONS);
-
     stmt->setUInt64(0, _currentBid);
     stmt->setInt32(1, GetExpirationTime());
     stmt->setInt32(2, _numBids);
     stmt->setUInt64(3, _bidder);
     stmt->setInt32(4, _marketId);
-
     trans->Append(stmt);
 
     sBlackMarketMgr->Update(true);

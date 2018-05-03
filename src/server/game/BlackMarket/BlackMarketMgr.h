@@ -89,6 +89,11 @@ public:
     ObjectGuid::LowType GetBidder() const { return _bidder; }
     void SetBidder(ObjectGuid::LowType bidder) { _bidder = bidder; }
 
+    uint32 GetStartTime() const { return _startTime; }
+    void SetStartTime(uint32 startTime) { _startTime = startTime; }
+
+    uint32 GetDuration() const { return GetTemplate()->Duration; }
+
     uint32 GetSecondsRemaining() const; // Get seconds remaining relative to now
     time_t GetExpirationTime() const;
     bool IsCompleted() const;
