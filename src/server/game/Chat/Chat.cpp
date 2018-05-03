@@ -1211,3 +1211,64 @@ LocaleConstant CliHandler::GetSessionDbLocaleIndex() const
 {
     return sObjectMgr->GetDBCLocaleIndex();
 }
+
+void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
+{
+    try
+    {
+        std::vector<CommandArgsType> argsTypeVector = std::vector<CommandArgsType>(argsType);
+        char* arg = strtok((char*)_charArgs, " ");
+        uint8 argsCount = 0;
+
+        while (arg != nullptr)
+        {
+            // If too many arguments, do not validate args & return
+            if (argsCount > argsTypeVector.size())
+                return;
+
+            switch (argsTypeVector[argsCount++])
+            {
+                case ARG_INT:
+                    _args.push_back(int32(atoi(arg)));
+                    break;
+                case ARG_UINT:
+                {
+                    int value = atoi(arg);
+                    if (value < 0)
+                        return;
+
+                    _args.push_back(uint32(value));
+                    break;
+                }
+                case ARG_FLOAT:
+                    _args.push_back(float(atof(arg)));
+                    break;
+                case ARG_STRING:
+                    _args.push_back(std::string(arg));
+                    break;
+                case ARG_QUOTE_ENCLOSED_STRING:
+                    _args.push_back(std::string(_handler->extractQuotedArg(arg)));
+                    break;
+                default:
+                    break;
+            }
+            arg = strtok(nullptr, " ");
+        }
+
+        // If not enough arguments, do not validate args
+        if (argsCount == argsTypeVector.size())
+            _validArgs = true;
+    }
+    // Catch potential boost exception
+    catch (std::exception e)
+    {
+        _validArgs = false;
+    }
+}
+
+template<typename T>
+T CommandArgs::GetArg(uint32 index)
+{
+    ASSERT(index < _args.size());
+    return boost::any_cast<T>(_args[index]);
+}

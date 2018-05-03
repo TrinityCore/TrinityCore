@@ -173,4 +173,41 @@ class TC_GAME_API CliHandler : public ChatHandler
         Print* m_print;
 };
 
+class TC_GAME_API CommandArgs
+{
+public:
+    enum CommandArgsType
+    {
+        ARG_INT,
+        ARG_UINT,
+        ARG_FLOAT,
+        ARG_STRING,
+        ARG_QUOTE_ENCLOSED_STRING,
+    };
+
+    CommandArgs(ChatHandler* handler, char const* args) : _validArgs(false), _handler(handler), _charArgs(args) { }
+    CommandArgs(ChatHandler* handler, char const* args, std::initializer_list<CommandArgsType> argsType) : _validArgs(false), _handler(handler), _charArgs(args)
+    {
+        Initialize(argsType);
+    }
+
+    bool ValidArgs() const { return _validArgs; }
+    void Initialize(std::initializer_list<CommandArgsType> argsType);
+
+    uint32 GetArgInt(uint32 index)          { return GetArg<int32>(index); }
+    uint32 GetArgUInt(uint32 index)         { return GetArg<uint32>(index); }
+    float GetArgFloat(uint32 index)         { return GetArg<float>(index); }
+    std::string GetArgString(uint32 index)  { return GetArg<std::string>(index); }
+
+    template<typename T>
+    T GetArg(uint32 index);
+
+private:
+    bool _validArgs;
+    ChatHandler* _handler;
+    char const* _charArgs;
+    std::initializer_list<CommandArgsType> _argsType;
+    std::vector<boost::any> _args;
+};
+
 #endif
