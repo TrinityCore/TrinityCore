@@ -451,10 +451,36 @@ void ThreatManager::ClearAllThreat()
     while (!_myThreatListEntries.empty());
 }
 
+void ThreatManager::FixtateTarget(Unit* target)
+{
+    if (target)
+    {
+        auto it = _myThreatListEntries.find(target->GetGUID());
+        if (it != _myThreatListEntries.end())
+        {
+            _fixtateRef = it->second;
+            return;
+        }
+    }
+    _fixtateRef = nullptr;
+}
+
+Unit* ThreatManager::GetFixtateTarget() const
+{
+    if (_fixtateRef)
+        return _fixtateRef->GetVictim();
+    else
+        return nullptr;
+}
+
 ThreatReference const* ThreatManager::ReselectVictim()
 {
+    // fixtated target is always preferred
+    if (_fixtateRef && _fixtateRef->IsAvailable())
+        return _fixtateRef;
+
     ThreatReference const* oldVictimRef = _currentVictimRef;
-    if (oldVictimRef && !oldVictimRef->IsAvailable())
+    if (oldVictimRef && oldVictimRef->IsOffline())
         oldVictimRef = nullptr;
     // in 99% of cases - we won't need to actually look at anything beyond the first element
     ThreatReference const* highest = _sortedThreatList.top();
@@ -699,6 +725,8 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
 
     if (_currentVictimRef == ref)
         _currentVictimRef = nullptr;
+    if (_fixtateRef == ref)
+        _fixtateRef = nullptr;
 
     _sortedThreatList.erase(ref->_handle);
     if (sendRemove && ref->IsAvailable())
