@@ -727,10 +727,10 @@ public:
         void CalcDmg(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
-            uint32 dmg = GetHitDamage();
+            int32 dmg = GetHitDamage();
             uint32 cp = caster->GetPower(POWER_COMBO_POINTS) + 1;
             float multiplier = (float)cp / (float)caster->GetMaxPower(POWER_COMBO_POINTS);
-            int32 newdmg = dmg * (int32)multiplier;
+            int32 newdmg = CalculatePct(dmg, multiplier * 100.f);
 
             SetHitDamage(newdmg);
 
