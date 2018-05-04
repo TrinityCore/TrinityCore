@@ -889,7 +889,7 @@ public:
                     handler->PSendSysMessage("%s (%s, SpawnID " UI64FMTD ") is not engaged, but still has a threat list? Well, here it is:", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
 
                 count = 0;
-                Unit* fixtateVictim = mgr.GetFixtateTarget();
+                Unit* fixateVictim = mgr.GetFixateTarget();
                 for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
                     Unit* unit = ref->GetVictim();
@@ -906,8 +906,8 @@ public:
                             onlineStr = "";
                     }
                     char const* tauntStr;
-                    if (unit == fixtateVictim)
-                        tauntStr = " [FIXTATE]";
+                    if (unit == fixateVictim)
+                        tauntStr = " [FIXATE]";
                     else
                         switch (ref->GetTauntState())
                         {

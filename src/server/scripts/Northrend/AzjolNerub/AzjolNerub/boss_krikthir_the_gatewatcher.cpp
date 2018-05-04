@@ -89,8 +89,8 @@ enum Spells
     // Anub'ar Skirmisher
     SPELL_CHARGE                    = 52538,
     SPELL_BACKSTAB                  = 52540,
-    SPELL_FIXTATE_TRIGGER           = 52536,
-    SPELL_FIXTATE_TRIGGERED         = 52537,
+    SPELL_FIXATE_TRIGGER            = 52536,
+    SPELL_FIXATE_TRIGGERED          = 52537,
 
     // Anub'ar Shadowcaster
     SPELL_SHADOW_BOLT               = 52534,
@@ -755,7 +755,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_CHARGE && target)
-                    DoCast(target, SPELL_FIXTATE_TRIGGER);
+                    DoCast(target, SPELL_FIXATE_TRIGGER);
             }
         };
 
@@ -961,35 +961,35 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
         }
 };
 
-class spell_anub_ar_skirmisher_fixtate : public SpellScriptLoader
+class spell_anub_ar_skirmisher_fixate : public SpellScriptLoader
 {
     public:
-        spell_anub_ar_skirmisher_fixtate() : SpellScriptLoader("spell_anub_ar_skirmisher_fixtate") { }
+        spell_anub_ar_skirmisher_fixate() : SpellScriptLoader("spell_anub_ar_skirmisher_fixate") { }
 
-        class spell_anub_ar_skirmisher_fixtate_SpellScript : public SpellScript
+        class spell_anub_ar_skirmisher_fixate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_anub_ar_skirmisher_fixtate_SpellScript);
+            PrepareSpellScript(spell_anub_ar_skirmisher_fixate_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_FIXTATE_TRIGGERED });
+                return ValidateSpellInfo({ SPELL_FIXATE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell(GetCaster(), SPELL_FIXTATE_TRIGGERED, true);
+                    target->CastSpell(GetCaster(), SPELL_FIXATE_TRIGGERED, true);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_anub_ar_skirmisher_fixtate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_anub_ar_skirmisher_fixate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_anub_ar_skirmisher_fixtate_SpellScript();
+            return new spell_anub_ar_skirmisher_fixate_SpellScript();
         }
 };
 
@@ -1071,7 +1071,7 @@ void AddSC_boss_krik_thir()
     new npc_gatewatcher_web_wrap();
 
     new spell_gatewatcher_subboss_trigger();
-    new spell_anub_ar_skirmisher_fixtate();
+    new spell_anub_ar_skirmisher_fixate();
     new spell_gatewatcher_web_wrap();
 
     new achievement_watch_him_die();
