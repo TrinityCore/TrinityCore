@@ -108,26 +108,28 @@ ThreatReference::OnlineState ThreatReference::SelectOnlineState()
     return ONLINE_STATE_ONLINE;
 }
 
-void ThreatReference::UpdateTauntState(bool victimIsTaunting)
+void ThreatReference::UpdateTauntState(TauntState state)
 {
-    if (victimIsTaunting)
+    if (state < TAUNT_STATE_TAUNT) // not taunting
     {
-        _taunted = TAUNT_STATE_TAUNT;
-        HeapNotifyIncreased();
-        return;
+        // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
+        for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
+            if (eff->GetCasterGUID() == _owner->GetGUID())
+            {
+                state = TAUNT_STATE_DETAUNT;
+                break;
+            }
     }
 
-    // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-    for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
-        if (eff->GetCasterGUID() == _owner->GetGUID())
-        {
-            _taunted = TAUNT_STATE_DETAUNT;
-            HeapNotifyDecreased();
-            return;
-        }
+    if (state == _taunted)
+        return;
 
-    _taunted = TAUNT_STATE_NONE;
-    HeapNotifyChanged();
+    std::swap(state, _taunted);
+
+    if (_taunted < state)
+        HeapNotifyDecreased();
+    else
+        HeapNotifyIncreased();
 }
 
 void ThreatReference::ClearThreat(bool sendRemove)
@@ -414,21 +416,21 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 void ThreatManager::TauntUpdate()
 {
     std::list<AuraEffect*> const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
-    auto threatEnd = _myThreatListEntries.end();
-    ThreatReference* tauntRef = nullptr;
+
+    uint32 state = ThreatReference::TAUNT_STATE_TAUNT;
+    std::unordered_map<ObjectGuid, ThreatReference::TauntState> tauntStates;
     // Only the last taunt effect applied by something still on our threat list is considered
-    for (auto it = tauntEffects.rbegin(), end = tauntEffects.rend(); it != end; ++it)
-    {
-        auto threatIt = _myThreatListEntries.find((*it)->GetCasterGUID());
-        if (threatIt == threatEnd)
-            continue;
-        if (!threatIt->second->IsAvailable())
-            continue;
-        tauntRef = threatIt->second;
-        break;
-    }
+    for (auto it = tauntEffects.begin(), end = tauntEffects.end(); it != end; ++it)
+        tauntStates[(*it)->GetCasterGUID()] = ThreatReference::TauntState(state++);
+
     for (auto const& pair : _myThreatListEntries)
-        pair.second->UpdateTauntState(pair.second == tauntRef);
+    {
+        auto it = tauntStates.find(pair.first);
+        if (it != tauntStates.end())
+            pair.second->UpdateTauntState(it->second);
+        else
+            pair.second->UpdateTauntState();
+    }
 }
 
 void ThreatManager::ResetAllThreat()
