@@ -5439,10 +5439,11 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             case SPELL_EFFECT_POWER_DRAIN:
             {
                 // Can be area effect, Check only for players and not check if target - caster (spell can have multiply drain/burn effects)
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = m_targets.GetUnitTarget())
-                        if (target != m_caster && target->GetPowerType() != Powers(effect->MiscValue))
-                            return SPELL_FAILED_BAD_TARGETS;
+                if (m_caster->IsPlayer())
+                    if (effect->TargetA.GetTarget() != TARGET_UNIT_CASTER)
+                        if (Unit* target = m_targets.GetUnitTarget())
+                            if (target != m_caster && target->GetPowerType() != Powers(effect->MiscValue))
+                                return SPELL_FAILED_BAD_TARGETS;
                 break;
             }
             case SPELL_EFFECT_CHARGE:
