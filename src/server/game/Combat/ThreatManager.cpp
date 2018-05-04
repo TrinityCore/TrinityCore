@@ -451,33 +451,33 @@ void ThreatManager::ClearAllThreat()
     while (!_myThreatListEntries.empty());
 }
 
-void ThreatManager::FixtateTarget(Unit* target)
+void ThreatManager::FixateTarget(Unit* target)
 {
     if (target)
     {
         auto it = _myThreatListEntries.find(target->GetGUID());
         if (it != _myThreatListEntries.end())
         {
-            _fixtateRef = it->second;
+            _fixateRef = it->second;
             return;
         }
     }
-    _fixtateRef = nullptr;
+    _fixateRef = nullptr;
 }
 
-Unit* ThreatManager::GetFixtateTarget() const
+Unit* ThreatManager::GetFixateTarget() const
 {
-    if (_fixtateRef)
-        return _fixtateRef->GetVictim();
+    if (_fixateRef)
+        return _fixateRef->GetVictim();
     else
         return nullptr;
 }
 
 ThreatReference const* ThreatManager::ReselectVictim()
 {
-    // fixtated target is always preferred
-    if (_fixtateRef && _fixtateRef->IsAvailable())
-        return _fixtateRef;
+    // fixated target is always preferred
+    if (_fixateRef && _fixateRef->IsAvailable())
+        return _fixateRef;
 
     ThreatReference const* oldVictimRef = _currentVictimRef;
     if (oldVictimRef && oldVictimRef->IsOffline())
@@ -725,8 +725,8 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
 
     if (_currentVictimRef == ref)
         _currentVictimRef = nullptr;
-    if (_fixtateRef == ref)
-        _fixtateRef = nullptr;
+    if (_fixateRef == ref)
+        _fixateRef = nullptr;
 
     _sortedThreatList.erase(ref->_handle);
     if (sendRemove && ref->IsAvailable())
