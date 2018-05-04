@@ -370,10 +370,7 @@ class mob_risen_ghoul : public CreatureScript
 
         struct mob_risen_ghoulAI : public ScriptedAI
         {
-            mob_risen_ghoulAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+            mob_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) { }
 
             InstanceScript* instance;
             EventMap events;
@@ -384,6 +381,7 @@ class mob_risen_ghoul : public CreatureScript
 
             void InitializeAI() override
             {
+                instance = me->GetInstanceScript();
                 me->GetMotionMaster()->Clear();
                 me->SetReactState(REACT_PASSIVE);
                 if (Creature* sylvanas = instance->GetCreature(NPC_ECHO_OF_SYLVANAS))
