@@ -262,7 +262,7 @@ class npc_shadopan_hatred : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(target, SPELL_CURSE_OF_AGONY, false);
 
-                        events.ScheduleEvent(EVENT_CURSE_OF_AGONY, urand(5000, 1000));
+                        events.ScheduleEvent(EVENT_CURSE_OF_AGONY, urand(1000, 5000));
                         break;
                     }
                     case EVENT_RING_OF_MALICE:
