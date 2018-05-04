@@ -54,7 +54,8 @@ enum DruidSpells
     SPELL_DRUID_RAKE                                = 1822,
     SPELL_DRUID_RIP                                 = 1079,
     SPELL_DRUID_FEROCIOUS_BITE                      = 22568,
-    SPELL_DRUID_SWIPE                               = 106785,
+    SPELL_DRUID_MOONFIRE_CAT                        = 155625,
+    SPELL_DRUID_SWIPE_CAT                           = 106785
 };
 
 enum ShapeshiftFormSpells
@@ -346,14 +347,6 @@ public:
     {
         return new spell_dru_efflorescence_heal_SpellScript();
     }
-};
-
-enum PrimalFurySpells
-{
-    SPELL_DRUID_RAKE          = 1822,
-    SPELL_DRUID_SHRED         = 5221,
-    SPELL_DRUID_MOONFIRE_CAT  = 155625,
-    SPELL_DRUID_SWIPE_CAT     = 106785
 };
 
 // Primal Fury - 159286
@@ -2153,7 +2146,7 @@ class aura_dru_feral_affinity : public AuraScript
         SPELL_DRUID_RAKE,
         SPELL_DRUID_RIP,
         SPELL_DRUID_FEROCIOUS_BITE,
-        SPELL_DRUID_SWIPE
+        SPELL_DRUID_SWIPE_CAT
     };
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
