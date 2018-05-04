@@ -108,9 +108,9 @@ UPDATE `creature_equip_template` SET `ItemID1`='141604' WHERE  `CreatureID`=6792
 
 DELETE FROM `game_event` WHERE `eventEntry` IN (73,76,77);
 INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `length`, `holiday`, `description`, `world_event`, `announce`) VALUES 
-(73, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 5184000, 2592000, 0, 'Night Elf Mohawk', 0, 2),
-(76, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 5184000, 2592000, 0, 'Battle for Gilneas', 0, 2),
-(77, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 5184000, 2592000, 0, 'Twin Peaks Battle', 0, 2);
+(73, '2030-01-01 00:00:00', '2030-01-01 00:00:00', 5184000, 2592000, 0, 'Night Elf Mohawk', 0, 2),
+(76, '2030-01-01 00:00:00', '2030-01-01 00:00:00', 5184000, 2592000, 0, 'Battle for Gilneas', 0, 2),
+(77, '2030-01-01 00:00:00', '2030-01-01 00:00:00', 5184000, 2592000, 0, 'Twin Peaks Battle', 0, 2);
 UPDATE `game_event_creature` SET `eventEntry`='3' WHERE  `guid`=303766 AND `eventEntry`=75;
 UPDATE `game_event_creature` SET `eventEntry`='3' WHERE  `guid`=303767 AND `eventEntry`=75;
 UPDATE `game_event_creature` SET `eventEntry`='3' WHERE  `guid`=303768 AND `eventEntry`=75;
