@@ -2181,9 +2181,10 @@ struct npc_argent_squire_gruntling : public ScriptedAI
         me->GetScheduler()
             .Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
-                if (Aura* ownerTired = me->GetOwner()->GetAura(SPELL_TIRED_PLAYER))
-                    if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
-                        squireTired->SetDuration(ownerTired->GetDuration());
+                if (Unit* owner = me->GetOwner())
+                    if (Aura* ownerTired = owner->GetAura(SPELL_TIRED_PLAYER))
+                        if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
+                            squireTired->SetDuration(ownerTired->GetDuration());
             })
             .Schedule(Seconds(1), [this](TaskContext context)
             {
