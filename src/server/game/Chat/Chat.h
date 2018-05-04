@@ -200,7 +200,11 @@ public:
     std::string GetArgString(uint32 index)  { return GetArg<std::string>(index); }
 
     template<typename T>
-    T GetArg(uint32 index);
+    T GetArg(uint32 index)
+    {
+        ASSERT(index < _args.size());
+        return boost::any_cast<T>(_args[index]);
+    }
 
 private:
     bool _validArgs;

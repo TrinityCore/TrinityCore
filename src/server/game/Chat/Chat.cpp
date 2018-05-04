@@ -1265,10 +1265,3 @@ void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
         _validArgs = false;
     }
 }
-
-template<typename T>
-T CommandArgs::GetArg(uint32 index)
-{
-    ASSERT(index < _args.size());
-    return boost::any_cast<T>(_args[index]);
-}
