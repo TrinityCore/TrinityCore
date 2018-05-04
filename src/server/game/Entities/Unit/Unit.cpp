@@ -908,6 +908,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
             victim->UpdateLastDamagedTime(spellProto);
+            victim->SaveDamageHistory(damage);
         }
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
@@ -14103,7 +14104,39 @@ void Unit::UpdateLastDamagedTime(SpellInfo const* spellProto)
     if (spellProto && spellProto->HasAura(DIFFICULTY_NONE, SPELL_AURA_DAMAGE_SHIELD))
         return;
 
-    SetLastDamagedTime(time(NULL));
+    SetLastDamagedTime(time(nullptr));
+}
+
+#define MAX_DAMAGE_HISTORY_DURATION 20
+
+void Unit::SaveDamageHistory(uint32 damage)
+{
+    time_t currentTime = time(nullptr);
+    time_t maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION * IN_MILLISECONDS;
+
+    // Remove damages older than maxPastTime, can be increased if required
+    for (auto itr = _damageTakenHistory.begin(); itr != _damageTakenHistory.end();)
+    {
+        if (itr->first < maxPastTime)
+            itr = _damageTakenHistory.erase(itr);
+        else
+            ++itr;
+    }
+
+    _damageTakenHistory[currentTime] += damage;
+}
+
+uint32 Unit::GetDamageOverLastSeconds(uint32 seconds) const
+{
+    ASSERT(seconds <= MAX_DAMAGE_HISTORY_DURATION, "Damage history ms cannot be lower than MAX_DAMAGE_HISTORY_DURATION");
+    time_t maxPastTime = time(nullptr) - seconds * IN_MILLISECONDS;
+
+    uint32 damageOverLastSeconds = 0;
+    for (auto itr = _damageTakenHistory.begin(); itr != _damageTakenHistory.end(); ++itr)
+        if (itr->first >= maxPastTime)
+            damageOverLastSeconds += itr->second;
+
+    return damageOverLastSeconds;
 }
 
 bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)

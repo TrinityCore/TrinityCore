@@ -1918,6 +1918,9 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateLastDamagedTime(SpellInfo const* spellProto);
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
+        void SaveDamageHistory(uint32 damage);
+        uint32 GetDamageOverLastSeconds(uint32 seconds) const;
+
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
 
@@ -2076,6 +2079,7 @@ class TC_GAME_API Unit : public WorldObject
         uint16 _meleeAnimKitId;
 
         time_t _lastDamagedTime; // Part of Evade mechanics
+        std::map<time_t, uint32> _damageTakenHistory;
 
         SpellHistory* _spellHistory;
 
