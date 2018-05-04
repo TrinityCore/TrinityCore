@@ -631,14 +631,22 @@ class spell_arti_pri_call_of_the_void : public AuraScript
 };
 
 // 98167 - Void Tendril
-struct npc_arti_priest_void_tendril : public ScriptedAI
+struct npc_arti_priest_void_tendril : public Scripted_NoMovementAI
 {
-    npc_arti_priest_void_tendril(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+    npc_arti_priest_void_tendril(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Unit* target = ObjectAccessor::GetUnit(*summoner, summoner->GetTarget()))
-            me->CastSpell(target, SPELL_PRIEST_MIND_FLAY, false);
+        ObjectGuid targetGuid = summoner->GetTarget();
+        if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
+        {
+            AttackStart(target);
+            target->GetScheduler().Schedule(100ms, [this, targetGuid](TaskContext /*context*/)
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
+                    me->CastSpell(target, SPELL_PRIEST_MIND_FLAY, false);
+            });
+        }
     }
 };
 
