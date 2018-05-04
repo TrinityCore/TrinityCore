@@ -110,16 +110,9 @@ ThreatReference::OnlineState ThreatReference::SelectOnlineState()
 
 void ThreatReference::UpdateTauntState(TauntState state)
 {
-    if (state < TAUNT_STATE_TAUNT) // not taunting
-    {
-        // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-        for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
-            if (eff->GetCasterGUID() == _owner->GetGUID())
-            {
-                state = TAUNT_STATE_DETAUNT;
-                break;
-            }
-    }
+    // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
+    if (state < TAUNT_STATE_TAUNT && _victim->HasAuraTypeWithCaster(SPELL_AURA_MOD_DETAUNT, _owner->GetGUID()))
+        state = TAUNT_STATE_DETAUNT;
 
     if (state == _taunted)
         return;
