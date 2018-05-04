@@ -31,21 +31,23 @@
 enum DruidSpells
 {
     SPELL_DRUID_THRASH_PERIODIC_DAMAGE              = 192090,
-
     SPELL_DRUID_BLESSING_OF_THE_ANCIENTS            = 202360,
     SPELL_DRUID_BLESSING_OF_ELUNE                   = 202737,
     SPELL_DRUID_BLESSING_OF_ANSHE                   = 202739,
-
     SPELL_DRUID_STARLORD_DUMMY                      = 202345,
     SPELL_DRUID_STARLORD_SOLAR                      = 202416,
     SPELL_DRUID_STARLORD_LUNAR                      = 202423,
-
     SPELL_DRUID_GLYPH_OF_STARS                      = 114301,
     SPELL_DRUID_CHOSEN_OF_ELUNE                     = 102560,
     SPELL_DRUID_BLUE_COLOR                          = 108268,
     SPELL_DRUID_SHADOWY_GHOST                       = 165114,
-
     SPELL_DRUID_GORE                                = 210706,
+    SPELL_DRUID_YSERA_GIFT                          = 145108,
+    SPELL_DRUID_YSERA_GIFT_CASTER_HEAL              = 145109,
+    SPELL_DRUID_YSERA_GIFT_RAID_HEAL                = 145110, 
+    SPELL_DRUID_REJUVENATION                        = 774,
+    SPELL_DRUID_HEALING_TOUCH                       = 5185,
+    SPELL_DRUID_SWIFTMEND                           = 18562,
 };
 
 enum ShapeshiftFormSpells
@@ -1645,52 +1647,31 @@ public:
     }
 };
 
-enum YserasGiftSpellls
-{
-    SPELL_DRUID_YSERA_GIFT_CASTER_HEAL  = 145109,
-    SPELL_DRUID_YSERA_GIFT_RAID_HEAL    = 145110
-};
-
 // Ysera's Gift - 145108
-// @Version : 7.1.0.22908
-class spell_dru_ysera_gift : public SpellScriptLoader
+class spell_dru_ysera_gift : public AuraScript
 {
-public:
-    spell_dru_ysera_gift() : SpellScriptLoader("spell_dru_ysera_gift") {}
+    PrepareAuraScript(spell_dru_ysera_gift);
 
-    class spell_dru_ysera_gift_AuraScript : public AuraScript
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
-        PrepareAuraScript(spell_dru_ysera_gift_AuraScript);
+        Unit* caster = GetCaster();
+        if (!caster || !caster->IsAlive())
+            return;
 
-        void HandleEffectPeriodic(AuraEffect const* /* aurEff */)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+        int64 amount = CalculatePct(caster->GetMaxHealth(), aurEff->GetBaseAmount());
+        CustomSpellValues values;
+        values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+        values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
 
-            if (!caster->IsAlive())
-                return;
+        if (caster->IsFullHealth())
+            caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_RAID_HEAL, values, caster, TRIGGERED_FULL_MASK);
+        else
+            caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, values, caster, TRIGGERED_FULL_MASK);
+    }
 
-            int64 amount = (caster->GetHealth() * 3) / 100;
-            CustomSpellValues values;
-            values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-            values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
-
-            if (caster->IsFullHealth())
-                caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_RAID_HEAL, values, caster, TRIGGERED_FULL_MASK);
-            else
-                caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, values, caster, TRIGGERED_FULL_MASK);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_ysera_gift_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_dru_ysera_gift_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_ysera_gift::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -2052,6 +2033,75 @@ class aura_dru_astral_form : public AuraScript
     }
 };
 
+// 197492 - Restoration Affinity
+class aura_dru_restoration_affinity : public AuraScript
+{
+public:
+    aura_dru_restoration_affinity() : AuraScript()
+    {
+        LearnedSpells =
+        {
+            SPELL_DRUID_YSERA_GIFT,
+            SPELL_DRUID_REJUVENATION,
+            SPELL_DRUID_HEALING_TOUCH,
+            SPELL_DRUID_SWIFTMEND
+        };
+    }
+
+    PrepareAuraScript(aura_dru_restoration_affinity);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(LearnedSpells);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            for (uint32 spellId : LearnedSpells)
+                target->AddTemporarySpell(spellId);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            for (uint32 spellId : LearnedSpells)
+                target->RemoveTemporarySpell(spellId);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(aura_dru_restoration_affinity::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(aura_dru_restoration_affinity::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+
+private:
+    std::initializer_list<uint32> LearnedSpells;
+};
+
+// 22842 - Frenzied Regeneration
+class aura_dru_frenzied_regeneration : public AuraScript
+{
+    PrepareAuraScript(aura_dru_frenzied_regeneration);
+
+    void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        uint64 healAmount = CalculatePct(GetTarget()->GetDamageOverLastSeconds(5), 50);
+        uint64 minHealAmount = CalculatePct(GetTarget()->GetMaxHealth(), 5);
+        healAmount = std::max(healAmount, minHealAmount);
+
+        // Divide amount over duration
+        healAmount /= (GetMaxDuration() / aurEff->GetPeriodicTimer());
+
+        amount = (int32)healAmount;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(aura_dru_frenzied_regeneration::CalcAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
 enum StarfallSpells
 {
     SPELL_DRUID_STARFALL_DAMAGE      = 191037,
@@ -2283,7 +2333,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_killer_instinct();
     new spell_dru_living_seed();
     new spell_dru_infected_wound();
-    new spell_dru_ysera_gift();
+    RegisterAuraScript(spell_dru_ysera_gift);
     new spell_dru_rake();
     new spell_dru_maim();
     new spell_dru_rip();
@@ -2291,20 +2341,15 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form();
     new spell_dru_travel_form_aura();
 
-    //7.3.2.25549
     RegisterSpellScript(spell_dru_thrash);
-    
     RegisterAuraScript(spell_dru_thrash_periodic_damage);
-    //7.3.2.25549 END
-
-    //7.3.5.25996
     RegisterSpellScript(spell_dru_blessing_of_the_ancients);
-
     RegisterAuraScript(spell_dru_gore);
     RegisterAuraScript(aura_dru_solar_empowerment);
     RegisterAuraScript(aura_dru_lunar_empowerment);
     RegisterAuraScript(aura_dru_astral_form);
-    //7.3.5.25996 END
+    RegisterAuraScript(aura_dru_restoration_affinity);
+    RegisterAuraScript(aura_dru_frenzied_regeneration);
 
     // AreaTrigger Scripts
     new at_dru_solar_beam();
