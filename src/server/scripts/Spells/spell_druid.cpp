@@ -49,6 +49,12 @@ enum DruidSpells
     SPELL_DRUID_HEALING_TOUCH                       = 5185,
     SPELL_DRUID_SWIFTMEND                           = 18562,
     SPELL_DRUID_TRAVEL_FORM                         = 783,
+    SPELL_DRUID_FELINE_SWIFTNESS                    = 131768,
+    SPELL_DRUID_SHRED                               = 5221,
+    SPELL_DRUID_RAKE                                = 1822,
+    SPELL_DRUID_RIP                                 = 1079,
+    SPELL_DRUID_FEROCIOUS_BITE                      = 22568,
+    SPELL_DRUID_SWIPE                               = 106785,
 };
 
 enum ShapeshiftFormSpells
@@ -2135,6 +2141,42 @@ class aura_dru_restoration_affinity : public AuraScript
     }
 };
 
+// 202157 - Feral Affinity
+class aura_dru_feral_affinity : public AuraScript
+{
+    PrepareAuraScript(aura_dru_feral_affinity);
+
+    const std::vector<uint32> LearnedSpells =
+    {
+        SPELL_DRUID_FELINE_SWIFTNESS,
+        SPELL_DRUID_SHRED,
+        SPELL_DRUID_RAKE,
+        SPELL_DRUID_RIP,
+        SPELL_DRUID_FEROCIOUS_BITE,
+        SPELL_DRUID_SWIPE
+    };
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            for (uint32 spellId : LearnedSpells)
+                target->LearnSpell(spellId, false);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            for (uint32 spellId : LearnedSpells)
+                target->RemoveSpell(spellId);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(aura_dru_feral_affinity::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(aura_dru_feral_affinity::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 22842 - Frenzied Regeneration
 class aura_dru_frenzied_regeneration : public AuraScript
 {
@@ -2405,6 +2447,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(aura_dru_lunar_empowerment);
     RegisterAuraScript(aura_dru_astral_form);
     RegisterAuraScript(aura_dru_restoration_affinity);
+    RegisterAuraScript(aura_dru_feral_affinity);
     RegisterAuraScript(aura_dru_frenzied_regeneration);
 
     // AreaTrigger Scripts
