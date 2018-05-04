@@ -55,7 +55,8 @@ enum DruidSpells
     SPELL_DRUID_RIP                                 = 1079,
     SPELL_DRUID_FEROCIOUS_BITE                      = 22568,
     SPELL_DRUID_MOONFIRE_CAT                        = 155625,
-    SPELL_DRUID_SWIPE_CAT                           = 106785
+    SPELL_DRUID_SWIPE_CAT                           = 106785,
+    SPELL_DRUID_SABERTOOTH                          = 202031,
 };
 
 enum ShapeshiftFormSpells
@@ -703,12 +704,6 @@ public:
     {
         return new spell_dru_balance_affinity_resto_AuraScript();
     }
-};
-
-enum FerociousBiteSpells
-{
-    SPELL_DRUID_RIP         = 1079,
-    SPELL_DRUID_SABERTOOTH  = 202031
 };
 
 // Ferocious Bite - 22568
