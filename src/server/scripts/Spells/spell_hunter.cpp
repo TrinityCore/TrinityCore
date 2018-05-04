@@ -3019,7 +3019,7 @@ public:
 
         void OnUnitExit(Unit* unit) override
         {
-            if (!unit)
+            if (!unit || !at->GetCaster())
                 return;
 
             Position pos = at->GetPosition();
@@ -3028,7 +3028,7 @@ public:
             if (unit->HasAura(SPELL_HUNTER_BINDING_SHOT_AURA) && unit->GetExactDist(&pos) >= 5.0f)
             {
                 unit->RemoveAura(SPELL_HUNTER_BINDING_SHOT_AURA);
-                unit->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_STUN, true);
+                at->GetCaster()->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_STUN, true);
             }
         }
     };
