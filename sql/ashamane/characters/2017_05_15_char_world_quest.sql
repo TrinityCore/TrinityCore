@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `character_world_quest`;
 CREATE TABLE `character_world_quest` (
   `guid` BIGINT (20) UNSIGNED NOT NULL,
   `questId` INT (10) UNSIGNED NOT NULL,
