@@ -611,72 +611,64 @@ public:
 };
 
 // Void Eruption - 228260
-class spell_pri_void_eruption : public SpellScriptLoader
+class spell_pri_void_eruption : public SpellScript
 {
-public:
-    spell_pri_void_eruption() : SpellScriptLoader("spell_pri_void_eruption") {}
+    PrepareSpellScript(spell_pri_void_eruption);
 
-    class spell_pri_void_eruption_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_pri_void_eruption_SpellScript);
+        return ValidateSpellInfo({ SPELL_PRIEST_VOID_ERUPTION, SPELL_PRIEST_VOID_ERUPTION_DAMAGE });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VOID_ERUPTION) ||
-                !sSpellMgr->GetSpellInfo(SPELL_PRIEST_VOID_ERUPTION_DAMAGE))
-                return false;
-            return true;
-        }
-
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            targets.remove_if([caster](WorldObject* target)
-            {
-                Unit* targ = target->ToUnit(); //Remove all non-unit targets
-                if (!targ)
-                    return true;
-
-                return !(targ->HasAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()) || targ->HasAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()));
-            });
-        }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            int8 spellid = std::rand() % 2; //there are two animations which should be random
-            caster->CastSpell(target, SPELL_PRIEST_VOID_ERUPTION_DAMAGE + spellid, true);
-        }
-
-        void EnterVoidform()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->CastSpell(caster, SPELL_PRIEST_VOIDFORM_BUFFS, true);
-            if (!caster->HasAura(SPELL_PRIEST_SHADOWFORM_STANCE))
-                caster->CastSpell(caster, SPELL_PRIEST_SHADOWFORM_STANCE, true);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_void_eruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            OnEffectHitTarget += SpellEffectFn(spell_pri_void_eruption_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            AfterCast += SpellCastFn(spell_pri_void_eruption_SpellScript::EnterVoidform);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        return new spell_pri_void_eruption_SpellScript();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        targets.remove_if([caster](WorldObject* target)
+        {
+            Unit* targ = target->ToUnit(); //Remove all non-unit targets
+            if (!targ)
+                return true;
+
+            return !(targ->HasAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()) || targ->HasAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()));
+        });
+    }
+
+    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    {
+        powerCount = 0;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        int8 spellid = std::rand() % 2; //there are two animations which should be random
+        caster->CastSpell(target, SPELL_PRIEST_VOID_ERUPTION_DAMAGE + spellid, true);
+    }
+
+    void EnterVoidform()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_VOIDFORM_BUFFS, true);
+        if (!caster->HasAura(SPELL_PRIEST_SHADOWFORM_STANCE))
+            caster->CastSpell(caster, SPELL_PRIEST_SHADOWFORM_STANCE, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_void_eruption::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnTakePower += SpellOnTakePowerFn(spell_pri_void_eruption::HandleTakePower);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_void_eruption::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_pri_void_eruption::EnterVoidform);
     }
 };
 
@@ -2863,7 +2855,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterAuraScript(spell_pri_vampiric_touch);
     new spell_pri_void_bolt();
-    new spell_pri_void_eruption();
+    RegisterSpellScript(spell_pri_void_eruption);
     new spell_pri_void_shift();
     new spell_pri_void_tendrils();
     new spell_pri_voidform();

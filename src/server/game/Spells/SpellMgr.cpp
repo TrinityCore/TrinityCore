@@ -3509,7 +3509,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Priest void form insanity regen rate
     ApplySpellFix({ 194249 }, [](SpellInfo* spellInfo)
     {
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->BasePoints /= 10;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->BasePoints /= 5;
     });
 
     // Warrior commanding shout
