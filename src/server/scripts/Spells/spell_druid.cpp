@@ -48,6 +48,7 @@ enum DruidSpells
     SPELL_DRUID_REJUVENATION                        = 774,
     SPELL_DRUID_HEALING_TOUCH                       = 5185,
     SPELL_DRUID_SWIFTMEND                           = 18562,
+    SPELL_DRUID_TRAVEL_FORM                         = 783,
 };
 
 enum ShapeshiftFormSpells
@@ -1911,7 +1912,7 @@ public:
 
         bool Load() override
         {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            return GetCaster()->IsPlayer();
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1985,7 +1986,7 @@ public:
 
         bool Load() override
         {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            return GetCaster()->IsPlayer();
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2033,7 +2034,7 @@ public:
             Player* player = GetTarget()->ToPlayer();
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
 
-            if (!player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
+            if (!player->GetMap()->IsOutdoors(player->GetPhaseShift(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
                 return SPELL_FAILED_ONLY_OUTDOORS;
 
             return spellInfo->CheckLocation(player->GetMapId(), player->GetZoneId(), player->GetAreaId(), player);
@@ -2103,37 +2104,28 @@ class aura_dru_astral_form : public AuraScript
 // 197492 - Restoration Affinity
 class aura_dru_restoration_affinity : public AuraScript
 {
-public:
-    aura_dru_restoration_affinity() : AuraScript()
-    {
-        LearnedSpells =
-        {
-            SPELL_DRUID_YSERA_GIFT,
-            SPELL_DRUID_REJUVENATION,
-            SPELL_DRUID_HEALING_TOUCH,
-            SPELL_DRUID_SWIFTMEND
-        };
-    }
-
     PrepareAuraScript(aura_dru_restoration_affinity);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    const std::vector<uint32> LearnedSpells =
     {
-        return ValidateSpellInfo(LearnedSpells);
-    }
+        SPELL_DRUID_YSERA_GIFT,
+        SPELL_DRUID_REJUVENATION,
+        SPELL_DRUID_HEALING_TOUCH,
+        SPELL_DRUID_SWIFTMEND
+    };
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* target = GetTarget()->ToPlayer())
             for (uint32 spellId : LearnedSpells)
-                target->AddTemporarySpell(spellId);
+                target->LearnSpell(spellId, false);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* target = GetTarget()->ToPlayer())
             for (uint32 spellId : LearnedSpells)
-                target->RemoveTemporarySpell(spellId);
+                target->RemoveSpell(spellId);
     }
 
     void Register() override
@@ -2141,9 +2133,6 @@ public:
         AfterEffectApply += AuraEffectApplyFn(aura_dru_restoration_affinity::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(aura_dru_restoration_affinity::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
-
-private:
-    std::initializer_list<uint32> LearnedSpells;
 };
 
 // 22842 - Frenzied Regeneration
@@ -2153,8 +2142,8 @@ class aura_dru_frenzied_regeneration : public AuraScript
 
     void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
-        uint64 healAmount = CalculatePct(GetTarget()->GetDamageOverLastSeconds(5), 50);
-        uint64 minHealAmount = CalculatePct(GetTarget()->GetMaxHealth(), 5);
+        uint64 healAmount = CalculatePct(GetCaster()->GetDamageOverLastSeconds(5), 50);
+        uint64 minHealAmount = CalculatePct(GetCaster()->GetMaxHealth(), 5);
         healAmount = std::max(healAmount, minHealAmount);
 
         // Divide amount over duration
@@ -2165,7 +2154,7 @@ class aura_dru_frenzied_regeneration : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(aura_dru_frenzied_regeneration::CalcAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(aura_dru_frenzied_regeneration::CalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
