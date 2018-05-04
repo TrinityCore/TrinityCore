@@ -3512,6 +3512,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->BasePoints /= 10;
     });
 
+    // Warrior commanding shout
+    ApplySpellFix({ 97463 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 15;
+    });
+
     ApplySpellFix({
         104012, // Break Gong Credit
         105002, // Summon Hot Air Balloon
