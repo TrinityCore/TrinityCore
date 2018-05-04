@@ -86,7 +86,7 @@ enum PriestSpells
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 201146, // Fear
     SPELL_PRIEST_2P_S12_HEAL                        = 33333,
     SPELL_PRIEST_2P_S12_SHADOW                      = 92711,
     SPELL_PRIEST_4P_S12_HEAL                        = 131566,
@@ -1648,19 +1648,14 @@ class spell_pri_vampiric_touch : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, SPELL_GEN_REPLENISHMENT });
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, SPELL_GEN_REPLENISHMENT, SPELL_PRIEST_MISERY, SPELL_PRIEST_SHADOW_WORD_PAIN });
     }
 
     void HandleDispel(DispelInfo* /*dispelInfo*/)
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetUnitOwner())
-                if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-                {
-                    int32 damage = aurEff->GetAmount() * 8;
-                    // backfire damage
-                    caster->CastCustomSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
-                }
+                caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, true);
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
