@@ -637,17 +637,26 @@ struct npc_arti_priest_void_tendril : public Scripted_NoMovementAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        ObjectGuid targetGuid = summoner->GetTarget();
-        if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
+        _targetGuid = summoner->GetTarget();
+        if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGuid))
         {
             AttackStart(target);
-            target->GetScheduler().Schedule(100ms, [this, targetGuid](TaskContext /*context*/)
+            me->GetScheduler().Schedule(250ms, [this](TaskContext context)
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
-                    me->CastSpell(target, SPELL_PRIEST_MIND_FLAY, false);
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (Unit* owner = me->GetOwner())
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGuid))
+                        me->CastCustomSpell(SPELL_PRIEST_MIND_FLAY, SPELLVALUE_BASE_POINT0, owner->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_SHADOW, false), target);
+
+                context.Repeat();
             });
         }
     }
+
+private:
+    ObjectGuid _targetGuid;
 };
 
 void AddSC_artifact_spell_scripts()
