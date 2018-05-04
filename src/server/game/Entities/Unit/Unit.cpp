@@ -502,6 +502,7 @@ void Unit::Update(uint32 p_time)
     if (IsAlive())
     {
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, HealthBelowPct(20));
+        ModifyAuraState(AURA_STATE_HEALTHLESS_25_PERCENT, HealthBelowPct(25));
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, HealthBelowPct(35));
         ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, HealthAbovePct(75));
     }
@@ -8633,6 +8634,7 @@ void Unit::setDeathState(DeathState s)
     if (s == JUST_DIED)
     {
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
+        ModifyAuraState(AURA_STATE_HEALTHLESS_25_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
         // remove aurastates allowing special moves
         ClearAllReactives();

@@ -69,7 +69,8 @@ enum WarriorSpells
     SPELL_WARRIOR_DRAGON_ROAR_KNOCK_BACK            = 118895,
     SPELL_WARRIOR_ENRAGE                            = 184361,
     SPELL_WARRIOR_ENRAGE_AURA                       = 184362,
-    SPELL_WARRIOR_EXECUTE                           = 20647,
+    SPELL_WARRIOR_EXECUTE                           = 163201,
+    SPELL_WARRIOR_EXECUTE_PVP                       = 217955,
     SPELL_WARRIOR_FOCUSED_RAGE_ARMS                 = 207982,
     SPELL_WARRIOR_FOCUSED_RAGE_PROTECTION           = 204488,
     SPELL_WARRIOR_FURIOUS_SLASH                     = 100130,
@@ -959,7 +960,9 @@ public:
             if (eventInfo.GetDamageInfo())
             {
                 SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo();
-                if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
+                if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND ||
+                    (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))
+                    (spellInfo->Id == SPELL_WARRIOR_EXECUTE_PVP && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_25_PERCENT))))
                 {
                     // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
                     GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, NULL, aurEff);

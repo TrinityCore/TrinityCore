@@ -2066,7 +2066,7 @@ enum AuraStateType
     AURA_STATE_BERSERKING                   = 3,            // C T |
     AURA_STATE_FROZEN                       = 4,            //  c t| frozen target
     AURA_STATE_JUDGEMENT                    = 5,            // C   |
-    //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
+    AURA_STATE_HEALTHLESS_25_PERCENT        = 6,            // CcT |
     AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
     //AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
     //AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
