@@ -957,6 +957,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         // aura duration manipulation - when duration goes to 0 aura is removed
         int32 GetDuration() const;
         void SetDuration(int32 duration, bool withMods = false);
+        void ModDuration(int32 duration, int32 maxDuration = 0, bool withMods = false);
         // sets duration to maxduration
         void RefreshDuration();
         time_t GetApplyTime() const;

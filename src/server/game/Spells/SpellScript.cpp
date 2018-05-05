@@ -1138,6 +1138,18 @@ void AuraScript::SetDuration(int32 duration, bool withMods)
     m_aura->SetDuration(duration, withMods);
 }
 
+void AuraScript::ModDuration(int32 duration, int32 maxDuration /*= 0*/, bool withMods /*= false*/)
+{
+    duration = GetDuration() + duration;
+    if (maxDuration != 0)
+        duration = std::min(duration, maxDuration);
+
+    if (maxDuration && duration > m_aura->GetMaxDuration())
+        m_aura->SetMaxDuration(duration);
+
+    m_aura->SetDuration(duration, withMods);
+}
+
 void AuraScript::RefreshDuration()
 {
     m_aura->RefreshDuration();
