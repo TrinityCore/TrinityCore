@@ -150,7 +150,7 @@ void ThreatReference::ClearThreat(bool sendRemove)
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _ownerEngaged(false), _updateClientTimer(CLIENT_THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _ownerEngaged(false), _updateClientTimer(CLIENT_THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
