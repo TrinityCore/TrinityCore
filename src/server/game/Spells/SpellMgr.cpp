@@ -3540,6 +3540,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_MYTHIC, EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
     });
 
+    // Shaman Rainfall
+    ApplySpellFix({ 215864 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
+    });
+
     ApplySpellFix({ 196930 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd

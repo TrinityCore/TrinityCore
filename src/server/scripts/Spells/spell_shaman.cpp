@@ -174,6 +174,8 @@ enum ShamanSpells
     SPELL_SHAMAN_WIND_RUSH_TOTEM                = 192077,
     SPELL_SHAMAN_AT_EARTHEN_SHIELD_TOTEM        = 198839,
     SPELL_SHAMAN_UNDULATION_PROC                = 216251,
+    SPELL_SHAMAN_RAINFALL                       = 215864,
+    SPELL_SHAMAN_RAINFALL_HEAL                  = 215871,
 };
 
 enum TotemSpells
@@ -213,6 +215,11 @@ enum MiscSpells
 enum AncestralAwakeningProc
 {
     SPELL_ANCESTRAL_AWAKENING_PROC              = 52752,
+};
+
+enum ShamanNpcs
+{
+    NPC_RAINFALL                                = 73400,
 };
 
 // Feral Lunge - 196884
@@ -3541,6 +3548,55 @@ class spell_sha_chain_lightning: public SpellScript
     }
 };
 
+// 215864 Rainfall
+class spell_sha_rainfall: public SpellScript
+{
+    PrepareSpellScript(spell_sha_rainfall);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (WorldLocation* pos = GetHitDest())
+            GetCaster()->SummonCreature(NPC_RAINFALL, *pos);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sha_rainfall::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 215864 Rainfall
+class aura_sha_rainfall : public AuraScript
+{
+    PrepareAuraScript(aura_sha_rainfall);
+
+    void HandleHealPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* rainfallTrigger = caster->GetSummonedCreatureByEntry(NPC_RAINFALL))
+                caster->CastSpell(rainfallTrigger->GetPosition(), SPELL_SHAMAN_RAINFALL_HEAL, true);
+    }
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->UnsummonCreatureByEntry(NPC_RAINFALL);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        if (Unit* caster = GetCaster())
+            ModDuration(GetEffect(EFFECT_2)->GetBaseAmount() * IN_MILLISECONDS, GetEffect(EFFECT_3)->GetBaseAmount() * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_sha_rainfall::HandleHealPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectRemove += AuraEffectRemoveFn(aura_sha_rainfall::HandleAfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc += AuraEffectProcFn(aura_sha_rainfall::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3608,6 +3664,7 @@ void AddSC_shaman_spell_scripts()
     new spell_shaman_windfury_weapon();
     RegisterSpellScript(spell_sha_undulation);
     RegisterSpellScript(spell_sha_chain_lightning);
+    RegisterSpellAndAuraScriptPair(spell_sha_rainfall, aura_sha_rainfall);
 }
 
 void AddSC_npc_totem_scripts()
