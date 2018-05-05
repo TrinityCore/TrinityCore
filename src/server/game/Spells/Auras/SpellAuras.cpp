@@ -1274,7 +1274,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 {
                     if (*itr < 0)
                         target->RemoveAurasDueToSpell(-(*itr));
-                    else if (removeMode != AURA_REMOVE_BY_DEATH && !target->IsDuringRemoveFromWorld())
+                    else if (removeMode != AURA_REMOVE_BY_DEATH && target->IsInWorld() && !target->IsDuringRemoveFromWorld())
                         target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
                 }
             }
