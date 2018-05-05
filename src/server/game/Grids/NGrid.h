@@ -35,9 +35,8 @@ public:
     GridInfo();
     GridInfo(time_t expiry, bool unload = true );
     const TimeTracker& getTimeTracker() const { return i_timer; }
-    bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock || i_unloadReferenceLock; }
+    bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock; }
     void setUnloadExplicitLock(bool on) { i_unloadExplicitLock = on; }
-    void setUnloadReferenceLock(bool on) { i_unloadReferenceLock = on; }
     void incUnloadActiveLock() { ++i_unloadActiveLockCount; }
     void decUnloadActiveLock() { if (i_unloadActiveLockCount) --i_unloadActiveLockCount; }
 
@@ -51,7 +50,6 @@ private:
 
     uint16 i_unloadActiveLockCount : 16;                    // lock from active object spawn points (prevent clone loading)
     bool   i_unloadExplicitLock    : 1;                     // explicit manual lock or config setting
-    bool   i_unloadReferenceLock   : 1;                     // lock from instance map copy
 };
 
 typedef enum
@@ -109,7 +107,6 @@ class NGrid
         const TimeTracker& getTimeTracker() const { return i_GridInfo.getTimeTracker(); }
         bool getUnloadLock() const { return i_GridInfo.getUnloadLock(); }
         void setUnloadExplicitLock(bool on) { i_GridInfo.setUnloadExplicitLock(on); }
-        void setUnloadReferenceLock(bool on) { i_GridInfo.setUnloadReferenceLock(on); }
         void incUnloadActiveLock() { i_GridInfo.incUnloadActiveLock(); }
         void decUnloadActiveLock() { i_GridInfo.decUnloadActiveLock(); }
         void ResetTimeTracker(time_t interval) { i_GridInfo.ResetTimeTracker(interval); }
