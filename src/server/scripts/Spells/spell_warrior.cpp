@@ -2828,6 +2828,50 @@ class spell_warr_ravager : public AuraScript
     }
 };
 
+// 163201 - Execute
+// 217955 - Execute (PvP Talent)
+class spell_warr_execute : public SpellScript
+{
+    PrepareSpellScript(spell_warr_execute);
+
+    int32 m_maxRageTaken = 0;
+    int32 m_ExtraSpellCost = 0;
+    int32 m_powerTaken = 0;
+
+    bool Load() override
+    {
+        m_maxRageTaken = GetEffectInfo(EFFECT_4)->BasePoints - GetEffectInfo(EFFECT_3)->BasePoints;
+        m_ExtraSpellCost = std::min(GetCaster()->GetPower(POWER_RAGE), m_maxRageTaken * 10);
+        return true;
+    }
+
+    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    {
+        powerCount += m_ExtraSpellCost;
+        m_powerTaken = powerCount;
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        int32 dmg = CalculatePct(GetHitDamage(), 100.f + (float(m_ExtraSpellCost) / float(m_maxRageTaken) * 300.f));
+        SetHitDamage(dmg);
+    }
+
+    void HandleAfterHit()
+    {
+        if (Unit* target = GetHitUnit())
+            if (target->IsAlive())
+                GetCaster()->ModifyPower(POWER_RAGE, CalculatePct(m_powerTaken, GetEffectInfo(EFFECT_4)->BasePoints));
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_warr_execute::HandleTakePower);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_execute::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+        AfterHit += SpellHitFn(spell_warr_execute::HandleAfterHit);
+    }
+};
+
 // Ravager - 76168
 class npc_warr_ravager : public CreatureScript
 {
@@ -2952,6 +2996,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_jump_to_skyhold();
     RegisterSpellScript(spell_warr_commanding_shout);
     RegisterAuraScript(spell_warr_ravager);
+    RegisterSpellScript(spell_warr_execute);
 
     new npc_warr_ravager();
 }
