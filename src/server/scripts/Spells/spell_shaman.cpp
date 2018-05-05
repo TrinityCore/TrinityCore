@@ -3583,7 +3583,7 @@ class aura_sha_rainfall : public AuraScript
             caster->UnsummonCreatureByEntry(NPC_RAINFALL);
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         if (Unit* caster = GetCaster())
             ModDuration(GetEffect(EFFECT_2)->GetBaseAmount() * IN_MILLISECONDS, GetEffect(EFFECT_3)->GetBaseAmount() * IN_MILLISECONDS);
