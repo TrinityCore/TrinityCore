@@ -696,7 +696,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             (me ? me->GetGUID() : go->GetGUID()).ToString().c_str(), e.action.cast.spell, (*itr)->GetGUID().ToString().c_str(), e.action.cast.castFlags);
                     }
                     else
-                        TC_LOG_ERROR("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: smart_script %ii triggered without me or go", e.entryOrGuid);
+                        TC_LOG_ERROR("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: smart_script " SI64FMTD " triggered without me or go", e.entryOrGuid);
                 }
                 else
                     TC_LOG_DEBUG("scripts.ai", "Spell %u not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (%s) already has the aura", e.action.cast.spell, (*itr)->GetGUID().ToString().c_str());
