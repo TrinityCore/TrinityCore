@@ -13040,7 +13040,9 @@ void Unit::SetFacingTo(float ori, bool force)
     if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && GetTransGUID())
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
-    GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_SLOT_CONTROLLED);
+
+    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_SLOT_CONTROLLED);
+    init.Launch();
 }
 
 void Unit::SetFacingToObject(WorldObject const* object, bool force)
@@ -13053,7 +13055,9 @@ void Unit::SetFacingToObject(WorldObject const* object, bool force)
     Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
     init.SetFacing(GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
-    GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_SLOT_CONTROLLED);
+
+    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_SLOT_CONTROLLED);
+    init.Launch();
 }
 
 bool Unit::SetWalk(bool enable)
