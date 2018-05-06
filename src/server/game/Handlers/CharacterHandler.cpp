@@ -958,20 +958,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         Field* fields = resultGuild->Fetch();
         pCurrChar->SetInGuild(fields[0].GetUInt64());
-        pCurrChar->SetRank(fields[1].GetUInt8());
+        pCurrChar->SetGuildRank(fields[1].GetUInt8());
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             pCurrChar->SetGuildLevel(guild->GetLevel());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(UI64LIT(0));
-        pCurrChar->SetRank(0);
+        pCurrChar->SetGuildRank(0);
         pCurrChar->SetGuildLevel(0);
     }
-
-    //WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    //data << uint64(0);
-    //SendPacket(&data);
 
     // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
     WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
@@ -1632,16 +1628,20 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
                 saveEquipmentSet.Set.Appearances[i] = 0;
 
                 ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
+                if (!itemGuid.IsEmpty())
+                {
+                    Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-                Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+                    /// cheating check 1 (item equipped but sent empty guid)
+                    if (!item)
+                        return;
 
-                /// cheating check 1 (item equipped but sent empty guid)
-                if (!item && !itemGuid.IsEmpty())
-                    return;
-
-                /// cheating check 2 (sent guid does not match equipped item)
-                if (item && item->GetGUID() != itemGuid)
-                    return;
+                    /// cheating check 2 (sent guid does not match equipped item)
+                    if (item->GetGUID() != itemGuid)
+                        return;
+                }
+                else
+                    saveEquipmentSet.Set.IgnoreMask |= 1 << i;
             }
             else
             {
@@ -1656,6 +1656,8 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
                     if (!hasAppearance)
                         return;
                 }
+                else
+                    saveEquipmentSet.Set.IgnoreMask |= 1 << i;
             }
         }
         else
@@ -1710,7 +1712,7 @@ void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEq
 void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& useEquipmentSet)
 {
     ObjectGuid ignoredItemGuid;
-    ignoredItemGuid.SetRawValue(0, 1);
+    ignoredItemGuid.SetRawValue(0x0C00040000000000, 0xFFFFFFFFFFFFFFFF);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {

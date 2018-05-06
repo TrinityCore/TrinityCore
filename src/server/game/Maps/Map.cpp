@@ -52,7 +52,7 @@
 #include "WorldSession.h"
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','8'} };
+u_map_magic MapVersionMagic = { {'v','1','.','9'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -172,41 +172,30 @@ void Map::LoadVMap(int gx, int gy)
     }
 }
 
-void Map::LoadMap(int gx, int gy, bool reload)
+void Map::LoadMap(int gx, int gy)
 {
-    LoadMapImpl(this, gx, gy, reload);
+    LoadMapImpl(this, gx, gy);
     for (Map* childBaseMap : *m_childTerrainMaps)
-        childBaseMap->LoadMap(gx, gy, reload);
+        childBaseMap->LoadMap(gx, gy);
 }
 
-void Map::LoadMapImpl(Map* map, int gx, int gy, bool reload)
+void Map::LoadMapImpl(Map* map, int gx, int gy)
 {
-    if (map->i_InstanceId != 0)
-    {
-        if (map->GridMaps[gx][gy])
-            return;
-
-        // load grid map for base map
-        GridCoord ngridCoord = GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy);
-        if (!map->m_parentMap->getNGrid(ngridCoord.x_coord, ngridCoord.y_coord))
-            map->m_parentMap->EnsureGridCreated(ngridCoord);
-
-        static_cast<MapInstanced*>(map->m_parentMap)->AddGridMapReference(GridCoord(gx, gy));
-        map->GridMaps[gx][gy] = map->m_parentMap->GridMaps[gx][gy];
-        return;
-    }
-
-    if (map->GridMaps[gx][gy] && !reload)
-        return;
-
-    //map already load, delete it before reloading (Is it necessary? Do we really need the ability the reload maps during runtime?)
     if (map->GridMaps[gx][gy])
-    {
-        TC_LOG_DEBUG("maps", "Unloading previously loaded map %u before reloading.", map->GetId());
-        sScriptMgr->OnUnloadGridMap(map, map->GridMaps[gx][gy], gx, gy);
+        return;
 
-        delete map->GridMaps[gx][gy];
-        map->GridMaps[gx][gy] = nullptr;
+    Map* parent = map->m_parentMap;
+    ++parent->GridMapReference[gx][gy];
+
+    // load grid map for base map
+    if (parent != map)
+    {
+        GridCoord ngridCoord = GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy);
+        if (!parent->GridMaps[gx][gy])
+            parent->EnsureGridCreated(ngridCoord);
+
+        map->GridMaps[gx][gy] = parent->GridMaps[gx][gy];
+        return;
     }
 
     // map file name
@@ -230,29 +219,25 @@ void Map::UnloadMap(int gx, int gy)
 
 void Map::UnloadMapImpl(Map* map, int gx, int gy)
 {
-    if (map->i_InstanceId == 0)
+    if (map->GridMaps[gx][gy])
     {
-        if (map->GridMaps[gx][gy])
+        Map* parent = map->m_parentMap;
+        if (!--parent->GridMapReference[gx][gy])
         {
-            map->GridMaps[gx][gy]->unloadData();
-            delete map->GridMaps[gx][gy];
+            parent->GridMaps[gx][gy]->unloadData();
+            delete parent->GridMaps[gx][gy];
+            parent->GridMaps[gx][gy] = nullptr;
         }
     }
-    else
-        static_cast<MapInstanced*>(map->m_parentMap)->RemoveGridMapReference(GridCoord(gx, gy));
 
     map->GridMaps[gx][gy] = nullptr;
 }
 
 void Map::LoadMapAndVMap(int gx, int gy)
 {
-    m_parentTerrainMap->LoadMap(gx, gy);
-    // Only load the data for the base map
-    if (i_InstanceId == 0)
-    {
-        LoadVMap(gx, gy);
-        LoadMMap(gx, gy);
-    }
+    LoadMap(gx, gy);
+    LoadVMap(gx, gy);
+    LoadMMap(gx, gy);
 }
 
 void Map::LoadAllCells()
@@ -306,6 +291,7 @@ i_scriptLock(false), _defaultLight(DB2Manager::GetDefaultMapLight(id))
         {
             //z code
             GridMaps[x][y] = nullptr;
+            GridMapReference[x][y] = 0;
             setNGrid(nullptr, x, y);
         }
     }
@@ -525,20 +511,20 @@ void Map::EnsureGridCreated_i(const GridCoord &p)
     {
         TC_LOG_DEBUG("maps", "Creating grid[%u, %u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
-        setNGrid(new NGridType(p.x_coord*MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD)),
-            p.x_coord, p.y_coord);
+        NGridType* ngrid = new NGridType(p.x_coord*MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD));
+        setNGrid(ngrid, p.x_coord, p.y_coord);
 
         // build a linkage between this map and NGridType
-        buildNGridLinkage(getNGrid(p.x_coord, p.y_coord));
+        buildNGridLinkage(ngrid);
 
-        getNGrid(p.x_coord, p.y_coord)->SetGridState(GRID_STATE_IDLE);
+        ngrid->SetGridState(GRID_STATE_IDLE);
 
         //z coord
         int gx = (MAX_NUMBER_OF_GRIDS - 1) - p.x_coord;
         int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
 
         if (!GridMaps[gx][gy])
-            LoadMapAndVMap(gx, gy);
+            m_parentTerrainMap->LoadMapAndVMap(gx, gy);
     }
 }
 
@@ -1829,17 +1815,13 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
     int gy = (MAX_NUMBER_OF_GRIDS - 1) - y;
 
     // delete grid map, but don't delete if it is from parent map (and thus only reference)
-    //+++if (GridMaps[gx][gy]) don't check for GridMaps[gx][gy], we might have to unload vmaps
+    if (GridMaps[gx][gy])
     {
-        if (m_parentTerrainMap == this)
-            m_parentTerrainMap->UnloadMap(gx, gy);
-
-        if (i_InstanceId == 0)
-        {
-            VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
-            MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
-        }
+        m_parentTerrainMap->UnloadMap(gx, gy);
+        VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(m_parentTerrainMap->GetId(), gx, gy);
+        MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(m_parentTerrainMap->GetId(), gx, gy);
     }
+
     TC_LOG_DEBUG("maps", "Unloading grid[%u, %u] for map %u finished", x, y, GetId());
     return true;
 }
@@ -1914,7 +1896,8 @@ GridMap::GridMap()
     m_V8 = nullptr;
     _minHeightPlanes = nullptr;
     // Liquid data
-    _liquidType    = 0;
+    _liquidGlobalEntry = 0;
+    _liquidGlobalFlags = 0;
     _liquidOffX   = 0;
     _liquidOffY   = 0;
     _liquidWidth  = 0;
@@ -2117,7 +2100,8 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
     if (fread(&header, sizeof(header), 1, in) != 1 || header.fourcc != MapLiquidMagic.asUInt)
         return false;
 
-    _liquidType   = header.liquidType;
+    _liquidGlobalEntry = header.liquidType;
+    _liquidGlobalFlags = header.liquidFlags;
     _liquidOffX  = header.offsetX;
     _liquidOffY  = header.offsetY;
     _liquidWidth = header.width;
@@ -2442,7 +2426,7 @@ uint8 GridMap::getTerrainType(float x, float y) const
 inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data)
 {
     // Check water type (if no water return)
-    if (!_liquidType && !_liquidFlags)
+    if (!_liquidGlobalFlags && !_liquidFlags)
         return LIQUID_MAP_NO_WATER;
 
     // Get cell
@@ -2454,37 +2438,33 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
 
     // Check water type in cell
     int idx=(x_int>>3)*16 + (y_int>>3);
-    uint8 type = _liquidFlags ? _liquidFlags[idx] : _liquidType;
-    uint32 entry = 0;
-    if (_liquidEntry)
+    uint8 type = _liquidFlags ? _liquidFlags[idx] : _liquidGlobalFlags;
+    uint32 entry = _liquidEntry ? _liquidEntry[idx] : _liquidGlobalEntry;
+    if (LiquidTypeEntry const* liquidEntry = sLiquidTypeStore.LookupEntry(entry))
     {
-        if (LiquidTypeEntry const* liquidEntry = sLiquidTypeStore.LookupEntry(_liquidEntry[idx]))
+        type &= MAP_LIQUID_TYPE_DARK_WATER;
+        uint32 liqTypeIdx = liquidEntry->SoundBank;
+        if (entry < 21)
         {
-            entry = liquidEntry->ID;
-            type &= MAP_LIQUID_TYPE_DARK_WATER;
-            uint32 liqTypeIdx = liquidEntry->SoundBank;
-            if (entry < 21)
+            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(getArea(x, y)))
             {
-                if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(getArea(x, y)))
+                uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
+                if (!overrideLiquid && area->ParentAreaID)
                 {
-                    uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
-                    if (!overrideLiquid && area->ParentAreaID)
-                    {
-                        area = sAreaTableStore.LookupEntry(area->ParentAreaID);
-                        if (area)
-                            overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
-                    }
+                    area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+                    if (area)
+                        overrideLiquid = area->LiquidTypeID[liquidEntry->SoundBank];
+                }
 
-                    if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
-                    {
-                        entry = overrideLiquid;
-                        liqTypeIdx = liq->SoundBank;
-                    }
+                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
+                {
+                    entry = overrideLiquid;
+                    liqTypeIdx = liq->SoundBank;
                 }
             }
-
-            type |= 1 << liqTypeIdx;
         }
+
+        type |= 1 << liqTypeIdx;
     }
 
     if (type == 0)

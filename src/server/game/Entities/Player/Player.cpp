@@ -5142,8 +5142,13 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_PVP_POWER:
         case CR_CLEAVE:
+            break;
         case CR_VERSATILITY_DAMAGE_DONE:
+            UpdateVersatilityDamageDone();
+            break;
         case CR_VERSATILITY_HEALING_DONE:
+            UpdateHealingDonePercentMod();
+            break;
         case CR_VERSATILITY_DAMAGE_TAKEN:
         case CR_UNUSED_12:
             break;
@@ -6449,6 +6454,11 @@ void Player::RewardPlayerWithRewardPack(RewardPackEntry const* rewardPackEntry)
         SetTitle(charTitlesEntry);
 
     ModifyMoney(rewardPackEntry->Money);
+
+    if (std::vector<RewardPackXCurrencyTypeEntry const*> const* rewardCurrencyTypes = sDB2Manager.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry->ID))
+        for (RewardPackXCurrencyTypeEntry const* currency : *rewardCurrencyTypes)
+            ModifyCurrency(currency->CurrencyTypeID, currency->Quantity);
+
     if (std::vector<RewardPackXItemEntry const*> const* rewardPackXItems = sDB2Manager.GetRewardPackItemsByRewardID(rewardPackEntry->ID))
         for (RewardPackXItemEntry const* rewardPackXItem : *rewardPackXItems)
             AddItem(rewardPackXItem->ItemID, rewardPackXItem->ItemQuantity);
@@ -7648,7 +7658,8 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
 
 void Player::CastAllObtainSpells()
 {
-    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+    uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
+    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < inventoryEnd; ++slot)
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
             ApplyItemObtainSpells(item, true);
 
@@ -10001,7 +10012,7 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
 
     if (inBankAlso)
     {
-        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; i++)
+        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; i++)
         {
             Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
@@ -10187,11 +10198,12 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
 
         if (limitEntry->Flags == ITEM_LIMIT_CATEGORY_MODE_HAVE)
         {
+            uint8 limitQuantity = GetItemLimitCategoryQuantity(limitEntry);
             uint32 curcount = GetItemCountWithLimitCategory(pProto->GetItemLimitCategory(), pItem);
-            if (curcount + count > uint32(limitEntry->Quantity))
+            if (curcount + count > uint32(limitQuantity))
             {
                 if (no_space_count)
-                    *no_space_count = count + curcount - limitEntry->Quantity;
+                    *no_space_count = count + curcount - limitQuantity;
                 if (offendingItemId)
                     *offendingItemId = pProto->GetId();
                 return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
@@ -11566,6 +11578,9 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
             if (pItem->IsBindedNotWith(this))
                 return EQUIP_ERR_NOT_OWNER;
 
+            if (getLevel() < pItem->GetRequiredLevel())
+                return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
+
             InventoryResult res = CanUseItem(pProto);
             if (res != EQUIP_ERR_OK)
                 return res;
@@ -11740,7 +11755,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CRITERIA_TYPE_OWN_ITEM, itemId, 1);
 
         item->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM);
-        item->SetItemRandomProperties(randomPropertyId);
 
         if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
             item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
@@ -11750,6 +11764,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             item->AddBonuses(bonusListID);
 
         item = StoreItem(pos, item, update);
+
+        item->SetFixedLevel(getLevel());
+        item->SetItemRandomProperties(randomPropertyId);
 
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
@@ -12516,7 +12533,7 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
     {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
-            if (item && item->GetEntry() == itemEntry && !item->IsInTrade())
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
             {
                 if (item->GetCount() + remcount <= count)
                 {
@@ -12599,6 +12616,36 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                             return;
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // in bank bag list
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+    {
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
+            {
+                if (item->GetCount() + remcount <= count)
+                {
+                    if (!unequip_check || CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | i, false) == EQUIP_ERR_OK)
+                    {
+                        remcount += item->GetCount();
+                        DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+                        if (remcount >= count)
+                            return;
+                    }
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(item->GetEntry(), count - remcount);
+                    item->SetCount(item->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        item->SendUpdateToPlayer(this);
+                    item->SetState(ITEM_CHANGED, this);
+                    return;
                 }
             }
         }
@@ -14073,6 +14120,12 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
                             break;
+                        case ITEM_MOD_VERSATILITY:
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u VERSATILITY", enchant_amount);
+                            break;
                         default:
                             break;
                     }
@@ -14319,6 +14372,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GOSSIP_OPTION_PETITIONER:
                 case GOSSIP_OPTION_TABARDDESIGNER:
                 case GOSSIP_OPTION_AUCTIONEER:
+                case GOSSIP_OPTION_TRANSMOGRIFIER:
                     break;                                  // no checks
                 case GOSSIP_OPTION_OUTDOORPVP:
                     if (!sOutdoorPvPMgr->CanTalkTo(this, creature, itr->second))
@@ -14393,7 +14447,7 @@ void Player::SendPreparedGossip(WorldObject* source)
     {
         if (PlayerTalkClass->GetGossipMenu().Empty() && !PlayerTalkClass->GetQuestMenu().Empty())
         {
-            SendPreparedQuest(source->GetGUID());
+            SendPreparedQuest(source);
             return;
         }
     }
@@ -14470,7 +14524,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menu
             break;
         case GOSSIP_OPTION_QUESTGIVER:
             PrepareQuestMenu(guid);
-            SendPreparedQuest(guid);
+            SendPreparedQuest(source);
             break;
         case GOSSIP_OPTION_VENDOR:
         case GOSSIP_OPTION_ARMORER:
@@ -14527,6 +14581,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menu
             sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
+        case GOSSIP_OPTION_TRANSMOGRIFIER:
+            GetSession()->SendOpenTransmogrifier(guid);
+            break;
     }
 
     ModifyMoney(-cost);
@@ -14637,7 +14694,7 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
     }
 }
 
-void Player::SendPreparedQuest(ObjectGuid guid)
+void Player::SendPreparedQuest(WorldObject* source)
 {
     QuestMenu& questMenu = PlayerTalkClass->GetQuestMenu();
     if (questMenu.Empty())
@@ -14654,36 +14711,35 @@ void Player::SendPreparedQuest(ObjectGuid guid)
         {
             if (qmi0.QuestIcon == 4)
             {
-                PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanRewardQuest(quest, false), true);
+                PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanRewardQuest(quest, false), true);
                 return;
             }
             // Send completable on repeatable and autoCompletable quest if player don't have quest
             /// @todo verify if check for !quest->IsDaily() is really correct (possibly not)
             else
             {
-                Object* object = ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
-                if (!object || (!object->hasQuest(questId) && !object->hasInvolvedQuest(questId)))
+                if (!source->hasQuest(questId) && !source->hasInvolvedQuest(questId))
                 {
                     PlayerTalkClass->SendCloseGossip();
                     return;
                 }
 
-                if (object->GetTypeId() != TYPEID_UNIT || object->GetUInt64Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_GOSSIP)
+                if (source->GetTypeId() != TYPEID_UNIT || source->GetUInt64Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_GOSSIP)
                 {
                     if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                        AddQuestAndCheckCompletion(quest, object);
+                        AddQuestAndCheckCompletion(quest, source);
 
                     if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
-                        PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
+                        PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanCompleteRepeatableQuest(quest), true);
                     else
-                        PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true, false);
+                        PlayerTalkClass->SendQuestGiverQuestDetails(quest, source->GetGUID(), true, false);
                     return;
                 }
             }
         }
     }
 
-    PlayerTalkClass->SendQuestGiverQuestListMessage(guid);
+    PlayerTalkClass->SendQuestGiverQuestListMessage(source);
 }
 
 bool Player::IsActiveQuest(uint32 quest_id) const
@@ -16193,7 +16249,7 @@ void Player::SendQuestUpdate(uint32 questId)
         {
             if (itr->second->flags & SPELL_AREA_FLAG_AUTOREMOVE && !itr->second->IsFitToRequirements(this, zone, area))
                 RemoveAurasDueToSpell(itr->second->spellId);
-            else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
+            else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && !(itr->second->flags & SPELL_AREA_FLAG_IGNORE_AUTOCAST_ON_QUEST_STATUS_CHANGE))
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
         }
@@ -21981,62 +22037,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     }
 }
 
-// Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId /*= 0*/, Aura* aura /*= nullptr*/)
-{
-    if (!spell || spell->m_appliedMods.empty())
-        return;
-
-    std::vector<Aura*> aurasQueue;
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
-    {
-        for (uint8 j = 0; j < SPELLMOD_END; ++j)
-        {
-            for (SpellModifier* mod : m_spellMods[i][j])
-            {
-                // Spellmods without charged aura set cannot be charged
-                if (!mod->ownerAura->IsUsingCharges())
-                    continue;
-
-                // Restore only specific owner aura mods
-                if (ownerAuraId && mod->spellId != ownerAuraId)
-                    continue;
-
-                if (aura && mod->ownerAura != aura)
-                    continue;
-
-                // Check if mod affected this spell
-                // First, check if the mod aura applied at least one spellmod to this spell
-                Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
-                if (iterMod == spell->m_appliedMods.end())
-                    continue;
-                // Second, check if the current mod is one of those applied by the mod aura
-                if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
-                    continue;
-
-                // remove from list - This will be done after all mods have been gone through
-                // to ensure we iterate over all mods of an aura before removing said aura
-                // from applied mods (Else, an aura with two mods on the current spell would
-                // only see the first of its modifier restored)
-                aurasQueue.push_back(mod->ownerAura);
-
-                // add charges back to aura
-                mod->ownerAura->ModCharges(1);
-            }
-        }
-    }
-
-    for (Aura* aura : aurasQueue)
-        spell->m_appliedMods.erase(aura);
-}
-
-void Player::RestoreAllSpellMods(uint32 ownerAuraId /*= 0*/, Aura* aura /*= nullptr*/)
-{
-    for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
-        if (Spell* spell = m_currentSpells[i])
-            RestoreSpellMods(spell, ownerAuraId, aura);
-}
-
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
     if (!spell)
@@ -26105,14 +26105,15 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
             return EQUIP_ERR_NOT_EQUIPPABLE;
 
         // NOTE: limitEntry->mode not checked because if item have have-limit then it applied and to equip case
+        uint8 limitQuantity = GetItemLimitCategoryQuantity(limitEntry);
 
-        if (limit_count > limitEntry->Quantity)
+        if (limit_count > limitQuantity)
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
 
         // there is an equip limit on this item
-        if (HasItemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
+        if (HasItemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitQuantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
-        else if (HasGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
+        else if (HasGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitQuantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 
@@ -26481,19 +26482,23 @@ bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
 
 void Player::EnablePvpRules(bool dueToCombat /*= false*/)
 {
-    if (HasPvpRulesEnabled())
-        return;
+    if (!HasPvpRulesEnabled())
+    {
+        if (!HasSpell(195710)) // Honorable Medallion
+            CastSpell(this, 208682, true); // Learn Gladiator's Medallion
 
-    if (!HasSpell(195710)) // Honorable Medallion
-        CastSpell(this, 208682); // Learn Gladiator's Medallion
+        CastSpell(this, SPELL_PVP_RULES_ENABLED, true);
+    }
 
-    CastSpell(this, SPELL_PVP_RULES_ENABLED);
     if (!dueToCombat)
     {
         if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         {
-            aura->SetMaxDuration(-1);
-            aura->SetDuration(-1);
+            if (!aura->IsPermanent())
+            {
+                aura->SetMaxDuration(-1);
+                aura->SetDuration(-1);
+            }
         }
     }
 
@@ -26728,15 +26733,14 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
         }
     }
 
-    EquipmentSetInfo& eqSlot = _equipmentSets[newEqSet.Guid];
+    uint64 setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : sObjectMgr->GenerateEquipmentSetGuid();
 
-    EquipmentSetUpdateState oldState = eqSlot.State;
-
+    EquipmentSetInfo& eqSlot = _equipmentSets[setGuid];
     eqSlot.Data = newEqSet;
 
     if (eqSlot.Data.Guid == 0)
     {
-        eqSlot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
+        eqSlot.Data.Guid = setGuid;
 
         WorldPackets::EquipmentSet::EquipmentSetID data;
         data.GUID = eqSlot.Data.Guid;
@@ -26745,7 +26749,7 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
         SendDirectMessage(data.Write());
     }
 
-    eqSlot.State = oldState == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
+    eqSlot.State = eqSlot.State == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
 }
 
 void Player::_SaveEquipmentSets(SQLTransaction& trans)
@@ -28423,4 +28427,21 @@ void Player::UpdateItemLevelAreaBasedScaling()
         SetHealth(CalculatePct(GetMaxHealth(), healthPct));
     }
     // @todo other types of power scaling such as timewalking
+}
+
+uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEntry) const
+{
+    uint8 limit = limitEntry->Quantity;
+
+    if (std::vector<ItemLimitCategoryConditionEntry const*> const* limitConditions = sDB2Manager.GetItemLimitCategoryConditions(limitEntry->ID))
+    {
+        for (ItemLimitCategoryConditionEntry const* limitCondition : *limitConditions)
+        {
+            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(limitCondition->PlayerConditionID);
+            if (!playerCondition || ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+                limit += limitCondition->AddQuantity;
+        }
+    }
+
+    return limit;
 }

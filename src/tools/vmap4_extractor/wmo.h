@@ -18,11 +18,9 @@
 
 #ifndef WMO_H
 #define WMO_H
-#define TILESIZE (533.33333f)
-#define CHUNKSIZE ((TILESIZE) / 16.0f)
 
 #include <string>
-#include <set>
+#include <unordered_set>
 #include <vector>
 #include "vec3d.h"
 #include "cascfile.h"
@@ -44,9 +42,38 @@ class WMOInstance;
 class WMOManager;
 class CASCFile;
 struct ADTOutputCache;
+namespace ADT { struct MODF; }
+
+namespace WMO
+{
+    struct MODS
+    {
+        char Name[20];
+        uint32 StartIndex;     // index of first doodad instance in this set
+        uint32 Count;          // number of doodad instances in this set
+        char _pad[4];
+    };
+
+    struct MODD
+    {
+        uint32 NameIndex : 24;
+        Vec3D Position;
+        Quaternion Rotation;
+        float Scale;
+        uint32 Color;
+    };
+}
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
 static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
+
+struct WMODoodadData
+{
+    std::vector<WMO::MODS> Sets;
+    std::unique_ptr<char[]> Paths;
+    std::vector<WMO::MODD> Spawns;
+    std::unordered_set<uint16> References;
+};
 
 class WMORoot
 {
@@ -59,13 +86,17 @@ public:
     float bbcorn2[3];
     uint16 flags, numLod;
 
+    WMODoodadData DoodadData;
+    std::unordered_set<uint32> ValidDoodadNames;
     std::vector<uint32> groupFileDataIDs;
 
-    WMORoot(std::string& filename);
+    WMORoot(std::string const& filename);
 
     bool open();
     bool ConvertToVMAPRootWmo(FILE* output);
 };
+
+#pragma pack(push, 1)
 
 struct WMOLiquidHeader
 {
@@ -73,10 +104,8 @@ struct WMOLiquidHeader
     float pos_x;
     float pos_y;
     float pos_z;
-    short type;
+    short material;
 };
-
-#pragma pack(push, 1)
 
 struct WMOLiquidVert
 {
@@ -111,7 +140,7 @@ public:
     uint16 moprNItems;
     uint16 nBatchA;
     uint16 nBatchB;
-    uint32 nBatchC, fogIdx, liquidType, groupWMOID;
+    uint32 nBatchC, fogIdx, groupLiquid, groupWMOID;
 
     int mopy_size, moba_size;
     int LiquEx_size;
@@ -119,27 +148,20 @@ public:
     int nTriangles; // number when loaded
     uint32 liquflags;
 
+    std::vector<uint16> DoodadReferences;
+
     WMOGroup(std::string const& filename);
     ~WMOGroup();
 
-    bool open();
-    int ConvertToVMAPGroupWmo(FILE* output, WMORoot* rootWMO, bool preciseVectorData);
+    bool open(WMORoot* rootWMO);
+    int ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData);
+    uint32 GetLiquidTypeId(uint32 liquidTypeId);
 };
 
-class WMOInstance
+namespace MapObject
 {
-    static std::set<int> ids;
-public:
-    std::string MapName;
-    int currx;
-    int curry;
-    WMOGroup* wmo;
-    int doodadset;
-    Vec3D pos;
-    Vec3D pos2, pos3, rot;
-    uint32 indx, id;
-
-    WMOInstance(CASCFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
-};
+    void Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, bool isGlobalWmo, uint32 mapID, uint32 originalMapId,
+        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+}
 
 #endif

@@ -21,6 +21,7 @@
 
 #include <G3D/Vector3.h>
 #include <G3D/Matrix3.h>
+#include <deque>
 #include <map>
 #include <set>
 
@@ -54,20 +55,26 @@ namespace VMAP
 
     struct TileSpawn
     {
+        TileSpawn() : Id(0), Flags(0) { }
+        TileSpawn(uint32 id, uint32 flags) : Id(id), Flags(flags) { }
+
         uint32 Id;
         uint32 Flags;
-    };
 
-    typedef std::map<uint32, ModelSpawn> UniqueEntryMap;
-    typedef std::multimap<uint32, TileSpawn> TileMap;
+        bool operator<(TileSpawn const& right) const { return Id < right.Id; }
+    };
 
     struct TC_COMMON_API MapSpawns
     {
-        UniqueEntryMap UniqueEntries;
-        TileMap TileEntries;
+        MapSpawns() { }
+
+        uint32 MapId;
+        std::map<uint32, ModelSpawn> UniqueEntries;
+        std::map<uint32 /*packedTileId*/, std::set<TileSpawn>> TileEntries;
+        std::map<uint32 /*packedTileId*/, std::set<TileSpawn>> ParentTileEntries;
     };
 
-    typedef std::map<uint32, MapSpawns*> MapData;
+    typedef std::deque<MapSpawns> MapData;
     //===============================================
 
     struct TC_COMMON_API GroupModel_Raw
@@ -101,9 +108,6 @@ namespace VMAP
         private:
             std::string iDestDir;
             std::string iSrcDir;
-            bool (*iFilterMethod)(char *pName);
-            G3D::Table<std::string, unsigned int > iUniqueNameIds;
-            unsigned int iCurrentUniqueNameId;
             MapData mapData;
             std::set<std::string> spawnedModelFiles;
 
@@ -117,8 +121,6 @@ namespace VMAP
             void exportGameobjectModels();
 
             bool convertRawFile(const std::string& pModelFilename);
-            void setModelNameFilterMethod(bool (*pFilterMethod)(char *pName)) { iFilterMethod = pFilterMethod; }
-            std::string getDirEntryNameFromModName(unsigned int pMapId, const std::string& pModPosName);
     };
 
 }                                                           // VMAP

@@ -1500,6 +1500,14 @@ struct ItemLimitCategoryEntry
     uint8 Flags;
 };
 
+struct ItemLimitCategoryConditionEntry
+{
+    uint32 ID;
+    int8 AddQuantity;
+    uint32 PlayerConditionID;
+    int32 ParentItemLimitCategoryID;
+};
+
 struct ItemModifiedAppearanceEntry
 {
     int32 ItemID;
@@ -2205,6 +2213,14 @@ struct RewardPackEntry
     uint8 ArtifactXPCategoryID;
     int32 CharTitleID;
     uint32 TreasurePickerID;
+};
+
+struct RewardPackXCurrencyTypeEntry
+{
+    uint32 ID;
+    uint32 CurrencyTypeID;
+    int32 Quantity;
+    uint32 RewardPackID;
 };
 
 struct RewardPackXItemEntry

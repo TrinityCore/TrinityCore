@@ -18,13 +18,10 @@
 
 #include "vmapexport.h"
 #include "adtfile.h"
-
+#include "StringFormat.h"
 #include <algorithm>
 #include <cstdio>
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include "Errors.h"
 
 char const* GetPlainName(char const* FileName)
 {
@@ -63,11 +60,12 @@ void FixNameCase(char* name, size_t len)
 
 void FixNameSpaces(char* name, size_t len)
 {
-    for (size_t i=0; i<len-3; i++)
-    {
-        if(name[i] == ' ')
+    if (len < 3)
+        return;
+
+    for (size_t i = 0; i < len - 3; i++)
+        if (name[i] == ' ')
             name[i] = '_';
-    }
 }
 
 char* GetExtension(char* FileName)
@@ -79,19 +77,19 @@ char* GetExtension(char* FileName)
 
 extern CASC::StorageHandle CascStorage;
 
-ADTFile::ADTFile(char* filename, bool cache) : ADT(CascStorage, filename, false), nWMO(0), nMDX(0)
+ADTFile::ADTFile(char* filename, bool cache) : _file(CascStorage, filename, false)
 {
     Adtfilename.append(filename);
     cacheable = cache;
     dirfileCache = nullptr;
 }
 
-bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId)
+bool ADTFile::init(uint32 map_num, uint32 originalMapId)
 {
     if (dirfileCache)
-        return initFromCache(map_num, tileX, tileY, originalMapId);
+        return initFromCache(map_num, originalMapId);
 
-    if (ADT.isEof())
+    if (_file.isEof())
         return false;
 
     uint32 size;
@@ -106,15 +104,15 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
     if (cacheable)
         dirfileCache = new std::vector<ADTOutputCache>();
 
-    while (!ADT.isEof())
+    while (!_file.isEof())
     {
         char fourcc[5];
-        ADT.read(&fourcc,4);
-        ADT.read(&size, 4);
+        _file.read(&fourcc,4);
+        _file.read(&size, 4);
         flipcc(fourcc);
         fourcc[4] = 0;
 
-        size_t nextpos = ADT.getPos() + size;
+        size_t nextpos = _file.getPos() + size;
 
         if (!strcmp(fourcc,"MCIN"))
         {
@@ -127,7 +125,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
             if (size)
             {
                 char* buf = new char[size];
-                ADT.read(buf, size);
+                _file.read(buf, size);
                 char* p = buf;
                 while (p < buf + size)
                 {
@@ -137,7 +135,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
-                    ModelInstanceNames.push_back(s);
+                    ModelInstanceNames.emplace_back(s);
 
                     ExtractSingleModel(path);
 
@@ -151,7 +149,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
             if (size)
             {
                 char* buf = new char[size];
-                ADT.read(buf, size);
+                _file.read(buf, size);
                 char* p = buf;
                 while (p < buf + size)
                 {
@@ -161,7 +159,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
-                    WmoInstanceNames.push_back(s);
+                    WmoInstanceNames.emplace_back(s);
 
                     ExtractSingleWmo(path);
 
@@ -171,16 +169,25 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
             }
         }
         //======================
-        else if (!strcmp(fourcc,"MDDF"))
+        else if (!strcmp(fourcc, "MDDF"))
         {
             if (size)
             {
-                nMDX = (int)size / 36;
-                for (int i=0; i<nMDX; ++i)
+                uint32 doodadCount = size / sizeof(ADT::MDDF);
+                for (uint32 i = 0; i < doodadCount; ++i)
                 {
-                    uint32 id;
-                    ADT.read(&id, 4);
-                    ModelInstance inst(ADT, ModelInstanceNames[id].c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
+                    ADT::MDDF doodadDef;
+                    _file.read(&doodadDef, sizeof(ADT::MDDF));
+                    if (!(doodadDef.Flags & 0x40))
+                    {
+                        Doodad::Extract(doodadDef, ModelInstanceNames[doodadDef.Id].c_str(), map_num, originalMapId, dirfile, dirfileCache);
+                    }
+                    else
+                    {
+                        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", doodadDef.Id);
+                        ExtractSingleModel(fileName);
+                        Doodad::Extract(doodadDef, fileName.c_str(), map_num, originalMapId, dirfile, dirfileCache);
+                    }
                 }
 
                 ModelInstanceNames.clear();
@@ -190,12 +197,23 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
         {
             if (size)
             {
-                nWMO = (int)size / 64;
-                for (int i=0; i<nWMO; ++i)
+                uint32 mapObjectCount = size / sizeof(ADT::MODF);
+                for (uint32 i = 0; i < mapObjectCount; ++i)
                 {
-                    uint32 id;
-                    ADT.read(&id, 4);
-                    WMOInstance inst(ADT, WmoInstanceNames[id].c_str(), map_num, tileX, tileY, originalMapId, dirfile, dirfileCache);
+                    ADT::MODF mapObjDef;
+                    _file.read(&mapObjDef, sizeof(ADT::MODF));
+                    if (!(mapObjDef.Flags & 0x8))
+                    {
+                        MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), false, map_num, originalMapId, dirfile, dirfileCache);
+                        Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, false, map_num, originalMapId, dirfile, dirfileCache);
+                    }
+                    else
+                    {
+                        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", mapObjDef.Id);
+                        ExtractSingleWmo(fileName);
+                        MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile, dirfileCache);
+                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, false, map_num, originalMapId, dirfile, dirfileCache);
+                    }
                 }
 
                 WmoInstanceNames.clear();
@@ -203,15 +221,15 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMa
         }
 
         //======================
-        ADT.seek(nextpos);
+        _file.seek(nextpos);
     }
 
-    ADT.close();
+    _file.close();
     fclose(dirfile);
     return true;
 }
 
-bool ADTFile::initFromCache(uint32 map_num, uint32 tileX, uint32 tileY, uint32 originalMapId)
+bool ADTFile::initFromCache(uint32 map_num, uint32 originalMapId)
 {
     if (dirfileCache->empty())
         return true;
@@ -227,8 +245,6 @@ bool ADTFile::initFromCache(uint32 map_num, uint32 tileX, uint32 tileY, uint32 o
     for (ADTOutputCache const& cached : *dirfileCache)
     {
         fwrite(&map_num, sizeof(uint32), 1, dirfile);
-        fwrite(&tileX, sizeof(uint32), 1, dirfile);
-        fwrite(&tileY, sizeof(uint32), 1, dirfile);
         uint32 flags = cached.Flags;
         if (map_num != originalMapId)
             flags |= MOD_PARENT_SPAWN;
@@ -242,6 +258,6 @@ bool ADTFile::initFromCache(uint32 map_num, uint32 tileX, uint32 tileY, uint32 o
 
 ADTFile::~ADTFile()
 {
-    ADT.close();
+    _file.close();
     delete dirfileCache;
 }

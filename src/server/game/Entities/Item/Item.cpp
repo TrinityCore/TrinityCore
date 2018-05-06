@@ -684,18 +684,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemFlags);
 
-    _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
-    m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
-    m_randomEnchantment.Id = fields[10].GetUInt32();
-    if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Property)
-        SetUInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, m_randomEnchantment.Id);
-    else if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Suffix)
-    {
-        SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(m_randomEnchantment.Id));
-        // recalculate suffix factor
-        UpdateItemSuffixFactor();
-    }
-
     uint32 durability = fields[11].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
     // update max durability (and durability) if need
@@ -770,6 +758,19 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[43].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[44].GetUInt32());
+
+    // Enchants must be loaded after all other bonus/scaling data
+    _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
+    m_randomEnchantment.Id = fields[10].GetUInt32();
+    if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Property)
+        SetUInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, m_randomEnchantment.Id);
+    else if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Suffix)
+    {
+        SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(m_randomEnchantment.Id));
+        // recalculate suffix factor
+        UpdateItemSuffixFactor();
+    }
 
     // Remove bind flag for items vs BIND_NONE set
     if (IsSoulBound() && GetBonding() == BIND_NONE)
@@ -892,7 +893,7 @@ ItemTemplate const* Item::GetTemplate() const
     return sObjectMgr->GetItemTemplate(GetEntry());
 }
 
-Player* Item::GetOwner()const
+Player* Item::GetOwner() const
 {
     return ObjectAccessor::FindPlayer(GetOwnerGUID());
 }
@@ -947,7 +948,15 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
 
 void Item::UpdateItemSuffixFactor()
 {
-    uint32 suffixFactor = GenerateEnchSuffixFactor(GetEntry());
+    if (!GetTemplate()->GetRandomSuffix())
+        return;
+
+    uint32 suffixFactor = 0;
+    if (Player* owner = GetOwner())
+        suffixFactor = GetRandomPropertyPoints(GetItemLevel(owner), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
+    else
+        suffixFactor = GenerateEnchSuffixFactor(GetEntry());
+
     if (GetItemSuffixFactor() == suffixFactor)
         return;
     SetUInt32Value(ITEM_FIELD_PROPERTY_SEED, suffixFactor);
@@ -2342,7 +2351,7 @@ uint16 Item::GetVisibleAppearanceModId(Player const* owner) const
 
 uint32 Item::GetVisibleEnchantmentId(Player const* owner) const
 {
-    ItemModifier illusionModifier = ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS;
+    ItemModifier illusionModifier = ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS;
     if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, IllusionModifierMaskSpecSpecific))
         illusionModifier = IllusionModifierSlotBySpec[owner->GetActiveTalentGroup()];
 
@@ -2555,6 +2564,33 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
     SetState(ITEM_CHANGED, owner);
 }
 
+void Item::SetFixedLevel(uint8 level)
+{
+    if (!_bonusData.HasFixedLevel || GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
+        return;
+
+    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(_bonusData.ScalingStatDistribution))
+    {
+        level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
+
+        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(_bonusData.SandboxScalingId))
+            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
+                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+
+        SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, level);
+    }
+}
+
+int32 Item::GetRequiredLevel() const
+{
+    if (_bonusData.RequiredLevelOverride)
+        return _bonusData.RequiredLevelOverride;
+    else if (_bonusData.HasFixedLevel)
+        return GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL);
+    else
+        return _bonusData.RequiredLevel;
+}
+
 void BonusData::Initialize(ItemTemplate const* proto)
 {
     Quality = proto->GetQuality();
@@ -2588,6 +2624,8 @@ void BonusData::Initialize(ItemTemplate const* proto)
     SandboxScalingId = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
+    HasFixedLevel = false;
+    RequiredLevelOverride = 0;
 
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
@@ -2667,12 +2705,13 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             RepairCostMultiplier *= static_cast<float>(values[0]) * 0.01f;
             break;
         case ITEM_BONUS_SCALING_STAT_DISTRIBUTION:
-        case ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2:
+        case ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED:
             if (values[1] < _state.ScalingStatDistributionPriority)
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
                 SandboxScalingId = static_cast<uint32>(values[2]);
                 _state.ScalingStatDistributionPriority = values[1];
+                HasFixedLevel = type == ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED;
             }
             break;
         case ITEM_BONUS_BONDING:
@@ -2682,7 +2721,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             RelicType = values[0];
             break;
         case ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL:
-            RequiredLevel = values[0];
+            RequiredLevelOverride = values[0];
             break;
     }
 }

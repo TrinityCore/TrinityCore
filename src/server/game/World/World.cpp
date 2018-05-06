@@ -1612,6 +1612,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
     sSpellMgr->LoadPetFamilySpellsStore();
 
+    TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
+    sSpellMgr->LoadSpellTotemModel();
+
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     LoadGameObjectModelList(m_dataPath);
 
@@ -1630,6 +1633,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
     sObjectMgr->LoadQuestTemplateLocale();
+    sObjectMgr->LoadQuestGreetingLocales();
     sObjectMgr->LoadQuestOfferRewardLocale();
     sObjectMgr->LoadQuestRequestItemsLocale();
     sObjectMgr->LoadQuestObjectivesLocale();
@@ -2720,6 +2724,10 @@ BanReturn World::BanAccount(BanMode mode, std::string const& nameOrIP, uint32 du
     PreparedQueryResult resultAccounts = PreparedQueryResult(NULL); //used for kicking
     PreparedStatement* stmt = NULL;
 
+    // Prevent banning an already banned account
+    if (mode == BAN_ACCOUNT && AccountMgr::IsBannedAccount(nameOrIP))
+        return BAN_EXISTS;
+
     ///- Update the database with ban information
     switch (mode)
     {
@@ -2838,17 +2846,20 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
     else
         guid = pBanned->GetGUID();
 
+    //Use transaction in order to ensure the order of the queries
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
     stmt->setUInt64(0, guid.GetCounter());
-    CharacterDatabase.Execute(stmt);
+    trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
     stmt->setUInt64(0, guid.GetCounter());
     stmt->setUInt32(1, duration_secs);
     stmt->setString(2, author);
     stmt->setString(3, reason);
-    CharacterDatabase.Execute(stmt);
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
 
     if (pBanned)
         pBanned->GetSession()->KickPlayer();

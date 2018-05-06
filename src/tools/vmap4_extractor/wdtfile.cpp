@@ -20,6 +20,7 @@
 #include "wdtfile.h"
 #include "adtfile.h"
 #include "Common.h"
+#include "StringFormat.h"
 #include <cstdio>
 
 char * wdtGetPlainName(char * FileName)
@@ -104,13 +105,23 @@ bool WDTFile::init(uint32 mapId)
             // global wmo instance data
             if (size)
             {
-                int32 gnWMO = (int)size / 64;
-
-                for (int i = 0; i < gnWMO; ++i)
+                uint32 mapObjectCount = size / sizeof(ADT::MODF);
+                for (uint32 i = 0; i < mapObjectCount; ++i)
                 {
-                    int id;
-                    _file.read(&id, 4);
-                    WMOInstance inst(_file, _wmoNames[id].c_str(), mapId, 65, 65, mapId, dirfile, nullptr);
+                    ADT::MODF mapObjDef;
+                    _file.read(&mapObjDef, sizeof(ADT::MODF));
+                    if (!(mapObjDef.Flags & 0x8))
+                    {
+                        MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), true, mapId, mapId, dirfile, nullptr);
+                        Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, true, mapId, mapId, dirfile, nullptr);
+                    }
+                    else
+                    {
+                        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", mapObjDef.Id);
+                        ExtractSingleWmo(fileName);
+                        MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile, nullptr);
+                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, true, mapId, mapId, dirfile, nullptr);
+                    }
                 }
             }
         }

@@ -333,6 +333,7 @@ namespace WorldPackets
         class RequestGuildRewardsList;
         class GuildQueryNews;
         class GuildNewsUpdateSticky;
+        class GuildReplaceGuildMaster;
         class GuildSetGuildMaster;
         class GuildChallengeUpdateRequest;
         class SaveGuildEmblem;
@@ -983,6 +984,7 @@ class TC_GAME_API WorldSession
         void SendTabardVendorActivate(ObjectGuid guid);
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
+        void SendOpenTransmogrifier(ObjectGuid const& guid);
 
         void SendAttackStop(Unit const* enemy);
 
@@ -1294,6 +1296,7 @@ class TC_GAME_API WorldSession
         void HandleGuildAssignRank(WorldPackets::Guild::GuildAssignMemberRank& packet);
         void HandleGuildLeave(WorldPackets::Guild::GuildLeave& leave);
         void HandleGuildDelete(WorldPackets::Guild::GuildDelete& packet);
+        void HandleGuildReplaceGuildMaster(WorldPackets::Guild::GuildReplaceGuildMaster& replaceGuildMaster);
         void HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet);
         void HandleGuildGetAchievementMembers(WorldPackets::Achievement::GuildGetAchievementMembers& getAchievementMembers);
         void HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet);

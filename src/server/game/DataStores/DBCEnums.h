@@ -714,24 +714,24 @@ enum ItemExtendedCostFlags
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL                   = 1,
-    ITEM_BONUS_STAT                         = 2,
-    ITEM_BONUS_QUALITY                      = 3,
-    ITEM_BONUS_DESCRIPTION                  = 4,
-    ITEM_BONUS_SUFFIX                       = 5,
-    ITEM_BONUS_SOCKET                       = 6,
-    ITEM_BONUS_APPEARANCE                   = 7,
-    ITEM_BONUS_REQUIRED_LEVEL               = 8,
-    ITEM_BONUS_DISPLAY_TOAST_METHOD         = 9,
-    ITEM_BONUS_REPAIR_COST_MULTIPLIER       = 10,
-    ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
-    ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
-    ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
-    ITEM_BONUS_ITEM_LEVEL_CAN_INCREASE      = 14,                 // Displays a + next to item level indicating it can warforge
-    ITEM_BONUS_RANDOM_ENCHANTMENT           = 15,                 // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
-    ITEM_BONUS_BONDING                      = 16,
-    ITEM_BONUS_RELIC_TYPE                   = 17,
-    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL      = 18
+    ITEM_BONUS_ITEM_LEVEL                       = 1,
+    ITEM_BONUS_STAT                             = 2,
+    ITEM_BONUS_QUALITY                          = 3,
+    ITEM_BONUS_DESCRIPTION                      = 4,
+    ITEM_BONUS_SUFFIX                           = 5,
+    ITEM_BONUS_SOCKET                           = 6,
+    ITEM_BONUS_APPEARANCE                       = 7,
+    ITEM_BONUS_REQUIRED_LEVEL                   = 8,
+    ITEM_BONUS_DISPLAY_TOAST_METHOD             = 9,
+    ITEM_BONUS_REPAIR_COST_MULTIPLIER           = 10,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION        = 11,
+    ITEM_BONUS_DISENCHANT_LOOT_ID               = 12,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED  = 13,
+    ITEM_BONUS_ITEM_LEVEL_CAN_INCREASE          = 14,             // Displays a + next to item level indicating it can warforge
+    ITEM_BONUS_RANDOM_ENCHANTMENT               = 15,             // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
+    ITEM_BONUS_BONDING                          = 16,
+    ITEM_BONUS_RELIC_TYPE                       = 17,
+    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18
 };
 
 enum ItemLimitCategoryMode
@@ -957,7 +957,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
     SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
     SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_UNK5            = 0x00000010,          // 25 spells in 3.0.3, quest related?
+    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Personal Spawn (creature visible only by summoner)
     SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
     SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
     SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
