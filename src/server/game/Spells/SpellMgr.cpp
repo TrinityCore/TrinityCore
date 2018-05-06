@@ -3540,8 +3540,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_MYTHIC, EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
     });
 
-    // Shaman Rainfall
-    ApplySpellFix({ 215864 }, [](SpellInfo* spellInfo)
+    // Shaman Healing rain & Rainfall
+    ApplySpellFix({ 73920, 215864 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
     });

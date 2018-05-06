@@ -218,6 +218,7 @@ enum AncestralAwakeningProc
 enum ShamanNpcs
 {
     NPC_RAINFALL                                            = 73400,
+    NPC_HEALING_RAIN                                        = 73400, // Same as Rainfall at 7.3.5
 };
 
 // Feral Lunge - 196884
@@ -3607,6 +3608,48 @@ class aura_sha_rainfall : public AuraScript
     }
 };
 
+// 73920 Healing Rain
+class spell_sha_healing_rain: public SpellScript
+{
+    PrepareSpellScript(spell_sha_healing_rain);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (WorldLocation* pos = GetHitDest())
+            GetCaster()->SummonCreature(NPC_HEALING_RAIN, *pos);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sha_healing_rain::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 73920 Healing Rain
+class aura_sha_healing_rain : public AuraScript
+{
+    PrepareAuraScript(aura_sha_healing_rain);
+
+    void HandleHealPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* healingRainTrigger = caster->GetSummonedCreatureByEntry(NPC_HEALING_RAIN))
+                caster->CastSpell(healingRainTrigger->GetPosition(), SPELL_SHAMAN_HEALING_RAIN_TICK, true);
+    }
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->UnsummonCreatureByEntry(NPC_HEALING_RAIN);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_sha_healing_rain::HandleHealPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectRemove += AuraEffectRemoveFn(aura_sha_healing_rain::HandleAfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3676,6 +3719,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_undulation);
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellAndAuraScriptPair(spell_sha_rainfall, aura_sha_rainfall);
+    RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, aura_sha_healing_rain);
 }
 
 void AddSC_npc_totem_scripts()
