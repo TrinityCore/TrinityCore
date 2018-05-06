@@ -8908,7 +8908,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
                 if ((IsPet() || IsGuardian()) && !IsInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
                 {
                     // For every yard over 5, increase speed by 0.01
-                    //  to help prevent pet from lagging behind and despawning
+                    // to help prevent pet from lagging behind and despawning
                     float dist = GetDistance(pOwner);
                     float base_rate = 1.00f; // base speed is 100% of owner speed
 
