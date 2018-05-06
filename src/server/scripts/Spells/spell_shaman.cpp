@@ -64,6 +64,9 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTHQUAKE                                 = 61882,
     SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN                   = 77505,
     SPELL_SHAMAN_EARTHQUAKE_TICK                            = 77478,
+    SPELL_SHAMAN_EARTH_ELEMENTAL_AGGRO                      = 235429,
+    SPELL_SHAMAN_EARTH_ELEMENTAL_DUMMY                      = 198103,
+    SPELL_SHAMAN_EARTH_ELEMENTAL_SUMMON                     = 188616,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL                          = 379,
     SPELL_SHAMAN_EARTH_SHOCK                                = 8042,
     SPELL_SHAMAN_ECHO_OF_THE_ELEMENTS                       = 108283,
@@ -77,6 +80,8 @@ enum ShamanSpells
     SPELL_SHAMAN_FERAL_LUNGE_DAMAGE                         = 215802,
     SPELL_SHAMAN_FERAL_SPIRIT                               = 51533,
     SPELL_SHAMAN_FERAL_SPIRIT_SUMMON                        = 228562,
+    SPELL_SHAMAN_FIRE_ELEMENTAL_DUMMY                       = 198067,
+    SPELL_SHAMAN_FIRE_ELEMENTAL_SUMMON                      = 188592,
     SPELL_SHAMAN_FIRE_NOVA                                  = 1535,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED                        = 131786,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK                         = 10444,
@@ -3619,6 +3624,38 @@ private:
     int32 _takenPower = 0;
 };
 
+// 198103
+class spell_sha_earth_elemental : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earth_elemental);
+
+    void HandleSummon(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_SHAMAN_EARTH_ELEMENTAL_SUMMON, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_earth_elemental::HandleSummon, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 198067
+class spell_sha_fire_elemental : public SpellScript
+{
+    PrepareSpellScript(spell_sha_fire_elemental);
+
+    void HandleSummon(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_SHAMAN_FIRE_ELEMENTAL_SUMMON, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_fire_elemental::HandleSummon, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3691,6 +3728,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, aura_sha_healing_rain);
     RegisterSpellScript(spell_sha_healing_surge);
     RegisterSpellScript(spell_sha_earth_shock);
+    RegisterSpellScript(spell_sha_earth_elemental);
+    RegisterSpellScript(spell_sha_fire_elemental);
 }
 
 void AddSC_npc_totem_scripts()
