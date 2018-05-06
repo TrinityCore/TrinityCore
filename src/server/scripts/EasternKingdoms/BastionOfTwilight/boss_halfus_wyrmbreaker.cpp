@@ -432,6 +432,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                             Position pos = me->GetPosition();
                             me->SetDisableGravity(true);
                             me->SendSetPlayHoverAnim(true);
+                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->GetMotionMaster()->MoveTakeoff(0, pos);
                             _events.ScheduleEvent(EVENT_CAST_DEBUFF, Seconds(1) + Milliseconds(750));
                             break;

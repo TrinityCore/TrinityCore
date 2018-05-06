@@ -15,7 +15,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "bastion_of_twilight.h"
@@ -86,6 +85,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 _unresponsiveDragonEntryFirst = 0;
                 _unresponsiveDragonEntrySecond = 0;
                 _deadOrphanedEmeraldWhelps = 0;
+                _lastAreatriggerIndex = 0;
                 GenerateHalfusDragonData();
             }
 
@@ -191,11 +191,20 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
                             for (ObjectGuid guid : _halfusEncounterGUIDs)
                                 if (Creature* creature = instance->GetCreature(guid))
+                                {
+                                    if (creature->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
+                                    {
+                                        creature->SendSetPlayHoverAnim(false);
+                                        creature->SetDisableGravity(false);
+                                        creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                                    }
+
                                     creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
+                                }
 
                             if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
                             {
-                                cage->SetGoState(GO_STATE_READY);
+                                cage->ResetDoorOrButton();
                                 cage->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             }
 
@@ -318,13 +327,26 @@ class instance_bastion_of_twilight : public InstanceMapScript
             void WriteSaveDataMore(std::ostringstream& data) override
             {
                 data << _unresponsiveDragonEntryFirst << ' '
-                    << _unresponsiveDragonEntrySecond;
+                    << _unresponsiveDragonEntrySecond << ' '
+                    << _lastAreatriggerIndex;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _unresponsiveDragonEntryFirst;
                 data >> _unresponsiveDragonEntrySecond;
+                data >> _lastAreatriggerIndex;
+
+                if (_unresponsiveDragonEntryFirst && _unresponsiveDragonEntrySecond)
+                {
+                    // Clear default generated unresponsive dragon selection and replace it with our saved data
+                    _activeDragonEntries.clear();
+                    for (uint8 i = 0; i < 5; i++)
+                        _activeDragonEntries.insert(HalfusDragonEntries[i]);
+
+                    _activeDragonEntries.erase(_unresponsiveDragonEntryFirst);
+                    _activeDragonEntries.erase(_unresponsiveDragonEntrySecond);
+                }
             }
 
             bool HasActiveOrphanedEmeraldWhelps() const
@@ -342,6 +364,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
             uint32 _unresponsiveDragonEntryFirst;
             uint32 _unresponsiveDragonEntrySecond;
             uint8 _deadOrphanedEmeraldWhelps;
+            uint8 _lastAreatriggerIndex;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
