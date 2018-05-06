@@ -271,19 +271,16 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK)
-                return true;
-            return false;
+            return eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK;
         }
 
         void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->CastSpell(caster, SPELL_SHAMAN_STORMBRINGER_PROC, true);
-            caster->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_STORMSTRIKE, true);
+            if (Unit* caster = GetCaster())
+            {
+                caster->CastSpell(caster, SPELL_SHAMAN_STORMBRINGER_PROC, true);
+                caster->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_STORMSTRIKE, true);
+            }
         }
 
         void Register() override
