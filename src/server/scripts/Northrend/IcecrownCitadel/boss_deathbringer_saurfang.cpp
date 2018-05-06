@@ -1001,7 +1001,8 @@ class npc_saurfang_event : public CreatureScript
 
             void SetData(uint32 type, uint32 data) override
             {
-                ASSERT(!type && data && data < 6);
+                if (!(!type && data && data < 6))
+                    return;
                 _index = data;
             }
 
