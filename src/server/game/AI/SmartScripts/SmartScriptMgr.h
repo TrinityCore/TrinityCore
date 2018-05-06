@@ -567,8 +567,14 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim, 4 = spellVisualKit)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
-
-    SMART_ACTION_END                                = 131
+    
+    // Ashamane' specific actions
+    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 200,    // id, type, duration.
+    SMART_ACTION_PLAY_SPELL_VISUAL                  = 201,    // id
+    SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL           = 202,    // id
+    SMART_ACTION_CANCEL_VISUAL                      = 203,    // VisualType, VisualId.
+    
+    SMART_ACTION_END                                = 204
 };
 
 struct SmartAction
@@ -1103,6 +1109,30 @@ struct SmartAction
             uint32 sceneId;
         } scene;
 
+        struct
+        {
+            uint32 visualId;
+            uint32 visualType;
+	        uint32 visualDuration;
+        } spellVisualKit;
+        
+        struct
+        {
+            uint32 playVisualId;
+        } playSpellVisual;
+        
+        struct
+        {
+            uint32 playOrphanVisualId;
+            uint32 travelSpeed;
+        } playOrphanSpellVisual;
+        
+        struct
+        {
+            uint32 typeVisual;
+            uint32 cancelVisualId;
+        } cancelSpellVisual;
+        
         //! Note for any new future actions
         //! All parameters must have type uint32
 

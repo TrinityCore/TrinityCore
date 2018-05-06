@@ -2607,6 +2607,67 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SendPlaySpellVisualKit(e.action.spellVisualKit.visualId, e.action.spellVisualKit.visualType, e.action.spellVisualKit.visualDuration * 1000);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_PLAY_SPELL_VISUAL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SendPlayOrphanSpellVisual((*itr)->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, e.action.playOrphanSpellVisual.travelSpeed);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_CANCEL_VISUAL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                    {
+                        switch (e.action.cancelSpellVisual.typeVisual)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->SendCancelSpellVisualKit(e.action.cancelSpellVisual.cancelVisualId);
+                                break;
+                            case 1:
+                                (*itr)->ToUnit()->SendCancelSpellVisual(e.action.cancelSpellVisual.cancelVisualId);
+                                break;
+                            case 2:
+                                (*itr)->ToUnit()->SendCancelOrphanSpellVisual(e.action.cancelSpellVisual.cancelVisualId);
+                                break;
+                        }
+                }
+
+            delete targets;
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
