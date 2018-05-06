@@ -382,6 +382,13 @@ class mob_risen_ghoul : public CreatureScript
             void InitializeAI() override
             {
                 instance = me->GetInstanceScript();
+
+                if (!instance)
+                {
+                    me->DespawnOrUnsummon();
+                    return;
+                }
+
                 me->GetMotionMaster()->Clear();
                 me->SetReactState(REACT_PASSIVE);
                 if (Creature* sylvanas = instance->GetCreature(NPC_ECHO_OF_SYLVANAS))
