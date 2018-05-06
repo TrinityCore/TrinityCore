@@ -3653,6 +3653,30 @@ private:
     int32 _takenPower = 0;
 };
 
+// 8042 Earth Shock
+class spell_sha_earth_shock: public SpellScript
+{
+    PrepareSpellScript(spell_sha_earth_shock);
+
+    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    {
+        _takenPower = powerCount = std::max(powerCount, 100);
+    }
+
+    void HandleCalcDamage(SpellEffIndex /*effIndex*/)
+    {
+        SetHitDamage(CalculatePct(GetHitDamage(), _takenPower));
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_sha_earth_shock::HandleTakePower);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_earth_shock::HandleCalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+private:
+    int32 _takenPower = 0;
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3724,6 +3748,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_sha_rainfall, aura_sha_rainfall);
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, aura_sha_healing_rain);
     RegisterSpellScript(spell_sha_healing_surge);
+    RegisterSpellScript(spell_sha_earth_shock);
 }
 
 void AddSC_npc_totem_scripts()
