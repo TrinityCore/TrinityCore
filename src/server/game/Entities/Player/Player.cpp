@@ -1317,7 +1317,7 @@ void Player::Update(uint32 p_time)
     }
 
     // not auto-free ghost from body in instances
-    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+    if (m_deathTimer > 0 && !GetMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
     {
         if (p_time >= m_deathTimer)
         {
@@ -2466,7 +2466,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, Gameo
 bool Player::IsUnderWater() const
 {
     return IsInWater() &&
-        GetPositionZ() < (GetBaseMap()->GetWaterLevel(GetPhaseShift(), GetPositionX(), GetPositionY())-2);
+        GetPositionZ() < (GetMap()->GetWaterLevel(GetPhaseShift(), GetPositionX(), GetPositionY())-2);
 }
 
 void Player::SetInWater(bool apply)
@@ -5731,7 +5731,7 @@ void Player::GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue)
     if (skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY)
         return;
 
-    uint32 areaId = GetBaseMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
+    uint32 areaId = GetMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
     if (!areaEntry)
@@ -6426,7 +6426,7 @@ void Player::CheckAreaExploreAndOutdoor()
         return;
 
     bool isOutdoor;
-    uint32 areaId = GetBaseMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
+    uint32 areaId = GetMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
     if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)

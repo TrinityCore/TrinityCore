@@ -2026,12 +2026,6 @@ void WorldObject::ResetMap()
     //m_InstanceId = 0;
 }
 
-Map const* WorldObject::GetBaseMap() const
-{
-    ASSERT(m_currMap);
-    return m_currMap->GetParent();
-}
-
 void WorldObject::AddObjectToRemoveList()
 {
     ASSERT(m_uint32Values);

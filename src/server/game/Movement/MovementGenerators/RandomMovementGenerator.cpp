@@ -38,7 +38,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 
     float respX, respY, respZ, respO, destX, destY, destZ, travelDistZ;
     creature->GetHomePosition(respX, respY, respZ, respO);
-    Map const* map = creature->GetBaseMap();
+    Map const* map = creature->GetMap();
 
     // For 2D/3D system selection
     //bool is_land_ok  = creature.CanWalk();                // not used?

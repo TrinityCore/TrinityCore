@@ -323,7 +323,7 @@ class boss_foe_reaper_5000 : public CreatureScript
                             // and use our own position instead of our home position
                             float respX, respY, respZ, respO, destX, destY, destZ, travelDistZ;
                             me->GetPosition(respX, respY, respZ, respO);
-                            Map const* map = me->GetBaseMap();
+                            Map const* map = me->GetMap();
                             const float angle = float(rand_norm()) * static_cast<float>(M_PI * 2.0f);
                             const float range = 15.0f;
                             const float distanceX = range * std::cos(angle);
