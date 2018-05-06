@@ -1385,77 +1385,51 @@ class spell_sha_lava_lash_spread_flame_shock : public SpellScriptLoader
 };
 
 // 77756 - Lava Surge
-class spell_sha_lava_surge : public SpellScriptLoader
+class spell_sha_lava_surge : public AuraScript
 {
-    public:
-        spell_sha_lava_surge() : SpellScriptLoader("spell_sha_lava_surge") { }
+    PrepareAuraScript(spell_sha_lava_surge);
 
-        class spell_sha_lava_surge_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_lava_surge_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_SURGE))
-                    return false;
-                return true;
-            }
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE_CAST_TIME, true);
+    }
 
-            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE_CAST_TIME, true);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sha_lava_surge_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 77762 - Lava Surge
-class spell_sha_lava_surge_proc : public SpellScriptLoader
+class spell_sha_lava_surge_proc : public SpellScript
 {
-    public:
-        spell_sha_lava_surge_proc() : SpellScriptLoader("spell_sha_lava_surge_proc") { }
+    PrepareSpellScript(spell_sha_lava_surge_proc);
 
-        class spell_sha_lava_surge_proc_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_lava_surge_proc_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_BURST))
-                    return false;
-                return true;
-            }
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+    void ResetCooldown()
+    {
+        GetCaster()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST)->ChargeCategoryId);
+    }
 
-            void ResetCooldown()
-            {
-                GetCaster()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST)->ChargeCategoryId);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_sha_lava_surge_proc_SpellScript::ResetCooldown);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_lava_surge_proc_SpellScript();
-        }
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_sha_lava_surge_proc::ResetCooldown);
+    }
 };
 
 // 324 - Lightning Shield
@@ -3726,8 +3700,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_burst();
     new spell_sha_lava_lash();
     new spell_sha_lava_lash_spread_flame_shock();
-    new spell_sha_lava_surge();
-    new spell_sha_lava_surge_proc();
+    RegisterAuraScript(spell_sha_lava_surge);
+    RegisterSpellScript(spell_sha_lava_surge_proc);
     new spell_sha_lightning_bolt_elem();
     new spell_sha_lightning_shield();
     new spell_sha_liquid_magma_effect();
