@@ -2841,7 +2841,7 @@ class spell_warr_execute : public SpellScript
     bool Load() override
     {
         m_maxRageTaken = GetEffectInfo(EFFECT_4)->BasePoints - GetEffectInfo(EFFECT_3)->BasePoints;
-        m_ExtraSpellCost = std::min(GetCaster()->GetPower(POWER_RAGE), m_maxRageTaken * 10);
+        m_ExtraSpellCost = std::max(std::min(GetCaster()->GetPower(POWER_RAGE), m_maxRageTaken * 10), 0);
         return true;
     }
 

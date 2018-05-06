@@ -3147,6 +3147,8 @@ bool Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     else
         m_casttime = m_spellInfo->CalcCastTime(m_caster->getLevel(), this);
 
+    CallScriptOnCalcCastTimeHandlers();
+
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
         if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
         {
@@ -4745,6 +4747,7 @@ void Spell::TakePower()
             continue;
         }
 
+        powerCost = std::max(0, powerCost);
         if (!powerCost)
             continue;
 
@@ -4764,7 +4767,7 @@ void Spell::TakePower()
         if (hit)
             m_caster->ModifyPower(powerType, -powerCost);
         else
-            m_caster->ModifyPower(powerType, irand(0, -powerCost / 4));
+            m_caster->ModifyPower(powerType, -irand(0, powerCost / 4));
     }
 }
 
@@ -7513,6 +7516,19 @@ void Spell::CallScriptOnTakePowerHandlers(Powers& power, int32& powerCost)
         auto hookItrEnd = (*scritr)->OnTakePower.end(), hookItr = (*scritr)->OnTakePower.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
             (*hookItr).Call(*scritr, power, powerCost);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptOnCalcCastTimeHandlers()
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_CAST_TIME);
+        auto hookItrEnd = (*scritr)->OnCalcCastTime.end(), hookItr = (*scritr)->OnCalcCastTime.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr, m_casttime);
 
         (*scritr)->_FinishScriptCall();
     }
