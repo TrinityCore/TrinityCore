@@ -68,15 +68,9 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTH_SHOCK                                = 8042,
     SPELL_SHAMAN_ECHO_OF_THE_ELEMENTS                       = 108283,
     SPELL_SHAMAN_ELEMENTAL_BLAST                            = 117014,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY                    = 173186,
     SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT                       = 118522,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_FROST_VISUAL               = 118515,
     SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE                      = 173183,
     SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY                    = 173184,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE                = 173185,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_NATURE_VISUAL              = 118517,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_RATING_BONUS               = 118522,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT                     = 173187,
     SPELL_SHAMAN_ELEMENTAL_MASTERY                          = 16166,
     SPELL_SHAMAN_EXHAUSTION                                 = 57723,
     SPELL_SHAMAN_FERAL_LUNGE                                = 196884,
@@ -681,60 +675,24 @@ class spell_sha_earth_shield : public SpellScriptLoader
 };
 
 // 117014 - Elemental Blast
-class spell_sha_elemental_blast : public SpellScriptLoader
+class spell_sha_elemental_blast : public SpellScript
 {
-public:
-    spell_sha_elemental_blast() : SpellScriptLoader("spell_sha_elemental_blast") { }
+    PrepareSpellScript(spell_sha_elemental_blast);
 
-    class spell_sha_elemental_blast_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_sha_elemental_blast_SpellScript);
+        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT))
-                return false;
-            return true;
-        }
-
-        bool Load() override
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void TriggerBuff()
-        {
-            Player* caster = GetCaster()->ToPlayer();
-            uint32 spellId;
-            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_SHAMAN_ENHANCEMENT)
-                spellId = RAND(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY, SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE, SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY);
-            else
-                spellId = RAND(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY, SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE);
-
-            caster->CastSpell(caster, spellId, TRIGGERED_FULL_MASK);
-            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_SHAMAN_RESTORATION)
-                caster->CastSpell(caster, SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT, TRIGGERED_FULL_MASK);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_sha_elemental_blast_SpellScript::TriggerBuff);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void TriggerBuff()
     {
-        return new spell_sha_elemental_blast_SpellScript();
+        uint32 spellId = RAND(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY);
+        GetCaster()->CastSpell(GetCaster(), spellId, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_sha_elemental_blast::TriggerBuff);
     }
 };
 
@@ -1543,41 +1501,25 @@ class spell_sha_thunderstorm : public SpellScriptLoader
 };
 
 // 51564 - Tidal Waves
-class spell_sha_tidal_waves : public SpellScriptLoader
+class spell_sha_tidal_waves : public AuraScript
 {
-    public:
-        spell_sha_tidal_waves() : SpellScriptLoader("spell_sha_tidal_waves") { }
+    PrepareAuraScript(spell_sha_tidal_waves);
 
-        class spell_sha_tidal_waves_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_tidal_waves_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_TIDAL_WAVES });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TIDAL_WAVES))
-                    return false;
-                return true;
-            }
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_TIDAL_WAVES, true);
+    }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                int32 basePoints0 = -30;
-                int32 basePoints1 = 40;
-
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_TIDAL_WAVES, &basePoints0, &basePoints1, NULL, true, NULL, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_tidal_waves_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sha_tidal_waves_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_tidal_waves::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 8232 - Windfury Weapon
@@ -3701,7 +3643,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthgrab();
     RegisterAuraScript(aura_sha_earthquake);
     RegisterSpellScript(spell_sha_earthquake_tick);
-    new spell_sha_elemental_blast();
+    RegisterSpellScript(spell_sha_elemental_blast);
     new spell_sha_feral_lunge();
     new spell_sha_feral_spirit();
     new spell_sha_fire_nova();
@@ -3738,7 +3680,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_spiritwalkers_grace();
     new spell_sha_stormbringer();
     new spell_sha_thunderstorm();
-    new spell_sha_tidal_waves();
+    RegisterAuraScript(spell_sha_tidal_waves);
     new spell_sha_totem_mastery();
     new spell_sha_wellspring();
     new spell_sha_windfury();
