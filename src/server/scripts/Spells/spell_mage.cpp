@@ -68,10 +68,10 @@ enum MageSpells
     SPELL_MAGE_FROSTFIRE_ORB_SUMMON              = 84714,
     SPELL_MAGE_FROSTFIRE_ORB_AOE                 = 84718,
 
-    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE              = 95969,
-    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_SLOW         = 84721,
-
-    SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT       = 44614,
+    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1          = 95969,
+    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2          = 84721,
+    SPELL_MAGE_FROSTFIRE_ORB_RANK_R2            = 84727,
+    SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT      = 44614,
 
     SPELL_MAGE_HOT_STREAK                        = 44445,
     SPELL_MAGE_HOT_STREAK_TRIGGERED              = 48108,
@@ -1740,10 +1740,11 @@ class spell_mage_flame_orb_aoe_dummy: public SpellScriptLoader
                         SPELL_MAGE_FLAME_ORB_AOE,
                         SPELL_MAGE_FROSTFIRE_ORB_AOE,
                         SPELL_MAGE_FLAME_ORB_BEAM_DUMMY,
-                        SPELL_MAGE_FROSTFIRE_ORB_DAMAGE,
-                        SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_SLOW,
+                        SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1,
+                        SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2,
                         SPELL_MAGE_FLAME_ORB_DAMAGE,
-                        SPELL_MAGE_FLAME_ORB_SELF_SNARE
+                        SPELL_MAGE_FLAME_ORB_SELF_SNARE,
+                        SPELL_MAGE_FROSTFIRE_ORB_RANK_R2,
                     });
             }
 
@@ -1777,8 +1778,12 @@ class spell_mage_flame_orb_aoe_dummy: public SpellScriptLoader
                                     break;
                                 case SPELL_MAGE_FROSTFIRE_ORB_AOE:
                                     caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB_SELF_SNARE, true);
-                                    caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB_BEAM_DUMMY, true);
-                                    // summoner->CastSpell(target, target->HasAura(SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT) ? SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_SLOW : SPELL_MAGE_FROSTFIRE_ORB_DAMAGE, true);
+                                    caster->CastSpell(target, SPELL_MAGE_FLAME_ORB_BEAM_DUMMY, true);
+
+                                    if (summoner->HasAura(SPELL_MAGE_FROSTFIRE_ORB_RANK_R2))
+                                        summoner->CastSpell(target, SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2, true);
+                                    else
+                                        summoner->CastSpell(target, SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1, true);
                                     break;
                                 default:
                                     break;

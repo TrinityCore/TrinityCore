@@ -29,6 +29,7 @@
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
 #include "Pet.h"
+#include "PetAI.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
@@ -3012,7 +3013,7 @@ public:
 
 enum MageOrb
 {
-    EVENT_START_MOVING          = 1,
+    EVENT_MOVE_FORWARD          = 1,
     EVENT_APPLY_PERIODIC_EFFECT = 2,
     EVENT_EXPLODE               = 3,
 
@@ -3020,7 +3021,7 @@ enum MageOrb
     SPELL_FROSTFIRE_ORB_AURA    = 84717,
 
     NPC_FLAME_ORB               = 44214,
-    NPC_FROSTFIRE_ORB           = 45322,
+    NPC_FROSTFIRE_ORB           = 45322
 
 };
 
@@ -3030,15 +3031,23 @@ class npc_mage_orb : public CreatureScript
     public:
         npc_mage_orb() : CreatureScript("npc_mage_orb") { }
 
-        struct npc_mage_orbAI : public ScriptedAI
+        struct npc_mage_orbAI : public PetAI
         {
-            npc_mage_orbAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_mage_orbAI(Creature* creature) : PetAI(creature) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void AttackStart(Unit* /*target*/) override
             {
-                events.ScheduleEvent(EVENT_START_MOVING, Milliseconds(1));
+                // Calling MovePoint again to apply movement speed changes
+                if (me->isMoving())
+                    me->GetMotionMaster()->MovePoint(0, pos);
+            }
+
+            void IsSummonedBy(Unit* summoner) override
+            {
+                pos = summoner->GetPosition();
+                summoner->MovePositionToFirstCollision(pos, 100.0f, 0.0f);
+                events.ScheduleEvent(EVENT_MOVE_FORWARD, Milliseconds(1));
                 events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
-                me->m_ControlledByPlayer = false;
             }
 
             void UpdateAI(uint32 diff) override
@@ -3049,21 +3058,10 @@ class npc_mage_orb : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_START_MOVING:
-                        {
+                        case EVENT_MOVE_FORWARD:
                             me->GetMotionMaster()->Clear();
-                            pos.SetOrientation(me->GetOrientation());
-                            pos.m_positionX = me->GetPositionX() + cos(pos.GetOrientation()) * 100.0f;
-                            pos.m_positionY = me->GetPositionY() + sin(pos.GetOrientation()) * 100.0f;
-                            float ground;
-                            me->GetMap()->GetWaterOrGroundLevel(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), &ground);
-                            pos.m_positionZ = ground;
-                            Movement::MoveSplineInit init(me);
-                            init.SetSmooth();
-                            init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
-                            init.Launch();
+                            me->GetMotionMaster()->MovePoint(0, pos);
                             break;
-                        }
                         case EVENT_APPLY_PERIODIC_EFFECT:
                             DoCastSelf(me->GetEntry() == NPC_FLAME_ORB ? SPELL_FLAME_ORB_AURA : SPELL_FROSTFIRE_ORB_AURA, true);
                             break;

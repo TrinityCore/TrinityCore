@@ -2880,8 +2880,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].BonusMultiplier = spellInfo->Effects[EFFECT_1].BonusMultiplier;
     });
 
-    // Flame Orb / Frostfire Orb
-    ApplySpellFix({ 82690, 84717 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        82690, // Flame Orb
+        84717  // Frostfire Orb
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].Amplitude = 1000;
     });
