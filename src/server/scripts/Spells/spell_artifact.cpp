@@ -59,6 +59,7 @@ enum SpellIds
     SPELL_WARLOCK_TEAR_CHAOS_BARRAGE                = 187394,
     SPELL_WARLOCK_TEAR_CHAOS_BOLT                   = 215279,
     SPELL_WARLOCK_TEAR_SHADOW_BOLT                  = 196657,
+    SPELL_PALADIN_TYR_DELIVERANCE_HEAL              = 200654,
 };
 
 // Ebonbolt - 214634
@@ -659,6 +660,28 @@ private:
     ObjectGuid _targetGuid;
 };
 
+// 200653  - Tyr's Deliverance
+class spell_arti_pal_tyr_deliverance : public SpellScript
+{
+    PrepareSpellScript(spell_arti_pal_tyr_deliverance);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_TYR_DELIVERANCE_HEAL });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_PALADIN_TYR_DELIVERANCE_HEAL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arti_pal_tyr_deliverance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_artifact_spell_scripts()
 {
     RegisterSpellScript(spell_arti_dru_new_moon);
@@ -687,4 +710,6 @@ void AddSC_artifact_spell_scripts()
 
     RegisterAuraScript(spell_arti_pri_call_of_the_void);
     RegisterCreatureAI(npc_arti_priest_void_tendril);
+
+    RegisterSpellScript(spell_arti_pal_tyr_deliverance);
 }
