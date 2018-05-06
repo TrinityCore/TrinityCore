@@ -3511,48 +3511,47 @@ public:
 };
 
 // Wild Imp - 99739
-class npc_pet_warlock_wild_imp : public CreatureScript
+struct npc_pet_warlock_wild_imp : public PetAI
 {
-public:
-    npc_pet_warlock_wild_imp() : CreatureScript("npc_pet_warlock_wild_imp") {}
+    npc_pet_warlock_wild_imp(Creature* creature) : PetAI(creature) {}
 
-    struct npc_pet_warlock_wild_imp_PetAI : public PetAI
+    void UpdateAI(uint32 /*diff*/) override
     {
-        npc_pet_warlock_wild_imp_PetAI(Creature* creature) : PetAI(creature) {}
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
 
-        void UpdateAI(uint32 /*diff*/) override
+        Unit* target = GetTarget();
+        ObjectGuid newtargetGUID = owner->GetTarget();
+        if (newtargetGUID.IsEmpty() || newtargetGUID == _targetGUID)
         {
-            Unit* owner = me->GetOwner();
-            if (!owner)
-                return;
-
-            ObjectGuid targetGuid = owner->GetTarget();
-            if (targetGuid.IsEmpty())
-            {
-                if (target)
-                    me->CastSpell(target, SPELL_WARLOCK_FEL_FIREBOLT, false, nullptr, nullptr, owner->GetGUID());
-                return;
-            }
-
-            Unit* newTarget = ObjectAccessor::GetUnit(*me, targetGuid);
-            if (newTarget && target != newTarget && me->IsValidAttackTarget(newTarget))
-                target = newTarget;
-
-            if (!target)
-                return;
-
-            if (me->IsValidAttackTarget(target))
-                me->CastSpell(target, SPELL_WARLOCK_FEL_FIREBOLT, false, nullptr, nullptr, owner->GetGUID());
+            CastSpellOnTarget(owner, target);
+            return;
         }
 
-    private:
-        Unit* target = nullptr;
-    };
+        if (Unit* newTarget = ObjectAccessor::GetUnit(*me, newtargetGUID))
+            if (target != newTarget && me->IsValidAttackTarget(newTarget))
+                target = newTarget;
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_pet_warlock_wild_imp_PetAI(creature);
+        CastSpellOnTarget(owner, target);
     }
+
+private:
+    Unit* GetTarget() const
+    {
+        return ObjectAccessor::GetUnit(*me, _targetGUID);
+    }
+
+    void CastSpellOnTarget(Unit* owner, Unit* target) const
+    {
+        if (target && me->IsValidAttackTarget(target))
+        {
+            _targetGUID = target->GetGUID();
+            me->CastSpell(target, SPELL_WARLOCK_FEL_FIREBOLT, false, nullptr, nullptr, owner->GetGUID());
+        }
+    }
+
+    ObjectGuid _targetGUID;
 };
 
 // Demonic Calling - 205145
@@ -3768,5 +3767,5 @@ void AddSC_warlock_spell_scripts()
     new spell_npc_warl_demonic_gateway_green();
     new spell_npc_warl_demonic_gateway_purple();
     new npc_pet_warlock_darkglare();
-    new npc_pet_warlock_wild_imp();
+    RegisterCreatureAI(npc_pet_warlock_wild_imp);
 }
