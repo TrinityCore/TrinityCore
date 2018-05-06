@@ -3650,6 +3650,35 @@ class aura_sha_healing_rain : public AuraScript
     }
 };
 
+// 188070 Healing Surge
+class spell_sha_healing_surge: public SpellScript
+{
+    PrepareSpellScript(spell_sha_healing_surge);
+
+    void HandleCalcCastTime(int32& castTime)
+    {
+        int32 requiredMaelstrom = GetEffectInfo(EFFECT_2)->BasePoints;
+        if (GetCaster()->GetPower(POWER_MAELSTROM) >= requiredMaelstrom)
+        {
+            castTime = 0;
+            _takenPower = requiredMaelstrom;
+        }
+    }
+
+    void HandleEnergize(SpellEffIndex /*effIndex*/)
+    {
+        SetEffectValue(-_takenPower);
+    }
+
+    void Register() override
+    {
+        OnCalcCastTime += SpellOnCalcCastTimeFn(spell_sha_healing_surge::HandleCalcCastTime);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_surge::HandleEnergize, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+    }
+private:
+    int32 _takenPower = 0;
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3720,6 +3749,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellAndAuraScriptPair(spell_sha_rainfall, aura_sha_rainfall);
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, aura_sha_healing_rain);
+    RegisterSpellScript(spell_sha_healing_surge);
 }
 
 void AddSC_npc_totem_scripts()
