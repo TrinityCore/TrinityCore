@@ -1674,40 +1674,55 @@ public:
     }
 };
 
-class spell_sha_earthquake_tick : public SpellScriptLoader
+// 61882
+class aura_sha_earthquake : public AuraScript
 {
-public:
-    spell_sha_earthquake_tick() : SpellScriptLoader("spell_sha_earthquake_tick") { }
+    PrepareAuraScript(aura_sha_earthquake);
 
-    class spell_sha_earthquake_tick_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_sha_earthquake_tick_SpellScript);
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHQUAKE_TICK))
-                return false;
-            return true;
-        }
-
-        void HandleOnHit()
-        {
-            // With a 10% chance of knocking down affected targets
-            if (Player* _player = GetCaster()->ToPlayer())
-                if (Unit* target = GetHitUnit())
-                    if (roll_chance_i(10))
-                        _player->CastSpell(target, SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_sha_earthquake_tick_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        return new spell_sha_earthquake_tick_SpellScript();
+        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(SPELL_SHAMAN_EARTHQUAKE))
+            GetTarget()->CastSpell(at->GetPosition(), SPELL_SHAMAN_EARTHQUAKE_TICK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_sha_earthquake::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 77478
+class spell_sha_earthquake_tick : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earthquake_tick);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_TICK });
+    }
+
+    void CalcDamage(SpellEffIndex /*effIndex*/)
+    {
+        uint32 dmg = GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_NATURE, false) * 0.92f;
+        SetHitDamage(dmg);
+    }
+
+    void HandleOnHit()
+    {
+        if (Unit* target = GetHitUnit())
+            if (roll_chance_i(GetEffectInfo(EFFECT_1)->BasePoints))
+                GetCaster()->CastSpell(target, SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_earthquake_tick::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnHit += SpellHitFn(spell_sha_earthquake_tick::HandleOnHit);
     }
 };
 
@@ -3614,7 +3629,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthen_rage_passive();
     new spell_sha_earthen_rage_proc_aura();
     new spell_sha_earthgrab();
-    new spell_sha_earthquake_tick();
+    RegisterAuraScript(aura_sha_earthquake);
+    RegisterSpellScript(spell_sha_earthquake_tick);
     new spell_sha_elemental_blast();
     new spell_sha_feral_lunge();
     new spell_sha_feral_spirit();
