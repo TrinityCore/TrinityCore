@@ -1473,6 +1473,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
         case SMART_ACTION_DISABLE_EVADE:
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        case SMART_ACTION_PLAY_SPELL_VISUAL:
+        case SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL:
+        case SMART_ACTION_CANCEL_VISUAL:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
