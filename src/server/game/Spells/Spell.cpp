@@ -4764,7 +4764,7 @@ void Spell::TakePower()
         if (hit)
             m_caster->ModifyPower(powerType, -powerCost);
         else
-            m_caster->ModifyPower(powerType, -irand(0, powerCost / 4));
+            m_caster->ModifyPower(powerType, irand(0, -powerCost / 4));
     }
 }
 
