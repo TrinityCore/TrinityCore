@@ -35,7 +35,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& 
 {
     data.WriteBit(areaTriggerCircularMovement.TargetGUID.is_initialized());
     data.WriteBit(areaTriggerCircularMovement.Center.is_initialized());
-    data.WriteBit(areaTriggerCircularMovement.CounterClockWise);
+    data.WriteBit(areaTriggerCircularMovement.CounterClockwise);
     data.WriteBit(areaTriggerCircularMovement.CanLoop);
 
     data << uint32(areaTriggerCircularMovement.TimeToTarget);

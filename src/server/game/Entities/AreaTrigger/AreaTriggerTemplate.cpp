@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaTriggerPackets.h"
 #include "AreaTriggerTemplate.h"
 #include <G3D/Vector3.h>
 #include <algorithm>

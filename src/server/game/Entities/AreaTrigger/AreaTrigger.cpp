@@ -145,7 +145,7 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
     }
     else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
     {
-        m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
+        InitCircularMovement(GetMiscTemplate()->CircularMovementInfo, timeToTarget);
     }
 
     // movement on transport of areatriggers on unit is handled by themself
@@ -166,7 +166,7 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
     // If has circular movement but no center set, define caster as default center
     if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
         if (_circularMovementCenterPosition.IsPositionEmpty() && _circularMovementCenterGUID.IsEmpty())
-            SetCasterAsCircularMovementCenter();
+            SetCircularMovementCenterGUID(GetCasterGuid());
 
     if (!GetMap()->AddToMap(this))
     {
@@ -657,6 +657,17 @@ bool AreaTrigger::HasSplines() const
     return bool(_spline);
 }
 
+void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& /*cmi*/, uint32 timeToTarget)
+{
+    // should be sent in object create packets only
+    m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
+
+    if (IsInWorld())
+    {
+        // TODO: broadcast AreaTriggerReShape?
+    }
+}
+
 AreaTriggerCircularMovementInfo AreaTrigger::GetAreaTriggerCircularMovementInfo() const
 {
     AreaTriggerCircularMovementInfo areaTriggerCircularMovementInfo;
@@ -687,24 +698,25 @@ Position const& AreaTrigger::GetCircularMovementCenterPosition() const
 
 void AreaTrigger::UpdateCircularMovementPosition()
 {
-    Position centerPos = GetCircularMovementCenterPosition();
+    Position const& centerPos = GetCircularMovementCenterPosition();
     AreaTriggerCircularMovementInfo const& cmi = GetMiscTemplate()->CircularMovementInfo;
 
     // AreaTrigger make exactly "TimeToTarget / Duration" loops during his life time
     float angleDiff = 2.0f * float(M_PI) / (float(GetTimeToTarget()) / float(GetDuration())) * (float(GetTimeSinceCreated()) / float(GetDuration()));
 
     // Adapt angle diff depending of circle direction
-    angleDiff *= cmi.CounterClockWise ? 1 : -1;
+    angleDiff *= cmi.CounterClockwise ? 1 : -1;
 
     // We already made one circle & can't loop
     if (!cmi.CanLoop && (angleDiff <= 0.0f || angleDiff >= 2.0f * float(M_PI)))
         angleDiff = 0.0f;
 
-    float x = centerPos.GetPositionX() + (cmi.Radius * cos(cmi.InitialAngle + angleDiff));
-    float y = centerPos.GetPositionY() + (cmi.Radius * sin(cmi.InitialAngle + angleDiff));
+    float angle = cmi.InitialAngle + angleDiff;
+    float x = centerPos.GetPositionX() + (cmi.Radius * std::cos(angle));
+    float y = centerPos.GetPositionY() + (cmi.Radius * std::sin(angle));
     float z = centerPos.GetPositionZ() + cmi.ZOffset;
 
-    GetMap()->AreaTriggerRelocation(this, x, y, z, cmi.InitialAngle + angleDiff);
+    GetMap()->AreaTriggerRelocation(this, x, y, z, angle);
 #ifdef TRINITY_DEBUG
     DebugVisualizePosition();
 #endif

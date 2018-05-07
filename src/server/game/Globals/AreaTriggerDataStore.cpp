@@ -200,7 +200,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     }
 
     //                                                                  0            1             2                3             4        5                 6
-    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT SpellMiscId, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockWise, CanLoop FROM `spell_areatrigger_circular` ORDER BY `SpellMiscId`"))
+    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT SpellMiscId, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `spell_areatrigger_circular` ORDER BY `SpellMiscId`"))
     {
         do
         {
@@ -232,7 +232,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #undef VALIDATE_AND_SET_FLOAT
 
-            circularMovementInfo.CounterClockWise   = circularMovementInfoFields[5].GetBool();
+            circularMovementInfo.CounterClockwise   = circularMovementInfoFields[5].GetBool();
             circularMovementInfo.CanLoop            = circularMovementInfoFields[6].GetBool();
         }
         while (circularMovementInfos->NextRow());

@@ -96,7 +96,7 @@ struct AreaTriggerCircularMovementInfo
 {
     Optional<ObjectGuid> TargetGUID;
     Optional<TaggedPosition<Position::XYZ>> Center;
-    bool CounterClockWise = false;
+    bool CounterClockwise = false;
     bool CanLoop = false;
     uint32 TimeToTarget = 0;
     int32 ElapsedTimeForMovement = 0;

@@ -92,14 +92,14 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
+        void InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget);
         AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const;
 
-        ObjectGuid GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
-        void SetCircularMovementCenterGUID(ObjectGuid guid) { _circularMovementCenterGUID = guid; }
-        void SetCasterAsCircularMovementCenter() { _circularMovementCenterGUID = GetCasterGuid(); }
+        ObjectGuid const& GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
+        void SetCircularMovementCenterGUID(ObjectGuid const& guid) { _circularMovementCenterGUID = guid; }
 
         Position const& GetCircularMovementCenterPosition() const;
-        void SetCircularMovementCenterPosition(Position pos) { _circularMovementCenterPosition = pos; }
+        void SetCircularMovementCenterPosition(Position const& pos) { _circularMovementCenterPosition = pos; }
 
         void UpdateShape();
 
