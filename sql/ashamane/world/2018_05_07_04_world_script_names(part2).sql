@@ -1,8 +1,3 @@
-UPDATE `spell_script_names` SET `ScriptName`='' WHERE  `spell_id`=198103 AND `ScriptName`='spell_sha_earth_elemental';
-UPDATE `spell_script_names` SET `ScriptName`='' WHERE  `spell_id`=8042 AND `ScriptName`='spell_sha_earth_shock';
-UPDATE `spell_script_names` SET `ScriptName`='' WHERE  `spell_id`=198067 AND `ScriptName`='spell_sha_fire_elemental';
-UPDATE `spell_script_names` SET `ScriptName`='' WHERE  `spell_id`=188070 AND `ScriptName`='spell_sha_healing_surge';
-
 UPDATE `creature_template` SET `ScriptName`='' WHERE  `ScriptName` IN
 ('mob_acid_rain',
 'mob_add_setthik_windblade',
