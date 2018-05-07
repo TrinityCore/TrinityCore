@@ -1515,7 +1515,7 @@ class spell_sha_tidal_waves : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_TIDAL_WAVES });
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_TIDAL_WAVES, true);
