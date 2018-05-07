@@ -155,6 +155,9 @@ enum ShamanSpells
     SPELL_SHAMAN_STONE_BULWARK_ABSORB                       = 114893,
     SPELL_SHAMAN_STORMBRINGER                               = 201845,
     SPELL_SHAMAN_STORMBRINGER_PROC                          = 201846,
+    SPELL_SHAMAN_STORMLASH                                  = 195255,
+    SPELL_SHAMAN_STORMLASH_BUFF                             = 195222,
+    SPELL_SHAMAN_STORMLASH_DAMAGE                           = 213307,
     SPELL_SHAMAN_STORMSTRIKE                                = 17364,
     SPELL_SHAMAN_STORMSTRIKE_MAIN                           = 32175,
     SPELL_SHAMAN_TIDAL_WAVES                                = 53390,
@@ -3670,6 +3673,39 @@ private:
     int32 _maxDamagePercent;
 };
 
+// 195255 - Stormlash
+class aura_sha_stormlash : public AuraScript
+{
+    PrepareAuraScript(aura_sha_stormlash);
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_SHAMAN_STORMLASH_BUFF, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(aura_sha_stormlash::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 195222 - Stormlash Buff
+class aura_sha_stormlash_buff : public AuraScript
+{
+    PrepareAuraScript(aura_sha_stormlash_buff);
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_STORMLASH_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(aura_sha_stormlash_buff::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3745,6 +3781,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earth_elemental);
     RegisterSpellScript(spell_sha_fire_elemental);
     RegisterSpellScript(spell_sha_enhancement_lightning_bolt);
+    RegisterAuraScript(aura_sha_stormlash);
+    RegisterAuraScript(aura_sha_stormlash_buff);
 }
 
 void AddSC_npc_totem_scripts()
