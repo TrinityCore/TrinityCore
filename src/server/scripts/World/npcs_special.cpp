@@ -3072,13 +3072,14 @@ class npc_mage_orb : public CreatureScript
                         case EVENT_EARLY_EXPLOSION:
                             if (!me->IsInCombat())
                                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                                    if (summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
-                                    {
-                                        Position explPos = me->GetPosition();
-                                        float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-                                        summoner->CastSpell(explPos.GetPositionX(), explPos.GetPositionY(), z, SPELL_FIRE_POWER_EXPLOSION, true);
-                                        me->DespawnOrUnsummon();
-                                    }
+                                    if (Aura* aura = summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
+                                        if (roll_chance_i(aura->GetSpellInfo()->ProcChance))
+                                        {
+                                            Position explPos = me->GetPosition();
+                                            float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                                            summoner->CastSpell(explPos.GetPositionX(), explPos.GetPositionY(), z, SPELL_FIRE_POWER_EXPLOSION, true);
+                                            me->DespawnOrUnsummon();
+                                        }
                             break;
                         case EVENT_EXPLODE:
                             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
