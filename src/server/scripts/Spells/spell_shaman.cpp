@@ -2771,11 +2771,9 @@ struct npc_lightning_surge_totem : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-        me->GetScheduler().Schedule(10s, [this](TaskContext context)
+        me->GetScheduler().Schedule(2s, [this](TaskContext /*context*/)
         {
             me->CastSpell(me, SPELL_TOTEM_LIGHTNING_SURGE_EFFECT, true);
-            context.Repeat();
         });
     }
 };
@@ -2787,7 +2785,6 @@ struct npc_resonance_totem : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         me->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
             me->CastSpell(me, SPELL_TOTEM_RESONANCE_EFFECT, true);
@@ -2827,14 +2824,16 @@ struct npc_earth_grab_totem : public ScriptedAI
 
             for (auto target : unitList)
             {
+                if (target->HasAura(SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT))
+                    continue;
+
                 if (std::find(alreadyRooted.begin(), alreadyRooted.end(), target->GetGUID()) == alreadyRooted.end())
                 {
                     alreadyRooted.push_back(target->GetGUID());
-                    if (!target->HasAura(SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT))
-                        me->CastSpell(target, SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
+                    me->CastSpell(target, SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
                 }
-
-                me->CastSpell(target, SPELL_TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
+                else
+                    me->CastSpell(target, SPELL_TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
             }
 
             context.Repeat();
@@ -2864,7 +2863,6 @@ struct npc_tailwind_totem : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         me->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
             me->CastSpell(me, SPELL_TOTEM_TAIL_WIND_EFFECT, true);
@@ -2907,7 +2905,6 @@ struct npc_earthen_shield_totem : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         me->CastSpell(me, SPELL_SHAMAN_AT_EARTHEN_SHIELD_TOTEM, true);
     }
 };
@@ -3061,7 +3058,6 @@ struct npc_ancestral_protection_totem : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         me->CastSpell(me, SPELL_TOTEM_ANCESTRAL_PROTECTION_AT, true);
     }
 };
@@ -3267,7 +3263,6 @@ struct npc_skyfury_totem : public ScriptedAI
     void Reset() override
     {
         m_uiBuffTimer = DELAY;
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         ApplyBuff();
     }
 
@@ -3314,7 +3309,6 @@ struct npc_grounding_totem : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         me->CastSpell(me, SPELL_TOTEM_GROUDING_TOTEM_EFFECT, true);
     }
 };
