@@ -83,6 +83,8 @@ enum ShamanSpells
     SPELL_SHAMAN_FERAL_LUNGE_DAMAGE                         = 215802,
     SPELL_SHAMAN_FERAL_SPIRIT                               = 51533,
     SPELL_SHAMAN_FERAL_SPIRIT_SUMMON                        = 228562,
+    SPELL_SHAMAN_FERAL_SPIRIT_ENERGIZE                      = 190185,
+    SPELL_SHAMAN_FERAL_SPIRIT_ENERGIZE_DUMMY                = 231723,
     SPELL_SHAMAN_FIRE_ELEMENTAL_DUMMY                       = 198067,
     SPELL_SHAMAN_FIRE_ELEMENTAL_SUMMON                      = 188592,
     SPELL_SHAMAN_FIRE_NOVA                                  = 1535,
@@ -3719,6 +3721,20 @@ public:
     }
 };
 
+// 29264
+struct npc_feral_spirit : public ScriptedAI
+{
+    npc_feral_spirit(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+    void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) override
+    {
+        if (TempSummon* tempSum = me->ToTempSummon())
+            if (Unit* owner = tempSum->GetOwner())
+                if (owner->HasAura(SPELL_SHAMAN_FERAL_SPIRIT_ENERGIZE_DUMMY))
+                    owner->CastSpell(owner, SPELL_SHAMAN_FERAL_SPIRIT_ENERGIZE, true);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3797,6 +3813,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(aura_sha_stormlash);
     RegisterAuraScript(aura_sha_stormlash_buff);
     RegisterAreaTriggerAI(at_sha_crashing_storm);
+    RegisterCreatureAI(npc_feral_spirit);
 }
 
 void AddSC_npc_totem_scripts()
