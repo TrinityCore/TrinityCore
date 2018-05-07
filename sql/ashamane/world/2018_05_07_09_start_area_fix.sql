@@ -1609,5 +1609,5 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUs
 (210116476, 36312, 654, 4714, 4793, 3, 0, 0, 0, -1, 0, 0, -1949.9, 2701.19, 0.801791, 3.90954, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 26365);
 DELETE FROM `gameobject` WHERE `id`=196404;
 UPDATE `gameobject` SET `PhaseId` = '0' WHERE `map` = '654'; 
-UPDATE `creature` SET `PhaseId` = '0' WHERE `map` = '654'; 
+UPDATE `creature` SET `PhaseId` = '0' WHERE `PhaseId` = '183'; 
 UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (41202,41335,40939);
