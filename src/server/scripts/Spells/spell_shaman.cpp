@@ -1970,54 +1970,39 @@ enum ShamanTotems
 };
 
 // 33757 - Windfury
-class spell_sha_windfury : public SpellScriptLoader
+class spell_sha_windfury : public AuraScript
 {
-public:
-    spell_sha_windfury() : SpellScriptLoader("spell_sha_windfury") { }
+    PrepareAuraScript(spell_sha_windfury);
 
-    class spell_sha_windfury_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sha_windfury_AuraScript);
+        return ValidateSpellInfo({ SPELL_SHAMAN_WINDFURY_ATTACK });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_WINDFURY_ATTACK))
-                return false;
-            return true;
-        }
-
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-
-            //Proc Chance is increased by 6.24% of Mastery (ceiled)
-            float masteryBonus = 0.0f;
-            if (Player* player = eventInfo.GetActor()->ToPlayer())
-                masteryBonus += (player->GetFloatValue(PLAYER_MASTERY)*6.24f) / 100.0f;
-
-            float rollChance = 5.0f + masteryBonus;
-            if (roll_chance_f(rollChance) || eventInfo.GetActor()->HasAura(SPELL_SHAMAN_DOOM_WINDS))
-                for (uint32 i = 0; i < 2; ++i)
-                    eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_WINDFURY_ATTACK, true, nullptr, aurEff);
-        }
-
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            if (eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK)
-                return true;
-            return false;
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_sha_windfury_AuraScript::CheckProc);
-            OnEffectProc += AuraEffectProcFn(spell_sha_windfury_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return new spell_sha_windfury_AuraScript();
+        return eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK;
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        //Proc Chance is increased by 6.24% of Mastery (ceiled)
+        float masteryBonus = 0.0f;
+        if (Player* player = eventInfo.GetActor()->ToPlayer())
+            masteryBonus += (player->GetFloatValue(PLAYER_MASTERY)*6.24f) / 100.0f;
+
+        float rollChance = 5.0f + masteryBonus;
+        if (roll_chance_f(rollChance) || eventInfo.GetActor()->HasAura(SPELL_SHAMAN_DOOM_WINDS))
+            for (uint32 i = 0; i < 2; ++i)
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_WINDFURY_ATTACK, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_windfury::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_windfury::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3770,7 +3755,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_tidal_waves);
     new spell_sha_totem_mastery();
     new spell_sha_wellspring();
-    new spell_sha_windfury();
+    RegisterAuraScript(spell_sha_windfury);
     new spell_shaman_windfury_weapon();
     RegisterSpellScript(spell_sha_undulation);
     RegisterSpellScript(spell_sha_chain_lightning);
