@@ -138,6 +138,7 @@ enum ShamanSpells
     SPELL_SHAMAN_MAIL_SPECIALIZATION_AGI                    = 86099,
     SPELL_SHAMAN_MANA_TIDE                                  = 16191,
     SPELL_SHAMAN_NATURE_GUARDIAN                            = 31616,
+    SPELL_SHAMAN_OVERCHARGE                                 = 210727,
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD                      = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT                      = 201909,
     SPELL_SHAMAN_RAINFALL                                   = 215864,
@@ -3650,6 +3651,52 @@ class spell_sha_fire_elemental : public SpellScript
     }
 };
 
+// 187837 - Lightning Bolt
+class spell_sha_enhancement_lightning_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_sha_enhancement_lightning_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_OVERCHARGE });
+    }
+
+    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    {
+        _maxTakenPower      = 0;
+        _maxDamagePercent   = 0;
+
+        if (Aura* overcharge = GetCaster()->GetAura(SPELL_SHAMAN_OVERCHARGE))
+        {
+            _maxTakenPower      = overcharge->GetSpellEffectInfo(EFFECT_0)->BasePoints;
+            _maxDamagePercent   = overcharge->GetSpellEffectInfo(EFFECT_1)->BasePoints;
+        }
+
+        _takenPower = powerCount = std::min(GetCaster()->GetPower(POWER_MAELSTROM), _maxTakenPower);
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (_maxTakenPower > 0)
+        {
+            int32 increasedDamagePercent = CalculatePct(_maxDamagePercent, float(_takenPower) / float(_maxTakenPower) * 100.f);
+            int32 hitDamage = CalculatePct(GetHitDamage(), 100 + increasedDamagePercent);
+            SetHitDamage(hitDamage);
+        }
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_sha_enhancement_lightning_bolt::HandleTakePower);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_enhancement_lightning_bolt::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    int32 _takenPower;
+    int32 _maxTakenPower;
+    int32 _maxDamagePercent;
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3724,6 +3771,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earth_shock);
     RegisterSpellScript(spell_sha_earth_elemental);
     RegisterSpellScript(spell_sha_fire_elemental);
+    RegisterSpellScript(spell_sha_enhancement_lightning_bolt);
 }
 
 void AddSC_npc_totem_scripts()
