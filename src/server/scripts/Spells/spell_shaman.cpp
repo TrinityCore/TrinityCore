@@ -55,6 +55,9 @@ enum ShamanSpells
     SPELL_SHAMAN_CRASH_LIGHTNING_PROC                       = 195592,
     SPELL_SHAMAN_CRASH_LIGTHNING                            = 187874,
     SPELL_SHAMAN_CRASH_LIGTHNING_AURA                       = 187878,
+    SPELL_SHAMAN_CRASHING_STORM_DUMMY                       = 192246,
+    SPELL_SHAMAN_CRASHING_STORM_AT                          = 210797,
+    SPELL_SHAMAN_CRASHING_STORM_DAMAGE                      = 210801,
     SPELL_SHAMAN_DOOM_WINDS                                 = 204945,
     SPELL_SHAMAN_EARTHBIND_FOR_EARTHGRAB_TOTEM              = 116947,
     SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE                        = 170379,
@@ -370,6 +373,9 @@ public:
             targetsHit++;
             if (targetsHit == 2)
                 caster->CastSpell(caster, SPELL_SHAMAN_CRASH_LIGTHNING_AURA, true);
+
+            if (caster->HasAura(SPELL_SHAMAN_CRASHING_STORM_DUMMY))
+                caster->CastSpell(nullptr, SPELL_SHAMAN_CRASHING_STORM_AT, true);
         }
 
         void Register() override
@@ -3691,6 +3697,28 @@ class aura_sha_stormlash_buff : public AuraScript
     }
 };
 
+// Spell 210797 - Crashing Storm
+// AT - 11353
+class at_sha_crashing_storm : public AreaTriggerAI
+{
+public:
+    at_sha_crashing_storm(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger) { }
+
+    void OnCreate() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            caster->GetScheduler().Schedule(0ms, SPELL_SHAMAN_CRASHING_STORM_AT, [this](TaskContext context)
+            {
+                GetContextUnit()->CastSpell(at->GetPosition(), SPELL_SHAMAN_CRASHING_STORM_DAMAGE, true);
+
+                if (context.GetRepeatCounter() < 7)
+                    context.Repeat(1s);
+            });
+        }
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3768,6 +3796,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_enhancement_lightning_bolt);
     RegisterAuraScript(aura_sha_stormlash);
     RegisterAuraScript(aura_sha_stormlash_buff);
+    RegisterAreaTriggerAI(at_sha_crashing_storm);
 }
 
 void AddSC_npc_totem_scripts()
