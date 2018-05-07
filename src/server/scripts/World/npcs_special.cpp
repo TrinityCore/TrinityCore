@@ -3015,11 +3015,13 @@ enum MageOrb
 {
     EVENT_MOVE_FORWARD          = 1,
     EVENT_APPLY_PERIODIC_EFFECT = 2,
-    EVENT_EXPLODE               = 3,
+    EVENT_EARLY_EXPLOSION       = 3,
+    EVENT_EXPLODE               = 4,
 
     SPELL_FLAME_ORB_AURA        = 82690,
     SPELL_FROSTFIRE_ORB_AURA    = 84717,
-
+    SPELL_FIRE_POWER_EXPLOSION  = 83619,
+    SPELL_FIRE_POWER_R1         = 18459,
     NPC_FLAME_ORB               = 44214,
     NPC_FROSTFIRE_ORB           = 45322
 
@@ -3048,6 +3050,8 @@ class npc_mage_orb : public CreatureScript
                 summoner->MovePositionToFirstCollision(pos, 100.0f, 0.0f);
                 events.ScheduleEvent(EVENT_MOVE_FORWARD, Milliseconds(1));
                 events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
+                events.ScheduleEvent(EVENT_EARLY_EXPLOSION, Seconds(5));
+                events.ScheduleEvent(EVENT_EXPLODE, Seconds(15) + Milliseconds(400));
             }
 
             void UpdateAI(uint32 diff) override
@@ -3064,6 +3068,28 @@ class npc_mage_orb : public CreatureScript
                             break;
                         case EVENT_APPLY_PERIODIC_EFFECT:
                             DoCastSelf(me->GetEntry() == NPC_FLAME_ORB ? SPELL_FLAME_ORB_AURA : SPELL_FROSTFIRE_ORB_AURA, true);
+                            break;
+                        case EVENT_EARLY_EXPLOSION:
+                            if (!me->IsInCombat())
+                                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                    if (summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
+                                    {
+                                        Position explPos = me->GetPosition();
+                                        float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                                        summoner->CastSpell(explPos.GetPositionX(), explPos.GetPositionY(), z, SPELL_FIRE_POWER_EXPLOSION, true);
+                                        me->DespawnOrUnsummon();
+                                    }
+                            break;
+                        case EVENT_EXPLODE:
+                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                if (Aura* aura = summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
+                                    if (roll_chance_i(aura->GetSpellInfo()->ProcChance))
+                                    {
+                                        Position explPos = me->GetPosition();
+                                        float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                                        summoner->CastSpell(explPos.GetPositionX(), explPos.GetPositionY(), z, SPELL_FIRE_POWER_EXPLOSION, true);
+                                        me->DespawnOrUnsummon();
+                                    }
                             break;
                         default:
                             break;
