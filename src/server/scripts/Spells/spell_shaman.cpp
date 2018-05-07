@@ -2055,47 +2055,32 @@ public:
 };
 
 //187880 - Maelstrom Weapon
-class spell_sha_maelstrom_weapon : public SpellScriptLoader
+class spell_sha_maelstrom_weapon : public AuraScript
 {
-public:
-    spell_sha_maelstrom_weapon() : SpellScriptLoader("spell_sha_maelstrom_weapon") {}
+    PrepareAuraScript(spell_sha_maelstrom_weapon);
 
-    class spell_sha_maelstrom_weapon_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sha_maelstrom_weapon_AuraScript);
+        return ValidateSpellInfo({ SPELL_SHAMAN_MAELSTROM_WEAPON_POWER });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_MAELSTROM_WEAPON_POWER))
-                return false;
-            return true;
-        }
-
-        bool CheckEffectProc(ProcEventInfo& eventInfo)
-        {
-            if (eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK ||
-                eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK ||
-                eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_WINDFURY_ATTACK)
-                return true;
-            return false;
-        }
-
-        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, SPELL_SHAMAN_MAELSTROM_WEAPON_POWER, true);
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_sha_maelstrom_weapon_AuraScript::CheckEffectProc);
-            OnEffectProc += AuraEffectProcFn(spell_sha_maelstrom_weapon_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool CheckEffectProc(ProcEventInfo& eventInfo)
     {
-        return new spell_sha_maelstrom_weapon_AuraScript();
+        return eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK ||
+               eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK ||
+               eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_WINDFURY_ATTACK;
+    }
+
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_SHAMAN_MAELSTROM_WEAPON_POWER, true);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_maelstrom_weapon::CheckEffectProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_maelstrom_weapon::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3737,7 +3722,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lightning_bolt_elem();
     new spell_sha_lightning_shield();
     new spell_sha_liquid_magma_effect();
-    new spell_sha_maelstrom_weapon();
+    RegisterAuraScript(spell_sha_maelstrom_weapon);
     new spell_sha_nature_guardian();
     new spell_sha_path_of_flames_spread();
     new spell_sha_resonance_effect();
