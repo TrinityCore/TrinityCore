@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "GameObjectData.h"
 #include "GarrisonPackets.h"
 #include "Optional.h"
 #include <unordered_map>
@@ -194,6 +195,7 @@ public:
         void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
 
         WorldPackets::Garrison::GarrisonPlotInfo PacketInfo;
+        QuaternionData Rotation;
         uint32 EmptyGameObjectId = 0;
         uint32 GarrSiteLevelPlotInstId = 0;
         Building BuildingInfo;
