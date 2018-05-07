@@ -732,40 +732,28 @@ class spell_sha_fire_nova : public SpellScriptLoader
 };
 
 // 10400 - Flametongue
-class spell_sha_flametongue : public SpellScriptLoader
+// 194084 - Flametongue
+class spell_sha_flametongue : public AuraScript
 {
-public:
-    spell_sha_flametongue() : SpellScriptLoader("spell_sha_flametongue") { }
+    PrepareAuraScript(spell_sha_flametongue);
 
-    class spell_sha_flametongue_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sha_flametongue_AuraScript);
+        return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_ATTACK });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FLAMETONGUE_ATTACK))
-                return false;
-            return true;
-        }
-
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-
-            Unit* attacker = eventInfo.GetActor();
-            int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.075f / 2600 * attacker->getAttackTimer(BASE_ATTACK));
-            attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        return new spell_sha_flametongue_AuraScript();
+        PreventDefaultAction();
+
+        Unit* attacker = eventInfo.GetActor();
+        int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f / 2600 * attacker->getAttackTimer(BASE_ATTACK));
+        attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_flametongue::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3726,7 +3714,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_feral_spirit();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock_elem();
-    new spell_sha_flametongue();
+    RegisterAuraScript(spell_sha_flametongue);
     new spell_sha_fulmination();
     new spell_sha_fury_of_air();
     new spell_sha_glyph_of_healing_wave();
