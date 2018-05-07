@@ -1,8 +1,5 @@
 UPDATE `creature_template` SET `minlevel` = 1, `maxlevel` = 1 WHERE `entry` = 41202;
 
-DELETE FROM `creature` WHERE `map`=654;
-DELETE FROM `gameobject` WHERE `map`=654 and `zoneID`=0 and `areaId`=0;
-
 
 SET @ENTRY := 40991;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
