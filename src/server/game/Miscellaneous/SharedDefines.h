@@ -6316,6 +6316,7 @@ enum Maps : uint32
     MAP_KALIMDOR                = 1,
     MAP_OUTLAND                 = 530,
     MAP_NORTHREND               = 571,
+    MAP_EBON_HOLD_DK_START_ZONE = 609,
     MAP_PANDARIA                = 870,
     MAP_DRAENOR                 = 1116,
     MAP_WOD_BLASTED_LANDS_PHASE = 1190,

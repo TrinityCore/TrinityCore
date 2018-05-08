@@ -725,10 +725,11 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
 
     damage *= GetDamageMultiplierForTarget(victim);
 
-    // Damage increase with expansion/level difference
+    // Damage increase with expansion/level difference, except in DK start zone
     if (sWorld->getBoolConfig(CONFIG_LEGACY_BUFF_ENABLED))
         if (IsPlayer() && victim->IsCreature())
-            damage *= Trinity::GetDamageMultiplierForExpansion(getLevel(), victim->ToCreature()->GetCreatureTemplate()->HealthScalingExpansion);
+            if (GetMapId() != MAP_EBON_HOLD_DK_START_ZONE)
+                damage *= Trinity::GetDamageMultiplierForExpansion(getLevel(), victim->ToCreature()->GetCreatureTemplate()->HealthScalingExpansion);
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
