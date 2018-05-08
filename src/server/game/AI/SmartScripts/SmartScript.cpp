@@ -2626,8 +2626,30 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (targets)
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                     if (IsUnit(*itr))
-                        (*itr)->ToUnit()->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId);
-
+					{
+                        switch (e.action.playSpellVisual.variations)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId, (float)e.action.playSpellVisual.travelSpeed);
+                                break;
+                            case 1:
+                                me->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId, (float)e.action.playSpellVisual.travelSpeed);
+                                break;
+                            case 2:
+								(*itr)->ToUnit()->SendPlaySpellVisual(me->GetGUID(), e.action.playSpellVisual.playVisualId, (float)e.action.playSpellVisual.travelSpeed);
+                                break;
+                            case 3:
+                                (*itr)->ToUnit()->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId);
+                                break;
+                            case 4:
+                                me->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId);
+                                break;
+                            case 5:
+								(*itr)->ToUnit()->SendPlaySpellVisual(me->GetGUID(), e.action.playSpellVisual.playVisualId);
+                                break;
+                        }
+					}
+					
             delete targets;
             break;
         }
@@ -2638,7 +2660,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (targets)
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                     if (IsUnit(*itr))
-                        (*itr)->ToUnit()->SendPlayOrphanSpellVisual((*itr)->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, e.action.playOrphanSpellVisual.travelSpeed);
+					{
+					    switch (e.action.playOrphanSpellVisual.variations)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->SendPlayOrphanSpellVisual((*itr)->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, (float)e.action.playOrphanSpellVisual.travelSpeed);
+                                break;
+                            case 1:
+                                me->SendPlayOrphanSpellVisual((*itr)->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, (float)e.action.playOrphanSpellVisual.travelSpeed);
+                                break;
+                            case 2:
+								(*itr)->ToUnit()->SendPlayOrphanSpellVisual(me->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, (float)e.action.playOrphanSpellVisual.travelSpeed);
+                                break;
+                        }
+					}
 
             delete targets;
             break;

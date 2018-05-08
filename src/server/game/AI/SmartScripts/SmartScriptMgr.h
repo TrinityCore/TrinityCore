@@ -570,8 +570,8 @@ enum SMART_ACTION
     
     // Ashamane' specific actions
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 200,    // id, type, duration.
-    SMART_ACTION_PLAY_SPELL_VISUAL                  = 201,    // id
-    SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL           = 202,    // id
+    SMART_ACTION_PLAY_SPELL_VISUAL                  = 201,    // id, travelSpeed, target type variation.
+    SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL           = 202,    // id, travelSpeed, target type variation.
     SMART_ACTION_CANCEL_VISUAL                      = 203,    // VisualType, VisualId.
     
     SMART_ACTION_END                                = 204
@@ -1119,12 +1119,15 @@ struct SmartAction
         struct
         {
             uint32 playVisualId;
+            uint32 travelSpeed;
+            uint32 variations;
         } playSpellVisual;
         
         struct
         {
             uint32 playOrphanVisualId;
             uint32 travelSpeed;
+            uint32 variations;
         } playOrphanSpellVisual;
         
         struct
