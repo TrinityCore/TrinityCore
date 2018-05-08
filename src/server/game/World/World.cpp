@@ -1612,6 +1612,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
     sSpellMgr->LoadPetFamilySpellsStore();
 
+    TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
+    sSpellMgr->LoadSpellTotemModel();
+
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     LoadGameObjectModelList(m_dataPath);
 
@@ -1630,6 +1633,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
     sObjectMgr->LoadQuestTemplateLocale();
+    sObjectMgr->LoadQuestGreetingLocales();
     sObjectMgr->LoadQuestOfferRewardLocale();
     sObjectMgr->LoadQuestRequestItemsLocale();
     sObjectMgr->LoadQuestObjectivesLocale();

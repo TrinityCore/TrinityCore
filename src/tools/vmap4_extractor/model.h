@@ -25,9 +25,10 @@
 
 class CASCFile;
 struct ADTOutputCache;
-namespace ADT { struct MDDF; }
+struct WMODoodadData;
+namespace ADT { struct MDDF; struct MODF; }
 
-Vec3D fixCoordSystem(Vec3D v);
+Vec3D fixCoordSystem(Vec3D const& v);
 
 class Model
 {
@@ -44,6 +45,7 @@ public:
     ModelHeader header;
     Vec3D* vertices;
     uint16* indices;
+    AaBox3D bounds;
 
     bool open();
     bool ConvertToVMAPModel(char const* outfilename);
@@ -54,7 +56,11 @@ public:
 
 namespace Doodad
 {
-    void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+    void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId,
+        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+
+    void ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, bool isGlobalWmo, uint32 mapID, uint32 originalMapId,
+        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
 }
 
 #endif

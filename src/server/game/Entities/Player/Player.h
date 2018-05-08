@@ -1357,7 +1357,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         }
 
         void PrepareQuestMenu(ObjectGuid guid);
-        void SendPreparedQuest(ObjectGuid guid);
+        void SendPreparedQuest(WorldObject* source);
         bool IsActiveQuest(uint32 quest_id) const;
         Quest const* GetNextQuest(ObjectGuid guid, Quest const* quest) const;
         bool CanSeeStartQuest(Quest const* quest);
@@ -1681,8 +1681,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr);
         template <class T>
         void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
-        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
-        void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
         void SendSpellModifiers() const;
@@ -1753,8 +1751,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendUpdateToOutOfRangeGroupMembers();
 
         void SetInGuild(ObjectGuid::LowType guildId);
-        void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
-        uint8 GetRank() const { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
+        void SetGuildRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
+        uint8 GetGuildRank() const { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
         void SetGuildLevel(uint32 level) { SetUInt32Value(PLAYER_GUILDLEVEL, level); }
         uint32 GetGuildLevel() const { return GetUInt32Value(PLAYER_GUILDLEVEL); }
         void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
@@ -1813,6 +1811,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
         void UpdateMastery();
+        void UpdateVersatilityDamageDone();
+        void UpdateHealingDonePercentMod();
         bool CanUseMastery() const;
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;

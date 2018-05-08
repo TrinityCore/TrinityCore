@@ -945,6 +945,14 @@ namespace WorldPackets
             bool Sticky = false;
         };
 
+        class GuildReplaceGuildMaster final : public ClientPacket
+        {
+        public:
+            GuildReplaceGuildMaster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REPLACE_GUILD_MASTER, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class GuildSetGuildMaster final : public ClientPacket
         {
         public:

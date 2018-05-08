@@ -228,7 +228,33 @@ namespace WorldPackets
 }
 
 typedef std::list<Unit*> UnitList;
-typedef std::list<std::pair<Aura*, uint8>> DispelChargesList;
+
+class DispelableAura
+{
+    public:
+        DispelableAura(Aura* aura, int32 dispelChance, uint8 dispelCharges) :
+            _aura(aura), _chance(dispelChance), _charges(dispelCharges) { }
+
+        Aura* GetAura() const { return _aura; }
+        bool RollDispel() const;
+        uint8 GetDispelCharges() const { return _charges; }
+
+        void IncrementCharges() { ++_charges; }
+        bool DecrementCharge()
+        {
+            if (!_charges)
+                return false;
+
+            --_charges;
+            return _charges > 0;
+        }
+
+    private:
+        Aura* _aura;
+        int32 _chance;
+        uint8 _charges;
+};
+typedef std::vector<DispelableAura> DispelChargesList;
 
 typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmuneContainer;
 
@@ -886,14 +912,6 @@ enum ReactiveType
 
 #define MAX_GAMEOBJECT_SLOT 4
 
-enum PlayerTotemType
-{
-    SUMMON_TYPE_TOTEM_FIRE  = 63,
-    SUMMON_TYPE_TOTEM_EARTH = 81,
-    SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83
-};
-
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
@@ -1471,7 +1489,7 @@ class TC_GAME_API Unit : public WorldObject
         AuraApplication * GetAuraApplicationOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication * except = NULL) const;
         Aura* GetAuraOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
 
-        void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList);
+        void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList, bool isReflect = false) const;
 
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster = ObjectGuid::Empty) const;
         uint32 GetAuraCount(uint32 spellId) const;
@@ -1804,7 +1822,6 @@ class TC_GAME_API Unit : public WorldObject
         void RemovePetAura(PetAura const* petSpell);
 
         uint32 GetModelForForm(ShapeshiftForm form) const;
-        uint32 GetModelForTotem(PlayerTotemType totemType);
 
         // Redirect Threat
         void SetRedirectThreat(ObjectGuid guid, uint32 pct) { _redirectThreadInfo.Set(guid, pct); }

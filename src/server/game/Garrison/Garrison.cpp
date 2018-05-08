@@ -273,6 +273,7 @@ void Garrison::InitializePlots()
             plotInfo.PacketInfo.GarrPlotInstanceID = garrPlotInstanceId;
             plotInfo.PacketInfo.PlotPos = Position(gameObject->Pos.X, gameObject->Pos.Y, gameObject->Pos.Z, 2 * std::acos(gameObject->Rot[3]));
             plotInfo.PacketInfo.PlotType = plot->PlotType;
+            plotInfo.Rotation = QuaternionData(gameObject->Rot[0], gameObject->Rot[1], gameObject->Rot[2], gameObject->Rot[3]);
             plotInfo.EmptyGameObjectId = gameObject->ID;
             plotInfo.GarrSiteLevelPlotInstId = plots->at(i)->ID;
         }
@@ -731,7 +732,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         return nullptr;
     }
 
-    GameObject* building = GameObject::CreateGameObject(entry, map, PacketInfo.PlotPos.Pos, QuaternionData(), 255, GO_STATE_READY);
+    GameObject* building = GameObject::CreateGameObject(entry, map, PacketInfo.PlotPos.Pos, Rotation, 255, GO_STATE_READY);
     if (!building)
         return nullptr;
 
@@ -740,7 +741,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
         {
             Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
-            if (GameObject* finalizer = GameObject::CreateGameObject(finalizeInfo->FactionInfo[faction].GameObjectId, map, pos2, QuaternionData(), 255, GO_STATE_READY))
+            if (GameObject* finalizer = GameObject::CreateGameObject(finalizeInfo->FactionInfo[faction].GameObjectId, map, pos2, QuaternionData::fromEulerAnglesZYX(pos2.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
             {
                 // set some spell id to make the object delete itself after use
                 finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);

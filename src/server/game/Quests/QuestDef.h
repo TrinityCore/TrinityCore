@@ -254,6 +254,22 @@ enum QuestObjectiveFlags
     QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x40, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
 };
 
+struct QuestGreeting
+{
+    uint16 EmoteType;
+    uint32 EmoteDelay;
+    std::string Text;
+
+    QuestGreeting() : EmoteType(0), EmoteDelay(0) { }
+    QuestGreeting(uint16 emoteType, uint32 emoteDelay, std::string text)
+        : EmoteType(emoteType), EmoteDelay(emoteDelay), Text(std::move(text)) { }
+};
+
+struct QuestGreetingLocale
+{
+    std::vector<std::string> Greeting;
+};
+
 struct QuestTemplateLocale
 {
     std::vector<std::string> LogTitle;
