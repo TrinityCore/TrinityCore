@@ -2212,38 +2212,6 @@ public:
     }
 };
 
-//206930 Heart Strike
-class spell_dk_heart_strike : public SpellScriptLoader
-{
-public:
-    spell_dk_heart_strike() : SpellScriptLoader("spell_dk_heart_strike") { }
-
-    class spell_dk_heart_strike_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_heart_strike_SpellScript);
-
-        void HandleHitTarget(SpellEffIndex)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                caster->ModifyPower(POWER_RUNIC_POWER, +50);
-                if(caster->ToPlayer())
-                    caster->ToPlayer()->SendPowerUpdate(POWER_RUNIC_POWER, caster->GetPower(POWER_RUNIC_POWER));
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_dk_heart_strike_SpellScript::HandleHitTarget, EFFECT_2, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dk_heart_strike_SpellScript();
-    }
-};
-
 //55233 Vampiric Blood
 class spell_dk_vampiric_blood : public SpellScriptLoader
 {
@@ -2560,7 +2528,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_glyph_of_runic_power();
     new spell_dk_gorefiends_grasp();
-    new spell_dk_heart_strike();
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_howling_blast_aoe);
     new spell_dk_icebound_fortitude();

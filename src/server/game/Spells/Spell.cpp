@@ -4747,7 +4747,6 @@ void Spell::TakePower()
             continue;
         }
 
-        powerCost = std::max(0, powerCost);
         if (!powerCost)
             continue;
 
@@ -4766,7 +4765,7 @@ void Spell::TakePower()
 
         if (hit)
             m_caster->ModifyPower(powerType, -powerCost);
-        else
+        else if (powerCost > 0)
             m_caster->ModifyPower(powerType, -irand(0, powerCost / 4));
     }
 }
