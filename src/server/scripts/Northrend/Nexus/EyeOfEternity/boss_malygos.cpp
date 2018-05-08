@@ -1011,9 +1011,9 @@ public:
             if (Creature* alexstraszaGiftBoxBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GIFT_BOX_BUNNY_GUID)))
             {
                 if (GetDifficulty() == DIFFICULTY_10_N)
-                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos, QuaternionData(), 0);
+                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos, QuaternionData::fromEulerAnglesZYX(HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f), 0);
                 else if (GetDifficulty() == DIFFICULTY_25_N)
-                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos, QuaternionData(), 0);
+                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos, QuaternionData::fromEulerAnglesZYX(HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f), 0);
             }
 
             me->SummonCreature(NPC_ALEXSTRASZA, AlexstraszaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN);
@@ -2420,9 +2420,9 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData(), 0);
+                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0);
                     else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData(), 0);
+                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0);
                 }
             }
 
