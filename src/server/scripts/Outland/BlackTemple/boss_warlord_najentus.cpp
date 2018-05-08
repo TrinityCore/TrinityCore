@@ -142,7 +142,7 @@ public:
                         DoCast(target, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = target->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
-                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, QuaternionData(), 30);
+                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 30);
                         Talk(SAY_NEEDLE);
                     }
                     events.Repeat(Seconds(20), Seconds(25));
