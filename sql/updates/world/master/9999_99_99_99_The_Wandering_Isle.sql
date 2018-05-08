@@ -8499,7 +8499,7 @@ INSERT INTO `gossip_menu_option_action` (`MenuId`, `OptionIndex`, `ActionMenuId`
 (15125, 12, 12186, 0),
 (13204, 0, 14268, 0);
 
-DELETE FROM `gossip_menu_option_trainer` WHERE `MenuId` IN (12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199);
+DELETE FROM `gossip_menu_option_trainer` WHERE `MenuId` IN (12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199) AND `OptionIndex`=11;
 INSERT INTO `gossip_menu_option_trainer` (`MenuId`, `OptionIndex`, `TrainerId`) VALUES
 (12188, 11, 388), -- Herbalism
 (12189, 11, 389), -- Mining
