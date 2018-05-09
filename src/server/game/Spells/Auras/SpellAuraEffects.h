@@ -54,7 +54,8 @@ class TC_GAME_API AuraEffect
         int32 GetMiscValue() const { return GetSpellEffectInfo()->MiscValue; }
         AuraType GetAuraType() const { return (AuraType)GetSpellEffectInfo()->ApplyAuraName; }
         int32 GetAmount() const { return m_amount; }
-        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
+        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false; }
+        void ModAmount(int32 amount) { SetAmount(m_amount + amount); }
 
         int32 GetPeriodicTimer() const { return m_periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }

@@ -2203,148 +2203,129 @@ public:
 };
 
 // 31850 - ardent defender
-class spell_pal_ardent_defender : public SpellScriptLoader
+class spell_pal_ardent_defender : public AuraScript
 {
+    PrepareAuraScript(spell_pal_ardent_defender);
+
 public:
-    spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
-
-    class spell_pal_ardent_defender_AuraScript : public AuraScript
+    spell_pal_ardent_defender()
     {
-        PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
+        absorbPct   = 0;
+        healPct     = 0;
+    }
 
-    public:
-        spell_pal_ardent_defender_AuraScript()
-        {
-            absorbPct   = 0;
-            healPct     = 0;
-        }
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_PALADIN_ARDENT_DEFENDER });
-        }
-
-        bool Load() override
-        {
-            absorbPct   = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
-            healPct     = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
-            return GetUnitOwner()->IsPlayer();
-        }
-
-        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            amount = -1;
-        }
-
-        void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
-        {
-            absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-
-            Unit* target = GetTarget();
-            if (dmgInfo.GetDamage() < target->GetHealth())
-                return;
-
-            int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
-            target->CastCustomSpell(target, SPELL_PALADIN_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
-            aurEff->GetBase()->Remove();
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_ardent_defender_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_ardent_defender_AuraScript::Absorb, EFFECT_0);
-        }
-
-    private:
-        uint32 absorbPct;
-        uint32 healPct;
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return new spell_pal_ardent_defender_AuraScript();
+        return ValidateSpellInfo({ SPELL_PALADIN_ARDENT_DEFENDER });
+    }
+
+    bool Load() override
+    {
+        absorbPct   = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
+        healPct     = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+
+        Unit* target = GetTarget();
+        if (dmgInfo.GetDamage() < target->GetHealth())
+            return;
+
+        int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
+        target->CastCustomSpell(target, SPELL_PALADIN_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
+        aurEff->GetBase()->Remove();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_ardent_defender::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_ardent_defender::Absorb, EFFECT_0);
+    }
+
+private:
+    uint32 absorbPct;
+    uint32 healPct;
+};
+
+// 231895
+class spell_pal_crusade : public AuraScript
+{
+    PrepareAuraScript(spell_pal_crusade);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount /= 10;
+    }
+
+    void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        auto powerCosts = eventInfo.GetSpellInfo()->CalcPowerCost(eventInfo.GetActor(), SPELL_SCHOOL_MASK_HOLY);
+
+        for (auto powerCost : powerCosts)
+            if (powerCost.Power == POWER_HOLY_POWER)
+                GetAura()->ModStackAmount(powerCost.Amount, AURA_REMOVE_BY_DEFAULT, false, false);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_crusade::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_crusade::CalculateAmount, EFFECT_2, SPELL_AURA_MELEE_SLOW);
+        OnEffectProc += AuraEffectProcFn(spell_pal_crusade::OnProc, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     }
 };
 
 // Light's Hammer
 // NPC Id - 59738
-class npc_pal_lights_hammer : public CreatureScript
+class npc_pal_lights_hammer : public ScriptedAI
 {
 public:
-    npc_pal_lights_hammer() : CreatureScript("npc_pal_lights_hammer") {}
 
-    class npc_pal_lights_hammer_AI : public ScriptedAI
+    npc_pal_lights_hammer(Creature* creature) : ScriptedAI(creature) {}
+
+    void Reset() override
     {
-    public:
-
-        npc_pal_lights_hammer_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        void Reset() override
-        {
-            me->CastSpell(me, SPELL_PALADIN_LIGHT_HAMMER_COSMETIC, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_pal_lights_hammer_AI(creature);
+        me->CastSpell(me, SPELL_PALADIN_LIGHT_HAMMER_COSMETIC, true);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
     }
 };
 
 // Consecration - 26573 and 205228
 // AreaTriggerID - 4488
-class at_pal_consecration : public AreaTriggerEntityScript
+struct at_pal_consecration : AreaTriggerAI
 {
-public:
-
-    at_pal_consecration() : AreaTriggerEntityScript("at_pal_consecration") { }
-
-    struct at_pal_consecrationAI : AreaTriggerAI
+    at_pal_consecration(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
-        int32 timeInterval;
-
-        at_pal_consecrationAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            // How often should the action be executed
-            timeInterval = 1000;
-        }
-
-        void OnUpdate(uint32 p_Time) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            // Check if we can handle actions
-            timeInterval += p_Time;
-            if (timeInterval < 1000)
-                return;
-
-            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 200))
-            {
-                tempSumm->setFaction(caster->getFaction());
-                tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                PhasingHandler::InheritPhaseShift(tempSumm, caster);
-                caster->CastSpell(tempSumm, SPELL_PALADIN_CONSECRATION_DAMAGE, true, nullptr, nullptr, caster->GetGUID());
-
-                if (caster->HasSpell(SPELL_PALADIN_CONSECRATED_GROUND))
-                    caster->CastSpell(tempSumm, SPELL_PALADIN_CONSECRATION_HEAL, true, nullptr, nullptr, caster->GetGUID());
-            }
-
-            timeInterval -= 1000;
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_pal_consecrationAI(areatrigger);
+        timeInterval = 1000;
     }
+
+    void OnUpdate(uint32 diff) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
+
+        if (timeInterval <= diff)
+        {
+            timeInterval -= diff;
+            return;
+        }
+
+        caster->CastSpell(at->GetPosition(), SPELL_PALADIN_CONSECRATION_DAMAGE, true);
+        if (caster->HasSpell(SPELL_PALADIN_CONSECRATED_GROUND))
+            caster->CastSpell(at->GetPosition(), SPELL_PALADIN_CONSECRATION_HEAL, true);
+
+        timeInterval = 1 * IN_MILLISECONDS;
+    }
+private:
+    int32 timeInterval;
 };
 
 void AddSC_paladin_spell_scripts()
@@ -2365,7 +2346,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_light_of_dawn_trigger();
     new spell_pal_light_of_the_martyr();
     new spell_pal_greater_blessing_of_kings();
-    new spell_pal_ardent_defender();
     new spell_pal_zeal();
     
     //7.3.2.25549
@@ -2403,11 +2383,13 @@ void AddSC_paladin_spell_scripts()
     RegisterAuraScript(spell_pal_shield_of_vengeance);
     RegisterAuraScript(spell_pal_blade_of_wrath_proc);
     RegisterAuraScript(spell_pal_the_fire_of_justice);
+    RegisterAuraScript(spell_pal_ardent_defender);
     RegisterCastSpellOnProcAuraScript("spell_pal_fervent_martyr", EFFECT_0, SPELL_AURA_DUMMY, SPELL_PALADIN_FERVENT_MARTYR_BUFF); // 196923
+    RegisterAuraScript(spell_pal_crusade);
 
     // NPC Scripts
-    new npc_pal_lights_hammer();
+    RegisterCreatureAI(npc_pal_lights_hammer);
 
     // Area Trigger scripts
-    new at_pal_consecration();
+    RegisterAreaTriggerAI(at_pal_consecration);
 }
