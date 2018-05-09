@@ -2334,47 +2334,32 @@ public:
 };
 
 // 108281 - Ancestral Guidance
-class spell_sha_ancestral_guidance : public SpellScriptLoader
+class spell_sha_ancestral_guidance : public AuraScript
 {
-public:
-    spell_sha_ancestral_guidance() : SpellScriptLoader("spell_sha_ancestral_guidance") { }
+    PrepareAuraScript(spell_sha_ancestral_guidance);
 
-    class spell_sha_ancestral_guidance_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sha_ancestral_guidance_AuraScript);
+        return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL))
-                return false;
-            return true;
-        }
-
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            if (eventInfo.GetHealInfo()->GetSpellInfo()->Id == SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL)
-                return false;
-            return true;
-        }
-
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-            int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-            if (bp0)
-                eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetActor(), true, NULL, aurEff);
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_sha_ancestral_guidance_AuraScript::CheckProc);
-            OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_guidance_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return new spell_sha_ancestral_guidance_AuraScript();
+        return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetSpellInfo()->Id == SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL;
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+        if (bp0)
+            eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetActor(), true, NULL, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_ancestral_guidance::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_guidance::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3741,7 +3726,7 @@ void AddSC_shaman_spell_scripts()
     new at_sha_ancestral_protection_totem();
     new at_earthen_shield_totem();
 
-    new spell_sha_ancestral_guidance();
+    RegisterAuraScript(spell_sha_ancestral_guidance);
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_ancestral_protection_totem_aura();
     new spell_sha_ascendance_water();
