@@ -3689,7 +3689,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Tremor Totem (instant pulse)
     ApplySpellFix({ 8145 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
         spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
     });
 
@@ -4522,7 +4521,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 75509 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
     });
 
     // Combustion and Consumption Heroic versions lacks radius data
@@ -4548,20 +4546,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
     // EYE OF ETERNITY SPELLS
     //
-    ApplySpellFix({
-        // All spells below work even without these changes. The LOS attribute is due to problem
-        // from collision between maps & gos with active destroyed state.
-        57473, // Arcane Storm bonus explicit visual spell
-        57431, // Summon Static Field
-        56091, // Flame Spike (Wyrmrest Skytalon)
-        56092, // Engulf in Flames (Wyrmrest Skytalon)
-        57090, // Revivify (Wyrmrest Skytalon)
-        57143  // Life Burst (Wyrmrest Skytalon)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-    });
-
     // Arcane Barrage (cast by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)).
     ApplySpellFix({ 63934 }, [](SpellInfo* spellInfo)
     {
