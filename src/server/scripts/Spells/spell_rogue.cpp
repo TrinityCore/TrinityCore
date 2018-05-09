@@ -915,7 +915,7 @@ public:
     }
 };
 
-// 2098 - Eviscerate
+// 196819 - Eviscerate
 class spell_rog_eviscerate : public SpellScriptLoader
 {
 public:
