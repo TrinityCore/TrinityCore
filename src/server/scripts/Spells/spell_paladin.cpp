@@ -637,23 +637,20 @@ class spell_pal_shield_of_the_righteous : public SpellScript
                         aur->SetDuration(aur->GetDuration() + previousDuration);
                 }
 
-                if (player->HasAura(SPELL_PALADIN_RIGHTEOUS_PROTECTOR)) //reduce the CD of Light of the Protector and Avenging Wrath by 3
+                if (Aura* aura = player->GetAura(SPELL_PALADIN_RIGHTEOUS_PROTECTOR)) //reduce the CD of Light of the Protector and Avenging Wrath by 3
                 {
-                    
+                    uint32 cooldownReduction = aura->GetEffect(EFFECT_0)->GetBaseAmount() * IN_MILLISECONDS;
+
                     if (player->HasSpell(SPELL_PALADIN_LIGHT_OF_THE_PROTECTOR))
-                    {
-                        if (player->GetSpellHistory()->HasCooldown(SPELL_PALADIN_LIGHT_OF_THE_PROTECTOR))
-                            player->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_LIGHT_OF_THE_PROTECTOR, -3 * IN_MILLISECONDS);
-                    }
+                        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_LIGHT_OF_THE_PROTECTOR))
+                            player->GetSpellHistory()->ReduceChargeCooldown(spellInfo->ChargeCategoryId, cooldownReduction);
 
                     if (player->HasSpell(SPELL_PALADIN_HAND_OF_THE_PROTECTOR))
-                    {
-                        if (player->GetSpellHistory()->HasCooldown(SPELL_PALADIN_HAND_OF_THE_PROTECTOR))
-                            player->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAND_OF_THE_PROTECTOR, -3 * IN_MILLISECONDS);
-                    }
+                        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HAND_OF_THE_PROTECTOR))
+                            player->GetSpellHistory()->ReduceChargeCooldown(spellInfo->ChargeCategoryId, cooldownReduction);
 
-                    if (player->GetSpellHistory()->HasCooldown(SPELL_PALADIN_AVENGING_WRATH))
-                        player->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_AVENGING_WRATH, -3 * IN_MILLISECONDS);
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_AVENGING_WRATH))
+                        player->GetSpellHistory()->ReduceChargeCooldown(spellInfo->ChargeCategoryId, cooldownReduction);
                 }
             }
         }
