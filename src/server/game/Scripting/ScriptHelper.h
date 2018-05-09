@@ -23,7 +23,7 @@
 #include "SpellScript.h"
 #include "ScriptMgr.h"
 
-template<SpellEffIndex effIndex, AuraType auraType, uint32 spellId>
+template<SpellEffIndex effecIndex, AuraType auraType, uint32 spellId>
 class GenericCastSpellOnProcAuraScriptLoader : public SpellScriptLoader
 {
 public:
@@ -40,12 +40,12 @@ public:
 
         void Register() override
         {
-            OnEffectProc += AuraEffectProcFn(GenericCastSpellOnProcAuraScriptLoaderAuraScript::OnProc, effIndex, auraType);
+            OnEffectProc += AuraEffectProcFn(GenericCastSpellOnProcAuraScriptLoaderAuraScript::OnProc, effecIndex, auraType);
         }
     };
 
     AuraScript* GetAuraScript() const override { return new GenericCastSpellOnProcAuraScriptLoaderAuraScript(); }
 };
-#define RegisterCastSpellOnProcAuraScript(name, effIndex, auraType, spellId) new GenericCastSpellOnProcAuraScriptLoader<effIndex, auraType, spellId>(name)
+#define RegisterCastSpellOnProcAuraScript(name, effecIndex, auraType, spellId) new GenericCastSpellOnProcAuraScriptLoader<effecIndex, auraType, spellId>(name)
 
 #endif

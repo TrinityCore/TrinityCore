@@ -3725,7 +3725,6 @@ void AddSC_shaman_spell_scripts()
     new at_sha_earthquake_totem();
     new at_sha_ancestral_protection_totem();
     new at_earthen_shield_totem();
-
     RegisterAuraScript(spell_sha_ancestral_guidance);
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_ancestral_protection_totem_aura();
