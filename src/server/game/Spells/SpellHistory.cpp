@@ -836,6 +836,12 @@ void SpellHistory::UpdateCharge(SpellCategoryEntry const* chargeCategoryEntry)
     }
 }
 
+void SpellHistory::ReduceChargeCooldown(uint32 chargeCategoryId, uint32 reductionTime)
+{
+    if (SpellCategoryEntry const* chargeCategoryEntry = sSpellCategoryStore.LookupEntry(chargeCategoryId))
+        ReduceChargeCooldown(chargeCategoryEntry, reductionTime);
+}
+
 void SpellHistory::ReduceChargeCooldown(SpellCategoryEntry const* chargeCategoryEntry, uint32 reductionTime)
 {
     if (!chargeCategoryEntry)

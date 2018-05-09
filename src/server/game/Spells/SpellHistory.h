@@ -139,6 +139,7 @@ public:
     void ForceSendSetSpellCharges(SpellCategoryEntry const* chargeCategoryEntry);
     void UpdateCharges();
     void UpdateCharge(SpellCategoryEntry const* chargeCategoryEntry);
+    void ReduceChargeCooldown(uint32 chargeCategoryId, uint32 reductionTime);
     void ReduceChargeCooldown(SpellCategoryEntry const* chargeCategoryEntry, uint32 reductionTime);
     bool ConsumeCharge(uint32 chargeCategoryId);
     void RestoreCharge(uint32 chargeCategoryId);
