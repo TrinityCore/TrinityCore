@@ -66,7 +66,7 @@ struct boss_saboteur_kiptilak : public BossAI
 
     uint8 WorldInFlamesEvents;
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
 
@@ -76,25 +76,25 @@ struct boss_saboteur_kiptilak : public BossAI
         WorldInFlamesEvents = 0;
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
         Talk(TALK_INTRO);
     }
 
-    void KilledUnit(Unit* /*u*/)
+    void KilledUnit(Unit* /*u*/) override
     {
         if (!urand(0, 1))
             Talk(TALK_SLAY);
     }
 
-    void JustReachedHome()
+    void JustReachedHome() override
     {
         instance->SetBossState(DATA_KIPTILAK, FAIL);
         summons.DespawnAll();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage)
+    void DamageTaken(Unit* attacker, uint32& damage) override
     {
         switch (attacker->GetEntry())
         {
@@ -138,7 +138,7 @@ struct boss_saboteur_kiptilak : public BossAI
         }
     }
 
-    void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* summoned) override
     {
         if (summoned->GetEntry() == NPC_STABLE_MUNITION)
             summoned->AddAura(SPELL_MUNITION_STABLE, summoned);
@@ -146,14 +146,14 @@ struct boss_saboteur_kiptilak : public BossAI
         summons.Summon(summoned);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
 
         events.Update(diff);
 
-        switch(events.ExecuteEvent())
+        switch (events.ExecuteEvent())
         {
             case EVENT_EXPLOSIVES:
                 if (!urand(0, 2))
@@ -180,7 +180,7 @@ struct boss_saboteur_kiptilak : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         Talk(TALK_DEATH);
@@ -191,20 +191,15 @@ struct npc_instable_munition : public ScriptedAI
 {
     npc_instable_munition(Creature* creature) : ScriptedAI(creature) {}
 
-    void Reset()
+    void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         damage = 0;
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        return;
     }
 };
 
@@ -212,10 +207,10 @@ struct npc_munition_explosion_bunny : public ScriptedAI
 {
     npc_munition_explosion_bunny(Creature* creature) : ScriptedAI(creature) {}
 
-    float orientation;
-    uint32 checkTimer;
+    float orientation = 0.0f;
+    uint32 checkTimer = 0;
 
-    void Reset()
+    void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
         orientation = 0.0f;
@@ -249,23 +244,23 @@ struct npc_munition_explosion_bunny : public ScriptedAI
         me->AddAura(SPELL_MUNITION_EXPLOSION_VISUAL, me);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         damage = 0;
     }
 
-    void MovementInform(uint32 /*type*/, uint32 id)
+    void MovementInform(uint32 /*type*/, uint32 id) override
     {
         if (id == 1)
             me->DespawnOrUnsummon();
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         return;
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (checkTimer <= diff)
         {
@@ -310,13 +305,13 @@ class spell_kiptilak_sabotage : public SpellScriptLoader
                 target->CastSpell(target, SPELL_SABOTAGE_EXPLOSION, true);
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_kiptilak_sabotage_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_kiptilak_sabotage_AuraScript();
         }

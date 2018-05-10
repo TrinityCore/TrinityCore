@@ -36,17 +36,17 @@ struct npc_serpent_spine_defender : public ScriptedAI
 
     uint32 attackTimer;
 
-    void Reset()
+    void Reset() override
     {
         attackTimer = urand(1000, 5000);
     }
 
-    void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType /*damageType*/)
+    void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType /*damageType*/) override
     {
         damage = 0;
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!me->IsInCombat())
         {
@@ -74,20 +74,20 @@ struct npc_krikthik_bombarder : public ScriptedAI
     InstanceScript* pInstance;
     uint32 bombTimer;
 
-    void Reset()
+    void Reset() override
     {
         me->GetMotionMaster()->MoveRandom(5.0f);
         bombTimer = urand(1000, 7500);
     }
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/)
+    void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/) override
     {
         if (target->GetEntry() == NPC_BOMB_STALKER)
             me->AddAura(SPELL_BOMB_AURA, target);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (bombTimer <= diff)
         {
@@ -121,7 +121,7 @@ class go_setting_sun_brasier : public GameObjectScript
 public:
     go_setting_sun_brasier() : GameObjectScript("go_setting_sun_brasier") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/)
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (player->GetInstanceScript())
             player->GetInstanceScript()->SetData(DATA_BRASIER_CLICKED, DONE);
@@ -135,7 +135,7 @@ class go_setting_sun_temp_portal : public GameObjectScript
 public:
     go_setting_sun_temp_portal() : GameObjectScript("go_setting_sun_temp_portal") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         switch (go->GetEntry())
         {
@@ -162,7 +162,7 @@ struct vehicle_artillery_to_wall : public ScriptedAI
 
     uint32 launchEventTimer;
 
-    void Reset()
+    void Reset() override
     {
         launchEventTimer = 0;
     }
@@ -173,7 +173,7 @@ struct vehicle_artillery_to_wall : public ScriptedAI
             launchEventTimer = 2500;
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!launchEventTimer)
             return;

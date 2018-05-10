@@ -89,14 +89,13 @@ struct boss_raigonn : public BossAI
     {
     }
 
-    uint8  eventChargeProgress;
-    uint32 eventChargeTimer;
+    uint8  eventChargeProgress = 0;
 
-    uint8 Phase;
+    uint8 Phase = PHASE_WEAK_SPOT;
 
-    bool inFight;
+    bool inFight = false;
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
 
@@ -140,7 +139,7 @@ struct boss_raigonn : public BossAI
         }
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MoveInLineOfSight(Unit* who) override
     {
         if (inFight)
             return;
@@ -178,7 +177,7 @@ struct boss_raigonn : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         if (Phase != PHASE_VULNERABILITY)
             return;
@@ -186,7 +185,7 @@ struct boss_raigonn : public BossAI
         _EnterCombat();
     }
 
-    void MovementInform(uint32 type, uint32 pointId)
+    void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
             return;
@@ -200,7 +199,7 @@ struct boss_raigonn : public BossAI
         }
     }
 
-    void DoAction(int32 action)
+    void DoAction(int32 action) override
     {
         if (action == ACTION_WEAK_SPOT_DEAD)
         {
@@ -223,13 +222,13 @@ struct boss_raigonn : public BossAI
         }
     }
 
-    void JustReachedHome()
+    void JustReachedHome() override
     {
         instance->SetBossState(DATA_RAIGONN, FAIL);
         summons.DespawnAll();
     }
 
-    void JustSummoned(Creature* /*summoned*/)
+    void JustSummoned(Creature* /*summoned*/) override
     {
     }
 
@@ -309,7 +308,7 @@ struct boss_raigonn : public BossAI
         return true;
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
 
         events.Update(diff);
@@ -405,7 +404,7 @@ struct npc_raigonn_weak_spot : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (damage >= me->GetHealth())
             if (Creature* raigonn = _instance->GetCreature(DATA_RAIGONN))
@@ -418,87 +417,88 @@ private:
 
 struct npc_krikthik_protectorat : public ScriptedAI
 {
-    npc_krikthik_protectorat(Creature* creature) : ScriptedAI(creature)
+    npc_krikthik_protectorat(Creature* creature) : ScriptedAI(creature),
+        _instance(creature->GetInstanceScript())
     {
-        pInstance = creature->GetInstanceScript();
     }
 
-    InstanceScript* pInstance;
-    bool hasCastHiveMind;
-
-    void Reset()
+    void Reset() override
     {
-        hasCastHiveMind = false;
+        _hasCastHiveMind = false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        if (!hasCastHiveMind && me->HealthBelowPctDamaged(20, damage))
+        if (!_hasCastHiveMind && me->HealthBelowPctDamaged(20, damage))
             me->CastSpell(me, SPELL_HIVE_MIND, true);
     }
+
+private:
+    InstanceScript* _instance;
+    bool _hasCastHiveMind = false;
 };
 
 struct npc_krikthik_engulfer : public ScriptedAI
 {
-    npc_krikthik_engulfer(Creature* creature) : ScriptedAI(creature)
+    npc_krikthik_engulfer(Creature* creature) : ScriptedAI(creature),
+        _instance(creature->GetInstanceScript())
     {
-        pInstance = creature->GetInstanceScript();
     }
 
-    InstanceScript* pInstance;
-    uint32 engulfingTimer;
-
-    void Reset()
+    void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MoveRandom(25.0f);
         DoZoneInCombat();
-
-        engulfingTimer = 10000;
-    }
-
-    void UpdateAI(uint32 diff)
-    {
-        if (engulfingTimer <= diff)
+        _scheduler.CancelAll();
+        _scheduler.Schedule(10s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 me->CastSpell(target, SPELL_ENGULFING_WINDS);
 
-            engulfingTimer = urand(7500, 12500);
-        }
-        else engulfingTimer -= diff;
+            task.Repeat(7.5s, 12.5s);
+        });
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
 };
 
 struct npc_krikthik_swarm_bringer : public ScriptedAI
 {
-    npc_krikthik_swarm_bringer(Creature* creature) : ScriptedAI(creature)
+    npc_krikthik_swarm_bringer(Creature* creature) : ScriptedAI(creature),
+        _instance(creature->GetInstanceScript())
     {
-        pInstance = creature->GetInstanceScript();
     }
 
-    InstanceScript* pInstance;
-    uint32 swarmTimer;
-
-    void Reset()
+    void Reset() override
     {
         DoZoneInCombat();
-        swarmTimer = 10000;
-    }
-
-    void UpdateAI(uint32 diff)
-    {
-        if (swarmTimer <= diff)
+        _scheduler.CancelAll();
+        _scheduler.Schedule(10s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 me->CastSpell(target, SPELL_SCREECHING_SWARM);
 
-            swarmTimer = urand(17500, 22500);
-        }
-        else swarmTimer -= diff;
-
-        DoMeleeAttackIfReady();
+            task.Repeat(17.5s, 22.5s);
+        });
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff,
+            std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+    }
+
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
 };
 
 struct vehicle_artillery : public ScriptedAI
@@ -509,9 +509,9 @@ struct vehicle_artillery : public ScriptedAI
     }
 
     InstanceScript* pInstance;
-    uint32 launchEventTimer;
+    uint32 launchEventTimer = 0;
 
-    void Reset()
+    void Reset() override
     {
         launchEventTimer = 0;
     }
@@ -522,7 +522,7 @@ struct vehicle_artillery : public ScriptedAI
             launchEventTimer = 2500;
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!launchEventTimer)
             return;

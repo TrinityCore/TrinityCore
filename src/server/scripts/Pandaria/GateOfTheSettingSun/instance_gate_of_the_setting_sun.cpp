@@ -87,12 +87,6 @@ class instance_gate_of_the_setting_sun : public InstanceMapScript
                 memset(dataStorage, 0, MAX_DATA * sizeof(uint32));
             }
 
-            void OnDestroy(InstanceMap* /*map*/) override
-            {
-                if (Creature* weakSpot = instance->GetCreature(GetObjectGuid(NPC_WEAK_SPOT)))
-                    weakSpot->_ExitVehicle();
-            }
-
             void OnPlayerEnter(Player* player) override
             {
                 if (GetData(DATA_BRASIER_CLICKED) == NOT_STARTED)

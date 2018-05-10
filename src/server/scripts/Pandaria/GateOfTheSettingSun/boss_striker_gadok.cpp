@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_of_the_setting_sun.h"
@@ -129,15 +131,15 @@ struct boss_striker_gadok : public BossAI
     {
     }
 
-    bool isStrafing;
+    bool isStrafing = false;
 
-    uint32 strafingTimer;
+    uint32 strafingTimer = 0;
 
-    uint8 strafingEventCount;
-    uint8 strafingEventProgress;
-    uint8 move;
+    uint8 strafingEventCount = 0;
+    uint8 strafingEventProgress = 0;
+    uint8 move = 0;
 
-    void Reset()
+    void Reset() override
     {
         isStrafing = false;
 
@@ -175,51 +177,51 @@ struct boss_striker_gadok : public BossAI
         return me->SummonCreature(creatureId, x, y, CenterPos.GetPositionZ());
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         Talk(TALK_AGGRO);
         _EnterCombat();
     }
 
-    void JustReachedHome()
+    void JustReachedHome() override
     {
         instance->SetBossState(DATA_GADOK, FAIL);
         summons.DespawnAll();
     }
 
-    void KilledUnit(Unit* /*u*/)
+    void KilledUnit(Unit* /*u*/) override
     {
         if (!urand(0, 1))
             Talk(TALK_SLAY);
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
 
         switch (id)
         {
-        case POINT_NORTH_START:
-        case POINT_SOUTH_START:
-        case POINT_WEST_START:
-        case POINT_EAST_START:
-        case POINT_NORTH_END:
-        case POINT_SOUTH_END:
-        case POINT_WEST_END:
-        case POINT_EAST_END:
-        case POINT_NORTH_OUTSIDE:
-        case POINT_SOUTH_OUTSIDE:
-        case POINT_WEST_OUTSIDE:
-        case POINT_EAST_OUTSIDE:
-            DoStrafingEvent();
-            break;
-        default:
-            break;
+            case POINT_NORTH_START:
+            case POINT_SOUTH_START:
+            case POINT_WEST_START:
+            case POINT_EAST_START:
+            case POINT_NORTH_END:
+            case POINT_SOUTH_END:
+            case POINT_WEST_END:
+            case POINT_EAST_END:
+            case POINT_NORTH_OUTSIDE:
+            case POINT_SOUTH_OUTSIDE:
+            case POINT_WEST_OUTSIDE:
+            case POINT_EAST_OUTSIDE:
+                DoStrafingEvent();
+                break;
+            default:
+                break;
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
 
@@ -366,7 +368,7 @@ struct boss_striker_gadok : public BossAI
         }
     }
 
-    void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* summoned) override
     {
         summons.Summon(summoned);
 
@@ -381,7 +383,7 @@ struct boss_striker_gadok : public BossAI
         }
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -417,7 +419,7 @@ struct boss_striker_gadok : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         events.Reset();
         Talk(TALK_DEATH);
@@ -434,12 +436,12 @@ struct npc_krikthik : public ScriptedAI
 {
     npc_krikthik(Creature* creature) : ScriptedAI(creature) {}
 
-    uint32 nextMovementTimer;
-    float actualAngle;
-    float myPositionZ;
-    bool direction;
+    uint32 nextMovementTimer = 0;
+    float actualAngle = 0.f;
+    float myPositionZ = 0.f;
+    bool direction = false;
 
-    void Reset()
+    void Reset() override
     {
         nextMovementTimer = 0;
         actualAngle = me->GetAngle(CenterPos.GetPositionX(), CenterPos.GetPositionY());
@@ -454,9 +456,11 @@ struct npc_krikthik : public ScriptedAI
         MovementInform(POINT_MOTION_TYPE, POINT_KRIKTHIK_CIRCLE);
 
         me->setActive(true);
+
+        // TODO: use me->GetMotionMaster()->MoveCirclePath(x, y, z, radius, clockwise, stepCount);
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
@@ -476,7 +480,7 @@ struct npc_krikthik : public ScriptedAI
         y = CenterPos.GetPositionY() + (me->GetObjectSize() + RADIUS_CIRCLE) * std::sin(actualAngle);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (nextMovementTimer)
         {
@@ -503,15 +507,15 @@ struct npc_krikthik_striker : public npc_krikthik
     }
 
     InstanceScript* pInstance;
-    bool isAttackerStriker;
+    bool isAttackerStriker = false;
 
-    void Reset()
+    void Reset() override
     {
         npc_krikthik::Reset();
         isAttackerStriker = false;
     }
 
-    void DoAction(int32 /*action*/)
+    void DoAction(int32 /*action*/) override
     {
         isAttackerStriker = true;
 
@@ -520,13 +524,13 @@ struct npc_krikthik_striker : public npc_krikthik
         Unit* target = NULL;
         Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck checker(me, MAX_VISIBILITY_DISTANCE);
         Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> searcher(me, target, checker);
-        me->VisitNearbyObject(MAX_VISIBILITY_DISTANCE, searcher);
+        Cell::VisitAllObjects(me, searcher, MAX_VISIBILITY_DISTANCE);
 
         if (target)
             AttackStart(target);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!isAttackerStriker)
             npc_krikthik::UpdateAI(diff);
@@ -545,14 +549,14 @@ struct npc_krikthik_disruptor : public npc_krikthik
     InstanceScript* pInstance;
     EventMap events;
 
-    void Reset()
+    void Reset() override
     {
         npc_krikthik::Reset();
 
         events.ScheduleEvent(EVENT_DISRUPTOR_BOMBARD, urand(5000, 20000));
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!pInstance)
             return;
@@ -602,7 +606,7 @@ struct npc_flak_cannon : public ScriptedAI
 
     InstanceScript* pInstance;
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (pInstance->GetBossState(DATA_GADOK) != DONE)
             return;
@@ -654,13 +658,13 @@ class spell_gadok_strafing : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 BeforeCast += SpellCastFn(spell_gadok_strafing_SpellScript::HandleBeforeCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gadok_strafing_SpellScript();
         }
@@ -687,14 +691,14 @@ class spell_prey_time : public SpellScriptLoader
                     GetCaster()->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_prey_time_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_prey_time_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_prey_time_AuraScript();
         }

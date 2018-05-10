@@ -71,7 +71,7 @@ struct boss_commander_rimok : public BossAI
         Talk(TALK_AGGRO);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* killer) override
     {
         BossAI::JustDied(killer);
 
@@ -90,7 +90,7 @@ struct boss_commander_rimok : public BossAI
             Talk(TALK_SLAY);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -157,13 +157,13 @@ struct npc_krikthik_saboteur : public ScriptedAI
     uint32 attackTimer;
     uint32 checkTimer;
 
-    void Reset()
+    void Reset() override
     {
         attackTimer = 2000;
         checkTimer = urand(17500, 22500);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (attackTimer)
         {
@@ -201,14 +201,14 @@ struct npc_add_generator : public ScriptedAI
     InstanceScript* instance;
     SummonList summons;
 
-    void Reset()
+    void Reset() override
     {
         me->RemoveAurasDueToSpell(SPELL_PERIODIC_SPAWN_SWARMER);
         me->RemoveAurasDueToSpell(SPELL_PERIODIC_SPAWN_SABOTEUR);
         summons.DespawnAll();
     }
 
-    void DoAction(int32 action)
+    void DoAction(int32 action) override
     {
         switch (action)
         {
@@ -231,7 +231,7 @@ struct npc_add_generator : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* summoned) override
     {
         float x = me->GetPositionX();
         float y = me->GetPositionY() - 10;
@@ -251,13 +251,13 @@ struct npc_viscous_fluid : public ScriptedAI
     InstanceScript* pInstance;
     uint32 checkTimer;
 
-    void Reset()
+    void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
         checkTimer = 1000;
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (checkTimer <= diff)
         {
