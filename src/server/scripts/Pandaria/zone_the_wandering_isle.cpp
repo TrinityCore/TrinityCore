@@ -1535,7 +1535,7 @@ public:
                         if (!threatList.empty())
                         {
                             for (HostileReference* ref : threatList)
-                                if (ref->getTarget()->IsPlayer() == TYPEID_PLAYER)
+                                if (ref->getTarget()->IsPlayer())
                                     DoCast(ref->getTarget(), SPELL_LIGHTNING_POOL);
 
                             _events.ScheduleEvent(EVENT_LIGHTNING, _events.IsInPhase(PHASE_FLYING) ? 5000 : 3500);
