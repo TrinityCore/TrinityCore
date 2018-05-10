@@ -71,12 +71,23 @@ public:
 
     void HandleLegionArrival(Player* player)
     {
-        if (player->getClass() == CLASS_MAGE)
-            player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
-        else if (player->getClass() == CLASS_WARRIOR)
-            player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
-        else if (player->getClass() == CLASS_DRUID)
-            player->CastSpell(player, SPELL_DRUID_CLASS_HALL_TP, true);
+        switch (player->getClass())
+        {
+            case CLASS_MAGE:
+                player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
+                break;
+            case CLASS_WARRIOR:
+                player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
+                break;
+            case CLASS_DRUID:
+                player->CastSpell(player, SPELL_DRUID_CLASS_HALL_TP, true);
+                break;
+            case CLASS_HUNTER:
+                player->m_taxi.SetTaximaskNode(1848); // Hunter Class Hall
+                break;
+            default:
+                break;
+        }
 
         player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
 
