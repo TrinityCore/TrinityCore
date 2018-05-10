@@ -516,7 +516,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData(), 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData(), GO_SUMMON_CORPSE_DESPAWN))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -545,7 +545,7 @@ public:
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
                                 if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
-                                    me->RemoveGameObject(explosive, true);
+                                    explosive->DespawnOrUnsummon();
                             }
                             _explosivesGuids.clear();
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
@@ -612,7 +612,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData(), 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData(), GO_SUMMON_CORPSE_DESPAWN))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             Talk(SAY_LEGOSO_15);
@@ -642,7 +642,7 @@ public:
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
                                 if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
-                                    me->RemoveGameObject(explosive, true);
+                                    explosive->DespawnOrUnsummon();
                             }
                             _explosivesGuids.clear();
                             if (Creature* sironas = me->FindNearestCreature(NPC_SIRONAS, SIZE_OF_GRIDS))

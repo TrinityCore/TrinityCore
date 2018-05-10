@@ -167,8 +167,7 @@ class spell_gordunni_trap : public SpellScriptLoader
             void HandleDummy()
             {
                 GameObject* caster = GetGObjCaster();
-                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), 0))
-                    chest->SetSpellId(GetSpellInfo()->Id);
+                caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), GO_SUMMON_MANUAL_DESPAWN, 0s, GetSpellInfo()->Id);
             }
 
             void Register() override

@@ -178,14 +178,14 @@ public:
 
         void UseStatue(GameObject* go)
         {
-            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData(), 0);
+            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData(), GO_SUMMON_MANUAL_DESPAWN);
             go->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
         }
 
         void UseLastStatue(GameObject* go)
         {
             for (uint8 i = 0; i < nStatues; ++i)
-                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), 0);
+                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), GO_SUMMON_MANUAL_DESPAWN);
 
             go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200);
         }

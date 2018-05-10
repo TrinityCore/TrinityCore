@@ -420,7 +420,7 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
             }
             else
             {
-                if (pGameobject->isSpawnedByDefault())
+                if (pGameobject->IsSpawnedByDefault())
                     map->AddToMap(pGameobject);
             }
         }

@@ -510,11 +510,11 @@ public:
                         DoCast(player, SPELL_CALL_PRISMATIC_BARRIER, true);
                         break;
                     case 37:
-                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
+                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), GO_SUMMON_MANUAL_DESPAWN);
                         break;
                     case 38:
                         DoCast(player, SPELL_CALL_GLYPHS_OF_WARDING, true);
-                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
+                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), GO_SUMMON_MANUAL_DESPAWN);
                         break;
                     case 39:
                         Talk(ANACHRONOS_SAY_5, Fandral);
@@ -523,7 +523,7 @@ public:
                         Fandral->CastSpell(me, SPELL_CALL_ANCIENTS, true);
                         break;
                     case 41:
-                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
+                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), GO_SUMMON_MANUAL_DESPAWN);
                         Fandral->AI()->Talk(FANDRAL_SAY_3);
                         break;
                     case 42:
