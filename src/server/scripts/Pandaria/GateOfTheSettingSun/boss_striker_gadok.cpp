@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,10 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "gate_setting_sun.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "gate_of_the_setting_sun.h"
 
 struct StrafPointStruct
 {
@@ -29,10 +26,10 @@ struct StrafPointStruct
 
     uint8 pointIdBegin;
     Position begin;
-    
+
     uint8 pointIdEnd;
     Position end;
-    
+
     uint8 pointIdOutside;
     Position outside;
 };
@@ -126,321 +123,310 @@ enum Maximum
 
 #define RADIUS_CIRCLE   100.0f
 
-class boss_striker_gadok : public CreatureScript
+struct boss_striker_gadok : public BossAI
 {
-    public:
-        boss_striker_gadok() : CreatureScript("boss_striker_gadok") {}
+    boss_striker_gadok(Creature* creature) : BossAI(creature, DATA_GADOK)
+    {
+    }
 
-        struct boss_striker_gadokAI : public BossAI
+    bool isStrafing;
+
+    uint32 strafingTimer;
+
+    uint8 strafingEventCount;
+    uint8 strafingEventProgress;
+    uint8 move;
+
+    void Reset()
+    {
+        isStrafing = false;
+
+        strafingTimer = 0;
+
+        strafingEventCount = 0;
+        strafingEventProgress = 0;
+        move = 0;
+        me->GetMotionMaster()->Clear();
+
+        summons.DespawnAll();
+        DoSpawnKrikThik();
+
+        instance->SetData(DATA_GADOK, PHASE_MAIN);
+
+        events.ScheduleEvent(EVENT_PREY_TIME, 10000, PHASE_MAIN);
+        events.ScheduleEvent(EVENT_IMPALING_STRIKE, 19000, PHASE_MAIN);
+    }
+
+    void DoSpawnKrikThik()
+    {
+        for (uint8 i = 0; i < MAX_DISRUPTOR; ++i)
+            SummonKrikThik(NPC_KRIKTHIK_DISRUPTOR);
+
+        for (uint8 i = 0; i < MAX_STRIKER; ++i)
+            SummonKrikThik(NPC_KRIKTHIK_STRIKER);
+    }
+
+    TempSummon* SummonKrikThik(uint32 creatureId)
+    {
+        float angle = frand(0, 2*M_PI);
+        float x = CenterPos.GetPositionX() + (RADIUS_CIRCLE * std::cos(angle));
+        float y = CenterPos.GetPositionY() + (RADIUS_CIRCLE * std::sin(angle));
+
+        return me->SummonCreature(creatureId, x, y, CenterPos.GetPositionZ());
+    }
+
+    void EnterCombat(Unit* /*who*/)
+    {
+        Talk(TALK_AGGRO);
+        _EnterCombat();
+    }
+
+    void JustReachedHome()
+    {
+        instance->SetBossState(DATA_GADOK, FAIL);
+        summons.DespawnAll();
+    }
+
+    void KilledUnit(Unit* /*u*/)
+    {
+        if (!urand(0, 1))
+            Talk(TALK_SLAY);
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        switch (id)
         {
-            boss_striker_gadokAI(Creature* creature) : BossAI(creature, DATA_GADOK)
+        case POINT_NORTH_START:
+        case POINT_SOUTH_START:
+        case POINT_WEST_START:
+        case POINT_EAST_START:
+        case POINT_NORTH_END:
+        case POINT_SOUTH_END:
+        case POINT_WEST_END:
+        case POINT_EAST_END:
+        case POINT_NORTH_OUTSIDE:
+        case POINT_SOUTH_OUTSIDE:
+        case POINT_WEST_OUTSIDE:
+        case POINT_EAST_OUTSIDE:
+            DoStrafingEvent();
+            break;
+        default:
+            break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    {
+        float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
+
+        if (!isStrafing)
+        {
+            if ((strafingEventCount < STRAF_70 && nextHealthPct <= 70.0f) ||
+                (strafingEventCount < STRAF_30 && nextHealthPct <= 30.0f))
             {
+                DoStrafingEvent();
+                ++strafingEventCount;
             }
+        }
+        // Must not die during Strafing
+        else if (damage >= me->GetHealth())
+            damage = 0;
+    }
 
-            bool isStrafing;
+    uint8 SelectNextStartPoint()
+    {
+        // In videos, Gadok follow the opposite direction of clockwise, to confirm
+        switch (move)
+        {
+            case MOV_NORTH_SOUTH:
+                return MOV_WEST_EAST;
+            case MOV_SOUTH_NORTH:
+                return MOV_EAST_WEST;
+            case MOV_WEST_EAST:
+                return MOV_NORTH_SOUTH;
+            case MOV_EAST_WEST:
+                return MOV_SOUTH_NORTH;
+            default:
+                break;
+        }
 
-            uint32 strafingTimer;
+        return MOV_NORTH_SOUTH;
+    }
 
-            uint8 strafingEventCount;
-            uint8 strafingEventProgress;
-            uint8 move;
+    void DoStrafingEvent()
+    {
+        switch (strafingEventProgress)
+        {
+            case 0: // Begin, Gadok is 70% or 30% health, he go to the first POINT_START
+                isStrafing = true;
+                me->SetReactState(REACT_PASSIVE);
+                events.CancelEventGroup(PHASE_MAIN);
 
-            void Reset()
-            {
-                isStrafing = false;
+                move = urand(MOV_NORTH_SOUTH, MOV_EAST_WEST);
 
+                if (instance)
+                    instance->SetData(DATA_GADOK, move <= MOV_SOUTH_NORTH ? PHASE_NORTH_SOUTH: PHASE_WEST_EAST);
+
+                me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdBegin, StrafPoints[move].begin.GetPositionX(), StrafPoints[move].begin.GetPositionY(), StrafPoints[move].begin.GetPositionZ());
+
+                for (uint8 i = 0; i < 2; ++i)
+                    if (Creature* striker = SummonKrikThik(NPC_KRIKTHIK_STRIKER))
+                        if (striker->AI())
+                            striker->AI()->DoAction(0);
+
+                me->SetWalk(false);
+                ++strafingEventProgress;
                 strafingTimer = 0;
+                break;
+            case 1: // We are a POINT_START, wait 2 sec then continue
+                ++strafingEventProgress;
+                strafingTimer = 2000;
+                break;
+            case 2: // 2 sec passed, move to POINT_END with the spell
+                me->SetSpeed(MOVE_FLIGHT, 2.0f);
+                me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdEnd, StrafPoints[move].end.GetPositionX(), StrafPoints[move].end.GetPositionY(), StrafPoints[move].end.GetPositionZ());
+                me->CastSpell(me, SPELL_STRAFING_RUN, true);
 
-                strafingEventCount = 0;
-                strafingEventProgress = 0;
-                move = 0;
-                me->GetMotionMaster()->Clear();
+                ++strafingEventProgress;
+                break;
+            case 3: // We are a POINT_END, wait 500 ms to let movement finish then continue
+                ++strafingEventProgress;
+                strafingTimer = 50;
+                break;
+            case 4: // First strafing finished, we are at a POINT_END and go to POINT_OUTSIDE
+                if (instance)
+                    instance->SetData(DATA_GADOK, PHASE_MAIN);
 
-                summons.DespawnAll();
-                DoSpawnKrikThik();
+                me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdOutside, StrafPoints[move].outside.GetPositionX(), StrafPoints[move].outside.GetPositionY(), StrafPoints[move].outside.GetPositionZ());
+                ++strafingEventProgress;
+                break;
+            case 5: // We are a POINT_OUTSIDE, wait 500 ms to let movement finish then continue
+                ++strafingEventProgress;
+                strafingTimer = 50;
+                break;
+            case 6: // We are POINT_OUTSIDE, go to the next POINT_OUTSIDE_START
+                move = SelectNextStartPoint();
+
+                me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdBeginOutside, StrafPoints[move].beginOutside.GetPositionX(), StrafPoints[move].beginOutside.GetPositionY(), StrafPoints[move].beginOutside.GetPositionZ());
+                ++strafingEventProgress;
+                break;
+            case 7: // We are POINT_OUTSIDE_START, wait 500 ms to let movement finish then continue
+                ++strafingEventProgress;
+                strafingTimer = 50;
+                break;
+            case 8: // We are at POINT_OUTSIDE_START, go to POINT_START
+
+                if (instance)
+                    instance->SetData(DATA_GADOK, move <= MOV_SOUTH_NORTH ? PHASE_NORTH_SOUTH: PHASE_WEST_EAST);
+
+                me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdBegin, StrafPoints[move].begin.GetPositionX(), StrafPoints[move].begin.GetPositionY(), StrafPoints[move].begin.GetPositionZ());
+
+                ++strafingEventProgress;
+                break;
+            case 9: // Just arrived to second POINT_START, wait 2 sec
+                ++strafingEventProgress;
+                strafingTimer = 50;
+                break;
+            case 10: // 2 sec passed, move to POINT_END with the spell
+                me->SetSpeed(MOVE_FLIGHT, 2.0f);
+                me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdEnd, StrafPoints[move].end.GetPositionX(), StrafPoints[move].end.GetPositionY(), StrafPoints[move].end.GetPositionZ());
+                me->CastSpell(me, SPELL_STRAFING_RUN, true);
+
+                ++strafingEventProgress;
+                break;
+            case 11: // We are a POINT_END, wait 500 ms to let movement finish then continue
+                ++strafingEventProgress;
+                strafingTimer = 50;
+                break;
+            case 12: // POINT_END, End Strafing Event, go back to fight
+                if (me->GetVictim())
+                    me->GetMotionMaster()->MoveChase(me->GetVictim());
+                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    me->AI()->AttackStart(target);
 
                 instance->SetData(DATA_GADOK, PHASE_MAIN);
 
-                events.ScheduleEvent(EVENT_PREY_TIME, 10000, PHASE_MAIN);
-                events.ScheduleEvent(EVENT_IMPALING_STRIKE, 19000, PHASE_MAIN);
-            }
+                move = 0;
+                me->SetReactState(REACT_AGGRESSIVE);
+                strafingTimer = 0;
+                strafingEventProgress = 0;
+                isStrafing = false;
+                me->SetSpeed(MOVE_FLIGHT, 1.134f);
+                me->SetWalk(true);
 
-            void DoSpawnKrikThik()
-            {
-                for (uint8 i = 0; i < MAX_DISRUPTOR; ++i)
-                    SummonKrikThik(NPC_KRIKTHIK_DISRUPTOR);
-
-                for (uint8 i = 0; i < MAX_STRIKER; ++i)
-                    SummonKrikThik(NPC_KRIKTHIK_STRIKER);
-            }
-
-            TempSummon* SummonKrikThik(uint32 creatureId)
-            {
-                float angle = frand(0, 2*M_PI);
-                float x = CenterPos.GetPositionX() + (RADIUS_CIRCLE * std::cos(angle));
-                float y = CenterPos.GetPositionY() + (RADIUS_CIRCLE * std::sin(angle));
-
-                return me->SummonCreature(creatureId, x, y, CenterPos.GetPositionZ());
-            }
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                Talk(TALK_AGGRO);
-                _EnterCombat();
-            }
-
-            void JustReachedHome()
-            {
-                instance->SetBossState(DATA_GADOK, FAIL);
-                summons.DespawnAll();
-            }
-
-            void KilledUnit(Unit* /*u*/)
-            {
-                if (!urand(0, 1))
-                    Talk(TALK_SLAY);
-            }
-
-            void MovementInform(uint32 type, uint32 id)
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                switch (id)
-                {
-                case POINT_NORTH_START:
-                case POINT_SOUTH_START:
-                case POINT_WEST_START:
-                case POINT_EAST_START:
-                case POINT_NORTH_END:
-                case POINT_SOUTH_END:
-                case POINT_WEST_END:
-                case POINT_EAST_END:
-                case POINT_NORTH_OUTSIDE:
-                case POINT_SOUTH_OUTSIDE:
-                case POINT_WEST_OUTSIDE:
-                case POINT_EAST_OUTSIDE:
-                    DoStrafingEvent();
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
-            {
-                float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
-
-                if (!isStrafing)
-                {
-                    if ((strafingEventCount < STRAF_70 && nextHealthPct <= 70.0f) ||
-                        (strafingEventCount < STRAF_30 && nextHealthPct <= 30.0f))
-                    {
-                        DoStrafingEvent();
-                        ++strafingEventCount;
-                    }
-                }
-                // Must not die during Strafing
-                else if (damage >= me->GetHealth())
-                    damage = 0;
-            }
-
-            uint8 SelectNextStartPoint()
-            {
-                // In videos, Gadok follow the opposite direction of clockwise, to confirm
-                switch (move)
-                {
-                    case MOV_NORTH_SOUTH:
-                        return MOV_WEST_EAST;
-                    case MOV_SOUTH_NORTH:
-                        return MOV_EAST_WEST;
-                    case MOV_WEST_EAST:
-                        return MOV_NORTH_SOUTH;
-                    case MOV_EAST_WEST:
-                        return MOV_SOUTH_NORTH;
-                    default:
-                        break;
-                }
-
-                return MOV_NORTH_SOUTH;
-            }
-
-            void DoStrafingEvent()
-            {
-                switch (strafingEventProgress)
-                {
-                    case 0: // Begin, Gadok is 70% or 30% health, he go to the first POINT_START
-                        isStrafing = true;
-                        me->SetReactState(REACT_PASSIVE);
-                        events.CancelEventGroup(PHASE_MAIN);
-
-                        move = urand(MOV_NORTH_SOUTH, MOV_EAST_WEST);
-
-                        if (instance)
-                            instance->SetData(DATA_GADOK, move <= MOV_SOUTH_NORTH ? PHASE_NORTH_SOUTH: PHASE_WEST_EAST);
-
-                        me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdBegin, StrafPoints[move].begin.GetPositionX(), StrafPoints[move].begin.GetPositionY(), StrafPoints[move].begin.GetPositionZ());
-
-                        for (uint8 i = 0; i < 2; ++i)
-                            if (Creature* striker = SummonKrikThik(NPC_KRIKTHIK_STRIKER))
-                                if (striker->AI())
-                                    striker->AI()->DoAction(0);
-
-                        me->SetWalk(false);
-                        ++strafingEventProgress;
-                        strafingTimer = 0;
-                        break;
-                    case 1: // We are a POINT_START, wait 2 sec then continue
-                        ++strafingEventProgress;
-                        strafingTimer = 2000;
-                        break;
-                    case 2: // 2 sec passed, move to POINT_END with the spell
-                        me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                        me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdEnd, StrafPoints[move].end.GetPositionX(), StrafPoints[move].end.GetPositionY(), StrafPoints[move].end.GetPositionZ());
-                        me->CastSpell(me, SPELL_STRAFING_RUN, true);
-
-                        ++strafingEventProgress;
-                        break;
-                    case 3: // We are a POINT_END, wait 500 ms to let movement finish then continue
-                        ++strafingEventProgress;
-                        strafingTimer = 50;
-                        break;
-                    case 4: // First strafing finished, we are at a POINT_END and go to POINT_OUTSIDE
-                        if (instance)
-                            instance->SetData(DATA_GADOK, PHASE_MAIN);
-
-                        me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdOutside, StrafPoints[move].outside.GetPositionX(), StrafPoints[move].outside.GetPositionY(), StrafPoints[move].outside.GetPositionZ());
-                        ++strafingEventProgress;
-                        break;
-                    case 5: // We are a POINT_OUTSIDE, wait 500 ms to let movement finish then continue
-                        ++strafingEventProgress;
-                        strafingTimer = 50;
-                        break;
-                    case 6: // We are POINT_OUTSIDE, go to the next POINT_OUTSIDE_START
-                        move = SelectNextStartPoint();
-
-                        me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdBeginOutside, StrafPoints[move].beginOutside.GetPositionX(), StrafPoints[move].beginOutside.GetPositionY(), StrafPoints[move].beginOutside.GetPositionZ());
-                        ++strafingEventProgress;
-                        break;
-                    case 7: // We are POINT_OUTSIDE_START, wait 500 ms to let movement finish then continue
-                        ++strafingEventProgress;
-                        strafingTimer = 50;
-                        break;
-                    case 8: // We are at POINT_OUTSIDE_START, go to POINT_START
-
-                        if (instance)
-                            instance->SetData(DATA_GADOK, move <= MOV_SOUTH_NORTH ? PHASE_NORTH_SOUTH: PHASE_WEST_EAST);
-                        
-                        me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdBegin, StrafPoints[move].begin.GetPositionX(), StrafPoints[move].begin.GetPositionY(), StrafPoints[move].begin.GetPositionZ());
-
-                        ++strafingEventProgress;
-                        break;
-                    case 9: // Just arrived to second POINT_START, wait 2 sec
-                        ++strafingEventProgress;
-                        strafingTimer = 50;
-                        break;
-                    case 10: // 2 sec passed, move to POINT_END with the spell
-                        me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                        me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdEnd, StrafPoints[move].end.GetPositionX(), StrafPoints[move].end.GetPositionY(), StrafPoints[move].end.GetPositionZ());
-                        me->CastSpell(me, SPELL_STRAFING_RUN, true);
-
-                        ++strafingEventProgress;
-                        break;
-                    case 11: // We are a POINT_END, wait 500 ms to let movement finish then continue
-                        ++strafingEventProgress;
-                        strafingTimer = 50;
-                        break;
-                    case 12: // POINT_END, End Strafing Event, go back to fight
-                        if (me->GetVictim())
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            me->AI()->AttackStart(target);
-
-                        instance->SetData(DATA_GADOK, PHASE_MAIN);
-
-                        move = 0;
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        strafingTimer = 0;
-                        strafingEventProgress = 0;
-                        isStrafing = false;
-                        me->SetSpeed(MOVE_FLIGHT, 1.134f);
-                        me->SetWalk(true);
-
-                        events.ScheduleEvent(EVENT_PREY_TIME, 5000, PHASE_MAIN);
-                        events.ScheduleEvent(EVENT_IMPALING_STRIKE, 9000, PHASE_MAIN);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustSummoned(Creature* summoned)
-            {
-                summons.Summon(summoned);
-
-                switch (summoned->GetEntry())
-                {
-                    case NPC_KRIKTHIK_STRIKER:
-                    case NPC_KRIKTHIK_DISRUPTOR:
-                        summoned->SetSpeed(MOVE_FLIGHT, 2);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (strafingTimer)
-                {
-                    if (strafingTimer <= diff)
-                    {
-                        strafingTimer = 0;
-                        DoStrafingEvent();
-                    }
-                    else strafingTimer -= diff;
-                }
-
-                switch (events.ExecuteEvent())
-                {
-                    case EVENT_PREY_TIME:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            me->CastSpell(target, SPELL_PREY_TIME);
-
-                        events.ScheduleEvent(EVENT_PREY_TIME, 10000, PHASE_MAIN);
-                        break;
-                    case EVENT_IMPALING_STRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            me->CastSpell(target, SPELL_IMPALING_STRIKE);
-
-                        events.ScheduleEvent(EVENT_IMPALING_STRIKE, 19000, PHASE_MAIN);
-                        break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                events.Reset();
-                Talk(TALK_DEATH);
-                if (instance)
-                {
-                    instance->SetBossState(DATA_GADOK, DONE);
-                    instance->SaveToDB();
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return GetInstanceAI<boss_striker_gadokAI>(creature);
+                events.ScheduleEvent(EVENT_PREY_TIME, 5000, PHASE_MAIN);
+                events.ScheduleEvent(EVENT_IMPALING_STRIKE, 9000, PHASE_MAIN);
+                break;
+            default:
+                break;
         }
+    }
+
+    void JustSummoned(Creature* summoned)
+    {
+        summons.Summon(summoned);
+
+        switch (summoned->GetEntry())
+        {
+            case NPC_KRIKTHIK_STRIKER:
+            case NPC_KRIKTHIK_DISRUPTOR:
+                summoned->SetSpeed(MOVE_FLIGHT, 2);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (strafingTimer)
+        {
+            if (strafingTimer <= diff)
+            {
+                strafingTimer = 0;
+                DoStrafingEvent();
+            }
+            else strafingTimer -= diff;
+        }
+
+        switch (events.ExecuteEvent())
+        {
+            case EVENT_PREY_TIME:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    me->CastSpell(target, SPELL_PREY_TIME);
+
+                events.ScheduleEvent(EVENT_PREY_TIME, 10000, PHASE_MAIN);
+                break;
+            case EVENT_IMPALING_STRIKE:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    me->CastSpell(target, SPELL_IMPALING_STRIKE);
+
+                events.ScheduleEvent(EVENT_IMPALING_STRIKE, 19000, PHASE_MAIN);
+                break;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* /*killer*/)
+    {
+        events.Reset();
+        Talk(TALK_DEATH);
+        if (instance)
+        {
+            instance->SetBossState(DATA_GADOK, DONE);
+            instance->SaveToDB();
+        }
+    }
 };
 
 // Base struct for circle movements
@@ -509,169 +495,130 @@ struct npc_krikthik : public ScriptedAI
     }
 };
 
-class npc_krikthik_striker : public CreatureScript
+struct npc_krikthik_striker : public npc_krikthik
 {
-public:
-    npc_krikthik_striker() : CreatureScript("npc_krikthik_striker") { }
-
-    struct npc_krikthik_strikerAI : public npc_krikthik
+    npc_krikthik_striker(Creature* creature) : npc_krikthik(creature)
     {
-        npc_krikthik_strikerAI(Creature* creature) : npc_krikthik(creature)
-        {
-            pInstance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-        bool isAttackerStriker;
-
-        void Reset()
-        {
-            npc_krikthik::Reset();
-            isAttackerStriker = false;
-        }
-
-        void DoAction(int32 /*action*/)
-        {
-            isAttackerStriker = true;
-
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-            Unit* target = NULL;
-            //Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck checker(me, MAX_VISIBILITY_DISTANCE);
-            //Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> searcher(me, target, checker);
-            //me->VisitNearbyObject(MAX_VISIBILITY_DISTANCE, searcher);
-
-            if (target)
-                AttackStart(target);
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!isAttackerStriker)
-                npc_krikthik::UpdateAI(diff);
-            else
-                DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_krikthik_strikerAI (creature);
+        pInstance = creature->GetInstanceScript();
     }
-};
 
-class npc_krikthik_disruptor : public CreatureScript
-{
-public:
-    npc_krikthik_disruptor() : CreatureScript("npc_krikthik_disruptor") { }
+    InstanceScript* pInstance;
+    bool isAttackerStriker;
 
-    struct npc_krikthik_disruptorAI : public npc_krikthik
+    void Reset()
     {
-        npc_krikthik_disruptorAI(Creature* creature) : npc_krikthik(creature)
-        {
-            pInstance = creature->GetInstanceScript();
-        }
+        npc_krikthik::Reset();
+        isAttackerStriker = false;
+    }
 
-        InstanceScript* pInstance;
-        EventMap events;
+    void DoAction(int32 /*action*/)
+    {
+        isAttackerStriker = true;
 
-        void Reset()
-        {
-            npc_krikthik::Reset();
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
-            events.ScheduleEvent(EVENT_DISRUPTOR_BOMBARD, urand(5000, 20000));
-        }
+        Unit* target = NULL;
+        Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck checker(me, MAX_VISIBILITY_DISTANCE);
+        Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> searcher(me, target, checker);
+        me->VisitNearbyObject(MAX_VISIBILITY_DISTANCE, searcher);
 
-        void UpdateAI(uint32 diff)
-        {
-            if (!pInstance)
-                return;
+        if (target)
+            AttackStart(target);
+    }
 
+    void UpdateAI(uint32 diff)
+    {
+        if (!isAttackerStriker)
             npc_krikthik::UpdateAI(diff);
-
-            if (pInstance->GetBossState(DATA_GADOK) != IN_PROGRESS)
-                return;
-
-            events.Update(diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_DISRUPTOR_BOMBARD:
-                {
-                    if (!pInstance)
-                        break;
-
-                    Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
-
-                    if (PlayerList.isEmpty())
-                        return;
-
-                    Map::PlayerList::const_iterator it = PlayerList.begin();
-                    for (uint8 i = 0; i < urand(0, PlayerList.getSize() - 1); ++i, ++it);
-
-                    if (it == PlayerList.end())
-                        return;
-
-                    if (Player* player = it->GetSource())
-                        me->CastSpell(player, SPELL_BOMB, true); //Triggered to avoid pillars line of sight
-
-                    events.ScheduleEvent(EVENT_DISRUPTOR_BOMBARD, urand(5000, 20000));
-
-                    break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_krikthik_disruptorAI (creature);
+        else
+            DoMeleeAttackIfReady();
     }
 };
 
-class npc_flak_cannon : public CreatureScript
+struct npc_krikthik_disruptor : public npc_krikthik
 {
-public:
-    npc_flak_cannon() : CreatureScript("npc_flak_cannon") { }
-
-    struct npc_flak_cannonAI : public ScriptedAI
+    npc_krikthik_disruptor(Creature* creature) : npc_krikthik(creature)
     {
-        npc_flak_cannonAI(Creature* creature) : ScriptedAI(creature)
+        pInstance = creature->GetInstanceScript();
+    }
+
+    InstanceScript* pInstance;
+    EventMap events;
+
+    void Reset()
+    {
+        npc_krikthik::Reset();
+
+        events.ScheduleEvent(EVENT_DISRUPTOR_BOMBARD, urand(5000, 20000));
+    }
+
+    void UpdateAI(uint32 diff)
+    {
+        if (!pInstance)
+            return;
+
+        npc_krikthik::UpdateAI(diff);
+
+        if (pInstance->GetBossState(DATA_GADOK) != IN_PROGRESS)
+            return;
+
+        events.Update(diff);
+
+        switch (events.ExecuteEvent())
         {
-            pInstance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-
-        void Reset()
-        {}
-
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
-        {
-            if (!pInstance)
-                return;
-
-            if (pInstance->GetBossState(DATA_GADOK) != DONE)
-                return;
-
-            if (spell->Id == 116554) // Fire Flak Cannon
+            case EVENT_DISRUPTOR_BOMBARD:
             {
-                for (uint8 i = 0; i < 5; ++i)
+                if (!pInstance)
+                    break;
+
+                Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
+
+                if (PlayerList.isEmpty())
+                    return;
+
+                Map::PlayerList::const_iterator it = PlayerList.begin();
+                for (uint8 i = 0; i < urand(0, PlayerList.getSize() - 1); ++i, ++it);
+
+                if (it == PlayerList.end())
+                    return;
+
+                if (Player* player = it->GetSource())
+                    me->CastSpell(player, SPELL_BOMB, true); //Triggered to avoid pillars line of sight
+
+                events.ScheduleEvent(EVENT_DISRUPTOR_BOMBARD, urand(5000, 20000));
+
+                break;
+            }
+        }
+    }
+};
+
+struct npc_flak_cannon : public ScriptedAI
+{
+    npc_flak_cannon(Creature* creature) : ScriptedAI(creature)
+    {
+        pInstance = creature->GetInstanceScript();
+    }
+
+    InstanceScript* pInstance;
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    {
+        if (pInstance->GetBossState(DATA_GADOK) != DONE)
+            return;
+
+        if (spell->Id == 116554) // Fire Flak Cannon
+        {
+            for (uint8 i = 0; i < 5; ++i)
+            {
+                if (Creature* bombarder = pInstance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMBARDER)))
                 {
-                    if (Creature* bombarder = pInstance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMBARDER)))
-                    {
-                        me->CastSpell(bombarder, SPELL_FIRE_FLAK, true);
-                        bombarder->GetMotionMaster()->MoveFall();
-                        bombarder->DespawnOrUnsummon(2000);
-                    }
+                    me->CastSpell(bombarder, SPELL_FIRE_FLAK, true);
+                    bombarder->GetMotionMaster()->MoveFall();
+                    bombarder->DespawnOrUnsummon(2000);
                 }
             }
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_flak_cannonAI (creature);
     }
 };
 
@@ -683,7 +630,7 @@ class spell_gadok_strafing : public SpellScriptLoader
         class spell_gadok_strafing_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gadok_strafing_SpellScript);
-            
+
             void HandleBeforeCast()
             {
                 if (Unit* caster = GetCaster())
@@ -755,10 +702,10 @@ class spell_prey_time : public SpellScriptLoader
 
 void AddSC_boss_striker_gadok()
 {
-    new boss_striker_gadok();
-    new npc_krikthik_striker();
-    new npc_krikthik_disruptor();
-    new npc_flak_cannon();
+    RegisterGateOfTheSettingSunCreatureAI(boss_striker_gadok);
+    RegisterGateOfTheSettingSunCreatureAI(npc_krikthik_striker);
+    RegisterGateOfTheSettingSunCreatureAI(npc_krikthik_disruptor);
+    RegisterGateOfTheSettingSunCreatureAI(npc_flak_cannon);
     new spell_gadok_strafing();
     new spell_prey_time();
 }

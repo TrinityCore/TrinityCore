@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,33 +15,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GATE_SETTING_SUN_H_
-#define GATE_SETTING_SUN_H_
+#ifndef GATE_OF_THE_SETTING_SUN_H_
+#define GATE_OF_THE_SETTING_SUN_H_
 
-#include "SpellScript.h"
-#include "Map.h"
-#include "Creature.h"
-#include "CreatureAIImpl.h"
+#define GSSScriptName "instance_gate_of_the_setting_sun"
+#define DataHeader    "GSS"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum GSSDataTypes
 {
+    // Encounter States/Boss GUIDs
     DATA_KIPTILAK               = 0,
     DATA_GADOK                  = 1,
     DATA_RIMOK                  = 2,
     DATA_RAIGONN                = 3,
 
+    // Additional Data
     DATA_IN_FIGHT               = 4,
-
     DATA_OPEN_FIRST_DOOR        = 5,
     DATA_BRASIER_CLICKED        = 6,
     DATA_RANDOM_BOMBARDER       = 7,
     DATA_RANDOM_BOMB_STALKER    = 8,
-    MAX_DATA
 };
 
-enum CreaturesIds
+enum GSSCreatureIds
 {
     NPC_KIPTILAK                = 56906,
     NPC_GADOK                   = 56589,
@@ -87,7 +85,7 @@ enum CreaturesIds
     NPC_ARTILLERY               = 59819
 };
 
-enum ObjectsIds
+enum GSSGameObjectIds
 {
     GO_KIPTILAK_ENTRANCE_DOOR   = 212982,
     GO_KIPTILAK_WALLS           = 214629,
@@ -108,9 +106,16 @@ enum ObjectsIds
     GO_PORTAL_TEMP_GADOK        = 400002
 };
 
-enum SettingSun
+enum GSSMisc
 {
     CINEMATIC_SETTING_SUN       = 265
 };
 
-#endif // GATE_SETTING_SUN_H_
+template<typename AI, typename T>
+inline AI* GetGateOfTheSettingSunAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, GSSScriptName);
+}
+#define RegisterGateOfTheSettingSunCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetGateOfTheSettingSunAI)
+
+#endif // GATE_OF_THE_SETTING_SUN_H_

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gate_setting_sun.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Vehicle.h"
+#include "gate_of_the_setting_sun.h"
 
-enum spells
+enum Spells
 {
     SPELL_MANTID_MUNITION_EXPLOSION     = 107153,
     SPELL_EXPLOSE_GATE                  = 115456,
@@ -29,96 +28,76 @@ enum spells
     SPELL_BOMB_AURA                     = 106875,
 };
 
-class npc_serpent_spine_defender : public CreatureScript
+struct npc_serpent_spine_defender : public ScriptedAI
 {
-public:
-    npc_serpent_spine_defender() : CreatureScript("npc_serpent_spine_defender") { }
-
-    struct npc_serpent_spine_defenderAI : public ScriptedAI
+    npc_serpent_spine_defender(Creature* creature) : ScriptedAI(creature)
     {
-        npc_serpent_spine_defenderAI(Creature* creature) : ScriptedAI(creature) {}
+    }
 
-        uint32 attackTimer;
+    uint32 attackTimer;
 
-        void Reset()
+    void Reset()
+    {
+        attackTimer = urand(1000, 5000);
+    }
+
+    void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType /*damageType*/)
+    {
+        damage = 0;
+    }
+
+    void UpdateAI(uint32 diff)
+    {
+        if (!me->IsInCombat())
         {
-            attackTimer = urand(1000, 5000);
-        }
-
-        void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType /*damageType*/)
-        {
-            damage = 0;
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!me->IsInCombat())
+            if (attackTimer <= diff)
             {
-                if (attackTimer <= diff)
-                {
-                    if (Unit* target = me->SelectNearestTarget(5.0f))
-                        if (!target->IsFriendlyTo(me))
-                            AttackStart(target);
-                }
-                else
-                    attackTimer -= diff;
+                if (Unit* target = me->SelectNearestTarget(5.0f))
+                    if (!target->IsFriendlyTo(me))
+                        AttackStart(target);
             }
-
-            DoMeleeAttackIfReady();
+            else
+                attackTimer -= diff;
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_serpent_spine_defenderAI(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
-class npc_krikthik_bombarder : public CreatureScript
+struct npc_krikthik_bombarder : public ScriptedAI
 {
-public:
-    npc_krikthik_bombarder() : CreatureScript("npc_krikthik_bombarder") { }
-
-    struct npc_krikthik_bombarderAI : public ScriptedAI
+    npc_krikthik_bombarder(Creature* creature) : ScriptedAI(creature)
     {
-        npc_krikthik_bombarderAI(Creature* creature) : ScriptedAI(creature)
-        {
-            pInstance = creature->GetInstanceScript();
-        }
+        pInstance = creature->GetInstanceScript();
+    }
 
-        InstanceScript* pInstance;
-        uint32 bombTimer;
+    InstanceScript* pInstance;
+    uint32 bombTimer;
 
-        void Reset()
-        {
-            me->GetMotionMaster()->MoveRandom(5.0f);
-            bombTimer = urand(1000, 7500);
-        }
-
-        // Called when spell hits a target
-        void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/)
-        {
-            if (target->GetEntry() == NPC_BOMB_STALKER)
-                me->AddAura(SPELL_BOMB_AURA, target);
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (bombTimer <= diff)
-            {
-                if (Unit* stalker = pInstance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMB_STALKER)))
-                    if (!stalker->HasAura(SPELL_BOMB_AURA))
-                        me->CastSpell(stalker, SPELL_BOMB_CAST_VISUAL, true);
-
-                bombTimer = urand(1000, 5000);
-            }
-            else bombTimer -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
+    void Reset()
     {
-        return new npc_krikthik_bombarderAI (creature);
+        me->GetMotionMaster()->MoveRandom(5.0f);
+        bombTimer = urand(1000, 7500);
+    }
+
+    // Called when spell hits a target
+    void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/)
+    {
+        if (target->GetEntry() == NPC_BOMB_STALKER)
+            me->AddAura(SPELL_BOMB_AURA, target);
+    }
+
+    void UpdateAI(uint32 diff)
+    {
+        if (bombTimer <= diff)
+        {
+            if (Unit* stalker = pInstance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMB_STALKER)))
+                if (!stalker->HasAura(SPELL_BOMB_AURA))
+                    me->CastSpell(stalker, SPELL_BOMB_CAST_VISUAL, true);
+
+            bombTimer = urand(1000, 5000);
+        }
+        else bombTimer -= diff;
     }
 };
 
@@ -175,70 +154,54 @@ public:
     }
 };
 
-class vehicle_artillery_to_wall : public VehicleScript
+struct vehicle_artillery_to_wall : public ScriptedAI
 {
-    public:
-        vehicle_artillery_to_wall() : VehicleScript("vehicle_artillery_to_wall") {}
+    vehicle_artillery_to_wall(Creature* creature) : ScriptedAI(creature)
+    {
+    }
 
-        void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/)
+    uint32 launchEventTimer;
+
+    void Reset()
+    {
+        launchEventTimer = 0;
+    }
+
+    void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply) override
+    {
+        if (apply)
+            launchEventTimer = 2500;
+    }
+
+    void UpdateAI(uint32 diff)
+    {
+        if (!launchEventTimer)
+            return;
+
+        if (launchEventTimer <= diff)
         {
-            if (veh->GetBase())
-                if (veh->GetBase()->ToCreature())
-                    if (veh->GetBase()->ToCreature()->AI())
-                        veh->GetBase()->ToCreature()->AI()->DoAction(0);
-        }
-
-        struct vehicle_artillery_to_wallAI : public ScriptedAI
-        {
-            vehicle_artillery_to_wallAI(Creature* creature) : ScriptedAI(creature)
-            {}
-
-            uint32 launchEventTimer;
-
-            void Reset()
+            if (me->GetVehicleKit())
             {
-                launchEventTimer = 0;
-            }
-
-            void DoAction(int32 /*action*/)
-            {
-                launchEventTimer = 2500;
-            }
-
-            void UpdateAI(uint32 diff)
-            {
-                if (!launchEventTimer)
-                    return;
-
-                if (launchEventTimer <= diff)
+                if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
                 {
-                    if (me->GetVehicleKit())
-                    {
-                        if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
-                        {
-                            passenger->ExitVehicle();
-                            //passenger->GetMotionMaster()->MoveJump(1100.90f, 2304.58f, 381.23f, 30.0f, 50.0f);
-                        }
-                    }
-
-                    launchEventTimer = 0;
+                    passenger->ExitVehicle();
+                    //passenger->GetMotionMaster()->MoveJump(1100.90f, 2304.58f, 381.23f, 30.0f, 50.0f);
                 }
-                else launchEventTimer -= diff;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new vehicle_artillery_to_wallAI(creature);
+            launchEventTimer = 0;
         }
+        else
+            launchEventTimer -= diff;
+    }
 };
 
 void AddSC_gate_setting_sun()
 {
-    new npc_serpent_spine_defender();
-    new npc_krikthik_bombarder();
+    RegisterGateOfTheSettingSunCreatureAI(npc_serpent_spine_defender);
+    RegisterGateOfTheSettingSunCreatureAI(npc_krikthik_bombarder);
     new AreaTrigger_at_first_door();
     new go_setting_sun_brasier();
     new go_setting_sun_temp_portal();
-    new vehicle_artillery_to_wall();
+    RegisterGateOfTheSettingSunCreatureAI(vehicle_artillery_to_wall);
 }
