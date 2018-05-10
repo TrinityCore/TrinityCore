@@ -1377,8 +1377,7 @@ class spell_pal_judgment : public SpellScript
             }
             case TALENT_SPEC_PALADIN_PROTECTION:
             {
-                SpellCategoryEntry const* charge = sSpellCategoryStore.LookupEntry(sSpellMgr->GetSpellInfo(SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS)->ChargeCategoryId);
-                caster->ToPlayer()->GetSpellHistory()->ReduceChargeCooldown(charge, 1000);
+                caster->ToPlayer()->GetSpellHistory()->ReduceChargeCooldown(sSpellMgr->GetSpellInfo(SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS)->ChargeCategoryId, 1000);
 
                 if (caster->HasAura(SPELL_PALADIN_FIST_OF_JUSTICE))
                 {
@@ -2325,7 +2324,7 @@ struct at_pal_consecration : AreaTriggerAI
         timeInterval = 1 * IN_MILLISECONDS;
     }
 private:
-    int32 timeInterval;
+    uint32 timeInterval;
 };
 
 void AddSC_paladin_spell_scripts()
