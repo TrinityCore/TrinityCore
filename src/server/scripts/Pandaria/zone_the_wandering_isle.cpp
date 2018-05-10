@@ -1431,24 +1431,17 @@ public:
 
     struct npc_zhaorenAI : public ScriptedAI
     {
-        npc_zhaorenAI(Creature* creature) : ScriptedAI(creature) {
-            Initialize();
-        }
+        npc_zhaorenAI(Creature* creature) : ScriptedAI(creature) { }
 
         Position const pos = { 723.163f, 4163.8f, 204.999f };
-
-        void Initialize()
-        {
-            _phase = 0;
-            _sweepScheduled = false;
-        }
 
         void Reset() override
         {
             _events.Reset();
             me->SetReactState(REACT_PASSIVE);
             me->setActive(true);
-            Initialize();
+            _phase = 0;
+            _sweepScheduled = false;
 
             if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, me->GetVisibilityRange(), true))
                 creature->AI()->SetData(DATA_EVADE, DATA_EVADE);
@@ -1486,28 +1479,14 @@ public:
 
         void KilledUnit(Unit* who) override
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-            {
+            if (who->IsPlayer())
                 if (me->getThreatManager().getThreatList().empty())
                     me->DespawnOrUnsummon(0, Seconds(10));
-            }
-        }
-
-        // TODO remove when TARGET_UNK_123 is fixed and uncomment in JustDied method
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (damage >= me->GetHealth())
-            {
-                _threatList = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = _threatList.begin(); itr != _threatList.end(); ++itr)
-                    if (Player* target = (*itr)->getTarget()->ToPlayer())
-                        target->CastSpell(target, 126040, true);
-            }
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            //DoCastAOE(SPELL_FORCECAST_SUMMON_SHANG, true);
+            DoCastAOE(SPELL_FORCECAST_SUMMON_SHANG, true);
 
             if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, me->GetVisibilityRange(), true))
                 creature->AI()->SetData(DATA_ZHAOREN_DEATH, DATA_ZHAOREN_DEATH);
@@ -1551,14 +1530,15 @@ public:
                 switch (eventId)
                 {
                     case EVENT_LIGHTNING:
-                        _threatList = me->getThreatManager().getThreatList();
-                        if (!_threatList.empty())
+                    {
+                        std::list<HostileReference*> threatList = me->getThreatManager().getThreatList();
+                        if (!threatList.empty())
                         {
-                            for (std::list<HostileReference*>::const_iterator itr = _threatList.begin(); itr != _threatList.end(); ++itr)
-                                if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER)
-                                    DoCast((*itr)->getTarget(), SPELL_LIGHTNING_POOL);
-                            _events.ScheduleEvent(EVENT_LIGHTNING, 5000, 0, PHASE_FLYING);
-                            _events.ScheduleEvent(EVENT_LIGHTNING, 3500, 0, PHASE_STAY_IN_CENTER);
+                            for (HostileReference* ref : threatList)
+                                if (ref->getTarget()->IsPlayer() == TYPEID_PLAYER)
+                                    DoCast(ref->getTarget(), SPELL_LIGHTNING_POOL);
+
+                            _events.ScheduleEvent(EVENT_LIGHTNING, _events.IsInPhase(PHASE_FLYING) ? 5000 : 3500);
                             if (!_sweepScheduled && _events.IsInPhase(PHASE_STAY_IN_CENTER))
                             {
                                 _events.ScheduleEvent(EVENT_SWEEP, 15000, 0, PHASE_STAY_IN_CENTER);
@@ -1568,6 +1548,7 @@ public:
                         else
                             me->DespawnOrUnsummon(0, Seconds(10));
                         break;
+                    }
                     case EVENT_MOVE_CENTER:
                         me->GetMotionMaster()->MovePoint(EVENT_MOVE_CENTER, pos);
                         break;
@@ -1607,7 +1588,6 @@ public:
         EventMap _events;
         uint8 _phase;
         bool _sweepScheduled;
-        std::list<HostileReference*> _threatList;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
