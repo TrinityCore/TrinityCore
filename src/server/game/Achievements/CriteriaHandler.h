@@ -264,7 +264,7 @@ enum ProgressType
 class TC_GAME_API CriteriaHandler
 {
 public:
-    Ashamane::VariablesSafe Variables;
+    Ashamane::AnyData Variables;
 
     CriteriaHandler();
     virtual ~CriteriaHandler();

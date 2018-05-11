@@ -2339,11 +2339,11 @@ public:
             absorbAmount = dmgInfo.GetDamage() * (aurEff->GetBaseAmount() / 100);
 
             Unit* caster = GetCaster();
-            ObjectGuid const* procTargetGUID = GetAura()->Variables.Get<ObjectGuid>("targetGUID");
-            if (!caster || !procTargetGUID)
+            ObjectGuid const procTargetGUID = GetAura()->Variables.GetValue<ObjectGuid>("targetGUID");
+            if (!caster || procTargetGUID.IsEmpty())
                 return;
 
-            Unit* target = ObjectAccessor::GetUnit(*caster, *procTargetGUID);
+            Unit* target = ObjectAccessor::GetUnit(*caster, procTargetGUID);
             if (!target)
                 return;
 

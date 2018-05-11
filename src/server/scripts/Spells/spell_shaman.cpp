@@ -2548,8 +2548,8 @@ public:
             PreventDefaultAction();
             if (Aura* aura = GetCaster()->GetAura(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
             {
-                ObjectGuid const* procTargetGUID = aura->Variables.Get<ObjectGuid>("procTargetGUID");
-                if (Unit* procTarget = ObjectAccessor::GetUnit(*GetCaster(), *procTargetGUID))
+                ObjectGuid const procTargetGUID = aura->Variables.GetValue<ObjectGuid>("procTargetGUID");
+                if (Unit* procTarget = ObjectAccessor::GetUnit(*GetCaster(), procTargetGUID))
                     GetTarget()->CastSpell(procTarget, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE, true);
             }
         }

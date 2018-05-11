@@ -322,7 +322,7 @@ struct TC_GAME_API ImmunityInfo
 class TC_GAME_API SpellEffectInfo
 {
 public:
-    Ashamane::VariablesSafe Variables;
+    Ashamane::AnyData Variables;
 
     SpellInfo const* _spellInfo;
     uint32    EffectIndex;

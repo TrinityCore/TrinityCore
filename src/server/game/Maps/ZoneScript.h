@@ -40,7 +40,7 @@ enum ZoneScriptType
 class TC_GAME_API ZoneScript : public ScriptObject
 {
     public:
-        Ashamane::VariablesSafe Variables;
+        Ashamane::AnyData Variables;
 
         ZoneScript() : ScriptObject(""), _scriptType(ZONE_SCRIPT_TYPE_ZONE) { }
         ZoneScript(const char* name);

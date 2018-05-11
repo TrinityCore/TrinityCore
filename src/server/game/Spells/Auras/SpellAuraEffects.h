@@ -34,7 +34,7 @@ class TC_GAME_API AuraEffect
     friend Aura::~Aura();
 
     public:
-        Ashamane::VariablesSafe Variables;
+        Ashamane::AnyData Variables;
 
         ~AuraEffect();
         AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster);

@@ -916,7 +916,7 @@ struct PacketCounter
 class TC_GAME_API WorldSession
 {
     public:
-        Ashamane::VariablesSafe Variables;
+        Ashamane::AnyData Variables;
 
         WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
             std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, std::string&& battlenetAccountName);

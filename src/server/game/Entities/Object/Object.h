@@ -116,7 +116,7 @@ private:
 class TC_GAME_API Object
 {
     public:
-        Ashamane::VariablesSafe Variables;
+        Ashamane::AnyData Variables;
         virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }
