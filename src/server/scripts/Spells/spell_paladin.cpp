@@ -63,12 +63,14 @@ enum PaladinSpells
     SPELL_PALADIN_IMPROVED_DEVOTION_AURA         = 63514,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE         = 31930,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
     SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
-    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 20154,
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE   = 25742,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
     SPELL_PALADIN_TEMPLARS_VERDICT               = 85256
 };
@@ -889,15 +891,27 @@ class spell_pal_judgement : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_JUDGEMENT_DAMAGE });
+                return ValidateSpellInfo(
+                {
+                    SPELL_PALADIN_JUDGEMENT_DAMAGE,
+                    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS
+                });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
                 uint32 spellId = SPELL_PALADIN_JUDGEMENT_DAMAGE;
+                int32 bp = 0;
+                float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                int32 holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+                holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
 
                 // some seals have SPELL_AURA_DUMMY in EFFECT_2
-                Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
+                Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_DUMMY);
                 for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
                 {
                     if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
@@ -908,7 +922,12 @@ class spell_pal_judgement : public SpellScriptLoader
                         }
                 }
 
-                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+                if (caster->HasAura(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS))
+                    bp = 1 + int32(ap * 0.2f + 0.32f * holy);
+                else
+                    bp = 1 + int32(ap * 0.16f + 0.25f * holy);
+
+                caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, GetHitUnit(), true, nullptr);
             }
 
             void Register() override
@@ -1243,7 +1262,8 @@ class spell_pal_templar_s_verdict : public SpellScriptLoader
         }
 };
 
-// 20154, 21084 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
+// 20154 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.011*$AP+0.022*$SPH)} damage)
+/// Updated 4.3.4
 class spell_pal_seal_of_righteousness : public SpellScriptLoader
 {
     public:
@@ -1255,7 +1275,7 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS });
+                return ValidateSpellInfo({ SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1270,8 +1290,8 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
                 float ap = GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
                 holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-                int32 bp = int32((ap * 0.022f + 0.044f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+                int32 bp = int32((ap * 0.011f + 0.022f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
+                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1382,6 +1402,47 @@ class spell_pal_hand_of_light : public SpellScriptLoader
         }
 };
 
+// 31878 - Judgements of the Wise (Passive)
+class spell_pal_judgements_of_the_wise : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgements_of_the_wise() : SpellScriptLoader("spell_pal_judgements_of_the_wise") { }
+
+        class spell_pal_judgements_of_the_wise_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_judgements_of_the_wise_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                if (Unit* target = GetTarget())
+                    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE))
+                    {
+                        int32 bp = 0;
+                        if (uint32 mana = target->GetCreateMana())
+                            bp = CalculatePct(CalculatePct(mana, spell->Effects[EFFECT_0].BasePoints), spell->GetMaxTicks());
+
+                        target->CastCustomSpell(target, SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE, &bp, nullptr, nullptr, true, nullptr, aurEff);
+                    }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_judgements_of_the_wise_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_judgements_of_the_wise_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1406,6 +1467,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
     new spell_pal_judgement();
+    new spell_pal_judgements_of_the_wise();
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();
     new spell_pal_righteous_defense();
