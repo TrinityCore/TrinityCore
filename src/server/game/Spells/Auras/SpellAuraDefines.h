@@ -132,7 +132,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_PACIFY_SILENCE                           = 60,
     SPELL_AURA_MOD_SCALE                                    = 61,
     SPELL_AURA_PERIODIC_HEALTH_FUNNEL                       = 62,
-    SPELL_AURA_MOD_ADDITIONAL_POWER_COST                    = 63,   // NYI
+    SPELL_AURA_MOD_ADDITIONAL_POWER_COST                    = 63,
     SPELL_AURA_PERIODIC_MANA_LEECH                          = 64,
     SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK                  = 65,
     SPELL_AURA_FEIGN_DEATH                                  = 66,
