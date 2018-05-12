@@ -1,3 +1,4 @@
+/*
 -- 
 -- Ulathek
 DELETE FROM `smart_scripts` WHERE `entryorguid`=14523 AND `source_type`=0 AND `id`=6;
@@ -7,3 +8,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=14523;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (14523,0,0,"You dog!  Now I'll trap your soul into a shard and give you to my imp as a plaything!",12,0,100,0,0,0,9735,0,"Ulathek");
+*/

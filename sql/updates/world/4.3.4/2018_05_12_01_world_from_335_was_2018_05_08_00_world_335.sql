@@ -1,3 +1,4 @@
+/*
 -- 
 -- Gaeriyan --> Fix Gossip Texts
 DELETE FROM `gossip_menu` WHERE `MenuID`=1914 AND `TextID` IN (2567,2569);
@@ -15,3 +16,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,1914,2568,0,0,14,0,3912,0,0,1,0,0,"","Show gossip text 2568 if quest 'Meet at the Grave' is taken"),
 (14,1914,2568,0,0,14,0,3913,0,0,0,0,0,"","Show gossip text 2568 if quest 'A Grave Situation' is not taken"),
 (14,1914,2569,0,0,14,0,3913,0,0,1,0,0,"","Show gossip text 2569 if quest 'A Grave Situation' is taken");
+*/

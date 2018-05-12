@@ -1,3 +1,4 @@
+/*
 -- 
 -- World Invisible Trigger
 SET @GUID := 64987;
@@ -77,3 +78,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (14470,9,5427.72,-750.631,347.609),
 (14470,10,5416.55,-749.533,348.499),
 (14470,11,5407.59,-736.618,344.249);
+*/

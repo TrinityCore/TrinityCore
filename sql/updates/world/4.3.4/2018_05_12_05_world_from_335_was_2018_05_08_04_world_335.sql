@@ -1,3 +1,4 @@
+/*
 -- 
 -- Quest "Forces of Jaedenar"
 DELETE FROM `quest_details` WHERE `ID`=5155;
@@ -204,3 +205,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (8485,1,1,0,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnComplete`=2 WHERE `ID` IN (8484,8485);
 UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=1 WHERE `ID` IN (8484,8485);
+*/

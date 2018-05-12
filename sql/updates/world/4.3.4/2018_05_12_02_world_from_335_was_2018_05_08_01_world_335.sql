@@ -1,3 +1,4 @@
+/*
 -- Quest "The Videre Elixir"
 -- Miblon's Bait
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`=164758;
@@ -33,3 +34,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (9467,1,0,"%s sniffs the bait.",16,0,100,0,0,0,4768,0,"Miblon Snarltooth"),
 (9467,2,0,"Grumble...",12,0,100,0,0,0,4766,0,"Miblon Snarltooth"),
 (9467,3,0,"%s gnaws at the bait ravenously.",16,0,100,0,0,0,4771,0,"Miblon Snarltooth");
+*/

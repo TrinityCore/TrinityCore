@@ -1,3 +1,4 @@
+/*
 -- 
 -- Niby the Almighty --> Add gossip chatter
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (5841,5842,5843,5844);
@@ -17,3 +18,4 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=5845;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (15,5845,0,0,0,15,0,256,0,0,0,0,0,"","Show gossip option if player is a Warlock");
+*/
