@@ -69,6 +69,8 @@ uint32 HalfusDragonEntries[] =
     NPC_ORPHANED_EMERALD_WELP
 };
 
+Position const BreathFlightTargetStalkerSortPos = { -740.677f, -592.328f, 859.455f };
+
 class instance_bastion_of_twilight : public InstanceMapScript
 {
     public:
@@ -125,6 +127,15 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     case NPC_INVISIBLE_STALKER:
                         if (creature->GetPositionZ() < 850.0f)
                             _dancingFlamesInvisibleStalkerGUIDs.insert(creature->GetGUID());
+                        break;
+                    case NPC_CONVECTIVE_FLAMES:
+                        if (Creature* valiona = GetCreature(DATA_VALIONA))
+                            valiona->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_DAZZLING_DESTRUCTION_STALKER:
+                    case NPC_FABULOUS_FLAMES:
+                        if (Creature* theralion = GetCreature(DATA_THERALION))
+                            theralion->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
@@ -285,6 +296,29 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             if (Creature* orphanedEmeraldWhelp = instance->GetCreature(guid))
                                 if (orphanedEmeraldWhelp->GetEntry() == NPC_ORPHANED_EMERALD_WELP)
                                     orphanedEmeraldWhelp->AI()->DoAction(ACTION_MOVE_OUT_OF_CAGE);
+                        break;
+                    case DATA_AT_HALFUS_INTRO:
+                        if (_lastAreatriggerIndex < AT_INDEX_HALFUS_WYRMBREAKER_INTRO)
+                        {
+                            _lastAreatriggerIndex = AT_INDEX_HALFUS_WYRMBREAKER_INTRO;
+                            SaveToDB();
+                        }
+                        break;
+                    case DATA_AT_THERALION_AND_VALIONA_INTRO:
+                        if (_lastAreatriggerIndex < AT_INDEX_THERALION_AND_VALIONA_INTRO)
+                        {
+                            if (Creature* chogall = GetCreature(DATA_CHOGALL))
+                                chogall->AI()->DoAction(ACTION_TALK_INTRO_THERALION_AND_VALIONA);
+
+                            if (Creature* theralion = GetCreature(DATA_THERALION))
+                                theralion->AI()->DoAction(ACTION_START_ARGUMENT_INTRO);
+
+                            if (Creature* valiona = GetCreature(DATA_VALIONA))
+                                valiona->AI()->DoAction(ACTION_START_ARGUMENT_INTRO);
+
+                            _lastAreatriggerIndex = AT_INDEX_THERALION_AND_VALIONA_INTRO;
+                            SaveToDB();
+                        }
                         break;
                     default:
                         break;

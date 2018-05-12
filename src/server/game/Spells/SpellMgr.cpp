@@ -4186,6 +4186,34 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE VORTEX PINNACLE SPELLS
 
     //
+    // BASTION OF TWILIGHT SPELLS
+    //
+    // Theralion and Valiona
+    // Blackout
+    ApplySpellFix({
+        86825,
+        92879,
+        92880,
+        92881
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+    });
+
+    // Twilight Meteorite
+    ApplySpellFix({
+        86013,
+        92859,
+        92860,
+        92861
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+    });
+
+    // ENDOF BASTION OF TWILIGHT
+
+    //
     // DEADMINES SPELLS
     //
     // Glubtok

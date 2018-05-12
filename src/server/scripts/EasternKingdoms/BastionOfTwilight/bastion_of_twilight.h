@@ -27,31 +27,37 @@ uint32 const EncounterCountHeroic = 5;
 enum BoTDataTypes
 {
     // Encounter Types
-    DATA_HALFUS_WYRMBREAKER     = 0,
-    DATA_THERALION_AND_VALIONA  = 1,
-    DATA_ASCENDANT_COUNCIL      = 2,
-    DATA_CHOGALL                = 3,
-    DATA_SINESTRA               = 4,
+    DATA_HALFUS_WYRMBREAKER             = 0,
+    DATA_THERALION_AND_VALIONA          = 1,
+    DATA_ASCENDANT_COUNCIL              = 2,
+    DATA_CHOGALL                        = 3,
+    DATA_SINESTRA                       = 4,
 
     // Creature Types
-    DATA_PROTO_BEHEMOTH         = 5,
-    DATA_THERALION              = 6,
-    DATA_VALIONA                = 7,
-    DATA_IGNACIOUS              = 8,
-    DATA_FELUDIUS               = 9,
-    DATA_TERRASTRA              = 10,
-    DATA_ARION                  = 11,
-    DATA_ELEMENTIUM_MONSTROSITY = 12,
+    DATA_PROTO_BEHEMOTH                 = 5,
+    DATA_THERALION                      = 6,
+    DATA_VALIONA                        = 7,
+    DATA_IGNACIOUS                      = 8,
+    DATA_FELUDIUS                       = 9,
+    DATA_TERRASTRA                      = 10,
+    DATA_ARION                          = 11,
+    DATA_ELEMENTIUM_MONSTROSITY         = 12,
 
     // GameObject Types
-    DATA_WHELP_CAGE             = 13,
+    DATA_WHELP_CAGE                     = 13,
+
+    // Areatriggers
+    DATA_AT_HALFUS_INTRO                = 14,
+    DATA_AT_THERALION_AND_VALIONA_INTRO = 15,
 
     // Encounter Related
     /*Halfus Wyrmbreaker*/
     DATA_UNRESPONSIVE_DRAGON_FIRST,
     DATA_UNRESPONSIVE_DRAGON_SECOND,
     DATA_CAST_DRAGON_BUFFS,
-    DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE
+    DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE,
+
+    /*Theralion and Valiona*/
 };
 
 enum BoTDataStates
@@ -60,36 +66,48 @@ enum BoTDataStates
     DRAGON_BUFFS_PROTO_BEHEMOTH,
 };
 
+enum BoTAreatriggerIndex
+{
+    AT_INDEX_HALFUS_WYRMBREAKER_INTRO    = 1,
+    AT_INDEX_THERALION_AND_VALIONA_INTRO = 2
+};
+
 enum BoTCreatures
 {
     // Bosses
-    BOSS_HALFUS_WYRMBREAKER     = 44600,
-    BOSS_THERALION              = 45993,
-    BOSS_VALIONA                = 45992,
-    BOSS_IGNACIOUS              = 43686,
-    BOSS_FELUDIUS               = 43687,
-    BOSS_TERRASTRA              = 43689,
-    BOSS_ARION                  = 43688,
-    BOSS_ELEMENTIUM_MONSTROSITY = 43735,
-    BOSS_CHOGALL                = 43324,
-    BOSS_SINESTRA               = 45213,
+    BOSS_HALFUS_WYRMBREAKER             = 44600,
+    BOSS_THERALION                      = 45993,
+    BOSS_VALIONA                        = 45992,
+    BOSS_IGNACIOUS                      = 43686,
+    BOSS_FELUDIUS                       = 43687,
+    BOSS_TERRASTRA                      = 43689,
+    BOSS_ARION                          = 43688,
+    BOSS_ELEMENTIUM_MONSTROSITY         = 43735,
+    BOSS_CHOGALL                        = 43324,
+    BOSS_SINESTRA                       = 45213,
 
     // Encounter related
     /*Halfus Wyrmbreaker*/
-    NPC_PROTO_BEHEMOTH          = 44687,
-    NPC_NETHER_SCION            = 44645,
-    NPC_NETHER_SCION_ENCOUNTER  = 44828,
-    NPC_SLATE_DRAGON            = 44652,
-    NPC_SLATE_DRAGON_ENCOUNTER  = 44829,
-    NPC_STORM_RIDER             = 44650,
-    NPC_STORM_RIDER_ENCOUNTER   = 44826,
-    NPC_TIME_WARDEN             = 44797,
-    NPC_TIME_WARDEN_ENCOUNTER   = 44653,
-    NPC_ORPHANED_EMERALD_WELP   = 44641,
-    NPC_SPIKE                   = 44765,
+    NPC_PROTO_BEHEMOTH                  = 44687,
+    NPC_NETHER_SCION                    = 44645,
+    NPC_NETHER_SCION_ENCOUNTER          = 44828,
+    NPC_SLATE_DRAGON                    = 44652,
+    NPC_SLATE_DRAGON_ENCOUNTER          = 44829,
+    NPC_STORM_RIDER                     = 44650,
+    NPC_STORM_RIDER_ENCOUNTER           = 44826,
+    NPC_TIME_WARDEN                     = 44797,
+    NPC_TIME_WARDEN_ENCOUNTER           = 44653,
+    NPC_ORPHANED_EMERALD_WELP           = 44641,
+    NPC_SPIKE                           = 44765,
+
+    /*Theralion and Valiona*/
+    NPC_THERALION_FLIGHT_TARGET_STALKER = 46364,
+    NPC_CONVECTIVE_FLAMES               = 46588,
+    NPC_DAZZLING_DESTRUCTION_STALKER    = 46374,
+    NPC_FABULOUS_FLAMES                 = 46448,
 
     // Generic Creatures
-    NPC_INVISIBLE_STALKER       = 42098
+    NPC_INVISIBLE_STALKER               = 42098
 };
 
 enum BoTGameObjects
@@ -106,13 +124,23 @@ enum BoTGameObjects
 
 enum BoTActions
 {
-    ACTION_ENABLE_MALEVOLENT_STRIKES    = 1,
-    ACTION_ENABLE_FRENZIED_ASSAULT      = 2,
-    ACTION_ENABLE_SHADOW_NOVA           = 3,
-    ACTION_ENABLE_FIREBALL_BARRAGE      = 1,
-    ACTION_ENABLE_SCORCHING_BREATH      = 2,
-    ACTION_CAST_DRAGONS_VENGEANCE       = 3,
-    ACTION_MOVE_OUT_OF_CAGE             = 4
+    // Halfus Wyrmbreaker
+    ACTION_ENABLE_MALEVOLENT_STRIKES        = 1,
+    ACTION_ENABLE_FRENZIED_ASSAULT          = 2,
+    ACTION_ENABLE_SHADOW_NOVA               = 3,
+    ACTION_ENABLE_FIREBALL_BARRAGE          = 1,
+    ACTION_ENABLE_SCORCHING_BREATH          = 2,
+    ACTION_CAST_DRAGONS_VENGEANCE           = 3,
+    ACTION_MOVE_OUT_OF_CAGE                 = 4,
+
+    // Theralion and Valiona
+    ACTION_START_ARGUMENT_INTRO             = 1,
+
+    // Cho'Gall (Non-Boss version)
+    ACTION_TALK_INTRO_HALFUS_WYRMBREAKER    = 1,
+
+    // Cho'Gall (Boss)
+    ACTION_TALK_INTRO_THERALION_AND_VALIONA = 1
 };
 
 enum BoTEvents
