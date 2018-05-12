@@ -242,6 +242,7 @@ struct boss_xt002 : public BossAI
 
         DoCastSelf(SPELL_STAND);
         DoCastSelf(SPELL_COOLDOWN_CREATURE_SPECIAL_2);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         if (Creature* heart = instance->GetCreature(DATA_XT002_HEART))
         {
             if (heart->IsAlive())
@@ -459,11 +460,10 @@ struct npc_scrapbot : public ScriptedAI
                     if (me->IsWithinMeleeRange(xt002))
                     {
                         DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-                        _scheduler.Schedule(1s, [this, xt002](TaskContext /*ScrapRepair*/)
+                        _scheduler.Schedule(1s, [this](TaskContext /*ScrapRepair*/)
                         {
-                            if (!xt002)
-                                return;
-                            xt002->CastSpell(me, SPELL_SCRAP_REPAIR, true);
+                            if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                                xt002->CastSpell(me, SPELL_SCRAP_REPAIR, true);
                             me->DespawnOrUnsummon(1s);
                         });
                     }
