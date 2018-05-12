@@ -1031,8 +1031,6 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
     memset(stringTable, 0, _header->CatalogDataOffset - _dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     char* stringPtr = stringTable;
 
-    uint32 offset = 0;
-
     for (uint32 y = 0; y < offsetCount; y++)
     {
         unsigned char const* rawRecord = GetRawRecordData(y);
