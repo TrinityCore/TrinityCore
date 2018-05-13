@@ -61,6 +61,9 @@ enum PriestSpells
     SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY              = 97690,
     SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
+    SPELL_PRIEST_DIVINE_STAR                        = 110744,
+    SPELL_PRIEST_DIVINE_STAR_HEAL                   = 110745,
+    SPELL_PRIEST_DIVINE_STAR_DAMAGE                 = 122128,
     SPELL_PRIEST_DIVINE_TOUCH                       = 63544,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
@@ -2761,11 +2764,30 @@ struct at_pri_halo : AreaTriggerAI
     }
 };
 
+// 110744 - Divine Star
+// AreaTriggerID - 6700
+struct at_pri_divine_star : AreaTriggerAI
+{
+    at_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAssistTarget(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, true);
+            else if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, true);
+        }
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterAreaTriggerAI(at_pri_angelic_feather);
     RegisterAreaTriggerAI(at_pri_power_word_barrier);
     RegisterAreaTriggerAI(at_pri_halo);
+    RegisterAreaTriggerAI(at_pri_divine_star);
 
     new spell_pri_shadow_mend();
     new spell_pri_shadow_mend_aura();
