@@ -108,8 +108,8 @@ enum PriestSpells
     SPELL_PRIEST_EVANGELISM_STACK                   = 81661,
     SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA     = 109186,
     SPELL_PRIEST_GUARDIAN_SPIRIT_AURA               = 47788,
-    SPELL_PRIEST_HALO_HEAL_HOLY                     = 120692,
-    SPELL_PRIEST_HALO_HEAL_SHADOW                   = 120696,
+    SPELL_PRIEST_HALO_HEAL                          = 120692,
+    SPELL_PRIEST_HALO_DAMAGE                        = 120696,
     SPELL_PRIEST_HOLY_SPARK                         = 131567,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY_AREA           = 88685,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY_HEAL           = 88686,
@@ -2679,99 +2679,93 @@ public:
 
 // Angelic Feather areatrigger - created by SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER
 // AreaTriggerID - 337
-class at_pri_angelic_feather : public AreaTriggerEntityScript
+struct at_pri_angelic_feather : AreaTriggerAI
 {
-public:
-    at_pri_angelic_feather() : AreaTriggerEntityScript("at_pri_angelic_feather") { }
+    at_pri_angelic_feather(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_pri_angelic_featherAI : AreaTriggerAI
+    void OnInitialize() override
     {
-        at_pri_angelic_featherAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        // Called when the AreaTrigger has just been initialized, just before added to map
-        void OnInitialize() override
+        if (Unit* caster = at->GetCaster())
         {
-            if (Unit* caster = at->GetCaster())
-            {
-                std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
+            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
 
-                if (areaTriggers.size() >= 3)
-                    areaTriggers.front()->SetDuration(0);
+            if (areaTriggers.size() >= 3)
+                areaTriggers.front()->SetDuration(0);
+        }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsFriendlyTo(unit) && unit->IsPlayer())
+            {
+                // If target already has aura, increase duration to max 130% of initial duration
+                caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+                at->SetDuration(0);
             }
         }
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            if (Unit* caster = at->GetCaster())
-            {
-                if (caster->IsFriendlyTo(unit) && !unit->IsSummon())
-                {
-                    // If target already has aura, increase duration to max 130% of initial duration
-                    caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
-                    at->SetDuration(0);
-                }
-            }
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_pri_angelic_featherAI(areatrigger);
     }
 };
 
 // Power Word: Barrier - 62618
 // AreaTriggerID - 1489
-class at_pri_power_word_barrier : public AreaTriggerEntityScript
+struct at_pri_power_word_barrier : AreaTriggerAI
 {
-public:
-    at_pri_power_word_barrier() : AreaTriggerEntityScript("at_pri_power_word_barrier")
+    at_pri_power_word_barrier(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
     {
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (caster->IsFriendlyTo(unit))
+            caster->CastSpell(unit, SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, true);
     }
 
-    struct at_pri_power_word_barrierAI : AreaTriggerAI
+    void OnUnitExit(Unit* unit) override
     {
-        at_pri_power_word_barrierAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
 
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
+        if (!caster || !unit)
+            return;
 
-            if (!caster || !unit)
-                return;
+        if (!caster->ToPlayer())
+            return;
 
-            if (!caster->ToPlayer())
-                return;
+        if (unit->HasAura(SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, caster->GetGUID()))
+            unit->RemoveAurasDueToSpell(SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, caster->GetGUID());
+    }
+};
 
-            if (caster->IsFriendlyTo(unit))
-                caster->CastSpell(unit, SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, true);
-        }
+// 120517 - Halo
+// AreaTriggerID - 3921
+struct at_pri_halo : AreaTriggerAI
+{
+    at_pri_halo(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-        void OnUnitExit(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (unit->HasAura(SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, caster->GetGUID()))
-                unit->RemoveAurasDueToSpell(SPELL_PRIEST_POWER_WORD_BARRIER_BUFF, caster->GetGUID());
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitEnter(Unit* unit) override
     {
-        return new at_pri_power_word_barrierAI(areatrigger);
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAssistTarget(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_HALO_HEAL, true);
+            else if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_HALO_DAMAGE, true);
+        }
     }
 };
 
 void AddSC_priest_spell_scripts()
 {
-    new at_pri_angelic_feather();
-    new at_pri_power_word_barrier();
+    RegisterAreaTriggerAI(at_pri_angelic_feather);
+    RegisterAreaTriggerAI(at_pri_power_word_barrier);
+    RegisterAreaTriggerAI(at_pri_halo);
 
     new spell_pri_shadow_mend();
     new spell_pri_shadow_mend_aura();
