@@ -2511,45 +2511,28 @@ class spell_pri_atonement : public AuraScript
 };
 
 // Atonement Aura - 194384
-class spell_pri_atonement_aura : public SpellScriptLoader
+class spell_pri_atonement_aura : public AuraScript
 {
-public:
-    spell_pri_atonement_aura() : SpellScriptLoader("spell_pri_atonement_aura") {}
+    PrepareAuraScript(spell_pri_atonement_aura);
 
-    class spell_pri_atonement_aura_AuraScript : public AuraScript
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_pri_atonement_aura_AuraScript);
-
-        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
+        if (Unit* caster = GetCaster())
             if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
                 caster->CastSpell(caster, SPELL_PRIEST_PLEA_MANA, true);
-        }
+    }
 
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
             if (Aura* aur = caster->GetAura(SPELL_PRIEST_PLEA_MANA))
                 aur->ModStackAmount(-1);
-        }
+    }
 
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_pri_atonement_aura_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_atonement_aura_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_pri_atonement_aura_AuraScript();
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_atonement_aura::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_atonement_aura::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2795,7 +2778,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_plea();
     new spell_pri_power_word_radiance();
     RegisterAuraScript(spell_pri_atonement);
-    new spell_pri_atonement_aura();
+    RegisterAuraScript(spell_pri_atonement_aura);
     new spell_pri_psychic_scream();
     new spell_pri_smite_absorb();
     new spell_pri_focused_will();
