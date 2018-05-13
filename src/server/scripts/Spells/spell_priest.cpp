@@ -2475,62 +2475,38 @@ class spell_pri_spirit_of_redemption_form : public AuraScript
 };
 
 // Atonement - 81749
-class spell_pri_atonement : public SpellScriptLoader
+class spell_pri_atonement : public AuraScript
 {
-public:
-    spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") {}
+    PrepareAuraScript(spell_pri_atonement);
 
-    class spell_pri_atonement_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_pri_atonement_AuraScript);
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_AURA, SPELL_PRIEST_ATONEMENT_HEAL });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_AURA) ||
-                !sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_HEAL))
-                return false;
-            return true;
-        }
-
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            // Heal = DamageDealt * (40 * (1+mastery%))
-            uint32 damage = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetDamage() : 0;
-            float mastery = caster->GetFloatValue(PLAYER_MASTERY);
-            int32 base = aurEff->GetBaseAmount();
-            AddPct(base, mastery);
-            uint32 heal = CalculatePct(damage, base);
-
-            std::list<Unit*> units;
-            Trinity::AnyFriendlyUnitInObjectRangeCheck check(caster, caster, 100.0f);
-            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(caster, units, check);
-            Cell::VisitAllObjects(caster, searcher, 100.0f);
-
-            for (Unit* u : units)
-            {
-                if (!u->HasAura(SPELL_PRIEST_ATONEMENT_AURA, caster->GetGUID()))
-                    continue;
-
-                caster->CastCustomSpell(SPELL_PRIEST_ATONEMENT_HEAL, SPELLVALUE_BASE_POINT0, heal, u, TRIGGERED_FULL_MASK);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_pri_atonement_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        return new spell_pri_atonement_AuraScript();
+        Unit* caster = GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
+
+        // Heal = DamageDealt * (40 * (1+mastery%))
+        uint32 damage = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetDamage() : 0;
+        int32 base = aurEff->GetBaseAmount();
+        AddPct(base, caster->GetFloatValue(PLAYER_MASTERY));
+        uint32 heal = CalculatePct(damage, base);
+
+        std::list<Unit*> units;
+        caster->GetFriendlyUnitListInRange(units, 100.f);
+
+        for (Unit* unit : units)
+            if (unit->HasAura(SPELL_PRIEST_ATONEMENT_AURA, caster->GetGUID()))
+                caster->CastCustomSpell(SPELL_PRIEST_ATONEMENT_HEAL, SPELLVALUE_BASE_POINT0, heal, unit, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_atonement::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2818,7 +2794,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_shadow_mend_aura();
     new spell_pri_plea();
     new spell_pri_power_word_radiance();
-    new spell_pri_atonement();
+    RegisterAuraScript(spell_pri_atonement);
     new spell_pri_atonement_aura();
     new spell_pri_psychic_scream();
     new spell_pri_smite_absorb();
