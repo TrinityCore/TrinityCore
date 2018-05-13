@@ -27,6 +27,7 @@ EndScriptData */
 npc_wizzlecrank_shredder
 EndContentData */
 
+#include "AchievementMgr.h"
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -35,6 +36,19 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
+
+// Zone 491
+class zone_razorfen_kraul : public ZoneScript
+{
+public:
+    zone_razorfen_kraul() : ZoneScript("zone_razorfen_kraul") { }
+
+    void OnPlayerEnter(Player* player) override
+    {
+        if (AchievementEntry const* southernBarrensExploration = sAchievementStore.LookupEntry(4996))
+            player->GetAchievementMgr()->CompletedAchievement(southernBarrensExploration, player);
+    }
+};
 
 /*######
 ## npc_beaten_corpse
@@ -671,5 +685,6 @@ public:
 
 void AddSC_the_barrens()
 {
+    new zone_razorfen_kraul();
     new npc_wizzlecrank_shredder();
 }
