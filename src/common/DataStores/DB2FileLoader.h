@@ -140,7 +140,7 @@ public:
 
     bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo);
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool);
-    char* AutoProduceStrings(char* dataTable, uint32 locale);
+    char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale);
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
 
     uint32 GetCols() const { return _header.TotalFieldCount; }

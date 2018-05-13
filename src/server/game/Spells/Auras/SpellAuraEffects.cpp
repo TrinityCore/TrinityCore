@@ -129,7 +129,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModPacifyAndSilence,                   // 60 SPELL_AURA_MOD_PACIFY_SILENCE
     &AuraEffect::HandleAuraModScale,                              // 61 SPELL_AURA_MOD_SCALE
     &AuraEffect::HandleNoImmediateEffect,                         // 62 SPELL_AURA_PERIODIC_HEALTH_FUNNEL implemented in AuraEffect::PeriodicTick
-    &AuraEffect::HandleNULL,                                      // 63 SPELL_AURA_MOD_ADDITIONAL_POWER_COST
+    &AuraEffect::HandleNoImmediateEffect,                         // 63 SPELL_AURA_MOD_ADDITIONAL_POWER_COST implemented in SpellInfo::CalcPowerCost
     &AuraEffect::HandleNoImmediateEffect,                         // 64 SPELL_AURA_PERIODIC_MANA_LEECH implemented in AuraEffect::PeriodicTick
     &AuraEffect::HandleModCastingSpeed,                           // 65 SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK
     &AuraEffect::HandleFeignDeath,                                // 66 SPELL_AURA_FEIGN_DEATH
