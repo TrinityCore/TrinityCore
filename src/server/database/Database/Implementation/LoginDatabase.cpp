@@ -181,6 +181,17 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_ITEM_FAVORITE_APPEARANCES, "SELECT itemModifiedAppearanceId FROM battlenet_item_favorite_appearances WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_INS_BNET_ITEM_FAVORITE_APPEARANCE, "INSERT INTO battlenet_item_favorite_appearances (battlenetAccountId, itemModifiedAppearanceId) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_BNET_ITEM_FAVORITE_APPEARANCE, "DELETE FROM battlenet_item_favorite_appearances WHERE battlenetAccountId = ? AND itemModifiedAppearanceId = ?", CONNECTION_ASYNC);
+
+    PrepareStatement(LOGIN_SEL_ACCOUNT_ACHIEVEMENTS, "SELECT achievement, date, guid FROM battlenet_account_achievement WHERE accountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_CRITERIAPROGRESS, "SELECT criteria, counter, date FROM battlenet_account_achievement_progress WHERE accountId = ?", CONNECTION_ASYNC);
+
+    PrepareStatement(LOGIN_INS_ACCOUNT_ACHIEVEMENT, "INSERT INTO battlenet_account_achievement (accountId, achievement, date, guid) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_ACCOUNT_ACHIEVEMENT, "DELETE FROM battlenet_account_achievement WHERE accountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_ACCOUNT_ACHIEVEMENT_BY_ACHIEVEMENT, "DELETE FROM battlenet_account_achievement WHERE accountId = ? AND achievement = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_ACCOUNT_ACHIEVEMENT_PROGRESS, "INSERT INTO battlenet_account_achievement_progress (accountId, criteria, counter, date) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_ACCOUNT_ACHIEVEMENT_PROGRESS, "DELETE FROM battlenet_account_achievement_progress WHERE accountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_ACCOUNT_ACHIEVEMENT_PROGRESS_BY_CRITERIA, "DELETE FROM battlenet_account_achievement_progress WHERE accountId = ? AND criteria = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_INVALID_ACCOUNT_ACHIEVEMENT_PROGRESS_CRITERIA, "DELETE FROM battlenet_account_achievement_progress WHERE criteria = ?", CONNECTION_ASYNC);
 }
 
 LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

@@ -57,6 +57,7 @@ public:
     virtual void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) = 0;
     bool HasAchieved(uint32 achievementId) const;
     uint32 GetAchievementPoints() const;
+    std::unordered_map<uint32, CompletedAchievementData> const& GetCompletedAchievements() const;
 
 protected:
     bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const override;
@@ -93,6 +94,8 @@ public:
 
     bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
+    bool RequiredAchievementSatisfied(uint32 achievementId) const override;
+
 protected:
     void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
@@ -106,6 +109,44 @@ protected:
 
 private:
     Player* _owner;
+};
+
+class TC_GAME_API AccountAchievementMgr : public AchievementMgr
+{
+public:
+    explicit AccountAchievementMgr(WorldSession* owner);
+
+    void Reset() override;
+
+    static void DeleteFromDB(uint32 battlenetAccountId);
+    void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
+    void SaveToDB(SQLTransaction& trans);
+
+    //void LoadAchievements();
+
+    void SendAllData(Player const* receiver) const override;
+
+    void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
+
+    bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
+
+    bool RequiredAchievementSatisfied(uint32 achievementId) const override;
+
+    void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET) override;
+
+protected:
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaProgressRemoved(uint32 criteriaId) override;
+
+    void SendAchievementEarned(AchievementEntry const* achievement) const;
+
+    void SendPacket(WorldPacket const* data) const override;
+
+    std::string GetOwnerInfo() const override;
+    CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
+
+private:
+    WorldSession * _owner;
 };
 
 class TC_GAME_API GuildAchievementMgr : public AchievementMgr

@@ -277,11 +277,13 @@ public:
     void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
     void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed s
 
+    CriteriaProgressMap const& GetCriteriaProgress() const;
+
 protected:
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const = 0;
 
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
-    void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
+    virtual void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
     void RemoveCriteriaProgress(Criteria const* criteria);
     virtual void SendCriteriaProgressRemoved(uint32 criteriaId) = 0;
 
@@ -321,7 +323,12 @@ public:
 
     CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type) const
     {
-        return _criteriasByType[type];
+        return _playerCriteriasByType[type];
+    }
+
+    CriteriaList const& GetAccountCriteriaByType(CriteriaTypes type) const
+    {
+        return _accountCriteriasByType[type];
     }
 
     CriteriaList const& GetGuildCriteriaByType(CriteriaTypes type) const
@@ -400,7 +407,8 @@ private:
     std::unordered_map<uint32, CriteriaTreeList> _criteriaTreeByCriteria;
 
     // store criterias by type to speed up lookup
-    CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaList _playerCriteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaList _accountCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];

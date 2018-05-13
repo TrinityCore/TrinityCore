@@ -135,7 +135,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     forceExit(false),
     m_currentBankerGUID(),
     _battlePetMgr(Trinity::make_unique<BattlePetMgr>(this)),
-    _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
+    _collectionMgr(Trinity::make_unique<CollectionMgr>(this)),
+    _accountAchievementMgr(Trinity::make_unique<AccountAchievementMgr>(this))
 {
     memset(_tutorials, 0, sizeof(_tutorials));
 
@@ -968,6 +969,8 @@ public:
         MOUNTS,
         ITEM_APPEARANCES,
         ITEM_FAVORITE_APPEARANCES,
+        ACHIEVEMENTS,
+        ACHIEVEMENT_PROGRESS,
 
         MAX_QUERIES
     };
@@ -1010,6 +1013,14 @@ public:
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(ITEM_FAVORITE_APPEARANCES, stmt) && ok;
 
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACHIEVEMENTS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(ACHIEVEMENTS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_CRITERIAPROGRESS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(ACHIEVEMENT_PROGRESS, stmt) && ok;
+
         return ok;
     }
 };
@@ -1045,6 +1056,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
     _collectionMgr->LoadAccountMounts(holder->GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
     _collectionMgr->LoadAccountItemAppearances(holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
+    _accountAchievementMgr->LoadFromDB(holder->GetPreparedResult(AccountInfoQueryHolder::ACHIEVEMENTS), holder->GetPreparedResult(AccountInfoQueryHolder::ACHIEVEMENT_PROGRESS));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);

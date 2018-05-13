@@ -54,6 +54,38 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchieveme
     return data;
 }
 
+WorldPacket const* WorldPackets::Achievement::AccountCriteriaUpdate::Write()
+{
+    _worldPacket << uint32(CriteriaID);
+    _worldPacket << uint64(Quantity);
+    _worldPacket << BattleNetAccountGUID;
+    _worldPacket.AppendPackedTime(CurrentTime);
+    _worldPacket << uint32(ElapsedTime);
+    _worldPacket << uint32(CreationTime);
+    _worldPacket << uint32(Flags);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::AllAccountCriteria::Write()
+{
+    _worldPacket << uint32(Progress.size());
+
+    for (CriteriaProgress const& criteria : Progress)
+    {
+        _worldPacket << uint32(criteria.Id);
+        _worldPacket << uint64(criteria.Quantity);
+        _worldPacket << criteria.Player;
+        _worldPacket.AppendPackedTime(criteria.Date);
+        _worldPacket << uint32(criteria.TimeFromStart);
+        _worldPacket << uint32(criteria.TimeFromCreate);
+        _worldPacket.WriteBits(criteria.Flags, 4);
+        _worldPacket.FlushBits();
+    }
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Achievement::AllAchievementData::Write()
 {
     _worldPacket << Data;

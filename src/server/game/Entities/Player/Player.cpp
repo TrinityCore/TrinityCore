@@ -20277,6 +20277,7 @@ void Player::SaveToDB(bool create /*=false*/)
     GetSession()->GetCollectionMgr()->SaveAccountHeirlooms(trans);
     GetSession()->GetCollectionMgr()->SaveAccountMounts(trans);
     GetSession()->GetCollectionMgr()->SaveAccountItemAppearances(trans);
+    GetSession()->GetAccountAchievementMgr()->SaveToDB(trans);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_LAST_PLAYER_CHARACTERS);
     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -23697,6 +23698,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_EQUIPMENT_SET_LIST
     SendEquipmentSetList();
 
+    GetSession()->GetAccountAchievementMgr()->SendAllData(this);
     m_achievementMgr->SendAllData(this);
     m_questObjectiveCriteriaMgr->SendAllData(this);
 
@@ -26054,22 +26056,24 @@ void Player::SendRespondInspectAchievements(Player* player) const
 
 uint32 Player::GetAchievementPoints() const
 {
-    return m_achievementMgr->GetAchievementPoints();
+    return m_achievementMgr->GetAchievementPoints() + GetSession()->GetAccountAchievementMgr()->GetAchievementPoints();
 }
 
 bool Player::HasAchieved(uint32 achievementId) const
 {
-    return m_achievementMgr->HasAchieved(achievementId);
+    return m_achievementMgr->HasAchieved(achievementId) || GetSession()->GetAccountAchievementMgr()->HasAchieved(achievementId);
 }
 
 void Player::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost/* = 0*/)
 {
     m_achievementMgr->StartCriteriaTimer(type, entry, timeLost);
+    GetSession()->GetAccountAchievementMgr()->StartCriteriaTimer(type, entry, timeLost);
 }
 
 void Player::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
 {
     m_achievementMgr->RemoveCriteriaTimer(type, entry);
+    GetSession()->GetAccountAchievementMgr()->RemoveCriteriaTimer(type, entry);
 }
 
 void Player::ResetCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, bool evenIfCriteriaComplete /* = false*/)
@@ -26082,6 +26086,7 @@ void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint6
 {
     m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
     m_questObjectiveCriteriaMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    GetSession()->GetAccountAchievementMgr()->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 
     // Update only individual achievement criteria here, otherwise we may get multiple updates
     // from a single boss kill
@@ -26097,12 +26102,15 @@ void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint6
 
 void Player::CompletedAchievement(AchievementEntry const* entry)
 {
-    m_achievementMgr->CompletedAchievement(entry, this);
+    if (entry->Flags & ACHIEVEMENT_FLAG_ACCOUNT)
+        GetSession()->GetAccountAchievementMgr()->CompletedAchievement(entry, this);
+    else
+        m_achievementMgr->CompletedAchievement(entry, this);
 }
 
 bool Player::ModifierTreeSatisfied(uint32 modifierTreeId) const
 {
-    return m_achievementMgr->ModifierTreeSatisfied(modifierTreeId);
+    return m_achievementMgr->ModifierTreeSatisfied(modifierTreeId) || GetSession()->GetAccountAchievementMgr()->ModifierTreeSatisfied(modifierTreeId);
 }
 
 TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)

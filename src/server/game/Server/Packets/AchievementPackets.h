@@ -51,6 +51,32 @@ namespace WorldPackets
             std::vector<CriteriaProgress> Progress;
         };
 
+        class AccountCriteriaUpdate final : public ServerPacket
+        {
+        public:
+            AccountCriteriaUpdate() : ServerPacket(SMSG_ACCOUNT_CRITERIA_UPDATE, 4 + 8 + 16 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 CriteriaID = 0;
+            uint64 Quantity = 0;
+            ObjectGuid BattleNetAccountGUID;
+            time_t CurrentTime = time_t(0);
+            uint32 ElapsedTime = 0;
+            uint32 CreationTime = 0;
+            uint32 Flags = 0;
+        };
+
+        class AllAccountCriteria final : public ServerPacket
+        {
+        public:
+            AllAccountCriteria() : ServerPacket(SMSG_ALL_ACCOUNT_CRITERIA) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<CriteriaProgress> Progress;
+        };
+
         class AllAchievementData final : public ServerPacket
         {
         public:
