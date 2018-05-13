@@ -3704,6 +3704,12 @@ public:
             });
         }
     }
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->GetScheduler().CancelGroup(SPELL_SHAMAN_CRASHING_STORM_AT);
+    }
 };
 
 // 29264
