@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DBCStorageIterator.h"
 #include <vector>
+#include <cstring>
 
  /// Interface class for common access
 class TC_SHARED_API DBCStorageBase
