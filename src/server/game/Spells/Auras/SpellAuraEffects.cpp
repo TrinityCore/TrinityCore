@@ -494,7 +494,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //425
     &AuraEffect::HandleNULL,                                      //426
     &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_SCALE_PLAYER_LEVEL
-    &AuraEffect::HandleNULL,                                      //428
+    &AuraEffect::HandleLinkedSummon,                              //428 SPELL_AURA_LINKED_SUMMON
     &AuraEffect::HandleNULL,                                      //429
     &AuraEffect::HandlePlayScene,                                 //430 SPELL_AURA_PLAY_SCENE
     &AuraEffect::HandleNULL,                                      //431
@@ -6210,5 +6210,54 @@ void AuraEffect::HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode
             target->TogglePvpTalents(true);
         else if (!target->HasAuraType(SPELL_AURA_PVP_TALENTS))
             target->TogglePvpTalents(false);
+    }
+}
+
+void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    SpellInfo const* triggerSpellInfo = sSpellMgr->GetSpellInfo(GetSpellEffectInfo()->TriggerSpell);
+    if (!triggerSpellInfo)
+        return;
+
+    // on apply cast summon spell
+    if (apply)
+        target->CastSpell(target, triggerSpellInfo, true, nullptr, this);
+    // on unapply we need to search for and remove the summoned creature
+    else
+    {
+        std::vector<uint32> summonedEntries;
+        for (auto spellEffect : triggerSpellInfo->GetEffectsForDifficulty(target->FindMap()->GetDifficultyID()))
+            if (spellEffect && spellEffect->Effect == SPELL_EFFECT_SUMMON)
+                if (uint32 summonEntry = spellEffect->MiscValue)
+                    if (std::find(summonedEntries.begin(), summonedEntries.end(), summonEntry) == summonedEntries.end())
+                        summonedEntries.push_back(summonEntry);
+
+        // we don't know if there can be multiple summons for the same effect, so consider only 1 summon for each effect
+        // most of the spells have multiple effects with the same summon spell id for multiple spawns, so right now it's safe to assume there's only 1 spawn per effect
+        for (uint32 summonEntry : summonedEntries)
+        {
+            std::list<Creature*> nearbyEntries;
+            target->GetCreatureListWithEntryInGrid(nearbyEntries, summonEntry);
+            for (auto creature : nearbyEntries)
+            {
+                if (creature->GetOwner() == target)
+                {
+                    creature->DespawnOrUnsummon();
+                    break;
+                }
+                else if (TempSummon* tempSummon = creature->ToTempSummon())
+                {
+                    if (tempSummon->GetSummoner() == target)
+                    {
+                        tempSummon->DespawnOrUnsummon();
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
