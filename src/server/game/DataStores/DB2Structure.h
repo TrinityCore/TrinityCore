@@ -330,6 +330,16 @@ struct BroadcastTextEntry
     uint32 SoundEntriesID[2];
 };
 
+struct Cfg_RegionsEntry
+{
+    uint32 ID;
+    char const* Tag;
+    uint32 Raidorigin;                                              // Date of first raid reset, all other resets are calculated as this date plus interval
+    uint32 ChallengeOrigin;
+    uint16 RegionID;
+    uint8 RegionGroupMask;
+};
+
 struct CharacterFacialHairStylesEntry
 {
     uint32 ID;

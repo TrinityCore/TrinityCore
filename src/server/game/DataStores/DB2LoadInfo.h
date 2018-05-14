@@ -554,6 +554,24 @@ struct BroadcastTextLoadInfo
     }
 };
 
+struct CfgRegionsLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "Tag" },
+            { false, FT_INT, "Raidorigin" },
+            { false, FT_INT, "ChallengeOrigin" },
+            { false, FT_SHORT, "RegionID" },
+            { false, FT_BYTE, "RegionGroupMask" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, Cfg_RegionsMeta::Instance(), HOTFIX_SEL_CFG_REGIONS);
+        return &loadInfo;
+    }
+};
+
 struct CharacterFacialHairStylesLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -2434,9 +2452,9 @@ struct ItemLimitCategoryConditionLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { true,  FT_BYTE, "AddQuantity" },
+            { true, FT_BYTE, "AddQuantity" },
             { false, FT_INT, "PlayerConditionID" },
-            { true,  FT_INT, "ParentItemLimitCategoryID" },
+            { true, FT_INT, "ParentItemLimitCategoryID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemLimitCategoryConditionMeta::Instance(), HOTFIX_SEL_ITEM_LIMIT_CATEGORY_CONDITION);
         return &loadInfo;
