@@ -574,6 +574,11 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
 
         value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
+        if (value < -100.f)
+            if (SpellEffectInfo const* spellEffectInfo = _spellInfo->GetEffect(EffectIndex))
+                if (spellEffectInfo->ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                    value /= 100.f;
+
         // amount multiplication based on caster's level
         if (!caster->IsControlledByPlayer() &&
             _spellInfo->SpellLevel && _spellInfo->SpellLevel != caster->getLevel() &&
