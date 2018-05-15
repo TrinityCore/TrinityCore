@@ -68,6 +68,7 @@ DB2Storage<BattlePetSpeciesStateEntry>          sBattlePetSpeciesStateStore("Bat
 DB2Storage<BattlePetSpeciesXAbilityEntry>       sBattlePetSpeciesXAbilityStore("BattlePetSpeciesXAbility.db2", BattlePetSpeciesXAbilityLoadInfo::Instance());
 DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("BattlemasterList.db2", BattlemasterListLoadInfo::Instance());
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", BroadcastTextLoadInfo::Instance());
+DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", CfgRegionsLoadInfo::Instance());
 DB2Storage<CharacterFacialHairStylesEntry>      sCharacterFacialHairStylesStore("CharacterFacialHairStyles.db2", CharacterFacialHairStylesLoadInfo::Instance());
 DB2Storage<CharBaseSectionEntry>                sCharBaseSectionStore("CharBaseSection.db2", CharBaseSectionLoadInfo::Instance());
 DB2Storage<CharSectionsEntry>                   sCharSectionsStore("CharSections.db2", CharSectionsLoadInfo::Instance());
@@ -517,6 +518,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sBattlePetSpeciesXAbilityStore);
     LOAD_DB2(sBattlemasterListStore);
     LOAD_DB2(sBroadcastTextStore);
+    LOAD_DB2(sCfgRegionsStore);
     LOAD_DB2(sCharacterFacialHairStylesStore);
     LOAD_DB2(sCharBaseSectionStore);
     LOAD_DB2(sCharSectionsStore);
