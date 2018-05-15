@@ -1,5 +1,5 @@
 DELETE FROM `creature_addon` WHERE  `guid` IN (60167,78738,214421,356181);
-DELETE FROM `gameobject` WHERE  `guid` IN (24686,24685,24684,24683,32141,32142,32143);
+DELETE FROM `gameobject_addon` WHERE  `guid` IN (24686,24685,24684,24683,32141,32142,32143);
 UPDATE `quest_objectives` SET `ObjectID`='35753', `Amount`='1' WHERE  `ID`=264587;
 UPDATE `quest_objectives` SET `ObjectID`='42463', `Amount`='1' WHERE  `ID`=265726;
 UPDATE `creature_template` SET `npcflag`='3' WHERE  `entry` IN (20677,20679,63238);
