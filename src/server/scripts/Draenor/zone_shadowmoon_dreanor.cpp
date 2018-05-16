@@ -50,7 +50,7 @@ enum
     NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT = 79757,
 };
 
-// 79206 - Prophète Velen - Début Ombrelune
+// 79206 - Prophète Velen - Shadowmoon start
 class npc_velen_shadowmoon_begin : public CreatureScript
 {
 public:
@@ -113,12 +113,12 @@ public:
             me->SetFacingTo(5.631830f);
 
             if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-                player->KilledMonsterCredit(NPC_FINDING_A_FOOTHOLD_KILL_CREDIT);
+                player->ForceCompleteQuest(QUEST_FINDING_A_FOOTHOLD);
         }
     };
 };
 
-// 79206 - Prophète Velen - Début Ombrelune
+// 79206 - Prophète Velen - Shadowmoon start
 class npc_velen_shadowmoon_follower : public CreatureScript
 {
 public:
