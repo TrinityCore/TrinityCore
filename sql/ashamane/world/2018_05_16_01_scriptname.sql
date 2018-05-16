@@ -29,3 +29,5 @@ UPDATE `garrison_plot_finalize_info` SET allianceX = 1897.773926, allianceY = 88
 UPDATE `garrison_plot_finalize_info` SET allianceX = 1851.819458, allianceY = 140.045349, allianceZ = 78.291664, allianceO = 1.176538 WHERE garrPlotInstanceId = 63;
 UPDATE `garrison_plot_finalize_info` SET allianceX = 2016.773926, allianceY = 171.132477, allianceZ = 84.216103, allianceO = 3.811550 WHERE garrPlotInstanceId = 67;
 UPDATE `garrison_plot_finalize_info` SET allianceX = 1910.755981, allianceY = 345.062317, allianceZ = 88.965790, allianceO = 4.380958 WHERE garrPlotInstanceId = 81;
+
+DELETE FROM gameobject WHERE guid = 19728061;
