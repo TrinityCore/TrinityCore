@@ -20,6 +20,7 @@
 #define WodGarrison_h__
 
 #include "Player.h"
+#include "GameObjectData.h"
 #include "Garrison.h"
 
 enum GarrisonBuildingFlags
@@ -67,6 +68,7 @@ public:
         void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
 
         WorldPackets::Garrison::GarrisonPlotInfo PacketInfo;
+        QuaternionData Rotation;
         uint32 EmptyGameObjectId = 0;
         uint32 GarrSiteLevelPlotInstId = 0;
         Building BuildingInfo;
