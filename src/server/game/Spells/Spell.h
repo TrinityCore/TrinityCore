@@ -472,6 +472,7 @@ class TC_GAME_API Spell
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
         void EffectHealBattlePetPct(SpellEffIndex effIndex);
         void EffectEnableBattlePets(SpellEffIndex effIndex);
+        void EffectApplyAuraWithAmount(SpellEffIndex effIndex);
         void EffectLaunchQuestChoice(SpellEffIndex effIndex);
         void EffectLootWithToast(SpellEffIndex effIndex);
         void EffectUncageBattlePet(SpellEffIndex effIndex);

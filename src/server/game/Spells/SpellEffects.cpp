@@ -279,7 +279,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
     &Spell::EffectHealBattlePetPct,                         //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
     &Spell::EffectEnableBattlePets,                         //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
-    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202 Apply aura on pet ?
+    &Spell::EffectApplyAuraWithAmount,                      //202 SPELL_EFFECT_APPLY_AURA_WITH_AMOUNT
     &Spell::EffectRemoveAura,                               //203 SPELL_EFFECT_REMOVE_AURA_2
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     &Spell::EffectLaunchQuestChoice,                        //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
@@ -5730,6 +5730,17 @@ void Spell::EffectEnableBattlePets(SpellEffIndex /*effIndex*/)
     Player* plr = unitTarget->ToPlayer();
     plr->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
     plr->GetSession()->GetBattlePetMgr()->UnlockSlot(0);
+}
+
+void Spell::EffectApplyAuraWithAmount(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_spellAura || !unitTarget)
+        return;
+    ASSERT(unitTarget == m_spellAura->GetOwner());
+    m_spellAura->_ApplyEffectForTargets(effIndex);
 }
 
 void Spell::EffectLaunchQuestChoice(SpellEffIndex /*effIndex*/)
