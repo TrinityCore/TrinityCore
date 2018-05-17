@@ -290,7 +290,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectLearnGarrisonBuilding,                    //210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
-    &Spell::EffectNULL,                                     //213 SPELL_EFFECT_213
+    &Spell::EffectGrip,                                     //213 SPELL_EFFECT_GRIP
     &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
@@ -5626,6 +5626,20 @@ void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison(GARRISON_TYPE_GARRISON))
         garrison->ToWodGarrison()->LearnBlueprint(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectGrip(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    if (m_caster->IsInFlight() || !m_targets.HasDst())
+        return;
+
+    if (WorldObject* worldObject = m_targets.GetObjectTarget())
+        m_caster->GetMotionMaster()->MoveJump(worldObject->GetPosition(), 63.0f, 3.75f, m_spellInfo->Id);
+    else if (Unit* target = m_targets.GetUnitTarget())
+        m_caster->GetMotionMaster()->MoveJump(target->GetPosition(), 63.0f, 3.75f, m_spellInfo->Id);
 }
 
 void Spell::EffectCreateGarrison(SpellEffIndex effIndex)

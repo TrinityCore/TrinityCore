@@ -465,6 +465,7 @@ class TC_GAME_API Spell
         void EffectRemoveTalent(SpellEffIndex effIndex);
         void EffectDestroyItem(SpellEffIndex effIndex);
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
+        void EffectGrip(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
         void EffectCreateConversation(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
