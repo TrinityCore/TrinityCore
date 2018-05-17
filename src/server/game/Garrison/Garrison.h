@@ -20,20 +20,19 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "GarrisonAI.h"
 #include "GarrisonPackets.h"
 #include "GarrisonMgr.h"
 #include "Optional.h"
 #include <unordered_map>
 
+class ClassHall;
 class GameObject;
+class GarrisonAI;
 class Map;
 class Player;
-struct GarrSiteLevelEntry;
-
-class GameObject;
-class Map;
 class WodGarrison;
-class ClassHall;
+struct GarrSiteLevelEntry;
 
 class TC_GAME_API Garrison
 {
@@ -54,6 +53,7 @@ public:
     };
 
     explicit Garrison(Player* owner);
+    Player* GetOwner() const { return _owner; }
 
     virtual bool LoadFromDB();
     virtual void SaveToDB(SQLTransaction trans);
@@ -61,13 +61,19 @@ public:
     virtual bool Create(uint32 garrSiteId);
     virtual void Delete();
 
-    virtual void Enter() const;
-    virtual void Leave() const;
+    virtual void Enter();
+    virtual void Leave();
+
+    uint32 GetScriptId() const;
+    void AI_Initialize();
+    void AI_Destroy();
+    GarrisonAI* AI() { return _ai.get(); }
 
     virtual bool IsAllowedArea(AreaTableEntry const* /*area*/) const { return false; }
 
     GarrisonFactionIndex GetFaction() const;
     GarrisonType GetType() const { return _garrisonType; }
+    void SetSiteLevel(GarrSiteLevelEntry const* siteLevel);
     GarrSiteLevelEntry const* GetSiteLevel() const { return _siteLevel; }
 
     // Followers
@@ -99,6 +105,7 @@ protected:
     Player* _owner;
     GarrSiteLevelEntry const* _siteLevel;
     uint32 _followerActivationsRemainingToday;
+    std::unique_ptr<GarrisonAI> _ai;
 
     std::unordered_map<uint64 /*dbId*/, Garrison::Follower> _followers;
     std::unordered_set<uint32> _followerIds;

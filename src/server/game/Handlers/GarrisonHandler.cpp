@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "WodGarrison.h"
 #include "ClassHall.h"
+#include "GarrisonAI.h"
 #include "GarrisonMgr.h"
 #include "GarrisonPackets.h"
 #include "ObjectMgr.h"
@@ -44,6 +45,27 @@ void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::Garr
 
     if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
         garrison->ToWodGarrison()->CancelBuildingConstruction(garrisonCancelConstruction.PlotInstanceID);
+}
+
+void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& garrisonCheckUpgradeable)
+{
+    bool canUpgrade = false;
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+        canUpgrade = garrison->ToWodGarrison()->CanUpgrade();
+
+    SendPacket(WorldPackets::Garrison::GarrisonCheckUpgradeableResult(canUpgrade).Write());
+}
+
+void WorldSession::HandleGarrisonUpgrade(WorldPackets::Garrison::GarrisonUpgrade& garrisonUpgrade)
+{
+    if (!_player->GetNPCIfCanInteractWith(garrisonUpgrade.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+    {
+        /*bool result = */garrison->ToWodGarrison()->Upgrade();
+        //SendPacket(WorldPackets::Garrison::GarrisonUpgradeResult().Write());
+    }
 }
 
 void WorldSession::HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& /*garrisonRequestBlueprintAndSpecializationData*/)

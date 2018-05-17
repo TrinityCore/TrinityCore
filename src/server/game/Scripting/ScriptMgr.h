@@ -40,6 +40,8 @@ class CreatureAI;
 class DynamicObject;
 class GameObject;
 class GameObjectAI;
+class Garrison;
+class GarrisonAI;
 class Guild;
 class GridMap;
 class Group;
@@ -925,6 +927,18 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
+class TC_GAME_API GarrisonScript : public ScriptObject
+{
+    protected:
+
+        GarrisonScript(const char* name);
+
+    public:
+
+        // Called when a GarrisonAI object is needed for the garrison.
+        virtual GarrisonAI* GetAI(Garrison* /*gar*/) const { return nullptr; }
+};
+
 class TC_GAME_API ConversationScript : public ScriptObject
 {
     protected:
@@ -1271,6 +1285,10 @@ class TC_GAME_API ScriptMgr
 
         AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
 
+    public: /* GarrisonScript */
+
+        GarrisonAI* GetGarrisonAI(Garrison* garrison);
+
     public: /* ConversationScript */
 
         void OnConversationCreate(Conversation* conversation, Unit* creator);
@@ -1361,6 +1379,15 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
         AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
 };
 #define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
+
+template <class AI>
+class GenericGarrisonScript : public GarrisonScript
+{
+    public:
+        GenericGarrisonScript(char const* name) : GarrisonScript(name) { }
+        GarrisonAI* GetAI(Garrison* gar) const override { return new AI(gar); }
+};
+#define RegisterGarrisonAI(ai_name) new GenericGarrisonScript<ai_name>(#ai_name)
 
 template <class AI>
 class GenericInstanceMapScript : public InstanceMapScript

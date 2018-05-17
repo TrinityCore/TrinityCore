@@ -2073,6 +2073,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Zones script names...");
     sObjectMgr->LoadZoneScriptNames();
 
+    TC_LOG_INFO("server.loading", "Loading Garrison script names...");
+    sObjectMgr->LoadGarrisonScriptNames();
+
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
     m_gameTime = time(NULL);

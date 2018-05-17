@@ -23,6 +23,8 @@
 #include "GameObjectData.h"
 #include "Garrison.h"
 
+#define WOD_GARRISON_LEVEL_MAX 3
+
 enum GarrisonBuildingFlags
 {
     GARRISON_BUILDING_FLAG_NEEDS_PLAN = 0x1
@@ -81,11 +83,13 @@ public:
     static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
     bool Create(uint32 garrSiteId) override;
-    void Upgrade();
+    bool CanUpgrade();
+    bool Upgrade();
+    void TeleportOwnerAndPlayMovie() const;
     void Delete() override;
 
-    void Enter() const override;
-    void Leave() const override;
+    void Enter() override;
+    void Leave() override;
 
     bool IsAllowedArea(AreaTableEntry const* area) const override;
 

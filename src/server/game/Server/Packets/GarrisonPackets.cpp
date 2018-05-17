@@ -292,6 +292,23 @@ WorldPacket const* WorldPackets::Garrison::GarrisonUnlearnBlueprintResult::Write
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Garrison::GarrisonCheckUpgradeableResult::Write()
+{
+    _worldPacket << uint32(!IsUpgradeable);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonUpgrade::Read()
+{
+    _worldPacket >> NpcGUID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonUpgradeResult::Write()
+{
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationDataResult::Write()
 {
     _worldPacket << int32(GarrTypeID);

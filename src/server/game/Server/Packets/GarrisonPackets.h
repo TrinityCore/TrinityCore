@@ -278,6 +278,42 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class GarrisonCheckUpgradeable final : public ClientPacket
+        {
+        public:
+            GarrisonCheckUpgradeable(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_CHECK_UPGRADEABLE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GarrisonCheckUpgradeableResult final : public ServerPacket
+        {
+        public:
+            GarrisonCheckUpgradeableResult(bool upgradeable = false) : ServerPacket(SMSG_GARRISON_IS_UPGRADEABLE_RESULT, 4), IsUpgradeable(upgradeable) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsUpgradeable = false;
+        };
+
+        class GarrisonUpgrade final : public ClientPacket
+        {
+        public:
+            GarrisonUpgrade(WorldPacket&& packet) : ClientPacket(CMSG_UPGRADE_GARRISON, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+        };
+
+        class GarrisonUpgradeResult final : public ServerPacket
+        {
+        public:
+            GarrisonUpgradeResult() : ServerPacket(SMSG_GARRISON_UPGRADE_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+        };
+
         class GarrisonRequestBlueprintAndSpecializationDataResult final : public ServerPacket
         {
         public:

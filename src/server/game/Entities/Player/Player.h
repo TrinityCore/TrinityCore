@@ -2508,6 +2508,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
             MovieDelayedTeleports.push_back(data);
         }
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, Position pos)
+        {
+            AddMovieDelayedTeleport(movieId, mapID, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        }
 
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
         void UpdateShop(uint32 diff);

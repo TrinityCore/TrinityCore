@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Garrison.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Garrison.h"
+#include "GarrisonAI.h"
 #include "GameObject.h"
 #include "GarrisonMgr.h"
 #include "Log.h"
@@ -27,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "VehicleDefines.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
@@ -39,7 +41,7 @@ bool Garrison::Create(uint32 garrSiteId)
     if (!siteLevel)
         return false;
 
-    _siteLevel = siteLevel;
+    SetSiteLevel(siteLevel);
 
     WorldPackets::Garrison::GarrisonCreateResult garrisonCreateResult;
     garrisonCreateResult.GarrSiteLevelID = _siteLevel->ID;
@@ -84,10 +86,12 @@ bool Garrison::LoadFromDB()
         return false;
 
     Field* fields = garrisonStmt->Fetch();
-    _siteLevel = sGarrSiteLevelStore.LookupEntry(fields[0].GetUInt32());
+    GarrSiteLevelEntry const* siteLevel = sGarrSiteLevelStore.LookupEntry(fields[0].GetUInt32());
     _followerActivationsRemainingToday = fields[1].GetUInt32();
-    if (!_siteLevel)
+    if (!siteLevel)
         return false;
+
+    SetSiteLevel(siteLevel);
 
     //           0           1        2      3                4               5   6                7               8       9
     // SELECT dbId, followerId, quality, level, itemLevelWeapon, itemLevelArmor, xp, currentBuilding, currentMission, status FROM character_garrison_followers WHERE guid = ? AND garrison_type = ?
@@ -227,19 +231,47 @@ void Garrison::SaveToDB(SQLTransaction trans)
     }
 }
 
-void Garrison::Enter() const
+void Garrison::Enter()
 {
     _owner->SetCurrentGarrison(_garrisonType);
+    AI()->OnPlayerEnter(_owner);
 }
 
-void Garrison::Leave() const
+void Garrison::Leave()
 {
     _owner->SetCurrentGarrison(GARRISON_TYPE_NONE);
+    AI()->OnPlayerLeave(_owner);
+}
+
+uint32 Garrison::GetScriptId() const
+{
+    return sObjectMgr->GetScriptIdForGarrison(_siteLevel->ID);
 }
 
 GarrisonFactionIndex Garrison::GetFaction() const
 {
     return _owner->GetTeam() == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE;
+}
+
+void Garrison::SetSiteLevel(GarrSiteLevelEntry const* siteLevel)
+{
+    _siteLevel = siteLevel;
+    AI_Initialize();
+}
+
+void Garrison::AI_Initialize()
+{
+    AI_Destroy();
+    GarrisonAI* ai = sScriptMgr->GetGarrisonAI(this);
+    if (!ai)
+        ai = new NullGarrisonAI(this);
+
+    _ai.reset(ai);
+}
+
+void Garrison::AI_Destroy()
+{
+    _ai.reset();
 }
 
 void Garrison::AddFollower(uint32 garrFollowerId)

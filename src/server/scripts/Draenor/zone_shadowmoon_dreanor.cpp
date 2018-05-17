@@ -31,6 +31,7 @@
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "WodGarrison.h"
 
 enum
 {
@@ -189,11 +190,7 @@ public:
         {
             CloseGossipMenuFor(player);
             player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
-
-            GarrSiteLevelEntry const* garSiteLevel = player->GetGarrison(GARRISON_TYPE_GARRISON)->GetSiteLevel();
-            player->AddMovieDelayedTeleport(garSiteLevel->UpgradeMovieID, garSiteLevel->MapID, 1766.761475f, 191.2846830f, 72.115326f, 0.4649370f);
-            player->SendMovieStart(garSiteLevel->UpgradeMovieID);
-
+            player->GetGarrison(GARRISON_TYPE_GARRISON)->ToWodGarrison()->TeleportOwnerAndPlayMovie();
             player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
         }
 

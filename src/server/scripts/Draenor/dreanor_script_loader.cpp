@@ -29,6 +29,9 @@ void AddSC_tanaan_intro_shadowmoon();
 void AddSC_tanaan_intro_blackrock();
 void AddSC_tanaan_intro_finale();
 
+void AddSC_garrison_level_1();
+void AddSC_garrison_level_2();
+void AddSC_garrison_level_3();
 void AddSC_spells_garrison();
 
 // Bloodmaul Slag Mines
@@ -74,6 +77,9 @@ void AddDraenorScripts()
     AddSC_tanaan_intro_blackrock();
     AddSC_tanaan_intro_finale();
 
+    AddSC_garrison_level_1();
+    AddSC_garrison_level_2();
+    AddSC_garrison_level_3();
     AddSC_spells_garrison();
 
     // Bloodmaul Slag Mines

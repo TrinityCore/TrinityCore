@@ -295,6 +295,10 @@ namespace WorldPackets
         class GetGarrisonInfo;
         class GarrisonPurchaseBuilding;
         class GarrisonCancelConstruction;
+        class GarrisonCheckUpgradeable;
+        class GarrisonCheckUpgradeableResult;
+        class GarrisonUpgrade;
+        class GarrisonUpgradeResult;
         class GarrisonRequestBlueprintAndSpecializationData;
         class GarrisonGetBuildingLandmarks;
         class GarrisonOpenMissionNpcClient;
@@ -1731,6 +1735,8 @@ class TC_GAME_API WorldSession
         void HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& getGarrisonInfo);
         void HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& garrisonPurchaseBuilding);
         void HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& garrisonCancelConstruction);
+        void HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& garrisonCheckUpgradeable);
+        void HandleGarrisonUpgrade(WorldPackets::Garrison::GarrisonUpgrade& garrisonUpgrade);
         void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& garrisonRequestBlueprintAndSpecializationData);
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
         void HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpcClient& garrisonOpenMissionNpc);

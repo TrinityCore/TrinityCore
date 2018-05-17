@@ -19,6 +19,11 @@
 #ifndef GarrisonConstants_h__
 #define GarrisonConstants_h__
 
+enum GarrisonMisc
+{
+    GARRISON_WOD_CURRENCY   = 824,
+};
+
 enum GarrisonSite
 {
     GARRISON_SITE_WOD_ALLIANCE          = 2,

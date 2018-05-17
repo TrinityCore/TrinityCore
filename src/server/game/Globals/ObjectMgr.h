@@ -1617,6 +1617,9 @@ class TC_GAME_API ObjectMgr
         void LoadZoneScriptNames();
         uint32 GetScriptIdForZone(uint32 zoneId);
 
+        void LoadGarrisonScriptNames();
+        uint32 GetScriptIdForGarrison(uint32 siteLevelId);
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1710,6 +1713,7 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, std::vector<TerrainSwapInfo*>> _terrainSwapInfoByMap;
 
         std::unordered_map<uint32, uint32> _scriptIdsByZoneStore;
+        std::unordered_map<uint32, uint32> _scriptIdsByGarrisonStore;
     private:
         void LoadScripts(ScriptsType type);
         void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);

@@ -22,6 +22,7 @@
 #include "GarrisonMgr.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "PhasingHandler.h"
 #include "ObjectMgr.h"
 #include "VehicleDefines.h"
 #include "WodGarrison.h"
@@ -155,6 +156,67 @@ bool WodGarrison::Create(uint32 garrSiteId)
     return true;
 }
 
+bool WodGarrison::CanUpgrade()
+{
+    if (_siteLevel->GarrLevel >= WOD_GARRISON_LEVEL_MAX)
+        return false;
+
+    if (_owner->GetCurrency(GARRISON_WOD_CURRENCY) < _siteLevel->UpgradeCost)
+        return false;
+
+    if (_owner->GetMoney() < _siteLevel->UpgradeGoldCost)
+        return false;
+
+    if (!AI()->OnCheckUpgradeable())
+        return false;
+
+    return true;
+}
+
+bool WodGarrison::Upgrade()
+{
+    if (!CanUpgrade())
+        return false;
+
+    GarrSiteLevelEntry const* siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(_siteLevel->GarrSiteID, _siteLevel->GarrLevel + 1);
+    if (!siteLevel)
+        return false;
+
+    _owner->ModifyCurrency(GARRISON_WOD_CURRENCY, -_siteLevel->UpgradeCost);
+    _owner->ModifyMoney(-_siteLevel->UpgradeGoldCost);
+
+    SetSiteLevel(siteLevel);
+    InitializePlots();
+    _owner->SendGarrisonRemoteInfo();
+    PhasingHandler::OnConditionChange(_owner);
+
+    TeleportOwnerAndPlayMovie();
+
+    return true;
+}
+
+void WodGarrison::TeleportOwnerAndPlayMovie() const
+{
+    Position WodGarrisonEntrancePositions[2][3] =
+    {
+        // Horde
+        {
+            { 5698.020020f, 4512.1635574f,  127.401695f,    2.8622720f  },
+            { 5754.82f,     4495.425f,      132.50f,        2.90f       },
+            { 5622.5063f,   4465.5161f,     130.1637f,      0.0f        }
+        },
+        // Alliance
+        {
+            { 1766.761475f, 191.2846830f, 72.115326f, 0.4649370f },
+            { 1759.94f,     184.86f,      71.50f,     0.57f      },
+            { 1759.94f,     184.86f,      71.50f,     0.57f      }
+        }
+    };
+
+    _owner->AddMovieDelayedTeleport(_siteLevel->UpgradeMovieID, _siteLevel->MapID, WodGarrisonEntrancePositions[GetFaction()][_siteLevel->GarrLevel - 1]);
+    _owner->SendMovieStart(_siteLevel->UpgradeMovieID);
+}
+
 void WodGarrison::Delete()
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -191,11 +253,7 @@ void WodGarrison::InitializePlots()
     }
 }
 
-void WodGarrison::Upgrade()
-{
-}
-
-void WodGarrison::Enter() const
+void WodGarrison::Enter()
 {
     Garrison::Enter();
 
@@ -204,7 +262,7 @@ void WodGarrison::Enter() const
             _owner->SeamlessTeleportToMap(_siteLevel->MapID);
 }
 
-void WodGarrison::Leave() const
+void WodGarrison::Leave()
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
     {
@@ -220,6 +278,8 @@ void WodGarrison::Leave() const
             Garrison::Leave();
             _owner->SeamlessTeleportToMap(map->ParentMapID);
         }
+        else // We already have been teleported
+            Garrison::Leave();
     }
 }
 

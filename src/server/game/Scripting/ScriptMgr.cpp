@@ -26,6 +26,8 @@
 #include "CreatureAIImpl.h"
 #include "Errors.h"
 #include "GameObject.h"
+#include "Garrison.h"
+#include "GarrisonAI.h"
 #include "GossipDef.h"
 #include "Item.h"
 #include "LFGScripts.h"
@@ -109,6 +111,10 @@ struct is_script_database_bound<AchievementCriteriaScript>
 
 template<>
 struct is_script_database_bound<AreaTriggerEntityScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<GarrisonScript>
     : std::true_type { };
 
 template<>
@@ -660,6 +666,11 @@ class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
 /// This hook is responsible for swapping BattlegroundScript's
 template<typename Base>
 class ScriptRegistrySwapHooks<BattlegroundScript, Base>
+    : public UnsupportedScriptRegistrySwapHooks<Base> { };
+
+/// This hook is responsible for swapping Garrison's
+template<typename Base>
+class ScriptRegistrySwapHooks<GarrisonScript, Base>
     : public UnsupportedScriptRegistrySwapHooks<Base> { };
 
 /// This hook is responsible for swapping OutdoorPvP's
@@ -1832,7 +1843,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 
-    GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
+    GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, nullptr);
     return tmpscript->GetAI(gameobject);
 }
 
@@ -1840,8 +1851,16 @@ AreaTriggerAI* ScriptMgr::GetAreaTriggerAI(AreaTrigger* areatrigger)
 {
     ASSERT(areatrigger);
 
-    GET_SCRIPT_RET(AreaTriggerEntityScript, areatrigger->GetScriptId(), tmpscript, NULL);
+    GET_SCRIPT_RET(AreaTriggerEntityScript, areatrigger->GetScriptId(), tmpscript, nullptr);
     return tmpscript->GetAI(areatrigger);
+}
+
+GarrisonAI* ScriptMgr::GetGarrisonAI(Garrison* garrison)
+{
+    ASSERT(garrison);
+
+    GET_SCRIPT_RET(GarrisonScript, garrison->GetScriptId(), tmpscript, nullptr);
+    return tmpscript->GetAI(garrison);
 }
 
 ZoneScript* ScriptMgr::GetZoneScript(uint32 scriptId)
@@ -2859,6 +2878,12 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
     ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
 }
 
+GarrisonScript::GarrisonScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<GarrisonScript>::Instance()->AddScript(this);
+}
+
 ConversationScript::ConversationScript(char const* name)
     : ScriptObject(name)
 {
@@ -2900,6 +2925,7 @@ template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
 template class TC_GAME_API ScriptRegistry<RestScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
+template class TC_GAME_API ScriptRegistry<GarrisonScript>;
 template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
 template class TC_GAME_API ScriptRegistry<QuestScript>;
