@@ -23,11 +23,6 @@
 #include "Player.h"
 #include "deadmines.h"
 
-enum Texts
-{
-
-};
-
 enum Spells
 {
     // "Captain" Cookie
