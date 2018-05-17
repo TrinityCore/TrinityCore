@@ -392,7 +392,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
         protected:
             EventMap events;
             GuidSet _halfusEncounterGUIDs;
-            GuidSet _spikeGUIDs;
             GuidSet _dancingFlamesInvisibleStalkerGUIDs;
             std::set<uint32> _activeDragonEntries;
             uint32 _unresponsiveDragonEntryFirst;
