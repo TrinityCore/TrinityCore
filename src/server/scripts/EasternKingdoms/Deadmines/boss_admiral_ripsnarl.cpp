@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -49,7 +49,6 @@ enum Spells
     // Vapor
     SPELL_STEAM_AURA                    = 95503,
     SPELL_CONDENSATION                  = 92013,
-
     SPELL_SWIRLING_VAPOR                = 92007,
     SPELL_CONDENSING_VAPOR              = 92008,
     SPELL_FREEZING_VAPOR                = 92011,

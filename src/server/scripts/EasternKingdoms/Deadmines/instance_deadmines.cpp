@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "deadmines.h"
@@ -59,7 +58,7 @@ enum EventIds
     EVENT_CHECK_DEAD_PLAYERS
 };
 
-enum TextsIds
+enum TextIds
 {
     // Id's 0 - 1 used by Foe Reaper 5000
     // Id 2 used by Defias Cannon
