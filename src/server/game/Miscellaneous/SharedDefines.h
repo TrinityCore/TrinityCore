@@ -1280,7 +1280,7 @@ enum SpellEffectName
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // NYI
     SPELL_EFFECT_ENABLE_BATTLE_PETS                 = 201, // NYI
     SPELL_EFFECT_202                                = 202,
-    SPELL_EFFECT_203                                = 203,
+    SPELL_EFFECT_REMOVE_AURA_2                                = 203,
     SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY           = 204,
     SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205,
     SPELL_EFFECT_ALTER_ITEM                         = 206, // NYI
