@@ -156,16 +156,19 @@ bool WodGarrison::Create(uint32 garrSiteId)
     return true;
 }
 
-bool WodGarrison::CanUpgrade()
+bool WodGarrison::CanUpgrade(bool checkCost /*= true*/)
 {
     if (_siteLevel->GarrLevel >= WOD_GARRISON_LEVEL_MAX)
         return false;
 
-    if (_owner->GetCurrency(GARRISON_WOD_CURRENCY) < _siteLevel->UpgradeCost)
-        return false;
+    if (checkCost)
+    {
+        if (_owner->GetCurrency(GARRISON_WOD_CURRENCY) < _siteLevel->UpgradeCost)
+            return false;
 
-    if (_owner->GetMoney() < _siteLevel->UpgradeGoldCost)
-        return false;
+        if (_owner->GetMoney() < _siteLevel->UpgradeGoldCost)
+            return false;
+    }
 
     if (!AI()->OnCheckUpgradeable())
         return false;

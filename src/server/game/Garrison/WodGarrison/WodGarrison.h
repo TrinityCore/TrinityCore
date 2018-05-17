@@ -83,7 +83,7 @@ public:
     static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
     bool Create(uint32 garrSiteId) override;
-    bool CanUpgrade();
+    bool CanUpgrade(bool checkCost = true);
     bool Upgrade();
     void TeleportOwnerAndPlayMovie() const;
     void Delete() override;

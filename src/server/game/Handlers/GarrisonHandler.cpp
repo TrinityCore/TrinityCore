@@ -47,11 +47,11 @@ void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::Garr
         garrison->ToWodGarrison()->CancelBuildingConstruction(garrisonCancelConstruction.PlotInstanceID);
 }
 
-void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& garrisonCheckUpgradeable)
+void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& /*garrisonCheckUpgradeable*/)
 {
     bool canUpgrade = false;
     if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
-        canUpgrade = garrison->ToWodGarrison()->CanUpgrade();
+        canUpgrade = garrison->ToWodGarrison()->CanUpgrade(false);
 
     SendPacket(WorldPackets::Garrison::GarrisonCheckUpgradeableResult(canUpgrade).Write());
 }
