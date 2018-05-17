@@ -3149,6 +3149,8 @@ bool Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     CallScriptOnCalcCastTimeHandlers();
 
+    m_casttime *= m_caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_CASTING_SPEED);
+
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
         if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
         {
