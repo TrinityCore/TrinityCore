@@ -179,6 +179,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  movement
         void HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraMountedVisual(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const;
