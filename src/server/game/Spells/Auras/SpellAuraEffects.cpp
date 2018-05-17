@@ -6233,8 +6233,7 @@ void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, b
         for (auto spellEffect : triggerSpellInfo->GetEffectsForDifficulty(target->FindMap()->GetDifficultyID()))
             if (spellEffect && spellEffect->Effect == SPELL_EFFECT_SUMMON)
                 if (uint32 summonEntry = spellEffect->MiscValue)
-                    if (std::find(summonedEntries.begin(), summonedEntries.end(), summonEntry) == summonedEntries.end())
-                        summonedEntries.push_back(summonEntry);
+                    summonedEntries.push_back(summonEntry);
 
         // we don't know if there can be multiple summons for the same effect, so consider only 1 summon for each effect
         // most of the spells have multiple effects with the same summon spell id for multiple spawns, so right now it's safe to assume there's only 1 spawn per effect
