@@ -5628,7 +5628,7 @@ void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
         garrison->ToWodGarrison()->LearnBlueprint(GetEffect(effIndex)->MiscValue);
 }
 
-void Spell::EffectGrip(SpellEffIndex effIndex)
+void Spell::EffectGrip(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
