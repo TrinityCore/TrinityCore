@@ -13899,7 +13899,7 @@ void Unit::ApplyMovementForce(ObjectGuid source, float magnitude, Position direc
     moveApplyMovementForce.SequenceIndex = m_movementCounter++;
 
     moveApplyMovementForce.Force.ID             = source;
-    moveApplyMovementForce.Force.Magnitude      = magnitude;
+    moveApplyMovementForce.Force.Magnitude      = magnitude * GetTotalAuraMultiplier(SPELL_AURA_MOD_MOVEMENT_FORCES_SPEED_PCT);
     moveApplyMovementForce.Force.Origin         = origin;
     moveApplyMovementForce.Force.Direction      = direction;
     moveApplyMovementForce.Force.TransportID    = GetTransport() ? GetTransport()->GetEntry() : 0;
@@ -13931,6 +13931,18 @@ void Unit::RemoveAllMovementForces()
 
     for (auto itr: movementForcesCopy)
         RemoveMovementForce(itr.first);
+}
+
+void Unit::ReApplyAllMovementForces()
+{
+    // We need to copy the map because RemoveMovementForce method will delete from original map
+    std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> movementForcesCopy = _movementForces;
+
+    for (auto itr : movementForcesCopy)
+        RemoveMovementForce(itr.first);
+
+    for (auto itr : movementForcesCopy)
+        ApplyMovementForce(itr.first, itr.second.Magnitude, itr.second.Direction, itr.second.Origin);
 }
 
 void Unit::SendSetVehicleRecId(uint32 vehicleId)

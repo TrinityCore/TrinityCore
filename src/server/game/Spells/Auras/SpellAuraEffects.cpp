@@ -551,7 +551,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleProfilCamera,                              //482 SPELL_AURA_PROFIL_CAMERA
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_SUPPRESS_TRANSFORMS
     &AuraEffect::HandleNULL,                                      //484
-    &AuraEffect::HandleNULL,                                      //485
+    &AuraEffect::HandleModMovementforcesSpeedPercent,             //485 SPELL_AURA_MOD_MOVEMENT_FORCES_SPEED_PCT
     &AuraEffect::HandleNULL,                                      //486
     &AuraEffect::HandleNULL,                                      //487
     &AuraEffect::HandleNULL,                                      //488
@@ -6412,4 +6412,19 @@ void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, b
             }
         }
     }
+}
+
+
+void AuraEffect::HandleModMovementforcesSpeedPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (!apply)
+        for (auto& forces : target->GetMovementForces())
+            ApplyPercentModFloatVar(forces.second.Magnitude, GetAmount(), apply);
+
+    target->ReApplyAllMovementForces();
 }
