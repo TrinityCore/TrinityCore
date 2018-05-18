@@ -459,7 +459,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //390
     &AuraEffect::HandleNULL,                                      //391
     &AuraEffect::HandleNULL,                                      //392
-    &AuraEffect::HandleNULL,                                      //393
+    &AuraEffect::HandleNoImmediateEffect,                         //393 SPELL_AURA_DEFLECT_FRONT_SPELLS
     &AuraEffect::HandleShowConfirmationPrompt,                    //394 SPELL_AURA_SHOW_CONFIRMATION_PROMPT
     &AuraEffect::HandleCreateAreaTrigger,                         //395 SPELL_AURA_AREA_TRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT
@@ -473,7 +473,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT
     &AuraEffect::HandleModRatingPct,                              //405 SPELL_AURA_MOD_RATING_PCT
     &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_KEYBOUND_OVERRIDE
-    &AuraEffect::HandleNULL,                                      //407 SPELL_AURA_MOD_FEAR_2
+    &AuraEffect::HandleModFear,                                   //407 SPELL_AURA_MOD_FEAR_2
     &AuraEffect::HandleNULL,                                      //408
     &AuraEffect::HandleAuraCanTurnWhileFalling,                   //409 SPELL_AURA_CAN_TURN_WHILE_FALLING
     &AuraEffect::HandleNULL,                                      //410
