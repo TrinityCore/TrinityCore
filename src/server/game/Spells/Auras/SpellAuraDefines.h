@@ -458,7 +458,7 @@ enum AuraType : uint32
     SPELL_AURA_CHANCE_OVERRIDE_AUTOATTACK_WITH_SPELL_ON_SELF= 385,  // NYI (with triggered spell cast by the initial caster?)
     SPELL_AURA_386                                          = 386,
     SPELL_AURA_387                                          = 387,
-    SPELL_AURA_MOD_TAXI_FLIGHT_SPEED                        = 388,  // NYI
+    SPELL_AURA_MOD_TAXI_FLIGHT_SPEED                        = 388,
     SPELL_AURA_389                                          = 389,
     SPELL_AURA_390                                          = 390,
     SPELL_AURA_391                                          = 391,
