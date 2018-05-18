@@ -440,7 +440,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //371
     &AuraEffect::HandleAuraMountedVisual,                         //372 SPELL_AURA_MOUNTED_VISUAL
     &AuraEffect::HandleNULL,                                      //373 SPELL_AURA_MOD_SPEED_NO_CONTROL
-    &AuraEffect::HandleNULL,                                      //374 SPELL_AURA_MODIFY_FALL_DAMAGE_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_MODIFY_FALL_DAMAGE_PCT
     &AuraEffect::HandleNULL,                                      //375
     &AuraEffect::HandleNULL,                                      //376 SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE
     &AuraEffect::HandleNULL,                                      //377 SPELL_AURA_CAST_WHILE_WALKING_2
