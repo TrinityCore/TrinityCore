@@ -557,7 +557,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //488
     &AuraEffect::HandleNULL,                                      //489
     &AuraEffect::HandleNULL,                                      //490
-    &AuraEffect::HandleNULL,                                      //491
+    &AuraEffect::HandleNoImmediateEffect,                         //491 SPELL_AURA_MOD_HONOR_GAIN_PCT_2 implemented in Player::RewardHonor
 };
 
 AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster) :
