@@ -9762,9 +9762,6 @@ void Unit::CheckPowerProc(Powers power, int32 oldVal, int32 newVal)
     {
         if (effect->GetMiscValue() == power)
         {
-            uint32 effectAmount = effect->GetAmount();
-            uint32 triggerSpell = effect->GetSpellEffectInfo()->TriggerSpell;
-
             float oldValueCheck = oldVal;
             float newValueCheck = newVal;
 
@@ -9774,9 +9771,10 @@ void Unit::CheckPowerProc(Powers power, int32 oldVal, int32 newVal)
                 newValueCheck = GetPctOf(newVal, GetMaxPower(power));
             }
 
-            if ((effect->GetMiscValueB() == POWER_PROC_UPPER && oldValueCheck < effect->GetAmount() && newValueCheck >= effectAmount) ||
-                (effect->GetMiscValueB() == POWER_PROC_LOWER && oldValueCheck > effect->GetAmount() && newValueCheck <= effectAmount))
-                CastSpell(this, triggerSpell, true);
+            uint32 effectAmount = effect->GetAmount();
+            if ((effect->GetMiscValueB() == POWER_PROC_UPPER && oldValueCheck < effectAmount && newValueCheck >= effectAmount) ||
+                (effect->GetMiscValueB() == POWER_PROC_LOWER && oldValueCheck > effectAmount && newValueCheck <= effectAmount))
+                CastSpell(this, effect->GetSpellEffectInfo()->TriggerSpell, true);
         }
     }
 }

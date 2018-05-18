@@ -4990,13 +4990,11 @@ void AuraEffect::HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp,
 
     Unit* target = aurApp->GetTarget();
 
-    uint32 effectAmount = GetAmount();
-    uint32 triggerSpell = GetSpellEffectInfo()->TriggerSpell;
     float powerAmountPct = GetPctOf(target->GetPower(Powers(GetMiscValue())), target->GetMaxPower(Powers(GetMiscValue())));
 
-    if ((GetMiscValueB() == POWER_PROC_UPPER && powerAmountPct >= effectAmount) ||
-        (GetMiscValueB() == POWER_PROC_LOWER && powerAmountPct <= effectAmount))
-        target->CastSpell(target, triggerSpell, true);
+    if ((GetMiscValueB() == POWER_PROC_UPPER && powerAmountPct >= GetAmount()) ||
+        (GetMiscValueB() == POWER_PROC_LOWER && powerAmountPct <= GetAmount()))
+        target->CastSpell(target, GetSpellEffectInfo()->TriggerSpell, true);
 }
 
 void AuraEffect::HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5006,13 +5004,11 @@ void AuraEffect::HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, 
 
     Unit* target = aurApp->GetTarget();
 
-    uint32 effectAmount = GetAmount();
-    uint32 triggerSpell = GetSpellEffectInfo()->TriggerSpell;
     float powerAmount = target->GetPower(Powers(GetMiscValue()));
 
-    if ((GetMiscValueB() == POWER_PROC_UPPER && powerAmount >= effectAmount) ||
-        (GetMiscValueB() == POWER_PROC_LOWER && powerAmount <= effectAmount))
-        target->CastSpell(target, triggerSpell, true);
+    if ((GetMiscValueB() == POWER_PROC_UPPER && powerAmount >= GetAmount()) ||
+        (GetMiscValueB() == POWER_PROC_LOWER && powerAmount <= GetAmount()))
+        target->CastSpell(target, GetSpellEffectInfo()->TriggerSpell, true);
 }
 
 void AuraEffect::HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const
