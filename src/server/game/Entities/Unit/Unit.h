@@ -1083,6 +1083,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
         void SetPower(Powers power, int32 val);
         void SetMaxPower(Powers power, int32 val);
+        void TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal);
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);

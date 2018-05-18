@@ -9964,6 +9964,7 @@ void Unit::SetPower(Powers power, int32 val)
     if (maxPower < val)
         val = maxPower;
 
+    int32 oldPower = m_unitData->Power[powerIndex];
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, powerIndex), val);
 
     if (IsInWorld())
@@ -9974,6 +9975,8 @@ void Unit::SetPower(Powers power, int32 val)
         packet.Powers.emplace_back(val, power);
         SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
+
+    TriggerOnPowerChangeAuras(power, oldPower, val);
 
     // group update
     if (Player* player = ToPlayer())
@@ -10011,6 +10014,48 @@ void Unit::SetMaxPower(Powers power, int32 val)
 
     if (val < cur_power)
         SetPower(power, val);
+}
+
+void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
+{
+    AuraEffectList effects       = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT);
+    AuraEffectList effectsAmount = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT);
+    effects.splice(effects.end(), effectsAmount);
+
+    for (AuraEffect const* effect : effects)
+    {
+        if (effect->GetMiscValue() == power)
+        {
+            uint32 effectAmount = effect->GetAmount();
+            uint32 triggerSpell = effect->GetSpellEffectInfo()->TriggerSpell;
+
+            float oldValueCheck = oldVal;
+            float newValueCheck = newVal;
+
+            if (effect->GetAuraType() == SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT)
+            {
+                int32 maxPower = GetMaxPower(power);
+                oldValueCheck = GetPctOf(oldVal, maxPower);
+                newValueCheck = GetPctOf(newVal, maxPower);
+            }
+
+            switch (AuraTriggerOnPowerChangeDirection(effect->GetMiscValueB()))
+            {
+                case AuraTriggerOnPowerChangeDirection::Gain:
+                    if (oldValueCheck >= effect->GetAmount() || newValueCheck < effectAmount)
+                        continue;
+                    break;
+                case AuraTriggerOnPowerChangeDirection::Loss:
+                    if (oldValueCheck <= effect->GetAmount() || newValueCheck > effectAmount)
+                        continue;
+                    break;
+                default:
+                    break;
+            }
+
+            CastSpell(this, triggerSpell, true, nullptr, effect);
+        }
+    }
 }
 
 int32 Unit::GetCreatePowers(Powers power) const
