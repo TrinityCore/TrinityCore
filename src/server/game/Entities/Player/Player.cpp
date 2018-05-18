@@ -788,6 +788,8 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     if (IsImmuneToEnvironmentalDamage())
         return 0;
 
+    damage *= GetTotalAuraMultiplier(SPELL_AURA_MOD_ENVIRONMENTAL_DAMAGE_TAKEN);
+
     // Absorb, resist some environmental damage type
     uint32 absorb = 0;
     uint32 resist = 0;
