@@ -788,6 +788,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LIST_QUESTS                            = 2003,
     RBAC_PERM_COMMAND_BLACKMARKET                            = 2004,
     RBAC_PERM_COMMAND_BLACKMARKET_SET_DURATION               = 2005,
+    RBAC_PERM_COMMAND_NPC_RELOAD                             = 2006,
     RBAC_PERM_MAX
 };
 
