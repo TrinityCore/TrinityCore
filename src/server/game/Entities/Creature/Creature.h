@@ -35,8 +35,11 @@ class Group;
 class Quest;
 class Player;
 class SpellInfo;
+class WildBattlePet;
 class WorldSession;
 enum MovementGeneratorType : uint8;
+
+struct ScriptParam;
 
 struct VendorItemCount
 {
@@ -48,6 +51,7 @@ struct VendorItemCount
     time_t lastIncrementTime;
 };
 
+typedef std::list<Creature*> CreatureList;
 typedef std::list<VendorItemCount> VendorItemCounts;
 
 // max different by z coordinate for creature aggro reaction
@@ -168,6 +172,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
 
+        TrainerSpellData const* GetTrainerSpells() const;
+
         CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
@@ -175,6 +181,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        ScriptParam GetScriptParam(uint8 index) const;
 
         // override WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
@@ -224,7 +231,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
-        Player* SelectNearestPlayer(float distance = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
 
         void DoFleeToGetAssistance();
@@ -243,6 +249,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds const& forceRespawnTime = Seconds(0));
         void DespawnOrUnsummon(Milliseconds const& time, Seconds const& forceRespawnTime = Seconds(0)) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
+        void DespawnCreaturesInArea(uint32 entry, float range = 125.0f);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -339,6 +346,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanGiveExperience() const;
 
+        void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
+
+        WildBattlePet* GetWildBattlePet() { return m_wildBattlePet; }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -396,7 +407,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
-        void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
         //WaypointMovementGenerator vars
@@ -415,6 +425,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
         CreatureTextRepeatGroup m_textRepeat;
+
+        WildBattlePet* m_wildBattlePet;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

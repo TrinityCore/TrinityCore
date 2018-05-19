@@ -33,14 +33,15 @@ class TC_GAME_API ObjectGridLoader
 
     public:
         ObjectGridLoader(NGridType &grid, Map* map, const Cell &cell)
-            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses (0)
+            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_areaTriggers(0), i_creatures(0), i_corpses (0)
             { }
 
         void Visit(GameObjectMapType &m);
         void Visit(CreatureMapType &m);
+        void Visit(AreaTriggerMapType &m);
         void Visit(CorpseMapType &) const { }
         void Visit(DynamicObjectMapType&) const { }
-        void Visit(AreaTriggerMapType &) const { }
+        void Visit(SceneObjectMapType &) const { }
         void Visit(ConversationMapType &) const { }
 
         void LoadN(void);
@@ -52,6 +53,7 @@ class TC_GAME_API ObjectGridLoader
         NGridType &i_grid;
         Map* i_map;
         uint32 i_gameObjects;
+        uint32 i_areaTriggers;
         uint32 i_creatures;
         uint32 i_corpses;
 };

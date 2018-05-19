@@ -568,7 +568,7 @@ const std::vector<int32>* SpellMgr::GetSpellLinked(int32 spell_id) const
     return itr != mSpellLinkedMap.end() ? &(itr->second) : NULL;
 }
 
-PetLevelupSpellSet const* SpellMgr::GetPetLevelupSpellList(uint32 petFamily) const
+PetLevelupSpellStore const* SpellMgr::GetPetLevelupSpellList(uint32 petFamily) const
 {
     PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMap.find(petFamily);
     if (itr != mPetLevelupSpellMap.end())
@@ -621,6 +621,10 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         if (!player || gender != player->getGender())
             return false;
 
+    if (teamId != -1)                            // is not expected team
+        if (!player || player->GetTeamId() != teamId)
+            return false;
+
     if (raceMask)                                // is not expected race
         if (!player || !(raceMask & player->getRaceMask()))
             return false;
@@ -634,7 +638,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             return false;
 
     if (questEnd)                                // is not in expected forbidden quest state
-        if (!player || (((1 << player->GetQuestStatus(questEnd)) & questEndStatus) == 0))
+        if (!player || (((1 << player->GetQuestStatus(questEnd)) & questEndStatus) != 0))
             return false;
 
     if (auraSpell)                               // does not have expected aura
@@ -1454,6 +1458,7 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE_3] = true;
     isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
+    isTriggerAura[SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER] = true;
     isTriggerAura[SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER] = true;
     isTriggerAura[SPELL_AURA_MOD_SPELL_CRIT_CHANCE] = true;
     isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
@@ -1900,11 +1905,11 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!spell->SpellLevel)
                     continue;
 
-                PetLevelupSpellSet& spellSet = mPetLevelupSpellMap[i];
+                PetLevelupSpellStore& spellSet = mPetLevelupSpellMap[i];
                 if (spellSet.empty())
                     ++family_count;
 
-                spellSet.insert(PetLevelupSpellSet::value_type(spell->SpellLevel, spell->Id));
+                spellSet.push_back(spell->Id);
                 ++count;
             }
         }
@@ -1929,16 +1934,16 @@ bool LoadPetDefaultSpells_helper(CreatureTemplate const* cInfo, PetDefaultSpells
         return false;
 
     // remove duplicates with levelupSpells if any
-    if (PetLevelupSpellSet const* levelupSpells = cInfo->family ? sSpellMgr->GetPetLevelupSpellList(cInfo->family) : NULL)
+    if (PetLevelupSpellStore const* levelupSpells = cInfo->family ? sSpellMgr->GetPetLevelupSpellList(cInfo->family) : NULL)
     {
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
         {
             if (!petDefSpells.spellid[j])
                 continue;
 
-            for (PetLevelupSpellSet::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
+            for (PetLevelupSpellStore::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
             {
-                if (itr->second == petDefSpells.spellid[j])
+                if (*itr == petDefSpells.spellid[j])
                 {
                     petDefSpells.spellid[j] = 0;
                     break;
@@ -2018,8 +2023,8 @@ void SpellMgr::LoadSpellAreas()
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
 
-    //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, flags FROM spell_area");
+    //                                                  0     1         2              3               4                 5          6         7       8         9      10
+    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, teamId, racemask, gender, flags FROM spell_area");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
@@ -2041,9 +2046,10 @@ void SpellMgr::LoadSpellAreas()
         spellArea.questEndStatus      = fields[4].GetUInt32();
         spellArea.questEnd            = fields[5].GetUInt32();
         spellArea.auraSpell           = fields[6].GetInt32();
-        spellArea.raceMask            = fields[7].GetUInt32();
-        spellArea.gender              = Gender(fields[8].GetUInt8());
-        spellArea.flags               = fields[9].GetUInt8();
+        spellArea.teamId              = fields[7].GetInt8();
+        spellArea.raceMask            = fields[8].GetUInt32();
+        spellArea.gender              = Gender(fields[9].GetUInt8());
+        spellArea.flags               = fields[10].GetUInt8();
 
         if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
@@ -2068,6 +2074,8 @@ void SpellMgr::LoadSpellAreas()
                 if (spellArea.questStart != itr->second.questStart)
                     continue;
                 if (spellArea.auraSpell != itr->second.auraSpell)
+                    continue;
+                if (spellArea.teamId != itr->second.teamId)
                     continue;
                 if ((spellArea.raceMask & itr->second.raceMask) == 0)
                     continue;
@@ -2158,6 +2166,12 @@ void SpellMgr::LoadSpellAreas()
                     continue;
                 }
             }
+        }
+
+        if (spellArea.teamId < -1 || spellArea.teamId > TEAM_HORDE)
+        {
+            TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_area` has wrong team id (%u) requirement.", spell, spellArea.teamId);
+            continue;
         }
 
         if (spellArea.raceMask && (spellArea.raceMask & RACEMASK_ALL_PLAYABLE) == 0)
@@ -2707,6 +2721,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->BasePoints += 30000;
     });
 
+    // Eye for an Eye
+    ApplySpellFix({ 205191 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+    });
+
     // Parasitic Shadowfiend Passive
     ApplySpellFix({ 41913 }, [](SpellInfo* spellInfo)
     {
@@ -3035,7 +3055,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Lock Players and Tap Chest
     ApplySpellFix({ 72347 }, [](SpellInfo* spellInfo)
     {
-                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
     // Resistant Skin (Deathbringer Saurfang adds)
@@ -3306,6 +3326,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
     });
 
+    // Travel Form (dummy) - cannot be cast indoors.
+    ApplySpellFix({ 783 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_OUTDOORS_ONLY;
+    });
+
     // Tree of Life (Passive)
     ApplySpellFix({ 5420 }, [](SpellInfo* spellInfo)
     {
@@ -3334,6 +3360,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 75697 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
+    });
+
+    // Fel Rush &  Demon Hunter Glide
+    ApplySpellFix({ 199737, 131347 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_LANDING;
     });
 
     //
@@ -3366,12 +3398,164 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
     });
+
+    ApplySpellFix({
+        98135, // Summon Fragment of Rhyolith
+        98553  // Summon Spark of Rhyolith
+    }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+    });
+
+    // Volcanic Birth
+    ApplySpellFix({ 98010 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TargetB = 0;
+    });
+
+    // Burning Orbs summon
+    ApplySpellFix({ 98565 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = 0;
+    });
     // ENDOF FIRELANDS SPELLS
 
-    // Summon Master Li Fei
-    ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
+    // THE WANDERING ISLE SPELLS
+    // Summon Pet
+    ApplySpellFix({ 107924 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+    });
+
+    ApplySpellFix({
+        102445, // Summon Master Li Fei
+        102499, // Fire Crash
+        118499, // Summon Aysa
+        118500, // Summon Ji
+        116190, // Summon Child 1
+        116191, // Summon Child 2
+        108786, // Summon Stack of Reeds
+        108827, // Summon Stack of Planks
+        108847, // Summon Stack of Blocks
+        108858, // Summon Tiger Stand
+        104450, // Summon Ji Yuan
+        104571, // Summon Aysa
+        126040, // Summon Master Shang Xi
+        115334, // Summon Aysa
+        115336, // Summon Ji
+        115338, // Summon Jojo
+        115493, // Summon Aysa
+        115494, // Summon Ji
+        115495, // Summon Jojo
+        117597  // Summon Ji
+    }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+    });
+
+    // Taste of Iron Game Aura
+    ApplySpellFix({ 164042 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = 0;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = 0;
+    });
+
+    // Play Teleport Dalaran Scene
+    ApplySpellFix({ 227861 }, [](SpellInfo* spellInfo)
+    {
+        // Area 7881 should be applied to player by Dalaran Gob, but NYI
+        spellInfo->RequiredAreasID = 0;
+    });
+
+    ApplySpellFix({
+        114710, // Forcecast Summon Amberleaf Troublemaker
+        118032  // Water Spout
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Summon Lightning
+    ApplySpellFix({ 109062 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
+    });
+
+    // Flame Spout
+    ApplySpellFix({ 114685 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
+    });
+
+    // Ride Vehicle
+    ApplySpellFix({ 102717 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 0;
+    });
+
+    // Summon Jojo Ironbrow
+    ApplySpellFix({ 108845 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 120 seconds
+    });
+
+    // Eject Passenger 1
+    ApplySpellFix({ 60603 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 1;
+    });
+
+    // Priest void form insanity regen rate
+    ApplySpellFix({ 194249 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->BasePoints /= 5;
+    });
+
+    // Warrior commanding shout
+    ApplySpellFix({ 97463 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 15;
+    });
+
+    ApplySpellFix({
+        104012, // Break Gong Credit
+        105002, // Summon Hot Air Balloon
+        120344, // Summon Aysa
+        120345, // Summon Jojo
+        120749, // Summon Ji
+        120753  // Summon Garrosh
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
+    });
+    // ENDOF THE WANDERING ISLE SPELLS
+
+    // BlackRook Hold - Bloodthirsty Leap
+    ApplySpellFix({ 225963 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_NONE,   EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_HEROIC, EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(DIFFICULTY_MYTHIC, EFFECT_1))->ApplyAuraPeriod = 5 * IN_MILLISECONDS;
+    });
+
+    // Shaman Healing rain & Rainfall
+    ApplySpellFix({ 73920, 215864 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
+    });
+
+    // Shaman Earthen Rage, not a mastery anymore
+    ApplySpellFix({ 170374 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 &= ~SPELL_ATTR8_MASTERY_SPECIALIZATION;
+    });
+
+    ApplySpellFix({ 196930 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
     });
 
     SpellInfo* spellInfo = NULL;

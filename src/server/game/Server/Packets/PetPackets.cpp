@@ -65,9 +65,9 @@ WorldPacket const* WorldPackets::Pet::PetStableList::Write()
         _worldPacket << int32(pet.CreatureID);
         _worldPacket << int32(pet.DisplayID);
         _worldPacket << int32(pet.ExperienceLevel);
-        _worldPacket << int32(pet.PetFlags);
+        _worldPacket << int8(pet.PetFlags);
 
-        _worldPacket << int8(pet.PetName.length());
+        _worldPacket.WriteBits(pet.PetName.length(), 8);
         _worldPacket.WriteString(pet.PetName);
     }
 
@@ -187,6 +187,31 @@ void WorldPackets::Pet::PetCancelAura::Read()
 WorldPacket const* WorldPackets::Pet::SetPetSpecialization::Write()
 {
     _worldPacket << uint16(SpecID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetSlotUpdated::Write()
+{
+    _worldPacket << int32(PetNumberA);
+    _worldPacket << int32(PetSlotA);
+    _worldPacket << int32(PetNumberB);
+    _worldPacket << int32(PetSlotB);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetAdded::Write()
+{
+    _worldPacket << int32(NewPet.PetSlot);
+    _worldPacket << int32(NewPet.PetNumber);
+    _worldPacket << int32(NewPet.CreatureID);
+    _worldPacket << int32(NewPet.DisplayID);
+    _worldPacket << int32(NewPet.ExperienceLevel);
+    _worldPacket << int8(NewPet.PetFlags);
+
+    _worldPacket.WriteBits(NewPet.PetName.length(), 8);
+    _worldPacket.WriteString(NewPet.PetName);
 
     return &_worldPacket;
 }

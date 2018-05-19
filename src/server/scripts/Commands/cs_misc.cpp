@@ -16,7 +16,6 @@
  */
 
 #include "AccountMgr.h"
-#include "ArenaTeamMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
@@ -118,6 +117,7 @@ public:
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
             { "auras  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleAurasCommand,            "" },
+            { "light  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleLightCommand,            "" },
         };
         return commandTable;
     }
@@ -2795,6 +2795,19 @@ public:
                     handler->PSendSysMessage("%u: %s)", aura->GetId(), name);
             }
         }
+        return true;
+    }
+
+    static bool HandleLightCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 lightId = atoul(args);
+
+        Player* player = handler->GetSession()->GetPlayer();
+        player->GetMap()->SetZoneOverrideLight(player->GetAreaId(), lightId, 5000);
+
         return true;
     }
 };

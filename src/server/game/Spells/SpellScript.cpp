@@ -202,6 +202,46 @@ SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript)
     return (spellScript->*_checkCastHandlerScript)();
 }
 
+void SpellScript::OnPrepareHandler::Call(SpellScript* spellScript)
+{
+    (spellScript->*_onPrepareHandlerScript)();
+}
+
+SpellScript::OnPrepareHandler::OnPrepareHandler(SpellOnPrepareFnType OnPrepareHandlerScript)
+{
+    _onPrepareHandlerScript = OnPrepareHandlerScript;
+}
+
+void SpellScript::OnSummonHandler::Call(SpellScript* spellScript, Creature* creature)
+{
+    (spellScript->*_onSummonHandlerScript)(creature);
+}
+
+SpellScript::OnSummonHandler::OnSummonHandler(SpellOnSummonFnType OnSummonHandlerScript)
+{
+    _onSummonHandlerScript = OnSummonHandlerScript;
+}
+
+void SpellScript::OnTakePowerHandler::Call(SpellScript* spellScript, Powers& power, int32& powerCost)
+{
+    (spellScript->*_onTakePowerHandlerScript)(power, powerCost);
+}
+
+SpellScript::OnTakePowerHandler::OnTakePowerHandler(SpellOnTakePowerFnType OnTakePowerHandlerScript)
+{
+    _onTakePowerHandlerScript = OnTakePowerHandlerScript;
+}
+
+void SpellScript::OnCalcCastTimeHandler::Call(SpellScript* spellScript, int32& castTime)
+{
+    (spellScript->*_onCalcCastTimeHandlerScript)(castTime);
+}
+
+SpellScript::OnCalcCastTimeHandler::OnCalcCastTimeHandler(SpellOnCalcCastTimeFnType OnCalcCastTimeHandlerScript)
+{
+    _onCalcCastTimeHandlerScript = OnCalcCastTimeHandlerScript;
+}
+
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
@@ -275,6 +315,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
         case TARGET_SELECT_CATEGORY_AREA: // AREA
+        case TARGET_SELECT_CATEGORY_LINE: //LINE
             return area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())
@@ -840,6 +881,16 @@ void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect 
     (auraScript->*pEffectHandlerScript)(_aurEff);
 }
 
+AuraScript::AuraUpdateHandler::AuraUpdateHandler(AuraUpdateFnType _pEffectHandlerScript)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::AuraUpdateHandler::Call(AuraScript* auraScript, uint32 diff)
+{
+    (auraScript->*pEffectHandlerScript)(diff);
+}
+
 AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : AuraScript::EffectBase(_effIndex, _effName)
 {
@@ -1094,6 +1145,18 @@ int32 AuraScript::GetDuration() const
 
 void AuraScript::SetDuration(int32 duration, bool withMods)
 {
+    m_aura->SetDuration(duration, withMods);
+}
+
+void AuraScript::ModDuration(int32 duration, int32 maxDuration /*= 0*/, bool withMods /*= false*/)
+{
+    duration = GetDuration() + duration;
+    if (maxDuration != 0)
+        duration = std::min(duration, maxDuration);
+
+    if (maxDuration && duration > m_aura->GetMaxDuration())
+        m_aura->SetMaxDuration(duration);
+
     m_aura->SetDuration(duration, withMods);
 }
 

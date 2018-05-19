@@ -175,6 +175,10 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     //For fleeing
     bool IsFleeing;
 
+    SummonList summons;
+    EventMap events;
+    InstanceScript* const instance;
+
     // *************
     //Pure virtual functions
     // *************
@@ -325,13 +329,20 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         bool _isHeroic;
 };
 
+struct TC_GAME_API Scripted_NoMovementAI : public ScriptedAI
+{
+    Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
+    virtual ~Scripted_NoMovementAI() {}
+
+    //Called at each attack of me by any victim
+    void AttackStart(Unit* target);
+};
+
 class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
         BossAI(Creature* creature, uint32 bossId);
         virtual ~BossAI() { }
-
-        InstanceScript* const instance;
 
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;
@@ -350,6 +361,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
+        void KilledUnit(Unit* victim) override { _KilledUnit(victim); }
 
         bool CanAIAttack(Unit const* target) const override;
 
@@ -358,14 +370,11 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome();
+        void _KilledUnit(Unit* victim);
         void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr);
         void _DespawnAtEvade(Seconds const& time, Creature* who = nullptr) { _DespawnAtEvade(uint32(time.count()), who); }
 
         void TeleportCheaters();
-
-        EventMap events;
-        SummonList summons;
-        TaskScheduler scheduler;
 
     private:
         uint32 const _bossId;
@@ -429,5 +438,13 @@ inline void GetPlayerListInGrid(Container& container, WorldObject* source, float
 {
     source->GetPlayerListInGrid(container, maxSearchRange);
 }
+
+TC_GAME_API void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y);
+TC_GAME_API void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition);
+
+TC_GAME_API void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y);
+TC_GAME_API void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition);
+
+TC_GAME_API void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition);
 
 #endif // SCRIPTEDCREATURE_H_

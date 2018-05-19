@@ -173,7 +173,11 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_CHECK_CAST,
     SPELL_SCRIPT_HOOK_BEFORE_CAST,
     SPELL_SCRIPT_HOOK_ON_CAST,
-    SPELL_SCRIPT_HOOK_AFTER_CAST
+    SPELL_SCRIPT_HOOK_AFTER_CAST,
+    SPELL_SCRIPT_HOOK_TAKE_POWER,
+    SPELL_SCRIPT_HOOK_CALC_CAST_TIME,
+    SPELL_SCRIPT_HOOK_ON_PREPARE,
+    SPELL_SCRIPT_HOOK_ON_SUMMON
 };
 
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
@@ -195,7 +199,11 @@ class TC_GAME_API SpellScript : public _SpellScript
             typedef void(CLASSNAME::*SpellCastFnType)(); \
             typedef void(CLASSNAME::*SpellObjectAreaTargetSelectFnType)(std::list<WorldObject*>&); \
             typedef void(CLASSNAME::*SpellObjectTargetSelectFnType)(WorldObject*&); \
-            typedef void(CLASSNAME::*SpellDestinationTargetSelectFnType)(SpellDestination&);
+            typedef void(CLASSNAME::*SpellOnPrepareFnType)(); \
+            typedef void(CLASSNAME::*SpellDestinationTargetSelectFnType)(SpellDestination&); \
+            typedef void(CLASSNAME::*SpellOnSummonFnType)(Creature* summon); \
+            typedef void(CLASSNAME::*SpellOnTakePowerFnType)(Powers& power, int32& powerCost); \
+            typedef void(CLASSNAME::*SpellOnCalcCastTimeFnType)(int32& castTime);
 
         SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
 
@@ -215,6 +223,42 @@ class TC_GAME_API SpellScript : public _SpellScript
                 SpellCastResult Call(SpellScript* spellScript);
             private:
                 SpellCheckCastFnType _checkCastHandlerScript;
+        };
+
+        class TC_GAME_API OnPrepareHandler
+        {
+        public:
+            OnPrepareHandler(SpellOnPrepareFnType OnPrepareHandlerScript);
+            void Call(SpellScript* spellScript);
+        private:
+            SpellOnPrepareFnType _onPrepareHandlerScript;
+        };
+
+        class TC_GAME_API OnSummonHandler
+        {
+        public:
+            OnSummonHandler(SpellOnSummonFnType OnSummonHandlerScript);
+            void Call(SpellScript* spellScript, Creature* creature);
+        private:
+            SpellOnSummonFnType _onSummonHandlerScript;
+        };
+
+        class TC_GAME_API OnTakePowerHandler
+        {
+        public:
+            OnTakePowerHandler(SpellOnTakePowerFnType OnTakePowerHandlerScript);
+            void Call(SpellScript* spellScript, Powers& power, int32& powerCost);
+        private:
+            SpellOnTakePowerFnType _onTakePowerHandlerScript;
+        };
+
+        class TC_GAME_API OnCalcCastTimeHandler
+        {
+        public:
+            OnCalcCastTimeHandler(SpellOnCalcCastTimeFnType OnCalcCastTimeHandlerScript);
+            void Call(SpellScript* spellScript, int32& castTime);
+        private:
+            SpellOnCalcCastTimeFnType _onCalcCastTimeHandlerScript;
         };
 
         class TC_GAME_API EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
@@ -288,6 +332,10 @@ class TC_GAME_API SpellScript : public _SpellScript
 
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CastHandlerFunction : public SpellScript::CastHandler { public: CastHandlerFunction(SpellCastFnType _pCastHandlerScript) : SpellScript::CastHandler((SpellScript::SpellCastFnType)_pCastHandlerScript) { } }; \
+        class OnPrepareHandlerFunction : public SpellScript::OnPrepareHandler { public: OnPrepareHandlerFunction(SpellOnPrepareFnType _onPrepareHandlerScript) : SpellScript::OnPrepareHandler((SpellScript::SpellOnPrepareFnType)_onPrepareHandlerScript) {} }; \
+        class OnSummonHandlerFunction : public SpellScript::OnSummonHandler { public: OnSummonHandlerFunction(SpellOnSummonFnType _onSummonHandlerScript) : SpellScript::OnSummonHandler((SpellScript::SpellOnSummonFnType)_onSummonHandlerScript) {} }; \
+        class OnTakePowerHandlerFunction : public SpellScript::OnTakePowerHandler { public: OnTakePowerHandlerFunction(SpellOnTakePowerFnType _onTakePowerHandlerScript) : SpellScript::OnTakePowerHandler((SpellScript::SpellOnTakePowerFnType)_onTakePowerHandlerScript) {} }; \
+        class OnCalcCastTimeHandlerFunction : public SpellScript::OnCalcCastTimeHandler { public: OnCalcCastTimeHandlerFunction(SpellOnCalcCastTimeFnType _onCalcCastTimeHandlerScript) : SpellScript::OnCalcCastTimeHandler((SpellScript::SpellOnCalcCastTimeFnType)_onCalcCastTimeHandlerScript) {} }; \
         class CheckCastHandlerFunction : public SpellScript::CheckCastHandler { public: CheckCastHandlerFunction(SpellCheckCastFnType _checkCastHandlerScript) : SpellScript::CheckCastHandler((SpellScript::SpellCheckCastFnType)_checkCastHandlerScript) { } }; \
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) { } }; \
@@ -325,6 +373,11 @@ class TC_GAME_API SpellScript : public _SpellScript
         // example: AfterCast += SpellCastFn(class::function);
         HookList<CastHandler> AfterCast;
         #define SpellCastFn(F) CastHandlerFunction(&F)
+
+        // example: OnPrepare += SpellOnPrepareFn();
+        // where function is void function()
+        HookList<OnPrepareHandler> OnPrepare;
+        #define SpellOnPrepareFn(F) OnPrepareHandlerFunction(&F)
 
         // example: OnCheckCast += SpellCheckCastFn();
         // where function is SpellCastResult function()
@@ -366,6 +419,21 @@ class TC_GAME_API SpellScript : public _SpellScript
         // where function is void function(SpellDestination& target)
         HookList<DestinationTargetSelectHandler> OnDestinationTargetSelect;
         #define SpellDestinationTargetSelectFn(F, I, N) DestinationTargetSelectHandlerFunction(&F, I, N)
+
+        // example: OnEffectSummon += SpellOnEffectSummonFn(class::function);
+        // where function is void function(Creature* creature)
+        HookList<OnSummonHandler> OnEffectSummon;
+        #define SpellOnEffectSummonFn(F) OnSummonHandlerFunction(&F)
+
+        // example: OnTakePower += SpellOnTakePowerFn(class::function);
+        // where function is void function(Powers& power, int32& powerCount)
+        HookList<OnTakePowerHandler> OnTakePower;
+        #define SpellOnTakePowerFn(F) OnTakePowerHandlerFunction(&F)
+
+        // example: OnCalcCastTime += SpellOnCalcCastTimeFn(class::function);
+        // where function is void function(int32& castTime)
+        HookList<OnCalcCastTimeHandler> OnCalcCastTime;
+        #define SpellOnCalcCastTimeFn(F) OnCalcCastTimeHandlerFunction(&F)
 
         // hooks are executed in following order, at specified event of spell:
         // 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
@@ -492,6 +560,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_REMOVE,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE,
     AURA_SCRIPT_HOOK_EFFECT_PERIODIC,
+    AURA_SCRIPT_HOOK_ON_UPDATE,
     AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT,
     AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC,
@@ -531,6 +600,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         typedef void(CLASSNAME::*AuraDispelFnType)(DispelInfo* dispelInfo); \
         typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const*, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const*); \
+        typedef void(CLASSNAME::*AuraUpdateFnType)(uint32); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect*); \
         typedef void(CLASSNAME::*AuraEffectCalcAmountFnType)(AuraEffect const*, int32 &, bool &); \
         typedef void(CLASSNAME::*AuraEffectCalcPeriodicFnType)(AuraEffect const*, bool &, int32 &); \
@@ -574,6 +644,14 @@ class TC_GAME_API AuraScript : public _SpellScript
                 void Call(AuraScript* auraScript, AuraEffect const* _aurEff);
             private:
                 AuraEffectPeriodicFnType pEffectHandlerScript;
+        };
+        class TC_GAME_API AuraUpdateHandler
+        {
+            public:
+                AuraUpdateHandler(AuraUpdateFnType _pEffectHandlerScript);
+                void Call(AuraScript* auraScript, uint32 diff);
+            private:
+                AuraUpdateFnType pEffectHandlerScript;
         };
         class TC_GAME_API EffectUpdatePeriodicHandler : public EffectBase
         {
@@ -677,6 +755,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) { } }; \
         class AuraDispelFunction : public AuraScript::AuraDispelHandler { public: AuraDispelFunction(AuraDispelFnType _pHandlerScript) : AuraScript::AuraDispelHandler((AuraScript::AuraDispelFnType)_pHandlerScript) { } }; \
         class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
+        class AuraUpdateHandlerFunction : public AuraScript::AuraUpdateHandler { public: AuraUpdateHandlerFunction(AuraUpdateFnType _pEffectHandlerScript) : AuraScript::AuraUpdateHandler((AuraScript::AuraUpdateFnType)_pEffectHandlerScript) {} }; \
         class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class EffectCalcPeriodicHandlerFunction : public AuraScript::EffectCalcPeriodicHandler { public: EffectCalcPeriodicHandlerFunction(AuraEffectCalcPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcPeriodicHandler((AuraScript::AuraEffectCalcPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
@@ -766,6 +845,12 @@ class TC_GAME_API AuraScript : public _SpellScript
         // where function is: void function (AuraEffect const* aurEff);
         HookList<EffectPeriodicHandler> OnEffectPeriodic;
         #define AuraEffectPeriodicFn(F, I, N) EffectPeriodicHandlerFunction(&F, I, N)
+
+        // executed when aura is updated
+        // example: OnAuraUpdate += AuraUpdateFn(class::function);
+        // where function is: void function (const uint32 diff);
+        HookList<AuraUpdateHandler> OnAuraUpdate;
+        #define AuraUpdateFn(F) AuraUpdateHandlerFunction(&F)
 
         // executed when periodic aura effect is updated
         // example: OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
@@ -889,6 +974,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         // aura duration manipulation - when duration goes to 0 aura is removed
         int32 GetDuration() const;
         void SetDuration(int32 duration, bool withMods = false);
+        void ModDuration(int32 duration, int32 maxDuration = 0, bool withMods = false);
         // sets duration to maxduration
         void RefreshDuration();
         time_t GetApplyTime() const;

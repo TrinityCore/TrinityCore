@@ -218,6 +218,7 @@ void npc_escortAI::UpdateAI(uint32 diff)
                     if (DespawnAtEnd)
                     {
                         TC_LOG_DEBUG("scripts", "EscortAI reached end of waypoints");
+                        LastWaypointReached();
 
                         if (m_bCanReturnToStart)
                         {
@@ -390,7 +391,8 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
 
     _path.nodes.push_back(std::move(wp));
 
-    LastWP = id;
+    // WP start at 0, so Last = size() - 1
+    LastWP = _path.nodes.size() - 1;
 
     // i think SD2 no longer uses this function
     ScriptWP = true;
@@ -410,7 +412,8 @@ void npc_escortAI::FillPointMovementListForCreature()
     if (!movePoints)
         return;
 
-    LastWP = movePoints->back().uiPointId;
+    // WP start at 0, so Last = size() - 1
+    LastWP = movePoints->size() - 1;
 
     for (const ScriptPointMove &point : *movePoints)
     {

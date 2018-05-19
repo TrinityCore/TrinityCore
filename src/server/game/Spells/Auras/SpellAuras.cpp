@@ -162,9 +162,23 @@ void AuraApplication::SetNeedClientUpdate()
     _target->SetVisibleAuraUpdate(this);
 }
 
+void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
+{
+    WorldPackets::Spells::AuraUpdate data;
+    data.UpdateAll = false;
+    data.UnitGUID = GetTarget()->GetGUID();
+
+    WorldPackets::Spells::AuraInfo inf;
+    inf.AuraData->SpellID = auraId;
+    BuildUpdatePacket(inf, remove);
+    data.Auras.push_back(inf);
+
+    _target->SendMessageToSet(data.Write(), true);
+}
+
 void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove)
 {
-    ASSERT(_target->HasVisibleAura(this) != remove);
+    //ASSERT(_target->HasVisibleAura(this) != remove);
 
     auraInfo.Slot = GetSlot();
     if (remove)
@@ -715,6 +729,8 @@ void Aura::Update(uint32 diff, Unit* caster)
         if (m_duration < 0)
             m_duration = 0;
 
+        CallScriptAuraUpdateHandlers(diff);
+
         // handle manaPerSecond/manaPerSecondPerLevel
         if (m_timeCla)
         {
@@ -906,6 +922,20 @@ void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
     owner->m_Events.AddEvent(m_dropEvent, owner->m_Events.CalculateTime(delay));
 }
 
+uint32 Aura::GetMaxStackAmount() const
+{
+    uint32 maxStackAmount = GetSpellInfo()->StackAmount;
+
+    if (GetCaster() && GetCaster()->IsPlayer())
+    {
+        Player* playerCaster = GetCaster()->ToPlayer();
+        playerCaster->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_STACK_AMOUNT, maxStackAmount);
+        playerCaster->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_STACK_AMOUNT2, maxStackAmount);
+    }
+
+    return maxStackAmount;
+}
+
 void Aura::SetStackAmount(uint8 stackAmount)
 {
     m_stackAmount = stackAmount;
@@ -934,18 +964,19 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
-bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
+bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/, bool refresh /*= true*/)
 {
     int32 stackAmount = m_stackAmount + num;
+    uint32 maxStackAmount = GetMaxStackAmount();
 
     // limit the stack amount (only on stack increase, stack amount may be changed manually)
-    if ((num > 0) && (stackAmount > int32(m_spellInfo->StackAmount)))
+    if ((num > 0) && (stackAmount > int32(maxStackAmount)))
     {
         // not stackable aura - set stack amount to 1
-        if (!m_spellInfo->StackAmount)
+        if (!maxStackAmount)
             stackAmount = 1;
         else
-            stackAmount = m_spellInfo->StackAmount;
+            stackAmount = maxStackAmount;
     }
     // we're out of stacks, remove
     else if (stackAmount <= 0)
@@ -954,7 +985,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
         return true;
     }
 
-    bool refresh = stackAmount >= GetStackAmount();
+    refresh = refresh && stackAmount >= GetStackAmount();
 
     // Update stack amount
     SetStackAmount(stackAmount);
@@ -1243,7 +1274,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 {
                     if (*itr < 0)
                         target->RemoveAurasDueToSpell(-(*itr));
-                    else if (removeMode != AURA_REMOVE_BY_DEATH)
+                    else if (removeMode != AURA_REMOVE_BY_DEATH && target->IsInWorld() && !target->IsDuringRemoveFromWorld())
                         target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
                 }
             }
@@ -1754,7 +1785,7 @@ uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& even
                 else if (attType == OFF_ATTACK)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
-                if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON || !((1 << item->GetTemplate()->GetSubClass()) & GetSpellInfo()->EquippedItemSubClassMask))
+                if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON || (GetSpellInfo()->EquippedItemSubClassMask != 0 && !((1 << item->GetTemplate()->GetSubClass()) & GetSpellInfo()->EquippedItemSubClassMask)))
                     return 0;
             }
         }
@@ -1998,6 +2029,18 @@ void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 effItr->Call(*scritr, aurEff);
 
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptAuraUpdateHandlers(uint32 diff)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_ON_UPDATE);
+        std::vector<AuraScript::AuraUpdateHandler>::iterator hookItrEnd = (*scritr)->OnAuraUpdate.end(), hookItr = (*scritr)->OnAuraUpdate.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr, diff);
         (*scritr)->_FinishScriptCall();
     }
 }

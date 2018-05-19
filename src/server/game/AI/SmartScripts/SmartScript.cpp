@@ -690,8 +690,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else if (go)
                         go->CastSpell((*itr)->ToUnit(), e.action.cast.spell, triggerFlag);
 
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: %s casts spell %u on target %s with castflags %u",
-                        (me ? me->GetGUID() : go->GetGUID()).ToString().c_str(), e.action.cast.spell, (*itr)->GetGUID().ToString().c_str(), e.action.cast.castFlags);
+                    if (me || go)
+                    {
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: %s casts spell %u on target %s with castflags %u",
+                            (me ? me->GetGUID() : go->GetGUID()).ToString().c_str(), e.action.cast.spell, (*itr)->GetGUID().ToString().c_str(), e.action.cast.castFlags);
+                    }
+                    else
+                        TC_LOG_ERROR("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: smart_script " SI64FMTD " triggered without me or go", e.entryOrGuid);
                 }
                 else
                     TC_LOG_DEBUG("scripts.ai", "Spell %u not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (%s) already has the aura", e.action.cast.spell, (*itr)->GetGUID().ToString().c_str());
@@ -1553,6 +1558,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             ENSURE_AI(SmartAI, me->AI())->SetRun(e.action.setRun.run != 0);
+            if (e.action.setRun.speed && e.action.setRun.speedDivider)
+                me->SetSpeed(MOVE_RUN, float(e.action.setRun.speed) / float(e.action.setRun.speedDivider));
             break;
         }
         case SMART_ACTION_SET_SWIM:
@@ -1707,7 +1714,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest, e.action.MoveToPos.disablePathfinding == 0);
             }
             else
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), e.action.MoveToPos.disablePathfinding == 0);
+            {
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                if (e.action.MoveToPos.ContactDistance > 0)
+                    target->GetContactPoint(me, x, y, z, e.action.MoveToPos.ContactDistance);
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, x, y, z, e.action.MoveToPos.disablePathfinding == 0);
+            }
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
@@ -2541,18 +2554,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsCreature(*itr))
                 {
-                    if (e.action.animKit.type == 0)
-                        (*itr)->ToCreature()->PlayOneShotAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 1)
-                        (*itr)->ToCreature()->SetAIAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 2)
-                        (*itr)->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 3)
-                        (*itr)->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
-                    else
+                    switch (e.action.animKit.type)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartScript: Invalid type for SMART_ACTION_PLAY_ANIMKIT, skipping");
-                        break;
+                        case 0:
+                            (*itr)->ToCreature()->PlayOneShotAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 1:
+                            (*itr)->ToCreature()->SetAIAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 2:
+                            (*itr)->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 3:
+                            (*itr)->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 4:
+                            (*itr)->ToCreature()->SendPlaySpellVisualKit(e.action.animKit.animKit, 0, 0);
+                            break;
                     }
 
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: %s (%s), AnimKit: %u, Type: %u",
@@ -2585,6 +2603,102 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : *targets)
                 if (Player* playerTarget = target->ToPlayer())
                     playerTarget->GetSceneMgr().CancelSceneBySceneId(e.action.scene.sceneId);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SendPlaySpellVisualKit(e.action.spellVisualKit.visualId, e.action.spellVisualKit.visualType, e.action.spellVisualKit.visualDuration * 1000);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_PLAY_SPELL_VISUAL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+					{
+                        switch (e.action.playSpellVisual.variations)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId, (float)e.action.playSpellVisual.travelSpeed);
+                                break;
+                            case 1:
+                                me->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId, (float)e.action.playSpellVisual.travelSpeed);
+                                break;
+                            case 2:
+								(*itr)->ToUnit()->SendPlaySpellVisual(me->GetGUID(), e.action.playSpellVisual.playVisualId, (float)e.action.playSpellVisual.travelSpeed);
+                                break;
+                            case 3:
+                                (*itr)->ToUnit()->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId);
+                                break;
+                            case 4:
+                                me->SendPlaySpellVisual((*itr)->GetGUID(), e.action.playSpellVisual.playVisualId);
+                                break;
+                            case 5:
+								(*itr)->ToUnit()->SendPlaySpellVisual(me->GetGUID(), e.action.playSpellVisual.playVisualId);
+                                break;
+                        }
+					}
+					
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+					{
+					    switch (e.action.playOrphanSpellVisual.variations)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->SendPlayOrphanSpellVisual((*itr)->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, (float)e.action.playOrphanSpellVisual.travelSpeed);
+                                break;
+                            case 1:
+                                me->SendPlayOrphanSpellVisual((*itr)->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, (float)e.action.playOrphanSpellVisual.travelSpeed);
+                                break;
+                            case 2:
+								(*itr)->ToUnit()->SendPlayOrphanSpellVisual(me->GetGUID(), e.action.playOrphanSpellVisual.playOrphanVisualId, (float)e.action.playOrphanSpellVisual.travelSpeed);
+                                break;
+                        }
+					}
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_CANCEL_VISUAL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                    {
+                        switch (e.action.cancelSpellVisual.typeVisual)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->SendCancelSpellVisualKit(e.action.cancelSpellVisual.cancelVisualId);
+                                break;
+                            case 1:
+                                (*itr)->ToUnit()->SendCancelSpellVisual(e.action.cancelSpellVisual.cancelVisualId);
+                                break;
+                            case 2:
+                                (*itr)->ToUnit()->SendCancelOrphanSpellVisual(e.action.cancelSpellVisual.cancelVisualId);
+                                break;
+                        }
+                }
 
             delete targets;
             break;
