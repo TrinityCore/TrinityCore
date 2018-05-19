@@ -7860,6 +7860,20 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         DoneFlatBenefit += int32(APbonus / 14.0f * GetAPMultiplier(attType, normalized));
     }
 
+    if (spellProto)
+    {
+        // Check for table values
+        SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
+        if (bonus)
+        {
+            if (bonus->ap_bonus > 0)
+            {
+                float APbonus = GetTotalAttackPowerValue(attType);
+                DoneFlatBenefit += int32(bonus->ap_bonus * APbonus);
+            }
+        }
+    }
+
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
 
