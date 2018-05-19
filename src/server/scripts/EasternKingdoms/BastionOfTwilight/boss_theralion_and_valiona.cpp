@@ -39,6 +39,8 @@ enum Texts
 
     // Valiona
     SAY_ANNOUNCE_BLACKOUT               = 2,
+    SAY_ANNOUNCE_DEEP_BREATH            = 3,
+    SAY_DEEP_BREATH                     = 4
 };
 
 enum Spells
@@ -54,6 +56,7 @@ enum Spells
     SPELL_FABULOUS_FLAMES_TARGETING             = 86495,
     SPELL_ENGULFING_MAGIC_TARGETING             = 86607,
     SPELL_ENGULFING_MAGIC_TRIGGERED             = 86631,
+    SPELL_INSTAKILL_VALIONA                     = 95741,
 
     // Valiona
     SPELL_SHARE_HEALTH_2                        = 90345,
@@ -64,6 +67,15 @@ enum Spells
     SPELL_TWILIGHT_METEORITE_TARGETING          = 88518,
     SPELL_DUMMY_NUKE                            = 80776, // used to select Theralion's current victim. We do it different and better
     SPELL_TWILIGHT_ZONE                         = 86214,
+    SPELL_SPEED_BURST                           = 86077,
+    SPELL_TRIGGER_BOTTOM_STRAFE                 = 92750,
+    SPELL_TRIGGER_MIDDLE_STRAFE                 = 86138,
+    SPELL_TRIGGER_TOP_STRAFE                    = 92751,
+    SPELL_INSTAKILL_THERALION                   = 95742,
+
+    // Valiona (Flame Dummy)
+    SPELL_TWILIGHT_FLAMES_TRIGGER               = 86194,
+    SPELL_STRAFE                                = 86144,
 
     // Dazzling Destruction Stalker
     SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL   = 86383
@@ -74,7 +86,6 @@ enum Events
     // Theralion and Valiona
     EVENT_TALK_ARGUMENT_1 = 1,
     EVENT_TALK_ARGUMENT_2,
-    EVENT_LIFTOFF,
     EVENT_FLY_TO_DESTINATION,
     EVENT_LAND,
     EVENT_ATTACK_PLAYERS,
@@ -89,11 +100,18 @@ enum Events
     EVENT_BLACKOUT,
     EVENT_DEVOURING_FLAMES,
     EVENT_TWILIGHT_METEORITE,
-
     EVENT_DEEP_BREATH,
     EVENT_FACE_TO_DIRECTION,
     EVENT_FLY_TO_STARTING_POINT,
     EVENT_FLY_TO_OTHER_SIDE,
+    EVENT_ANNOUNCE_DEEP_BREATH,
+    EVENT_TRIGGER_STRAFE
+};
+
+enum Actions
+{
+    // ACTION_START_ARGUMENT_INTRO = 1,
+    ACTION_LIFTOFF = 2,
 };
 
 enum Phases
@@ -112,7 +130,9 @@ enum MovementPoints
     POINT_TAKEOFF_DESTINATION   = 1,
     POINT_LAND                  = 2,
     POINT_DEEP_BREATH_1         = 3,
-    POINT_DEEP_BREATH_2         = 4
+    POINT_DEEP_BREATH_2         = 4,
+    POINT_DEEP_BREATH_3         = 5,
+    POINT_PREPARE_LAND          = 6
 };
 
 enum PhaseIds
@@ -130,8 +150,35 @@ Position const TheralionLandingPos = { -740.804f, -683.642f, 831.8898f };
 
 Position const DeepBreathStartingPositions[] =
 {
-    { -741.4598f, -592.8389f, 859.1005f }, // Valiona's side
-    { -740.4072f, -776.5493f, 858.7795f }  // Theralion's side
+    { -740.6770f, -592.3280f, 859.4559f }, // Valiona's side
+    { -740.4340f, -777.5490f, 858.8010f }  // Theralion's side
+};
+
+Position const ValionaLandingPositions[] =
+{
+    { -740.606f, -613.623f, 836.695f }, // Valiona's side
+    { -741.128f, -755.234f, 836.695f }  // Theralion's side
+};
+
+// Pattern is: Valiona's side to Theralion's side
+// Just invert the logic to get the opposite result
+std::vector<std::vector<Position>> _deepBreathWaypoints =
+{
+    {
+        // Entrance Lane
+        { -725.3699f, -600.2069f, 850.8419f },
+        { -724.2999f, -769.8679f, 850.0469f },
+    },
+    {
+        // Exit Lane
+        { -759.2269f, -603.4240f, 851.0349f },
+        { -757.4149f, -767.2210f, 849.9219f },
+    },
+    {
+        // Center Lane
+        { -740.9379f, -601.6790f, 851.0319f },
+        { -740.4810f, -770.5540f, 851.1469f },
+    }
 };
 
 class boss_theralion : public CreatureScript
@@ -168,8 +215,7 @@ class boss_theralion : public CreatureScript
                 if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
                     valiona->AI()->AttackStart(who);
 
-                events.ScheduleEvent(EVENT_LIFTOFF, Milliseconds(1));
-                events.ScheduleEvent(EVENT_DAZZLING_DESTRUCTION, Minutes(1) + Seconds(22));
+                DoAction(ACTION_LIFTOFF);
             }
 
             void KilledUnit(Unit* victim) override
@@ -218,6 +264,19 @@ class boss_theralion : public CreatureScript
                     case ACTION_START_ARGUMENT_INTRO:
                         events.ScheduleEvent(EVENT_TALK_ARGUMENT_1, Seconds(8) + Milliseconds(800));
                         break;
+                    case ACTION_LIFTOFF:
+                        me->AttackStop();
+                        me->SetReactState(REACT_PASSIVE);
+                        me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
+                        me->SetDisableGravity(true);
+                        me->SendSetPlayHoverAnim(true);
+                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        _dazzlingDestructionCount = 0;
+                        events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
+                        events.CancelEvent(EVENT_FABULOUS_FLAMES);
+                        events.CancelEvent(EVENT_ENGULFING_MAGIC);
+                        events.ScheduleEvent(EVENT_DAZZLING_DESTRUCTION, Minutes(1) + Seconds(22));
+                        break;
                     default:
                         break;
                 }
@@ -261,6 +320,9 @@ class boss_theralion : public CreatureScript
                         me->SendSetPlayHoverAnim(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
+
+                        if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
+                            valiona->AI()->DoAction(ACTION_LIFTOFF);
                         break;
                     default:
                         break;
@@ -287,17 +349,6 @@ class boss_theralion : public CreatureScript
                             break;
                         case EVENT_TALK_ARGUMENT_2:
                             Talk(SAY_ARGUE_WITH_SIBLING_2);
-                            break;
-                        case EVENT_LIFTOFF:
-                            me->AttackStop();
-                            me->SetReactState(REACT_PASSIVE);
-                            me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
-                            me->SetDisableGravity(true);
-                            me->SendSetPlayHoverAnim(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                            events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
-                            events.CancelEvent(EVENT_FABULOUS_FLAMES);
-                            events.CancelEvent(EVENT_ENGULFING_MAGIC);
                             break;
                         case EVENT_FLY_TO_DESTINATION:
                             if (Creature* stalker = me->FindNearestCreature(NPC_THERALION_FLIGHT_TARGET_STALKER, 100.0f, true))
@@ -382,37 +433,7 @@ class boss_valiona : public CreatureScript
             {
                 _deepBreathCount = 0;
                 _currentRoomSide = SIDE_VALIONA;
-
-                FillDeepBreathPaths();
-            }
-
-            void FillDeepBreathPaths()
-            {
-                _deepBreathWaypoints.clear();
-
-                // Pattern is: Valiona's side to Theralion's side
-                // Just invert the logic to get the opposite result
-                // Note: for some reason Blizzard has spawned flight
-                // target stalkers but the positions in sniffs are different
-                _deepBreathWaypoints =
-                {
-                    {
-                        // Entrance Lane
-                        { -759.2115f, -604.4235f, 851.0311f },
-                        { -756.6174f, -767.658f,  850.3376f }
-                    },
-                    {
-                        // Exit Lane
-                        { -758.427f,  -602.9468f, 851.3987f },
-                        { -757.4211f, -766.2177f, 849.9313f }
-                    },
-                    {
-                        // Center Lane
-                        { -759.2116f, -604.4235f, 851.0311f },
-                        { -756.634f,  -767.6933f, 850.3306f }
-                    }
-                };
-                Trinity::Containers::RandomShuffle(_deepBreathWaypoints);
+                _currentDeepBreathWaypoint.clear();
             }
 
             void Reset() override
@@ -430,7 +451,6 @@ class boss_valiona : public CreatureScript
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BLACKOUT, Seconds(10) + Milliseconds(500));
                 events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(25));
-                events.ScheduleEvent(EVENT_LIFTOFF, Minutes(1) + Seconds(37));
 
                 if (Creature* theralion = instance->GetCreature(DATA_THERALION))
                     theralion->AI()->AttackStart(who);
@@ -482,6 +502,19 @@ class boss_valiona : public CreatureScript
                     case ACTION_START_ARGUMENT_INTRO:
                         events.ScheduleEvent(EVENT_TALK_ARGUMENT_1, Seconds(4));
                         break;
+                    case ACTION_LIFTOFF:
+                        me->AttackStop();
+                        me->SetReactState(REACT_PASSIVE);
+                        events.CancelEvent(EVENT_BLACKOUT);
+                        events.CancelEvent(EVENT_DEVOURING_FLAMES);
+                        me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
+                        me->SetDisableGravity(true);
+                        me->SendSetPlayHoverAnim(true);
+                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        _deepBreathCount = 0;
+                        events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
+                        events.ScheduleEvent(EVENT_DEEP_BREATH, Minutes(1) + Seconds(25) + Milliseconds(100));
+                        break;
                     default:
                         break;
                 }
@@ -517,16 +550,28 @@ class boss_valiona : public CreatureScript
                 {
                     case POINT_TAKEOFF_DESTINATION:
                         events.ScheduleEvent(EVENT_TWILIGHT_METEORITE, Seconds(2));
-                        events.ScheduleEvent(EVENT_DEEP_BREATH, Minutes(1) + Seconds(21));
                         break;
                     case POINT_LAND:
                         me->SetDisableGravity(false);
                         me->SendSetPlayHoverAnim(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
+
+                        if (Creature* theralion = instance->GetCreature(DATA_THERALION))
+                            theralion->AI()->DoAction(ACTION_LIFTOFF);
                         break;
                     case POINT_DEEP_BREATH_1:
                         events.ScheduleEvent(EVENT_FACE_TO_DIRECTION, Seconds(1));
+                        break;
+                    case POINT_DEEP_BREATH_2:
+                        events.ScheduleEvent(EVENT_FLY_TO_OTHER_SIDE, Seconds(3) + Milliseconds(800));
+                        break;
+                    case POINT_DEEP_BREATH_3:
+                        me->RemoveAurasDueToSpell(SPELL_SPEED_BURST);
+                        events.ScheduleEvent(EVENT_DEEP_BREATH, Seconds(1));
+                        break;
+                    case POINT_PREPARE_LAND:
+                        events.ScheduleEvent(EVENT_LAND, Seconds(1));
                         break;
                     default:
                         break;
@@ -563,18 +608,6 @@ class boss_valiona : public CreatureScript
                             DoCastAOE(SPELL_DEVOURING_FLAMES_TARGETING, true);
                             events.Repeat(Seconds(41));
                             break;
-                        case EVENT_LIFTOFF:
-                            me->AttackStop();
-                            me->SetReactState(REACT_PASSIVE);
-                            events.CancelEvent(EVENT_BLACKOUT);
-                            events.CancelEvent(EVENT_DEVOURING_FLAMES);
-                            me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
-                            me->SetDisableGravity(true);
-                            me->SendSetPlayHoverAnim(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                            events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
-                            events.ScheduleEvent(EVENT_DEEP_BREATH, Minutes(1) + Seconds(25) + Milliseconds(100));
-                            break;
                         case EVENT_FLY_TO_DESTINATION:
                         {
                             Position pos = me->GetPosition();
@@ -588,33 +621,68 @@ class boss_valiona : public CreatureScript
                             break;
                         case EVENT_DEEP_BREATH:
                             if (_deepBreathCount == 0)
+                            {
                                 events.CancelEvent(EVENT_TWILIGHT_METEORITE);
+                                if (me->GetDistance(DeepBreathStartingPositions[SIDE_THERALION]) <= me->GetDistance(DeepBreathStartingPositions[SIDE_VALIONA]))
+                                    _currentRoomSide = SIDE_THERALION;
+                                else
+                                    _currentRoomSide = SIDE_VALIONA;
+                            }
 
-                            if (_currentRoomSide == SIDE_VALIONA)
+                            if (_deepBreathCount < 3)
                             {
-                                _currentRoomSide = SIDE_THERALION;
                                 me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_1, DeepBreathStartingPositions[_currentRoomSide], false);
+                                _deepBreathCount++;
                             }
-                            else
-                            {
-                                _currentRoomSide = SIDE_VALIONA;
-                                me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_1, DeepBreathStartingPositions[_currentRoomSide], false);
-                            }
-                            _deepBreathCount++;
+                            else 
+                                me->GetMotionMaster()->MovePoint(POINT_PREPARE_LAND, DeepBreathStartingPositions[_currentRoomSide], false);
                             break;
                         case EVENT_FACE_TO_DIRECTION:
+                            _currentDeepBreathWaypoint.clear();
+                            _currentDeepBreathWaypoint = Trinity::Containers::SelectRandomContainerElement(_deepBreathWaypoints);
+
+                            if (_currentRoomSide == SIDE_THERALION)
+                                me->SetFacingTo(me->GetAngle(_currentDeepBreathWaypoint.back()));
+                            else if (_currentRoomSide == SIDE_VALIONA)
+                                me->SetFacingTo(me->GetAngle(_currentDeepBreathWaypoint.front()));
+
+                            events.ScheduleEvent(EVENT_ANNOUNCE_DEEP_BREATH, Milliseconds(200));
+                            events.ScheduleEvent(EVENT_FLY_TO_STARTING_POINT, Seconds(1) + Milliseconds(700));
+                            break;
+                        case EVENT_ANNOUNCE_DEEP_BREATH:
+                            Talk(SAY_ANNOUNCE_DEEP_BREATH);
+                            if (_deepBreathCount == 1)
+                                Talk(SAY_DEEP_BREATH);
+                            break;
+                        case EVENT_FLY_TO_STARTING_POINT:
+                            if (_currentRoomSide == SIDE_THERALION)
+                                me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_2, _currentDeepBreathWaypoint.back(), false);
+                            else if (_currentRoomSide == SIDE_VALIONA)
+                                me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_2, _currentDeepBreathWaypoint.front(), false);
+                            break;
+                        case EVENT_FLY_TO_OTHER_SIDE:
+                            DoCastSelf(SPELL_SPEED_BURST);
                             if (_currentRoomSide == SIDE_THERALION)
                             {
-                                _currentDeepBreathWaypoint = *_deepBreathWaypoints.begin()->end();
-                                me->SetFacingTo(me->GetAngle(*_deepBreathWaypoints.begin()->begin()));
+                                me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_3, _currentDeepBreathWaypoint.front(), false);
+                                _currentRoomSide = SIDE_VALIONA;
                             }
                             else if (_currentRoomSide == SIDE_VALIONA)
                             {
-                                _currentDeepBreathWaypoint = *_deepBreathWaypoints.begin()->begin();
-                                me->SetFacingTo(me->GetAngle(*_deepBreathWaypoints.begin()->end()));
+                                me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_3, _currentDeepBreathWaypoint.back(), false);
+                                _currentRoomSide = SIDE_THERALION;
                             }
+                            break;
+                        case EVENT_LAND:
+                            me->GetMotionMaster()->MoveLand(POINT_LAND, ValionaLandingPositions[_currentRoomSide]);
+                            break;
+                        case EVENT_ATTACK_PLAYERS:
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            if (Unit* target = me->GetVictim())
+                                me->AI()->AttackStart(target);
 
-                            _deepBreathWaypoints.erase(_deepBreathWaypoints.begin());
+                            events.ScheduleEvent(EVENT_BLACKOUT, Seconds(8) + Milliseconds(500));
+                            events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(23));
                             break;
                         default:
                             break;
@@ -627,8 +695,7 @@ class boss_valiona : public CreatureScript
         private:
             uint8 _deepBreathCount;
             uint8 _currentRoomSide;
-            Position _currentDeepBreathWaypoint;
-            std::vector<std::vector<Position>> _deepBreathWaypoints;
+            std::vector<Position> _currentDeepBreathWaypoint;
         };
 
         CreatureAI* GetAI(Creature *creature) const override
