@@ -4988,6 +4988,9 @@ void AuraEffect::HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp,
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
+    if (!apply)
+        return;
+
     Unit* target = aurApp->GetTarget();
 
     float powerAmountPct = GetPctOf(target->GetPower(Powers(GetMiscValue())), target->GetMaxPower(Powers(GetMiscValue())));
@@ -5000,6 +5003,9 @@ void AuraEffect::HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp,
 void AuraEffect::HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (!apply)
         return;
 
     Unit* target = aurApp->GetTarget();

@@ -80,7 +80,7 @@ inline T CalculatePct(T base, U pct)
 template <class T>
 inline float GetPctOf(T value, T max)
 {
-    ASSERT(max && value < max);
+    ASSERT(max && value <= max);
     return float(static_cast<float>(value) / static_cast<float>(max) * 100.0f);
 }
 
