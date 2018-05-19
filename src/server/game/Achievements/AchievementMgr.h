@@ -122,8 +122,6 @@ public:
     void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
     void SaveToDB(SQLTransaction& trans);
 
-    //void LoadAchievements();
-
     void SendAllData(Player const* receiver) const override;
 
     void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;

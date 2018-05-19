@@ -844,16 +844,6 @@ void AccountAchievementMgr::SaveToDB(SQLTransaction& trans)
     }
 }
 
-/*void AccountAchievementMgr::LoadAchievements()
-{
-    for (auto const& m : _completedAchievements) {
-        AchievementEntry const* achievement = sAchievementStore.LookupEntry(m.first);
-        if (!achievement)
-            continue;
-        CompletedAchievement(achievement, _owner->GetPlayer());
-    }
-}*/
-
 void AccountAchievementMgr::SendAllData(Player const* /*receiver*/) const
 {
     WorldPackets::Achievement::AllAccountCriteria accountCriteria;
