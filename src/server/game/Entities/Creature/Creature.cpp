@@ -2621,8 +2621,11 @@ std::string Creature::GetScriptName() const
 
 uint32 Creature::GetScriptId() const
 {
+	uint32 scriptId = 0;
     if (CreatureData const* creatureData = GetCreatureData())
-        return creatureData->ScriptId ? creatureData->ScriptId : sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
+		scriptId = creatureData->ScriptId;
+
+    return scriptId ? scriptId : sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
 ScriptParam Creature::GetScriptParam(uint8 index) const
