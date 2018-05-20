@@ -1995,7 +1995,7 @@ class spell_mage_pyroblast : public SpellScriptLoader
                     if (Unit* caster = GetCaster())
                         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST))
                             if (Aura* aura = target->GetAura(GetSpellInfo()->Id))
-                                aura->GetEffect(EFFECT_1)->SetBonusAmount(caster->SpellDamageBonusDone(target, spell, 0, DOT, EFFECT_1));
+                                aura->GetEffect(EFFECT_1)->SetAmount(aura->GetEffect(EFFECT_1)->GetAmount() + caster->SpellDamageBonusDone(target, spell, 0, DOT, EFFECT_1));
             }
 
             void Register() override
