@@ -264,6 +264,7 @@ public:
             { "follow",    rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,    false, nullptr,           "", npcFollowCommandTable },
             { "set",       rbac::RBAC_PERM_COMMAND_NPC_SET,       false, nullptr,              "", npcSetCommandTable },
             { "evade",     rbac::RBAC_PERM_COMMAND_NPC_EVADE,     false, &HandleNpcEvadeCommand,             ""       },
+            { "reload",    rbac::RBAC_PERM_COMMAND_NPC_RELOAD,    false, &HandleNpcReloadCommand,            ""		  },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1529,6 +1530,36 @@ public:
         if (force)
             creatureTarget->ClearUnitState(UNIT_STATE_EVADE);
         creatureTarget->AI()->EnterEvadeMode(why);
+
+        return true;
+    }
+
+    static bool HandleNpcReloadCommand(ChatHandler* handler, char const* args)
+    {
+        Creature* creatureTarget = handler->getSelectedCreature();
+        if (!creatureTarget || creatureTarget->IsPet() || creatureTarget->IsGuardian())
+        {
+            handler->PSendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        creatureTarget->ReLoad(false);
+
+        if (args && stricmp(args, "all") == 0)
+        {
+            Player* me = handler->GetSession()->GetPlayer();
+            std::list<Creature*> list;
+            me->GetCreatureListWithEntryInGrid(list, creatureTarget->GetEntry(), me->GetMap()->GetVisibilityRange());
+
+            for (Creature* creature : list)
+                if (creature != creatureTarget)
+                    creature->ReLoad(true);
+
+            handler->PSendSysMessage(LANG_NPCS_RELOADED);
+        }
+        else
+            handler->PSendSysMessage(LANG_NPC_RELOADED);
 
         return true;
     }
