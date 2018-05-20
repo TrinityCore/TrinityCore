@@ -141,7 +141,6 @@ enum RogueSpells
     SPELL_ROGUE_STRIKE_FROM_THE_SHADOWS             = 196951,
     SPELL_ROGUE_SUBTERFUGE                          = 108208,
     SPELL_ROGUE_SUBTERFUGE_AURA                     = 115192,
-    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
     SPELL_ROGUE_THUGGEE                             = 196861,
     SPELL_ROGUE_TOTAL_PARALYSIS                     = 113953,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
@@ -880,33 +879,33 @@ class spell_rog_killing_spree : public SpellScriptLoader
 };
 
 // 1943 - Rupture
-class spell_rog_rupture : public AuraScript
+class spell_rog_rupture : public SpellScript
 {
-    PrepareAuraScript(spell_rog_rupture);
+    PrepareSpellScript(spell_rog_rupture);
 
-    void HandleDamage(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleAfterHit()
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        if (Unit* target = GetHitUnit())
+        {
+            if (Aura* ruptureAura = target->GetAura(GetSpellInfo()->Id))
+            {
+                if (AuraEffect* effect = ruptureAura->GetEffect(EFFECT_0))
+                {
+                    if (SpellPowerCost const* powerCost = GetSpell()->GetPowerCost(POWER_COMBO_POINTS))
+                    {
+                        effect->SetDamage(effect->GetDamage() / 2);
 
-        int32 damagePerCombo = aurEff->GetDamage();
-        if (AuraEffect const* t5 = caster->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
-
-        int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> costs = aurEff->GetSpellInfo()->CalcPowerCost(caster, aurEff->GetSpellInfo()->GetSchoolMask());
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
-
-        if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0))
-            aurEff->SetDamage(finalDamage);
+                        int32 duration = 4 + (4 * powerCost->Amount);
+                        ruptureAura->SetDuration(duration * IN_MILLISECONDS);
+                    }
+                }
+            }
+        }
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture::HandleDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterHit += SpellHitFn(spell_rog_rupture::HandleAfterHit);
     }
 };
 
@@ -1778,15 +1777,10 @@ class spell_rog_eviscerate : public SpellScript
 
     void CalcDamage(SpellEffIndex /*effIndex*/)
     {
-        int32 damagePerCombo = GetHitDamage();
-        if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
+        int32 finalDamage = GetHitDamage();
 
-        int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
+        if (SpellPowerCost const* powerCost = GetSpell()->GetPowerCost(POWER_COMBO_POINTS))
+            finalDamage *= powerCost->Amount;
 
         SetHitDamage(finalDamage);
     }
@@ -1809,22 +1803,25 @@ class spell_rog_envenom : public SpellScript
 
     void CalculateDamage(SpellEffIndex /*effIndex*/)
     {
-        int32 damagePerCombo = GetHitDamage();
-        if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
+        int32 finalDamage = GetHitDamage();
 
-        int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
+        if (SpellPowerCost const* powerCost = GetSpell()->GetPowerCost(POWER_COMBO_POINTS))
+            finalDamage *= powerCost->Amount;
 
         SetHitDamage(finalDamage);
+    }
+
+    void HandleAfterHit()
+    {
+        if (Aura* envenomAura = GetCaster()->GetAura(GetSpellInfo()->Id))
+            if (SpellPowerCost const* powerCost = GetSpell()->GetPowerCost(POWER_COMBO_POINTS))
+                envenomAura->SetDuration((powerCost->Amount + 1) * IN_MILLISECONDS);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_rog_envenom::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterHit += SpellHitFn(spell_rog_envenom::HandleAfterHit);
     }
 };
 
@@ -2791,7 +2788,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_roll_the_bones_duration();
     new spell_rog_roll_the_bones_visual();
     new spell_rog_ruthlessness();
-    RegisterAuraScript(spell_rog_rupture);
+    RegisterSpellScript(spell_rog_rupture);
     new spell_rog_saber_slash();
     new spell_rog_serrated_blades();
     new spell_rog_shadowstrike();
