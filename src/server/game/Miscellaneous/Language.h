@@ -1045,6 +1045,8 @@ enum TrinityStrings
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2     = 5070,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3     = 5071,
     LANG_NPCINFO_NPC_FLAGS              = 5072,
+    LANG_NPC_RELOADED                   = 5073,
+    LANG_NPCS_RELOADED                  = 5074,
 
     // Room for more Trinity strings      5073-9999
 
