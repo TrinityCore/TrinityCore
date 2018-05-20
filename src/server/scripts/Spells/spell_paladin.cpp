@@ -1443,6 +1443,59 @@ class spell_pal_judgements_of_the_wise : public SpellScriptLoader
         }
 };
 
+// 879 - Exorcism
+class spell_pal_exorcism : public SpellScriptLoader
+{
+    public:
+        spell_pal_exorcism() : SpellScriptLoader("spell_pal_exorcism") { }
+
+        class spell_pal_exorcism_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_exorcism_SpellScript);
+
+            void ChangeDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 damage = GetHitDamage();
+
+                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.344f;
+                    float holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+                    holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
+                    holy *= 0.344f;
+
+                    SetHitDamage(damage + (holy > ap ? holy : ap));
+                }
+            }
+
+            void ApplyDotBonus()
+            {
+                if (Unit* target = GetHitUnit())
+                    if (Unit* caster = GetCaster())
+                        if (Aura* aura = target->GetAura(GetSpellInfo()->Id))
+                        {
+                            float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0688f;
+                            float holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+                            holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
+                            holy *= 0.0688f;
+
+                            aura->GetEffect(EFFECT_1)->SetAmount(aura->GetEffect(EFFECT_1)->GetAmount() + holy > ap ? holy : ap);
+                        }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_exorcism_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                AfterHit += SpellHitFn(spell_pal_exorcism_SpellScript::ApplyDotBonus);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pal_exorcism_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1454,6 +1507,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
+    new spell_pal_exorcism();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
