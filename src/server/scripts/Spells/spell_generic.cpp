@@ -958,8 +958,8 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 {
                     if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                     {
-                        if (uint32 entry = sTransmogrification->GetFakeEntry(mainItem))
-                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, entry);
+                        if (mainItem->transmog)
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->transmog);
                         else
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
                     }
@@ -977,8 +977,8 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 {
                     if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                     {
-                        if (uint32 entry = sTransmogrification->GetFakeEntry(offItem))
-                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, entry);
+                        if (offItem->transmog)
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, offItem->transmog);
                         else
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
                     }
@@ -995,8 +995,8 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 {
                     if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
                     {
-                        if (uint32 entry = sTransmogrification->GetFakeEntry(rangedItem))
-                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, entry);
+                        if (rangedItem->transmog)
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, rangedItem->transmog);
                         else
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
                     }

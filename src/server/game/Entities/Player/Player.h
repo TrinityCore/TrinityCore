@@ -149,8 +149,6 @@ struct SpellModifier
     Aura* const ownerAura;
 };
 
-typedef std::unordered_map<ObjectGuid, uint32> TransmogMapType;
-
 #ifdef PRESETS
 typedef std::map<uint8, uint32> PresetslotMapType;
 struct PresetData
@@ -2154,7 +2152,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
-        TransmogMapType transmogMap; // transmogMap[iGUID] = entry
 #ifdef PRESETS
         PresetMapType presetMap; // presetMap[presetId] = presetData
 #endif

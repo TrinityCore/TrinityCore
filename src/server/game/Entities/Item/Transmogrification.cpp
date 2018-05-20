@@ -36,13 +36,16 @@ void Transmogrification::PresetTransmog(Player* player, Item* itemTransmogrified
     if (!CanTransmogrifyItemWithItem(player, itemTransmogrified->GetTemplate(), sObjectMgr->GetItemTemplate(fakeEntry)))
         return;
 
-    SetFakeEntry(player, itemTransmogrified, fakeEntry);
+    itemTransmogrified->transmog = fakeEntry;
 
     itemTransmogrified->UpdatePlayedTime(player);
 
     itemTransmogrified->SetOwnerGUID(player->GetGUID());
     itemTransmogrified->SetNotRefundable(player);
     itemTransmogrified->ClearSoulboundTradeable(player);
+
+    itemTransmogrified->SetState(ITEM_CHANGED, player);
+    UpdateItem(player, itemTransmogrified);
 }
 
 void Transmogrification::LoadPlayerSets(Player* player)
@@ -83,15 +86,6 @@ void Transmogrification::LoadPlayerSets(Player* player)
             else
                 TC_LOG_ERROR("custom.transmog", "Item entry (FakeEntry: %u, playerGUID: %u, slot: %u, presetId: %u) does not exist, ignoring.", entry, player->GetGUID().GetCounter(), uint32(slot), uint32(PresetID));
         }
-
-        if (player->presetMap[PresetID].slotMap.empty())
-        {
-            // Should never happen
-            player->presetMap.erase(PresetID);
-            CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = %u AND PresetID = %u", player->GetGUID().GetCounter(), uint32(PresetID));
-            return;
-        }
-
     } while (result->NextRow());
 }
 #endif
@@ -242,23 +236,6 @@ std::string Transmogrification::GetItemLink(uint32 entry, WorldSession* session)
     return oss.str();
 }
 
-uint32 Transmogrification::GetFakeEntry(const Item* item)
-{
-    TC_LOG_DEBUG("custom.transmog", "Transmogrification::GetFakeEntry");
-
-    Player* owner = item->GetOwner();
-
-    if (!owner)
-        return 0;
-    if (owner->transmogMap.empty())
-        return 0;
-
-    TransmogMapType::const_iterator it = owner->transmogMap.find(item->GetGUID());
-    if (it == owner->transmogMap.end())
-        return 0;
-    return it->second;
-}
-
 void Transmogrification::UpdateItem(Player* player, Item* item) const
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::UpdateItem");
@@ -269,22 +246,6 @@ void Transmogrification::UpdateItem(Player* player, Item* item) const
         if (player->IsInWorld())
             item->SendUpdateToPlayer(player);
     }
-}
-
-void Transmogrification::DeleteFakeEntry(Player* player, Item* item)
-{
-    TC_LOG_DEBUG("custom.transmog", "Transmogrification::DeleteFakeEntry");
-
-    if (player->transmogMap.erase(item->GetGUID()) != 0)
-        UpdateItem(player, item);
-}
-
-void Transmogrification::SetFakeEntry(Player* player, Item* item, uint32 entry)
-{
-    TC_LOG_DEBUG("custom.transmog", "Transmogrification::SetFakeEntry");
-
-    player->transmogMap[item->GetGUID()] = entry;
-    UpdateItem(player, item);
 }
 
 TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8 slot, bool no_cost)
@@ -320,7 +281,12 @@ TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, ObjectGu
 
     if (!itemTransmogrifier) // reset look newEntry
     {
-        DeleteFakeEntry(player, itemTransmogrified);
+        if (itemTransmogrified->transmog)
+        {
+            itemTransmogrified->transmog = 0;
+            itemTransmogrified->SetState(ITEM_CHANGED, player);
+            UpdateItem(player, itemTransmogrified);
+        }
     }
     else
     {
@@ -358,7 +324,7 @@ TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, ObjectGu
             }
         }
 
-        SetFakeEntry(player, itemTransmogrified, itemTransmogrifier->GetEntry());
+        itemTransmogrified->transmog = itemTransmogrifier->GetEntry();
 
         itemTransmogrified->UpdatePlayedTime(player);
 
@@ -366,12 +332,16 @@ TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, ObjectGu
         itemTransmogrified->SetNotRefundable(player);
         itemTransmogrified->ClearSoulboundTradeable(player);
 
-        if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
+        if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_PICKED_UP || itemTransmogrifier->GetTemplate()->Bonding == BIND_QUEST_ITEM || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
             itemTransmogrifier->SetBinding(true);
 
         itemTransmogrifier->SetOwnerGUID(player->GetGUID());
         itemTransmogrifier->SetNotRefundable(player);
         itemTransmogrifier->ClearSoulboundTradeable(player);
+
+        itemTransmogrifier->SetState(ITEM_CHANGED, player);
+        itemTransmogrified->SetState(ITEM_CHANGED, player);
+        UpdateItem(player, itemTransmogrified);
     }
 
     return LANG_ERR_TRANSMOG_OK;

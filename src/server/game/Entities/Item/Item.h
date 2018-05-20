@@ -196,6 +196,8 @@ class TC_GAME_API Item : public Object
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
+        uint32 transmog = 0;
+
         void BuildUpdate(UpdateDataMapType&) override;
 
         void AddToObjectUpdate() override;

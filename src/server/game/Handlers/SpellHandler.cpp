@@ -655,8 +655,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
                 data << uint32(0);
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
             {
-                if (uint32 entry = sTransmogrification->GetFakeEntry(item))
-                    data << uint32(sObjectMgr->GetItemTemplate(entry)->DisplayInfoID);
+                if (auto const * itemTemplate = sObjectMgr->GetItemTemplate(item->transmog))
+                    data << uint32(itemTemplate->DisplayInfoID);
                 else
                     data << uint32(item->GetTemplate()->DisplayInfoID);
             }

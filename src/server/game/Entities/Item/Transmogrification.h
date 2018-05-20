@@ -107,10 +107,7 @@ public:
     const char * GetSlotName(uint8 slot, WorldSession* session) const;
     std::string GetItemLink(Item* item, WorldSession* session) const;
     std::string GetItemLink(uint32 entry, WorldSession* session) const;
-    uint32 GetFakeEntry(const Item* item);
     void UpdateItem(Player* player, Item* item) const;
-    void DeleteFakeEntry(Player* player, Item* item);
-    void SetFakeEntry(Player* player, Item* item, uint32 entry);
 
     TransmogTrinityStrings Transmogrify(Player* player, ObjectGuid itemGUID, uint8 slot, bool no_cost = false);
     bool CanTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source) const;
