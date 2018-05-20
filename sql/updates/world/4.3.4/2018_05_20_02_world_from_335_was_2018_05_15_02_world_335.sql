@@ -1,3 +1,4 @@
+/*
 -- 
 -- Jordan Stilwell
 DELETE FROM `creature_text` WHERE `CreatureID`=6181;
@@ -26,3 +27,4 @@ DELETE FROM `waypoints` WHERE `entry`=6181;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (6181,1,-5094.12,-786.116,495.226,""),
 (6181,2,-5089.28,-782.95,495.279,"");
+*/
