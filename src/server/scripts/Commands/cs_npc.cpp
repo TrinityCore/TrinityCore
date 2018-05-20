@@ -1546,7 +1546,7 @@ public:
 
         creatureTarget->ReLoad(false);
 
-        if (args && stricmp(args, "all"))
+        if (args && stricmp(args, "all") == 0)
         {
             Player* me = handler->GetSession()->GetPlayer();
             std::list<Creature*> list;
