@@ -120,7 +120,7 @@ enum eZoneGilneas
     SPELL_ALTERED_FORM                           = 94293,
     SPELL_ALTERED_FORM2                          = 97709,
     SPELL_FORCE_WORGEN_ALTERED_FORM              = 98274,
-
+    SPELL_SUMMON_CROWLEY_HORSE                   = 67001,
     ZONE_DUSKHAVEN                               = 4786,
 
     SPELL_GENERIC_QUEST_INVISIBILITY_DETECTION_1 = 49416,
@@ -3402,6 +3402,16 @@ class npc_lord_darius_crowley_35552 : public CreatureScript
 {
 public:
     npc_lord_darius_crowley_35552() : CreatureScript("npc_lord_darius_crowley_35552") { }
+
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_SACRIFICES)
+        {
+            player->CastSpell(player, SPELL_SUMMON_CROWLEY_HORSE);
+            return true;
+        }
+        return false;
+    }
 
     struct npc_lord_darius_crowley_35552AI : public ScriptedAI
     {
