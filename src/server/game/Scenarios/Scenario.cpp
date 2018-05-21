@@ -138,7 +138,7 @@ void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress co
     WorldPackets::Scenario::ScenarioProgressUpdate progressUpdate;
     progressUpdate.CriteriaProgress.Id = criteria->ID;
     progressUpdate.CriteriaProgress.Quantity = progress->Counter;
-    progressUpdate.CriteriaProgress.Owner = progress->OwnerGUID;
+    progressUpdate.CriteriaProgress.Player = progress->OwnerGUID;
     progressUpdate.CriteriaProgress.Date = progress->Date;
     if (criteria->Entry->StartTimer)
         progressUpdate.CriteriaProgress.Flags = timedCompleted ? 1 : 0;
@@ -292,7 +292,7 @@ std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasP
             criteriaProgress.Id = critItr->first;
             criteriaProgress.Quantity = critItr->second.Counter;
             criteriaProgress.Date = critItr->second.Date;
-            criteriaProgress.Owner = critItr->second.OwnerGUID;
+            criteriaProgress.Player = critItr->second.OwnerGUID;
             criteriasProgress.push_back(criteriaProgress);
         }
     }

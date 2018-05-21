@@ -31,7 +31,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProg
 {
     data << uint32(criteria.Id);
     data << uint64(criteria.Quantity);
-    data << criteria.Owner;
+    data << criteria.Player;
     data.AppendPackedTime(criteria.Date);
     data << uint32(criteria.TimeFromStart);
     data << uint32(criteria.TimeFromCreate);

@@ -427,7 +427,7 @@ void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
         WorldPackets::Achievement::CriteriaProgress progress;
         progress.Id = itr->first;
         progress.Quantity = itr->second.Counter;
-        progress.Owner = itr->second.OwnerGUID;
+        progress.Player = itr->second.OwnerGUID;
         progress.Flags = 0;
         progress.Date = itr->second.Date;
         progress.TimeFromStart = 0;
@@ -484,7 +484,7 @@ void PlayerAchievementMgr::SendAchievementInfo(Player* receiver, uint32 /*achiev
         WorldPackets::Achievement::CriteriaProgress progress;
         progress.Id = itr->first;
         progress.Quantity = itr->second.Counter;
-        progress.Owner = itr->second.OwnerGUID;
+        progress.Player = itr->second.OwnerGUID;
         progress.Flags = 0;
         progress.Date = itr->second.Date;
         progress.TimeFromStart = 0;
@@ -838,7 +838,7 @@ void AccountAchievementMgr::SendAllData(Player const* /*receiver*/) const
         WorldPackets::Achievement::CriteriaProgress progress;
         progress.Id = itr->first;
         progress.Quantity = itr->second.Counter;
-        progress.Owner = itr->second.OwnerGUID;
+        progress.Player = itr->second.OwnerGUID;
         progress.Flags = 0;
         progress.Date = itr->second.Date;
         progress.TimeFromStart = 0;
@@ -953,7 +953,7 @@ void AccountAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, Criteri
 
     accountCriteriaUpdate.Progress.Id = criteria->ID;
     accountCriteriaUpdate.Progress.Quantity = progress->Counter;
-    accountCriteriaUpdate.Progress.Owner = _owner->GetBattlenetAccountGUID();
+    accountCriteriaUpdate.Progress.Player = _owner->GetBattlenetAccountGUID();
 
     accountCriteriaUpdate.Progress.Date = progress->Date;
     accountCriteriaUpdate.Progress.TimeFromStart = timeElapsed;

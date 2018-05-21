@@ -38,7 +38,7 @@ namespace WorldPackets
         {
             uint32 Id = 0;
             uint64 Quantity = 0;
-            ObjectGuid Owner;
+            ObjectGuid Player;
             uint32 Flags = 0;
             time_t Date = time_t(0);
             uint32 TimeFromStart = 0;
