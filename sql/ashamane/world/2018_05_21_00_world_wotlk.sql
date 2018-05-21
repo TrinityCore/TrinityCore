@@ -143,7 +143,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 DELETE FROM `quest_objectives` WHERE `ID` = '259326'; 
 DELETE FROM `gameobject` WHERE `id`=186640;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`ScriptName`,`VerifiedBuild`) VALUES
-(51003358, 186640, 571, 0, 0, 1, 0, 0, 0, -1, 778.137, -4715.15, -96.1442, 2.81609, 0, 0, -0.986785, -0.162035, 300, 255, 1, 0, '', 0);
+(51013358, 186640, 571, 0, 0, 1, 0, 0, 0, -1, 778.137, -4715.15, -96.1442, 2.81609, 0, 0, -0.986785, -0.162035, 300, 255, 1, 0, '', 0);
 
 
 -- Thoralius the Wise SAI
