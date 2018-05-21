@@ -65,9 +65,9 @@ WorldPacket const* WorldPackets::Achievement::AllAccountCriteria::Write()
 {
     _worldPacket << uint32(Progress.size());
 
-    for (CriteriaProgress const& criteria : Progress)
+    for (CriteriaProgress const& progress : Progress)
     {
-        _worldPacket << criteria;
+        _worldPacket << progress;
     }
 
     return &_worldPacket;
