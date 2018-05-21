@@ -16,6 +16,7 @@
  */
 
 #include "FollowMovementGenerator.h"
+#include "CreatureAI.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Optional.h"
@@ -26,6 +27,14 @@
 
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) {}
 FollowMovementGenerator::~FollowMovementGenerator() = default;
+
+static void DoMovementInform(Unit* owner, Unit* target)
+{
+    if (owner->GetTypeId() != TYPEID_UNIT)
+        return;
+    if (UnitAI* ai = owner->GetAI())
+        static_cast<CreatureAI*>(ai)->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
+}
 
 static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
 {
@@ -70,6 +79,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             {
                 _path = nullptr;
                 owner->StopMoving();
+                DoMovementInform(owner, target);
                 return true;
             }
         }
@@ -79,6 +89,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _path = nullptr;
         owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
+        DoMovementInform(owner, target);
     }
 
     if (_lastTargetPosition.GetExactDistSq(target->GetPosition()) > 0.0f)
