@@ -6966,7 +6966,7 @@ bool Spell::UpdatePointers()
 SpellPowerCost const* Spell::GetPowerCost(Powers power) const
 {
     std::vector<SpellPowerCost> const& costs = GetPowerCost();
-    auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
+    auto c = std::find_if(costs.begin(), costs.end(), [power](SpellPowerCost const& cost) { return cost.Power == power; });
     if (c != costs.end())
         return &(*c);
 
