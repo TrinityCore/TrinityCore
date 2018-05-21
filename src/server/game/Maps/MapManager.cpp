@@ -173,7 +173,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     char const* mapName = entry->MapName->Str[sWorld->GetDefaultDbcLocale()];
 
     Group* group = player->GetGroup();
-    if (entry->IsRaid()) // can only enter in a raid group
+    if (entry->IsRaid() && entry->Expansion() >= sWorld->getIntConfig(CONFIG_EXPANSION)) // can only enter in a raid group but raids from old expansion don't need a group
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
             return Map::CANNOT_ENTER_NOT_IN_RAID;
 
