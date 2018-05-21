@@ -79,7 +79,7 @@ struct CriteriaProgress
 {
     uint64 Counter = 0;
     std::time_t Date = std::time_t(0);                      // latest update time.
-    ObjectGuid PlayerGUID;                                  // GUID of the player that last updated the criteria
+    ObjectGuid OwnerGUID;                                   // GUID of the player or Battlenet account that last updated the criteria
     bool Changed = false;
 };
 

@@ -31,7 +31,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProg
 {
     data << uint32(criteria.Id);
     data << uint64(criteria.Quantity);
-    data << criteria.Player;
+    data << criteria.Owner;
     data.AppendPackedTime(criteria.Date);
     data << uint32(criteria.TimeFromStart);
     data << uint32(criteria.TimeFromCreate);
@@ -56,13 +56,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchieveme
 
 WorldPacket const* WorldPackets::Achievement::AccountCriteriaUpdate::Write()
 {
-    _worldPacket << uint32(CriteriaID);
-    _worldPacket << uint64(Quantity);
-    _worldPacket << BattleNetAccountGUID;
-    _worldPacket.AppendPackedTime(CurrentTime);
-    _worldPacket << uint32(ElapsedTime);
-    _worldPacket << uint32(CreationTime);
-    _worldPacket << uint32(Flags);
+    _worldPacket << Progress;
 
     return &_worldPacket;
 }
@@ -73,14 +67,7 @@ WorldPacket const* WorldPackets::Achievement::AllAccountCriteria::Write()
 
     for (CriteriaProgress const& criteria : Progress)
     {
-        _worldPacket << uint32(criteria.Id);
-        _worldPacket << uint64(criteria.Quantity);
-        _worldPacket << criteria.Player;
-        _worldPacket.AppendPackedTime(criteria.Date);
-        _worldPacket << uint32(criteria.TimeFromStart);
-        _worldPacket << uint32(criteria.TimeFromCreate);
-        _worldPacket.WriteBits(criteria.Flags, 4);
-        _worldPacket.FlushBits();
+        _worldPacket << criteria;
     }
 
     return &_worldPacket;

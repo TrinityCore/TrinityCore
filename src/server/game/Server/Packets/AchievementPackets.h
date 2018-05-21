@@ -38,7 +38,7 @@ namespace WorldPackets
         {
             uint32 Id = 0;
             uint64 Quantity = 0;
-            ObjectGuid Player;
+            ObjectGuid Owner;
             uint32 Flags = 0;
             time_t Date = time_t(0);
             uint32 TimeFromStart = 0;
@@ -58,13 +58,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 CriteriaID = 0;
-            uint64 Quantity = 0;
-            ObjectGuid BattleNetAccountGUID;
-            time_t CurrentTime = time_t(0);
-            uint32 ElapsedTime = 0;
-            uint32 CreationTime = 0;
-            uint32 Flags = 0;
+            CriteriaProgress Progress;
         };
 
         class AllAccountCriteria final : public ServerPacket

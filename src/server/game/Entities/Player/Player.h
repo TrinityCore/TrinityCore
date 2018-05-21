@@ -2696,7 +2696,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_oldpetspell;
 
         PlayerAchievementMgr* m_achievementMgr;
-        AccountAchievementMgr* m_accountAchievementMgr;
         ReputationMgr*  m_reputationMgr;
         std::unique_ptr<QuestObjectiveCriteriaMgr> m_questObjectiveCriteriaMgr;
 

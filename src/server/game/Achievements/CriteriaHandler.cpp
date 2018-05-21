@@ -951,7 +951,7 @@ void CriteriaHandler::SetCriteriaProgress(Criteria const* criteria, uint64 chang
 
     progress->Changed = true;
     progress->Date = time(NULL); // set the date to the latest update.
-    progress->PlayerGUID = referencePlayer ? referencePlayer->GetGUID() : ObjectGuid::Empty;
+    progress->OwnerGUID = referencePlayer ? referencePlayer->GetGUID() : ObjectGuid::Empty;
 
     uint32 timeElapsed = 0;
 
