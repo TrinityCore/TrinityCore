@@ -72,6 +72,7 @@ Read file [THANKS](THANKS).
 
 ## Links
 
-* [Website](https://www.trinitycore.org)
-* [Wiki](https://www.trinitycore.info)
-* [Forums](https://community.trinitycore.org)
+* [Website](https://www.ashamane.com)
+* [Wiki](https://https://github.com/AshamaneProject/AshamaneCore/issues)
+* [Forums](http://forum.ashamane.com/)
+* [TrinityCore](https://www.trinitycore.org/)
