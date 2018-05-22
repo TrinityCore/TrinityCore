@@ -6,7 +6,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 44, 171, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On just summoned - Self: Set phase id to 171 // "),
 (@ENTRY, 0, 1, 0, 1, 0, 100, 1, 2000, 2000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, "When out of combat and timer at the begining between 2000 and 2000 ms (and later repeats every 0 and 0 ms) - Owner/Summoner: Talk 0 // ");
 
-DELETE FROM `creature_text` WHERE `CreatureID` IN (50415, 35911, 35552, 35551);
+DELETE FROM `creature_text` WHERE `CreatureID` IN (50415, 35911, 35552, 35551, 35753);
 INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (50415, 0, 0, 'You''ve been bitten by a worgen.  It''s probably nothing, but it sure stings a little.$B$B|TInterface\\Icons\\INV_Misc_monsterfang_02.blp:32|t', 42, 0, 100, 0, 0, 0, 50192, 'Josiah Event Trigger to Player'),
 (35911, 0, 0, 'If we can make it past the gates into Duskhaven we''ll be safe.  The eastern mountains are virtually impassable.', 12, 0, 100, 1, 0, 19696, 36107, 'King Genn Greymane to Player'),
