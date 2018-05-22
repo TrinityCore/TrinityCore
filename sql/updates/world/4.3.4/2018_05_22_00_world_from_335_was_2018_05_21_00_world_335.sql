@@ -1,3 +1,4 @@
+/*
 -- 
 -- Quests "Investigate the Blue Recluse" & "Investigate the Alchemist Shop"
 DELETE FROM `creature_text` WHERE `CreatureID` IN (5497,4568);
@@ -17,3 +18,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (456800,9,0,0,0,0,100,0,0,0,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,4.77319,"Anastasia Hartwell - On Script - Set Orientation"),
 (456800,9,1,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Anastasia Hartwell - On Script - Say Line 0"),
 (456800,9,2,0,0,0,100,0,10000,10000,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,3.05433,"Anastasia Hartwell - On Script - Set Orientation");
+*/

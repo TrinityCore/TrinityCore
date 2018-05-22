@@ -1,3 +1,4 @@
+/*
 -- Tabetha
 DELETE FROM `creature_text` WHERE `CreatureID`=6546 AND `GroupID` IN (1,2,3,4,5,6,7,8,9);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -54,3 +55,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=6550 AND `ConditionTypeOrReference`=9;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22,2,6550,0,0,9,0,1957,0,0,0,0,0,"","SAI triggers only if player has quest 'Mana Surges' taken");
+*/

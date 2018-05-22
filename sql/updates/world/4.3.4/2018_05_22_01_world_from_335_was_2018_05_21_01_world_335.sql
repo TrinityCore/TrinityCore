@@ -1,3 +1,4 @@
+/*
 -- 
 -- Wynne Larson
 DELETE FROM `creature_text` WHERE `CreatureID`=1309;
@@ -36,3 +37,4 @@ DELETE FROM `waypoints` WHERE `entry`=1309;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (1309,1,-8964.6,824.703,109.447,""),
 (1309,2,-8963,822.517,109.447,"");
+*/
