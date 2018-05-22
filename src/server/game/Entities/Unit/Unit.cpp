@@ -11861,6 +11861,7 @@ void Unit::SetControlled(bool apply, UnitState state)
                 return;
         }
 
+        ClearUnitState(state);
         ApplyControlStatesIfNeeded();
     }
 }
