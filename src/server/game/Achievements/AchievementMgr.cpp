@@ -965,7 +965,7 @@ void AccountAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, Criteri
     SendPacket(accountCriteriaUpdate.Write());
 }
 
-void AccountAchievementMgr::SendCriteriaProgressRemoved(uint32 criteriaId)
+void AccountAchievementMgr::SendCriteriaProgressRemoved(uint32 /*criteriaId*/)
 {
     // Account criteria cannot be removed
 }
