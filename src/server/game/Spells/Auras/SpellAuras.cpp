@@ -1702,7 +1702,7 @@ uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& even
             return 0;
 
         // check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
-        if (spell->IsTriggered() && !(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
+        if (spell->IsTriggered() && spell->GetTriggeredCastFlags() != TRIGGERED_CAN_CAST_WHILE_CASTING_MASK && !(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
             if (!GetSpellInfo()->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
                 return 0;
     }

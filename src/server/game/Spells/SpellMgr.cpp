@@ -463,7 +463,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     {
         if (Spell const* spell = eventInfo.GetProcSpell())
         {
-            if (spell->IsTriggered())
+            if (spell->IsTriggered() && spell->GetTriggeredCastFlags() != TRIGGERED_CAN_CAST_WHILE_CASTING_MASK)
             {
                 SpellInfo const* spellInfo = spell->GetSpellInfo();
                 if (!spellInfo->HasAttribute(SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2) &&
