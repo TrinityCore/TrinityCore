@@ -28,47 +28,153 @@
 14:57:05.196 -- player casts altered form (97709)
 14:57:05.617 -- everyone despawns
 14:57:05.196 -- phase id 181 applied
+
+22:17:26.108 -- assassin summon cast
+22:17:26.108 -- assassin aggro
+22:17:26.258 -- gilneas will soon belong to the forsaken
+
+22:18:18.508 -- complete invasion quest
+
+22:54:04.069 -- exodus accept
+22:55:05.155 -- phase 194 applied 
+
+phase group 415 --> phase 180, 181, 182
+phase group 422 --> phase 183 - 185
+phase group 431 --> phase 181 - 183
+phase group 432 --> phase 184 - 186
+phase group 429 --> phase 181, 182
+phase group 433 --> phase 181 - 184
+
+PHASING DOCUMENTATION:
+105 - chapter two intro phase
+181 - first duskhaven phase after chapter 2 intro
+182 - forsaken start attacking
+183 - after first terrain swap: first land piece is broken
+184 - after seeing horde starts invading gilneas: exodus
+
+186 - Koroth's Den / Stormglen phase (Ogre zone) (inclduing forsaken attack koroth event)
+
+194 - exodus caravan phase
 */
 
 
 -- Phasing conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`= 26 AND `SourceEntry`= 4714 AND `SourceGroup` IN (105, 181);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`= 26 AND `SourceEntry`= 4714 AND `SourceGroup` IN (105, 181, 182);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `NegativeCondition`, `Comment`) VALUES 
-(26, 105, 4714, 8, 14221, 0, 'Gilneas - Phase 105 - active when rewarded quest 14222'),
+(26, 105, 4714, 8, 14222, 0, 'Gilneas - Phase 105 - active when rewarded quest 14222'),
 -- (26, 105, 4714, 8, 14375, 1, 'Gilneas - Phase 105 - inactive when rewarded quest 14375'),
-(26, 181, 4714, 8, 14375, 0, 'Gilneas - Phase 181 - active when rewarded quest 14222');
-
+(26, 181, 4714, 8, 14375, 0, 'Gilneas - Phase 181 - active when rewarded quest 14222'),
+(26, 181, 4714, 8, 14321, 1, 'Gilneas - Phase 181 - inactive when rewarded quest 14321'),
+(26, 182, 4714, 8, 14321, 0, 'Gilneas - Phase 181 - active when rewarded quest 14321');
 
 DELETE FROM `phase_area` WHERE `AreaId`= 4714;
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (4714, 105, 'Gilneas - Phase 105'),
-(4714, 181, 'Gilneas - Phase 181');
+(4714, 181, 'Gilneas - Phase 181'),
+(4714, 182, 'Gilneas - Phase 182');
+
+-- Update Phasing for Creatures
+-- Phase 181, 182, 183
+UPDATE `creature` SET `PhaseId`= 0, `PhaseGroup`= 431 WHERE `guid` IN (255508, 255507, 255506, 255505, 255504, 255503, 255502, 255501, 255500, 255499, 255498, 255497, 255496, 255495, 255494, 255493, 255492, 255491, 255490, 255489, 255488, 255487, 255486, 255485, 255483, 255482, 255480, 255479, 255478, 255476, 255475, 255474, 255473, 255472, 255471, 255470, 255469, 255468, 255467, 255466, 255465, 255464, 255463, 255461, 255460, 255459, 255457, 255456, 255455, 255454, 255453, 255452, 255451, 255450, 255449, 255448, 255447, 255446, 255444, 255443, 255441, 255440, 255439, 255438, 255437, 255436, 255435, 255434, 255433);
+UPDATE `creature` SET `PhaseId`= 0, `PhaseGroup`= 429 WHERE `guid`= 255442;
+
+-- Update Phasing for GameObjects
+UPDATE `gameobject` SET `PhaseId`= 0, `PhaseGroup`= 431 WHERE `guid` IN (236344, 236345, 236346, 236347, 236348, 236349, 236350, 236351, 236352, 236353, 236354, 236355, 236356, 236358, 235520, 236492);
+
+-- Cleanup Duplicate Spawns
+DELETE FROM `creature` WHERE `guid` IN (255642, 255755, 255766, 255784, 255651, 255795, 255765, 255686, 255691, 255647);
+DELETE FROM `creature_addon` WHERE `guid` IN (255642, 255755, 255766, 255784, 255651, 255795, 255765, 255686, 255691, 255647);
 
 -- Spell Conditions
-DELETE FROM `conditions` WHERE `SourceEntry` IN (69123, 68632, 68634, 68638, 69296) AND `SourceTypeOrReferenceId`= 13;
+DELETE FROM `conditions` WHERE `SourceEntry` IN (69123, 68632, 68634, 68638, 69296, 68558, 68591) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
-(13, 1, 69123, 0, 0, 31, 0, 3, 0, 377913, 0, 0, '', 'Curse of the Worgen - Target Generic Trigger Lab - Multiphase (Ground)'),
-(13, 1, 68632, 0, 0, 31, 0, 3, 0, 377912, 0, 0, '', 'Summon Personal Godfrey - Target Generic Trigger Lab - Multiphase (Ground)'),
-(13, 1, 68634, 0, 0, 31, 0, 3, 0, 377895, 0, 0, '', 'Summon Personal Greymane - Target Generic Trigger Lab - Multiphase (Ground)'),
+(13, 1, 69123, 0, 0, 31, 0, 3, 0, 255427, 0, 0, '', 'Curse of the Worgen - Target Generic Trigger Lab - Multiphase (Ground)'),
+(13, 1, 68632, 0, 0, 31, 0, 3, 0, 255423, 0, 0, '', 'Summon Personal Godfrey - Target Generic Trigger Lab - Multiphase (Ground)'),
+(13, 1, 68634, 0, 0, 31, 0, 3, 0, 255421, 0, 0, '', 'Summon Personal Greymane - Target Generic Trigger Lab - Multiphase (Ground)'),
 (13, 2, 68638, 0, 0, 31, 0, 3, 36331, 0, 0, 0, '', 'Worgen Intro Completion - Target Krennan Aranas'),
-(13, 2, 68638, 0, 0, 31, 0, 3, 36330, 0, 0, 0, '', 'Worgen Intro Completion - Target Lord Godfrey'),
-(13, 2, 68638, 0, 0, 31, 0, 3, 36332, 0, 0, 0, '', 'Worgen Intro Completion - Target King Genn Greymane'),
-(13, 2, 69296, 0, 0, 31, 0, 5, 197337, 0, 0, 0, '', 'Invasion Camera - Target Invasion Camera');
+(13, 2, 68638, 0, 1, 31, 0, 3, 36330, 0, 0, 0, '', 'Worgen Intro Completion - Target Lord Godfrey'),
+(13, 2, 68638, 0, 2, 31, 0, 3, 36332, 0, 0, 0, '', 'Worgen Intro Completion - Target King Genn Greymane'),
+(13, 2, 69296, 0, 0, 31, 0, 5, 197337, 0, 0, 0, '', 'Invasion Camera - Target Invasion Camera'),
+(13, 1, 68558, 0, 0, 31, 0, 3, 36140, 0, 0, 0, '', 'Gilneas - Quest - Abomination Kill Me - Target Prince Liam Greymane'),
+(13, 1, 68591, 0, 0, 31, 0, 3, 36286, 0, 0, 0, '', 'Fiery Boulder - Target Generic Trigger LAB - Multiphase');
+-- (17, 0, 69094, 0, 2, 31, 0, 3, 36231, 0, 0, 0, '', 'Toss Keg - Target Horrid Abomination');
+
+-- Spellclick Conditions
+DELETE FROM `conditions` WHERE `SourceGroup` IN (36287, 36288, 36289) AND `SourceTypeOrReferenceId`= 18;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
+(18, 36287, 68597, 0, 0, 9, 0, 14368, 0, 0, 0, 0, '', 'Required quest active for spellclick'),
+(18, 36288, 68598, 0, 0, 9, 0, 14368, 0, 0, 0, 0, '', 'Required quest active for spellclick'),
+(18, 36289, 68596, 0, 0, 9, 0, 14368, 0, 0, 0, 0, '', 'Required quest active for spellclick');
 
 -- Template Updates
 UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry`= 36198;
+UPDATE `creature_template` SET `ScriptName`= 'npc_gilneas_horrid_abomination' WHERE `entry`= 36231;
+UPDATE `creature_template` SET `npcflag`= 16777216, `ScriptName`= 'npc_gilneas_save_the_children' WHERE `entry` IN (36287, 36288, 36289);
+UPDATE `creature_template` SET `flags_extra`= 128, `InhabitType`= 4 WHERE `entry`= 36286;
 
-DELETE FROM `creature_text` WHERE `CreatureID` IN (36330, 36331, 36332);
+-- Respawn Time corrections
+UPDATE `creature` SET `spawntimesecs`= 30 WHERE `id` IN (36287, 36288, 36289);
+
+DELETE FROM `creature_text` WHERE `CreatureID` IN (36330, 36331, 36332, 36231, 36287, 36288, 36289);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `Comment`) VALUES
+-- Chapter Two Intro
 (36330, 0, 0, 'Give it up, Krennan.  It''s time to put this one down.  It''s protocol.', 12, 0, 100, 274, 0, 19635, 36336, 'Lord Godfrey to Player'),
 (36331, 0, 0, 'I am not giving up on you.  I don''t have a cure for the Curse yet... but there are treatments.  You will have control again.', 12, 0, 100, 274, 0, 20919, 36344, 'Krennan Aranas to Player'),
 (36332, 0, 0, 'Tell me, Godfrey.  Those that stayed in Gilneas City so that we could live.  Were they following protocol?', 12, 0, 100, 1, 0, 19721, 36340, 'King Genn Greymane to Player'),
-(36332, 1, 0, 'I didn''t think so.  Now hand me that potion, Krennan... and double the dosage.', 12, 0, 100, 1, 0, 19722, 36341, 'King Genn Greymane to Player');
+(36332, 1, 0, 'I didn''t think so.  Now hand me that potion, Krennan... and double the dosage.', 12, 0, 100, 1, 0, 19722, 36341, 'King Genn Greymane to Player'),
+-- Horrid Abomination
+(36231, 0, 0, 'Barrel smell like gunpowder...', 12, 0, 100, 0, 0, 20909, 36311, 'Horrid Abomination - Keg Placed'),
+(36231, 0, 1, 'GAH!!!!  I CAN''T SEE IN HERE!!!!', 12, 0, 100, 0, 0, 20908, 36310, 'Horrid Abomination - Keg Placed'),
+(36231, 0, 2, 'Uh-oh... this gonna hurts me...', 12, 0, 100, 0, 0, 20911, 36313, 'Horrid Abomination - Keg Placed'),
+(36231, 0, 3, 'This not be good...', 12, 0, 100, 0, 0, 20911, 36312, 'Horrid Abomination - Keg Placed'),
+(36231, 0, 4, 'I gots bad feeling...', 12, 0, 100, 0, 0, 20911, 36314, 'Horrid Abomination - Keg Placed'),
+-- Save the Children
+(36287, 0, 0, 'You are scary!  I just want my mommy!', 12, 0, 100, 0, 0, 0, 36325, 'Cynthia to Player'),
+(36288, 0, 0, 'Are you one of the good worgen, $g mister:ma''am;?  Did you see Cynthia hiding in the sheds outside?', 12, 0, 100, 0, 0, 0, 36326, 'Ashley to Player'),
+(36289, 0, 0, 'Don''t hurt me!  I was just looking for my sisters!  I think Ashley''s inside that house!', 12, 0, 100, 0, 0, 0, 36324, 'James to Player');
 
 DELETE FROM `waypoints` WHERE `entry`= 36330;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`) VALUES
 (36330, 1, -1840.085, 2293.042, 42.53004),
 (36330, 2, -1821.922, 2295.05, 42.17052);
+
+-- Quest Chains
+DELETE FROM `quest_template_addon` WHERE `ID` IN (14321, 14369, 14382, 14368, 14386, 14396);
+INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
+(14321, 14320),
+(14369, 14367),
+(14382, 14367),
+(14368, 14367),
+(14386, 14369),
+(14396, 14386);
+
+UPDATE `quest_template_addon` SET `PrevQuestID`= 14336, `ExclusiveGroup`= -14347 WHERE `ID` IN (14347, 14348);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`= -14369 WHERE `ID` IN (14369, 14382, 14368);
+
+UPDATE `gameobject_template` SET `ScriptName`= 'go_gilneas_invasion_camera' WHERE `entry`= 197337;
+
+DELETE FROM `gameobject_template_addon` WHERE `entry` IN (196394, 196403);
+INSERT INTO `gameobject_template_addon` (`entry`, `flags`) VALUES
+(196394, 4),
+(196403, 4);
+
+-- Sparring Entries
+DELETE FROM `creature_sparring_template` WHERE `AttackerEntry` IN (36211, 36140, 34511);
+INSERT INTO `creature_sparring_template` (`AttackerEntry`, `VictimEntry`, `HealthLimitPct`) VALUES
+(36211, 34511, 90),
+(36140, 34511, 100),
+(34511, 36211, 90),
+(34511, 36140, 100);
+
+-- Spells
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN
+('spell_gilneas_quest_save_the_children',
+'spell_gilneas_quest_save_james');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(68596, 'spell_gilneas_quest_save_james'),
+(68597, 'spell_gilneas_quest_save_the_children'),
+(68598, 'spell_gilneas_quest_save_the_children');
 
 -- Creature Krennan Aranas 36331 SAI
 SET @ENTRY := 36331;
@@ -119,22 +225,34 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (3633200,9,4,0,0,0,100,0,3600,3600,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,5.497787,""),
 (3633200,9,5,0,0,0,100,0,0,0,0,0,81,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"");
 
-DELETE FROM `quest_template_addon` WHERE `ID`= 14321;
-INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
-(14321, 14320);
-
-UPDATE `gameobject_template` SET `ScriptName`= 'go_gilneas_invasion_camera' WHERE `entry`= 197337;
-
-DELETE FROM `gameobject_template_addon` WHERE `entry`= 196394;
-INSERT INTO `gameobject_template_addon` (`entry`, `flags`) VALUES
-(196394, 4);
-
 -- Creature Slain Watchman 36205 SAI
 SET @ENTRY := 36205;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 0, 0, 0, 19, 0, 100, 0, 14321, 0, 0, 0, 11, 68492, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "When player accepts quest 14321 - Self: Cast spell Forcecast Summon Forsaken Assassin (68492) on Action invoker // ");
+UPDATE `creature_template` SET `flags_extra`= 2, `unit_flags`= 537166592 WHERE `entry`= 36205;
 
--- 14:58:31.449 gilneas will soon
+-- Creature Forsaken Assassin 36207 SAI
+SET @ENTRY := 36207;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On just summoned - Self: Talk 0 // "),
+(@ENTRY, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Attack Owner/Summoner // "),
+(@ENTRY, 0, 2, 0, 67, 0, 100, 0, 9000, 12000, 0, 0, 11, 75360, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When victim is behind me (wait 9000 - 12000 ms before next event trigger) - Self: Cast spell 75360 on Victim // Forsaken Assassin - On Behind Target - Cast 'Backstab'");
+
+-- Creature Forsaken Invader 34511 SAI
+SET @ENTRY := 34511;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 1000, 1000, 10000, 10000, 49, 0, 0, 0, 0, 0, 0, 19, 36211, 10, 0, 0, 0, 0, 0, "When out of combat and timer at the begining between 1000 and 1000 ms (and later repeats every 10000 and 10000 ms) - Self: Attack Closest alive creature Duskhaven Watchman (36211) in 10 yards // ");
+
+-- Creature Prince Liam Greymane 36140 SAI
+SET @ENTRY := 36140;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 8, 0, 100, 0, 68558, 0, 0, 0, 11, 68559, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "On spell 68558 hit  - Self: Cast spell 68559 on Action invoker // ");
 
