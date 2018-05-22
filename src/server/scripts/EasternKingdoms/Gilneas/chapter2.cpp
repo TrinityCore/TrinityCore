@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PassiveAI.h"
@@ -182,7 +183,6 @@ enum SaveTheChildren
     SPELL_GILNEAS_QUEST_SAVE_JAMES      = 68596,
     SPELL_GILNEAS_QUEST_SAVE_CYNTHIA    = 68597,
     SPELL_GILNEAS_QUEST_SAVE_ASHLEY     = 68598,
-
 
     NPC_CYNTHIA                         = 36287,
     NPC_ASHLEY                          = 36288,
@@ -412,13 +412,205 @@ class npc_gilneas_save_the_children : public CreatureScript
         }
 };
 
+enum ForsakenCatapult
+{
+    NPC_FORSAKEN_MACHINIST  = 36292,
+
+    SPELL_FIERY_BOULDER     = 68591,
+    SPELL_LAUNCH_INTERNAL   = 96114,
+    SPELL_LAUNCH_INTERNAL_2 = 96185,
+    SPELL_LAUNCH_1          = 68659,
+    SPELL_LAUNCH_2          = 66251,
+
+    EVENT_FIERY_BOULDER     = 1,
+    SEAT_0                  = 0
+};
+
+class npc_gilneas_forsaken_catapult : public CreatureScript
+{
+    public:
+        npc_gilneas_forsaken_catapult() : CreatureScript("npc_gilneas_forsaken_catapult") { }
+
+        struct npc_gilneas_forsaken_catapultAI : public VehicleAI
+        {
+            npc_gilneas_forsaken_catapultAI(Creature* creature) : VehicleAI(creature) { }
+
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+            {
+                if (!passenger)
+                    return;
+
+                if (passenger->GetEntry() == NPC_FORSAKEN_MACHINIST)
+                {
+                    if (apply)
+                    {
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        if (Creature* creature = passenger->ToCreature())
+                            creature->SetReactState(REACT_PASSIVE);
+                    }
+                    else
+                    {
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetFaction(FACTION_FRIENDLY);
+                    }
+                }
+                else if (passenger->GetTypeId() == TYPEID_PLAYER && !apply)
+                    me->DespawnOrUnsummon(Seconds(9));
+            }
+
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            {
+                switch (spell->Id)
+                {
+                    case SPELL_LAUNCH_INTERNAL:
+                        DoCastSelf(SPELL_LAUNCH_INTERNAL_2, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SetTargetDestination(Position pos)
+            {
+                _targetPos = pos;
+            }
+
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            {
+                switch (spell->Id)
+                {
+                    case SPELL_LAUNCH_2:
+                        if (target->GetVehicleCreatureBase())
+                        {
+                            Position pos = target->GetPosition();
+                            pos.m_positionZ += 6.0f;
+                            target->ExitVehicle(&pos);
+                            target->GetMotionMaster()->MoveJump(_targetPos, 58.62504f, 12.75955f);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FIERY_BOULDER:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+            }
+        private:
+            EventMap _events;
+            Position _targetPos;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_gilneas_forsaken_catapultAI(creature);
+        }
+};
+
+class spell_gilneas_launch : public SpellScriptLoader
+{
+public:
+    spell_gilneas_launch() : SpellScriptLoader("spell_gilneas_launch") { }
+
+    class spell_gilneas_launch_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gilneas_launch_SpellScript);
+
+        void TransferDestination(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* creature = caster->ToCreature())
+                    if (creature->IsAIEnabled)
+                        CAST_AI(npc_gilneas_forsaken_catapult::npc_gilneas_forsaken_catapultAI,
+                            creature->AI())->SetTargetDestination(GetExplTargetDest()->GetPosition());
+        }
+
+        void Register()
+        {
+            OnEffectLaunch += SpellEffectFn(spell_gilneas_launch_SpellScript::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gilneas_launch_SpellScript();
+    }
+};
+
+enum LeaderOfThePack
+{
+    NPC_ATTACK_MASTIFF  = 36405
+};
+
+Position const AttackMastiffSummonPositions[] =
+{
+    { -1944.483f, 2656.656f, 1.051441f,  1.691914f  },
+    { -1956.602f, 2649.942f, 1.374257f,  1.441419f  },
+    { -1973.627f, 2654.836f, -0.6995407f, 1.098437f },
+    { -1983.201f, 2662.242f, -1.66652f,  0.8627869f },
+    { -1994.557f, 2672.134f, -2.303949f, 0.5766099f },
+    { -1949.314f, 2642.024f, 1.299083f,  1.580745f  },
+    { -1972.606f, 2639.383f, 1.211673f,  1.217789f  },
+    { -1997.009f, 2650.811f, -1.030188f, 0.8184887f },
+    { -2006.259f, 2663.115f, -2.00431f,  0.5941383f },
+    { -1945.504f, 2653.386f, 1.177739f,  1.675516f  }
+};
+
+class spell_gilneas_call_attack_mastiff : public SpellScriptLoader
+{
+    public:
+        spell_gilneas_call_attack_mastiff() : SpellScriptLoader("spell_gilneas_call_attack_mastiff") { }
+
+        class spell_gilneas_call_attack_mastiff_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gilneas_call_attack_mastiff_SpellScript);
+
+            void HandleHit(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    for (uint8 i = 0; i < 10; i++)
+                        if (Creature* mastiff = caster->SummonCreature(NPC_ATTACK_MASTIFF, AttackMastiffSummonPositions[i], TEMPSUMMON_TIMED_DESPAWN, 60000))
+                            mastiff->AI()->AttackStart(GetHitUnit());
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gilneas_call_attack_mastiff_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gilneas_call_attack_mastiff_SpellScript();
+        }
+};
+
 void AddSC_gilneas_c2()
 {
     new go_gilneas_invasion_camera();
 
     new npc_gilneas_horrid_abomination();
     new npc_gilneas_save_the_children();
+    new npc_gilneas_forsaken_catapult();
 
     new spell_gilneas_quest_save_james();
     new spell_gilneas_quest_save_the_children();
+    new spell_gilneas_launch();
+    new spell_gilneas_call_attack_mastiff();
 }
