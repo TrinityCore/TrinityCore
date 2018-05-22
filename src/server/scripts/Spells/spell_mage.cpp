@@ -27,6 +27,7 @@
 #include "Creature.h"
 #include "CombatAI.h"
 #include "GridNotifiers.h"
+#include "Group.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
@@ -149,7 +150,8 @@ enum MageSpells
     SPELL_MAGE_WATER_JET                         = 135029,
     SPELL_MAGE_ICE_FLOES                         = 108839,
     SPELL_MAGE_CONJURE_REFRESHMENT_GROUP         = 167145,
-    SPELL_MAGE_CONJURE_REFRESHMENT_SOLO          = 116136
+    SPELL_MAGE_CONJURE_REFRESHMENT_SOLO          = 116136,
+    SPELL_MAGE_HYPOTHERMIA                       = 41425
 };
 
 enum TemporalDisplacementSpells
@@ -1046,9 +1048,15 @@ class spell_mage_ice_block : public AuraScript
             GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_ICE_BARRIER, true);
     }
 
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_HYPOTHERMIA, true);
+    }
+
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_mage_ice_block::OnRemove, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_mage_ice_block::OnApply, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1807,12 +1815,43 @@ class spell_mage_time_warp : public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckCast()
+            {
+                Player* player = GetCaster()->ToPlayer();
+                if (!player)
+                    return SPELL_FAILED_DONT_REPORT;
+                Group* grp = player->GetGroup();
+                if (!grp)
+                {
+                    return HasSated(player) ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_CAST_OK;
+                }
+                for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player* member = itr->GetSource();
+
+                    if (!member || !member->GetSession())
+                        continue;
+
+                    if (!HasSated(member))
+                    {
+                        return SPELL_CAST_OK; // we have at least one valid target
+                    }
+                }
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            }
+
+            bool HasSated(Unit* target)
+            {
+                return target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) || target->HasAura(SPELL_HUNTER_INSANITY) || target->HasAura(SPELL_SHAMAN_EXHAUSTION) || target->HasAura(SPELL_SHAMAN_SATED || target->HasAura(SPELL_PET_NETHERWINDS_FATIGUED));
+            }
+
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_PET_NETHERWINDS_FATIGUED));
             }
 
             void ApplyDebuff()
@@ -1825,6 +1864,7 @@ class spell_mage_time_warp : public SpellScriptLoader
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
+                OnCheckCast += SpellCheckCastFn(spell_mage_time_warp_SpellScript::CheckCast);
             }
         };
 
