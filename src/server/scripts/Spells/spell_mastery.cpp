@@ -2,6 +2,8 @@
 * Ordered alphabetically using scriptname.
 */
 
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
@@ -435,6 +437,119 @@ public:
     }
 };
 
+// Mastery: Ignite - 12846
+class IgniteOrderPred
+{
+public:
+    IgniteOrderPred(Unit const* base, bool ascending = true) : _ascending(ascending), _base(base) { }
+
+    bool operator()(Unit const* objA, Unit const* objB) const
+    {
+        float valA = 0;
+        float valB = 0;
+        if (AuraEffect* eff = objA->GetAuraEffect(SPELL_MAGE_IGNITE_AURA, EFFECT_0, _base->GetGUID()))
+            valA = eff->GetDamage();
+        if (AuraEffect* eff = objB->GetAuraEffect(SPELL_MAGE_IGNITE_AURA, EFFECT_0, _base->GetGUID()))
+            valB = eff->GetDamage();
+        return _ascending ? valA < valB : valA > valB;
+    }
+
+private:
+    bool const _ascending;
+    Unit const* _base;
+};
+
+class spell_mage_mastery_ignite : public AuraScript
+{
+    PrepareAuraScript(spell_mage_mastery_ignite);
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        float dist = INTERACTION_DISTANCE;
+        std::list<Unit*> targetList;
+        std::list<Unit*> targetsWithIgnite;
+        std::list<Unit*> targetsWithouthIgnite;
+
+        Trinity::AnyUnitInObjectRangeCheck check(caster, caster->GetVisibilityRange());
+        Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(caster, targetList, check);
+        Cell::VisitGridObjects(GetCaster(), searcher, caster->GetVisibilityRange());
+
+        for (Unit* unit : targetList)
+        {
+            if (unit->IsTotem() || caster->IsFriendlyTo(unit))
+                continue;
+
+            if (unit->HasAura(SPELL_MAGE_IGNITE_AURA, caster->GetGUID()))
+            {
+                targetsWithIgnite.emplace_back(unit);
+            }
+            else
+            {
+                targetsWithouthIgnite.emplace_back(unit);
+            }
+        }
+        for (Unit* igniter : targetsWithIgnite)
+        {
+            if (Aura* srcIgnite = igniter->GetAura(SPELL_MAGE_IGNITE_AURA, caster->GetGUID()))
+            {
+                std::list<Unit*> targetsToIgnite;
+                std::list<Unit*> targetsToReIgnite;
+                for (Unit* target : targetsWithouthIgnite)
+                {
+                    if (igniter->GetDistance(target) <= dist)
+                    {
+                        if (target->HasAura(SPELL_MAGE_IGNITE_AURA, caster->GetGUID()))
+                            targetsToReIgnite.emplace_back(target);
+                        else
+                            targetsToIgnite.emplace_back(target);
+                    }
+                }
+                Unit* target = nullptr;
+                if (!targetsToIgnite.empty())
+                {
+                    Trinity::Containers::RandomResize(targetsToIgnite, 1);
+                    target = targetsToIgnite.front();
+                }
+                else if (!targetsToReIgnite.empty())
+                {
+                    targetsToReIgnite.sort(IgniteOrderPred(caster));
+                    target = targetsToReIgnite.front();
+                }
+                if (target)
+                {
+                    // copy values of base dot
+                    caster->AddAura(SPELL_MAGE_IGNITE_AURA, target);
+                    if (Aura* ignite = target->GetAura(SPELL_MAGE_IGNITE_AURA, caster->GetGUID()))
+                    {
+                        ignite->SetMaxDuration(srcIgnite->GetMaxDuration());
+                        ignite->SetDuration(srcIgnite->GetDuration());
+                        for (AuraEffect* eff : ignite->GetAuraEffects())
+                        {
+                            if (!eff)
+                                continue;
+                            if (AuraEffect* baseEff = srcIgnite->GetEffect(eff->GetEffIndex()))
+                            {
+                                eff->SetPeriodicTimer(baseEff->GetPeriodicTimer());
+                                eff->SetDamage(baseEff->GetDamage());
+                                eff->ChangeAmount(baseEff->GetAmount());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_mastery_ignite::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_ignite();
@@ -442,6 +557,7 @@ void AddSC_mastery_spell_scripts()
     RegisterAuraScript(spell_mastery_icicles_proc);
     RegisterAuraScript(spell_mastery_icicles_periodic);
     RegisterAuraScript(spell_mastery_icicles_mod_aura);
+    RegisterAuraScript(spell_mage_mastery_ignite);
     
     RegisterSpellScript(spell_mastery_icicles_glacial_spike);
 }
