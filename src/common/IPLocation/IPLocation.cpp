@@ -17,10 +17,13 @@
 
 #include "IPLocation.h"
 #include "Config.h"
-#include "IpAddress.h"
 #include "ByteConverter.h"
+#include "IpAddress.h"
+#include "Log.h"
 
-IPLocation::IPLocation()
+IPLocation::IPLocation() : _fileHandle(nullptr), _databaseType(0), _databaseColumn(0), _databaseYear(0),
+    _databaseMonth(0), _databaseDay(0), _databaseCount(0), _databaseAddr(0), _ipVersion(0),
+    _ipv4DatabaseCount(0), _ipv4DatabaseAddr(0), _ipv4IndexbaseAddr(0)
 {
 }
 
@@ -46,44 +49,36 @@ void IPLocation::Load()
 
     IPLocation* location = new IPLocation();
 
-    location->filehandle = file;
+    location->_fileHandle = file;
 
-    location->databasetype       = Read8(location->filehandle, 1);
-    location->databasecolumn     = Read8(location->filehandle, 2);
-    location->databaseyear       = Read8(location->filehandle, 3);
-    location->databasemonth      = Read8(location->filehandle, 4);
-    location->databaseday        = Read8(location->filehandle, 5);
+    location->_databaseType       = Read8(location->_fileHandle,  1);
+    location->_databaseColumn     = Read8(location->_fileHandle,  2);
+    location->_databaseYear       = Read8(location->_fileHandle,  3);
+    location->_databaseMonth      = Read8(location->_fileHandle,  4);
+    location->_databaseDay        = Read8(location->_fileHandle,  5);
 
-    location->databasecount      = Read32(location->filehandle, 6);
-    location->databaseaddr       = Read32(location->filehandle, 10);
-    location->ipversion          = Read32(location->filehandle, 14);
+    location->_databaseCount      = Read32(location->_fileHandle, 6);
+    location->_databaseAddr       = Read32(location->_fileHandle, 10);
+    location->_ipVersion          = Read32(location->_fileHandle, 14);
 
-    location->ipv4databasecount  = Read32(location->filehandle, 6);
-    location->ipv4databaseaddr   = Read32(location->filehandle, 10);
-    location->ipv6databasecount  = Read32(location->filehandle, 14);
-    location->ipv6databaseaddr   = Read32(location->filehandle, 18);
-
-    location->ipv4indexbaseaddr  = Read32(location->filehandle, 22);
-    location->ipv6indexbaseaddr  = Read32(location->filehandle, 26);
+    location->_ipv4DatabaseCount  = Read32(location->_fileHandle, 6);
+    location->_ipv4DatabaseAddr   = Read32(location->_fileHandle, 10);
+    location->_ipv4IndexbaseAddr  = Read32(location->_fileHandle, 22);
 
     _ipLocation.push_back(location);
 
-    TC_LOG_INFO("server.loading", "Loaded IP Location Database.");
+    TC_LOG_INFO("server.loading", ">> Loaded IP Location Database.");
 }
 
 uint8 IPLocation::Read8(FILE* handle, uint32 position)
 {
     uint8 ret = 0;
-    uint8* cache_shm = (uint8*)cache_shm_ptr;
-    size_t temp;
 
     if (handle != nullptr)
     {
         fseek(handle, position - 1, 0);
-        temp = fread(&ret, 1, 1, handle);
+        fread(&ret, 1, 1, handle);
     }
-    else
-        ret = cache_shm[position - 1];
 
     return ret;
 }
@@ -94,38 +89,24 @@ uint32 IPLocation::Read32(FILE* handle, uint32 position)
     uint8 byte2 = 0;
     uint8 byte3 = 0;
     uint8 byte4 = 0;
-    uint8* cache_shm = (uint8*)cache_shm_ptr;
-    size_t temp;
 
     // Read from file
     if (handle != nullptr)
     {
         fseek(handle, position - 1, 0);
-        temp = fread(&byte1, 1, 1, handle);
-        temp = fread(&byte2, 1, 1, handle);
-        temp = fread(&byte3, 1, 1, handle);
-        temp = fread(&byte4, 1, 1, handle);
+        fread(&byte1, 1, 1, handle);
+        fread(&byte2, 1, 1, handle);
+        fread(&byte3, 1, 1, handle);
+        fread(&byte4, 1, 1, handle);
     }
     else
-    {
-        byte1 = cache_shm[position - 1];
-        byte2 = cache_shm[position];
-        byte3 = cache_shm[position + 1];
-        byte4 = cache_shm[position + 2];
-    }
+        return 0;
 
     return ((byte4 << 24) | (byte3 << 16) | (byte2 << 8) | (byte1));
 }
 
 IPLocationRecord* IPLocation::GetData(std::string const& ipAddress)
 {
-    if (_ipLocation.empty())
-        return nullptr;
-
-    IPLocation* location = *_ipLocation.begin();
-    if (!location)
-        return nullptr;
-
     Ipv parsed_ipv;
     parsed_ipv.ipversion = 4;
     parsed_ipv.ipv4 = IP2No(ipAddress);
@@ -142,38 +123,37 @@ IPLocationRecord* IPLocation::GetIPv4Record(Ipv parsed_ipv)
     if (!location)
         return nullptr;
 
-    FILE* handle = location->filehandle;
-    uint32 baseaddr = location->ipv4databaseaddr;
-    uint32 dbcolumn = location->databasecolumn;
-    uint32 ipv4indexbaseaddr = location->ipv4indexbaseaddr;
+    FILE* handle    = location->_fileHandle;
+    uint32 baseaddr = location->_ipv4DatabaseAddr;
+    uint32 dbcolumn = location->_databaseColumn;
+    uint32 ipv4indexbaseaddr = location->_ipv4IndexbaseAddr;
 
-    uint32 low = 0;
-    uint32 high = location->ipv4databasecount;
-    uint32 mid = 0;
+    uint32 low  = 0;
+    uint32 high = location->_ipv4DatabaseCount;
+    uint32 mid  = 0;
 
-    uint32 ipno;
-    uint32 ipfrom;
-    uint32 ipto;
+    uint32 ipfrom = 0;
+    uint32 ipto   = 0;
 
-    ipno = parsed_ipv.ipv4;
+    uint32 ipno = parsed_ipv.ipv4;
     if (ipno == (uint32)MAX_IPV4_RANGE)
         ipno = ipno - 1;
 
     if (ipv4indexbaseaddr > 0)
     {
         // use the index table 
-        uint32_t ipnum1n2 = (uint32_t)ipno >> 16;
-        uint32_t indexpos = ipv4indexbaseaddr + (ipnum1n2 << 3);
+        uint32 ipnum1n2 = (uint32)ipno >> 16;
+        uint32 indexpos = ipv4indexbaseaddr + (ipnum1n2 << 3);
 
-        low = Read32(handle, indexpos);
+        low  = Read32(handle, indexpos);
         high = Read32(handle, indexpos + 4);
     }
 
     while (low <= high)
     {
-        mid = (uint32_t)((low + high) >> 1);
-        ipfrom = Read32(handle, baseaddr + mid * dbcolumn * 4);
-        ipto = Read32(handle, baseaddr + (mid + 1) * dbcolumn * 4);
+        mid     = (uint32)((low + high) >> 1);
+        ipfrom  = Read32(handle, baseaddr + mid * dbcolumn * 4);
+        ipto    = Read32(handle, baseaddr + (mid + 1) * dbcolumn * 4);
 
         if ((ipno >= ipfrom) && (ipno < ipto))
             return ReadRecord(baseaddr + (mid * dbcolumn * 4));
@@ -194,8 +174,8 @@ uint32 IPLocation::IP2No(std::string const& ipAddress)
     uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(ipAddress));
     EndianConvertReverse(ip);
 
-    uint8 *ptr = (uint8*)&ip;
-    uint32 a = 0;
+    uint8* ptr = (uint8*)&ip;
+    uint32 a   = 0;
 
     if (ipAddress.c_str() != nullptr)
     {
@@ -211,24 +191,16 @@ uint32 IPLocation::IP2No(std::string const& ipAddress)
 char* IPLocation::ReadStr(FILE* handle, uint32 position)
 {
     uint8 size = 0;
-    char* str = 0;
-    uint8* cache_shm = (uint8*)cache_shm_ptr;
-    size_t temp;
+    char* str = nullptr;
     if (handle != nullptr)
     {
         fseek(handle, position, 0);
-        temp = fread(&size, 1, 1, handle);
+        fread(&size, 1, 1, handle);
         str = (char *)malloc(size + 1);
         memset(str, 0, size + 1);
-        temp = fread(str, size, 1, handle);
+        fread(str, size, 1, handle);
     }
-    else
-    {
-        size = cache_shm[position];
-        str = (char*)malloc(size + 1);
-        memset(str, 0, size + 1);
-        memcpy((void*)str, (void*)&cache_shm[position + 1], size);
-    }
+
     return str;
 }
 
@@ -241,11 +213,13 @@ IPLocationRecord* IPLocation::ReadRecord(uint32 rowaddr)
     if (!location)
         return nullptr;
 
-    uint8 dbtype = location->databasetype;
-    FILE* handle = location->filehandle;
+    uint8 dbtype = location->_databaseType;
+    FILE* handle = location->_fileHandle;
     IPLocationRecord* record = new IPLocationRecord();
+    if (!record)
+        return nullptr;
 
-    if (dbtype == 1)
+    if (dbtype == IPLOCATION_DATABASE_TYPE_FILE)
     {
         std::string countryShort = ReadStr(handle, Read32(handle, rowaddr + 4 * (2 - 1)));
         std::transform(countryShort.begin(), countryShort.end(), countryShort.begin(), ::tolower);
@@ -256,7 +230,7 @@ IPLocationRecord* IPLocation::ReadRecord(uint32 rowaddr)
     else
     {
         record->country_short = "N/A";
-        record->country_long = "N/A";
+        record->country_long  = "N/A";
     }
 
     return record;
@@ -265,6 +239,9 @@ IPLocationRecord* IPLocation::ReadRecord(uint32 rowaddr)
 IPLocationRecord* IPLocation::BadRecord(char const* message)
 {
     IPLocationRecord* record = new IPLocationRecord();
+    if (!record)
+        return nullptr;
+
     record->country_short = message;
     record->country_long = message;
 

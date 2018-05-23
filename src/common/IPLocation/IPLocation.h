@@ -19,6 +19,7 @@
 #include <string>
 
 #define MAX_IPV4_RANGE 4294967295U
+#define IPLOCATION_DATABASE_TYPE_FILE 1
 
 struct in6_addr_local
 {
@@ -67,21 +68,19 @@ class TC_COMMON_API IPLocation
         IPLocationRecord* GetIPv4Record(Ipv parsed_ipv);
         IPLocationRecord* BadRecord(char const* message);
 
-        FILE*  filehandle;
-        uint8  databasetype;
-        uint8  databasecolumn;
-        uint8  databaseday;
-        uint8  databasemonth;
-        uint8  databaseyear;
-        uint32 databasecount;
-        uint32 databaseaddr;
-        uint32 ipversion;
-        uint32 ipv4databasecount;
-        uint32 ipv4databaseaddr;
-        uint32 ipv6databasecount;
-        uint32 ipv6databaseaddr;
-        uint32 ipv4indexbaseaddr;
-        uint32 ipv6indexbaseaddr;
+        FILE*  _fileHandle;
+        uint8  _databaseType;
+        uint8  _databaseColumn;
+        uint8  _databaseDay;
+        uint8  _databaseMonth;
+        uint8  _databaseYear;
+        uint32 _databaseCount;
+        uint32 _databaseAddr;
+        uint32 _ipVersion;
+        uint32 _ipv4DatabaseCount;
+        uint32 _ipv4DatabaseAddr;
+        uint32 _ipv4IndexbaseAddr;
+        uint32 _ipv6IndexbaseAddr;
 
         struct in6_addr_local ReadIPv6Address(FILE *handle, uint32_t position)
         {
