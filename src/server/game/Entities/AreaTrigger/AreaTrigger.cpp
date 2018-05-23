@@ -711,7 +711,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
     _movementTime = 0;
 
     _spline = Trinity::make_unique<::Movement::Spline<int32>>();
-    _spline->init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
+    _spline->init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeCatmullrom);
     _spline->initLengths();
 
     // should be sent in object create packets only
@@ -769,7 +769,7 @@ void AreaTrigger::UpdateTimeToTarget(uint32 timeToTarget)
 bool AreaTrigger::SetDestination(Position const& pos, uint32 timeToTarget)
 {
     PathGenerator path(GetCaster());
-    bool result = path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true);
+    bool result = path.CalculatePath(GetPosition(), pos, true);
 
     if (!result || path.GetPathType() & PATHFIND_NOPATH)
         return false;

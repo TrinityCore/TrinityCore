@@ -21,17 +21,21 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 enum Spells
 {
     // Stage One
     SPELL_INFESTED                  = 204504,
+    SPELL_INFESTED_DAMAGE           = 204506,
     SPELL_INFESTED_MIND             = 205043,
+    SPELL_INFESTED_MIND_TARGET      = 220189,
     SPELL_SPREAD_INFESTATION        = 205070,
     SPELL_INFESTED_GROUND           = 203044,
     SPELL_INFESTED_GROUND_DAMAGE    = 203045,
     SPELL_INFESTED_BREATH           = 202977,
+    SPELL_INFESTED_BREATH_DAMAGE    = 202978,
     SPELL_ROT                       = 203096,
     SPELL_VOLATILE_ROT              = 204463,
     SPELL_TAIL_LASH                 = 203024,
@@ -45,59 +49,222 @@ struct boss_nythendra : public BossAI
 {
     boss_nythendra(Creature* creature) : BossAI(creature, DATA_NYTHENDRA) { }
 
-    enum Events
+    enum EventGroups
     {
-        EVENT_ROT               = 1,
-        EVENT_VOLATILE_ROT      = 2,
-        EVENT_INFESTED_BREATH   = 3,
-        EVENT_TAIL_LASH         = 4,
+        EVENTS_PHASE_1 = 1,
+        EVENTS_PHASE_2 = 2,
     };
+
+    void Reset() override
+    {
+        me->RemoveAllAreaTriggers();
+
+        me->SetPowerType(POWER_ENERGY);
+        me->SetPower(POWER_ENERGY, 100);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
+    }
 
     void EnterCombat(Unit* /*attacker*/) override
     {
-        events.ScheduleEvent(EVENT_ROT,             15s);
-        events.ScheduleEvent(EVENT_VOLATILE_ROT,    1s, 10s);
-        events.ScheduleEvent(EVENT_INFESTED_BREATH, 1s, 10s);
-        events.ScheduleEvent(EVENT_TAIL_LASH,       6s);
+        events.ScheduleEvent(SPELL_ROT,             10s,    EVENTS_PHASE_1);
+        events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
+        events.ScheduleEvent(SPELL_INFESTED_BREATH, 60s,    EVENTS_PHASE_1);
+        events.ScheduleEvent(SPELL_TAIL_LASH,       20s,    EVENTS_PHASE_1);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
+    }
+
+    void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType damageType) override
+    {
+        if (damageType != DIRECT_DAMAGE && IsHeroic())
+            me->CastSpell(victim, SPELL_INFESTED, true);
     }
 
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
-            case EVENT_ROT:
+            case SPELL_ROT:
             {
                 for (uint8 i = 0; i < 2; ++i)
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
                         me->CastSpell(target, SPELL_ROT, true);
 
-                events.Repeat(15s);
+                events.Repeat(10s);
                 break;
             }
-            case EVENT_VOLATILE_ROT:
+            case SPELL_VOLATILE_ROT:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                     me->CastSpell(target, SPELL_VOLATILE_ROT, true);
 
-                events.Repeat(15s);
+                events.Repeat(25s);
                 break;
             }
-            case EVENT_TAIL_LASH:
+            case SPELL_INFESTED_BREATH:
+            {
+                me->CastSpell(me, SPELL_INFESTED_BREATH, false);
+                events.Repeat(60s);
+
+                me->ModifyPower(POWER_ENERGY, -50);
+
+                // If no more energy, start phase 2
+                if (me->GetPower(POWER_ENERGY) <= 0)
+                    SwitchPhase2();
+
+                break;
+            }
+            case SPELL_TAIL_LASH:
             {
                 DoCast(SPELL_TAIL_LASH);
-                events.Repeat(6s);
+                events.Repeat(20s);
                 break;
             }
             default:
                 break;
         }
     }
+
+private:
+    void SwitchPhase2()
+    {
+        events.DelayEvents(25s);
+
+        me->GetScheduler()
+            .Schedule(4s, [this](TaskContext context)
+            {
+                me->CastSpell(me, SPELL_HEART_OF_THE_SWARM, false);
+                me->SummonCreatureGroup(0);
+            })
+            .Schedule(8s, [this](TaskContext context)
+            {
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
+
+                std::vector<AreaTrigger*> areatriggers = me->GetAreaTriggers(SPELL_INFESTED_GROUND);
+                for (AreaTrigger* at : areatriggers)
+                    at->SetDestination(me->GetPosition(), 5000);
+            })
+            .Schedule(3s, SPELL_HEART_OF_THE_SWARM, [this](TaskContext context)
+            {
+                EntryCheckPredicate pred(NPC_CORRUPTED_VERMIN);
+                summons.DoAction(0, pred, 1);
+                context.Repeat();
+            })
+            .Schedule(25s, [this](TaskContext context)
+            {
+                GetContextUnit()->GetScheduler().CancelGroup(SPELL_HEART_OF_THE_SWARM);
+                summons.DespawnEntry(NPC_CORRUPTED_VERMIN);
+            });
+    }
+};
+
+// 102998
+struct npc_nythendra_corrupted_vermin : public ScriptedAI
+{
+    npc_nythendra_corrupted_vermin(Creature* creature) : ScriptedAI(creature) { }
+
+    void DoAction(int32 action) override
+    {
+        me->GetScheduler().Schedule(1s, [](TaskContext context)
+        {
+            GetContextUnit()->CastSpell(nullptr, SPELL_BURST_OF_CORRUPTION, false);
+
+            if (context.GetRepeatCounter() < 3)
+                context.Repeat();
+        });
+    }
+};
+
+//204504
+class aura_nythendra_infested : public AuraScript
+{
+    PrepareAuraScript(aura_nythendra_infested);
+
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        Unit* caster = GetCaster();
+
+        if (!caster)
+            return;
+
+        caster->CastCustomSpell(SPELL_INFESTED_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, TRIGGERED_FULL_MASK);
+
+        if (caster->GetMap() && caster->GetMap()->IsMythic())
+        {
+            if (GetAura()->GetCharges() >= 10)
+            {
+                if (!target->HasAura(SPELL_INFESTED_MIND_TARGET))
+                {
+                    target->CastSpell(target, SPELL_INFESTED_MIND_TARGET, true);
+                    caster->CastSpell(target, SPELL_INFESTED_MIND, true);
+                }
+            }
+        }
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_INFESTED_MIND_TARGET);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_nythendra_infested ::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectRemove += AuraEffectRemoveFn(aura_nythendra_infested::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+//205043
+class aura_nythendra_infested_mind : public AuraScript
+{
+    PrepareAuraScript(aura_nythendra_infested_mind);
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_SPREAD_INFESTATION, false);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_nythendra_infested_mind::OnPeriodic, EFFECT_8, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+//202977
+class aura_nythendra_infested_breath : public AuraScript
+{
+    PrepareAuraScript(aura_nythendra_infested_breath);
+
+    bool Load() override
+    {
+        _tickCount = 0;
+        return true;
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        // Deal damage every 2 ticks
+        if (++_tickCount % 2 == 0)
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(caster, SPELL_INFESTED_BREATH_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_nythendra_infested_breath::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+private:
+    uint8 _tickCount;
 };
 
 //203096
-class spell_nythendra_rot : public AuraScript
+class aura_nythendra_rot : public AuraScript
 {
-    PrepareAuraScript(spell_nythendra_rot);
+    PrepareAuraScript(aura_nythendra_rot);
 
     void AfterRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -107,7 +274,31 @@ class spell_nythendra_rot : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_nythendra_rot::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(aura_nythendra_rot::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+//204463
+class aura_nythendra_volatile_rot : public AuraScript
+{
+    PrepareAuraScript(aura_nythendra_volatile_rot);
+
+    void AfterRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            for (uint8 i = 0; i < 3; ++i)
+            {
+                Position castPos;
+                GetRandPosFromCenterInDist(GetTarget(), 10.0f, castPos);
+                GetCaster()->CastSpell(castPos, SPELL_INFESTED_GROUND, true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(aura_nythendra_volatile_rot::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -129,20 +320,9 @@ class spell_nythendra_volatile_rot_damage : public SpellScript
         SetHitDamage(damage * (1 / castertoTargetDist));
     }
 
-    void HandleAfterCast()
-    {
-        for (uint8 i = 0; i < 3; ++i)
-        {
-            Position castPos;
-            GetRandPosFromCenterInDist(GetCaster(), 5.0f, castPos);
-            GetCaster()->CastSpell(castPos, SPELL_INFESTED_GROUND, true);
-        }
-    }
-
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_nythendra_volatile_rot_damage::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        AfterCast += SpellCastFn(spell_nythendra_volatile_rot_damage::HandleAfterCast);
     }
 };
 
@@ -164,13 +344,23 @@ struct at_nythendra_infested_ground : AreaTriggerAI
     {
         unit->RemoveAurasDueToSpell(SPELL_INFESTED_GROUND_DAMAGE);
     }
+
+    void OnDestinationReached() override
+    {
+        at->Remove();
+    }
 };
 
 void AddSC_nythendra()
 {
     RegisterCreatureAI(boss_nythendra);
+    RegisterCreatureAI(npc_nythendra_corrupted_vermin);
 
-    RegisterAuraScript(spell_nythendra_rot);
+    RegisterAuraScript(aura_nythendra_infested);
+    RegisterAuraScript(aura_nythendra_infested_mind);
+    RegisterAuraScript(aura_nythendra_infested_breath);
+    RegisterAuraScript(aura_nythendra_rot);
+    RegisterAuraScript(aura_nythendra_volatile_rot);
     RegisterSpellScript(spell_nythendra_volatile_rot_damage);
 
     RegisterAreaTriggerAI(at_nythendra_infested_ground);

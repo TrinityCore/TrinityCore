@@ -103,6 +103,15 @@ public:
         DoActionImpl(info, listCopy);
     }
 
+    template <class Predicate>
+    ObjectGuid GetRandomGUID(Predicate&& predicate)
+    {
+        // We need to use a copy of SummonList here, otherwise original SummonList would be modified
+        StorageType listCopy = storage_;
+        Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), 1);
+        return listCopy.front();
+    }
+
     void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
