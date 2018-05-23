@@ -151,7 +151,8 @@ enum MageSpells
     SPELL_MAGE_ICE_FLOES                         = 108839,
     SPELL_MAGE_CONJURE_REFRESHMENT_GROUP         = 167145,
     SPELL_MAGE_CONJURE_REFRESHMENT_SOLO          = 116136,
-    SPELL_MAGE_HYPOTHERMIA                       = 41425
+    SPELL_MAGE_HYPOTHERMIA                       = 41425,
+    SPELL_INFERNO                                = 253220
 };
 
 enum TemporalDisplacementSpells
@@ -1719,9 +1720,15 @@ public:
             amount += crit;
         }
 
+        void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetCaster()->RemoveAurasDueToSpell(SPELL_INFERNO);
+        }
+
         void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_combustion_AuraScript::CalcAmount, EFFECT_1, SPELL_AURA_MOD_RATING);
+            OnEffectRemove += AuraEffectRemoveFn(spell_mage_combustion_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_RATING, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -1804,14 +1811,22 @@ class spell_mage_time_warp : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
+            std::vector<uint32> spellIds
+            {
+                SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+                SPELL_HUNTER_INSANITY,
+                SPELL_SHAMAN_EXHAUSTION,
+                SPELL_SHAMAN_SATED,
+                SPELL_PET_NETHERWINDS_FATIGUED
+            };
+
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED)
-                    || !sSpellMgr->GetSpellInfo(SPELL_PET_NETHERWINDS_FATIGUED))
-                    return false;
+                for (uint32 spell : spellIds)
+                {
+                    if (!sSpellMgr->GetSpellInfo(spell))
+                        return false;
+                }
                 return true;
             }
 
@@ -1842,16 +1857,20 @@ class spell_mage_time_warp : public SpellScriptLoader
 
             bool HasSated(Unit* target)
             {
-                return target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) || target->HasAura(SPELL_HUNTER_INSANITY) || target->HasAura(SPELL_SHAMAN_EXHAUSTION) || target->HasAura(SPELL_SHAMAN_SATED || target->HasAura(SPELL_PET_NETHERWINDS_FATIGUED));
+                for (uint32 spell : spellIds)
+                {
+                    if (target->HasAura(spell))
+                        return true;
+                }
+                return false;
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_PET_NETHERWINDS_FATIGUED));
+                for (uint32 spell : spellIds)
+                {
+                    targets.remove_if(Trinity::UnitAuraCheck(true, spell));
+                }
             }
 
             void ApplyDebuff()
