@@ -34,6 +34,8 @@ enum DataTypes
 enum Creatures
 {
     NPC_NYTHENDRA           = 102672,
+    NPC_CORRUPTED_VERMIN    = 102998,
+
     NPC_ILGYNOTH            = 105393,
     NPC_ELERETHE_RENFERAL   = 106087,
     NPC_URSOC               = 100497,
