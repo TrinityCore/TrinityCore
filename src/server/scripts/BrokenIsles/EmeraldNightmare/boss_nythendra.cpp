@@ -61,6 +61,7 @@ struct boss_nythendra : public BossAI
 
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 100);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
     }
 
     void EnterCombat(Unit* /*attacker*/) override
@@ -69,6 +70,11 @@ struct boss_nythendra : public BossAI
         events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_INFESTED_BREATH, 60s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_TAIL_LASH,       20s,    EVENTS_PHASE_1);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
     }
 
     void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType damageType) override
@@ -132,9 +138,13 @@ private:
             {
                 me->CastSpell(me, SPELL_HEART_OF_THE_SWARM, false);
                 me->SummonCreatureGroup(0);
+            })
+            .Schedule(8s, [this](TaskContext context)
+            {
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
 
-                auto ats = me->GetAreaTriggers(SPELL_INFESTED_GROUND);
-                for (AreaTrigger* at : ats)
+                std::vector<AreaTrigger*> areatriggers = me->GetAreaTriggers(SPELL_INFESTED_GROUND);
+                for (AreaTrigger* at : areatriggers)
                     at->SetDestination(me->GetPosition(), 5000);
             })
             .Schedule(3s, SPELL_HEART_OF_THE_SWARM, [this](TaskContext context)
