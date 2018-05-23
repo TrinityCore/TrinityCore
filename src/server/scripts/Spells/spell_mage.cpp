@@ -466,7 +466,8 @@ class spell_mage_fire_blast : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        bool procCheck = false;
+        // this is already handled by Pyroblast Clearcasting Driver - 44448
+        /*bool procCheck = false;
 
         if (Unit* caster = GetCaster())
         {
@@ -482,7 +483,7 @@ class spell_mage_fire_blast : public SpellScript
                 caster->RemoveAurasDueToSpell(SPELL_MAGE_HEATING_UP);
                 caster->CastSpell(caster, SPELL_MAGE_HOT_STREAK, true);
             }
-        }
+        }*/
     }
 
     void Register() override
