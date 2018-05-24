@@ -2782,6 +2782,15 @@ std::list<AreaTrigger*> WorldObject::SelectNearestAreaTriggers(uint32 spellId, f
     Trinity::AnyAreatriggerInObjectRangeCheck checker(this, range);
     Trinity::AreaTriggerListSearcher<Trinity::AnyAreatriggerInObjectRangeCheck> searcher(this, atList, checker);
     Cell::VisitGridObjects(this, searcher, range);
+
+    atList.remove_if([spellId](AreaTrigger* p_AreaTrigger)
+    {
+        if (p_AreaTrigger == nullptr || p_AreaTrigger->GetSpellId() != spellId)
+            return true;
+
+        return false;
+    });
+
     return atList;
 }
 
