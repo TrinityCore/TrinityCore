@@ -236,6 +236,9 @@ public:
 
     // modulos a radian orientation to the range of 0..2PI
     static float NormalizeOrientation(float o);
+    static float NormalizePitch(float o);
+
+    bool IsNearPosition(Position const* checkPos, float range) const;
 
     static Position const Empty;
 };
