@@ -1453,7 +1453,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                             if (targetList.empty())
                                 return;
 
-                            targetList.remove_if([this](Unit* unit) -> bool
+                            targetList.remove_if([](Unit* unit) -> bool
                             {
                                 if (unit == nullptr || unit->ToCreature())
                                     return true;

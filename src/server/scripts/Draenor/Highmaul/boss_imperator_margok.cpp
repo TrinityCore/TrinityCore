@@ -3027,7 +3027,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvent::EventCheckRune, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                 {

@@ -814,13 +814,13 @@ class instance_highmaul : public InstanceMapScript
                 {
                     case eHighmaulDungeons::ArcaneSanctum:
                     case eHighmaulDungeons::ImperatorsFall:
-                        l_ChogallNight = true;
+                        chogallNight = true;
                         break;
                     default:
                         break;
                 }
 
-                if (l_ChogallNight)
+                if (chogallNight)
                 {
                     player->GetPhaseShift().AddPhase(eHighmaulDatas::PhaseKargathDefeated, PhaseFlags::None, nullptr);
                     player->CastSpell(player, eHighmaulSpells::ChogallNight, true);

@@ -471,10 +471,10 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if(player->GetQuestStatus(37423) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_COMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_REWARDED)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIaction_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if (player->GetQuestStatus(37423) == QUEST_STATUS_REWARDED && player->GetQuestStatus(37424) != QUEST_STATUS_REWARDED && player->HasItemCount(ITEM_SHADOWBERRY, 1))
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Show Gara the Shadowberries.", GOSSIP_SENDER_MAIN, GOSSIaction_INFO_DEF + 2);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Show Gara the Shadowberries.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
         player->PlayerTalkClass->SendGossipMenu(85645, creature->GetGUID());
 
@@ -487,12 +487,12 @@ public:
             return false;
 
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIaction_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             SendGossipMenuFor(player, TEXT_ID_GARA_GRAVE, creature->GetGUID());
             player->CastSpell(player, SPELL_TRACKING_QUEST_1);
         }
-        if (action == GOSSIaction_INFO_DEF + 2)
+        if (action == GOSSIP_ACTION_INFO_DEF + 2)
         {
             SendGossipMenuFor(player, TEXT_ID_GARA_BERRY, creature->GetGUID());
             player->CastSpell(player, SPELL_TRACKING_QUEST_2);

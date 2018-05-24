@@ -762,7 +762,7 @@ class npc_highmaul_mind_fungus : public CreatureScript
                 me->DespawnOrUnsummon(500);
             }
 
-            void UpdateAI(uint32 const diff) override { }
+            void UpdateAI(uint32 const /*diff*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -1616,7 +1616,7 @@ class spell_highmaul_stonebolt_volley : public SpellScriptLoader
                 if (caster == nullptr)
                     return;
 
-                targets.remove_if([this, caster](WorldObject* p_Object) -> bool
+                targets.remove_if([caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;

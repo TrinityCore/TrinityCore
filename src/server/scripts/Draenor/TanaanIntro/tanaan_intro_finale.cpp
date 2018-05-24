@@ -232,7 +232,7 @@ public:
     {
         if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) == QUEST_STATUS_INCOMPLETE)
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIaction_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             SendGossipMenuFor(player, 1, creature->GetGUID());
             return true;
         }
@@ -244,7 +244,7 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (action == GOSSIaction_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) != QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjTopOfTheTank) >= 1)
             {

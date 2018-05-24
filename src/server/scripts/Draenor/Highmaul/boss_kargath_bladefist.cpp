@@ -886,12 +886,9 @@ class boss_kargath_bladefist : public CreatureScript
                         if (l_TigerList.empty())
                             break;
 
-                        l_TigerList.remove_if([this](Creature* creature) -> bool
+                        l_TigerList.remove_if([](Creature* creature) -> bool
                         {
-                            if (creature == nullptr || !creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                                return true;
-
-                            return false;
+                            return !creature || !creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         });
 
                         if (l_TigerList.empty())
@@ -956,7 +953,7 @@ class boss_kargath_bladefist : public CreatureScript
                 if (l_SpawnerList.empty())
                     return;
 
-                l_SpawnerList.remove_if([this](Creature* creature) -> bool
+                l_SpawnerList.remove_if([](Creature* creature) -> bool
                 {
                     /// Don't spawn two Iron Bombers at the same position
                     if (Creature* l_IronBomber = creature->FindNearestCreature(eHighmaulCreatures::IronBomber, 3.0f))
@@ -3234,7 +3231,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 if (!l_TanksList.empty() && l_TanksList.size() > eDatas::MaxLFRTank)
                     Trinity::Containers::RandomResize(l_TanksList, eDatas::MaxLFRTank);
 
-                l_HealersList.remove_if([this](Player* player) -> bool
+                l_HealersList.remove_if([](Player* player) -> bool
                 {
                     if (player->GetRoleForGroup() != Roles::ROLE_HEALER)
                         return true;
@@ -3248,7 +3245,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 if (!l_HealersList.empty() && l_HealersList.size() > eDatas::MaxLFRHealer)
                     Trinity::Containers::RandomResize(l_HealersList, eDatas::MaxLFRHealer);
 
-                l_DamagersList.remove_if([this](Player* player) -> bool
+                l_DamagersList.remove_if([](Player* player) -> bool
                 {
                     if (player->GetRoleForGroup() != Roles::ROLE_DAMAGE)
                         return true;
@@ -3687,7 +3684,7 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
                 if (playerList.empty())
                     return;
 
-                playerList.remove_if([this](Player* player) -> bool
+                playerList.remove_if([](Player* player) -> bool
                 {
                     if (player->GetRoleForGroup() == Roles::ROLE_TANK)
                         return true;

@@ -606,7 +606,7 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                         if (!l_TrashList.empty())
                         {
-                            l_TrashList.remove_if([this](Creature* creature) -> bool
+                            l_TrashList.remove_if([](Creature* creature) -> bool
                             {
                                 if (creature == nullptr || creature->GetPositionZ() > g_GorthenonFloor)
                                     return true;

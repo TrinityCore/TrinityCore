@@ -30,8 +30,6 @@ Position const g_MaggotSpawnPos[eHighmaulDatas::MaxMaggotToKill] =
 Position ComputeLocationSelection(Creature* source, float searchRange, float minRadius, float radius)
 {
     using Cluster = std::set<Player*>;
-    using GuidCluster = std::set<uint32>;
-
     std::list<Player*> targets;
 
     source->GetPlayerListInGrid(targets, searchRange);
@@ -774,10 +772,7 @@ class spell_highmaul_heavy_handed_proc : public SpellScriptLoader
                 {
                     targets.remove_if([this](WorldObject* p_Object) -> bool
                     {
-                        if (p_Object == nullptr || p_Object->GetGUID() == m_Target)
-                            return true;
-
-                        return false;
+                        return !p_Object || p_Object->GetGUID() == m_Target;
                     });
 
                     if (targets.size() > 1)
