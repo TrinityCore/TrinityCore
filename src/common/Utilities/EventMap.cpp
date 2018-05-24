@@ -33,6 +33,15 @@ void EventMap::SetPhase(uint16 phase)
         _phase = uint16(1 << (phase - 1));
 }
 
+bool EventMap::HasEvent(uint32 eventId) const
+{
+    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+        if ((itr->second & 0x00000000FFFFFFFF) == eventId)
+            return true;
+
+    return false;
+}
+
 void EventMap::ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint16 group /*= 0*/, uint16 phase /*= 0*/)
 {
     ScheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
@@ -84,6 +93,27 @@ uint32 EventMap::ExecuteEvent()
     }
 
     return 0;
+}
+
+void EventMap::DelayEvent(uint32 eventID, uint32 delay)
+{
+    if (Empty())
+        return;
+
+    EventStore delayed;
+
+    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    {
+        if ((itr->second & 0x00000000FFFFFFFF) == eventID)
+        {
+            delayed.insert(EventStore::value_type(itr->first + delay, itr->second));
+            _eventMap.erase(itr++);
+        }
+        else
+            ++itr;
+    }
+
+    _eventMap.insert(delayed.begin(), delayed.end());
 }
 
 void EventMap::DelayEvents(uint32 delay, uint16 group)
