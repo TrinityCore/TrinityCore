@@ -705,6 +705,8 @@ class TC_GAME_API Spell
 
         int32 GetTimer() const { return m_timer; }
 
+        void CallScriptCalcCritChanceHandlers(Unit* victim, float& chance);
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
