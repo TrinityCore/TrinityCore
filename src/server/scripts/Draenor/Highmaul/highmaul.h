@@ -31,20 +31,20 @@
 
 Position const g_PlayScenePos = { 3448.069f, 7573.542f, 55.30419f, 0.3921495f };
 
-static void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+static void CastSpellToPlayers(Map* map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
 {
-    if (p_Map == nullptr)
+    if (map == nullptr)
         return;
 
-    Map::PlayerList const& l_Players = p_Map->GetPlayers();
-    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    Map::PlayerList const& players = map->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
     {
-        if (Player* l_Player = l_Iter->GetSource())
+        if (Player* player = itr->GetSource())
         {
             if (p_Caster != nullptr)
-                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+                p_Caster->CastSpell(player, p_SpellID, p_Triggered);
             else
-                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
+                player->CastSpell(player, p_SpellID, p_Triggered);
         }
     }
 }

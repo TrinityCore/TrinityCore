@@ -254,9 +254,9 @@ class boss_imperator_margok : public CreatureScript
 
         struct boss_imperator_margokAI : public BossAI
         {
-            boss_imperator_margokAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossImperatorMargok), m_Vehicle(p_Creature->GetVehicleKit())
+            boss_imperator_margokAI(Creature* creature) : BossAI(creature, eHighmaulDatas::BossImperatorMargok), m_Vehicle(creature->GetVehicleKit())
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
 
                 g_SwitchPhasePcts[ePhases::MightOfTheCrown - 1]     = 85;   ///< Phase One lasts from 100 % to 85 % of Mar'gok's health.
                 g_SwitchPhasePcts[ePhases::RuneOfDisplacement - 1]  = 55;   ///< Phase Two lasts from 85 % to 55 % of Mar'gok's health.
@@ -377,9 +377,9 @@ class boss_imperator_margok : public CreatureScript
                 BossAI::JustSummoned(p_Summon);
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                switch (p_Action)
+                switch (action)
                 {
                     case eActions::ActionIntro:
                     {
@@ -419,12 +419,12 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 type, uint32 id) override
             {
-                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                if (type != MovementGeneratorType::POINT_MOTION_TYPE)
                     return;
 
-                switch (p_ID)
+                switch (id)
                 {
                     // Moves used for drainning runes
                     case eMoves::MoveUp:
@@ -492,8 +492,8 @@ class boss_imperator_margok : public CreatureScript
                                 }
                             }
 
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                AttackStart(l_Target);
+                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                AttackStart(target);
                         });
 
                         break;
@@ -503,7 +503,7 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 _EnterCombat();
 
@@ -533,11 +533,11 @@ class boss_imperator_margok : public CreatureScript
                 m_CosmeticEvents.ScheduleEvent(EventCheckRuneCosmetic, 0);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* p_Victim, uint32& /*damage*/, DamageEffectType damageType) override
             {
                 /// Accelerated Assault Icon Accelerated Assault is a stacking buff that Mar'gok applies to himself each time he performs consecutive attacks against the same target.
                 /// Each stack of the buff increases Mar'gok's attack speed by 8%.
-                if (p_DamageType != DamageEffectType::DIRECT_DAMAGE)
+                if (damageType != DamageEffectType::DIRECT_DAMAGE)
                     return;
 
                 /// This is a new target, reset stacks
@@ -551,11 +551,11 @@ class boss_imperator_margok : public CreatureScript
                     me->CastSpell(me, eSpells::AcceleratedAssault, true);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (m_Phase == ePhases::MythicPhase4ChoGall || me->IsInEvadeMode())
                 {
-                    p_Damage = 0;
+                    damage = 0;
                     return;
                 }
 
@@ -563,7 +563,7 @@ class boss_imperator_margok : public CreatureScript
                 if (g_SwitchPhasePcts[m_Phase - 1] == 255 || !g_SwitchPhasePcts[m_Phase - 1])
                     return;
 
-                if (me->HealthBelowPctDamaged(g_SwitchPhasePcts[m_Phase - 1], p_Damage))
+                if (me->HealthBelowPctDamaged(g_SwitchPhasePcts[m_Phase - 1], damage))
                 {
                     ++m_Phase;
 
@@ -610,13 +610,13 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void KilledUnit(Unit* killed) override
             {
-                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                if (killed->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -696,18 +696,18 @@ class boss_imperator_margok : public CreatureScript
                 std::list<Creature*> NightList;
                 me->GetCreatureListWithEntryInGrid(NightList, NpcNightTwistedFaithful, 300.0f);
 
-                for (Creature* l_Iter : NightList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : NightList)
+                    itr->DespawnOrUnsummon();
 
                 me->GetCreatureListWithEntryInGrid(NightList, NpcGlimpseOfMadness, 300.0f);
 
-                for (Creature* l_Iter : NightList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : NightList)
+                    itr->DespawnOrUnsummon();
 
                 me->GetCreatureListWithEntryInGrid(NightList, WORLD_TRIGGER, 300.0f);
                 
-                for (Creature* l_Iter : NightList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : NightList)
+                    itr->DespawnOrUnsummon();
                 
                 me->RemoveAllAreaTriggers();
                 std::list<AreaTrigger*> AreaTriggerList;
@@ -738,9 +738,9 @@ class boss_imperator_margok : public CreatureScript
                 m_CosmeticEvents.ScheduleEvent(EventCheckRuneCosmetic, 0);
             }
 
-            uint32 GetData(uint32 p_ID) const override
+            uint32 GetData(uint32 id) const override
             {
-                switch (p_ID)
+                switch (id)
                 {
                     //@todo: check where this is used : maybe in cosmetic spell where he drains the rune, don't forget to add mythic phases
                     case eDatas::PhaseID:
@@ -754,13 +754,13 @@ class boss_imperator_margok : public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 p_ID, uint32 p_Value) override
+            void SetData(uint32 id, uint32 value) override
             {
-                switch (p_ID)
+                switch (id)
                 {
                     case eDatas::OrbOfChaosAngle:
                     {
-                        m_OrbCount = p_Value;
+                        m_OrbCount = value;
                         break;
                     }
                     default:
@@ -777,42 +777,42 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            void OnSpellCasted(SpellInfo const* spellInfo) override
             {
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::DestructiveResonanceSearcher:
                     case eSpells::DestructiveResonanceDisplacementSearch:
                     case eSpells::DestructiveResonanceFortificationSearch:
                     case eSpells::DestructiveResonanceReplicationSearch:
                     {
-                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true);
-                        if (l_Target == nullptr || me->GetDistance(l_Target) >= 100.0f)
-                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f, true);
+                        Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true);
+                        if (target == nullptr || me->GetDistance(target) >= 100.0f)
+                            target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f, true);
 
-                        if (l_Target == nullptr)
-                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f, true);
+                        if (target == nullptr)
+                            target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f, true);
 
-                        if (l_Target != nullptr)
-                            me->CastSpell(*l_Target, eSpells::DestructiveResonanceSummon, true);
+                        if (target != nullptr)
+                            me->CastSpell(*target, eSpells::DestructiveResonanceSummon, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBranded, true);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBranded, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBranded, true);
+                        else if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBranded, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathDisplacementSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedDisplacement, true);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedDisplacement, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBrandedDisplacement, true);
+                        else if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBrandedDisplacement, true);
 
                         break;
                     }
@@ -994,19 +994,19 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eSpells::ArcaneWrathFortificationSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedFortification, true);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedFortification, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBrandedFortification, true);
+                        else if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBrandedFortification, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathReplicationSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedReplication, true);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
-                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedReplication, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBrandedReplication, true);
+                        else if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f))
+                            me->CastSpell(target, eSpells::ArcaneWrathBrandedReplication, true);
 
                         break;
                     }
@@ -1015,33 +1015,33 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::ArcaneWrathBranded:
                     case eSpells::ArcaneWrathBrandedDisplacement:
                     case eSpells::ArcaneWrathBrandedFortification:
                     case eSpells::ArcaneWrathBrandedReplication:
                     {
-                        Talk(eTalks::Branded, p_Target);
+                        Talk(eTalks::Branded, target);
                         break;
                     }
                     case eSpells::MarkOfChaosDisplacementAura:
                     {
                         /// In addition to Mark of Chaos' normal effects, the target is teleported to a random location.
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
-                            p_Target->NearTeleportTo(*l_Target);
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
-                            p_Target->NearTeleportTo(*l_Target);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            target->NearTeleportTo(*target);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                            target->NearTeleportTo(*target);
 
                         if (IsMythic())
                         {
                             m_OrbCount = 0;
-                            me->CastSpell(p_Target, eSpells::OrbsOfChaosDummyAura, true);
+                            me->CastSpell(target, eSpells::OrbsOfChaosDummyAura, true);
                         }
 
                         break;
@@ -1050,22 +1050,22 @@ class boss_imperator_margok : public CreatureScript
                     {
                         if (IsMythic())
                         {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
-                                p_Target->NearTeleportTo(*l_Target);
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
-                                p_Target->NearTeleportTo(*l_Target);
+                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                                target->NearTeleportTo(*target);
+                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                                target->NearTeleportTo(*target);
                         }
 
-                        me->CastSpell(p_Target, eSpells::FetterMarkOfChaosRootAura, true);
+                        me->CastSpell(target, eSpells::FetterMarkOfChaosRootAura, true);
                         break;
                     }
                     case eSpells::MarkOfChaosReplicationAura:
                     {
                         m_OrbCount = 0;
-                        me->CastSpell(p_Target, eSpells::OrbsOfChaosDummyAura, true);
+                        me->CastSpell(target, eSpells::OrbsOfChaosDummyAura, true);
 
                         if (IsMythic())
-                            me->CastSpell(p_Target, eSpells::FetterMarkOfChaosRootAura, true);
+                            me->CastSpell(target, eSpells::FetterMarkOfChaosRootAura, true);
 
                         break;
                     }
@@ -1074,30 +1074,30 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                UpdateOperations(p_Diff);
+                UpdateOperations(diff);
 
                 if (!m_InCombat)
                 {
-                    if (Player* l_Player = me->SelectNearestPlayer(20.0f))
+                    if (Player* player = me->SelectNearestPlayer(20.0f))
                     {
                         me->CastSpell(me, eSpells::TeleportOffThrone, true);
                         m_InCombat = true;
 
-                        ObjectGuid l_Guid = l_Player->GetGUID();
-                        AddTimedDelayedOperation(500, [this, l_Guid]() -> void
+                        ObjectGuid guid = player->GetGUID();
+                        AddTimedDelayedOperation(500, [this, guid]() -> void
                         {
-                            if (Player* l_Player = ObjectAccessor::GetPlayer(*me, l_Guid))
-                                AttackStart(l_Player);
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, guid))
+                                AttackStart(player);
                         });
                     }
                 }
 
                 if (m_IsInNova || (m_NovaCount > 0 && m_IsInNovaPhase3[m_NovaCount - 1]))
-                    UpdateNovaTargets(p_Diff);
+                    UpdateNovaTargets(diff);
 
-                m_CosmeticEvents.Update(p_Diff);
+                m_CosmeticEvents.Update(diff);
 
                 switch (m_CosmeticEvents.ExecuteEvent())
                 {
@@ -1116,10 +1116,10 @@ class boss_imperator_margok : public CreatureScript
                         std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
                         for (HostileReference* l_Ref : l_ThreatList)
                         {
-                            if (Player* l_Player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
                             {
-                                if (l_Player->GetPositionZ() <= g_MinAllowedZ)
-                                    l_Player->NearTeleportTo(g_CenterPos);
+                                if (player->GetPositionZ() <= g_MinAllowedZ)
+                                    player->NearTeleportTo(g_CenterPos);
                             }
                         }
 
@@ -1165,7 +1165,7 @@ class boss_imperator_margok : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1175,29 +1175,29 @@ class boss_imperator_margok : public CreatureScript
                     /// ALL DIFFICULTIES
                     case eEvents::EventMarkOfChaos:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
                             switch (m_Phase)
                             {
                             case ePhases::MightOfTheCrown:      ///< NM/HN Phase 1
-                                me->CastSpell(l_Target, eSpells::MarkOfChaosAura, false);
+                                me->CastSpell(target, eSpells::MarkOfChaosAura, false);
                                 break;
                             case ePhases::RuneOfDisplacement:   ///< NM/HN Phase 2
                             case ePhases::MythicPhase1:         ///< MM Phase 1: Rune of Displacement + Rune of Replication, all spells are displayed as the "Rune of Displacement" ones
-                                me->CastSpell(l_Target, eSpells::MarkOfChaosDisplacementAura, false);
+                                me->CastSpell(target, eSpells::MarkOfChaosDisplacementAura, false);
                                 break;
                             case ePhases::RuneOfFortification:  ///< NM/HN Phase 3
                             case ePhases::MythicPhase2:         ///< MM Phase 2: Rune of Displacement + Rune of Fortification, all spells are displayed as the "Rune of Fortification" ones
-                                me->CastSpell(l_Target, eSpells::MarkOfChaosFortificationAura, false);
+                                me->CastSpell(target, eSpells::MarkOfChaosFortificationAura, false);
                                 break;
                             case ePhases::RuneOfReplication:    ///< NM/HN Phase 4
                             case ePhases::MythicPhase3:         ///< MM Phase 3: Rune of Replication + Rune of Fortification, all spells are displayed as the "Rune of Replication" ones
                             case ePhases::MythicPhase4ChoGall:  ///< MM Phase 4
-                                me->CastSpell(l_Target, eSpells::MarkOfChaosReplicationAura, false);
+                                me->CastSpell(target, eSpells::MarkOfChaosReplicationAura, false);
                                 break;
                             }
 
-                            me->CastSpell(l_Target, eSpells::MarkOfChaosCosmetic, true);
+                            me->CastSpell(target, eSpells::MarkOfChaosCosmetic, true);
                         }
 
                         if (m_Phase != ePhases::MythicPhase4ChoGall) Talk(eTalks::MarkOfChaos);
@@ -1331,13 +1331,13 @@ class boss_imperator_margok : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void UpdateNovaTargets(uint32 const p_Diff)
+            void UpdateNovaTargets(uint32 const diff)
             {
                 /// Used for Phase 1 & Phase 2
                 //@todo: add mythic case if needed, it depend where m_IsInNova value is changed
                 if (m_IsInNova)
                 {
-                    m_NovaTime += p_Diff;
+                    m_NovaTime += diff;
 
                     float l_YardsPerMs = 7.0f / (float)TimeConstants::IN_MILLISECONDS;
                     /// Base min radius is 10 yards, which is increased depending on time passed
@@ -1354,33 +1354,33 @@ class boss_imperator_margok : public CreatureScript
                     std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
                     for (HostileReference* l_Ref : l_ThreatList)
                     {
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
                         {
-                            if (l_Player->GetDistance(m_NovaPos) >= (l_MinRadius - l_InnerRange) &&
-                                l_Player->GetDistance(m_NovaPos) <= l_MinRadius)
+                            if (player->GetDistance(m_NovaPos) >= (l_MinRadius - l_InnerRange) &&
+                                player->GetDistance(m_NovaPos) <= l_MinRadius)
                             {
-                                if (!l_Player->HasAura(eSpells::ForceNovaDoT))
-                                    me->CastSpell(l_Player, eSpells::ForceNovaDoT, true);
+                                if (!player->HasAura(eSpells::ForceNovaDoT))
+                                    me->CastSpell(player, eSpells::ForceNovaDoT, true);
 
                                 /// In addition to Force Nova's normal effects, it now also pushes players away as the nova moves outwards.
                                 if ((m_Phase == ePhases::RuneOfDisplacement || m_Phase == ePhases::MythicPhase1 || m_Phase == ePhases::MythicPhase2)
                                     && !l_TriggerGuid.IsEmpty() && l_Trigger)
                                 {
-                                    if (!l_Player->HasMovementForce(l_TriggerGuid))
-                                        l_Player->ApplyMovementForce(l_TriggerGuid, -5.5f, *l_Trigger);
+                                    if (!player->HasMovementForce(l_TriggerGuid))
+                                        player->ApplyMovementForce(l_TriggerGuid, -5.5f, *l_Trigger);
                                 }
                             }
                             else
                             {
-                                if (l_Player->HasAura(eSpells::ForceNovaDoT))
-                                    l_Player->RemoveAura(eSpells::ForceNovaDoT);
+                                if (player->HasAura(eSpells::ForceNovaDoT))
+                                    player->RemoveAura(eSpells::ForceNovaDoT);
 
                                 /// In addition to Force Nova's normal effects, it now also pushes players away as the nova moves outwards.
                                 if ((m_Phase == ePhases::RuneOfDisplacement || m_Phase == ePhases::MythicPhase1 || m_Phase == ePhases::MythicPhase2)
                                     && !l_TriggerGuid.IsEmpty())
                                 {
-                                    if (l_Player->HasMovementForce(l_TriggerGuid))
-                                        l_Player->RemoveMovementForce(l_TriggerGuid);
+                                    if (player->HasMovementForce(l_TriggerGuid))
+                                        player->RemoveMovementForce(l_TriggerGuid);
                                 }
                             }
                         }
@@ -1395,7 +1395,7 @@ class boss_imperator_margok : public CreatureScript
                     {
                         if (m_IsInNovaPhase3[l_I])
                         {
-                            m_NovaTimePhase3[l_I] += p_Diff;
+                            m_NovaTimePhase3[l_I] += diff;
 
                             float l_YardsPerMs = 7.0f / (float)TimeConstants::IN_MILLISECONDS;
                             /// Base min radius is 10 yards, which is increased depending on time passed
@@ -1407,11 +1407,11 @@ class boss_imperator_margok : public CreatureScript
                             std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
                             for (HostileReference* l_Ref : l_ThreatList)
                             {
-                                if (Player* l_Player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
+                                if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
                                 {
-                                    if (l_Player->GetDistance(m_NovaPosPhase3[l_I]) >= (l_MinRadius - l_InnerRange) &&
-                                        l_Player->GetDistance(m_NovaPosPhase3[l_I]) <= l_MinRadius)
-                                        l_AffectedPlayers.insert(l_Player->GetGUID());
+                                    if (player->GetDistance(m_NovaPosPhase3[l_I]) >= (l_MinRadius - l_InnerRange) &&
+                                        player->GetDistance(m_NovaPosPhase3[l_I]) <= l_MinRadius)
+                                        l_AffectedPlayers.insert(player->GetGUID());
                                 }
                             }
                         }
@@ -1420,17 +1420,17 @@ class boss_imperator_margok : public CreatureScript
                     std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
                     for (HostileReference* l_Ref : l_ThreatList)
                     {
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
                         {
-                            if (l_AffectedPlayers.find(l_Player->GetGUID()) != l_AffectedPlayers.end())
+                            if (l_AffectedPlayers.find(player->GetGUID()) != l_AffectedPlayers.end())
                             {
-                                if (!l_Player->HasAura(eSpells::ForceNovaDoT))
-                                    me->CastSpell(l_Player, eSpells::ForceNovaDoT, true);
+                                if (!player->HasAura(eSpells::ForceNovaDoT))
+                                    me->CastSpell(player, eSpells::ForceNovaDoT, true);
                             }
                             else
                             {
-                                if (l_Player->HasAura(eSpells::ForceNovaDoT))
-                                    l_Player->RemoveAura(eSpells::ForceNovaDoT);
+                                if (player->HasAura(eSpells::ForceNovaDoT))
+                                    player->RemoveAura(eSpells::ForceNovaDoT);
                             }
                         }
                     }
@@ -1457,9 +1457,9 @@ class boss_imperator_margok : public CreatureScript
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ += 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ += 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, pos);
                     m_Events.DelayEvents(9 * IN_MILLISECONDS);
                 });
 
@@ -1468,9 +1468,9 @@ class boss_imperator_margok : public CreatureScript
                     me->CastSpell(me, eSpells::PowerOfDisplacement, true);
                     me->CastSpell(me, eSpells::DisplacementTransform, true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ -= 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ -= 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, pos);
                 });
             }
 
@@ -1496,9 +1496,9 @@ class boss_imperator_margok : public CreatureScript
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ += 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ += 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, pos);
                     m_Events.DelayEvents(60 * IN_MILLISECONDS);
                 });
 
@@ -1537,9 +1537,9 @@ class boss_imperator_margok : public CreatureScript
                     me->RemoveAura(eSpells::PowerOfDisplacement);
                     me->CastSpell(me, eSpells::PowerOfFortification, true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ -= 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ -= 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, pos);
                 });
 
                 AddTimedDelayedOperation(75 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1574,9 +1574,9 @@ class boss_imperator_margok : public CreatureScript
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ += 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ += 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, pos);
                     m_Events.DelayEvents(60 * IN_MILLISECONDS);
                 });
 
@@ -1613,9 +1613,9 @@ class boss_imperator_margok : public CreatureScript
                     me->RemoveAura(eSpells::PowerOfFortification);
                     me->CastSpell(me, eSpells::PowerOfReplication, true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ -= 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ -= 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, pos);
                 });
 
                 AddTimedDelayedOperation(75 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1653,9 +1653,9 @@ class boss_imperator_margok : public CreatureScript
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ += 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ += 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, pos);
                 });
 
                 AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1692,9 +1692,9 @@ class boss_imperator_margok : public CreatureScript
 
                     me->CastSpell(me, eSpells::PowerOfFortification, true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ -= 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ -= 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, pos);
                 });
 
                 AddTimedDelayedOperation(75 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1732,9 +1732,9 @@ class boss_imperator_margok : public CreatureScript
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ += 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ += 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveUp, pos);
                 });
 
                 AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1769,9 +1769,9 @@ class boss_imperator_margok : public CreatureScript
 
                     me->CastSpell(me, eSpells::PowerOfReplication, true);
 
-                    Position l_Pos = *me;
-                    l_Pos.m_positionZ -= 16.0f;
-                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+                    Position pos = *me;
+                    pos.m_positionZ -= 16.0f;
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveDown, pos);
                 });
 
                 AddTimedDelayedOperation(75 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1812,44 +1812,44 @@ class boss_imperator_margok : public CreatureScript
                 std::list<Creature*> l_CreatureList;
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::GorianWarmage, 200.0f);
 
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : l_CreatureList)
+                    itr->DespawnOrUnsummon();
 
                 l_CreatureList.clear();
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::VolatileAnomaly, 200.0f);
 
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : l_CreatureList)
+                    itr->DespawnOrUnsummon();
 
                 l_CreatureList.clear();
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::ArcaneRemnant, 200.0f);
 
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : l_CreatureList)
+                    itr->DespawnOrUnsummon();
 
                 l_CreatureList.clear();
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, NpcNightTwistedFaithful, 300.0f);
 
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : l_CreatureList)
+                    itr->DespawnOrUnsummon();
 
                 l_CreatureList.clear();
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, WORLD_TRIGGER, 300.0f);
 
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : l_CreatureList)
+                    itr->DespawnOrUnsummon();
 
                 l_CreatureList.clear();
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, NpcGlimpseOfMadness, 300.0f);
 
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                for (Creature* itr : l_CreatureList)
+                    itr->DespawnOrUnsummon();
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_imperator_margokAI(p_Creature);
+            return new boss_imperator_margokAI(creature);
         }
 };
 
@@ -1936,9 +1936,9 @@ public:
 
     struct boss_highmaul_cho_gallAI : public ScriptedAI
     {
-        boss_highmaul_cho_gallAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        boss_highmaul_cho_gallAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_Instance = p_Creature->GetInstanceScript();
+            m_Instance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_Instance;
@@ -1959,9 +1959,9 @@ public:
             me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const action) override
         {
-            switch (p_Action)
+            switch (action)
             {
                 case eActions::ActionStartEvent:
                 {
@@ -1986,12 +1986,12 @@ public:
             }
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_ID) override
+        void MovementInform(uint32 type, uint32 id) override
         {
-            if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+            if (type != MovementGeneratorType::POINT_MOTION_TYPE)
                 return;
 
-            switch (p_ID)
+            switch (id)
             {
             case IntroPos:
 
@@ -2075,7 +2075,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             Talk(eTalks::Intro3);
 
@@ -2093,7 +2093,7 @@ public:
             m_AddsSpawned = 0;
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* killer) override
         {
             m_Events.Reset();
             m_CosmeticEvents.Reset();
@@ -2106,7 +2106,7 @@ public:
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                 if (Creature* margok = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eHighmaulCreatures::ImperatorMargok)))
-                    p_Killer->Kill(margok);
+                    killer->Kill(margok);
 
                 me->RemoveAllAreaTriggers();
 
@@ -2120,16 +2120,16 @@ public:
                 me->CastSpell(at->GetPosition(), eSpells::SpellDarkStarAOE, true);
         }
 
-        void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
         {
-            if (p_Target == nullptr)
+            if (target == nullptr)
                 return;
 
-            switch (p_SpellInfo->Id)
+            switch (spellInfo->Id)
             {
                 case eSpells::SpellEdgeOfTheVoidSearcher:
                 {
-                    me->CastSpell(p_Target->GetPosition(), eSpells::SpellEdgeOfTheVoidMissile, false);
+                    me->CastSpell(target->GetPosition(), eSpells::SpellEdgeOfTheVoidMissile, false);
                     for (uint8 i = 0; i < 5; i++)
                     {
                         float dist = frand(0, 70.f);
@@ -2146,11 +2146,11 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            UpdateOperations(p_Diff);
+            UpdateOperations(diff);
 
-            m_CosmeticEvents.Update(p_Diff);
+            m_CosmeticEvents.Update(diff);
 
             switch (m_CosmeticEvents.ExecuteEvent())
             {
@@ -2239,7 +2239,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            m_Events.Update(p_Diff);
+            m_Events.Update(diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -2248,8 +2248,8 @@ public:
             {
                 case eEvents::EventDarkStar:
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                        me->CastSpell(l_Target, eSpells::SpellDarkStarAT, false);
+                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                        me->CastSpell(target, eSpells::SpellDarkStarAT, false);
 
                     m_Events.ScheduleEvent(eEvents::EventDarkStar, 60 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -2308,9 +2308,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_highmaul_cho_gallAI(p_Creature);
+        return new boss_highmaul_cho_gallAI(creature);
     }
 };
 
@@ -2322,16 +2322,16 @@ class npc_highmaul_rune_of_displacement : public CreatureScript
 
         struct npc_highmaul_rune_of_displacementAI : public ScriptedAI
         {
-            npc_highmaul_rune_of_displacementAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_rune_of_displacementAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override { }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const /*diff*/) override { }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_rune_of_displacementAI(p_Creature);
+            return new npc_highmaul_rune_of_displacementAI(creature);
         }
 };
 
@@ -2383,9 +2383,9 @@ class npc_highmaul_arcane_aberration : public CreatureScript
 
         struct npc_highmaul_arcane_aberrationAI : public ScriptedAI
         {
-            npc_highmaul_arcane_aberrationAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_arcane_aberrationAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -2427,15 +2427,15 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                 {
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                    if (Player* l_Player = me->SelectNearestPlayer(50.0f))
-                        AttackStart(l_Player);
+                    if (Player* player = me->SelectNearestPlayer(50.0f))
+                        AttackStart(player);
                 });
             }
 
-            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            void OnSpellCasted(SpellInfo const* spellInfo) override
             {
                 /// I don't know why, but it's sent twice on retail servers ///wired: maybe for sending mixed visualkit in case of two activated runes
-                if (p_SpellInfo->Id == eSpells::CollapsingEntityTrigger)
+                if (spellInfo->Id == eSpells::CollapsingEntityTrigger)
                 {
                     switch (me->GetEntry())
                     {
@@ -2475,13 +2475,13 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -2518,9 +2518,9 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -2529,9 +2529,9 @@ class npc_highmaul_arcane_aberration : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_arcane_aberrationAI(p_Creature);
+            return new npc_highmaul_arcane_aberrationAI(creature);
         }
 };
 
@@ -2603,13 +2603,13 @@ class npc_highmaul_destructive_resonance : public CreatureScript
 
         struct npc_highmaul_destructive_resonanceAI : public ScriptedAI
         {
-            npc_highmaul_destructive_resonanceAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_destructive_resonanceAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_CanExplode = false;
 
-                if (InstanceScript* l_Script = p_Creature->GetInstanceScript())
+                if (InstanceScript* l_Script = creature->GetInstanceScript())
                 {
-                    if (Creature* l_Margok = ObjectAccessor::GetCreature(*p_Creature, l_Script->GetGuidData(eHighmaulCreatures::ImperatorMargok)))
+                    if (Creature* l_Margok = ObjectAccessor::GetCreature(*creature, l_Script->GetGuidData(eHighmaulCreatures::ImperatorMargok)))
                     {
                         if (l_Margok->IsAIEnabled)
                             m_Phase = l_Margok->AI()->GetData(eDatas::PhaseID);
@@ -2766,27 +2766,27 @@ class npc_highmaul_destructive_resonance : public CreatureScript
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                m_SpawnTime += p_Diff;
+                m_SpawnTime += diff;
 
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!m_CanExplode)
                     return;
 
-                float l_Radius = 3.0f;
+                float radius = 3.0f;
 
                 if (m_Phase == ePhases::RuneOfDisplacement || m_Phase == ePhases::MythicPhase1 || m_Phase == ePhases::MythicPhase2)
-                    AddPct(l_Radius, float((float)m_SpawnTime / float(30 * TimeConstants::IN_MILLISECONDS) * 100.0f));
+                    AddPct(radius, float((float)m_SpawnTime / float(30 * TimeConstants::IN_MILLISECONDS) * 100.0f));
 
-                if (l_Radius > 6.0f)
-                    l_Radius = 6.0f;
+                if (radius > 6.0f)
+                    radius = 6.0f;
 
-                if (Player* l_Player = me->SelectNearestPlayer(l_Radius))
+                if (Player* player = me->SelectNearestPlayer(radius))
                 {
-                    me->CastSpell(l_Player, eSpells::DestructiveResonanceDebuff, true);
-                    me->CastSpell(l_Player, eSpells::DestructiveResonanceDamage, true);
+                    me->CastSpell(player, eSpells::DestructiveResonanceDebuff, true);
+                    me->CastSpell(player, eSpells::DestructiveResonanceDamage, true);
 
                     switch (m_Phase)
                     {
@@ -2816,7 +2816,7 @@ class npc_highmaul_destructive_resonance : public CreatureScript
                             break;
                     }
 
-                    Talk(eTalk::DestructiveResonance, l_Player);
+                    Talk(eTalk::DestructiveResonance, player);
 
                     Despawn();
 
@@ -2836,16 +2836,16 @@ class npc_highmaul_destructive_resonance : public CreatureScript
                     {
                         if (Creature* l_Margok = ObjectAccessor::GetCreature(*me, l_InstanceScript->GetGuidData(eHighmaulCreatures::ImperatorMargok)))
                         {
-                            float l_Radius = 8.0f;
-                            Position l_Pos = *me;
+                            float radius = 8.0f;
+                            Position pos = *me;
 
                             for (uint8 l_I = 0; l_I < eDatas::ReplicationDupliCount; ++l_I)
                             {
                                 float l_O = frand(0, 2.f * float(M_PI));
-                                float l_X = l_Pos.m_positionX + (l_Radius * cos(l_O));
-                                float l_Y = l_Pos.m_positionY + (l_Radius * sin(l_O));
+                                float l_X = pos.m_positionX + (radius * cos(l_O));
+                                float l_Y = pos.m_positionY + (radius * sin(l_O));
 
-                                l_Margok->CastSpell(l_X, l_Y, l_Pos.m_positionZ, eSpells::DestructiveResonanceReplicating, true);
+                                l_Margok->CastSpell(l_X, l_Y, pos.m_positionZ, eSpells::DestructiveResonanceReplicating, true);
                             }
                         }
                     }
@@ -2853,9 +2853,9 @@ class npc_highmaul_destructive_resonance : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_destructive_resonanceAI(p_Creature);
+            return new npc_highmaul_destructive_resonanceAI(creature);
         }
 };
 
@@ -2888,7 +2888,7 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
 
         struct npc_highmaul_destructive_resonance_replicationAI : public ScriptedAI
         {
-            npc_highmaul_destructive_resonance_replicationAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_destructive_resonance_replicationAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_CanExplode = false;
             }
@@ -2917,23 +2917,23 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!m_CanExplode)
                     return;
 
-                float l_Radius = 3.0f;
+                float radius = 3.0f;
 
-                if (Player* l_Player = me->SelectNearestPlayer(l_Radius))
+                if (Player* player = me->SelectNearestPlayer(radius))
                 {
-                    me->CastSpell(l_Player, eSpells::DestructiveResonanceDebuff, true);
-                    me->CastSpell(l_Player, eSpells::DestructiveResonanceDamage, true);
+                    me->CastSpell(player, eSpells::DestructiveResonanceDebuff, true);
+                    me->CastSpell(player, eSpells::DestructiveResonanceDamage, true);
 
                     me->SendPlaySpellVisualKit(eVisual::DestructiveResonanceReplicationDespawn, 0, 10000);
 
-                    Talk(eTalk::DestructiveResonance, l_Player);
+                    Talk(eTalk::DestructiveResonance, player);
 
                     Despawn();
 
@@ -2948,9 +2948,9 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_destructive_resonance_replicationAI(p_Creature);
+            return new npc_highmaul_destructive_resonance_replicationAI(creature);
         }
 };
 
@@ -2988,9 +2988,9 @@ class npc_highmaul_gorian_warmage : public CreatureScript
 
         struct npc_highmaul_gorian_warmageAI : public ScriptedAI
         {
-            npc_highmaul_gorian_warmageAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_gorian_warmageAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -3008,11 +3008,11 @@ class npc_highmaul_gorian_warmage : public CreatureScript
 
                 me->CastSpell(me, eSpells::DominanceAura, true);
 
-                if (Player* l_Target = me->SelectNearestPlayer(50.0f))
-                    AttackStart(l_Target);
+                if (Player* target = me->SelectNearestPlayer(50.0f))
+                    AttackStart(target);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
@@ -3027,7 +3027,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvent::EventCheckRune, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* killer) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -3038,9 +3038,9 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                m_CosmeticEvents.Update(p_Diff);
+                m_CosmeticEvents.Update(diff);
 
                 if (m_CosmeticEvents.ExecuteEvent() == eCosmeticEvent::EventCheckRune)
                 {
@@ -3063,7 +3063,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -3072,10 +3072,10 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 {
                     case eEvents::EventFixate:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true, -eSpells::Fixate))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true, -eSpells::Fixate))
                         {
-                            m_FixateTarget = l_Target->GetGUID();
-                            me->CastSpell(l_Target, eSpells::Fixate, true);
+                            m_FixateTarget = target->GetGUID();
+                            me->CastSpell(target, eSpells::Fixate, true);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventNetherBlast, 100);
@@ -3090,8 +3090,8 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                     }
                     case eEvents::EventNetherBlast:
                     {
-                        if (Unit* l_Target = ObjectAccessor::GetPlayer(*me, m_FixateTarget))
-                            me->CastSpell(l_Target, eSpells::NetherBlast, false);
+                        if (Unit* target = ObjectAccessor::GetPlayer(*me, m_FixateTarget))
+                            me->CastSpell(target, eSpells::NetherBlast, false);
 
                         m_Events.ScheduleEvent(eEvents::EventNetherBlast, 200);
                         break;
@@ -3104,9 +3104,9 @@ class npc_highmaul_gorian_warmage : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_gorian_warmageAI(p_Creature);
+            return new npc_highmaul_gorian_warmageAI(creature);
         }
 };
 
@@ -3129,15 +3129,15 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
 
         struct npc_highmaul_volatile_anomalyAI : public ScriptedAI
         {
-            npc_highmaul_volatile_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_volatile_anomalyAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
-                if (Player* l_Target = me->SelectNearestPlayer(100.0f))
-                    AttackStart(l_Target);
+                if (Player* target = me->SelectNearestPlayer(100.0f))
+                    AttackStart(target);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 me->SetAIAnimKitId(eVisual::AnimKit);
 
@@ -3145,9 +3145,9 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
                 me->CastSpell(me, eSpells::AlphaFadeOut, true);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -3156,9 +3156,9 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_volatile_anomalyAI(p_Creature);
+            return new npc_highmaul_volatile_anomalyAI(creature);
         }
 };
 
@@ -3184,9 +3184,9 @@ class npc_highmaul_gorian_reaver : public CreatureScript
 
         struct npc_highmaul_gorian_reaverAI : public ScriptedAI
         {
-            npc_highmaul_gorian_reaverAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_gorian_reaverAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -3195,11 +3195,11 @@ class npc_highmaul_gorian_reaver : public CreatureScript
 
             void Reset() override
             {
-                if (Player* l_Target = me->SelectNearestPlayer(200.0f))
-                    AttackStart(l_Target);
+                if (Player* target = me->SelectNearestPlayer(200.0f))
+                    AttackStart(target);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
@@ -3211,18 +3211,18 @@ class npc_highmaul_gorian_reaver : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventDevastatingShockwave, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -3231,18 +3231,18 @@ class npc_highmaul_gorian_reaver : public CreatureScript
                 {
                     case eEvents::EventCrushArmor:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::CrushArmor, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, eSpells::CrushArmor, true);
 
                         m_Events.ScheduleEvent(eEvents::EventCrushArmor, 11 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventKickToTheFace:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            me->CastSpell(l_Target, eSpells::KickToTheFace, true);
-                            me->getThreatManager().modifyThreatPercent(l_Target, -100);
+                            me->CastSpell(target, eSpells::KickToTheFace, true);
+                            me->getThreatManager().modifyThreatPercent(target, -100);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventKickToTheFace, 25 * TimeConstants::IN_MILLISECONDS);
@@ -3262,9 +3262,9 @@ class npc_highmaul_gorian_reaver : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_gorian_reaverAI(p_Creature);
+            return new npc_highmaul_gorian_reaverAI(creature);
         }
 };
 
@@ -3281,7 +3281,7 @@ class npc_highmaul_arcane_remnant : public CreatureScript
 
         struct npc_highmaul_arcane_remnantAI : public ScriptedAI
         {
-            npc_highmaul_arcane_remnantAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_arcane_remnantAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -3289,14 +3289,14 @@ class npc_highmaul_arcane_remnant : public CreatureScript
 
                 AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    if (Player* l_Target = me->SelectNearestPlayer(50.0f))
-                        AttackStart(l_Target);
+                    if (Player* target = me->SelectNearestPlayer(50.0f))
+                        AttackStart(target);
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -3305,9 +3305,9 @@ class npc_highmaul_arcane_remnant : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_arcane_remnantAI(p_Creature);
+            return new npc_highmaul_arcane_remnantAI(creature);
         }
 };
 
@@ -3327,7 +3327,7 @@ public:
 
     struct npc_highmaul_glimpse_of_madnessAI : public CreatureAI
     {
-        npc_highmaul_glimpse_of_madnessAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+        npc_highmaul_glimpse_of_madnessAI(Creature* creature) : CreatureAI(creature) { }
 
         bool m_CanExplode;
         ObjectGuid m_LastNearestTargetGUID;
@@ -3347,20 +3347,20 @@ public:
             }
         }
 
-        void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) override
+        void SpellMissTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/, SpellMissInfo /*missInfo*/) override
         {
             m_CanExplode = true;
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
-            if(p_Attacker->IsPlayer() || p_Attacker->IsControlledByPlayer())
-                p_Damage = 0;
+            if(attacker->IsPlayer() || attacker->IsControlledByPlayer())
+                damage = 0;
 
             return;
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
             if (Player *victim = me->SelectNearestPlayer(12))
             {
@@ -3394,9 +3394,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_highmaul_glimpse_of_madnessAI(p_Creature);
+        return new npc_highmaul_glimpse_of_madnessAI(creature);
     }
 };
 
@@ -3414,7 +3414,7 @@ public:
 
     struct npc_highmaul_night_twisted_faithfulAI : public CreatureAI
     {
-        npc_highmaul_night_twisted_faithfulAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+        npc_highmaul_night_twisted_faithfulAI(Creature* creature) : CreatureAI(creature) { }
 
         uint32 m_AuraTimer;
 
@@ -3423,21 +3423,21 @@ public:
             m_AuraTimer = 5000;
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             if(TempSummon* trigger = me->SummonCreature(WORLD_TRIGGER, me->GetPosition()))
                 trigger->CastSpell(trigger, eSpell::SpellGrowingShadowsAT);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const diff) override
         {
-            if (m_AuraTimer < p_Diff)
+            if (m_AuraTimer < diff)
             {
                 me->CastSpell(me, eSpell::SpellDarkFrenzyAura);
                 m_AuraTimer = 5000;
             }
             else
-                m_AuraTimer -= p_Diff;
+                m_AuraTimer -= diff;
 
             if (!UpdateVictim())
                 return;
@@ -3446,9 +3446,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_highmaul_night_twisted_faithfulAI(p_Creature);
+        return new npc_highmaul_night_twisted_faithfulAI(creature);
     }
 };
 
@@ -3471,16 +3471,16 @@ class spell_highmaul_mark_of_chaos : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_mark_of_chaos_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
                     return;
 
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    l_Target->CastSpell(l_Target, eSpells::MarkOfChaosAoE, true);
-                    l_Target->RemoveAura(eSpells::FetterMarkOfChaosRootAura);
+                    target->CastSpell(target, eSpells::MarkOfChaosAoE, true);
+                    target->RemoveAura(eSpells::FetterMarkOfChaosRootAura);
                 }
             }
 
@@ -3506,7 +3506,7 @@ class spell_highmaul_destructive_resonance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_destructive_resonance_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3518,10 +3518,10 @@ class spell_highmaul_destructive_resonance : public SpellScriptLoader
                     return;
 
                 /// Moreover, the player who triggers a Destructive Resonance mine is stunned for 1.5 seconds each time he take Arcane damage.
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     uint32 l_SpellID = GetSpellInfo()->GetEffect(EFFECT_0)->TriggerSpell;
-                    l_Target->CastSpell(l_Target, l_SpellID, true);
+                    target->CastSpell(target, l_SpellID, true);
                 }
             }
 
@@ -3562,7 +3562,7 @@ class spell_highmaul_branded : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -3574,27 +3574,27 @@ class spell_highmaul_branded : public SpellScriptLoader
                     if (!l_Margok->IsAIEnabled)
                         return;
 
-                    if (Unit* l_Target = GetTarget())
+                    if (Unit* target = GetTarget())
                     {
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            ObjectGuid l_Guid = l_Target->GetGUID();
+                            ObjectGuid guid = target->GetGUID();
                             ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, l_Guid, l_MeGuid](TaskContext context)
+                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
                             {
                                 uint8 l_StacksCopy = l_Stacks;
 
                                 if (Creature* l_Margok = GetContextCreature())
                                 {
-                                    if (Unit* l_Target = ObjectAccessor::GetUnit(*l_Margok, l_Guid))
+                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                     {
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, TRIGGERED_FULL_MASK);
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -3602,7 +3602,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                                         for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
                                             l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
 
-                                        if (Player* l_OtherPlayer = l_Target->SelectNearestPlayer(l_JumpRange))
+                                        if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
                                             ++l_StacksCopy;
@@ -3662,28 +3662,28 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
             Position m_MarkPos;
 
-            void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnAuraApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     /// Visual area during 4s to see where you can go without being teleported
-                    l_Target->CastSpell(l_Target, eSpells::ArcaneWrathZoneVisu, true);
-                    m_MarkPos = *l_Target;
+                    target->CastSpell(target, eSpells::ArcaneWrathZoneVisu, true);
+                    m_MarkPos = *target;
                 }
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     /// In addition to Arcane Wrath's normal effects, Branded Players are unable to move more than 10 yards from the location they were marked.
                     /// Attempting to leave the marked area will teleport the player back to the location they were originally marked.
-                    if (l_Target->GetDistance(m_MarkPos) > 10.0f)
-                        l_Target->CastSpell(m_MarkPos, eSpells::ArcaneWrathTeleport, true);
+                    if (target->GetDistance(m_MarkPos) > 10.0f)
+                        target->CastSpell(m_MarkPos, eSpells::ArcaneWrathTeleport, true);
                 }
             }
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -3695,27 +3695,27 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                     if (!l_Margok->IsAIEnabled)
                         return;
 
-                    if (Unit* l_Target = GetTarget())
+                    if (Unit* target = GetTarget())
                     {
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            ObjectGuid l_Guid = l_Target->GetGUID();
+                            ObjectGuid guid = target->GetGUID();
                             ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, l_Guid, l_MeGuid](TaskContext context)
+                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
                             {
                                 uint8 l_StackCopy = l_Stacks;
 
                                 if (Creature* l_Margok = GetContextCreature())
                                 {
-                                    if (Unit* l_Target = ObjectAccessor::GetUnit(*l_Margok, l_Guid))
+                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                     {
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StackCopy);
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, TRIGGERED_FULL_MASK);
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -3723,7 +3723,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                         for (uint8 l_I = 0; l_I < l_StackCopy; ++l_I)
                                             l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
 
-                                        if (Player* l_OtherPlayer = l_Target->SelectNearestPlayer(l_JumpRange))
+                                        if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
                                             ++l_StackCopy;
@@ -3781,7 +3781,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_fortification_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -3793,27 +3793,27 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                     if (!l_Margok->IsAIEnabled)
                         return;
 
-                    if (Unit* l_Target = GetTarget())
+                    if (Unit* target = GetTarget())
                     {
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            ObjectGuid l_Guid = l_Target->GetGUID();
+                            ObjectGuid guid = target->GetGUID();
                             ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, l_Guid, l_MeGuid](TaskContext context)
+                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
                             {
                                 uint8 l_StacksCopy = l_Stacks;
 
                                 if (Creature* l_Margok = GetContextCreature())
                                 {
-                                    if (Unit* l_Target = ObjectAccessor::GetUnit(*l_Margok, l_Guid))
+                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                     {
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, TRIGGERED_FULL_MASK);
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -3821,7 +3821,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                         for (uint8 l_I = 0; l_I < l_StacksCopy; ++l_I)
                                             l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
 
-                                        if (Player* l_OtherPlayer = l_Target->SelectNearestPlayer(l_JumpRange))
+                                        if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
                                             ++l_StacksCopy;
@@ -3877,7 +3877,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_replication_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -3889,27 +3889,27 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                     if (!l_Margok->IsAIEnabled)
                         return;
 
-                    if (Unit* l_Target = GetTarget())
+                    if (Unit* target = GetTarget())
                     {
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            ObjectGuid l_Guid = l_Target->GetGUID();
+                            ObjectGuid guid = target->GetGUID();
                             ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, l_Guid, l_MeGuid](TaskContext context)
+                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
                             {
                                 uint8 l_StacksCopy = l_Stacks;
 
                                 if (Creature* l_Margok = GetContextCreature())
                                 {
-                                    if (Unit* l_Target = ObjectAccessor::GetUnit(*l_Margok, l_Guid))
+                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                     {
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, TRIGGERED_FULL_MASK);
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -3921,23 +3921,23 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                         if (l_StacksCopy <= 1)
                                         {
                                             std::list<Player*> l_PlrList;
-                                            l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
+                                            target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
 
                                             if (l_PlrList.size() > 2)
                                             {
-                                                l_PlrList.sort(Trinity::ObjectDistanceOrderPred(l_Target));
+                                                l_PlrList.sort(Trinity::ObjectDistanceOrderPred(target));
                                                 Trinity::Containers::RandomResize(l_PlrList, 2);
                                             }
 
                                             /// Increase jump count
                                             ++l_StacksCopy;
 
-                                            for (Player* l_Player : l_PlrList)
+                                            for (Player* player : l_PlrList)
                                             {
-                                                if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_Player))
+                                                if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, player))
                                                 {
                                                     l_Aura->SetStackAmount(l_StacksCopy);
-                                                    l_Margok->AI()->Talk(eTalk::Branded, l_Player);
+                                                    l_Margok->AI()->Talk(eTalk::Branded, player);
                                                 }
                                             }
 
@@ -3945,7 +3945,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                         }
 
                                         std::list<Player*> l_PlrList;
-                                        l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
+                                        target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
 
                                         /// It cannot jumps twice on the same player at the same time
                                         if (!l_PlrList.empty())
@@ -3953,7 +3953,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                                         if (!l_PlrList.empty())
                                         {
-                                            l_PlrList.sort(Trinity::ObjectDistanceOrderPred(l_Target));
+                                            l_PlrList.sort(Trinity::ObjectDistanceOrderPred(target));
 
                                             if (Player* l_OtherPlayer = l_PlrList.front())
                                             {
@@ -4056,11 +4056,11 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_transition_visuals_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 40.0f))
+                    if (Creature* l_Margok = target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 40.0f))
                     {
                         if (!l_Margok->IsAIEnabled)
                             return;
@@ -4072,7 +4072,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
                             case ePhases::RuneOfDisplacement:
                             {
                                 for (uint8 l_I = 0; l_I < eDatas::MissileCountP1; ++l_I)
-                                    l_Target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP1, true);
+                                    target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP1, true);
 
                                 break;
                             }
@@ -4080,7 +4080,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
                             case ePhases::DormantRunestones:
                             {
                                 for (uint8 l_I = 0; l_I < eDatas::MissileCountP2; ++l_I)
-                                    l_Target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP2, true);
+                                    target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP2, true);
 
                                 break;
                             }
@@ -4088,7 +4088,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
                             case ePhases::LineageOfPower:
                             {
                                 for (uint8 l_I = 0; l_I < eDatas::MissileCountP3; ++l_I)
-                                    l_Target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP3, true);
+                                    target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP3, true);
 
                                 break;
                             }
@@ -4139,37 +4139,37 @@ class spell_highmaul_dominance_aura : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 diff)
             {
                 if (m_CheckTimer)
                 {
-                    if (m_CheckTimer <= p_Diff)
+                    if (m_CheckTimer <= diff)
                     {
-                        if (Unit* l_Caster = GetCaster())
+                        if (Unit* caster = GetCaster())
                         {
-                            std::list<Unit*> l_TargetList;
-                            float l_Radius = 40.0f;
+                            std::list<Unit*> targetList;
+                            float radius = 40.0f;
 
-                            Trinity::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
-                            Cell::VisitAllObjects(l_Caster, l_Searcher, l_Radius);
+                            Trinity::AnyFriendlyUnitInObjectRangeCheck l_Check(caster, caster, radius);
+                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(caster, targetList, l_Check);
+                            Cell::VisitAllObjects(caster, l_Searcher, radius);
 
-                            l_TargetList.remove(l_Caster);
+                            targetList.remove(caster);
 
-                            for (Unit* l_Iter : l_TargetList)
+                            for (Unit* itr : targetList)
                             {
-                                if (l_Iter->GetDisplayId() == eData::InvisDisplay)
+                                if (itr->GetDisplayId() == eData::InvisDisplay)
                                     continue;
 
-                                if (l_Iter->GetDistance(l_Caster) <= 25.0f)
+                                if (itr->GetDistance(caster) <= 25.0f)
                                 {
-                                    if (!l_Iter->HasAura(eSpell::DominanceAuraBuff))
-                                        l_Caster->CastSpell(l_Iter, eSpell::DominanceAuraBuff, true);
+                                    if (!itr->HasAura(eSpell::DominanceAuraBuff))
+                                        caster->CastSpell(itr, eSpell::DominanceAuraBuff, true);
                                 }
                                 else
                                 {
-                                    if (l_Iter->HasAura(eSpell::DominanceAuraBuff))
-                                        l_Iter->RemoveAura(eSpell::DominanceAuraBuff);
+                                    if (itr->HasAura(eSpell::DominanceAuraBuff))
+                                        itr->RemoveAura(eSpell::DominanceAuraBuff);
                                 }
                             }
                         }
@@ -4177,7 +4177,7 @@ class spell_highmaul_dominance_aura : public SpellScriptLoader
                         m_CheckTimer = 500;
                     }
                     else
-                        m_CheckTimer -= p_Diff;
+                        m_CheckTimer -= diff;
                 }
             }
 
@@ -4208,10 +4208,10 @@ class spell_highmaul_force_nova_fortified : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_force_nova_fortified_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::ForceNovaFortificationDummy, true);
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, eSpell::ForceNovaFortificationDummy, true);
             }
 
             void Register() override
@@ -4241,26 +4241,26 @@ class spell_highmaul_devastating_shockwave : public SpellScriptLoader
                 TargetRestrict = 19856
             };
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (p_Targets.empty())
+                if (targets.empty())
                     return;
 
                 SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
                 if (l_Restriction == nullptr)
                     return;
 
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                Unit* caster = GetCaster();
+                if (caster == nullptr)
                     return;
 
                 float l_Angle = 2 * float(M_PI) / 360 * l_Restriction->ConeDegrees;
-                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                targets.remove_if([caster, l_Angle](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;
 
-                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                    if (!p_Object->isInFront(caster, l_Angle))
                         return true;
 
                     return false;
@@ -4307,11 +4307,11 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_force_nova_dot_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 40.0f))
+                    if (Creature* l_Margok = target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 40.0f))
                     {
                         if (!l_Margok->IsAIEnabled)
                             return;
@@ -4319,7 +4319,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
                         uint8 l_Phase = l_Margok->AI()->GetData(eData::PhaseID);
                         if (l_Phase == ePhase::RuneOfReplication || l_Phase == ePhase::MythicPhase1 || 
                             l_Phase == ePhase::MythicPhase3 || l_Phase == ePhase::MythicPhase4ChoGall)
-                            l_Target->CastSpell(l_Target, eSpell::ForceNovaReplicationAoEDamage, true);
+                            target->CastSpell(target, eSpell::ForceNovaReplicationAoEDamage, true);
                     }
                 }
             }
@@ -4361,31 +4361,31 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_orbs_of_chaos_aura_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
                     return;
 
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    l_Target->CastSpell(l_Target, eSpells::OrbsOfChaosSummoning, true);
+                    target->CastSpell(target, eSpells::OrbsOfChaosSummoning, true);
 
-                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 300.0f))
+                    if (Creature* l_Margok = target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 300.0f))
                     {
                         if (!l_Margok->IsAIEnabled)
                             return;
 
                         l_Margok->AI()->SetData(eData::OrbOfChaosAngle, 0);
-                        l_Margok->AI()->Talk(eTalk::OrbsOfChaos, l_Target);
+                        l_Margok->AI()->Talk(eTalk::OrbsOfChaos, target);
 
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            ObjectGuid l_Guid = l_Target->GetGUID();
-                            l_Margok->GetScheduler().Schedule(2s, [l_Guid](TaskContext context)
+                            ObjectGuid guid = target->GetGUID();
+                            l_Margok->GetScheduler().Schedule(2s, [guid](TaskContext context)
                             {
-                                if (Unit* l_Target = ObjectAccessor::GetUnit(*GetContextUnit(), l_Guid))
-                                    l_Target->CastSpell(l_Target, eSpells::OrbsOfChaosSummoning, true);
+                                if (Unit* target = ObjectAccessor::GetUnit(*GetContextUnit(), guid))
+                                    target->CastSpell(target, eSpells::OrbsOfChaosSummoning, true);
                             });
                         }
                     }
@@ -4436,11 +4436,11 @@ class spell_highmaul_volatile_anomalies : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_volatile_anomalies_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 150.0f))
+                    if (Creature* l_Margok = target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 150.0f))
                     {
                         if (!l_Margok->IsAIEnabled)
                             return;
@@ -4450,17 +4450,17 @@ class spell_highmaul_volatile_anomalies : public SpellScriptLoader
                             case ePhases::MythicTransition1:
                             case ePhases::DormantRunestones:
                             {
-                                l_Target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies1, true);
-                                l_Target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies2, true);
-                                l_Target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies3, true);
+                                target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies1, true);
+                                target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies2, true);
+                                target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies3, true);
                                 break;
                             }
                             case ePhases::LineageOfPower:
                             case ePhases::MythicTransition2:
                             {
-                                l_Target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies1, true);
-                                l_Target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies2, true);
-                                l_Target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies3, true);
+                                target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies1, true);
+                                target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies2, true);
+                                target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies3, true);
                                 break;
                             }
                             default:
@@ -4498,7 +4498,7 @@ public:
             NpcGlimpseOfMadness = 82242
         };
 
-        void SummonClone(SpellEffIndex effIndex)
+        void SummonClone(SpellEffIndex /*effIndex*/)
         {
             if (GetHitDest() == nullptr)
                 return;
@@ -4535,7 +4535,7 @@ public:
     {
         PrepareAuraScript(spell_highmaul_gaze_of_the_abyss_AuraScript);
 
-        void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        void AfterAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit *victim = GetTarget())
                 victim->CastSpell(victim, GazeoftheAbyssDmg, true);
@@ -4581,12 +4581,12 @@ public:
             amount = 500000000;
         }
 
-        void OnAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+        void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
         {
-            m_HealAbsorbAmount += p_AbsorbAmount;
+            m_HealAbsorbAmount += absorbAmount;
         }
 
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             PreventDefaultAction();
 
@@ -4667,37 +4667,37 @@ class areatrigger_highmaul_orb_of_chaos : public AreaTriggerAI
                     else
                         l_Margok->AI()->SetData(eData::OrbOfChaosAngle, ++l_Count);
 
-                    float l_Radius = 250.0f;
-                    p_DestinationPosition.m_positionX = p_DestinationPosition.m_positionX + (l_Radius * cos(l_Angle));
-                    p_DestinationPosition.m_positionY = p_DestinationPosition.m_positionY + (l_Radius * sin(l_Angle));
+                    float radius = 250.0f;
+                    p_DestinationPosition.m_positionX = p_DestinationPosition.m_positionX + (radius * cos(l_Angle));
+                    p_DestinationPosition.m_positionY = p_DestinationPosition.m_positionY + (radius * sin(l_Angle));
                 }
             }
 
             at->SetDestination(p_DestinationPosition, 30 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void OnUpdate(uint32 p_Time) override
+        void OnUpdate(uint32 diff) override
         {
-            if (Unit* l_Caster = at->GetCaster())
+            if (Unit* caster = at->GetCaster())
             {
                 if (m_DamageTimer)
                 {
-                    if (m_DamageTimer <= p_Time)
+                    if (m_DamageTimer <= diff)
                     {
-                        std::list<Player*> l_TargetList;
-                        float l_Radius = 1.5f;
+                        std::list<Player*> targetList;
+                        float radius = 1.5f;
 
-                        Trinity::AnyPlayerInObjectRangeCheck l_Check(at, l_Radius);
-                        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> l_Searcher(at, l_TargetList, l_Check);
-                        Cell::VisitAllObjects(at, l_Searcher, l_Radius);
+                        Trinity::AnyPlayerInObjectRangeCheck l_Check(at, radius);
+                        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+                        Cell::VisitAllObjects(at, l_Searcher, radius);
 
-                        for (Player* l_Player : l_TargetList)
-                            l_Player->CastSpell(l_Player, eSpell::OrbOfChaosDamage, true);
+                        for (Player* player : targetList)
+                            player->CastSpell(player, eSpell::OrbOfChaosDamage, true);
 
                         m_DamageTimer = 200;
                     }
                     else
-                        m_DamageTimer -= p_Time;
+                        m_DamageTimer -= diff;
                 }
             }
         }
@@ -4714,23 +4714,23 @@ public:
         SpellGrowingShadowsDmg = 176533
     };
 
-    void OnUnitEnter(Unit* p_Unit) override
+    void OnUnitEnter(Unit* unit) override
     {
-        if (!p_Unit->HasAura(SpellGrowingShadowsDmg) && (p_Unit->GetTypeId() == TYPEID_PLAYER || p_Unit->IsCharmedOwnedByPlayerOrPlayer()) && p_Unit->IsAlive())
-            p_Unit->AddAura(SpellGrowingShadowsDmg, p_Unit);
+        if (!unit->HasAura(SpellGrowingShadowsDmg) && (unit->GetTypeId() == TYPEID_PLAYER || unit->IsCharmedOwnedByPlayerOrPlayer()) && unit->IsAlive())
+            unit->AddAura(SpellGrowingShadowsDmg, unit);
     }
 
-    void OnUnitExit(Unit* p_Unit) override
+    void OnUnitExit(Unit* unit) override
     {
-        if (p_Unit->HasAura(SpellGrowingShadowsDmg))
-            p_Unit->RemoveAura(SpellGrowingShadowsDmg);
+        if (unit->HasAura(SpellGrowingShadowsDmg))
+            unit->RemoveAura(SpellGrowingShadowsDmg);
     }
 
     void OnRemove() override
     {
-        for (auto l_Guid : at->GetInsideUnits())
-            if (Unit* l_Target = ObjectAccessor::GetUnit(*at, l_Guid))
-                l_Target->RemoveAurasDueToSpell(SpellGrowingShadowsDmg);
+        for (auto guid : at->GetInsideUnits())
+            if (Unit* target = ObjectAccessor::GetUnit(*at, guid))
+                target->RemoveAurasDueToSpell(SpellGrowingShadowsDmg);
     }
 };
 

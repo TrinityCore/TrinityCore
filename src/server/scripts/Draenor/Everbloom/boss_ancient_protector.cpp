@@ -480,7 +480,7 @@ public:
     {
         PrepareAuraScript(aura_grasping_vine_AuraScript);
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* target = GetTarget())
                 GetCaster()->CastSpell(target, SPELL_GRASPING_VINE_3);

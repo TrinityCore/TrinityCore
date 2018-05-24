@@ -50,7 +50,7 @@ class instance_highmaul : public InstanceMapScript
 
         struct instance_highmaul_InstanceMapScript : public InstanceScript
         {
-            instance_highmaul_InstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
+            instance_highmaul_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 m_Initialized               = false;
                 m_ForTests                  = false;
@@ -136,34 +136,34 @@ class instance_highmaul : public InstanceMapScript
                 LoadDoorData(g_DoorData);
             }
 
-            void OnCreatureCreate(Creature* p_Creature) override
+            void OnCreatureCreate(Creature* creature) override
             {
-                switch (p_Creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                     case eHighmaulCreatures::GhargArenaMaster:
-                        m_ArenaMasterGuid = p_Creature->GetGUID();
+                        m_ArenaMasterGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::KargathBladefist:
-                        m_KargathBladefistGuid = p_Creature->GetGUID();
+                        m_KargathBladefistGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::JhornTheMad:
-                        m_JhornTheMadGuid = p_Creature->GetGUID();
+                        m_JhornTheMadGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::ThoktarIronskull:
-                        m_ThoktarIronskullGuid = p_Creature->GetGUID();
+                        m_ThoktarIronskullGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Vulgor:
-                        m_VulgorGuid = p_Creature->GetGUID();
+                        m_VulgorGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::CrowdAreatrigger:
-                        m_CrowdAreatriggerGuid = p_Creature->GetGUID();
+                        m_CrowdAreatriggerGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::MargokCosmetic:
-                        m_MargokCosmeticGuid = p_Creature->GetGUID();
+                        m_MargokCosmeticGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::IronBomberSpawner:
-                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                        creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         break;
                     case eHighmaulCreatures::IronBomber:
                         if (!m_IronBombersCount)
@@ -178,27 +178,27 @@ class instance_highmaul : public InstanceMapScript
                         SendUpdateWorldState(eHighmaulWorldStates::DrunkenBileslingerRemaining, m_DrunkenBileslingerCount);
                         break;
                     case eHighmaulCreatures::TheButcher:
-                        m_TheButcherGuid = p_Creature->GetGUID();
+                        m_TheButcherGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Brackenspore:
-                        m_BrackensporeGuid = p_Creature->GetGUID();
+                        m_BrackensporeGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Tectus:
-                        m_TectusGuid = p_Creature->GetGUID();
+                        m_TectusGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Rokka:
                     case eHighmaulCreatures::Oro:
                     case eHighmaulCreatures::Lokk:
-                        m_GuardiansGuids[p_Creature->GetEntry() - eHighmaulCreatures::Rokka] = p_Creature->GetGUID();
+                        m_GuardiansGuids[creature->GetEntry() - eHighmaulCreatures::Rokka] = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Phemos:
-                        m_PhemosGuid = p_Creature->GetGUID();
+                        m_PhemosGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Pol:
-                        m_PolGuid = p_Creature->GetGUID();
+                        m_PolGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Koragh:
-                        m_KoraghGuid = p_Creature->GetGUID();
+                        m_KoraghGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::IronGrunt:
                     case eHighmaulCreatures::BlackrockGrunt:
@@ -207,24 +207,24 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::CosmeticGorianWarr:
                     case eHighmaulCreatures::GorianCivilian:
                     case eHighmaulCreatures::RuneOfNullification:
-                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case eHighmaulCreatures::ImperatorMargok:
-                        m_ImperatorMargokGuid = p_Creature->GetGUID();
+                        m_ImperatorMargokGuid = creature->GetGUID();
                         break;
                     case eHighmaulCreatures::HighCouncilorMalgris:
-                        m_HighCouncilorMalgris = p_Creature->GetGUID();
+                        m_HighCouncilorMalgris = creature->GetGUID();
                         break;
                     default:
                         break;
                 }
             }
 
-            void OnCreatureRemove(Creature* p_Creature) override
+            void OnCreatureRemove(Creature* creature) override
             {
-                switch (p_Creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                     case eHighmaulCreatures::IronBomber:
                     {
@@ -263,13 +263,13 @@ class instance_highmaul : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* p_GameObject) override
+            void OnGameObjectCreate(GameObject* gameObject) override
             {
-                switch (p_GameObject->GetEntry())
+                switch (gameObject->GetEntry())
                 {
                     case eHighmaulGameobjects::GateArenaExit:
                         if (!instance->IsLFR())
-                            AddDoor(p_GameObject, true);
+                            AddDoor(gameObject, true);
                         break;
                     case eHighmaulGameobjects::FungalGiantDoor:
                     case eHighmaulGameobjects::EarthenPillar:
@@ -285,46 +285,46 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::ThroneRoomDoor:
                     case eHighmaulGameobjects::StairBlockingDoor:
                     case eHighmaulGameobjects::HighmaulLFRDoor:
-                        AddDoor(p_GameObject, true);
+                        AddDoor(gameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
-                        m_ArenaElevatorGuid = p_GameObject->GetGUID();
-                        p_GameObject->SetTransportState(GOState::GO_STATE_TRANSPORT_ACTIVE);
+                        m_ArenaElevatorGuid = gameObject->GetGUID();
+                        gameObject->SetTransportState(GOState::GO_STATE_TRANSPORT_ACTIVE);
                         break;
                     case eHighmaulGameobjects::CollisionWall:
-                        m_CollisionWallGuid = p_GameObject->GetGUID();
-                        p_GameObject->SetGoState(GOState::GO_STATE_ACTIVE);
+                        m_CollisionWallGuid = gameObject->GetGUID();
+                        gameObject->SetGoState(GOState::GO_STATE_ACTIVE);
                         break;
                     case eHighmaulGameobjects::GateArenaInner:
-                        m_GateArenaInnerGuid = p_GameObject->GetGUID();
+                        m_GateArenaInnerGuid = gameObject->GetGUID();
                         break;
                     case eHighmaulGameobjects::RaidGrate1:
-                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate001] = p_GameObject->GetGUID();
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate001] = gameObject->GetGUID();
                         break;
                     case eHighmaulGameobjects::RaidGrate2:
-                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate002] = p_GameObject->GetGUID();
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate002] = gameObject->GetGUID();
                         break;
                     case eHighmaulGameobjects::RaidGrate3:
-                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate003] = p_GameObject->GetGUID();
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate003] = gameObject->GetGUID();
                         break;
                     case eHighmaulGameobjects::RaidGrate4:
-                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate004] = p_GameObject->GetGUID();
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate004] = gameObject->GetGUID();
                         break;
                     case eHighmaulGameobjects::HighmaulLFRDoorColiseum:
-                        m_ColiseumLFRDoor = p_GameObject->GetGUID();
+                        m_ColiseumLFRDoor = gameObject->GetGUID();
                         break;
                     default:
                         break;
                 }
             }
 
-            void OnGameObjectRemove(GameObject* p_GameObject) override
+            void OnGameObjectRemove(GameObject* gameObject) override
             {
-                switch (p_GameObject->GetEntry())
+                switch (gameObject->GetEntry())
                 {
                     case eHighmaulGameobjects::GateArenaExit:
                         if (!instance->IsLFR())
-                            AddDoor(p_GameObject, false);
+                            AddDoor(gameObject, false);
                         break;
                     case eHighmaulGameobjects::FungalGiantDoor:
                     case eHighmaulGameobjects::EarthenPillar:
@@ -340,23 +340,23 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::ThroneRoomDoor:
                     case eHighmaulGameobjects::StairBlockingDoor:
                     case eHighmaulGameobjects::HighmaulLFRDoor:
-                        AddDoor(p_GameObject, false);
+                        AddDoor(gameObject, false);
                         break;
                     default:
                         break;
                 }
             }
 
-            bool SetBossState(uint32 p_BossID, EncounterState p_State) override
+            bool SetBossState(uint32 bossId, EncounterState state) override
             {
-                if (!InstanceScript::SetBossState(p_BossID, p_State))
+                if (!InstanceScript::SetBossState(bossId, state))
                     return false;
 
-                switch (p_BossID)
+                switch (bossId)
                 {
                     case eHighmaulDatas::BossKargathBladefist:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -385,7 +385,7 @@ class instance_highmaul : public InstanceMapScript
                     }
                     case eHighmaulDatas::BossTheButcher:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -408,7 +408,7 @@ class instance_highmaul : public InstanceMapScript
                     }
                     case eHighmaulDatas::BossTectus:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -432,7 +432,7 @@ class instance_highmaul : public InstanceMapScript
                     }
                     case eHighmaulDatas::BossBrackenspore:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -455,7 +455,7 @@ class instance_highmaul : public InstanceMapScript
                     }
                     case eHighmaulDatas::BossTwinOgron:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -478,7 +478,7 @@ class instance_highmaul : public InstanceMapScript
                     }
                     case eHighmaulDatas::BossKoragh:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -502,7 +502,7 @@ class instance_highmaul : public InstanceMapScript
                     }
                     case eHighmaulDatas::BossImperatorMargok:
                     {
-                        switch (p_State)
+                        switch (state)
                         {
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
@@ -538,13 +538,13 @@ class instance_highmaul : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 p_Type, uint32 p_Data) override
+            void SetData(uint32 type, uint32 data) override
             {
-                switch (p_Type)
+                switch (type)
                 {
                     case eHighmaulDatas::ElevatorActivated:
                     {
-                        m_ArenaElevatorActivated = p_Data;
+                        m_ArenaElevatorActivated = data;
                         break;
                     }
                     case eHighmaulDatas::KargathAchievement:
@@ -562,11 +562,11 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulDatas::TectusAchievement:
                     {
                         if (!m_MoteOfTectusTime)
-                            m_MoteOfTectusTime = p_Data;
+                            m_MoteOfTectusTime = data;
                         else
                         {
                             /// Defeat Tectus in Highmaul by destroying all eight Motes of Tectus within 10 seconds of each other on Normal difficulty or higher.
-                            if (p_Data > (m_MoteOfTectusTime + 10))
+                            if (data > (m_MoteOfTectusTime + 10))
                                 m_TectusAchievement = false;
                             else
                                 m_TectusAchievement = true;
@@ -607,9 +607,9 @@ class instance_highmaul : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 p_Type) const override
+            uint32 GetData(uint32 type) const override
             {
-                switch (p_Type)
+                switch (type)
                 {
                     case eHighmaulDatas::ElevatorActivated:
                         return m_ArenaElevatorActivated;
@@ -622,9 +622,9 @@ class instance_highmaul : public InstanceMapScript
                 }
             }
 
-            ObjectGuid GetGuidData(uint32 p_Type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
-                switch (p_Type)
+                switch (type)
                 {
                     case eHighmaulCreatures::GhargArenaMaster:
                         return m_ArenaMasterGuid;
@@ -663,7 +663,7 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Rokka:
                     case eHighmaulCreatures::Oro:
                     case eHighmaulCreatures::Lokk:
-                        return m_GuardiansGuids[p_Type - eHighmaulCreatures::Rokka];
+                        return m_GuardiansGuids[type - eHighmaulCreatures::Rokka];
                     case eHighmaulCreatures::Phemos:
                         return m_PhemosGuid;
                     case eHighmaulCreatures::Pol:
@@ -681,29 +681,29 @@ class instance_highmaul : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = nullptr) const override
+            bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
             {
                 /// Bypass required bosses for PTR tests
                 if (m_ForTests)
                     return true;
 
-                if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
+                if (!InstanceScript::CheckRequiredBosses(bossId, player))
                     return false;
 
                 /// Highmaul has 4 main encounters (Kargath Bladefist, Ko'ragh, Twin Ogron, Imperator Mar'gok).
                 /// There are also three optional encounters - The Butcher, Brackenspore and Tectus.
-                switch (p_BossID)
+                switch (bossId)
                 {
                     case eHighmaulDatas::BossTwinOgron:
                         if (m_DungeonID != eHighmaulDungeons::ArcaneSanctum && GetBossState(eHighmaulDatas::BossKargathBladefist) != EncounterState::DONE)
                             return false;
                         break;
                     case eHighmaulDatas::BossKoragh:
-                        if (GetBossState(p_BossID - 1) != EncounterState::DONE)
+                        if (GetBossState(bossId - 1) != EncounterState::DONE)
                             return false;
                         break;
                     case eHighmaulDatas::BossImperatorMargok:
-                        if (m_DungeonID != eHighmaulDungeons::ImperatorsFall && GetBossState(p_BossID - 1) != EncounterState::DONE)
+                        if (m_DungeonID != eHighmaulDungeons::ImperatorsFall && GetBossState(bossId - 1) != EncounterState::DONE)
                             return false;
                         break;
                     default:
@@ -721,31 +721,31 @@ class instance_highmaul : public InstanceMapScript
                 packet.Worldstates.emplace_back(uint32(eHighmaulWorldStates::DrunkenBileslingerRemaining), 0);
             }
 
-            void OnPlayerEnter(Player* p_Player) override
+            void OnPlayerEnter(Player* player) override
             {
-                InstanceScript::OnPlayerEnter(p_Player);
+                InstanceScript::OnPlayerEnter(player);
 
-                bool l_ChogallNight = false;
+                bool chogallNight = false;
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
-                    l_ChogallNight = true;
+                    chogallNight = true;
 
                     /// We don't need to update the enter pos if player is summoned by his allies
-                    if (!p_Player->IsSummon())
+                    if (!player->IsSummon())
                     {
-                        ObjectGuid l_Guid = p_Player->GetGUID();
-                        AddTimedDelayedOperation(200, [this, l_Guid]() -> void
+                        ObjectGuid guid = player->GetGUID();
+                        AddTimedDelayedOperation(200, [this, guid]() -> void
                         {
-                            if (Player* l_Player = ObjectAccessor::FindPlayer(l_Guid))
+                            if (Player* player = ObjectAccessor::FindPlayer(guid))
                             {
                                 if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
-                                    l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
+                                    player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
                                 else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
-                                    l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                                    player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
                                 else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
-                                    l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                                    player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
                                 else
-                                    l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                                    player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
                             }
                         });
                     }
@@ -756,7 +756,7 @@ class instance_highmaul : public InstanceMapScript
                 {
                     m_Initialized = true;
 
-                    m_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
+                    m_DungeonID = player->GetGroup() ? sLFGMgr->GetDungeon(player->GetGroup()->GetGUID()) : 0;
 
                     if (!instance->IsLFR())
                         m_DungeonID = 0;
@@ -822,59 +822,59 @@ class instance_highmaul : public InstanceMapScript
 
                 if (l_ChogallNight)
                 {
-                    p_Player->GetPhaseShift().AddPhase(eHighmaulDatas::PhaseKargathDefeated, PhaseFlags::None, nullptr);
-                    p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
+                    player->GetPhaseShift().AddPhase(eHighmaulDatas::PhaseKargathDefeated, PhaseFlags::None, nullptr);
+                    player->CastSpell(player, eHighmaulSpells::ChogallNight, true);
                 }
                 else
                 {
-                    p_Player->GetPhaseShift().RemovePhase(eHighmaulDatas::PhaseKargathDefeated);
-                    p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
-                    p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
+                    player->GetPhaseShift().RemovePhase(eHighmaulDatas::PhaseKargathDefeated);
+                    player->RemoveAura(eHighmaulSpells::PlayChogallScene);
+                    player->RemoveAura(eHighmaulSpells::ChogallNight);
                 }
             }
 
-            void OnPlayerExit(Player* p_Player) override
+            void OnPlayerExit(Player* player) override
             {
-                InstanceScript::OnPlayerExit(p_Player);
+                InstanceScript::OnPlayerExit(player);
 
-                p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
-                p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
-                p_Player->GetPhaseShift().RemovePhase(eHighmaulDatas::PhaseKargathDefeated);
+                player->RemoveAura(eHighmaulSpells::PlayChogallScene);
+                player->RemoveAura(eHighmaulSpells::ChogallNight);
+                player->GetPhaseShift().RemovePhase(eHighmaulDatas::PhaseKargathDefeated);
             }
 
-            void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
+            void SendUpdateWorldState(uint32 p_Field, uint32 value)
             {
-                Map::PlayerList const& l_Players = instance->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+                Map::PlayerList const& players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* l_Player = l_Iter->GetSource())
-                        l_Player->SendUpdateWorldState(p_Field, p_Value);
+                    if (Player* player = itr->GetSource())
+                        player->SendUpdateWorldState(p_Field, value);
                 }
             }
 
-            void PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
+            void PlaySceneForPlayers(Position const /*pos*/, uint32 scenePackageID)
             {
-                Map::PlayerList const& l_Players = instance->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+                Map::PlayerList const& players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* l_Player = l_Iter->GetSource())
+                    if (Player* player = itr->GetSource())
                     {
-                        l_Player->GetSceneMgr().PlaySceneByPackageId(p_ScenePackageID);
-                        l_Player->GetPhaseShift().AddPhase(eHighmaulDatas::PhaseKargathDefeated, PhaseFlags::None, nullptr);
+                        player->GetSceneMgr().PlaySceneByPackageId(scenePackageID);
+                        player->GetPhaseShift().AddPhase(eHighmaulDatas::PhaseKargathDefeated, PhaseFlags::None, nullptr);
                     }
                 }
             }
 
-            void Update(uint32 p_Diff) override
+            void Update(uint32 diff) override
             {
-                UpdateOperations(p_Diff);
-                UpdateCombatResurrection(p_Diff);
+                UpdateOperations(diff);
+                UpdateCombatResurrection(diff);
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* p_Map) const override
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
-            return new instance_highmaul_InstanceMapScript(p_Map);
+            return new instance_highmaul_InstanceMapScript(map);
         }
 };
 

@@ -52,16 +52,16 @@ Position const g_flameThrowerDefaultSpawns[eHighmaulDatas::MaxFleshEaterPos] =
 
 G3D::Vector3 g_BeachCenter = { 4104.36f, 7769.18f, 0.254f };
 
-void ResetPlayersPower(Creature* p_Source)
+void ResetPlayersPower(Creature* source)
 {
-    if (p_Source == nullptr)
+    if (source == nullptr)
         return;
 
-    Map::PlayerList const& l_Players = p_Source->GetMap()->GetPlayers();
-    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    Map::PlayerList const& players = source->GetMap()->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
     {
-        if (Player* l_Player = l_Iter->GetSource())
-            l_Player->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
+        if (Player* player = itr->GetSource())
+            player->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
     }
 }
 
@@ -159,9 +159,9 @@ class boss_brackenspore : public CreatureScript
 
         struct boss_brackensporeAI : public BossAI
         {
-            boss_brackensporeAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossBrackenspore)
+            boss_brackensporeAI(Creature* creature) : BossAI(creature, eHighmaulDatas::BossBrackenspore)
             {
-                m_Instance  = p_Creature->GetInstanceScript();
+                m_Instance  = creature->GetInstanceScript();
                 m_IntroDone = false;
             }
 
@@ -258,9 +258,9 @@ class boss_brackenspore : public CreatureScript
                 m_CreepingMoss.erase(at->GetGUID());
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                switch (p_Action)
+                switch (action)
                 {
                     case eActions::DoIntro:
                     {
@@ -282,9 +282,9 @@ class boss_brackenspore : public CreatureScript
 
                         AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            std::vector<AreaTrigger*> l_AreaTriggers = me->GetAreaTriggers(eSpells::CreepingMossAreaTrigger);
+                            std::vector<AreaTrigger*> areaTriggers = me->GetAreaTriggers(eSpells::CreepingMossAreaTrigger);
 
-                            for (AreaTrigger* l_AT : l_AreaTriggers)
+                            for (AreaTrigger* l_AT : areaTriggers)
                             {
                                 me->CastSpell(*l_AT, eSpells::FlamethrowerDespawnAT, true);
                                 l_AT->SetDuration(10);
@@ -324,8 +324,8 @@ class boss_brackenspore : public CreatureScript
                         });
 
                         std::list<ObjectGuid> l_WarMasterGuids;
-                        for (Creature* l_Iter : l_Warmasters)
-                            l_WarMasterGuids.push_back(l_Iter->GetGUID());
+                        for (Creature* itr : l_Warmasters)
+                            l_WarMasterGuids.push_back(itr->GetGUID());
 
                         AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this, l_WarMasterGuids]() -> void
                         {
@@ -355,7 +355,7 @@ class boss_brackenspore : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 _EnterCombat();
 
@@ -400,7 +400,7 @@ class boss_brackenspore : public CreatureScript
                     l_Warmaster->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -416,23 +416,23 @@ class boss_brackenspore : public CreatureScript
 
                     if (IsLFR())
                     {
-                        Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
-                        if (l_PlayerList.isEmpty())
+                        Map::PlayerList const& playerList = m_Instance->instance->GetPlayers();
+                        if (playerList.isEmpty())
                             return;
 
-                        /*for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                        /*for (Map::PlayerList::const_iterator l_Itr = playerList.begin(); l_Itr != playerList.end(); ++l_Itr)
                         {
-                            if (Player* l_Player = l_Itr->GetSource())
+                            if (Player* player = l_Itr->GetSource())
                             {
-                                uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
-                                if (!me || l_Player->IsAtGroupRewardDistance(me))
-                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                                uint32 l_DungeonID = player->GetGroup() ? sLFGMgr->GetDungeon(player->GetGroup()->GetGUID()) : 0;
+                                if (!me || player->IsAtGroupRewardDistance(me))
+                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, player);
                             }
                         }
 
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());*/
+                        Player* player = me->GetMap()->GetPlayers().begin()->GetSource();
+                        if (player && player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, player->GetGroup());*/
                     }
                 }
 
@@ -451,21 +451,21 @@ class boss_brackenspore : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossBrackenspore, EncounterState::FAIL);
             }
 
-            void SetGUID(ObjectGuid p_Guid, int32 p_ID) override
+            void SetGUID(ObjectGuid guid, int32 /*id*/) override
             {
-                m_Creatures.push_back(p_Guid);
+                m_Creatures.push_back(guid);
                 m_CosmeticEvent.RescheduleEvent(eEvents::EventCheckForIntro, 1000);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::SummonMindFungus:
-                        me->SummonCreature(eCreatures::MindFungusFight, *p_Target, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS);
+                        me->SummonCreature(eCreatures::MindFungusFight, *target, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eSpells::SummonFungalFleshEater:
                         me->SummonCreature(eCreatures::FungalFleshEater, g_FleshEaterSpawns[urand(1, eHighmaulDatas::MaxFleshEaterPos) - 1],
@@ -479,34 +479,34 @@ class boss_brackenspore : public CreatureScript
                         break;
                     }
                     case eSpells::RejuvenatingMushDummy:
-                        me->CastSpell(p_Target, eSpells::SummonRejuvenatingMush, true);
+                        me->CastSpell(target, eSpells::SummonRejuvenatingMush, true);
                         break;
                     case eSpells::SpellCallOfTheTides:
-                        p_Target->CastSpell(p_Target, eSpells::CallOfTheTidesSummonAT, true, nullptr, nullptr, p_Target->GetGUID());
+                        target->CastSpell(target, eSpells::CallOfTheTidesSummonAT, true, nullptr, nullptr, target->GetGUID());
                         break;
                     default:
                         break;
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*power*/, int32& value) override
             {
                 /// Brackenspore only regens by script
-                p_Value = 0;
+                value = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                UpdateOperations(p_Diff);
+                UpdateOperations(diff);
 
-                m_CosmeticEvent.Update(p_Diff);
+                m_CosmeticEvent.Update(diff);
 
                 if (m_CosmeticEvent.ExecuteEvent())
                 {
                     bool l_CanSchedule = true;
-                    for (ObjectGuid l_Guid : m_Creatures)
+                    for (ObjectGuid guid : m_Creatures)
                     {
-                        if (Creature* l_Add = ObjectAccessor::GetCreature(*me, l_Guid))
+                        if (Creature* l_Add = ObjectAccessor::GetCreature(*me, guid))
                         {
                             if (l_Add->IsAlive())
                             {
@@ -525,7 +525,7 @@ class boss_brackenspore : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 /// Update moves here, avoid some movements problems after Infesting Spores
                 if (me->GetVictim() && !me->IsWithinMeleeRange(me->GetVictim()) && me->HasAura(eSpells::SpellInfestingSpores))
@@ -574,14 +574,14 @@ class boss_brackenspore : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventScheduleEnergy:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            AttackStart(l_Target);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            AttackStart(target);
                         me->CastSpell(me, eSpells::EnergyRegen, true);
                         me->GetMotionMaster()->Clear();
                         break;
                     case eEvents::EventRot:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::RotDot, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, eSpells::RotDot, true);
                         m_Events.ScheduleEvent(eEvents::EventRot, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
@@ -604,14 +604,14 @@ class boss_brackenspore : public CreatureScript
                 if (l_Map == nullptr)
                     return;
 
-                float l_Orientation = frand(0.0f, 2 * M_PI);
+                float orientation = frand(0.0f, 2 * M_PI);
 
                 /// Use different spawn radius depending on orientation
-                float l_Radius = GetSpawnRangeByOrientation(l_Orientation);
+                float radius = GetSpawnRangeByOrientation(orientation);
 
                 float l_OStep = 2 * float(M_PI) / 30.0f;
-                float l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
-                float l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
+                float l_X = g_BeachCenter.x + (radius * cos(orientation));
+                float l_Y = g_BeachCenter.y + (radius * sin(orientation));
                 float l_Z = l_Map->GetHeight(me->GetPhaseShift(), l_X, l_Y, MAX_HEIGHT);
 
                 /// First of all, verify if we can spawn an AreaTrigger all around the beach center
@@ -625,11 +625,11 @@ class boss_brackenspore : public CreatureScript
 
                     for (uint8 l_J = 0; l_J < 30; ++l_J)
                     {
-                        l_Orientation = Position::NormalizeOrientation(l_Orientation + l_OStep);
-                        l_Radius = GetSpawnRangeByOrientation(l_Orientation);
+                        orientation = Position::NormalizeOrientation(orientation + l_OStep);
+                        radius = GetSpawnRangeByOrientation(orientation);
 
-                        l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
-                        l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
+                        l_X = g_BeachCenter.x + (radius * cos(orientation));
+                        l_Y = g_BeachCenter.y + (radius * sin(orientation));
                         l_Z = l_Map->GetHeight(me->GetPhaseShift(), l_X, l_Y, MAX_HEIGHT);
 
                         if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
@@ -647,10 +647,10 @@ class boss_brackenspore : public CreatureScript
                 for (uint8 l_I = 0; l_I < 45; ++l_I)
                 {
                     l_MaxRadius -= l_Step;
-                    l_Radius = GetSpawnRangeByOrientation(l_Orientation, l_MaxRadius);
+                    radius = GetSpawnRangeByOrientation(orientation, l_MaxRadius);
 
-                    l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
-                    l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
+                    l_X = g_BeachCenter.x + (radius * cos(orientation));
+                    l_Y = g_BeachCenter.y + (radius * sin(orientation));
                     l_Z = l_Map->GetHeight(me->GetPhaseShift(), l_X, l_Y, MAX_HEIGHT);
 
                     if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
@@ -662,11 +662,11 @@ class boss_brackenspore : public CreatureScript
                     /// ... and for each orientation (3.33% step)
                     for (uint8 l_J = 0; l_J < 30; ++l_J)
                     {
-                        l_Orientation = Position::NormalizeOrientation(l_Orientation + l_OStep);
-                        l_Radius = GetSpawnRangeByOrientation(l_Orientation, l_MaxRadius);
+                        orientation = Position::NormalizeOrientation(orientation + l_OStep);
+                        radius = GetSpawnRangeByOrientation(orientation, l_MaxRadius);
 
-                        l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
-                        l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
+                        l_X = g_BeachCenter.x + (radius * cos(orientation));
+                        l_Y = g_BeachCenter.y + (radius * sin(orientation));
                         l_Z = l_Map->GetHeight(me->GetPhaseShift(), l_X, l_Y, MAX_HEIGHT);
 
                         if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
@@ -683,9 +683,9 @@ class boss_brackenspore : public CreatureScript
                 /// No more than one Creeping Moss every 10 yards
                 float l_CheckRange = 10.0f;
 
-                for (ObjectGuid l_Iter : m_CreepingMoss)
+                for (ObjectGuid itr : m_CreepingMoss)
                 {
-                    if (AreaTrigger* l_AT = ObjectAccessor::GetAreaTrigger(*me, l_Iter))
+                    if (AreaTrigger* l_AT = ObjectAccessor::GetAreaTrigger(*me, itr))
                     {
                         if (l_AT->GetDistance2d(p_X, p_Y) < l_CheckRange)
                             return false;
@@ -720,9 +720,9 @@ class boss_brackenspore : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_brackensporeAI(p_Creature);
+            return new boss_brackensporeAI(creature);
         }
 };
 
@@ -742,7 +742,7 @@ class npc_highmaul_mind_fungus : public CreatureScript
 
         struct npc_highmaul_mind_fungusAI : public ScriptedAI
         {
-            npc_highmaul_mind_fungusAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_mind_fungusAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -753,7 +753,7 @@ class npc_highmaul_mind_fungus : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 me->RemoveAura(eSpells::MindFungusVisual);
                 me->RemoveAura(eSpells::MindFungusAura);
@@ -762,12 +762,12 @@ class npc_highmaul_mind_fungus : public CreatureScript
                 me->DespawnOrUnsummon(500);
             }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const diff) override { }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_mind_fungusAI(p_Creature);
+            return new npc_highmaul_mind_fungusAI(creature);
         }
 };
 
@@ -790,7 +790,7 @@ class npc_highmaul_spore_shooter : public CreatureScript
 
         struct npc_highmaul_spore_shooterAI : public ScriptedAI
         {
-            npc_highmaul_spore_shooterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_spore_shooterAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap m_Events;
 
@@ -801,22 +801,22 @@ class npc_highmaul_spore_shooter : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventSporeShot, urand(100, 1500));
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -829,9 +829,9 @@ class npc_highmaul_spore_shooter : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_spore_shooterAI(p_Creature);
+            return new npc_highmaul_spore_shooterAI(creature);
         }
 };
 
@@ -866,9 +866,9 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
 
         struct npc_highmaul_fungal_flesh_eaterAI : public ScriptedAI
         {
-            npc_highmaul_fungal_flesh_eaterAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_fungal_flesh_eaterAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -897,7 +897,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 m_Scheduled = false;
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* /*p_Victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) override
             {
                 if (!m_Scheduled)
                 {
@@ -907,15 +907,15 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (me->GetPositionZ() <= 0.0f && !me->HasAura(eSpells::InfestedWaters))
                     me->CastSpell(me, eSpells::InfestedWaters, true);
@@ -925,7 +925,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -948,9 +948,9 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_fungal_flesh_eaterAI(p_Creature);
+            return new npc_highmaul_fungal_flesh_eaterAI(creature);
         }
 };
 
@@ -971,9 +971,9 @@ class npc_highmaul_living_mushroom : public CreatureScript
 
         struct npc_highmaul_living_mushroomAI : public ScriptedAI
         {
-            npc_highmaul_living_mushroomAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_living_mushroomAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -1007,19 +1007,19 @@ class npc_highmaul_living_mushroom : public CreatureScript
                 AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->DespawnOrUnsummon(); });
             }
 
-            void HealReceived(Unit* p_Healer, uint32& p_Heal) override
+            void HealReceived(Unit* /*p_Healer*/, uint32& p_Heal) override
             {
                 if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::LivingSpores))
                     me->CastSpell(me, eSpells::LivingSpores, true);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (p_Attacker != me)
-                    p_Damage = 0;
+                if (attacker != me)
+                    damage = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1028,9 +1028,9 @@ class npc_highmaul_living_mushroom : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_living_mushroomAI(p_Creature);
+            return new npc_highmaul_living_mushroomAI(creature);
         }
 };
 
@@ -1051,9 +1051,9 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
 
         struct npc_highmaul_rejuvenating_mushroomAI : public ScriptedAI
         {
-            npc_highmaul_rejuvenating_mushroomAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_rejuvenating_mushroomAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -1087,19 +1087,19 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
                 AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->DespawnOrUnsummon(); });
             }
 
-            void HealReceived(Unit* p_Healer, uint32& p_Heal) override
+            void HealReceived(Unit* /*p_Healer*/, uint32& p_Heal) override
             {
                 if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::RejuvenatingSpores))
                     me->CastSpell(me, eSpells::RejuvenatingSpores, true);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (p_Attacker != me)
-                    p_Damage = 0;
+                if (attacker != me)
+                    damage = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1108,9 +1108,9 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_rejuvenating_mushroomAI(p_Creature);
+            return new npc_highmaul_rejuvenating_mushroomAI(creature);
         }
 };
 
@@ -1128,7 +1128,7 @@ class npc_highmaul_bfc9000 : public CreatureScript
 
         struct npc_highmaul_bfc9000AI : public ScriptedAI
         {
-            npc_highmaul_bfc9000AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_bfc9000AI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -1150,9 +1150,9 @@ class npc_highmaul_bfc9000 : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_bfc9000AI(p_Creature);
+            return new npc_highmaul_bfc9000AI(creature);
         }
 };
 
@@ -1171,26 +1171,26 @@ class spell_highmaul_necrotic_breath : public SpellScriptLoader
                 TargetRestrict = 20036
             };
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (p_Targets.empty())
+                if (targets.empty())
                     return;
 
                 SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
                 if (l_Restriction == nullptr)
                     return;
 
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                Unit* caster = GetCaster();
+                if (caster == nullptr)
                     return;
 
                 float l_Angle = 2 * float(M_PI) / 360 * l_Restriction->ConeDegrees;
-                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                targets.remove_if([caster, l_Angle](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;
 
-                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                    if (!p_Object->isInFront(caster, l_Angle))
                         return true;
 
                     return false;
@@ -1225,12 +1225,12 @@ public:
             BFC9000 = 164175
         };
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Unit* l_Target = GetTarget())
-                if (InstanceScript* instanceScript = l_Target->GetInstanceScript())
+            if (Unit* target = GetTarget())
+                if (InstanceScript* instanceScript = target->GetInstanceScript())
                     if (instanceScript->GetBossState(eHighmaulDatas::BossBrackenspore) == IN_PROGRESS)
-                        if (Creature* flameThrower = l_Target->SummonCreature(eHighmaulCreatures::BFC9000, l_Target->GetPosition()))
+                        if (Creature* flameThrower = target->SummonCreature(eHighmaulCreatures::BFC9000, target->GetPosition()))
                             flameThrower->CastSpell(flameThrower, eSpells::BFC9000, true);
         }
 
@@ -1262,26 +1262,26 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_flamethrower_aura_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    if (l_Target->GetPower(Powers::POWER_ALTERNATE_POWER) >= 100)
+                    if (target->GetPower(Powers::POWER_ALTERNATE_POWER) >= 100)
                     {
-                        l_Target->CastSpell(l_Target, eSpells::PulsingHeat, true);
-                        p_AurEff->GetBase()->Remove(AuraRemoveMode::AURA_REMOVE_BY_CANCEL);
+                        target->CastSpell(target, eSpells::PulsingHeat, true);
+                        aurEff->GetBase()->Remove(AuraRemoveMode::AURA_REMOVE_BY_CANCEL);
                     }
                 }
             }
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_CANCEL)
                     return;
 
-                if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpells::FlamethrowerRegen, true);
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, eSpells::FlamethrowerRegen, true);
             }
 
             void Register() override
@@ -1302,16 +1302,16 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
 
             SpellCastResult CheckPulsingHeat()
             {
-                if (Unit* l_Caster = GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(eSpells::PulsingHeat))
+                    if (caster->HasAura(eSpells::PulsingHeat))
                     {
                         SetCustomCastResultMessage(SpellCustomErrors::SPELL_CUSTOM_ERROR_YOUR_WEAPON_HAS_OVERHEATED);
                         return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
                     }
-                    else if (l_Caster->HasAura(GetSpellInfo()->Id))
+                    else if (caster->HasAura(GetSpellInfo()->Id))
                     {
-                        l_Caster->RemoveAura(GetSpellInfo()->Id);
+                        caster->RemoveAura(GetSpellInfo()->Id);
                         return SpellCastResult::SPELL_FAILED_DONT_REPORT;
                     }
                 }
@@ -1341,10 +1341,10 @@ class spell_highmaul_flamethrower_regen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_flamethrower_regen_AuraScript);
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->ModifyPower(Powers::POWER_ALTERNATE_POWER, -2);
+                if (Unit* target = GetTarget())
+                    target->ModifyPower(Powers::POWER_ALTERNATE_POWER, -2);
             }
 
             void Register() override
@@ -1374,10 +1374,10 @@ class spell_highmaul_pulsing_heat : public SpellScriptLoader
                 FlamethrowerRegen = 163667
             };
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::FlamethrowerRegen, true);
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, eSpell::FlamethrowerRegen, true);
             }
 
             void Register() override
@@ -1407,15 +1407,15 @@ class spell_highmaul_creeping_moss : public SpellScriptLoader
                 CreepingMoss = 1
             };
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetTarget() == nullptr)
                     return;
 
-                if (Creature* l_Target = GetTarget()->ToCreature())
+                if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (l_Target->GetAI())
-                        l_Target->AI()->DoAction(eAction::CreepingMoss);
+                    if (target->GetAI())
+                        target->AI()->DoAction(eAction::CreepingMoss);
                 }
             }
 
@@ -1448,19 +1448,19 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_flamethrower_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    float l_Radius = 10.0f;
+                    float radius = 10.0f;
                     std::list<AreaTrigger*> l_CreepingMoss;
 
-                    l_Caster->GetAreatriggerListInRange(l_CreepingMoss, l_Radius);
+                    caster->GetAreatriggerListInRange(l_CreepingMoss, radius);
 
                     if (l_CreepingMoss.empty())
                         return;
 
-                    l_CreepingMoss.remove_if([this, l_Caster](AreaTrigger* at) -> bool
+                    l_CreepingMoss.remove_if([this, caster](AreaTrigger* at) -> bool
                     {
                         if (at == nullptr)
                             return true;
@@ -1468,7 +1468,7 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         if (at->GetSpellId() != eSpells::CreepingMoss)
                             return true;
 
-                        if (!l_Caster->isInFront(at))
+                        if (!caster->isInFront(at))
                             return true;
 
                         return false;
@@ -1477,14 +1477,14 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                     for (AreaTrigger* l_AT : l_CreepingMoss)
                     {
                         l_AT->SetDuration(1);
-                        l_Caster->CastSpell(l_Caster, eSpells::BurningInfusion, true);
-                        l_Caster->CastSpell(*l_AT, eSpells::Flamethrower, true);
+                        caster->CastSpell(caster, eSpells::BurningInfusion, true);
+                        caster->CastSpell(*l_AT, eSpells::Flamethrower, true);
 
-                        if (Aura* l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
+                        if (Aura* l_Infusion = caster->GetAura(eSpells::BurningInfusion))
                         {
                             if (l_Infusion->GetStackAmount() >= eHighmaulDatas::BurningInfusionNeeded)
                             {
-                                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                                if (InstanceScript* l_Instance = caster->GetInstanceScript())
                                     l_Instance->SetData(eHighmaulDatas::BrackensporeAchievement, 1);
                             }
                         }
@@ -1514,9 +1514,9 @@ class spell_highmaul_burning_infusion : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_burning_infusion_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
-                p_AurEff->GetBase()->ModStackAmount(-1);
+                aurEff->GetBase()->ModStackAmount(-1);
             }
 
             void Register() override
@@ -1546,13 +1546,13 @@ class spell_highmaul_energy_regen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_energy_regen_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, 10, Powers::POWER_RAGE);
+                    target->EnergizeBySpell(target, GetSpellInfo()->Id, 10, Powers::POWER_RAGE);
 
-                    if (Creature* l_Boss = l_Target->ToCreature())
+                    if (Creature* l_Boss = target->ToCreature())
                     {
                         if (l_Boss->IsAIEnabled && l_Boss->GetPowerPct(Powers::POWER_RAGE) >= 100.0f)
                             l_Boss->AI()->DoAction(eAction::InfestingSpores);
@@ -1582,12 +1582,12 @@ class spell_highmaul_spore_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_spore_shot_SpellScript);
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (p_Targets.empty())
+                if (targets.empty())
                     return;
 
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                targets.remove_if([this](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;
@@ -1639,9 +1639,9 @@ public:
             CastCountD          = 5
         };
 
-        void OnTick(AuraEffect const* p_AurEff)
+        void OnTick(AuraEffect const* aurEff)
         {
-            if (p_AurEff->GetTickNumber() > 6)
+            if (aurEff->GetTickNumber() > 6)
                 return;
 
             if (Unit* caster = GetCaster())
@@ -1660,7 +1660,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -1722,15 +1722,15 @@ public:
         MindFungus = 163140
     };
 
-    void OnUnitEnter(Unit* p_Unit) override
+    void OnUnitEnter(Unit* unit) override
     {
-        if (Unit* l_Caster = at->GetCaster())
-            l_Caster->CastSpell(p_Unit, eSpell::MindFungus, true);
+        if (Unit* caster = at->GetCaster())
+            caster->CastSpell(unit, eSpell::MindFungus, true);
     }
 
-    void OnUnitExit(Unit* p_Unit) override
+    void OnUnitExit(Unit* unit) override
     {
-        p_Unit->RemoveAura(eSpell::MindFungus);
+        unit->RemoveAura(eSpell::MindFungus);
     }
 };
 
@@ -1759,13 +1759,13 @@ public:
                 at->SetDestination(*target, 5000);
     }
 
-    void OnUpdate(uint32 p_Time) override
+    void OnUpdate(uint32 /*diff*/) override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            if (Player* l_Target = at->SelectNearestPlayer(1.0f))
+            if (Player* target = at->SelectNearestPlayer(1.0f))
             {
-                l_Caster->CastSpell(*at, eSpell::SporeShotDamage, true);
+                caster->CastSpell(*at, eSpell::SporeShotDamage, true);
                 at->SetDuration(1);
                 m_Casted = true;
             }
@@ -1774,10 +1774,10 @@ public:
 
     void OnRemove() override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
             if (!m_Casted)
-                l_Caster->CastSpell(*at, eSpell::SporeShotDamage, true);
+                caster->CastSpell(*at, eSpell::SporeShotDamage, true);
         }
     }
 };
@@ -1794,21 +1794,21 @@ public:
         CreepingMossHealing = 165494
     };
 
-    void OnUnitEnter(Unit* p_Unit) override
+    void OnUnitEnter(Unit* unit) override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            if (p_Unit->IsFriendlyTo(l_Caster))
-                p_Unit->CastSpell(p_Unit, eSpell::CreepingMossHealing, true, nullptr, nullptr, l_Caster->GetGUID());
+            if (unit->IsFriendlyTo(caster))
+                unit->CastSpell(unit, eSpell::CreepingMossHealing, true, nullptr, nullptr, caster->GetGUID());
             else
-                p_Unit->CastSpell(p_Unit, eSpell::CreepingMossDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                unit->CastSpell(unit, eSpell::CreepingMossDamage, true, nullptr, nullptr, caster->GetGUID());
         }
     }
 
-    void OnUnitExit(Unit* p_Unit) override
+    void OnUnitExit(Unit* unit) override
     {
-        p_Unit->RemoveAura(eSpell::CreepingMossDamage);
-        p_Unit->RemoveAura(eSpell::CreepingMossHealing);
+        unit->RemoveAura(eSpell::CreepingMossDamage);
+        unit->RemoveAura(eSpell::CreepingMossHealing);
     }
 };
 
@@ -1845,30 +1845,30 @@ public:
         at->SetDestination(pos, 5000);
     }
 
-    void OnUpdate(uint32 p_Time) override
+    void OnUpdate(uint32 diff) override
     {
         //at->SearchUnitInBox(32, 4, 40);
 
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            if (timer <= p_Time)
+            if (timer <= diff)
             {
                 if (instance)
                 {
-                    std::list<Unit*> l_TargetList;
+                    std::list<Unit*> targetList;
 
                     Trinity::AnyUnitInObjectRangeCheck l_Check(at, 35);
-                    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> l_Searcher(at, l_TargetList, l_Check);
+                    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
                     Cell::VisitAllObjects(at, l_Searcher, 35.f);
 
-                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    targetList.remove_if([this](Unit* unit) -> bool
                     {
                         float unitX, unitY, unitZ;
 
-                        unitX = at->GetPositionX() + (p_Unit->GetPositionX() - at->GetPositionX()) * cos(at->GetOrientation()) - (p_Unit->GetPositionY() - at->GetPositionY()) * sin(at->GetOrientation());
-                        unitY = at->GetPositionY() + (p_Unit->GetPositionX() - at->GetPositionX()) * sin(at->GetOrientation()) + (p_Unit->GetPositionY() - at->GetPositionY()) * cos(at->GetOrientation());
+                        unitX = at->GetPositionX() + (unit->GetPositionX() - at->GetPositionX()) * cos(at->GetOrientation()) - (unit->GetPositionY() - at->GetPositionY()) * sin(at->GetOrientation());
+                        unitY = at->GetPositionY() + (unit->GetPositionX() - at->GetPositionX()) * sin(at->GetOrientation()) + (unit->GetPositionY() - at->GetPositionY()) * cos(at->GetOrientation());
 
-                        unitZ = p_Unit->GetPositionZ();
+                        unitZ = unit->GetPositionZ();
 
                         float minX = at->GetPositionX() - (16.0f);
                         float maxX = at->GetPositionX() + (16.0f);
@@ -1889,16 +1889,16 @@ public:
                         return true;
                     });
 
-                    for (auto l_Target : l_TargetList)
+                    for (auto target : targetList)
                         if (Creature* brackenspore = instance->instance->GetCreature(instance->GetGuidData(eHighmaulCreatures::Brackenspore)))
-                            l_Target->CastSpell(l_Target, CallOfTheTidesDamage, true, nullptr, nullptr, brackenspore->GetGUID());
+                            target->CastSpell(target, CallOfTheTidesDamage, true, nullptr, nullptr, brackenspore->GetGUID());
                 }
                         
 
                 timer = 1 * IN_MILLISECONDS;
             }
             else
-                timer -= p_Time;
+                timer -= diff;
         }
     }
 };

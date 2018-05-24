@@ -282,9 +282,9 @@ public:
                 me->GetMotionMaster()->MoveFollow(player, 0.05f, followAngle);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& p_Damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (p_Damage >= me->GetHealth())
+            if (damage >= me->GetHealth())
                 me->SetFullHealth();
         }
 
@@ -324,8 +324,8 @@ public:
 
             if (!me->IsWithinMeleeRange(escortedPlayerVictim))
             {
-                Position l_Pos = l_EscortedPlayer->GetPosition();
-                me->GetMotionMaster()->MoveCharge(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, me->GetSpeed(MOVE_RUN));
+                Position pos = l_EscortedPlayer->GetPosition();
+                me->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, me->GetSpeed(MOVE_RUN));
                 return;
             }
 

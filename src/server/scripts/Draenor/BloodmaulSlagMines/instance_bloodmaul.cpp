@@ -258,9 +258,9 @@ namespace Instances
                             {
                                 if (state == EncounterState::NOT_STARTED)
                                 {
-                                    /*for (ObjectGuid l_Guid : m_CapturedMinerGuids)
+                                    /*for (ObjectGuid guid : m_CapturedMinerGuids)
                                     {
-                                        if (Creature* l_CapturedMiner = ObjectAccessor::GetCreature(l_Guid))
+                                        if (Creature* l_CapturedMiner = ObjectAccessor::GetCreature(guid))
                                             l_CapturedMiner->DespawnOrUnsummon();
                                     }*/
 
@@ -269,9 +269,9 @@ namespace Instances
                                 }
                                 else if (state == EncounterState::DONE)
                                 {
-                                    /*for (ObjectGuid l_Guid : m_CapturedMinerGuids)
+                                    /*for (ObjectGuid guid : m_CapturedMinerGuids)
                                     {
-                                        if (Creature* l_CapturedMiner = ObjectAccessor::GetCreature(l_Guid))
+                                        if (Creature* l_CapturedMiner = ObjectAccessor::GetCreature(guid))
                                         {
                                             //if (l_CapturedMiner->AI())
                                             //    l_CapturedMiner->AI()->Talk(uint32(Talks::CapturedMinerReleased));
@@ -385,9 +385,9 @@ namespace Instances
                             case uint32(Data::RaiseTheMinersChangeTarget):
                                 if (Player* l_Plr = ObjectAccessor::FindPlayer(data))
                                 {
-                                    /*for (auto l_Guid : m_CapturedMinerGuids)
+                                    /*for (auto guid : m_CapturedMinerGuids)
                                     {
-                                        if (Creature* summon = ObjectAccessor::GetCreature(l_Guid))
+                                        if (Creature* summon = ObjectAccessor::GetCreature(guid))
                                             summon->GetMotionMaster()->MoveChase(l_Plr);
                                     }*/
                                 }
@@ -458,9 +458,9 @@ namespace Instances
                         if (m_CheckZPosTimer <= diff)
                         {
                             Map::PlayerList const& playerList = instance->GetPlayers();
-                            for (Map::PlayerList::const_iterator l_Iter = playerList.begin(); l_Iter != playerList.end(); ++l_Iter)
+                            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                             {
-                                if (Player* player = l_Iter->GetSource())
+                                if (Player* player = itr->GetSource())
                                 {
                                     if (player->GetPositionZ() <= 150.0f)
                                         player->Kill(player);

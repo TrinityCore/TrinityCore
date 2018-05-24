@@ -31,43 +31,43 @@ uint8 GetEnergyGainFromHealth(float p_HealthPct)
         return 5;
 }
 
-void RespawnGuardians(Creature* p_Source, InstanceScript* p_Instance)
+void RespawnGuardians(Creature* source, InstanceScript* p_Instance)
 {
-    if (p_Source == nullptr || p_Instance == nullptr)
+    if (source == nullptr || p_Instance == nullptr)
         return;
 
-    if (Creature* l_Rokka = ObjectAccessor::GetCreature(*p_Source, p_Instance->GetGuidData(eHighmaulCreatures::Rokka)))
+    if (Creature* l_Rokka = ObjectAccessor::GetCreature(*source, p_Instance->GetGuidData(eHighmaulCreatures::Rokka)))
     {
         l_Rokka->Respawn();
         l_Rokka->GetMotionMaster()->MoveTargetedHome();
     }
 
-    if (Creature* l_Lokk = ObjectAccessor::GetCreature(*p_Source, p_Instance->GetGuidData(eHighmaulCreatures::Lokk)))
+    if (Creature* l_Lokk = ObjectAccessor::GetCreature(*source, p_Instance->GetGuidData(eHighmaulCreatures::Lokk)))
     {
         l_Lokk->Respawn();
         l_Lokk->GetMotionMaster()->MoveTargetedHome();
     }
 
-    if (Creature* l_Oro = ObjectAccessor::GetCreature(*p_Source, p_Instance->GetGuidData(eHighmaulCreatures::Oro)))
+    if (Creature* l_Oro = ObjectAccessor::GetCreature(*source, p_Instance->GetGuidData(eHighmaulCreatures::Oro)))
     {
         l_Oro->Respawn();
         l_Oro->GetMotionMaster()->MoveTargetedHome();
     }
 }
 
-void StartGuardians(Creature* p_Source, Unit* p_Target)
+void StartGuardians(Creature* source, Unit* target)
 {
-    if (p_Source == nullptr || p_Target == nullptr)
+    if (source == nullptr || target == nullptr)
         return;
 
-    if (Creature* l_Rokka = p_Source->FindNearestCreature(eHighmaulCreatures::Rokka, 100.0f))
-        l_Rokka->AI()->AttackStart(p_Target);
+    if (Creature* l_Rokka = source->FindNearestCreature(eHighmaulCreatures::Rokka, 100.0f))
+        l_Rokka->AI()->AttackStart(target);
 
-    if (Creature* l_Lokk = p_Source->FindNearestCreature(eHighmaulCreatures::Lokk, 100.0f))
-        l_Lokk->AI()->AttackStart(p_Target);
+    if (Creature* l_Lokk = source->FindNearestCreature(eHighmaulCreatures::Lokk, 100.0f))
+        l_Lokk->AI()->AttackStart(target);
 
-    if (Creature* l_Oro = p_Source->FindNearestCreature(eHighmaulCreatures::Oro, 100.0f))
-        l_Oro->AI()->AttackStart(p_Target);
+    if (Creature* l_Oro = source->FindNearestCreature(eHighmaulCreatures::Oro, 100.0f))
+        l_Oro->AI()->AttackStart(target);
 }
 
 /// Tectus <The Living Mountain> - 78948
@@ -174,9 +174,9 @@ class boss_tectus : public CreatureScript
 
         struct boss_tectusAI : public BossAI
         {
-            boss_tectusAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTectus)
+            boss_tectusAI(Creature* creature) : BossAI(creature, eHighmaulDatas::BossTectus)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             EventMap m_Events;
@@ -306,9 +306,9 @@ class boss_tectus : public CreatureScript
                 return false;
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                switch (p_Action)
+                switch (action)
                 {
                     case eActions::GuardianDead:
                     {
@@ -360,11 +360,11 @@ class boss_tectus : public CreatureScript
                             AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                                if (Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource())
+                                if (Player* player = me->GetMap()->GetPlayers().begin()->GetSource())
                                 {
-                                    l_Player->CastSpell(me, eSpells::SuicideNoBloodNoLogging, true);
+                                    player->CastSpell(me, eSpells::SuicideNoBloodNoLogging, true);
                                     if(me->GetLootRecipient() == nullptr)
-                                        me->SetLootRecipient(l_Player);
+                                        me->SetLootRecipient(player);
                                 }
                             });
                         }
@@ -376,7 +376,7 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 if (!AllGardiansDead())
                 {
@@ -419,13 +419,13 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void KilledUnit(Unit* killed) override
             {
-                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER && me->GetEntry() == eHighmaulCreatures::Tectus)
+                if (killed->GetTypeId() == TypeID::TYPEID_PLAYER && me->GetEntry() == eHighmaulCreatures::Tectus)
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (me->GetEntry() == eHighmaulCreatures::Tectus)
                     _JustDied();
@@ -442,17 +442,17 @@ class boss_tectus : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
 
-                    Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
-                    if (l_PlayerList.isEmpty())
+                    Map::PlayerList const& playerList = m_Instance->instance->GetPlayers();
+                    if (playerList.isEmpty())
                         return;
 
-                    for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                    for (Map::PlayerList::const_iterator l_Itr = playerList.begin(); l_Itr != playerList.end(); ++l_Itr)
                     {
-                        if (Player* l_Player = l_Itr->GetSource())
+                        if (Player* player = l_Itr->GetSource())
                         {
                             /// Hacky but don't know why combat doesn't stop
-                            if (!l_Player->isAttackingPlayer())
-                                l_Player->CombatStop();
+                            if (!player->isAttackingPlayer())
+                                player->CombatStop();
                         }
                     }
 
@@ -461,9 +461,9 @@ class boss_tectus : public CreatureScript
 
                     /*if (IsLFR())
                     {
-                        Player* l_Player = l_PlayerList.begin()->GetSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        Player* player = playerList.begin()->GetSource();
+                        if (player && player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, player->GetGroup());
                     }*/
                 }
 
@@ -520,15 +520,15 @@ class boss_tectus : public CreatureScript
                 m_MoteKilled = 0;
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::FractureSearcher:
-                        me->CastSpell(p_Target, eSpells::FractureMissile, true);
+                        me->CastSpell(target, eSpells::FractureMissile, true);
                         break;
                     case eSpells::Petrification:
                         if (m_CanEternalTalk)
@@ -547,20 +547,20 @@ class boss_tectus : public CreatureScript
                         break;
                     case eSpells::SpawnTectusShards:
                     {
-                        p_Target->PlayOneShotAnimKitId(eAnimKits::AnimRise2);
-                        p_Target->RestoreDisplayId();
+                        target->PlayOneShotAnimKitId(eAnimKits::AnimRise2);
+                        target->RestoreDisplayId();
 
-                        ObjectGuid l_Guid = p_Target->GetGUID();
-                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                        ObjectGuid guid = target->GetGUID();
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
                         {
-                            if (Unit* l_Target = ObjectAccessor::GetUnit(*me, l_Guid))
-                                l_Target->CastSpell(l_Target, eSpells::EarthFurySpawnDustCloud, true);
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
+                                target->CastSpell(target, eSpells::EarthFurySpawnDustCloud, true);
                         });
 
-                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
                         {
-                            if (Unit* l_Target = ObjectAccessor::GetUnit(*me, l_Guid))
-                                l_Target->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
+                                target->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
                         });
 
                         break;
@@ -570,26 +570,26 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* attacker, uint32& damage) override
             {
                 /// Prevent bug when boss instakills himself
-                if (p_Attacker == me)
+                if (attacker == me)
                     return;
 
                 /// Prevent boss from dying too soon
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 {
-                    p_Damage = 0;
+                    damage = 0;
                     return;
                 }
 
                 /// This buff cause Tectus to be unkillable, although he can still be damaged during this time.
-                if (p_Damage > me->GetHealth())
+                if (damage > me->GetHealth())
                 {
                     if (me->HasAura(eSpells::TheLivingMountain) || me->HasAura(eSpells::ShardOfTheMountain))
                     {
                         me->SetHealth(1);
-                        p_Damage = 0;
+                        damage = 0;
                         return;
                     }
                     else
@@ -604,7 +604,7 @@ class boss_tectus : public CreatureScript
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllAreaTriggers();
                             me->SetHealth(1);
-                            p_Damage = 0;
+                            damage = 0;
 
                             me->CastSpell(me, eSpells::EncounterEvent, true);
                             me->CastSpell(me, eSpells::BreakPlayerTargetting, true);
@@ -644,7 +644,7 @@ class boss_tectus : public CreatureScript
                                 me->CastSpell(me, HollowedShardOfTheMountain);
 
                             me->SetHealth(me->GetMaxHealth() * 0.2f);
-                            p_Damage = 0;
+                            damage = 0;
 
                             me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
                             me->RemoveAurasDueToSpell(TheLivingMountain);
@@ -676,20 +676,20 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*power*/, int32& value) override
             {
                 /// Tectus only regens by script
-                p_Value = 0;
+                value = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                UpdateOperations(p_Diff);
+                UpdateOperations(diff);
 
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -728,17 +728,17 @@ class boss_tectus : public CreatureScript
                     }
                     case eEvents::EventCrystallineBarrage:
                     {
-                        Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST, 0);
+                        Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0);
 
-                        if (l_Target == nullptr)
-                            l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true);
+                        if (target == nullptr)
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true);
 
-                        if (l_Target)
+                        if (target)
                         {
-                            Talk(eTalks::CrystallineBarrage, l_Target);
+                            Talk(eTalks::CrystallineBarrage, target);
 
-                            me->CastSpell(l_Target, eSpells::SpellCrystallineBarrage, true);
-                            m_CrystallineBarrageTarget = l_Target->GetGUID();
+                            me->CastSpell(target, eSpells::SpellCrystallineBarrage, true);
+                            m_CrystallineBarrageTarget = target->GetGUID();
 
                             AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
@@ -755,9 +755,9 @@ class boss_tectus : public CreatureScript
                     }
                     case eEvents::EventSpawnCrystalline:
                     {
-                        if (Unit* l_Target = ObjectAccessor::GetUnit(*me, m_CrystallineBarrageTarget))
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, m_CrystallineBarrageTarget))
                         {
-                            if (!l_Target->HasAura(eSpells::SpellCrystallineBarrage))
+                            if (!target->HasAura(eSpells::SpellCrystallineBarrage))
                             {
                                 m_CrystallineBarrageTarget = ObjectGuid::Empty;
                                 m_FirstCrystalline = Position();
@@ -767,9 +767,9 @@ class boss_tectus : public CreatureScript
                             float l_Range = 2.0f;
                             float l_Z = me->GetPositionZ();
 
-                            float l_Orientation = m_FirstCrystalline.GetAngle(l_Target);
-                            float l_X = m_FirstCrystalline.m_positionX + (l_Range * cos(l_Orientation));
-                            float l_Y = m_FirstCrystalline.m_positionY + (l_Range * sin(l_Orientation));
+                            float orientation = m_FirstCrystalline.GetAngle(target);
+                            float l_X = m_FirstCrystalline.m_positionX + (l_Range * cos(orientation));
+                            float l_Y = m_FirstCrystalline.m_positionY + (l_Range * sin(orientation));
                             me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
 
                             m_FirstCrystalline.m_positionX = l_X;
@@ -790,8 +790,8 @@ class boss_tectus : public CreatureScript
                     {
                         Talk(eTalks::EarthenPillar);
 
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
-                            me->SummonCreature(eCreatures::EarthenPillarStalker, l_Target->GetPositionX(), l_Target->GetPositionY(), me->GetPositionZ());
+                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
+                            me->SummonCreature(eCreatures::EarthenPillarStalker, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ());
                         // If no ranged damage dealer found, target random
                         else if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                             me->SummonCreature(eCreatures::EarthenPillarStalker, victim->GetPositionX(), victim->GetPositionY(), me->GetPositionZ());
@@ -859,9 +859,9 @@ class boss_tectus : public CreatureScript
 
                 for (uint8 l_I = 0; l_I < eMiscs::ShardSpawnCount; ++l_I)
                 {
-                    float l_Orientation = frand(0, 2 * M_PI);
-                    float l_X = l_OrigX + (l_Range * cos(l_Orientation));
-                    float l_Y = l_OrigY + (l_Range * sin(l_Orientation));
+                    float orientation = frand(0, 2 * M_PI);
+                    float l_X = l_OrigX + (l_Range * cos(orientation));
+                    float l_Y = l_OrigY + (l_Range * sin(orientation));
 
                     if (Creature* l_Shard = me->SummonCreature(eCreatures::ShardOfTectus, l_X, l_Y, l_Z))
                         me->CastSpell(l_Shard, eSpells::SpawnTectusShards, true);
@@ -877,9 +877,9 @@ class boss_tectus : public CreatureScript
 
                 for (uint8 l_I = 0; l_I < eMiscs::MotesSpawnCount; ++l_I)
                 {
-                    float l_Orientation = frand(0, 2 * M_PI);
-                    float l_X = l_OrigX + (l_Range * cos(l_Orientation));
-                    float l_Y = l_OrigY + (l_Range * sin(l_Orientation));
+                    float orientation = frand(0, 2 * M_PI);
+                    float l_X = l_OrigX + (l_Range * cos(orientation));
+                    float l_Y = l_OrigY + (l_Range * sin(orientation));
 
                     if (Creature* l_Mote = me->SummonCreature(eCreatures::MoteOfTectus, l_X, l_Y, l_Z))
                         me->CastSpell(l_Mote, eSpells::SpawnTectusShards, true);
@@ -888,17 +888,17 @@ class boss_tectus : public CreatureScript
 
             void SpawnAdd(uint32 p_Entry)
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 70.0f, true))
+                if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 70.0f, true))
                 {
                     float l_O = frand(0, 2 * M_PI);
                     float l_Range = 5.0f;
-                    float l_X = l_Target->GetPositionX() + (l_Range * cos(l_O));
-                    float l_Y = l_Target->GetPositionY() + (l_Range * sin(l_O));
+                    float l_X = target->GetPositionX() + (l_Range * cos(l_O));
+                    float l_Y = target->GetPositionY() + (l_Range * sin(l_O));
 
                     if (Creature* l_Add = me->SummonCreature(p_Entry, l_X, l_Y, me->GetPositionZ()))
                     {
                         if (l_Add->IsAIEnabled)
-                            l_Add->AI()->AttackStart(l_Target);
+                            l_Add->AI()->AttackStart(target);
                     }
                 }
             }
@@ -914,9 +914,9 @@ class boss_tectus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_tectusAI(p_Creature);
+            return new boss_tectusAI(creature);
         }
 };
 
@@ -943,7 +943,7 @@ class npc_highmaul_night_twisted_supplicant : public CreatureScript
 
         struct npc_highmaul_night_twisted_supplicantAI : public ScriptedAI
         {
-            npc_highmaul_night_twisted_supplicantAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_night_twisted_supplicantAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -958,12 +958,12 @@ class npc_highmaul_night_twisted_supplicant : public CreatureScript
                 return false;
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr || p_SpellInfo->Id != eSpell::NightTwistedCovenant)
+                if (target == nullptr || spellInfo->Id != eSpell::NightTwistedCovenant)
                     return;
 
-                p_Target->SetDisplayId(eDisplay::InvisDisplay);
+                target->SetDisplayId(eDisplay::InvisDisplay);
             }
 
             void MoveInLineOfSight(Unit* p_Mover) override
@@ -997,9 +997,9 @@ class npc_highmaul_night_twisted_supplicant : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_night_twisted_supplicantAI(p_Creature);
+            return new npc_highmaul_night_twisted_supplicantAI(creature);
         }
 };
 
@@ -1042,9 +1042,9 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
 
         struct npc_highmaul_rokka_and_lokkAI : public ScriptedAI
         {
-            npc_highmaul_rokka_and_lokkAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_rokka_and_lokkAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
                 m_Risen = false;
             }
 
@@ -1079,26 +1079,26 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                 return false;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* attacker) override
             {
-                StartGuardians(me, p_Attacker);
+                StartGuardians(me, attacker);
 
                 m_Events.ScheduleEvent(eEvents::EventEarthenThrust, 6 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventMeteoricEarthspire, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HasAura(eSpells::ReconstitutionScale))
                     return;
 
-                if (me->HealthBelowPctDamaged(21, p_Damage))
+                if (me->HealthBelowPctDamaged(21, damage))
                     m_Events.RescheduleEvent(eEvents::EventReconstitution, 100);
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                if (p_Action == eActions::Rise && !m_Risen)
+                if (action == eActions::Rise && !m_Risen)
                 {
                     m_Risen = true;
                     me->SetAIAnimKitId(0);
@@ -1112,20 +1112,20 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* l_Tectus = me->FindNearestCreature(eHighmaulCreatures::Tectus, 100.0f))
                     l_Tectus->AI()->DoAction(eActions::GuardianDead);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1137,8 +1137,8 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventEarthenThrust, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventMeteoricEarthspire:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::MeteoricEarthspire, false);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, eSpells::MeteoricEarthspire, false);
                         m_Events.ScheduleEvent(eEvents::EventMeteoricEarthspire, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventReconstitution:
@@ -1153,9 +1153,9 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_rokka_and_lokkAI(p_Creature);
+            return new npc_highmaul_rokka_and_lokkAI(creature);
         }
 };
 
@@ -1196,9 +1196,9 @@ class npc_highmaul_oro : public CreatureScript
 
         struct npc_highmaul_oroAI : public ScriptedAI
         {
-            npc_highmaul_oroAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_oroAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
                 m_Risen = false;
             }
 
@@ -1233,17 +1233,17 @@ class npc_highmaul_oro : public CreatureScript
                 return false;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* attacker) override
             {
-                StartGuardians(me, p_Attacker);
+                StartGuardians(me, attacker);
 
                 m_Events.ScheduleEvent(eEvents::EventStoneboltVolley, 6 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRadiatingPoison, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                if (p_Action == eActions::Rise && !m_Risen)
+                if (action == eActions::Rise && !m_Risen)
                 {
                     m_Risen = true;
                     me->SetAIAnimKitId(0);
@@ -1257,29 +1257,29 @@ class npc_highmaul_oro : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (m_Events.HasEvent(eEvents::EventReconstitution) || me->HasAura(eSpells::ReconstitutionScale))
                     return;
 
-                if (me->HealthBelowPctDamaged(21, p_Damage))
+                if (me->HealthBelowPctDamaged(21, damage))
                     m_Events.ScheduleEvent(eEvents::EventReconstitution, 100);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* l_Tectus = me->FindNearestCreature(eHighmaulCreatures::Tectus, 100.0f))
                     l_Tectus->AI()->DoAction(eActions::GuardianDead);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1291,8 +1291,8 @@ class npc_highmaul_oro : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventStoneboltVolley, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventRadiatingPoison:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::RadiatingPoison, false);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, eSpells::RadiatingPoison, false);
                         m_Events.ScheduleEvent(eEvents::EventRadiatingPoison, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventReconstitution:
@@ -1307,9 +1307,9 @@ class npc_highmaul_oro : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_oroAI(p_Creature);
+            return new npc_highmaul_oroAI(creature);
         }
 };
 
@@ -1321,7 +1321,7 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
 
         struct npc_highmaul_earthen_pillar_stalkerAI: public ScriptedAI
         {
-            npc_highmaul_earthen_pillar_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+            npc_highmaul_earthen_pillar_stalkerAI(Creature* creature) : ScriptedAI(creature) {}
 
             ObjectGuid m_PillarGuid;
 
@@ -1346,9 +1346,9 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
                 me->CastSpell(me, eSpells::EarthenPillarTimer, true);
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                if (p_Action)
+                if (action)
                     return;
 
                 me->CastSpell(me, eSpells::EarthenPillarKill, true);
@@ -1372,9 +1372,9 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_earthen_pillar_stalkerAI(p_Creature);
+            return new npc_highmaul_earthen_pillar_stalkerAI(creature);
         }
 };
 
@@ -1386,7 +1386,7 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
 
         struct npc_highmaul_night_twisted_berserkerAI : public ScriptedAI
         {
-            npc_highmaul_night_twisted_berserkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_night_twisted_berserkerAI(Creature* creature) : ScriptedAI(creature) { }
 
             enum eSpells
             {
@@ -1413,40 +1413,40 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 Talk(eTalk::Aggro);
 
                 m_Events.ScheduleEvent(eEvent::EventRavingAssault, 8 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Victim, SpellInfo const* spellInfo) override
             {
-                if (p_Victim == nullptr || p_Victim == me->ToUnit() || p_SpellInfo->Id != eSpells::RavingAssault)
+                if (p_Victim == nullptr || p_Victim == me->ToUnit() || spellInfo->Id != eSpells::RavingAssault)
                     return;
 
-                Position l_Pos  = *p_Victim;
-                float l_Angle   = me->GetRelativeAngle(l_Pos.GetPositionX(), l_Pos.GetPositionY());
-                float l_Dist    = me->GetDistance(l_Pos);
+                Position pos  = *p_Victim;
+                float l_Angle   = me->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
+                float dist    = me->GetDistance(pos);
 
-                l_Pos = me->GetFirstCollisionPosition(l_Dist, l_Angle);
-                me->GetMotionMaster()->MoveCharge(&l_Pos, SPEED_CHARGE, eSpells::RavingAssault);
+                pos = me->GetFirstCollisionPosition(dist, l_Angle);
+                me->GetMotionMaster()->MoveCharge(&pos, SPEED_CHARGE, eSpells::RavingAssault);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
-                if (p_ID != eSpells::RavingAssault)
+                if (id != eSpells::RavingAssault)
                     return;
 
                 me->RemoveAura(eSpells::RavingAssault);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1455,8 +1455,8 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
                 {
                     case eEvent::EventRavingAssault:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::RavingAssault, false);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, eSpells::RavingAssault, false);
                         m_Events.ScheduleEvent(eEvent::EventRavingAssault, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -1468,9 +1468,9 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_night_twisted_berserkerAI(p_Creature);
+            return new npc_highmaul_night_twisted_berserkerAI(creature);
         }
 };
 
@@ -1482,7 +1482,7 @@ class npc_highmaul_night_twisted_earthwarper : public CreatureScript
 
         struct npc_highmaul_night_twisted_earthwarperAI : public ScriptedAI
         {
-            npc_highmaul_night_twisted_earthwarperAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_night_twisted_earthwarperAI(Creature* creature) : ScriptedAI(creature) { }
 
             enum eSpells
             {
@@ -1511,7 +1511,7 @@ class npc_highmaul_night_twisted_earthwarper : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 Talk(eTalk::Aggro);
 
@@ -1519,12 +1519,12 @@ class npc_highmaul_night_twisted_earthwarper : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventGiftOfEarth, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1547,9 +1547,9 @@ class npc_highmaul_night_twisted_earthwarper : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_night_twisted_earthwarperAI(p_Creature);
+            return new npc_highmaul_night_twisted_earthwarperAI(creature);
         }
 };
 
@@ -1568,15 +1568,15 @@ class spell_highmaul_meteoric_earthspire : public SpellScriptLoader
                 RupturedEarth = 172078
             };
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (!p_Targets.empty())
+                if (!targets.empty())
                     return;
 
-                if (Unit* l_Caster = GetCaster())
+                if (Unit* caster = GetCaster())
                 {
                     if (WorldLocation const* l_Location = GetExplTargetDest())
-                        l_Caster->CastSpell(*l_Location, eSpell::RupturedEarth, true);
+                        caster->CastSpell(*l_Location, eSpell::RupturedEarth, true);
                 }
             }
 
@@ -1607,21 +1607,21 @@ class spell_highmaul_stonebolt_volley : public SpellScriptLoader
                 RupturedEarth = 172078
             };
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (p_Targets.empty())
+                if (targets.empty())
                     return;
 
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                Unit* caster = GetCaster();
+                if (caster == nullptr)
                     return;
 
-                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                targets.remove_if([this, caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;
 
-                    if (p_Object->GetDistance(l_Caster) <= 5.0f)
+                    if (p_Object->GetDistance(caster) <= 5.0f)
                         return true;
 
                     return false;
@@ -1658,35 +1658,35 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                 ScheduleTectonicUpheaval
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Creature* l_Target = GetTarget()->ToCreature())
+                if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (!l_Target->IsInCombat())
+                    if (!target->IsInCombat())
                         return;
 
-                    uint32 l_OldPower = l_Target->GetPower(Powers::POWER_ENERGY);
-                    int32 l_PowerGain = GetEnergyGainFromHealth(l_Target->GetHealthPct());
-                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, l_PowerGain, Powers::POWER_ENERGY);
+                    uint32 l_OldPower = target->GetPower(Powers::POWER_ENERGY);
+                    int32 l_PowerGain = GetEnergyGainFromHealth(target->GetHealthPct());
+                    target->EnergizeBySpell(target, GetSpellInfo()->Id, l_PowerGain, Powers::POWER_ENERGY);
                     uint32 l_NewPower = l_OldPower + l_PowerGain;
 
-                    if (l_Target->IsAIEnabled)
+                    if (target->IsAIEnabled)
                     {
                         if (l_NewPower >= 100)
-                            l_Target->AI()->DoAction(eActions::ScheduleTectonicUpheaval);
+                            target->AI()->DoAction(eActions::ScheduleTectonicUpheaval);
                         else
                         {
                             /// On Mythic difficulty, Tectus also uses this ability at 50 Energy.
-                            if (l_Target->GetMap()->IsMythic())
+                            if (target->GetMap()->IsMythic())
                             {
                                 if ((l_OldPower < 25 && l_NewPower >= 25) ||
                                     (l_OldPower < 50 && l_NewPower >= 50))
-                                    l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
+                                    target->AI()->DoAction(eActions::ScheduleEarthenPillar);
                             }
                             else
                             {
                                 if (l_OldPower < 25 && l_NewPower >= 25)
-                                    l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
+                                    target->AI()->DoAction(eActions::ScheduleEarthenPillar);
                             }
                         }
                     }
@@ -1715,12 +1715,12 @@ class spell_highmaul_earthen_pillar_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Creature* l_Target = GetTarget()->ToCreature())
+                if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (l_Target->IsAIEnabled)
-                        l_Target->AI()->DoAction(0);
+                    if (target->IsAIEnabled)
+                        target->AI()->DoAction(0);
                 }
             }
 
@@ -1760,17 +1760,17 @@ class spell_highmaul_accretion : public SpellScriptLoader
                 return true;
             }
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     m_DamageTaken += p_EventInfo.GetDamageInfo()->GetDamage();
 
-                    if (m_DamageTaken >= l_Target->CountPctFromMaxHealth(2))
+                    if (m_DamageTaken >= target->CountPctFromMaxHealth(2))
                     {
-                        p_AurEff->GetBase()->ModStackAmount(-1);
+                        aurEff->GetBase()->ModStackAmount(-1);
                         m_DamageTaken = 0;
                     }
                 }
@@ -1831,21 +1831,21 @@ class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, -10, Powers::POWER_ENERGY);
+                if (Unit* target = GetTarget())
+                    target->EnergizeBySpell(target, GetSpellInfo()->Id, -10, Powers::POWER_ENERGY);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                     if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_CANCEL)
-                        l_Target->CastSpell(l_Target, eSpell::Petrification, true);
+                        target->CastSpell(target, eSpell::Petrification, true);
 
-                    l_Target->SetPower(Powers::POWER_ENERGY, 0);
+                    target->SetPower(Powers::POWER_ENERGY, 0);
                 }
             }
 
@@ -1872,15 +1872,15 @@ class spell_highmaul_spawn_dust_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget() == nullptr)
                     return;
 
-                if (Creature* l_Target = GetTarget()->ToCreature())
+                if (Creature* target = GetTarget()->ToCreature())
                 {
-                    l_Target->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    l_Target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    target->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 }
             }
 
@@ -1911,26 +1911,26 @@ class spell_highmaul_earthen_flechettes : public SpellScriptLoader
                 TargetRestrict = 22531
             };
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (p_Targets.empty())
+                if (targets.empty())
                     return;
 
                 SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
                 if (l_Restriction == nullptr)
                     return;
 
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                Unit* caster = GetCaster();
+                if (caster == nullptr)
                     return;
 
                 float l_Angle = 2 * float(M_PI) / 360 * l_Restriction->ConeDegrees;
-                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                targets.remove_if([caster, l_Angle](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;
 
-                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                    if (!p_Object->isInFront(caster, l_Angle))
                         return true;
 
                     return false;
@@ -1964,11 +1964,11 @@ class spell_highmaul_petrification : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     if (Unit* l_Attacker = p_EventInfo.GetActor())
                     {
@@ -2015,29 +2015,29 @@ class spell_highmaul_raving_assault : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 diff)
             {
                 if (m_DamageTimer)
                 {
-                    if (m_DamageTimer <= p_Diff)
+                    if (m_DamageTimer <= diff)
                     {
-                        if (Unit* l_Caster = GetCaster())
+                        if (Unit* caster = GetCaster())
                         {
-                            std::list<Unit*> l_TargetList;
-                            float l_Radius = 1.0f;
+                            std::list<Unit*> targetList;
+                            float radius = 1.0f;
 
-                            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
-                            Cell::VisitAllObjects(l_Caster, l_Searcher, l_Radius);
+                            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(caster, caster, radius);
+                            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(caster, targetList, l_Check);
+                            Cell::VisitAllObjects(caster, l_Searcher, radius);
 
-                            for (Unit* l_Iter : l_TargetList)
-                                l_Caster->CastSpell(l_Iter, eSpell::RavingAssaultDamage, true);
+                            for (Unit* itr : targetList)
+                                caster->CastSpell(itr, eSpell::RavingAssaultDamage, true);
                         }
 
                         m_DamageTimer = 500;
                     }
                     else
-                        m_DamageTimer -= p_Diff;
+                        m_DamageTimer -= diff;
                 }
             }
 
@@ -2064,24 +2064,24 @@ public:
         CrystallineBarrage = 162370
     };
 
-    void OnUpdate(uint32 p_Time) override
+    void OnUpdate(uint32 /*diff*/) override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = 10.0f;
+            std::list<Unit*> targetList;
+            float radius = 10.0f;
 
-            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, l_Caster, l_Radius);
-            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, l_TargetList, l_Check);
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
 
-            Cell::VisitAllObjects(at, l_Searcher, l_Radius);
+            Cell::VisitAllObjects(at, l_Searcher, radius);
 
-            for (Unit* l_Unit : l_TargetList)
+            for (Unit* l_Unit : targetList)
             {
                 if (l_Unit->GetDistance(at) <= 2.0f)
                 {
                     if (!l_Unit->HasAura(eSpell::CrystallineBarrage))
-                        l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
+                        caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
                 }
                 /*else if (!l_Unit->SelectNearestAreaTrigger(at->GetSpellId(), 2.0f))
                 {
@@ -2094,16 +2094,16 @@ public:
         
     void OnRemove() override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = 10.0f;
+            std::list<Unit*> targetList;
+            float radius = 10.0f;
 
-            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, l_Caster, l_Radius);
-            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, l_TargetList, l_Check);
-            Cell::VisitAllObjects(at, l_Searcher, l_Radius);
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+            Cell::VisitAllObjects(at, l_Searcher, radius);
                 
-            for (Unit* l_Unit : l_TargetList)
+            for (Unit* l_Unit : targetList)
             {
                 /*if (!l_Unit->SelectNearestAreaTrigger(at->GetSpellId(), 2.0f))
                 {
@@ -2133,13 +2133,13 @@ public:
             at->SetDestination(*l_Tectus, 5000);
     }
 
-    void OnUpdate(uint32 p_Time) override
+    void OnUpdate(uint32 /*diff*/) override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            if (Player* l_Target = at->SelectNearestPlayer(1.0f))
+            if (Player* target = at->SelectNearestPlayer(1.0f))
             {
-                l_Caster->CastSpell(l_Target, eSpells::Petrification, true);
+                caster->CastSpell(target, eSpells::Petrification, true);
                 at->SetDuration(1);
             }
             else if (Creature* l_Tectus = at->FindNearestCreature(eHighmaulCreatures::Tectus, 1.0f))

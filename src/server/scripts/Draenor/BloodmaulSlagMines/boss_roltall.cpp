@@ -325,9 +325,9 @@ namespace Instances { namespace Bloodmaul
 
                 G3D::Vector3 GetBurningSlagSpawnPos()
                 {
-                    float l_PosX = frand(s_MinPositionX, s_MaxPositionX);
-                    float l_PosY = frand(s_MinPositionY, s_MaxPositionY);
-                    return G3D::Vector3(l_PosX, l_PosY, s_PositionZ);
+                    float posX = frand(s_MinPositionX, s_MaxPositionX);
+                    float posY = frand(s_MinPositionY, s_MaxPositionY);
+                    return G3D::Vector3(posX, posY, s_PositionZ);
                 }
             };
 

@@ -322,14 +322,14 @@ public:
                     if (l_ListPlayers.empty())
                         return;
 
-                    Position l_Position = me->GetPosition();
+                    Position position = me->GetPosition();
 
                     for (auto itr : l_ListPlayers)
                     {
                         if (itr->IsWithinDist(me, 25.0f, true))
                         {
                             if (itr->IsAlive() && !itr->HasMovementForce(me->GetGUID()))
-                                itr->ApplyMovementForce(me->GetGUID(), 3.0f, l_Position);
+                                itr->ApplyMovementForce(me->GetGUID(), 3.0f, position);
                             else if (!itr->IsAlive() && itr->HasMovementForce(me->GetGUID()))
                                 itr->RemoveMovementForce(me->GetGUID());
                         }

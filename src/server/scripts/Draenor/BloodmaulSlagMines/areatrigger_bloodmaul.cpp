@@ -43,9 +43,9 @@ namespace Instances
                 // If We are on the last tick.
                 if (at->GetDuration() < 100)
                 {
-                    for (auto l_Guid : m_Targets)
+                    for (auto guid : m_Targets)
                     {
-                        Unit* target = ObjectAccessor::GetUnit(*at, l_Guid);
+                        Unit* target = ObjectAccessor::GetUnit(*at, guid);
                         if (target)
                             target->RemoveAura(uint32(Spells::SuppresionFieldEffect));
                     }

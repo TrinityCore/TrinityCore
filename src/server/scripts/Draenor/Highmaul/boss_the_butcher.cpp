@@ -27,88 +27,88 @@ Position const g_MaggotSpawnPos[eHighmaulDatas::MaxMaggotToKill] =
     { 3799.805f, 7675.845f, 23.04378f, 3.110f }
 };
 
-Position ComputeLocationSelection(Creature* p_Source, float p_SearchRange, float p_MinRadius, float p_Radius)
+Position ComputeLocationSelection(Creature* source, float searchRange, float minRadius, float radius)
 {
     using Cluster = std::set<Player*>;
     using GuidCluster = std::set<uint32>;
 
-    std::list<Player*> l_Targets;
+    std::list<Player*> targets;
 
-    p_Source->GetPlayerListInGrid(l_Targets, p_SearchRange);
+    source->GetPlayerListInGrid(targets, searchRange);
 
-    if (!l_Targets.empty())
+    if (!targets.empty())
     {
-        l_Targets.remove_if([p_Source, p_MinRadius](Player* p_Player) -> bool
+        targets.remove_if([source, minRadius](Player* player) -> bool
         {
-            if (p_Player == nullptr)
+            if (player == nullptr)
                 return true;
 
-            if (p_Player->GetDistance(p_Source) < p_MinRadius)
+            if (player->GetDistance(source) < minRadius)
                 return true;
 
             return false;
         });
     }
 
-    std::map<uint32, Cluster> l_ClusterMap;
+    std::map<uint32, Cluster> clusterMap;
 
-    for (Player* l_Player : l_Targets)
+    for (Player* player : targets)
     {
         Cluster l_Neighboor;
-        for (Player* l_PlayerSecond : l_Targets)
+        for (Player* playerSecond : targets)
         {
-            float l_Dist = l_Player->GetDistance(l_PlayerSecond);
-            if (l_Dist <= p_Radius)
-                l_Neighboor.insert(l_PlayerSecond);
+            float dist = player->GetDistance(playerSecond);
+            if (dist <= radius)
+                l_Neighboor.insert(playerSecond);
         }
 
-        l_ClusterMap[l_Player->GetGUID().GetCounter()] = Cluster();
-        l_ClusterMap[l_Player->GetGUID().GetCounter()].insert(l_Player);
+        clusterMap[player->GetGUID().GetCounter()] = Cluster();
+        clusterMap[player->GetGUID().GetCounter()].insert(player);
 
-        for (Player* l_PlayerSecond : l_Neighboor)
-            l_ClusterMap[l_Player->GetGUID().GetCounter()].insert(l_PlayerSecond);
+        for (Player* playerSecond : l_Neighboor)
+            clusterMap[player->GetGUID().GetCounter()].insert(playerSecond);
     }
 
-    size_t l_Size = 0;
-    for (auto l_Cluster : l_ClusterMap)
+    size_t size = 0;
+    for (auto cluster : clusterMap)
     {
-        if (l_Cluster.second.size() > l_Size)
-            l_Size = l_Cluster.second.size();
+        if (cluster.second.size() > size)
+            size = cluster.second.size();
     }
 
-    Position l_Pos;
-    for (auto l_Cluster : l_ClusterMap)
+    Position pos;
+    for (auto cluster : clusterMap)
     {
-        if (l_Size && l_Cluster.second.size() == l_Size)
+        if (size && cluster.second.size() == size)
         {
             float l_X = 0.0f;
             float l_Y = 0.0f;
 
-            for (Player* l_Player : l_Cluster.second)
+            for (Player* player : cluster.second)
             {
-                l_X += l_Player->GetPositionX();
-                l_Y += l_Player->GetPositionY();
+                l_X += player->GetPositionX();
+                l_Y += player->GetPositionY();
             }
 
-            l_X /= (uint32)l_Size;
-            l_Y /= (uint32)l_Size;
+            l_X /= (uint32)size;
+            l_Y /= (uint32)size;
 
-            l_Pos.Relocate(l_X, l_Y, p_Source->GetPositionZ());
+            pos.Relocate(l_X, l_Y, source->GetPositionZ());
             break;
         }
     }
 
-    return l_Pos;
+    return pos;
 }
 
-Position GetCleaveLocation(Creature* p_Source)
+Position GetCleaveLocation(Creature* source)
 {
-    return ComputeLocationSelection(p_Source, 5.0f, 0.0f, 5.0f);
+    return ComputeLocationSelection(source, 5.0f, 0.0f, 5.0f);
 }
 
-Position GetBoundingCleaveLocation(Creature* p_Source)
+Position GetBoundingCleaveLocation(Creature* source)
 {
-    return ComputeLocationSelection(p_Source, 500.0f, 5.1f, 10.0f);
+    return ComputeLocationSelection(source, 500.0f, 5.1f, 10.0f);
 }
 
 /// The Butcher - 77404
@@ -186,9 +186,9 @@ class boss_the_butcher : public CreatureScript
 
         struct boss_the_butcherAI : public BossAI
         {
-            boss_the_butcherAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTheButcher)
+            boss_the_butcherAI(Creature* creature) : BossAI(creature, eHighmaulDatas::BossTheButcher)
             {
-                m_Instance  = p_Creature->GetInstanceScript();
+                m_Instance  = creature->GetInstanceScript();
                 m_IntroDone = false;
             }
 
@@ -241,7 +241,7 @@ class boss_the_butcher : public CreatureScript
                 m_MaggotSpawned.clear();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 _EnterCombat();
 
@@ -282,12 +282,12 @@ class boss_the_butcher : public CreatureScript
                 return false;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HasAura(eSpells::SpellFrenzy))
                     return;
 
-                if (me->HealthBelowPctDamaged(30, p_Damage))
+                if (me->HealthBelowPctDamaged(30, damage))
                 {
                     me->CastSpell(me, eSpells::SpellFrenzy, true);
 
@@ -308,13 +308,13 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossTheButcher, EncounterState::FAIL);
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*power*/, int32& value) override
             {
                 /// The Butcher only regens by script
-                p_Value = 0;
+                value = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -328,32 +328,33 @@ class boss_the_butcher : public CreatureScript
 
                     /*if (IsLFR())
                     {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        Player* player = me->GetMap()->GetPlayers().begin()->GetSource();
+                        if (player && player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, player->GetGroup());
                     }*/
                 }
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void KilledUnit(Unit* killed) override
             {
-                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                if (killed->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalks::Slay);
             }
 
-            void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) override
+            void SpellMissTarget(Unit* target, SpellInfo const* spellInfo, SpellMissInfo missInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::TheCleaverDmg:
                     {
                         /// This attack will not apply its bleed component if it is avoided.
-                        if (p_MissInfo == SpellMissInfo::SPELL_MISS_DODGE)
+                        if (missInfo == SpellMissInfo::SPELL_MISS_DODGE)
                             break;
-                        me->AddAura(eSpells::TheCleaverDot, p_Target);
+
+                        me->AddAura(eSpells::TheCleaverDot, target);
                         break;
                     }
                     default:
@@ -361,43 +362,43 @@ class boss_the_butcher : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::MeatHook:
-                        p_Target->CastSpell(me, eSpells::MeatHookJump, true);
+                        target->CastSpell(me, eSpells::MeatHookJump, true);
                         break;
                     case eSpells::SpellCleave:
                     case eSpells::BoundingCleaveDmg:
-                        me->CastSpell(p_Target, eSpells::SpellGushingWounds, true);
+                        me->CastSpell(target, eSpells::SpellGushingWounds, true);
                         break;
                     default:
                         break;
                 }
             }
 
-            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            void OnSpellCasted(SpellInfo const* spellInfo) override
             {
-                if (p_SpellInfo->Id == eSpells::BoundingCleaveCharg)
+                if (spellInfo->Id == eSpells::BoundingCleaveCharg)
                 {
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            AttackStart(l_Target);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            AttackStart(target);
 
-                        if (Creature* l_Maggot = me->FindNearestCreature(eCreatures::Maggot, 10.0f))
-                            me->Kill(l_Maggot);
+                        if (Creature* maggot = me->FindNearestCreature(eCreatures::Maggot, 10.0f))
+                            me->Kill(maggot);
                     });
                 }
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                if (p_Action == eAction::MaggotKilled)
+                if (action == eAction::MaggotKilled)
                 {
                     std::vector<uint8> l_Indexes = { 0, 1, 2, 3, 4, 5 };
                     std::random_shuffle(l_Indexes.begin(), l_Indexes.end());
@@ -417,11 +418,11 @@ class boss_the_butcher : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
                 if (!m_IntroDone)
                 {
-                    if (Player* l_Player = me->SelectNearestPlayer(130.0f))
+                    if (Player* player = me->SelectNearestPlayer(130.0f))
                     {
                         m_IntroDone = true;
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
@@ -429,14 +430,14 @@ class boss_the_butcher : public CreatureScript
                     }
                 }
 
-                UpdateOperations(p_Diff);
+                UpdateOperations(diff);
 
                 if (!UpdateVictim())
                     return;
 
-                ScheduleEnergy(p_Diff);
+                ScheduleEnergy(diff);
 
-                m_Events.Update(p_Diff);
+                m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -445,38 +446,38 @@ class boss_the_butcher : public CreatureScript
                 {
                     case eEvents::EventTenderizer:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::TheTenderizer, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, eSpells::TheTenderizer, true);
                         m_Events.ScheduleEvent(eEvents::EventTenderizer, 16 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventCleave:
                     {
-                        if (m_CleaveCooldown <= p_Diff)
+                        if (m_CleaveCooldown <= diff)
                         {
                             m_CleaveCooldown = 20 * TimeConstants::IN_MILLISECONDS;
                             Talk(eTalks::Cleave);
                         }
                         else
-                            m_CleaveCooldown -= p_Diff;
+                            m_CleaveCooldown -= diff;
 
-                        Position l_Source = GetCleaveLocation(me);
-                        me->CastSpell(l_Source, eSpells::SpellCleave, false);
+                        Position source = GetCleaveLocation(me);
+                        me->CastSpell(source, eSpells::SpellCleave, false);
 
-                        AddTimedDelayedOperation(500, [this, l_Source]() -> void
+                        AddTimedDelayedOperation(500, [this, source]() -> void
                         {
-                            Position l_Target = l_Source;
-                            l_Target.m_positionZ += 0.1f;
+                            Position target = source;
+                            target.m_positionZ += 0.1f;
 
                             /// Sniffed values
-                            G3D::Vector3 l_Orientation(0.0f, 4.035325f, 0.0f);
+                            G3D::Vector3 orientation(0.0f, 4.035325f, 0.0f);
 
-                            me->SendPlayOrphanSpellVisual(l_Target, 37116, 7.f);
+                            me->SendPlayOrphanSpellVisual(target, 37116, 7.f);
 
-                            if (Creature* l_Maggot = me->FindNearestCreature(eCreatures::Maggot, 5.0f))
+                            if (Creature* maggot = me->FindNearestCreature(eCreatures::Maggot, 5.0f))
                             {
-                                if (l_Maggot->IsNearPosition(&l_Target, 5.0f))
-                                    me->Kill(l_Maggot);
+                                if (maggot->IsNearPosition(&target, 5.0f))
+                                    me->Kill(maggot);
                             }
                         });
 
@@ -485,8 +486,8 @@ class boss_the_butcher : public CreatureScript
                     }
                     case eEvents::EventCleaver:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::TheCleaverDmg, true);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, eSpells::TheCleaverDmg, true);
                         m_Events.ScheduleEvent(eEvents::EventCleaver, 8 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -507,11 +508,10 @@ class boss_the_butcher : public CreatureScript
                     }
                     case eEvents::EventMeatHook:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        {
-                            if (!l_Target->IsWithinMeleeRange(me))
-                                me->CastSpell(l_Target, eSpells::MeatHook, true);
-                        }
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            if (!target->IsWithinMeleeRange(me))
+                                me->CastSpell(target, eSpells::MeatHook, true);
+
                         m_Events.ScheduleEvent(eEvents::EventMeatHook, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -521,18 +521,18 @@ class boss_the_butcher : public CreatureScript
                         ++m_AddCount;
                         uint8 l_Count = floor(float(m_AddCount) / 4.0f) + 1;
 
-                        float l_Radius  = 50.0f;
-                        float l_PosX    = me->GetHomePosition().m_positionX;
-                        float l_PosY    = me->GetHomePosition().m_positionY;
-                        float l_PosZ    = me->GetHomePosition().m_positionZ;
+                        float radius  = 50.0f;
+                        float posX    = me->GetHomePosition().m_positionX;
+                        float posY    = me->GetHomePosition().m_positionY;
+                        float posZ    = me->GetHomePosition().m_positionZ;
 
                         for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                         {
-                            float l_Orientation = frand(0, 2 * M_PI);
-                            float l_X = l_PosX + (l_Radius * cos(l_Orientation));
-                            float l_Y = l_PosY + (l_Radius * sin(l_Orientation));
+                            float orientation = frand(0, 2 * M_PI);
+                            float l_X = posX + (radius * cos(orientation));
+                            float l_Y = posY + (radius * sin(orientation));
 
-                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, l_PosZ);
+                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, posZ);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventCadaver, 14 * TimeConstants::IN_MILLISECONDS);
@@ -542,11 +542,11 @@ class boss_the_butcher : public CreatureScript
                         break;
                 }
 
-                //EnterEvadeIfOutOfCombatArea(p_Diff);
+                //EnterEvadeIfOutOfCombatArea(diff);
                 DoMeleeAttackIfReady();
             }
 
-            void ScheduleEnergy(uint32 const p_Diff)
+            void ScheduleEnergy(uint32 const /*diff*/)
             {
                 /// Bounding Cleave Icon Bounding Cleave is an ability that The Butcher uses when he reaches 100 Energy
                 /// (this happens exactly every 60 seconds before The Butcher reaches 30% health, and every 30 seconds after that).
@@ -555,9 +555,9 @@ class boss_the_butcher : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_the_butcherAI(p_Creature);
+            return new boss_the_butcherAI(creature);
         }
 };
 
@@ -575,9 +575,9 @@ class npc_highmaul_night_twisted_cadaver : public CreatureScript
 
         struct npc_highmaul_night_twisted_cadaverAI : public ScriptedAI
         {
-            npc_highmaul_night_twisted_cadaverAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_night_twisted_cadaverAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -600,31 +600,31 @@ class npc_highmaul_night_twisted_cadaver : public CreatureScript
 
                     me->SetWalk(true);
 
-                    if (Creature* l_Butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
-                        me->GetMotionMaster()->MoveChase(l_Butcher);
+                    if (Creature* butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
+                        me->GetMotionMaster()->MoveChase(butcher);
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
                 if (!me->IsSummon())
                     return;
 
-                ScriptedAI::UpdateAI(p_Diff);
+                ScriptedAI::UpdateAI(diff);
 
                 if (m_Instance == nullptr || m_Explode)
                     return;
 
-                if (Creature* l_Butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
-                    me->GetMotionMaster()->MoveChase(l_Butcher);
+                if (Creature* butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
+                    me->GetMotionMaster()->MoveChase(butcher);
 
-                if (Creature* l_Butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
+                if (Creature* butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
                 {
-                    if (me->GetDistance(l_Butcher) <= 1.0f)
+                    if (me->GetDistance(butcher) <= 1.0f)
                         ExplodeAndSpawnVitriol();
                 }
 
-                if (Player* l_Player = me->SelectNearestPlayer(1.0f))
+                if (Player* player = me->SelectNearestPlayer(1.0f))
                     ExplodeAndSpawnVitriol();
             }
 
@@ -642,28 +642,28 @@ class npc_highmaul_night_twisted_cadaver : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_night_twisted_cadaverAI(p_Creature);
+            return new npc_highmaul_night_twisted_cadaverAI(creature);
         }
 };
 
 /// Maggot - 80728
-class npc_highmaul_maggot : public CreatureScript
+class npc_highmaumaggot : public CreatureScript
 {
     public:
-        npc_highmaul_maggot() : CreatureScript("npc_highmaul_maggot") { }
+        npc_highmaumaggot() : CreatureScript("npc_highmaumaggot") { }
 
         enum eAction
         {
             MaggotKilled
         };
 
-        struct npc_highmaul_maggotAI : public ScriptedAI
+        struct npc_highmaumaggotAI : public ScriptedAI
         {
-            npc_highmaul_maggotAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaumaggotAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_Instance;
@@ -675,22 +675,22 @@ class npc_highmaul_maggot : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
-                    if (Creature* l_Butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
+                    if (Creature* butcher = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::TheButcher)))
                     {
-                        if (l_Butcher->IsAIEnabled)
-                            l_Butcher->AI()->DoAction(eAction::MaggotKilled);
+                        if (butcher->IsAIEnabled)
+                            butcher->AI()->DoAction(eAction::MaggotKilled);
                     }
                 }
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_highmaul_maggotAI(p_Creature);
+            return new npc_highmaumaggotAI(creature);
         }
 };
 
@@ -709,7 +709,7 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -717,10 +717,10 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
                     p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpell::HeavyHandedProc)
                     return;
 
-                if (Unit* l_Butcher = GetTarget())
+                if (Unit* butcher = GetTarget())
                 {
-                    if (Unit* l_Target = p_EventInfo.GetActionTarget())
-                        l_Butcher->CastSpell(l_Target, eSpell::HeavyHandedProc, true);
+                    if (Unit* target = p_EventInfo.GetActionTarget())
+                        butcher->CastSpell(target, eSpell::HeavyHandedProc, true);
                 }
             }
 
@@ -756,23 +756,23 @@ class spell_highmaul_heavy_handed_proc : public SpellScriptLoader
 
             void HandleBeforeCast()
             {
-                if (Unit* l_Target = GetExplTargetUnit())
-                    m_Target = l_Target->GetGUID();
+                if (Unit* target = GetExplTargetUnit())
+                    m_Target = target->GetGUID();
             }
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (p_Targets.empty())
+                if (targets.empty())
                     return;
 
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                Unit* caster = GetCaster();
+                if (caster == nullptr)
                     return;
 
                 /// All attacks made by the caster strike the next closest target
-                if (p_Targets.size() > 1)
+                if (targets.size() > 1)
                 {
-                    p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                    targets.remove_if([this](WorldObject* p_Object) -> bool
                     {
                         if (p_Object == nullptr || p_Object->GetGUID() == m_Target)
                             return true;
@@ -780,21 +780,21 @@ class spell_highmaul_heavy_handed_proc : public SpellScriptLoader
                         return false;
                     });
 
-                    if (p_Targets.size() > 1)
+                    if (targets.size() > 1)
                     {
-                        p_Targets.sort(Trinity::ObjectDistanceOrderPred(l_Caster));
-                        WorldObject* l_Object = p_Targets.front();
-                        p_Targets.clear();
-                        p_Targets.push_back(l_Object);
+                        targets.sort(Trinity::ObjectDistanceOrderPred(caster));
+                        WorldObject* l_Object = targets.front();
+                        targets.clear();
+                        targets.push_back(l_Object);
                     }
                 }
                 /// If no target is found, the primary target is struck again.
                 else
                 {
-                    p_Targets.clear();
+                    targets.clear();
 
-                    if (Unit* l_Target = ObjectAccessor::GetUnit(*l_Caster, m_Target))
-                        p_Targets.push_back(l_Target);
+                    if (Unit* target = ObjectAccessor::GetUnit(*caster, m_Target))
+                        targets.push_back(target);
                 }
             }
 
@@ -826,23 +826,23 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
-                if (p_AurEff->GetTickNumber() != 8)
+                if (aurEff->GetTickNumber() != 8)
                     return;
 
                 if (GetTarget() == nullptr)
                     return;
 
-                Creature* l_Butcher = GetTarget()->ToCreature();
-                if (l_Butcher == nullptr)
+                Creature* butcher = GetTarget()->ToCreature();
+                if (butcher == nullptr)
                     return;
 
-                Position l_Pos = GetBoundingCleaveLocation(l_Butcher);
-                if (l_Pos.m_positionX == 0.0f || l_Pos.m_positionY == 0.0f || l_Pos.m_positionZ == 0.0f)
-                    l_Pos = ComputeLocationSelection(l_Butcher, 500.0f, 0.0f, 10.0f);
+                Position pos = GetBoundingCleaveLocation(butcher);
+                if (pos.m_positionX == 0.0f || pos.m_positionY == 0.0f || pos.m_positionZ == 0.0f)
+                    pos = ComputeLocationSelection(butcher, 500.0f, 0.0f, 10.0f);
 
-                l_Butcher->CastSpell(l_Pos, eSpell::BoundingCleaveCharge, true);
+                butcher->CastSpell(pos, eSpell::BoundingCleaveCharge, true);
             }
 
             void Register() override
@@ -872,14 +872,14 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
                 GushingWoundsKill = 156153
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    Map* map = l_Target->GetMap();
+                    Map* map = target->GetMap();
                     uint8 maxstacks = map->IsMythic() ? 4 : (map->IsHeroic() ? 5 : (map->IsLFR() ? 10 : 6) );
-                    if (p_AurEff->GetBase()->GetStackAmount() >= maxstacks)
-                        l_Target->CastSpell(l_Target, eSpell::GushingWoundsKill, true);
+                    if (aurEff->GetBase()->GetStackAmount() >= maxstacks)
+                        target->CastSpell(target, eSpell::GushingWoundsKill, true);
                 }
             }
 
@@ -906,19 +906,19 @@ public:
         PaleVitriol = 163046
     };
 
-    void OnUpdate(uint32 p_Time) override
+    void OnUpdate(uint32 /*diff*/) override
     {
-        if (Unit* l_Caster = at->GetCaster())
+        if (Unit* caster = at->GetCaster())
         {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = 4.0f;
+            std::list<Unit*> targetList;
+            float radius = 4.0f;
 
-            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, l_Caster, l_Radius);
-            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, l_TargetList, l_Check);
-            Cell::VisitAllObjects(at, l_Searcher, l_Radius);
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+            Cell::VisitAllObjects(at, l_Searcher, radius);
 
-            for (Unit* l_Unit : l_TargetList)
-                l_Caster->CastSpell(l_Unit, eSpell::PaleVitriol, true);
+            for (Unit* l_Unit : targetList)
+                caster->CastSpell(l_Unit, eSpell::PaleVitriol, true);
         }
     }
 };
@@ -930,7 +930,7 @@ void AddSC_boss_the_butcher()
 
     /// NPCs
     new npc_highmaul_night_twisted_cadaver();
-    new npc_highmaul_maggot();
+    new npc_highmaumaggot();
 
     /// Spells
     new spell_highmaul_heavy_handed();

@@ -121,9 +121,9 @@ public:
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
     }
 
-    void OnSceneStart(Player* player, uint32 p_ScenePackageId, uint32 /*sceneInstanceId*/) override
+    void OnSceneStart(Player* player, uint32 scenePackageID, uint32 /*sceneInstanceId*/) override
     {
-        if (p_ScenePackageId != TanaanSceneObjects::SceneFinaleIronBastion)
+        if (scenePackageID != TanaanSceneObjects::SceneFinaleIronBastion)
             return;
 
         Clean(player);
@@ -232,7 +232,7 @@ public:
     {
         if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) == QUEST_STATUS_INCOMPLETE)
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIaction_INFO_DEF + 1);
             SendGossipMenuFor(player, 1, creature->GetGUID());
             return true;
         }
@@ -244,7 +244,7 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIaction_INFO_DEF + 1)
         {
             if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) != QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjTopOfTheTank) >= 1)
             {
@@ -306,9 +306,9 @@ public:
             m_Events.ScheduleEvent(eEvents::EventCheckSummoner, 500);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& p_Damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (p_Damage >= me->GetHealth())
+            if (damage >= me->GetHealth())
                 me->SetFullHealth();
         }
 
@@ -387,8 +387,8 @@ public:
                         {
                             if (!me->IsWithinMeleeRange(target))
                             {
-                                Position l_Pos = l_EscortedPlayer->GetPosition();
-                                me->GetMotionMaster()->MoveCharge(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, me->GetSpeed(MOVE_RUN));
+                                Position pos = l_EscortedPlayer->GetPosition();
+                                me->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, me->GetSpeed(MOVE_RUN));
                                 return;
                             }
 

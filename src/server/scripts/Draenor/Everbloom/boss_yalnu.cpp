@@ -712,7 +712,7 @@ public:
     {
         PrepareAuraScript(spell_font_life_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             switch (urand(0, 2))
             {

@@ -299,10 +299,10 @@ public:
         {
             for (uint8 l_i = 0; l_i <= 30; l_i++)
             {
-                Position l_Position = me->GetRandomNearPosition(40.0f);
-                l_Position.m_positionZ = frand(261.391f, 284.058f);
+                Position position = me->GetRandomNearPosition(40.0f);
+                position.m_positionZ = frand(261.391f, 284.058f);
 
-                me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01, l_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01, position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
             }
         }
 
@@ -585,12 +585,12 @@ public:
             me->SetDisableGravity(true);
             me->SetCanFly(true);
 
-            Position l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-            l_Position.m_positionX += frand(2.0f, 8.0f);
-            l_Position.m_positionY += frand(2.0f, 10.0f);
-            l_Position.m_positionZ += frand(2.0f, 8.0f);
+            Position position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
+            position.m_positionX += frand(2.0f, 8.0f);
+            position.m_positionY += frand(2.0f, 10.0f);
+            position.m_positionZ += frand(2.0f, 8.0f);
 
-            me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position);
+            me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, position);
         }
 
         void DoAction(int32 const action) override
@@ -630,11 +630,11 @@ public:
                 if (m_MovementIndentifier >= 8)
                     m_MovementIndentifier = 0;
 
-                Position l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-                l_Position.m_positionX += frand(2.0f, 8.0f);
-                l_Position.m_positionY += frand(2.0f, 10.0f);
-                l_Position.m_positionZ += frand(2.0f, 8.0f);
-                me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position);
+                Position position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
+                position.m_positionX += frand(2.0f, 8.0f);
+                position.m_positionY += frand(2.0f, 10.0f);
+                position.m_positionZ += frand(2.0f, 8.0f);
+                me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, position);
             }
         }
 

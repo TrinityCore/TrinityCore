@@ -135,9 +135,9 @@ namespace Instances { namespace Bloodmaul
                     m_Events.ScheduleEvent(eEvents::EventSummonUnstableSlag, 20 * TimeConstants::IN_MILLISECONDS);
                 }
 
-                void KilledUnit(Unit* p_Killed) override
+                void KilledUnit(Unit* killed) override
                 {
-                    if (p_Killed->IsPlayer())
+                    if (killed->IsPlayer())
                         Talk(eTalks::TalkSlay);
                 }
 
@@ -208,9 +208,9 @@ namespace Instances { namespace Bloodmaul
 
                             for (Player* player : playerList)
                             {
-                                Position l_Pos = player->GetPosition();
+                                Position pos = player->GetPosition();
 
-                                if (Creature* l_MagmaEruption = me->SummonCreature(eCreatures::NpcMagmaEruption, l_Pos))
+                                if (Creature* l_MagmaEruption = me->SummonCreature(eCreatures::NpcMagmaEruption, pos))
                                     l_MagmaEruption->CastSpell(l_MagmaEruption, eSpells::SpellMagmaEruptionVisual, true);
                             }
 

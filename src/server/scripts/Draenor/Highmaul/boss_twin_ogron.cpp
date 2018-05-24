@@ -43,25 +43,25 @@ Position const g_CenterPos = { 4062.38f, 8470.91f, 322.226f, 0.0f };
 float const g_CircleToCenterDist = 30.0f;
 float const g_BlazeDistToCenter = 136.0f;
 
-void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
+void RespawnOgrons(Creature* source, InstanceScript* p_Instance)
 {
-    if (p_Source == nullptr || p_Instance == nullptr)
+    if (source == nullptr || p_Instance == nullptr)
         return;
 
-    if (Creature* l_Other = p_Instance->GetCreature((p_Source->GetEntry() == eHighmaulCreatures::Phemos) ? eHighmaulCreatures::Pol : eHighmaulCreatures::Phemos))
+    if (Creature* l_Other = p_Instance->GetCreature((source->GetEntry() == eHighmaulCreatures::Phemos) ? eHighmaulCreatures::Pol : eHighmaulCreatures::Phemos))
     {
         l_Other->Respawn();
         l_Other->GetMotionMaster()->MoveTargetedHome();
     }
 }
 
-void StartOgrons(Creature* p_Source, Unit* p_Target)
+void StartOgrons(Creature* source, Unit* target)
 {
-    if (p_Source == nullptr || p_Target == nullptr)
+    if (source == nullptr || target == nullptr)
         return;
 
-    if (Creature* l_Other = p_Source->FindNearestCreature((p_Source->GetEntry() == eHighmaulCreatures::Phemos) ? eHighmaulCreatures::Pol : eHighmaulCreatures::Phemos, 30.0f))
-        l_Other->AI()->AttackStart(p_Target);
+    if (Creature* l_Other = source->FindNearestCreature((source->GetEntry() == eHighmaulCreatures::Phemos) ? eHighmaulCreatures::Pol : eHighmaulCreatures::Phemos, 30.0f))
+        l_Other->AI()->AttackStart(target);
 }
 
 /// Pol - 78238
@@ -143,9 +143,9 @@ class boss_twin_ogron_pol : public CreatureScript
 
         struct boss_twin_ogron_polAI : public BossAI
         {
-            boss_twin_ogron_polAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTwinOgron)
+            boss_twin_ogron_polAI(Creature* creature) : BossAI(creature, eHighmaulDatas::BossTwinOgron)
             {
-                m_Instance  = p_Creature->GetInstanceScript();
+                m_Instance  = creature->GetInstanceScript();
             }
 
             EventMap m_Events;
@@ -183,9 +183,9 @@ class boss_twin_ogron_pol : public CreatureScript
                 return false;
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                switch (p_Action)
+                switch (action)
                 {
                     case eActions::SchedulePulverize:
                     {
@@ -220,23 +220,23 @@ class boss_twin_ogron_pol : public CreatureScript
                             me->CastSpell(me, eSpells::PulverizeThirdAoE, false);
                         });
 
-                        Position l_Pos = me->GetRandomNearPosition(30.0f);
+                        Position pos = me->GetRandomNearPosition(30.0f);
 
                         /// The third and final wave causes one large rock to fall at a random location, dealing raid-wide damage.
                         /// The damage is higher the closer players are to the landing location.
-                        AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this, pos]() -> void
                         {
-                            me->SendPlaySpellVisual(l_Pos, 4.015914f, eVisuals::BigPulverize);
+                            me->SendPlaySpellVisual(pos, 4.015914f, eVisuals::BigPulverize);
                         });
 
-                        AddTimedDelayedOperation(14500, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(14500, [this, pos]() -> void
                         {
-                            me->SendPlayOrphanSpellVisual(l_Pos, eVisuals::PulverizeFinal, 3.0f);
+                            me->SendPlayOrphanSpellVisual(pos, eVisuals::PulverizeFinal, 3.0f);
                         });
 
-                        AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this, pos]() -> void
                         {
-                            me->CastSpell(l_Pos, eSpells::PulverizeThirdAoEDmg, true);
+                            me->CastSpell(pos, eSpells::PulverizeThirdAoEDmg, true);
                             me->SendCancelSpellVisual(eVisuals::BigPulverize);
 
                             me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
@@ -263,8 +263,8 @@ class boss_twin_ogron_pol : public CreatureScript
                         Talk(eTalks::ShieldCharge);
                         Talk(eTalks::ShieldChargeWarn);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
-                            me->CastSpell(l_Target, eSpells::SpellShieldCharge, false);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                            me->CastSpell(target, eSpells::SpellShieldCharge, false);
 
                         m_ShieldChargeScheduled = true;
                         break;
@@ -274,7 +274,7 @@ class boss_twin_ogron_pol : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* attacker) override
             {
                 Talk(eTalks::Aggro);
 
@@ -290,19 +290,19 @@ class boss_twin_ogron_pol : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventBerserker, IsMythic() ? 420 * TimeConstants::IN_MILLISECONDS : 480 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventShieldBash, 22 * TimeConstants::IN_MILLISECONDS);
 
-                StartOgrons(me, p_Attacker);
+                StartOgrons(me, attacker);
 
                 if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
                     me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void KilledUnit(Unit* killed) override
             {
-                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                if (killed->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -316,9 +316,9 @@ class boss_twin_ogron_pol : public CreatureScript
 
                     /*if (IsLFR())
                     {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        Player* player = me->GetMap()->GetPlayers().begin()->GetSource();
+                        if (player && player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, player->GetGroup());
                     }*/
                 }
             }
@@ -338,9 +338,9 @@ class boss_twin_ogron_pol : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
-                switch (p_ID)
+                switch (id)
                 {
                     case eMoves::MoveFirst:
                         me->GetMotionMaster()->MovePoint(eMoves::MoveSecond, g_PolMovePos[1]);
@@ -367,36 +367,36 @@ class boss_twin_ogron_pol : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::SpellInterruptingShout:
                     {
-                        me->CastSpell(p_Target, eSpells::InterruptingShoutDmg, true);
+                        me->CastSpell(target, eSpells::InterruptingShoutDmg, true);
                         break;
                     }
                     case eSpells::PulverizeFirstAoE:
                     {
-                        me->CastSpell(p_Target, eSpells::PulverizeFirstAoEDmg, true);
+                        me->CastSpell(target, eSpells::PulverizeFirstAoEDmg, true);
                         break;
                     }
                     case eSpells::PulverizeSecondAoE:
                     {
-                        Position l_Pos = *p_Target;
-                        me->SendPlaySpellVisual(l_Pos, 2.5f, eVisuals::PulverizeVisual);
+                        Position pos = *target;
+                        me->SendPlaySpellVisual(pos, 2.5f, eVisuals::PulverizeVisual);
 
-                        AddTimedDelayedOperation(2500, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(2500, [this, pos]() -> void
                         {
-                            me->SendPlayOrphanSpellVisual(l_Pos, eVisuals::PulverizeSecond, 3.0f);
+                            me->SendPlayOrphanSpellVisual(pos, eVisuals::PulverizeSecond, 3.0f);
                         });
 
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this, pos]() -> void
                         {
-                            me->CastSpell(l_Pos, eSpells::PulverizeSecondAoEDmg, true);
+                            me->CastSpell(pos, eSpells::PulverizeSecondAoEDmg, true);
                         });
 
                         break;
@@ -406,16 +406,16 @@ class boss_twin_ogron_pol : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers power, int32& value) override
             {
                 /// Pol only regens by script
-                if (p_Power == Powers::POWER_ENERGY)
-                    p_Value = 0;
+                if (power == Powers::POWER_ENERGY)
+                    value = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                UpdateOperations(p_Diff);
+                UpdateOperations(diff);
 
                 if(me->GetDistance(me->GetHomePosition()) >= 250.0f)
                 {
@@ -427,7 +427,7 @@ class boss_twin_ogron_pol : public CreatureScript
                     return;
 
                 if (!me->HasAura(eSpells::WarmingUp))
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -441,8 +441,8 @@ class boss_twin_ogron_pol : public CreatureScript
                     }
                     case eEvents::EventShieldBash:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::ShieldBash, false);
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, eSpells::ShieldBash, false);
                         m_Events.ScheduleEvent(eEvents::EventShieldBash, 22 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -454,9 +454,9 @@ class boss_twin_ogron_pol : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_twin_ogron_polAI(p_Creature);
+            return new boss_twin_ogron_polAI(creature);
         }
 };
 
@@ -555,9 +555,9 @@ class boss_twin_ogron_phemos : public CreatureScript
 
         struct boss_twin_ogron_phemosAI : public BossAI
         {
-            boss_twin_ogron_phemosAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTwinOgron)
+            boss_twin_ogron_phemosAI(Creature* creature) : BossAI(creature, eHighmaulDatas::BossTwinOgron)
             {
-                m_Instance  = p_Creature->GetInstanceScript();
+                m_Instance  = creature->GetInstanceScript();
                 m_Init = false;
                 m_HomeChanged = false;
             }
@@ -606,15 +606,15 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                         if (!l_TrashList.empty())
                         {
-                            l_TrashList.remove_if([this](Creature* p_Creature) -> bool
+                            l_TrashList.remove_if([this](Creature* creature) -> bool
                             {
-                                if (p_Creature == nullptr || p_Creature->GetPositionZ() > g_GorthenonFloor)
+                                if (creature == nullptr || creature->GetPositionZ() > g_GorthenonFloor)
                                     return true;
 
-                                if (!p_Creature->IsAlive())
+                                if (!creature->IsAlive())
                                     return true;
 
-                                uint32 entry = p_Creature->GetEntry();
+                                uint32 entry = creature->GetEntry();
 
                                 if (entry == eCreature::Arcanist || entry == eCreature::Brute || entry == eCreature::Conscript)
                                     return false;
@@ -649,9 +649,9 @@ class boss_twin_ogron_phemos : public CreatureScript
                 return false;
             }
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const action) override
             {
-                switch (p_Action)
+                switch (action)
                 {
                     case eActions::ActionMoveHome:
                     {
@@ -669,7 +669,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                         m_WhirlwindScheduled = false;
 
                         float l_O = frand(0, 2 * M_PI);
-                        Position l_Pos =
+                        Position pos =
                         {
                             (g_CenterPos.m_positionX + (g_CircleToCenterDist * cos(l_O))),
                             (g_CenterPos.m_positionY + (g_CircleToCenterDist * sin(l_O))),
@@ -677,26 +677,26 @@ class boss_twin_ogron_phemos : public CreatureScript
                             0.0f
                         };
 
-                        l_Pos.SetOrientation(l_Pos.GetAngle(&g_CenterPos));
-                        m_FirstBlazePos = l_Pos;
+                        pos.SetOrientation(pos.GetAngle(&g_CenterPos));
+                        m_FirstBlazePos = pos;
 
                         /// Total: 4 waves
                         /// First
                         ++m_FirstWaveCounter;
-                        SpawnBlazeWave(l_Pos);
+                        SpawnBlazeWave(pos);
                         /// Second, third and fourth
                         m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnFirstBlaze, 5 * TimeConstants::IN_MILLISECONDS);
 
-                        me->CastSpell(l_Pos, eSpells::BlazeWeaponVisual, true);
+                        me->CastSpell(pos, eSpells::BlazeWeaponVisual, true);
                         me->SendPlaySpellVisualKit(eVisuals::QuakeVisualID, 0, 0);
 
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, pos]() -> void
                         {
-                            me->SendPlaySpellVisual(l_Pos, 0.75f, eVisuals::QuakeSpellVisual);
+                            me->SendPlaySpellVisual(pos, 0.75f, eVisuals::QuakeSpellVisual);
                         });
 
                         l_O += M_PI;
-                        l_Pos =
+                        pos =
                         {
                             (g_CenterPos.m_positionX + (g_CircleToCenterDist * cos(l_O))),
                             (g_CenterPos.m_positionY + (g_CircleToCenterDist * sin(l_O))),
@@ -704,20 +704,20 @@ class boss_twin_ogron_phemos : public CreatureScript
                             0.0f
                         };
 
-                        l_Pos.SetOrientation(l_Pos.GetAngle(&g_CenterPos));
+                        pos.SetOrientation(pos.GetAngle(&g_CenterPos));
 
-                        m_SecondBlazePos = l_Pos;
+                        m_SecondBlazePos = pos;
                         m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnSecondBlaze, 1500);
 
-                        AddTimedDelayedOperation(1500, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(1500, [this, pos]() -> void
                         {
-                            me->CastSpell(l_Pos, eSpells::BlazeWeaponVisual, true);
+                            me->CastSpell(pos, eSpells::BlazeWeaponVisual, true);
                             me->SendPlaySpellVisualKit(eVisuals::QuakeVisualID, 0, 0);
                         });
 
-                        AddTimedDelayedOperation(2500, [this, l_Pos]() -> void
+                        AddTimedDelayedOperation(2500, [this, pos]() -> void
                         {
-                            me->SendPlaySpellVisual(l_Pos, 0.75f, eVisuals::QuakeSpellVisual);
+                            me->SendPlaySpellVisual(pos, 0.75f, eVisuals::QuakeSpellVisual);
                         });
 
                         break;
@@ -735,10 +735,10 @@ class boss_twin_ogron_phemos : public CreatureScript
                         /// Cast time of Enfeebling roar + 100ms timer
                         AddTimedDelayedOperation(3100, [this]() -> void
                         {
-                            for (ObjectGuid l_Guid : m_EnfeeblingRoarTargets)
+                            for (ObjectGuid guid : m_EnfeeblingRoarTargets)
                             {
-                                if (Unit* l_Target = ObjectAccessor::GetUnit(*me, l_Guid))
-                                    me->CastSpell(l_Target, eSpells::EnfeeblingRoarDebuff, true);
+                                if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
+                                    me->CastSpell(target, eSpells::EnfeeblingRoarDebuff, true);
                             }
                         });
 
@@ -760,12 +760,12 @@ class boss_twin_ogron_phemos : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid p_Guid, int32 p_ID) override
+            void SetGUID(ObjectGuid guid, int32 /*id*/) override
             {
-                m_TrashsMobs.erase(p_Guid);
+                m_TrashsMobs.erase(guid);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* attacker) override
             {
                 Talk(eTalks::Aggro);
 
@@ -784,19 +784,19 @@ class boss_twin_ogron_phemos : public CreatureScript
                 if(IsMythic())
                     m_Events.ScheduleEvent(eEvents::EventsArcaneVolatility, urand(20, 60) * IN_MILLISECONDS);
 
-                StartOgrons(me, p_Attacker);
+                StartOgrons(me, attacker);
 
                 if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
                     me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void KilledUnit(Unit* killed) override
             {
-                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                if (killed->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -833,9 +833,9 @@ class boss_twin_ogron_phemos : public CreatureScript
                 me->RemoveAllAreaTriggers();
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
-                switch (p_ID)
+                switch (id)
                 {
                     case eMoves::MoveFirst:
                         me->GetMotionMaster()->MovePoint(eMoves::MoveSecond, g_PhemosMovePos[1]);
@@ -872,16 +872,16 @@ class boss_twin_ogron_phemos : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
             {
-                if (p_Target == nullptr)
+                if (target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                switch (spellInfo->Id)
                 {
                     case eSpells::SpellEnfeeblingRoar:
                     {
-                        m_EnfeeblingRoarTargets.insert(p_Target->GetGUID());
+                        m_EnfeeblingRoarTargets.insert(target->GetGUID());
                         break;
                     }
                     default:
@@ -889,16 +889,16 @@ class boss_twin_ogron_phemos : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers power, int32& value) override
             {
                 /// Phemos only regens by script
-                if (p_Power == Powers::POWER_ENERGY)
-                    p_Value = 0;
+                if (power == Powers::POWER_ENERGY)
+                    value = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const diff) override
             {
-                UpdateOperations(p_Diff);
+                UpdateOperations(diff);
 
                 if (me->GetDistance(me->GetHomePosition()) >= 250.0f)
                 {
@@ -906,7 +906,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                     return;
                 }
 
-                m_CosmeticEvents.Update(p_Diff);
+                m_CosmeticEvents.Update(diff);
 
                 switch (m_CosmeticEvents.ExecuteEvent())
                 {
@@ -942,7 +942,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                     return;
 
                 if (!me->HasAura(eSpells::WarmingUp))
-                    m_Events.Update(p_Diff);
+                    m_Events.Update(diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -957,15 +957,15 @@ class boss_twin_ogron_phemos : public CreatureScript
                     }
                     case eEvents::EventDoubleSlash:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            me->CastSpell(l_Target, eSpells::DoubleSlashMainHand, false);
+                            me->CastSpell(target, eSpells::DoubleSlashMainHand, false);
 
-                            ObjectGuid l_Guid = l_Target->GetGUID();
-                            AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                            ObjectGuid guid = target->GetGUID();
+                            AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
                             {
-                                if (Unit* l_Target = ObjectAccessor::GetUnit(*me, l_Guid))
-                                    me->CastSpell(l_Target, eSpells::DoubleSlashOffHand, true);
+                                if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
+                                    me->CastSpell(target, eSpells::DoubleSlashOffHand, true);
                             });
                         }
 
@@ -988,9 +988,9 @@ class boss_twin_ogron_phemos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            uint32 GetData(uint32 p_ID) const override
+            uint32 GetData(uint32 id) const override
             {
-                if (p_ID == eMiscs::EnfeeblingCounter)
+                if (id == eMiscs::EnfeeblingCounter)
                     return m_EnfeeblingRoarTargets.size();
 
                 return 0;
@@ -1007,10 +1007,10 @@ class boss_twin_ogron_phemos : public CreatureScript
                     {
                         l_Pol->GetMotionMaster()->MovePoint(eMoves::MoveFirst, g_PolMovePos[0]);
 
-                        ObjectGuid l_Guid = l_Pol->GetGUID();
-                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                        ObjectGuid guid = l_Pol->GetGUID();
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
                         {
-                            if (Creature* l_Boss = ObjectAccessor::GetCreature(*me, l_Guid))
+                            if (Creature* l_Boss = ObjectAccessor::GetCreature(*me, guid))
                             {
                                 if (l_Boss->IsAIEnabled)
                                     l_Boss->AI()->Talk(eTalks::Intro);
@@ -1038,26 +1038,26 @@ class boss_twin_ogron_phemos : public CreatureScript
                 }
             }
 
-            void SpawnBlazeWave(Position p_Pos)
+            void SpawnBlazeWave(Position pos)
             {
                 if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BlazeFirstSpawn))
                 {
-                    float l_OStep = (p_Pos.GetOrientation() - (M_PI / 2.0f)) + frand(0.0f, (M_PI / 3.0f));
+                    float l_OStep = (pos.GetOrientation() - (M_PI / 2.0f)) + frand(0.0f, (M_PI / 3.0f));
 
                     for (uint8 l_I = 0; l_I < eMiscs::BlazeFirstSpawnCounter; ++l_I)
                     {
                         uint32 l_Timer = 0;
-                        float l_Orientation = l_OStep;
+                        float orientation = l_OStep;
 
                         for (uint8 l_J = 0; l_J < eMiscs::BlazeWaveSpawnCounter; ++l_J)
                         {
-                            Position l_Dest = p_Pos;
-                            l_Dest.m_positionX = p_Pos.m_positionX + (g_BlazeDistToCenter * cos(l_Orientation));
-                            l_Dest.m_positionY = p_Pos.m_positionY + (g_BlazeDistToCenter * sin(l_Orientation));
+                            Position l_Dest = pos;
+                            l_Dest.m_positionX = pos.m_positionX + (g_BlazeDistToCenter * cos(orientation));
+                            l_Dest.m_positionY = pos.m_positionY + (g_BlazeDistToCenter * sin(orientation));
 
                             if (l_Timer)
                             {
-                                AddTimedDelayedOperation(l_Timer, [this, p_Pos, l_Dest]() -> void
+                                AddTimedDelayedOperation(l_Timer, [this, pos, l_Dest]() -> void
                                 {
                                     me->CastSpell(me, eSpells::BlazeFirstSpawn, true);
                                 });
@@ -1068,7 +1068,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                             }
 
                             /// Is it enough?
-                            l_Orientation += 0.05f;
+                            orientation += 0.05f;
 
                             l_Timer += 500;
                         }
@@ -1079,9 +1079,9 @@ class boss_twin_ogron_phemos : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_twin_ogron_phemosAI(p_Creature);
+            return new boss_twin_ogron_phemosAI(creature);
         }
 };
 
@@ -1100,10 +1100,10 @@ class spell_highmaul_warming_up : public SpellScriptLoader
                 Disposition = 157953
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::Disposition, true);
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, eSpell::Disposition, true);
             }
 
             void Register() override
@@ -1148,7 +1148,7 @@ class spell_highmaul_disposition : public SpellScriptLoader
                 return true;
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1233,7 +1233,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_enfeebling_roar_AuraScript);
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1243,7 +1243,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
                     if (!l_Phemos->IsAIEnabled)
                         return;
 
-                    Aura* l_Aura = p_AurEff->GetBase();
+                    Aura* l_Aura = aurEff->GetBase();
                     if (!l_Aura)
                         return;
 
@@ -1252,7 +1252,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
                         l_Count = 1;
 
                     uint32 l_MaxDuration = l_Aura->GetDuration() * 10;
-                    int32 l_Amount = p_AurEff->GetAmount() * 10;
+                    int32 l_Amount = aurEff->GetAmount() * 10;
 
                     l_Aura->SetDuration(l_MaxDuration / l_Count);
                     l_Aura->SetMaxDuration(l_MaxDuration / l_Count);
@@ -1276,7 +1276,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_enfeebling_roar_SpellScript);
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1327,8 +1327,8 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->GetMotionMaster()->MoveCharge(m_Location.m_positionX, m_Location.m_positionY, m_Location.m_positionZ, SPEED_CHARGE, GetSpellInfo()->Id);
+                if (Unit* caster = GetCaster())
+                    caster->GetMotionMaster()->MoveCharge(m_Location.m_positionX, m_Location.m_positionY, m_Location.m_positionZ, SPEED_CHARGE, GetSpellInfo()->Id);
             }
 
             void Register() override
@@ -1360,29 +1360,29 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 diff)
             {
                 if (m_DamageTimer)
                 {
-                    if (m_DamageTimer <= p_Diff)
+                    if (m_DamageTimer <= diff)
                     {
-                        if (Unit* l_Caster = GetCaster())
+                        if (Unit* caster = GetCaster())
                         {
-                            std::list<Unit*> l_TargetList;
-                            float l_Radius = 1.0f;
+                            std::list<Unit*> targetList;
+                            float radius = 1.0f;
 
-                            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
-                            Cell::VisitAllObjects(l_Caster, l_Searcher, l_Radius);
+                            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(caster, caster, radius);
+                            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(caster, targetList, l_Check);
+                            Cell::VisitAllObjects(caster, l_Searcher, radius);
 
-                            for (Unit* l_Iter : l_TargetList)
-                                l_Caster->CastSpell(l_Iter, eSpell::ShieldChargeDamage, true);
+                            for (Unit* itr : targetList)
+                                caster->CastSpell(itr, eSpell::ShieldChargeDamage, true);
                         }
 
                         m_DamageTimer = 500;
                     }
                     else
-                        m_DamageTimer -= p_Diff;
+                        m_DamageTimer -= diff;
                 }
             }
 
@@ -1425,66 +1425,66 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 diff)
             {
                 if (m_CheckTimer)
                 {
-                    if (m_CheckTimer <= p_Diff)
+                    if (m_CheckTimer <= diff)
                     {
-                        if (Unit* l_Caster = GetCaster())
+                        if (Unit* caster = GetCaster())
                         {
-                            uint32 l_Entry = l_Caster->GetEntry() == eHighmaulCreatures::Pol ? eHighmaulCreatures::Phemos : eHighmaulCreatures::Pol;
-                            if (Creature* l_Other = l_Caster->FindNearestCreature(l_Entry, 150.0f))
+                            uint32 l_Entry = caster->GetEntry() == eHighmaulCreatures::Pol ? eHighmaulCreatures::Phemos : eHighmaulCreatures::Pol;
+                            if (Creature* l_Other = caster->FindNearestCreature(l_Entry, 150.0f))
                             {
-                                float l_Distance = std::min(l_Caster->GetDistance(l_Other), 100.0f);
+                                float distance = std::min(caster->GetDistance(l_Other), 100.0f);
                                 uint32 l_SpellID = 0;
 
-                                if (l_Distance >= 50.0f)
+                                if (distance >= 50.0f)
                                     l_SpellID = eSpells::SavageDisposition;
-                                else if (l_Distance >= 20.0f)
+                                else if (distance >= 20.0f)
                                     l_SpellID = eSpells::FierceDisposition;
                                 else
                                     l_SpellID = eSpells::AggressiveDisposition;
 
-                                if ((int32)l_Distance > eHighmaulDatas::DispositionPCT)
+                                if ((int32)distance > eHighmaulDatas::DispositionPCT)
                                 {
                                     if (InstanceScript* l_Instance = l_Other->GetInstanceScript())
                                         l_Instance->SetData(eHighmaulDatas::TwinOgronAchievement, 1);
                                 }
 
-                                if (!l_Caster->HasAura(l_SpellID))
-                                    l_Caster->CastSpell(l_Caster, l_SpellID, true);
+                                if (!caster->HasAura(l_SpellID))
+                                    caster->CastSpell(caster, l_SpellID, true);
 
                                 if (!l_Other->HasAura(l_SpellID))
                                     l_Other->CastSpell(l_Other, l_SpellID, true);
 
-                                if (Aura* l_CasterAura = l_Caster->GetAura(l_SpellID))
+                                if (Aura* casterAura = caster->GetAura(l_SpellID))
                                 {
-                                    if (AuraEffect* l_FirstEff = l_CasterAura->GetEffect(EFFECT_0))
-                                        l_FirstEff->ChangeAmount((int32)l_Distance);
+                                    if (AuraEffect* l_FirstEff = casterAura->GetEffect(EFFECT_0))
+                                        l_FirstEff->ChangeAmount((int32)distance);
 
-                                    if (AuraEffect* l_SecondEff = l_CasterAura->GetEffect(EFFECT_1))
-                                        l_SecondEff->ChangeAmount((int32)l_Distance);
+                                    if (AuraEffect* l_SecondEff = casterAura->GetEffect(EFFECT_1))
+                                        l_SecondEff->ChangeAmount((int32)distance);
                                 }
 
                                 if (Aura* l_OtherAura = l_Other->GetAura(l_SpellID))
                                 {
                                     if (AuraEffect* l_FirstEff = l_OtherAura->GetEffect(EFFECT_0))
-                                        l_FirstEff->ChangeAmount((int32)l_Distance);
+                                        l_FirstEff->ChangeAmount((int32)distance);
 
                                     if (AuraEffect* l_SecondEff = l_OtherAura->GetEffect(EFFECT_1))
-                                        l_SecondEff->ChangeAmount((int32)l_Distance);
+                                        l_SecondEff->ChangeAmount((int32)distance);
                                 }
 
-                                l_Caster->SetPower(Powers::POWER_ALTERNATE_POWER, (int32)l_Distance);
-                                l_Other->SetPower(Powers::POWER_ALTERNATE_POWER, (int32)l_Distance);
+                                caster->SetPower(Powers::POWER_ALTERNATE_POWER, (int32)distance);
+                                l_Other->SetPower(Powers::POWER_ALTERNATE_POWER, (int32)distance);
                             }
                         }
 
                         m_CheckTimer = 200;
                     }
                     else
-                        m_CheckTimer -= p_Diff;
+                        m_CheckTimer -= diff;
                 }
             }
 
@@ -1510,13 +1510,13 @@ class spell_highmaul_pulverize_third_wave : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_pulverize_third_wave_SpellScript);
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation const* l_Loc = GetExplTargetDest())
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    if (Unit* target = GetHitUnit())
                     {
-                        int32 l_Coeff = (int32)std::min(100.0f, l_Target->GetDistance(*l_Loc));
+                        int32 l_Coeff = (int32)std::min(100.0f, target->GetDistance(*l_Loc));
                         int32 l_Damage = GetHitDamage();
                         SetHitDamage(l_Damage - CalculatePct(l_Damage, l_Coeff));
                     }
@@ -1550,10 +1550,10 @@ class spell_highmaul_phemos_whirlwind : public SpellScriptLoader
                 WeakenedDefenses = 159709
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, eSpell::WeakenedDefenses, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, eSpell::WeakenedDefenses, true);
             }
 
             void Register() override
@@ -1584,18 +1584,18 @@ class spell_highmaul_blaze_dot : public SpellScriptLoader
                 BlazeSecond = 168374
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
-                if (Unit* l_Target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
-                    AreaTrigger* l_AT = l_Target->SelectNearestAreaTrigger(eSpells::BlazeFirst, 1.0f);
+                    AreaTrigger* l_AT = target->SelectNearestAreaTrigger(eSpells::BlazeFirst, 1.0f);
                     if (l_AT == nullptr)
-                        l_AT = l_Target->SelectNearestAreaTrigger(eSpells::BlazeSecond, 1.0f);
+                        l_AT = target->SelectNearestAreaTrigger(eSpells::BlazeSecond, 1.0f);
 
                     if (l_AT == nullptr)
                         return;
                     else
-                        p_AurEff->GetBase()->ModStackAmount(1);
+                        aurEff->GetBase()->ModStackAmount(1);
                 }
             }
 
@@ -1623,11 +1623,11 @@ public:
         BlazeDoT = 158241
     };
 
-    void OnUnitEnter(Unit* p_Unit) override
+    void OnUnitEnter(Unit* unit) override
     {
-        if (Unit* l_Caster = at->GetCaster())
-            if (!p_Unit->HasAura(eSpell::BlazeDoT))
-                l_Caster->CastSpell(p_Unit, eSpell::BlazeDoT, true);
+        if (Unit* caster = at->GetCaster())
+            if (!unit->HasAura(eSpell::BlazeDoT))
+                caster->CastSpell(unit, eSpell::BlazeDoT, true);
     }
 };
 

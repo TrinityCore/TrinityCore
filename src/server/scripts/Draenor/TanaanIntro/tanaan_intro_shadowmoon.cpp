@@ -92,9 +92,9 @@ public:
             m_SceneTimer = 0;
         }
 
-        void SetData(uint32 /*id*/, uint32 p_Value) override
+        void SetData(uint32 /*id*/, uint32 value) override
         {
-            m_SceneTimer = (uint16)p_Value;
+            m_SceneTimer = (uint16)value;
         }
 
         void SetGUID(ObjectGuid guid, int32 /*id*/) override

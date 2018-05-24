@@ -187,12 +187,12 @@ public:
             events.ScheduleEvent(EVENT_CHECK_ENNEMY, urand(2000, 10000));
         }
 
-        void DamageTaken(Unit* p_DoneBy, uint32& p_Damage) override
+        void DamageTaken(Unit* p_DoneBy, uint32& damage) override
         {
             if (p_DoneBy->ToCreature())
             {
-                if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
-                    p_Damage = 0;
+                if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
+                    damage = 0;
             }
         }
 

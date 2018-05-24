@@ -714,14 +714,14 @@ namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_magma_barrage_AuraScript);
 
-                void OnPeriodic(AuraEffect const* p_AurEff)
+                void OnPeriodic(AuraEffect const* aurEff)
                 {
                     Unit* caster = GetCaster();
                     if (!caster)
                         return;
 
                     if (Unit* target = caster->SelectNearbyTarget(nullptr, VISIBLE_RANGE))
-                        caster->CastSpell(target, GetSpellInfo()->GetEffect(p_AurEff->GetEffIndex())->TriggerSpell, true);
+                        caster->CastSpell(target, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true);
                 }
 
                 void Register() override
@@ -1003,7 +1003,7 @@ namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_magma_barrage_damage_AuraScript);
 
-                void OnPeriodic(AuraEffect const* p_AurEff)
+                void OnPeriodic(AuraEffect const* aurEff)
                 {
                     Unit* l_Owner = GetOwner()->ToPlayer();
                     if (!l_Owner)
@@ -1013,7 +1013,7 @@ namespace Instances { namespace Bloodmaul
                     l_Owner->GetAreaTriggerListWithSpellIDInRange(areaTriggerList, (uint32)Spells::MagmaBarrageAreaTrigger, 3.f);
 
                     if (areaTriggerList.size() == 0)
-                        p_AurEff->GetBase()->Remove();
+                        aurEff->GetBase()->Remove();
                 }
 
                 void Register() override
@@ -1049,35 +1049,35 @@ namespace Instances { namespace Bloodmaul
                 if (!at->GetCaster())
                     return;
 
-                float l_Orientation;
+                float orientation;
                 switch ((Spells)at->GetSpellId())
                 {
                     case Spells::ShatterEarthNW:
-                        l_Orientation = float(M_PI) / 4.f; // 45°
+                        orientation = float(M_PI) / 4.f; // 45°
                         break;
                     case Spells::ShatterEarthSW:
-                        l_Orientation = float(M_PI) / 4.f * 3.f; // 135°
+                        orientation = float(M_PI) / 4.f * 3.f; // 135°
                         break;
                     case  Spells::ShatterEarthSE:
-                        l_Orientation = float(M_PI) / 4.f * 5.f; // 225°
+                        orientation = float(M_PI) / 4.f * 5.f; // 225°
                         break;
                     case Spells::ShatterEarthNE:
-                        l_Orientation = float(M_PI) / 4.f * 7.f; // 315°
+                        orientation = float(M_PI) / 4.f * 7.f; // 315°
                         break;
                     default:
-                        l_Orientation = 0.f;
+                        orientation = 0.f;
                 }
 
                 Position destinationPosition;
-                destinationPosition.m_positionX = at->GetPositionX() + (cos(l_Orientation) * 20.f);
-                destinationPosition.m_positionY = at->GetPositionY() + (sin(l_Orientation) * 20.f);
+                destinationPosition.m_positionX = at->GetPositionX() + (cos(orientation) * 20.f);
+                destinationPosition.m_positionY = at->GetPositionY() + (sin(orientation) * 20.f);
                 destinationPosition.m_positionZ = at->GetPositionZ();
                 at->GetCaster()->UpdateGroundPositionZ(destinationPosition.m_positionX, destinationPosition.m_positionY, destinationPosition.m_positionZ);
-                destinationPosition.SetOrientation(l_Orientation);
+                destinationPosition.SetOrientation(orientation);
                 at->SetDestination(destinationPosition, 2000);
             }
 
-            void OnUpdate(uint32 /*p_Time*/) override
+            void OnUpdate(uint32 /*diff*/) override
             {
                 Unit* caster = at->GetCaster();
                 std::list<Unit*> targetList;
@@ -1122,35 +1122,35 @@ namespace Instances { namespace Bloodmaul
                 if (!at->GetCaster())
                     return;
 
-                float l_Orientation;
+                float orientation;
                 switch ((Spells)at->GetSpellId())
                 {
                     case Spells::VolcanicTrantrumNW:
-                        l_Orientation = float(M_PI) / 4.f; // 45°
+                        orientation = float(M_PI) / 4.f; // 45°
                         break;
                     case Spells::VolcanicTrantrumSW:
-                        l_Orientation = float(M_PI) / 4.f * 3.f; // 135°
+                        orientation = float(M_PI) / 4.f * 3.f; // 135°
                         break;
                     case Spells::VolcanicTrantrumSE:
-                        l_Orientation = float(M_PI) / 4.f * 5.f; // 225°
+                        orientation = float(M_PI) / 4.f * 5.f; // 225°
                         break;
                     case Spells::VolcanicTrantrumNE:
-                        l_Orientation = float(M_PI) / 4.f * 7.f; // 315°
+                        orientation = float(M_PI) / 4.f * 7.f; // 315°
                         break;
                     default:
-                        l_Orientation = 0.f;
+                        orientation = 0.f;
                 }
 
                 Position destinationPosition;
-                destinationPosition.m_positionX = at->GetPositionX() + (cos(l_Orientation) * 20.f);
-                destinationPosition.m_positionY = at->GetPositionY() + (sin(l_Orientation) * 20.f);
+                destinationPosition.m_positionX = at->GetPositionX() + (cos(orientation) * 20.f);
+                destinationPosition.m_positionY = at->GetPositionY() + (sin(orientation) * 20.f);
                 destinationPosition.m_positionZ = at->GetPositionZ();
                 at->GetCaster()->UpdateGroundPositionZ(destinationPosition.m_positionX, destinationPosition.m_positionY, destinationPosition.m_positionZ);
-                destinationPosition.SetOrientation(l_Orientation);
+                destinationPosition.SetOrientation(orientation);
                 at->SetDestination(destinationPosition, 2000);
             }
 
-            void OnUpdate(uint32 /*p_Time*/) override
+            void OnUpdate(uint32 /*diff*/) override
             {
                 Unit* caster = at->GetCaster();
                 Unit* target = nullptr;
@@ -1185,7 +1185,7 @@ namespace Instances { namespace Bloodmaul
         public:
             areatrigger_magma_barrage(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger) { }
 
-            void OnUpdate(uint32 /*p_Time*/) override
+            void OnUpdate(uint32 /*diff*/) override
             {
                 Unit* caster = at->GetCaster();
                 std::list<Unit*> targetList;
