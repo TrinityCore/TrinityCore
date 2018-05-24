@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "highmaul.h"
 #include "GameObjectAI.h"
 #include "Group.h"
@@ -779,7 +796,7 @@ class npc_highmaul_breaker_of_fel : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventFelNova, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -886,7 +903,7 @@ class npc_highmaul_breaker_of_fire : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -1024,7 +1041,7 @@ class npc_highmaul_breaker_of_frost : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventFrozenCore, 4 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -1186,7 +1203,7 @@ class spell_highmaul_frozen_core : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 200;
                 return true;
@@ -1246,7 +1263,7 @@ class spell_highmaul_wild_flames_areatrigger : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;
@@ -1324,7 +1341,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
 
             int32 m_AbsorbAmount;
 
-            bool Load()
+            bool Load() override
             {
                 m_AbsorbAmount = 0;
                 return true;
@@ -1412,7 +1429,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 200;
                 return true;
@@ -1450,7 +1467,8 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
 
                             if (InstanceScript* l_Instance = l_Target->GetInstanceScript())
                             {
-                                if (l_Boss = ObjectAccessor::GetCreature(*l_Target, l_Instance->GetGuidData(eHighmaulCreatures::Koragh)))
+                                l_Boss = ObjectAccessor::GetCreature(*l_Target, l_Instance->GetGuidData(eHighmaulCreatures::Koragh));
+                                if (l_Boss != nullptr)
                                 {
                                     if (l_Boss->IsAIEnabled)
                                     {
@@ -1712,7 +1730,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_highmaul_nullification_barrier_player_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_highmaul_nullification_barrier_player_AuraScript::OnAbsorb, EFFECT_0);
                 OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_nullification_barrier_player_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -2163,7 +2181,7 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerAI
                 at->SetDestination(l_Pos, l_Time + l_OldTime);
 
                 if (Unit* l_Boss = at->GetCaster())
-                    l_Boss->SendPlaySpellVisual(l_Pos, eVisual::OverflowingVisual, 6.5f);
+                    l_Boss->SendPlaySpellVisual(l_Pos, 6.5f, eVisual::OverflowingVisual);
             }
             else
             {

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 # include "highmaul.h"
 #include "CreatureTextMgr.h"
 
@@ -1330,8 +1347,8 @@ class boss_imperator_margok : public CreatureScript
                     l_MinRadius += (l_YardsPerMs * m_NovaTime);
 
                     ObjectGuid l_TriggerGuid = ObjectGuid::Empty;
-                    AreaTrigger* l_Trigger = nullptr;
-                    if (l_Trigger = me->GetAreaTrigger(eSpells::ForceNovaAreaTrigger))
+                    AreaTrigger* l_Trigger = me->GetAreaTrigger(eSpells::ForceNovaAreaTrigger);
+                    if (l_Trigger != nullptr)
                         l_TriggerGuid = l_Trigger->GetGUID();
 
                     std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
@@ -2260,10 +2277,9 @@ public:
                     Talk(eTalks::Berserk);
                     me->CastSpell(me, eSpells::SpellEdgeOfTheVoidPeriodic, false);
 
-                    AddTimedDelayedOperation(13000, [this]() -> void
+                    me->GetScheduler().Schedule(13s, [](TaskContext context)
                     {
-                        if(this)
-                            me->CastSpell(me, eHighmaulSpells::Berserker, true);
+                        GetContextUnit()->CastSpell(GetContextUnit(), eHighmaulSpells::Berserker, true);
                     });
 
                     AddTimedDelayedOperation(15000, [this]() -> void
@@ -2502,7 +2518,7 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 ScriptedAI::UpdateAI(p_Diff);
 
@@ -2901,7 +2917,7 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 ScriptedAI::UpdateAI(p_Diff);
 
@@ -3129,7 +3145,7 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
                 me->CastSpell(me, eSpells::AlphaFadeOut, true);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 ScriptedAI::UpdateAI(p_Diff);
 
@@ -3278,7 +3294,7 @@ class npc_highmaul_arcane_remnant : public CreatureScript
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 ScriptedAI::UpdateAI(p_Diff);
 
@@ -3322,7 +3338,7 @@ public:
             m_LastNearestTargetGUID = ObjectGuid::Empty;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SpellEnvelopingNightDummy && m_CanExplode)
             {
@@ -3331,7 +3347,7 @@ public:
             }
         }
 
-        void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo)
+        void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) override
         {
             m_CanExplode = true;
         }
@@ -3344,9 +3360,10 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 const p_Diff)
+        void UpdateAI(uint32 const p_Diff) override
         {
             if (Player *victim = me->SelectNearestPlayer(12))
+            {
                 if (m_LastNearestTargetGUID != victim->GetGUID())
                 {
                     if (victim->HasAura(SpellEyesofheAbyss))
@@ -3366,6 +3383,7 @@ public:
                         if (victim->HasAura(SpellEyesofheAbyss, me->GetGUID()))
                             victim->RemoveAurasDueToSpell(SpellEyesofheAbyss, me->GetGUID());
                 }
+            }
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -3411,7 +3429,7 @@ public:
                 trigger->CastSpell(trigger, eSpell::SpellGrowingShadowsAT);
         }
 
-        void UpdateAI(uint32 const p_Diff)
+        void UpdateAI(uint32 const p_Diff) override
         {
             if (m_AuraTimer < p_Diff)
             {
@@ -4115,7 +4133,7 @@ class spell_highmaul_dominance_aura : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;
