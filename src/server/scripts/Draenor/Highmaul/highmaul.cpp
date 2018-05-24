@@ -3306,7 +3306,7 @@ class npc_highmaul_arcane_torrent : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) override
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id == eSpell::ArcaneTorrentMoveSearcher)
                     me->CastSpell(me, eSpell::ArcaneTorrentMoveSearcher, true);

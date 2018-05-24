@@ -2094,7 +2094,7 @@ public:
         
     void OnRemove() override
     {
-        if (Unit* caster = at->GetCaster())
+        /*if (Unit* caster = at->GetCaster())
         {
             std::list<Unit*> targetList;
             float radius = 10.0f;
@@ -2105,13 +2105,13 @@ public:
                 
             for (Unit* l_Unit : targetList)
             {
-                /*if (!l_Unit->SelectNearestAreaTrigger(at->GetSpellId(), 2.0f))
+                if (!l_Unit->SelectNearestAreaTrigger(at->GetSpellId(), 2.0f))
                 {
                     if (l_Unit->HasAura(eSpell::CrystallineBarrage))
                         l_Unit->RemoveAura(eSpell::CrystallineBarrage);
-                }*/
+                }
             }
-        }
+        }*/
     }
 };
 

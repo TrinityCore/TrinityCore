@@ -457,7 +457,7 @@ class npc_raigonn_weak_spot : public CreatureScript
                                 Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
             }
 
-            bool CanBeTargetedOutOfLOS()
+            bool CanBeTargetedOutOfLOS() override
             {
                 return true;
             }

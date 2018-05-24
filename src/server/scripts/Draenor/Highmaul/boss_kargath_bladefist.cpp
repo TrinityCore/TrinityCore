@@ -3051,7 +3051,7 @@ public:
             {
                 Unit* caster = GetCaster();
 
-                targets.remove_if([this, caster](WorldObject* p_Object) -> bool
+                targets.remove_if([caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
                         return true;

@@ -3360,7 +3360,7 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (Player *victim = me->SelectNearestPlayer(12))
             {

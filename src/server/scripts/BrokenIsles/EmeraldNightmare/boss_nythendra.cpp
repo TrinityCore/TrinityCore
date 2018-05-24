@@ -166,7 +166,7 @@ struct npc_nythendra_corrupted_vermin : public ScriptedAI
 {
     npc_nythendra_corrupted_vermin(Creature* creature) : ScriptedAI(creature) { }
 
-    void DoAction(int32 action) override
+    void DoAction(int32 /*action*/) override
     {
         me->GetScheduler().Schedule(1s, [](TaskContext context)
         {
