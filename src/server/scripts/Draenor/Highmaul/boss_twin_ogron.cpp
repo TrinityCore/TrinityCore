@@ -226,7 +226,7 @@ class boss_twin_ogron_pol : public CreatureScript
                         /// The damage is higher the closer players are to the landing location.
                         AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this, l_Pos]() -> void
                         {
-                            me->SendPlaySpellVisual(l_Pos, eVisuals::BigPulverize, 4.015914f);
+                            me->SendPlaySpellVisual(l_Pos, 4.015914f, eVisuals::BigPulverize);
                         });
 
                         AddTimedDelayedOperation(14500, [this, l_Pos]() -> void
@@ -387,7 +387,7 @@ class boss_twin_ogron_pol : public CreatureScript
                     case eSpells::PulverizeSecondAoE:
                     {
                         Position l_Pos = *p_Target;
-                        me->SendPlaySpellVisual(l_Pos, eVisuals::PulverizeVisual, 2.5f);
+                        me->SendPlaySpellVisual(l_Pos, 2.5f, eVisuals::PulverizeVisual);
 
                         AddTimedDelayedOperation(2500, [this, l_Pos]() -> void
                         {
@@ -692,7 +692,7 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Pos]() -> void
                         {
-                            me->SendPlaySpellVisual(l_Pos, eVisuals::QuakeSpellVisual, 0.75f);
+                            me->SendPlaySpellVisual(l_Pos, 0.75f, eVisuals::QuakeSpellVisual);
                         });
 
                         l_O += M_PI;
@@ -717,7 +717,7 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                         AddTimedDelayedOperation(2500, [this, l_Pos]() -> void
                         {
-                            me->SendPlaySpellVisual(l_Pos, eVisuals::QuakeSpellVisual, 0.75f);
+                            me->SendPlaySpellVisual(l_Pos, 0.75f, eVisuals::QuakeSpellVisual);
                         });
 
                         break;
@@ -1354,7 +1354,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;
@@ -1419,7 +1419,7 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;

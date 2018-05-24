@@ -80,7 +80,7 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 return false;
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 if (p_Action == eAction::ActionMove)
                 {
@@ -4030,7 +4030,7 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;

@@ -628,8 +628,9 @@ class boss_tectus : public CreatureScript
                             if (IsMythic() && (me->GetEntry() == eHighmaulCreatures::Tectus || me->GetEntry() == eCreatures::ShardOfTectus))
                                 return;
                         }
-                        else if (IsMythic() && (!me->HasAura(HollowedHeartOfTheMountain) && me->GetEntry() == eHighmaulCreatures::Tectus) ||
-                            (!me->HasAura(HollowedShardOfTheMountain) && me->GetEntry() == eCreatures::ShardOfTectus))
+                        else if (IsMythic() && !me->HasAura(HollowedHeartOfTheMountain) &&
+                                (me->GetEntry() == eHighmaulCreatures::Tectus ||
+                                 me->GetEntry() == eCreatures::ShardOfTectus))
                         {
                             me->CastStop();
                             me->InterruptNonMeleeSpells(true);
@@ -957,7 +958,7 @@ class npc_highmaul_night_twisted_supplicant : public CreatureScript
                 return false;
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr || p_SpellInfo->Id != eSpell::NightTwistedCovenant)
                     return;
@@ -1753,7 +1754,7 @@ class spell_highmaul_accretion : public SpellScriptLoader
                 MoteOfTectus    = 80557
             };
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTaken = 0;
                 return true;
@@ -2008,7 +2009,7 @@ class spell_highmaul_raving_assault : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;
