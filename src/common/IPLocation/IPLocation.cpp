@@ -21,8 +21,8 @@
 #include "IpAddress.h"
 #include "Log.h"
 
-IPLocation::IPLocation() : _fileHandle(nullptr), _databaseType(0), _databaseColumn(0), _databaseYear(0),
-    _databaseMonth(0), _databaseDay(0), _databaseCount(0), _databaseAddr(0), _ipVersion(0),
+IPLocation::IPLocation() : _fileHandle(nullptr), _databaseType(0), _databaseColumn(0), _databaseDay(0),
+    _databaseMonth(0), _databaseYear(0), _databaseCount(0), _databaseAddr(0), _ipVersion(0),
     _ipv4DatabaseCount(0), _ipv4DatabaseAddr(0), _ipv4IndexbaseAddr(0)
 {
 }
