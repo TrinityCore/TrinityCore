@@ -951,22 +951,22 @@ class spell_mage_pyroblast_clearcasting_driver : public AuraScript
 };
 
 // Fireball 133
-class spell_mage_fireball : public SpellScript
+// Pyroblast 11366
+class spell_mage_firestarter : public SpellScript
 {
-    PrepareSpellScript(spell_mage_fireball);
-
-    SpellModifier * mod = nullptr;
+    PrepareSpellScript(spell_mage_firestarter);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
             SPELL_MAGE_FIREBALL,
+            SPELL_MAGE_PYROBLAST,
             SPELL_MAGE_FIRESTARTER
         });
     }
 
-    void HandleDummy()
+    void HandleCritChance(Unit* victim, float& chance)
     {
         Unit* caster = GetCaster();
         Unit* explunit = GetExplTargetUnit();
@@ -975,33 +975,13 @@ class spell_mage_fireball : public SpellScript
 
         if (explunit->GetHealthPct() >= 90 && caster->HasAura(SPELL_MAGE_FIRESTARTER))
         {
-            Player* player = GetCaster()->ToPlayer();
-
-            mod = new SpellModifier(caster->GetAura(SPELL_MAGE_FIRESTARTER));
-            mod->op = SPELLMOD_CRITICAL_CHANCE;
-            mod->type = SPELLMOD_FLAT;
-            mod->spellId = SPELL_MAGE_FIREBALL;
-            mod->value = 20000000;
-
-            player->AddSpellMod(mod, true);
+            chance = 100.f;
         }
-    }
-
-    void RemoveMod()
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        Unit* target = GetHitUnit();
-        if (!caster || !target)
-            return;
-
-        if (mod)
-            caster->AddSpellMod(mod, false);
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_mage_fireball::HandleDummy);
-        AfterHit += SpellHitFn(spell_mage_fireball::RemoveMod);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_firestarter::HandleCritChance);
     }
 };
 
@@ -2813,7 +2793,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_blizzard);
     RegisterSpellScript(spell_mage_frozen_orb);
     RegisterSpellScript(spell_mage_frost_bomb_damage);
-    RegisterSpellScript(spell_mage_fireball);
+    RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_pyroblast);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_spread);
