@@ -27,6 +27,7 @@
 #include "Creature.h"
 #include "CombatAI.h"
 #include "GridNotifiers.h"
+#include "Group.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
@@ -149,7 +150,9 @@ enum MageSpells
     SPELL_MAGE_WATER_JET                         = 135029,
     SPELL_MAGE_ICE_FLOES                         = 108839,
     SPELL_MAGE_CONJURE_REFRESHMENT_GROUP         = 167145,
-    SPELL_MAGE_CONJURE_REFRESHMENT_SOLO          = 116136
+    SPELL_MAGE_CONJURE_REFRESHMENT_SOLO          = 116136,
+    SPELL_MAGE_HYPOTHERMIA                       = 41425,
+    SPELL_INFERNO                                = 253220
 };
 
 enum TemporalDisplacementSpells
@@ -463,7 +466,8 @@ class spell_mage_fire_blast : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        bool procCheck = false;
+        // this is already handled by Pyroblast Clearcasting Driver - 44448
+        /*bool procCheck = false;
 
         if (Unit* caster = GetCaster())
         {
@@ -479,7 +483,7 @@ class spell_mage_fire_blast : public SpellScript
                 caster->RemoveAurasDueToSpell(SPELL_MAGE_HEATING_UP);
                 caster->CastSpell(caster, SPELL_MAGE_HOT_STREAK, true);
             }
-        }
+        }*/
     }
 
     void Register() override
@@ -1046,9 +1050,15 @@ class spell_mage_ice_block : public AuraScript
             GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_ICE_BARRIER, true);
     }
 
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_HYPOTHERMIA, true);
+    }
+
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_mage_ice_block::OnRemove, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_mage_ice_block::OnApply, EFFECT_2, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1711,9 +1721,15 @@ public:
             amount += crit;
         }
 
+        void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetCaster()->RemoveAurasDueToSpell(SPELL_INFERNO);
+        }
+
         void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_combustion_AuraScript::CalcAmount, EFFECT_1, SPELL_AURA_MOD_RATING);
+            OnEffectRemove += AuraEffectRemoveFn(spell_mage_combustion_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_RATING, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -1796,23 +1812,66 @@ class spell_mage_time_warp : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
+            std::vector<uint32> spellIds
+            {
+                SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+                SPELL_HUNTER_INSANITY,
+                SPELL_SHAMAN_EXHAUSTION,
+                SPELL_SHAMAN_SATED,
+                SPELL_PET_NETHERWINDS_FATIGUED
+            };
+
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED)
-                    || !sSpellMgr->GetSpellInfo(SPELL_PET_NETHERWINDS_FATIGUED))
-                    return false;
+                for (uint32 spell : spellIds)
+                {
+                    if (!sSpellMgr->GetSpellInfo(spell))
+                        return false;
+                }
                 return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Player* player = GetCaster()->ToPlayer();
+                if (!player)
+                    return SPELL_FAILED_DONT_REPORT;
+                Group* grp = player->GetGroup();
+                if (!grp)
+                {
+                    return HasSated(player) ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_CAST_OK;
+                }
+                for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player* member = itr->GetSource();
+
+                    if (!member || !member->GetSession())
+                        continue;
+
+                    if (!HasSated(member))
+                    {
+                        return SPELL_CAST_OK; // we have at least one valid target
+                    }
+                }
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            }
+
+            bool HasSated(Unit* target)
+            {
+                for (uint32 spell : spellIds)
+                {
+                    if (target->HasAura(spell))
+                        return true;
+                }
+                return false;
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
+                for (uint32 spell : spellIds)
+                {
+                    targets.remove_if(Trinity::UnitAuraCheck(true, spell));
+                }
             }
 
             void ApplyDebuff()
@@ -1825,6 +1884,7 @@ class spell_mage_time_warp : public SpellScriptLoader
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
+                OnCheckCast += SpellCheckCastFn(spell_mage_time_warp_SpellScript::CheckCast);
             }
         };
 
