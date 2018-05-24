@@ -134,12 +134,12 @@ private:
         events.DelayEvents(25s);
 
         me->GetScheduler()
-            .Schedule(4s, [this](TaskContext context)
+            .Schedule(4s, [this](TaskContext /*context*/)
             {
                 me->CastSpell(me, SPELL_HEART_OF_THE_SWARM, false);
                 me->SummonCreatureGroup(0);
             })
-            .Schedule(8s, [this](TaskContext context)
+            .Schedule(8s, [this](TaskContext /*context*/)
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
 

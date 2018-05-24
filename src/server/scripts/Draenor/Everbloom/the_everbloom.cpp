@@ -761,7 +761,7 @@ public:
 
         void OnCreate() override
         {
-            //p_AreaTrigger->SetCustomRadius(1.0f);
+            //at->SetCustomRadius(1.0f);
             directionForce = { at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), at->GetOrientation() };
         }
 
@@ -905,7 +905,7 @@ class spell_vine_pull : public SpellScriptLoader
 
         void OnCreate() override
         {
-            p_AreaTrigger->SetCustomRadius(3.0f);
+            at->SetCustomRadius(3.0f);
         }
 
         AreaTriggerAI* GetAI() const

@@ -99,7 +99,7 @@ namespace Instances { namespace Bloodmaul
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    //me->RemoveAllAreasTrigger();
+                    //me->RemoveAllAreaTriggers();
 
                     SetEquipmentSlots(false, eEquips::MainEquipID);
                 }
@@ -110,7 +110,7 @@ namespace Instances { namespace Bloodmaul
 
                     summons.DespawnAll();
 
-                    //me->RemoveAllAreasTrigger();
+                    //me->RemoveAllAreaTriggers();
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);

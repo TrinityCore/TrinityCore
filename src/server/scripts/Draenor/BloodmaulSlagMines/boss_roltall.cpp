@@ -126,14 +126,14 @@ namespace Instances { namespace Bloodmaul
 
                     me->AddUnitState(UnitState::UNIT_STATE_ROOT);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-                    //me->RemoveAllAreasTrigger();
+                    //me->RemoveAllAreaTriggers();
                 }
 
                 void JustDied(Unit*) override
                 {
                     _JustDied();
 
-                    //me->RemoveAllAreasTrigger();
+                    //me->RemoveAllAreaTriggers();
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);

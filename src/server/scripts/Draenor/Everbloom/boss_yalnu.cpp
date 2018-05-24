@@ -1172,7 +1172,7 @@ public:
 
     /*void OnCreate() override
     {
-        p_AreaTrigger->SetCustomRadius(6.0f);
+        at->SetCustomRadius(6.0f);
     }*/
 
     void OnUnitEnter(Unit* unit) override
