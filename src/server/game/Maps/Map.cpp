@@ -3791,6 +3791,11 @@ bool Map::Is25ManRaid() const
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
 }
 
+bool Map::IsLFR() const
+{
+    return IsRaid() && (i_spawnMode == DIFFICULTY_LFR || i_spawnMode == DIFFICULTY_LFR_NEW);
+}
+
 bool Map::IsBattleground() const
 {
     return i_mapEntry && i_mapEntry->IsBattleground();

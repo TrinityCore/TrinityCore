@@ -407,6 +407,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsHeroic() const;
         bool IsMythic() const;
         bool Is25ManRaid() const;   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsLFR() const;
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;

@@ -279,6 +279,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
     // return true for 25 man or 25 man heroic mode
     bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
+    bool IsLFR() const { return _difficulty == DIFFICULTY_LFR || _difficulty == DIFFICULTY_LFR_NEW; }
+    bool IsMythic() const { return me->GetMap()->IsMythic(); }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
