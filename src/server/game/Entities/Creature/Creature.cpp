@@ -196,7 +196,7 @@ m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTi
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr),
-m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), m_wildBattlePet(nullptr)
+m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), m_wildBattlePet(nullptr), m_disableHealthRegen(false)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -541,6 +541,9 @@ void Creature::Update(uint32 diff)
                 if (!sScriptMgr->CanSpawn(GetSpawnId(), GetEntry(), GetCreatureTemplate(), GetCreatureData(), GetMap()))
                     break; // Will be rechecked on next Update call
 
+                if (IsAIEnabled && !AI()->CanRespawn())
+                    break;
+
                 ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::Creature>(GetMapId(), GetEntry(), m_spawnId);
                 time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                 if (!linkedRespawntime)             // Can respawn
@@ -692,7 +695,7 @@ void Creature::Update(uint32 diff)
                                                   !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
                                                   !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
-                if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed() || CanNotReachTarget())) // regenerate health if not in combat or if polymorphed
+                if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed() || CanNotReachTarget()) && !HealthRegenDisabled()) // regenerate health if not in combat or if polymorphed
                     RegenerateHealth();
 
                 if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
@@ -736,7 +739,7 @@ void Creature::RegenerateMana()
     {
         float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
-        addvalue = uint32((27.0f / 5.0f + 17.0f) * ManaIncreaseRate);
+        addvalue = int32((27.0f / 5.0f + 17.0f) * ManaIncreaseRate);
     }
     else
         addvalue = maxValue / 3;
@@ -746,7 +749,11 @@ void Creature::RegenerateMana()
 
     addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
 
-    ModifyPower(POWER_MANA, addvalue);
+    int32 intVal = int32(addvalue);
+    if (IsAIEnabled)
+        AI()->RegeneratePower(POWER_MANA, intVal);
+
+    ModifyPower(POWER_MANA, intVal);
 }
 
 void Creature::RegenerateHealth()

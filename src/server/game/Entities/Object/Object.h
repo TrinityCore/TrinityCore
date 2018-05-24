@@ -471,6 +471,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool IsInBetween(Position const& pos1, Position const& pos2, float size = 0) const;
         bool IsInBetween(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const { return obj1 && obj2 && IsInBetween(obj1->GetPosition(), obj2->GetPosition(), size); }
+        bool IsInAxe(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
+        bool IsInAxe(WorldObject const* ovj, float width, float range) const;
+        bool IsInElipse(const WorldObject* obj1, const WorldObject* obj2, float width, float thickness) const;
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
@@ -534,6 +537,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Player*                 SelectNearestPlayer(float distance = 0.0f) const;
         std::list<Player*>      SelectNearestPlayers(float range, bool alive = true);
         Player*                 SelectRandomPlayerInRange(float range, bool alive);
+
+        AreaTrigger*            SelectNearestAreaTrigger(uint32 spellId, float distance = 0.0f) const;
+        std::list<AreaTrigger*> SelectNearestAreaTriggers(uint32 spellId, float range);
+        AreaTrigger*            SelectRandomAreaTriggerInRange(uint32 spellId, float range);
 
         template <typename Container>
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;

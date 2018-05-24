@@ -2158,6 +2158,35 @@ namespace Trinity
         private:
             bool const _ascending;
     };
+
+    // Binary predicate for sorting Units based on value of distance of an GameObject
+    class DistanceCompareOrderPred
+    {
+        public:
+            DistanceCompareOrderPred(const WorldObject* object, bool ascending = true) : m_object(object), m_ascending(ascending) {}
+            bool operator() (const WorldObject* a, const WorldObject* b) const
+            {
+                return m_ascending ? a->GetDistance(m_object) < b->GetDistance(m_object) :
+                                     a->GetDistance(m_object) > b->GetDistance(m_object);
+            }
+        private:
+            const WorldObject* m_object;
+            const bool m_ascending;
+    };
+
+    class DistanceOrderPred
+    {
+        public:
+            DistanceOrderPred(Unit* searcher) :  _searcher(searcher) { }
+            bool operator() (const Unit* a, const Unit* b) const
+            {
+                float rA = _searcher->GetDistance(a);
+                float rB = _searcher->GetDistance(b);
+                return rA < rB;
+            }
+        private:
+            Unit const* _searcher;
+    };
 }
 
 inline void SetUnitCurrentCastSpell(Unit* unit, Spell* spell)

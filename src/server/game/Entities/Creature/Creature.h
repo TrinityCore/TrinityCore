@@ -352,6 +352,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         WildBattlePet* GetWildBattlePet() { return m_wildBattlePet; }
 
+        void DisableHealthRegen() { m_disableHealthRegen = true; }
+        void ReenableHealthRegen() { m_disableHealthRegen = false; }
+        bool HealthRegenDisabled() const { return m_disableHealthRegen; }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -429,6 +433,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatGroup m_textRepeat;
 
         WildBattlePet* m_wildBattlePet;
+
+        bool m_disableHealthRegen;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

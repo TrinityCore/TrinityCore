@@ -32,6 +32,7 @@ class PlayerAI;
 class Spell;
 class WorldObject;
 struct Position;
+struct SpellDestination;
 
 typedef std::set<AreaBoundary const*> CreatureBoundary;
 
@@ -109,6 +110,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool CanSeeEvenInPassiveMode() { return m_canSeeEvenInPassiveMode; }
         void SetCanSeeEvenInPassiveMode(bool canSeeEvenInPassiveMode) { m_canSeeEvenInPassiveMode = canSeeEvenInPassiveMode; }
 
+        // Called in Creature::Update when deathstate = DEAD.
+        virtual bool CanRespawn() { return true; }
+
         // Trigger Creature "Alert" state (creature can see stealthed unit)
         void TriggerAlert(Unit const* who) const;
 
@@ -150,9 +154,25 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
 
+        // Called when spell hits a destination
+        virtual void SpellHitDest(SpellDestination const* /*dest*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when spell miss a target
+        virtual void SpellMissTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/, SpellMissInfo /*missInfo*/) { }
+
+        // Called when successful cast a spell
+        virtual void OnSpellCasted(SpellInfo const* /*spellInfo*/) { }
+
+        // Called when a spell is finished
+        virtual void OnSpellFinished(SpellInfo const* /*spellInfo*/) { }
+
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         virtual void AttackedBy(Unit* /*attacker*/) { }
         virtual bool IsEscorted() const { return false; }
+
+        // Called when check LOS
+        virtual bool CanBeTargetedOutOfLOS() { return false; }
+        virtual bool CanTargetOutOfLOS() { return false; }
 
         // Called when creature is spawned or respawned
         virtual void JustRespawned() { }
@@ -181,6 +201,9 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when owner attacks something
         virtual void OwnerAttacked(Unit* /*target*/) { }
+
+        // Called when a creature regen one of his power
+        virtual void RegeneratePower(Powers /*power*/, int32& /*value*/) { }
 
         // Called when the Creature reach splineIndex
         virtual void OnSplineIndexReached(int /*splineIndex*/) { }

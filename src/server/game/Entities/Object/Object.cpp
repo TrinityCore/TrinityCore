@@ -24,6 +24,7 @@
 #include "CinematicMgr.h"
 #include "Common.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScenario.h"
 #include "Item.h"
@@ -1679,6 +1680,14 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj))
         return false;
 
+    if (obj->IsCreature() && obj->ToCreature()->IsAIEnabled)
+        if (obj->ToCreature()->AI()->CanBeTargetedOutOfLOS())
+            return true;
+
+    if (IsCreature() && ToCreature()->IsAIEnabled)
+        if (ToCreature()->AI()->CanTargetOutOfLOS())
+            return true;
+
     float x, y, z;
     if (obj->GetTypeId() == TYPEID_PLAYER)
         obj->GetPosition(x, y, z);
@@ -1903,6 +1912,71 @@ bool WorldObject::IsInBetween(Position const& pos1, Position const& pos2, float 
 
     // not using sqrt() for performance
     return (size * size) >= GetExactDist2dSq(pos1.GetPositionX() + std::cos(angle) * dist, pos1.GetPositionY() + std::sin(angle) * dist);
+}
+
+bool WorldObject::IsInAxe(const WorldObject* obj1, const WorldObject* obj2, float size) const
+{
+    if (!obj1 || !obj2)
+        return false;
+
+    float dist = GetExactDist2d(obj1->GetPositionX(), obj1->GetPositionY());
+
+    if (!size)
+        size = GetObjectSize() / 2;
+
+    float angle = obj1->GetAngle(obj2);
+
+    // not using sqrt() for performance
+    return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + cos(angle) * dist, obj1->GetPositionY() + sin(angle) * dist);
+}
+
+bool WorldObject::IsInAxe(WorldObject const* obj, float width, float range) const
+{
+    if (obj == nullptr)
+        return false;
+
+    float l_Dist = GetExactDist2d(obj->GetPositionX(), obj->GetPositionY());
+    float l_X = obj->GetPositionX() + (range * cos(obj->GetOrientation()));
+    float l_Y = obj->GetPositionY() + (range * sin(obj->GetOrientation()));
+
+    /// Not using sqrt() for performance
+    if ((l_Dist * l_Dist) >= obj->GetExactDist2dSq(l_X, l_Y))
+        return false;
+
+    if (!width)
+        width = GetObjectSize() / 2;
+
+    float l_Angle = obj->GetAngle(l_X, l_Y);
+
+    /// Not using sqrt() for performance
+    return (width * width) >= GetExactDist2dSq(obj->GetPositionX() + cos(l_Angle) * l_Dist, obj->GetPositionY() + sin(l_Angle) * l_Dist);
+}
+
+bool WorldObject::IsInElipse(const WorldObject* obj1, const WorldObject* obj2, float width, float thickness) const
+{
+    if (!obj1 || !obj2)
+        return false;
+
+    float l_HalfDist = obj1->GetDistance(obj2) / 2;
+    float l_CoefRadius = obj1->GetDistance(this) - l_HalfDist;
+    if (l_CoefRadius < 0.0f)
+        l_CoefRadius *= -1;
+    else
+        l_CoefRadius = l_HalfDist - l_CoefRadius;
+
+    if (l_CoefRadius > l_HalfDist)
+        return false;
+
+    if (!IsInBetween(obj1, obj2, width + (thickness / 2)))
+        return false;
+
+    l_CoefRadius /= l_HalfDist;
+
+    l_CoefRadius *= width;
+
+    if (l_CoefRadius && IsInBetween(obj1, obj2, l_CoefRadius + (thickness / 2)) && !IsInBetween(obj1, obj2, l_CoefRadius - (thickness / 2)))
+        return true;
+    return false;
 }
 
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
@@ -2684,6 +2758,36 @@ std::list<Player*> WorldObject::SelectNearestPlayers(float range, bool alive)
 Player* WorldObject::SelectRandomPlayerInRange(float range, bool alive)
 {
     std::list<Player*> pList = SelectNearestPlayers(range, alive);
+
+    if (pList.empty())
+        return nullptr;
+
+    return Trinity::Containers::SelectRandomContainerElement(pList);
+}
+
+AreaTrigger* WorldObject::SelectNearestAreaTrigger(uint32 spellId, float distance) const
+{
+    AreaTrigger* target = nullptr;
+
+    Trinity::NearestAreaTriggerWithIdInObjectRangeCheck checker(this, spellId, distance);
+    Trinity::AreaTriggerSearcher<Trinity::NearestAreaTriggerWithIdInObjectRangeCheck> searcher(this, target, checker);
+    Cell::VisitAllObjects(this, searcher, distance);
+
+    return target;
+}
+
+std::list<AreaTrigger*> WorldObject::SelectNearestAreaTriggers(uint32 spellId, float range)
+{
+    std::list<AreaTrigger*> atList;
+    Trinity::AnyAreatriggerInObjectRangeCheck checker(this, range);
+    Trinity::AreaTriggerListSearcher<Trinity::AnyAreatriggerInObjectRangeCheck> searcher(this, atList, checker);
+    Cell::VisitGridObjects(this, searcher, range);
+    return atList;
+}
+
+AreaTrigger* WorldObject::SelectRandomAreaTriggerInRange(uint32 spellId, float range)
+{
+    std::list<AreaTrigger*> pList = SelectNearestAreaTriggers(spellId, range);
 
     if (pList.empty())
         return nullptr;

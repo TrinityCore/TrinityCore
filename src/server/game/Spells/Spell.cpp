@@ -2471,6 +2471,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
+    if (missInfo != SPELL_MISS_NONE)
+        if (m_caster->IsCreature() && m_caster->IsAIEnabled)
+            m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
+
     PrepareScriptHitHandlers();
     CallScriptBeforeHitHandlers(missInfo);
 
@@ -3458,6 +3462,9 @@ void Spell::cast(bool skipCheck)
 
     CallScriptAfterCastHandlers();
 
+    if (m_caster->IsCreature() && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
+
     if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
     {
         for (std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
@@ -3803,6 +3810,9 @@ void Spell::finish(bool ok)
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
     m_spellState = SPELL_STATE_FINISHED;
+
+    if (m_caster->IsCreature() && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellFinished(m_spellInfo);
 
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();

@@ -18,6 +18,7 @@
 
 #include "Pet.h"
 #include "Common.h"
+#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Group.h"
@@ -656,7 +657,11 @@ void Creature::Regenerate(Powers power)
 
     addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
 
-    ModifyPower(power, int32(addvalue));
+    int32 intVal = int32(addvalue);
+    if (IsAIEnabled)
+        AI()->RegeneratePower(power, intVal);
+
+    ModifyPower(power, intVal);
 }
 
 void Pet::Remove(PetSaveMode mode, bool returnreagent)

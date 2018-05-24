@@ -794,7 +794,7 @@ namespace Trinity
     class AnySceneObjectInObjectRangeCheck
     {
     public:
-        AnySceneObjectInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) { }
+        AnySceneObjectInObjectRangeCheck(WorldObject const* p_Object, float range) : m_Object(p_Object), m_Range(range) { }
         bool operator()(SceneObject* p_SceneObject)
         {
             if (m_Object->IsWithinDistInMap(p_SceneObject, m_Range))
@@ -810,7 +810,7 @@ namespace Trinity
     class AnyConversationInObjectRangeCheck
     {
     public:
-        AnyConversationInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) { }
+        AnyConversationInObjectRangeCheck(WorldObject const* p_Object, float range) : m_Object(p_Object), m_Range(range) { }
         bool operator()(Conversation* p_Conversation)
         {
             if (m_Object->IsWithinDistInMap(p_Conversation, m_Range))
@@ -1144,7 +1144,7 @@ namespace Trinity
     class AnyAreatriggerInObjectRangeCheck
     {
     public:
-        AnyAreatriggerInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) {}
+        AnyAreatriggerInObjectRangeCheck(WorldObject const* p_Object, float range) : m_Object(p_Object), m_Range(range) {}
         bool operator()(AreaTrigger* p_AreaTrigger)
         {
             if (m_Object->IsWithinDistInMap(p_AreaTrigger, m_Range))
