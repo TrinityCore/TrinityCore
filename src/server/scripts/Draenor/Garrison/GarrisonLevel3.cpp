@@ -20,6 +20,9 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
+/*
+ * Common scripts for garrison level 3 Alliance & Horde
+ */
 struct garrison_level_3 : public GarrisonAI
 {
     garrison_level_3(Garrison* gar) : GarrisonAI(gar) { }

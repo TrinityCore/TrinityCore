@@ -54,7 +54,7 @@ void AddSC_class_hall_warrior();
 void AddSC_legion_profession_blacksmithing();
 
 // WorldBoss
-void AddSC_boss_nitthogg();
+void AddSC_boss_nithogg();
 void AddSC_boss_ana_mouz();
 void AddSC_boss_calamir();
 void AddSC_boss_drugon_the_frostblood();
@@ -214,7 +214,7 @@ void AddBrokenIslesScripts()
     AddSC_boss_humongris();
     AddSC_boss_levantus();
     AddSC_boss_nazak_the_fiend();
-    AddSC_boss_nitthogg();
+    AddSC_boss_nithogg();
     AddSC_boss_sharthos();
     AddSC_boss_the_soultakers();
     AddSC_boss_withered_jim();

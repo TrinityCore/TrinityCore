@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "AreaTriggerAI.h"
 #include "AreaTrigger.h"
@@ -27,24 +27,24 @@
 
 enum Spells
 {
-    SPELL_TAIL_LASH = 212836,
+    SPELL_TAIL_LASH                     = 212836,
     //Electrical Storm
-    SPELL_ELECTRICAL_STORM_AT = 212885,
-    SPELL_ELECTRICAL_STORM_DAMAGE = 212884,
-    SPELL_ELECTRICAL_STORM_VISUAL = 198900,
-    SPELL_ELECTRICAL_STORM_TARGET = 212867,
+    SPELL_ELECTRICAL_STORM_AT           = 212885,
+    SPELL_ELECTRICAL_STORM_DAMAGE       = 212884,
+    SPELL_ELECTRICAL_STORM_VISUAL       = 198900,
+    SPELL_ELECTRICAL_STORM_TARGET       = 212867,
     //Static Charge
     //What to use to summon static orb : caster->SummonCreature(entry, pos, summonType, despawnTime);
-    SPELL_STATIC_CHARGE_SUMMON = 212889,
-    SPELL_STATIC_CHARGE_TARGETED = 212943, //Lightning rod, means you're a target
-    SPELL_STATIC_CHARGE_EXPLOSION = 212948,
-    SPELL_STATIC_CHARGE = 212887,
+    SPELL_STATIC_CHARGE_SUMMON          = 212889,
+    SPELL_STATIC_CHARGE_TARGETED        = 212943, //Lightning rod, means you're a target
+    SPELL_STATIC_CHARGE_EXPLOSION       = 212948,
+    SPELL_STATIC_CHARGE                 = 212887,
     //Crackling jolt
-    SPELL_CRACKLING_JOLT_TARGET_PICKER = 212837,
-    SPELL_CRACKLING_JOLT_MISSILE = 212838,
-    SPELL_CRACKLING_JOLT_DAMAGE = 212841,
+    SPELL_CRACKLING_JOLT_TARGET_PICKER  = 212837,
+    SPELL_CRACKLING_JOLT_MISSILE        = 212838,
+    SPELL_CRACKLING_JOLT_DAMAGE         = 212841,
 
-    SPELL_STORM_BREATH = 212852
+    SPELL_STORM_BREATH                  = 212852
 };
 
 enum NPCs
@@ -54,90 +54,104 @@ enum NPCs
 
 enum Phases
 {
-    PHASE_NORMAL = 0,//When the combat starts
-    PHASE_80PCT = 1, //When Nithogg is under 80
-    PHASE_60PCT = 2, //blabla 60
-    PHASE_40PCT = 3, //blabla 40
-    PHASE_20PCT = 4 //blabla 20
+    PHASE_NORMAL    = 0,//When the combat starts
+    PHASE_80PCT     = 1, //When Nithogg is under 80
+    PHASE_60PCT     = 2, //blabla 60
+    PHASE_40PCT     = 3, //blabla 40
+    PHASE_20PCT     = 4 //blabla 20
 };
 
 enum Events
 {
-    EVENT_CRACKLING_JOLT = 1,  //This event must be called every 20 percent hp
-    EVENT_TAIL_LASH = 2,  //Watched a video where people were always behind it : used every 7-8 sec
-    EVENT_ELECTRICAL_STORM = 3,  //About every 30 seconds
-    EVENT_STATIC_CHARGE = 4,  //Same as before
-    EVENT_STORM_BREATH = 5,   //Found on video : First at 10sec, then it's every 20 to 25 sec
+    EVENT_CRACKLING_JOLT    = 1,  //This event must be called every 20 percent hp
+    EVENT_TAIL_LASH         = 2,  //Watched a video where people were always behind it : used every 7-8 sec
+    EVENT_ELECTRICAL_STORM  = 3,  //About every 30 seconds
+    EVENT_STATIC_CHARGE     = 4,  //Same as before
+    EVENT_STORM_BREATH      = 5,   //Found on video : First at 10sec, then it's every 20 to 25 sec
 };
 
-
-class boss_nithogg : public CreatureScript
+struct boss_nithogg : public WorldBossAI
 {
-public:
-    boss_nithogg() : CreatureScript("boss_nithogg") { }
+    boss_nithogg(Creature* creature) : WorldBossAI(creature) { }
 
-    struct boss_nithoggAI : public WorldBossAI
+    void Reset() override
     {
-        boss_nithoggAI(Creature* creature) : WorldBossAI(creature)
-        {
+        _Reset();
+        me->SetFullHealth();
+        me->GetMotionMaster()->MoveTargetedHome();
+        events.SetPhase(PHASE_NORMAL);
+        events.Reset();
+    }
 
+    void EnterCombat(Unit* who) override
+    {
+        if (!who)
+            return;
+        me->setActive(true);
+        DoZoneInCombat();
+        events.ScheduleEvent(EVENT_TAIL_LASH, 7 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_CRACKLING_JOLT, 12000);
+        events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 20000);
+        events.ScheduleEvent(EVENT_STATIC_CHARGE, 15000);
+        events.ScheduleEvent(EVENT_STORM_BREATH, 7000);
+
+        me->SetFullHealth();
+        events.SetPhase(PHASE_NORMAL);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        Reset();
+    }
+
+    void DamageTaken(Unit* unit, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(80, damage))
+        {
+            events.SetPhase(PHASE_80PCT);
+            //events.ScheduleEvent(EVENT_CRACKLING_JOLT, 1000);
         }
-
-        void Reset() override
+        else if (me->HealthBelowPctDamaged(60, damage))
         {
-            _Reset();
-            me->SetFullHealth();
-            me->GetMotionMaster()->MoveTargetedHome();
-            events.SetPhase(PHASE_NORMAL);
-            events.Reset();
+            events.SetPhase(PHASE_60PCT);
+            DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
         }
-
-        void EnterCombat(Unit* who) override
+        else if (me->HealthBelowPctDamaged(40, damage))
         {
-            if (!who)
-                return;
-            me->setActive(true);
-            DoZoneInCombat();
+            events.SetPhase(PHASE_40PCT);
+            DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
+        }
+        else if (me->HealthBelowPctDamaged(20, damage))
+        {
+            events.SetPhase(PHASE_20PCT);
+            DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        //This is a safecheck. If Nithogg ever happens to not plan any attack, his cycle starts.
+        if(me->IsInCombat() && events.Empty())
+        {
             events.ScheduleEvent(EVENT_TAIL_LASH, 7 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_CRACKLING_JOLT, 12000);
             events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 20000);
             events.ScheduleEvent(EVENT_STATIC_CHARGE, 15000);
             events.ScheduleEvent(EVENT_STORM_BREATH, 7000);
-
-            me->SetFullHealth();
-            events.SetPhase(PHASE_NORMAL);
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/) override
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            //This is a safecheck. If Nithogg ever happens to not plan any attack, his cycle starts.
-            if(me->IsInCombat())
-                if (events.Empty())
-                {
-                    events.ScheduleEvent(EVENT_TAIL_LASH, 7 * IN_MILLISECONDS);
-                    events.ScheduleEvent(EVENT_CRACKLING_JOLT, 12000);
-                    events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 20000);
-                    events.ScheduleEvent(EVENT_STATIC_CHARGE, 15000);
-                    events.ScheduleEvent(EVENT_STORM_BREATH, 7000);
-                }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
                 case EVENT_TAIL_LASH:
                 {
                     for (auto itr : me->getThreatManager().getThreatList())
@@ -189,49 +203,10 @@ public:
                     events.ScheduleEvent(EVENT_STATIC_CHARGE, 40200);
                     break;
                 }
-                }
             }
-
-            switch (events.GetPhaseMask())
-            {
-            case PHASE_NORMAL:
-                if (HealthBelowPct(80))
-                {
-                    events.SetPhase(PHASE_80PCT);
-                    //events.ScheduleEvent(EVENT_CRACKLING_JOLT, 1000);
-                }
-                break;
-            case PHASE_80PCT:
-                if (HealthBelowPct(60))
-                {
-                    events.SetPhase(PHASE_60PCT);
-                    DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
-                }
-                break;
-            case PHASE_60PCT:
-                if (HealthBelowPct(40))
-                {
-                    events.SetPhase(PHASE_40PCT);
-                    DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
-                }
-                break;
-            case PHASE_40PCT:
-                if (HealthBelowPct(20))
-                {
-                    events.SetPhase(PHASE_20PCT);
-                    DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
-                }
-                break;
-
-            }
-
-            DoMeleeAttackIfReady();
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_nithoggAI(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -605,13 +580,13 @@ public:
     }
 };
 
-void AddSC_boss_nitthogg()
+void AddSC_boss_nithogg()
 {
     //ATs
     new at_nithogg_electrical_storm();
 
     //NPCs
-    new boss_nithogg();
+    RegisterCreatureAI(boss_nithogg);
     new npc_nithogg_electrical_storm();
     new npc_nithogg_static_orb();
 
