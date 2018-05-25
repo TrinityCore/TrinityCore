@@ -3892,8 +3892,7 @@ class spell_highmaul_unstoppable_charge : public SpellScriptLoader
                     if (target == nullptr)
                         return;
 
-                    float radius = GetSpellInfo()->GetEffect(0)->CalcRadius(caster);
-                    targets.remove_if([radius, caster, target](WorldObject* p_Object) -> bool
+                    targets.remove_if([caster, target](WorldObject* p_Object) -> bool
                     {
                         return !p_Object || !p_Object->IsInBetween(caster, target, 3.0f);
                     });

@@ -3049,8 +3049,6 @@ public:
 
             if (!targets.empty())
             {
-                Unit* caster = GetCaster();
-
                 targets.remove_if([](WorldObject* p_Object) -> bool
                 {
                     return !p_Object || !p_Object->IsPlayer() || p_Object->GetPositionZ() >= 62.4f;
