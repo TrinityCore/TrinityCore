@@ -2165,7 +2165,7 @@ void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, Aura
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_CRIT_CHANCE);
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_CRIT_CHANCE, aurApp);
         auto effEndItr = (*scritr)->DoEffectCalcCritChance.end(), effItr = (*scritr)->DoEffectCalcCritChance.begin();
         for (; effItr != effEndItr; ++effItr)
             effItr->Call(*scritr, aurEff, victim, chance);

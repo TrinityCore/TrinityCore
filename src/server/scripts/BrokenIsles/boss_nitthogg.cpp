@@ -433,24 +433,6 @@ public:
     }
 };
 
-class CracklingJoltDamageEvent : public BasicEvent
-{
-public:
-
-    CracklingJoltDamageEvent(Unit* caster, Unit* target) : _caster(caster), _target(target)
-    { }
-
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-    {
-        _caster->CastSpell(_target, SPELL_CRACKLING_JOLT_DAMAGE, false);
-        return true;
-    }
-
-private:
-    Unit* _caster;
-    Unit* _target;
-};
-
 //212837
 class spell_nithogg_crackling_jolt_target : public SpellScriptLoader
 {
@@ -503,7 +485,12 @@ public:
             if(GetTriggeringSpell() == sSpellMgr->GetSpellInfo(SPELL_CRACKLING_JOLT_MISSILE))
             {
                 PreventHitEffect(effIndex);
-                caster->m_Events.AddEvent(new CracklingJoltDamageEvent(caster, target), caster->m_Events.CalculateTime(2500));
+                ObjectGuid targetGuid = target->GetGUID();
+                caster->GetScheduler().Schedule(2500ms, [targetGuid](TaskContext context)
+                {
+                    if (Unit* target = ObjectAccessor::GetUnit(*GetContextUnit(), targetGuid))
+                        GetContextUnit()->CastSpell(target, SPELL_CRACKLING_JOLT_DAMAGE, false);
+                });
             }
         }
 

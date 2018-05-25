@@ -147,7 +147,7 @@ private:
                 for (AreaTrigger* at : areatriggers)
                     at->SetDestination(me->GetPosition(), 5000);
             })
-            .Schedule(3s, SPELL_HEART_OF_THE_SWARM, [this](TaskContext context)
+            .Schedule(2s, SPELL_HEART_OF_THE_SWARM, [this](TaskContext context)
             {
                 EntryCheckPredicate pred(NPC_CORRUPTED_VERMIN);
                 summons.DoAction(0, pred, 1);
@@ -170,7 +170,7 @@ struct npc_nythendra_corrupted_vermin : public ScriptedAI
     {
         me->GetScheduler().Schedule(1s, [](TaskContext context)
         {
-            GetContextUnit()->CastSpell(nullptr, SPELL_BURST_OF_CORRUPTION, false);
+            GetContextUnit()->CastSpell(GetContextUnit(), SPELL_BURST_OF_CORRUPTION, false);
 
             if (context.GetRepeatCounter() < 3)
                 context.Repeat();
@@ -239,16 +239,10 @@ class aura_nythendra_infested_breath : public AuraScript
 {
     PrepareAuraScript(aura_nythendra_infested_breath);
 
-    bool Load() override
-    {
-        _tickCount = 0;
-        return true;
-    }
-
-    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    void OnPeriodic(AuraEffect const* aurEff)
     {
         // Deal damage every 2 ticks
-        if (++_tickCount % 2 == 0)
+        if (aurEff->GetTickNumber() % 2 == 0)
             if (Unit* caster = GetCaster())
                 caster->CastSpell(caster, SPELL_INFESTED_BREATH_DAMAGE, true);
     }
@@ -257,8 +251,6 @@ class aura_nythendra_infested_breath : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(aura_nythendra_infested_breath::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
-private:
-    uint8 _tickCount;
 };
 
 //203096
