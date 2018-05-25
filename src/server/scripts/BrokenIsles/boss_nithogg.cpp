@@ -104,7 +104,7 @@ struct boss_nithogg : public WorldBossAI
         Reset();
     }
 
-    void DamageTaken(Unit* unit, uint32& damage) override
+    void DamageTaken(Unit* /*unit*/, uint32& damage) override
     {
         if (me->HealthBelowPctDamaged(80, damage))
         {
