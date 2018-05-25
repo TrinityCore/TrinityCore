@@ -655,7 +655,7 @@ class boss_imperator_margok : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGrowingShadowsDmg);
 
                     if(!IsMythic())
-                        CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
+                        instance->DoCastSpellOnPlayers(eSpells::ImperatorMargokBonus, me);
 
                     ///< Only Cho'gall can loot in mythic mode
                     if (IsMythic())
@@ -2110,7 +2110,7 @@ public:
 
                 me->RemoveAllAreaTriggers();
 
-                CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
+                instance->DoCastSpellOnPlayers(eSpells::ImperatorMargokBonus, me);
             }
         }
 

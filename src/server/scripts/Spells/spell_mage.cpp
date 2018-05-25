@@ -984,12 +984,19 @@ class spell_mage_cold_snap : public SpellScript
 {
     PrepareSpellScript(spell_mage_cold_snap);
 
-    std::initializer_list<uint32> spells = {
-        SPELL_MAGE_FROST_NOVA,
-        SPELL_MAGE_CONE_OF_COLD,
-        SPELL_MAGE_ICE_BARRIER,
-        SPELL_MAGE_ICE_BLOCK
-    };
+    std::initializer_list<uint32> spells;
+
+    bool Load() override
+    {
+        spells =
+        {
+            SPELL_MAGE_FROST_NOVA,
+            SPELL_MAGE_CONE_OF_COLD,
+            SPELL_MAGE_ICE_BARRIER,
+            SPELL_MAGE_ICE_BLOCK
+        };
+        return true;
+    }
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {

@@ -395,7 +395,7 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
                     if (IsMythic())
-                        CastSpellToPlayers(me->GetMap(), nullptr, eSpells::SpellRoarOfTheCrowd, true);
+                        instance->DoCastSpellOnPlayers(eSpells::SpellRoarOfTheCrowd);
                 }
             }
 
@@ -427,7 +427,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                 /// prevent the "unable to loot" after been killed
                 if(me->GetPositionZ() > 58)
-                    me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), 55.3, me->GetOrientation());
+                    me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), 55.3f, me->GetOrientation());
 
                 if (m_Instance)
                 {
@@ -446,7 +446,7 @@ class boss_kargath_bladefist : public CreatureScript
                     /*if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else*/
-                        CastSpellToPlayers(me->GetMap(), me, eSpells::KargathBonusLoot, true);
+                        instance->DoCastSpellOnPlayers(eSpells::KargathBonusLoot, me);
 
                     ResetAllPlayersFavor(me);
 
@@ -2310,7 +2310,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
                 if (Map* l_Map = me->GetMap())
                 {
                     if (l_Map->IsMythic())
-                        CastSpellToPlayers(l_Map, nullptr, eSpells::CrowdMinionKilled, true);
+                        instance->DoCastSpellOnPlayers(eSpells::CrowdMinionKilled);
                 }
             }
 
@@ -2656,9 +2656,9 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                 if (!m_Rotate)
                     return;
 
-                m_Angle += (2.0f * M_PI) / 10.0f;
+                m_Angle += (2.0f * float(M_PI)) / 10.0f;
 
-                if (m_Angle > (2.0f * M_PI))
+                if (m_Angle > (2.0f * float(M_PI)))
                     m_Angle = 0.0f;
 
                 me->SetFacingTo(m_Angle);
@@ -3749,9 +3749,9 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
                 {
                     Unit* caster = GetCaster();
 
-                    targets.remove_if([caster](WorldObject* p_Object) -> bool
+                    targets.remove_if([](WorldObject* p_Object) -> bool
                     {
-                        if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        if (p_Object == nullptr || !p_Object->IsPlayer())
                             return true;
 
                         if (Player* player = p_Object->ToPlayer())

@@ -457,7 +457,7 @@ class boss_tectus : public CreatureScript
                     }
 
                     if (Creature* tectus = instance->instance->GetCreature(instance->GetGuidData(eHighmaulCreatures::Tectus)))
-                        CastSpellToPlayers(tectus->GetMap(), tectus, eSpells::TectusBonus, true);
+                        instance->DoCastSpellOnPlayers(eSpells::TectusBonus, tectus);
 
                     /*if (IsLFR())
                     {
@@ -877,7 +877,7 @@ class boss_tectus : public CreatureScript
 
                 for (uint8 l_I = 0; l_I < eMiscs::MotesSpawnCount; ++l_I)
                 {
-                    float orientation = frand(0, 2 * M_PI);
+                    float orientation = frand(0.f, 2.f * float(M_PI));
                     float l_X = l_OrigX + (l_Range * cos(orientation));
                     float l_Y = l_OrigY + (l_Range * sin(orientation));
 
@@ -890,7 +890,7 @@ class boss_tectus : public CreatureScript
             {
                 if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 70.0f, true))
                 {
-                    float l_O = frand(0, 2 * M_PI);
+                    float l_O = frand(0.f, 2.f * float(M_PI));
                     float l_Range = 5.0f;
                     float l_X = target->GetPositionX() + (l_Range * cos(l_O));
                     float l_Y = target->GetPositionY() + (l_Range * sin(l_O));

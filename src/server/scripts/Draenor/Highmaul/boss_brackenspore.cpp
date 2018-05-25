@@ -412,7 +412,7 @@ class boss_brackenspore : public CreatureScript
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
+                    instance->DoCastSpellOnPlayers(eSpells::BrackensporeBonus, me);
 
                     if (IsLFR())
                     {
@@ -604,7 +604,7 @@ class boss_brackenspore : public CreatureScript
                 if (l_Map == nullptr)
                     return;
 
-                float orientation = frand(0.0f, 2 * M_PI);
+                float orientation = frand(0.0f, 2 * float(M_PI));
 
                 /// Use different spawn radius depending on orientation
                 float radius = GetSpawnRangeByOrientation(orientation);
