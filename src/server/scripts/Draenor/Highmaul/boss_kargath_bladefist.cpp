@@ -3182,7 +3182,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 std::list<Player*> l_DamagersList   = playerList;
 
                 uint8 l_OpenWoundsStacks = 0;
-                l_TanksList.remove_if([this, &l_OpenWoundsStacks](Player* player) -> bool
+                l_TanksList.remove_if([&l_OpenWoundsStacks](Player* player) -> bool
                 {
                     if (player->GetRoleForGroup() != Roles::ROLE_TANK)
                         return true;
@@ -3201,7 +3201,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
                 if (!l_TanksList.empty())
                 {
-                    l_TanksList.remove_if([this, l_OpenWoundsStacks](Player* player) -> bool
+                    l_TanksList.remove_if([l_OpenWoundsStacks](Player* player) -> bool
                     {
                         if (player->GetRoleForGroup() != Roles::ROLE_TANK)
                             return true;
@@ -3692,7 +3692,7 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
 
                 std::list<Player*> l_SnapShot;
 
-                playerList.remove_if([this, caster, &l_SnapShot](Player* player) -> bool
+                playerList.remove_if([caster, &l_SnapShot](Player* player) -> bool
                 {
                     if (caster->GetDistance(player) <= 10.0f)
                     {
@@ -3749,7 +3749,7 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
                 {
                     Unit* caster = GetCaster();
 
-                    targets.remove_if([this, caster](WorldObject* p_Object) -> bool
+                    targets.remove_if([caster](WorldObject* p_Object) -> bool
                     {
                         if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
                             return true;

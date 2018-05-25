@@ -4182,7 +4182,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_arcane_barrage_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, eSpells::ArcaneBarrageFirst, true);
