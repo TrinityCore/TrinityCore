@@ -665,14 +665,21 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
 }
 
 // Cast spell on all players in instance
-void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
+void InstanceScript::DoCastSpellOnPlayers(uint32 spell, Unit* caster /*= nullptr*/, bool triggered /*= true*/)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
+    {
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
             if (Player* player = i->GetSource())
-                player->CastSpell(player, spell, true);
+            {
+                caster = caster ? caster : player;
+                caster->CastSpell(player, spell, triggered);
+            }
+        }
+    }
 }
 
 // Cast spell on all players in instance
