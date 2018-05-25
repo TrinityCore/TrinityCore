@@ -3051,15 +3051,9 @@ public:
             {
                 Unit* caster = GetCaster();
 
-                targets.remove_if([caster](WorldObject* p_Object) -> bool
+                targets.remove_if([](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
-                        return true;
- 
-                    if (p_Object->GetPositionZ() >= 62.4f)
-                        return true;
-
-                    return false;
+                    return !p_Object || !p_Object->IsPlayer() || p_Object->GetPositionZ() >= 62.4f;
                 });
             }
 

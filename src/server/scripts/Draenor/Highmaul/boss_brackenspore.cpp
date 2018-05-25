@@ -1587,7 +1587,7 @@ class spell_highmaul_spore_shot : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                targets.remove_if([this](WorldObject* p_Object) -> bool
+                targets.remove_if([](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;

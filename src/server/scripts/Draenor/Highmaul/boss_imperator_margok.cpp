@@ -3579,11 +3579,10 @@ class spell_highmaul_branded : public SpellScriptLoader
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
                             ObjectGuid guid = target->GetGUID();
-                            ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                             {
                                 uint8 l_StacksCopy = l_Stacks;
 
@@ -3700,11 +3699,10 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
                             ObjectGuid guid = target->GetGUID();
-                            ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                             {
                                 uint8 l_StackCopy = l_Stacks;
 
@@ -3798,11 +3796,10 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
                             ObjectGuid guid = target->GetGUID();
-                            ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                             {
                                 uint8 l_StacksCopy = l_Stacks;
 
@@ -3894,11 +3891,10 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                         if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
                             ObjectGuid guid = target->GetGUID();
-                            ObjectGuid l_MeGuid = l_Margok->GetGUID();
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid, l_MeGuid](TaskContext context)
+                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                             {
                                 uint8 l_StacksCopy = l_Stacks;
 
