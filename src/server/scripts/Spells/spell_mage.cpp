@@ -152,7 +152,9 @@ enum MageSpells
     SPELL_MAGE_CONJURE_REFRESHMENT_GROUP         = 167145,
     SPELL_MAGE_CONJURE_REFRESHMENT_SOLO          = 116136,
     SPELL_MAGE_HYPOTHERMIA                       = 41425,
-    SPELL_INFERNO                                = 253220
+    SPELL_INFERNO                                = 253220,
+    SPELL_MAGE_BLAZING_BARRIER                   = 235313,
+    SPELL_MAGE_BLAZING_SOUL                      = 235365
 };
 
 enum TemporalDisplacementSpells
@@ -2761,6 +2763,37 @@ public:
     }
 };
 
+// Blazing Soul - 235365
+class spell_mage_blazing_soul : public AuraScript
+{
+    PrepareAuraScript(spell_mage_blazing_soul);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_BLAZING_BARRIER, SPELL_MAGE_BLAZING_SOUL });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = GetCaster();
+        Unit* victim = eventInfo.GetActionTarget();
+        int32 dist = aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount();
+        if (!caster || !victim || caster->GetDistance(victim) > dist)
+            return;
+        if (AuraEffect* barrier = caster->GetAuraEffect(SPELL_MAGE_BLAZING_BARRIER, EFFECT_0))
+        {
+            int32 bonus = eventInfo.GetDamageInfo()->GetDamage() * aurEff->GetAmount() / 100;
+            int32 maxAmount = int32(barrier->GetBaseAmount() + caster->SpellBaseHealingBonusDone(barrier->GetSpellInfo()->GetSchoolMask()) * 7.0f);
+            barrier->ChangeAmount(std::min(barrier->GetAmount() + bonus, maxAmount));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_blazing_soul::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new playerscript_mage_arcane();
@@ -2824,6 +2857,8 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_chilled);
     RegisterAuraScript(spell_mage_ray_of_frost);
     //7.3.2.25549 END
+
+    RegisterAuraScript(spell_mage_blazing_soul);
     
     // Spell Pet scripts
     new spell_mage_pet_freeze();
