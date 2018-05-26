@@ -1513,7 +1513,12 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->unlootedCount--;
                     player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
 
-                    ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(roll->GetItemDisenchantLoot(player));
+                    ItemDisenchantLootEntry const* disenchant = roll->GetItemDisenchantLoot(player);
+                    if (!disenchant)
+                    {
+                        TC_LOG_ERROR("misc", "Group::CountTheRoll: disenchant error for slot %u", roll->itemSlot);
+                        return;
+                    }
 
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
