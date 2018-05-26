@@ -4557,9 +4557,10 @@ void SpellMgr::LoadSpellInfoCorrections()
     // GILNEAS SPELLS
     //
     // Curse of the Worgen
+    // HACK! Correct handling requires high visbility distances
     ApplySpellFix({ 69123 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
 
     // Forcecast summon personal Godfrey
@@ -4567,7 +4568,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SUMMONER);
     });
-
 
     // ENDOF GILNEAS SPELLS
 

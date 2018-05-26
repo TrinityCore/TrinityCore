@@ -32,10 +32,6 @@
 #include "GameObjectAI.h"
 #include "GameObject.h"
 
-/*######
-## Quest 14320 - In Need of Ingredients
-######*/
-
 enum GilneasInvasionCamera
 {
     CINEMATIC_FORSAKEN_INVASION = 168
@@ -72,6 +68,7 @@ enum HorridAbomination
     SPELL_RANDOM_CIRCUMFERENCE_BONE     = 42267,
     SPELL_RANDOM_CIRCUMFERENCE_BONE_2   = 42274,
     SPELL_HORRID_ABOMINATION_EXPLOSION  = 68560,
+    SPELL_RESTITCHING                   = 68864,
 
     QUEST_HORRID_ABOMINATION_CREDIT     = 36233,
 
@@ -113,6 +110,7 @@ class npc_gilneas_horrid_abomination : public CreatureScript
                         Talk(SAY_KEG_PLACED);
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
+                        me->GetMotionMaster()->Clear();
                         _playerGUID = caster->GetGUID();
                         _allowEvents = true;
                         _events.ScheduleEvent(EVENT_ABOMINATION_KILL_ME, Seconds(2));
@@ -138,6 +136,16 @@ class npc_gilneas_horrid_abomination : public CreatureScript
                         break;
                     default:
                         break;
+                }
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (damage >= me->GetHealth())
+                {
+                    damage = 0;
+                    if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->HasAura(SPELL_RESTITCHING))
+                        DoCastSelf(SPELL_RESTITCHING);
                 }
             }
 
@@ -419,11 +427,16 @@ enum ForsakenCatapult
     SPELL_FIERY_BOULDER     = 68591,
     SPELL_LAUNCH_INTERNAL   = 96114,
     SPELL_LAUNCH_INTERNAL_2 = 96185,
-    SPELL_LAUNCH_1          = 68659,
-    SPELL_LAUNCH_2          = 66251,
+    SPELL_LAUNCH            = 66251,
 
     EVENT_FIERY_BOULDER     = 1,
-    SEAT_0                  = 0
+    EVENT_CHECK_AREA        = 2,
+
+    SEAT_0                  = 0,
+
+    SAY_WARN_OUT_OF_AREA    = 0,
+
+    AREA_ID_DUSKMIST_SHORE  = 5720
 };
 
 class npc_gilneas_forsaken_catapult : public CreatureScript
@@ -433,7 +446,21 @@ class npc_gilneas_forsaken_catapult : public CreatureScript
 
         struct npc_gilneas_forsaken_catapultAI : public VehicleAI
         {
-            npc_gilneas_forsaken_catapultAI(Creature* creature) : VehicleAI(creature) { }
+            npc_gilneas_forsaken_catapultAI(Creature* creature) : VehicleAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _preparedDespawn = false;
+            }
+
+            void Reset()
+            {
+                Initialize();
+                _events.ScheduleEvent(EVENT_FIERY_BOULDER, Milliseconds(1), Seconds(7));
+            }
 
             void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
             {
@@ -453,10 +480,13 @@ class npc_gilneas_forsaken_catapult : public CreatureScript
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetFaction(FACTION_FRIENDLY);
+                        _events.CancelEvent(EVENT_FIERY_BOULDER);
                     }
                 }
                 else if (passenger->GetTypeId() == TYPEID_PLAYER && !apply)
                     me->DespawnOrUnsummon(Seconds(9));
+                else if (passenger->GetTypeId() == TYPEID_PLAYER && apply)
+                    _events.ScheduleEvent(EVENT_CHECK_AREA, Milliseconds(1));
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -480,7 +510,7 @@ class npc_gilneas_forsaken_catapult : public CreatureScript
             {
                 switch (spell->Id)
                 {
-                    case SPELL_LAUNCH_2:
+                    case SPELL_LAUNCH:
                         if (target->GetVehicleCreatureBase())
                         {
                             Position pos = target->GetPosition();
@@ -503,6 +533,36 @@ class npc_gilneas_forsaken_catapult : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIERY_BOULDER:
+                            DoCastAOE(SPELL_FIERY_BOULDER);
+                            _events.Repeat(Seconds(7), Seconds(8));
+                            break;
+                        case EVENT_CHECK_AREA:
+                            if (me->GetAreaId() != AREA_ID_DUSKMIST_SHORE)
+                            {
+                                if (!_preparedDespawn)
+                                {
+                                    if (Vehicle* vehicle = me->GetVehicleKit())
+                                        if (Unit* passenger = vehicle->GetPassenger(SEAT_0))
+                                            Talk(SAY_WARN_OUT_OF_AREA, passenger);
+
+                                    _preparedDespawn = true;
+
+                                }
+                                else
+                                    me->DespawnOrUnsummon();
+
+                                _events.Repeat(Seconds(10));
+                            }
+                            else
+                            {
+                                if (_preparedDespawn)
+                                {
+                                    _preparedDespawn = false;
+                                    _events.Repeat(Seconds(2));
+                                }
+                                else
+                                    _events.Repeat(Seconds(2));
+                            }
                             break;
                         default:
                             break;
@@ -513,6 +573,7 @@ class npc_gilneas_forsaken_catapult : public CreatureScript
         private:
             EventMap _events;
             Position _targetPos;
+            bool _preparedDespawn;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -523,26 +584,26 @@ class npc_gilneas_forsaken_catapult : public CreatureScript
 
 class spell_gilneas_launch : public SpellScriptLoader
 {
-public:
-    spell_gilneas_launch() : SpellScriptLoader("spell_gilneas_launch") { }
+    public:
+        spell_gilneas_launch() : SpellScriptLoader("spell_gilneas_launch") { }
 
-    class spell_gilneas_launch_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gilneas_launch_SpellScript);
-
-        void TransferDestination(SpellEffIndex /*effIndex*/)
+        class spell_gilneas_launch_SpellScript : public SpellScript
         {
-            if (Unit* caster = GetCaster())
-                if (Creature* creature = caster->ToCreature())
-                    if (creature->IsAIEnabled)
-                        CAST_AI(npc_gilneas_forsaken_catapult::npc_gilneas_forsaken_catapultAI,
-                            creature->AI())->SetTargetDestination(GetExplTargetDest()->GetPosition());
-        }
+            PrepareSpellScript(spell_gilneas_launch_SpellScript);
 
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(spell_gilneas_launch_SpellScript::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
+            void TransferDestination(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Creature* creature = caster->ToCreature())
+                        if (creature->IsAIEnabled)
+                            CAST_AI(npc_gilneas_forsaken_catapult::npc_gilneas_forsaken_catapultAI,
+                                creature->AI())->SetTargetDestination(GetExplTargetDest()->GetPosition());
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_gilneas_launch_SpellScript::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
     };
 
     SpellScript* GetSpellScript() const override
@@ -551,9 +612,60 @@ public:
     }
 };
 
+class FireBoulderInFrontCheck
+{
+    public:
+        FireBoulderInFrontCheck(Unit* _caster) : caster(_caster) { }
+
+        bool operator()(WorldObject* object)
+        {
+            if (Unit* target = object->ToUnit())
+                return (!caster->isInFront(target, float(M_PI * 0.3f)));
+
+            return false;
+        }
+    private:
+        Unit* caster;
+
+};
+
+class spell_gilneas_fiery_boulder : public SpellScriptLoader
+{
+    public:
+        spell_gilneas_fiery_boulder() : SpellScriptLoader("spell_gilneas_fiery_boulder") { }
+
+        class spell_gilneas_fiery_boulder_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gilneas_fiery_boulder_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(FireBoulderInFrontCheck(GetCaster()));
+
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gilneas_fiery_boulder_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gilneas_fiery_boulder_SpellScript();
+        }
+};
+
 enum LeaderOfThePack
 {
-    NPC_ATTACK_MASTIFF  = 36405
+    NPC_ATTACK_MASTIFF = 36405
 };
 
 Position const AttackMastiffSummonPositions[] =
@@ -601,6 +713,34 @@ class spell_gilneas_call_attack_mastiff : public SpellScriptLoader
         }
 };
 
+class spell_gilneas_forcecast_cataclysm_1 : public SpellScriptLoader
+{
+    public:
+        spell_gilneas_forcecast_cataclysm_1() : SpellScriptLoader("spell_gilneas_forcecast_cataclysm_1") { }
+
+        class spell_gilneas_forcecast_cataclysm_1_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gilneas_forcecast_cataclysm_1_SpellScript);
+
+            void HandleForcecast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gilneas_forcecast_cataclysm_1_SpellScript::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gilneas_forcecast_cataclysm_1_SpellScript();
+        }
+};
+
 void AddSC_gilneas_c2()
 {
     new go_gilneas_invasion_camera();
@@ -612,5 +752,7 @@ void AddSC_gilneas_c2()
     new spell_gilneas_quest_save_james();
     new spell_gilneas_quest_save_the_children();
     new spell_gilneas_launch();
+    new spell_gilneas_fiery_boulder();
     new spell_gilneas_call_attack_mastiff();
+    new spell_gilneas_forcecast_cataclysm_1();
 }
