@@ -370,7 +370,7 @@ class instance_highmaul : public InstanceMapScript
                                 SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
                                 SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
                                 PlaySceneForPlayers(g_PlayScenePos, 1338);
-                                CastSpellToPlayers(instance, nullptr, eHighmaulSpells::ChogallNight, true);
+                                DoCastSpellOnPlayers(eHighmaulSpells::ChogallNight);
 
                                 if (!instance->IsLFR() && m_KargathAchievement)
                                     DoCompleteAchievement(eHighmaulAchievements::FlameOn);

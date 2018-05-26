@@ -233,7 +233,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
         // Cast spell on all players in instance
-        void DoCastSpellOnPlayers(uint32 spell);
+        void DoCastSpellOnPlayers(uint32 spell, Unit* caster = nullptr, bool triggered = true);
 
         // Play scene by packageId on all players in instance
         void DoPlayScenePackageIdOnPlayers(uint32 scenePackageId);

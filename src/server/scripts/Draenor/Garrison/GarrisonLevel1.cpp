@@ -26,6 +26,9 @@ enum Quests
     QUEST_BIGGER_IS_BETTER_A    = 36592,
 };
 
+/*
+ * Common scripts for garrison level 1 Alliance & Horde
+ */
 struct garrison_level_1 : public GarrisonAI
 {
     garrison_level_1(Garrison* gar) : GarrisonAI(gar) { }

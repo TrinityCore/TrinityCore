@@ -312,7 +312,7 @@ class boss_twin_ogron_pol : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
+                    instance->DoCastSpellOnPlayers(eSpells::TwinOgronBonus, me);
 
                     /*if (IsLFR())
                     {
@@ -668,7 +668,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                         m_EnfeeblingRoarScheduled = false;
                         m_WhirlwindScheduled = false;
 
-                        float l_O = frand(0, 2 * M_PI);
+                        float l_O = frand(0.f, 2.f * float(M_PI));
                         Position pos =
                         {
                             (g_CenterPos.m_positionX + (g_CircleToCenterDist * cos(l_O))),
@@ -695,7 +695,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                             me->SendPlaySpellVisual(pos, 0.75f, eVisuals::QuakeSpellVisual);
                         });
 
-                        l_O += M_PI;
+                        l_O += float(M_PI);
                         pos =
                         {
                             (g_CenterPos.m_positionX + (g_CircleToCenterDist * cos(l_O))),
@@ -1042,7 +1042,7 @@ class boss_twin_ogron_phemos : public CreatureScript
             {
                 if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BlazeFirstSpawn))
                 {
-                    float l_OStep = (pos.GetOrientation() - (M_PI / 2.0f)) + frand(0.0f, (M_PI / 3.0f));
+                    float l_OStep = (pos.GetOrientation() - (float(M_PI) / 2.0f)) + frand(0.0f, (float(M_PI) / 3.0f));
 
                     for (uint8 l_I = 0; l_I < eMiscs::BlazeFirstSpawnCounter; ++l_I)
                     {

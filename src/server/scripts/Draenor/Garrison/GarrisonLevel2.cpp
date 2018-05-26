@@ -26,6 +26,9 @@ enum Quests
     QUEST_MY_VERY_OWN_CASTLE    = 36615,
 };
 
+/*
+ * Common scripts for garrison level 2 Alliance & Horde
+ */
 struct garrison_level_2 : public GarrisonAI
 {
     garrison_level_2(Garrison* gar) : GarrisonAI(gar) { }

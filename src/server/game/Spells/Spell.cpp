@@ -7350,7 +7350,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->SetSpellModTakingSpell(this, true);
 
-    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    targetInfo.crit = m_caster->IsSpellCrit(unit, this, nullptr, m_spellSchoolMask, m_attackType);
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->SetSpellModTakingSpell(this, false);
@@ -7730,6 +7730,19 @@ void Spell::CallScriptDestinationTargetSelectHandlers(SpellDestination& target, 
         for (; hookItr != hookItrEnd; ++hookItr)
             if (hookItr->IsEffectAffected(m_spellInfo, effIndex) && targetType.GetTarget() == hookItr->GetTarget())
                 hookItr->Call(*scritr, target);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptCalcCritChanceHandlers(Unit* victim, float& chance)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE);
+        auto hookItrEnd = (*scritr)->OnCalcCritChance.end(), hookItr = (*scritr)->OnCalcCritChance.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr, victim, chance);
 
         (*scritr)->_FinishScriptCall();
     }

@@ -503,7 +503,7 @@ class boss_koragh : public CreatureScript
                     me->DespawnCreaturesInArea(eHighmaulCreatures::VolatileAnomaly, 400);
                     summons.DespawnAll();
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::KoraghBonus, true);
+                    instance->DoCastSpellOnPlayers(eSpells::KoraghBonus, me);
 
                     if (IsLFR())
                     {

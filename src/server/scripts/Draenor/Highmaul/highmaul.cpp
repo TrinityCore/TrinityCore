@@ -3892,16 +3892,9 @@ class spell_highmaul_unstoppable_charge : public SpellScriptLoader
                     if (target == nullptr)
                         return;
 
-                    float radius = GetSpellInfo()->GetEffect(0)->CalcRadius(caster);
-                    targets.remove_if([radius, caster, target](WorldObject* p_Object) -> bool
+                    targets.remove_if([caster, target](WorldObject* p_Object) -> bool
                     {
-                        if (p_Object == nullptr)
-                            return true;
-
-                        if (!p_Object->IsInBetween(caster, target, 3.0f))
-                            return true;
-
-                        return false;
+                        return !p_Object || !p_Object->IsInBetween(caster, target, 3.0f);
                     });
                 }
             }
@@ -4189,7 +4182,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_arcane_barrage_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, eSpells::ArcaneBarrageFirst, true);
