@@ -1859,6 +1859,7 @@ void SpellMgr::LoadSpellProcs()
             }
         }
 
+        /*
         if (!procSpellTypeMask)
         {
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1872,6 +1873,7 @@ void SpellMgr::LoadSpellProcs()
 
             continue;
         }
+        */
 
         SpellProcEntry procEntry;
         procEntry.SchoolMask      = 0;
