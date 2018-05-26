@@ -3721,6 +3721,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
+    // Lock and Load (Rank 1)
+    ApplySpellFix({ 56342 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1] = spellInfo->Effects[EFFECT_2];
+        spellInfo->Effects[EFFECT_2] = SpellEffectInfo();
+    });
+
     // Award Reputation - Boss Kill
     ApplySpellFix({ 73843, 73844, 73845, 73846 }, [](SpellInfo* spellInfo)
     {

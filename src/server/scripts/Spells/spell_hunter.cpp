@@ -470,7 +470,11 @@ class spell_hun_lock_and_load : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_LOCK_AND_LOAD_TRIGGER, SPELL_LOCK_AND_LOAD_MARKER });
+                return ValidateSpellInfo(
+                    {
+                        SPELL_LOCK_AND_LOAD_TRIGGER,
+                        SPELL_LOCK_AND_LOAD_MARKER
+                    });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -492,7 +496,7 @@ class spell_hun_lock_and_load : public SpellScriptLoader
                 // Additional check: do not proc on traps for immolation/explosive trap
                 // (But still do it for the periodic damage part)
                 if (mask == PROC_FLAG_DONE_TRAP_ACTIVATION)
-                    if (!(eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
+                    if (!(eventInfo.GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
                         return;
 
                 if (!roll_chance_i(aurEff->GetAmount()))
