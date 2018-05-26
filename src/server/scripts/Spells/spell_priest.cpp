@@ -1313,81 +1313,87 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 };
 
 // 47540 - Penance
-class spell_pri_penance : public SpellScriptLoader
+class spell_pri_penance : public SpellScript
 {
-    public:
-        spell_pri_penance() : SpellScriptLoader("spell_pri_penance") { }
+    PrepareSpellScript(spell_pri_penance);
 
-        class spell_pri_penance_SpellScript : public SpellScript
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1);
+        if (!firstRankSpellInfo)
+            return false;
+
+        // can't use other spell than this penance due to spell_ranks dependency
+        if (!spellInfo->IsRankOf(firstRankSpellInfo))
+            return false;
+
+        uint8 rank = spellInfo->GetRank();
+        if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
+            return false;
+        if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
+            return false;
+
+        return true;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Unit* unitTarget = GetHitUnit())
         {
-            PrepareSpellScript(spell_pri_penance_SpellScript);
+            if (!unitTarget->IsAlive())
+                return;
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+            uint8 rank = GetSpellInfo()->GetRank();
 
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1);
-                if (!firstRankSpellInfo)
-                    return false;
-
-                // can't use other spell than this penance due to spell_ranks dependency
-                if (!spellInfo->IsRankOf(firstRankSpellInfo))
-                    return false;
-
-                uint8 rank = spellInfo->GetRank();
-                if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
-                    return false;
-                if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
-                    return false;
-
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    if (!unitTarget->IsAlive())
-                        return;
-
-                    uint8 rank = GetSpellInfo()->GetRank();
-
-                    if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
-                    else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
-                }
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                if (Unit* target = GetExplTargetUnit())
-                    if (!caster->IsFriendlyTo(target))
-                    {
-                        if (!caster->IsValidAttackTarget(target))
-                            return SPELL_FAILED_BAD_TARGETS;
-                        if (!caster->isInFront(target))
-                            return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    }
-                return SPELL_CAST_OK;
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnCheckCast += SpellCheckCastFn(spell_pri_penance_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_penance_SpellScript;
+            if (caster->IsFriendlyTo(unitTarget))
+                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
+            else
+                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
         }
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (Unit* target = GetExplTargetUnit())
+            if (!caster->IsFriendlyTo(target))
+            {
+                if (!caster->IsValidAttackTarget(target))
+                    return SPELL_FAILED_BAD_TARGETS;
+                if (!caster->isInFront(target))
+                    return SPELL_FAILED_UNIT_NOT_INFRONT;
+            }
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_penance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCheckCast += SpellCheckCastFn(spell_pri_penance::CheckCast);
+    }
+};
+
+// 47666 - Penance Damage
+class spell_pri_penance_damage :public SpellScript
+{
+    PrepareSpellScript(spell_pri_penance_damage);
+
+    void CheckTarget(WorldObject*& target)
+    {
+        if (target == GetCaster())
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_penance_damage::CheckTarget, EFFECT_0, TARGET_UNIT_CHANNEL_TARGET);
+    }
 };
 
 // -47569 - Phantasm
@@ -2815,7 +2821,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_mana_leech();
     new spell_pri_mind_sear();
     new spell_pri_pain_and_suffering_proc();
-    new spell_pri_penance();
+    RegisterSpellScript(spell_pri_penance);
+    RegisterSpellScript(spell_pri_penance_damage);
     new spell_pri_phantasm();
     new spell_pri_power_word_solace();
     new spell_pri_prayer_of_mending_divine_insight();
