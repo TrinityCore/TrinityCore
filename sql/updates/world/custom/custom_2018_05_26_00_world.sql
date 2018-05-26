@@ -69,7 +69,6 @@ INSERT INTO `spell_dbc`(`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `At
 (110158, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 0, 0, 0, '(Serverside/Non-DB2) Achievement Credit'),
 (111533, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 0, 0, 0, '(Serverside/Non-DB2) Deathwing Kill Credit <Do Not Translate>');
 
-
 -- Delete deprecated GameObjects
 DELETE FROM `gameobject_template` WHERE `entry` IN (181105, 181106, 181165, 183510, 183511, 193171, 193169, 193170, 188597, 188598, 186810);
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (181105, 181106, 181165, 183510, 183511, 193171, 193169, 193170, 188597, 188598, 186810);
