@@ -1019,61 +1019,6 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
         }
 };
 
-/*class spell_hol_belier_apple_trap : public SpellScriptLoader
-{
-    public:
-        spell_hol_belier_apple_trap() : SpellScriptLoader("spell_hol_belier_apple_trap") { }
-
-        class spell_hol_belier_apple_trap_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hol_belier_apple_trap_SpellScript);
-
-            bool Validate(SpellEntry const* spell) override
-            {
-                return true;
-            }
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                Unit* caster = GetCaster();
-
-                if (!caster)
-                    return;
-
-                std::list<Player*> players = caster->GetNearestPlayersList(15.0f, true);
-
-                if (players.empty())
-                    return;
-
-                std::list<Player*>::iterator Itr;
-
-                for (Itr = players.begin(); Itr != players.end(); Itr++)
-                {
-                    if (Player * pPlayer = *Itr)
-                    {
-                        if (pPlayer->HasAura(SPELL_FATIGUE))
-                        {
-                            if (caster != pPlayer) // prevent infinite loop
-                                pPlayer->CastSpell(pPlayer, 43450, true); // apple trap friendly
-                            pPlayer->RemoveAurasDueToSpell(SPELL_EPUISE);
-                            pPlayer->RemoveAurasDueToSpell(SPELL_FATIGUE);
-                        }
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffect += SpellEffectFn(spell_hol_belier_apple_trap_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_hol_belier_apple_trap_SpellScript();
-        }
-};*/
-
 class spell_hol_beliers : public SpellScriptLoader
 {
     public:
@@ -1131,7 +1076,5 @@ void AddSC_event_brewfest()
     new spell_hol_belier_base();
     new spell_hol_belier_renes();
     new spell_hol_belier_all_speeds();
-    //new spell_hol_belier_apple_trap();
     new spell_hol_beliers();
 }
-

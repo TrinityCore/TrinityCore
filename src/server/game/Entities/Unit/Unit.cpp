@@ -7223,7 +7223,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         AddPct(TakenTotalMod, Tenacity->GetAmount());
 
     if (damagetype == DOT)
-        TakenTotalMod *= GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_HOT_PCT, spellProto->GetSchoolMask());
+        TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_HOT_PCT, spellProto->GetSchoolMask());
 
     // Healing Done
     int32 TakenTotal = 0;
