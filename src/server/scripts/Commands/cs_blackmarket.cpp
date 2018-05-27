@@ -53,8 +53,8 @@ public:
         if (!cmdArgs.ValidArgs())
             return false;
 
-        uint32 marketId         = cmdArgs.GetArgUInt(0);
-        uint32 durationSeconds  = cmdArgs.GetArgUInt(1);
+        uint32 marketId         = cmdArgs.GetArg<uint32>(0);
+        uint32 durationSeconds  = cmdArgs.GetArg<uint32>(1);
 
         if (BlackMarketEntry* entry = sBlackMarketMgr->GetAuctionByID(marketId))
             entry->SetStartTime(durationSeconds + time(nullptr) - sBlackMarketMgr->GetTemplateByID(entry->GetMarketId())->Duration);
