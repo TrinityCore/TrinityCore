@@ -182,7 +182,7 @@ public:
         ARG_UINT,
         ARG_FLOAT,
         ARG_STRING,
-        ARG_QUOTE_ENCLOSED_STRING,
+        ARG_PLAYER,
 
         ARG_OPTIONAL_BEGIN,
 
@@ -190,7 +190,14 @@ public:
         ARG_UINT_OPTIONAL,
         ARG_FLOAT_OPTIONAL,
         ARG_STRING_OPTIONAL,
-        ARG_QUOTE_ENCLOSED_STRING_OPTIONAL,
+        ARG_PLAYER_OPTIONAL,
+    };
+
+    struct PlayerResult
+    {
+        Player* Player = nullptr;
+        ObjectGuid Guid;
+        std::string Name;
     };
 
     CommandArgs(ChatHandler* handler, char const* args) : _validArgs(false), _handler(handler), _charArgs(args) { }
@@ -202,18 +209,13 @@ public:
     bool ValidArgs() const { return _validArgs; }
     void Initialize(std::initializer_list<CommandArgsType> argsType);
 
-    int32 GetArgInt(uint32 index)          { return GetArg<int32>(index); }
-    uint32 GetArgUInt(uint32 index)         { return GetArg<uint32>(index); }
-    float GetArgFloat(uint32 index)         { return GetArg<float>(index); }
-    std::string GetArgString(uint32 index)  { return GetArg<std::string>(index); }
-
     uint32 Count() { return _args.size(); }
 
     template<typename T>
-    T GetNextArg() { return boost::any_cast<T>(_args[_pos++]); }
+    T GetNextArg() { return GetArg<T>(_pos++); }
 
     template<typename T>
-    T GetArg(uint32 index)
+    T GetArg(uint8 index)
     {
         ASSERT(index < _args.size());
         return boost::any_cast<T>(_args[index]);
@@ -225,7 +227,7 @@ private:
     char const* _charArgs;
     std::initializer_list<CommandArgsType> _argsType;
     std::vector<boost::any> _args;
-    int32 _pos;
+    uint8 _pos;
 };
 
 #endif
