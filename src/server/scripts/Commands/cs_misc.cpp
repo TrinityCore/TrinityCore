@@ -1709,10 +1709,10 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                if (IPLocationRecord* record = sIPLocation->GetData(lastIp))
+                if (Iplocation* location = sIPLocation->GetData(lastIp))
                 {
                     lastIp.append(" (");
-                    lastIp.append(record->country_long);
+                    lastIp.append(record->country_name);
                     lastIp.append(")");
                 }
             }

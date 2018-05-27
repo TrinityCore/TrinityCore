@@ -341,8 +341,8 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     }
     else
     {
-        if (IPLocationRecord* record = sIPLocation->GetData(ipAddress))
-            _ipCountry = record->country_short;
+        if (Iplocation* location = sIPLocation->GetData(ipAddress))
+            _ipCountry = location->country_code;
 
         TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is not locked to ip", _accountInfo.Login.c_str());
         if (_accountInfo.LockCountry.empty() || _accountInfo.LockCountry == "00")
