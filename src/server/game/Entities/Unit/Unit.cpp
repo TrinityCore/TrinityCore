@@ -9766,7 +9766,9 @@ void Unit::CheckPowerProc(Powers power, int32 oldVal, int32 newVal)
 {
     AuraEffectList effects       = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT);
     AuraEffectList effectsAmount = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT);
-    effects.merge(effectsAmount);
+
+    if (effectsAmount.size() != 0)
+        effects.merge(effectsAmount);
 
     for (AuraEffect* effect : effects)
     {
