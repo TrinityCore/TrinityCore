@@ -474,24 +474,7 @@ class spell_pal_flash_of_light : public SpellScript
 
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-        {
-            uint32 sp = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-            uint32 dmg = uint32(1 + sp * 4.25f);
-
-            if (caster->HasAura(SPELL_PALADIN_INFUSION_OF_LIGHT_AURA))
-            {
-                dmg = dmg * 1.5f;
-                caster->RemoveAura(SPELL_PALADIN_INFUSION_OF_LIGHT_AURA);
-            }
-
-            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) != TALENT_SPEC_PALADIN_HOLY)
-            {
-                dmg = dmg * 1.5f;
-            }
-
-            SetHitHeal(dmg);
-        }
+        GetCaster()->RemoveAurasDueToSpell(SPELL_PALADIN_INFUSION_OF_LIGHT_AURA);
     }
 
     void Register() override
