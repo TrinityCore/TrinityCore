@@ -1712,7 +1712,7 @@ public:
                 if (Iplocation* location = sIPLocation->GetData(lastIp))
                 {
                     lastIp.append(" (");
-                    lastIp.append(record->country_name);
+                    lastIp.append(location->country_name);
                     lastIp.append(")");
                 }
             }
