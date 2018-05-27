@@ -1,3 +1,4 @@
+/*
 -- Old Town Thug
 DELETE FROM `creature_text` WHERE `CreatureID` IN (4969,38867);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -29,3 +30,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (496101,9,8,0,0,0,100,0,4000,4000,0,0,0,1,0,0,0,0,0,0,19,4969,0,0,0,0,0,0,"Dashel Stonefist - On Script - Say Line 0 (Old Town Thug)"),
 (496101,9,9,0,0,0,100,0,3000,3000,0,0,0,1,0,0,0,0,0,0,19,38867,0,0,0,0,0,0,"Dashel Stonefist - On Script - Say Line 0 (Old Town Thug)"),
 (496101,9,10,0,0,0,100,0,0,0,0,0,0,1,1,0,0,0,0,0,19,38867,0,0,0,0,0,0,"Dashel Stonefist - On Script - Say Line 1 (Old Town Thug)");
+*/

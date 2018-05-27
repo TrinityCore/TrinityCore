@@ -1,3 +1,4 @@
+/*
 -- Pathing for Princess
 UPDATE `creature` SET `position_x`=-9785.24, `position_y`=-880.61, `position_z`=39.6131, `MovementType`=2 WHERE `guid`=80849;
 UPDATE `creature` SET `position_x`=-9785.44, `position_y`=-883.454, `position_z`=39.6473 WHERE `guid`=80850;
@@ -24,3 +25,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (808490,7,-9753.51,-871.917,39.5511,0,0,0,0,100,0),
 (808490,8,-9769.58,-886.229,39.4867,0,0,0,0,100,0),
 (808490,9,-9776.63,-887.336,39.5384,0,0,0,0,100,0);
+*/

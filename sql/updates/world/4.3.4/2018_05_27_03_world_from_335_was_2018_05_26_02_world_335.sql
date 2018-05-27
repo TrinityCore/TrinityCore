@@ -1,3 +1,4 @@
+/*
 -- Daryn Lightwind
 DELETE FROM `creature_text` WHERE `CreatureID`=7907;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -13,3 +14,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (790700,9,1,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Daryn Lightwind - On Script - Say Line 0"),
 (790700,9,2,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Daryn Lightwind - On Script - Say Line 1"),
 (790700,9,3,0,0,0,100,0,10000,10000,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,3.82227,"Daryn Lightwind - On Script - Set Orientation");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Troyas Moonbreeze
 DELETE FROM `creature_text` WHERE `CreatureID`=7764;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -15,3 +16,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (776400,9,2,0,0,0,100,0,3000,3000,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Troyas Moonbreeze - On Script - Say Line 1"),
 (776400,9,3,0,0,0,100,0,5000,5000,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Troyas Moonbreeze - On Script - Say Line 2"),
 (776400,9,4,0,0,0,100,0,2000,2000,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Troyas Moonbreeze - On Script - Add Npc Flag Questgiver");
+*/

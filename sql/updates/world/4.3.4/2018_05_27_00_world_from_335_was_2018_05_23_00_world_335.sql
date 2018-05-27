@@ -1,3 +1,4 @@
+/*
 -- Quest "Get the Scoop"
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (21211, 21212,21217);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=231;
@@ -39,3 +40,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (662600,9,1,0,0,0,100,0,0,0,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"\"Plucky\" Johnson - On Script - Set Orientation"),
 (662600,9,2,0,0,0,100,0,500,500,0,0,0,5,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"\"Plucky\" Johnson - On Script - Play Emote 'Wave'"),
 (662600,9,3,0,0,0,100,0,3500,3500,0,0,0,28,9192,0,0,0,0,0,1,0,0,0,0,0,0,0,"\"Plucky\" Johnson - On Script - Remove Aura \"Plucky\" Resumes Human Form");
+*/
