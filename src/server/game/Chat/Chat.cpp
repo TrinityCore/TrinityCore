@@ -1217,23 +1217,59 @@ void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
     try
     {
         std::vector<CommandArgsType> argsTypeVector = std::vector<CommandArgsType>(argsType);
+        std::vector<char*> argsVector;
         char* arg = strtok((char*)_charArgs, " ");
-        uint8 argsCount = 0;
 
         while (arg != nullptr)
         {
-            // If too many arguments, do not validate args & return
-            if (argsCount > argsTypeVector.size())
-                return;
+            if (*arg == '"')
+                argsVector.push_back(_handler->extractQuotedArg(arg));
+            else
+                argsVector.push_back(arg);
 
-            switch (argsTypeVector[argsCount++])
+            arg = strtok(nullptr, " ");
+        }
+
+        uint8 argsVectorSize = argsVector.size();
+        uint8 argsTypeVectorSize = argsTypeVector.size();
+
+        // Check if any parameter is optionnal
+        if (argsVectorSize != argsTypeVectorSize)
+        {
+            if (argsVectorSize > argsTypeVectorSize)
+                throw std::invalid_argument("");
+
+            uint8 optionalCount = uint8(std::count_if(argsTypeVector.begin(), argsTypeVector.end(), [](CommandArgsType const& type)
+            {
+                return type > ARG_OPTIONAL_BEGIN;
+            }));
+
+            int8 argsDiff = argsTypeVectorSize - argsVectorSize;
+
+            if (optionalCount < argsDiff)
+                throw std::invalid_argument("");
+
+            for (uint8 i = argsTypeVectorSize; i != 0; --i)
+            {
+                auto itr = argsTypeVector.begin();
+                std::advance(itr, i - 1);
+
+                if (*itr > ARG_OPTIONAL_BEGIN)
+                    argsTypeVector.erase(itr);
+            }
+        }
+
+        // Finally, we cast all our args to their types
+        for (uint8 i = 0; i < argsTypeVector.size(); ++i)
+        {
+            switch (argsTypeVector[i])
             {
                 case ARG_INT:
-                    _args.push_back(int32(atoi(arg)));
+                    _args.push_back(int32(atoi(argsVector[i])));
                     break;
                 case ARG_UINT:
                 {
-                    int value = atoi(arg);
+                    int value = atoi(argsVector[i]);
                     if (value < 0)
                         return;
 
@@ -1241,23 +1277,18 @@ void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
                     break;
                 }
                 case ARG_FLOAT:
-                    _args.push_back(float(atof(arg)));
+                    _args.push_back(float(atof(argsVector[i])));
                     break;
                 case ARG_STRING:
-                    _args.push_back(std::string(arg));
+                    _args.push_back(std::string(argsVector[i]));
                     break;
                 case ARG_QUOTE_ENCLOSED_STRING:
-                    _args.push_back(std::string(_handler->extractQuotedArg(arg)));
+                    _args.push_back(std::string(argsVector[i]));
                     break;
                 default:
                     break;
             }
-            arg = strtok(nullptr, " ");
         }
-
-        // If not enough arguments, do not validate args
-        if (argsCount == argsTypeVector.size())
-            _validArgs = true;
     }
     // Catch potential boost exception
     catch (std::exception e)

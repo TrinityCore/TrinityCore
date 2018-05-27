@@ -183,6 +183,14 @@ public:
         ARG_FLOAT,
         ARG_STRING,
         ARG_QUOTE_ENCLOSED_STRING,
+
+        ARG_OPTIONAL_BEGIN,
+
+        ARG_INT_OPTIONAL,
+        ARG_UINT_OPTIONAL,
+        ARG_FLOAT_OPTIONAL,
+        ARG_STRING_OPTIONAL,
+        ARG_QUOTE_ENCLOSED_STRING_OPTIONAL,
     };
 
     CommandArgs(ChatHandler* handler, char const* args) : _validArgs(false), _handler(handler), _charArgs(args) { }
