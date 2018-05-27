@@ -30,6 +30,7 @@ EndScriptData */
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -204,40 +205,59 @@ public:
 
     static bool HandleResetTalentsCommand(ChatHandler* handler, char const* args)
     {
-        Player* target;
+        Player* target = nullptr;
         ObjectGuid targetGuid;
         std::string targetName;
+        bool resetSpec = true;
 
-        if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+        if (*args)
         {
-            /* TODO: 6.x remove/update pet talents
-            // Try reset talents as Hunter Pet
-            Creature* creature = handler->getSelectedCreature();
-            if (!*args && creature && creature->IsPet())
+            CommandArgs cmdArgs = CommandArgs(handler, args, { CommandArgs::ARG_STRING, CommandArgs::ARG_STRING });
+            if (cmdArgs.Count() >= 1)
             {
-                Unit* owner = creature->GetOwner();
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
+                if (cmdArgs.GetNextArg<std::string>() == "only")
                 {
-                    creature->ToPet()->resetTalents();
-                    owner->ToPlayer()->SendTalentsInfoData(true);
+                    resetSpec = false;
+                    if (cmdArgs.Count() >= 2)
+                    {
+                        std::string name = cmdArgs.GetNextArg<std::string>();
+                        // has playername as second arg
+                        // test if first arg is playername
+                        target = ObjectAccessor::FindPlayerByName(name);
 
-                    ChatHandler(owner->ToPlayer()->GetSession()).SendSysMessage(LANG_RESET_PET_TALENTS);
-                    if (!handler->GetSession() || handler->GetSession()->GetPlayer() != owner->ToPlayer())
-                        handler->PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, handler->GetNameLink(owner->ToPlayer()).c_str());
+                        // if player is offline
+                        if (!target)
+                        {
+                            // get data from database
+                            targetGuid = ObjectMgr::GetPlayerGUIDByName(name);
+                            if (!targetGuid.IsEmpty())
+                            {
+                                targetName = name;
+                            }
+                        }
+                    }
                 }
-                return true;
+                else
+                {
+                    if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+                    {
+                        handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+                        handler->SetSentErrorMessage(true);
+                        return false;
+                    }
+                }
             }
-            */
-
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
         }
+
+        // no character name provided as argument so use our current target
+        if (!target)
+            target = handler->getSelectedPlayer();
 
         if (target)
         {
             target->ResetTalents(true);
-            target->ResetTalentSpecialization();
+            if (resetSpec)
+                target->ResetTalentSpecialization();
             target->SendTalentsInfoData();
             ChatHandler(target->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
@@ -254,7 +274,7 @@ public:
         else if (!targetGuid.IsEmpty())
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_NONE | AT_LOGIN_RESET_PET_TALENTS));
+            stmt->setUInt16(0, uint16(AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS));
             stmt->setUInt64(1, targetGuid.GetCounter());
             CharacterDatabase.Execute(stmt);
 

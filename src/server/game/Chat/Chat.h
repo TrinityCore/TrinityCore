@@ -186,7 +186,7 @@ public:
     };
 
     CommandArgs(ChatHandler* handler, char const* args) : _validArgs(false), _handler(handler), _charArgs(args) { }
-    CommandArgs(ChatHandler* handler, char const* args, std::initializer_list<CommandArgsType> argsType) : _validArgs(false), _handler(handler), _charArgs(args)
+    CommandArgs(ChatHandler* handler, char const* args, std::initializer_list<CommandArgsType> argsType) : _validArgs(false), _handler(handler), _charArgs(args), _pos(0)
     {
         Initialize(argsType);
     }
@@ -194,10 +194,15 @@ public:
     bool ValidArgs() const { return _validArgs; }
     void Initialize(std::initializer_list<CommandArgsType> argsType);
 
-    uint32 GetArgInt(uint32 index)          { return GetArg<int32>(index); }
+    int32 GetArgInt(uint32 index)          { return GetArg<int32>(index); }
     uint32 GetArgUInt(uint32 index)         { return GetArg<uint32>(index); }
     float GetArgFloat(uint32 index)         { return GetArg<float>(index); }
     std::string GetArgString(uint32 index)  { return GetArg<std::string>(index); }
+
+    uint32 Count() { return _args.size(); }
+
+    template<typename T>
+    T GetNextArg() { return boost::any_cast<T>(_args[_pos++]); }
 
     template<typename T>
     T GetArg(uint32 index)
@@ -212,6 +217,7 @@ private:
     char const* _charArgs;
     std::initializer_list<CommandArgsType> _argsType;
     std::vector<boost::any> _args;
+    int32 _pos;
 };
 
 #endif
