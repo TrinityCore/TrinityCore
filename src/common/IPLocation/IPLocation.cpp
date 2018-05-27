@@ -89,7 +89,7 @@ void IPLocation::Load()
 
     ipfile.close();
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u entries.", _ipLocationStore.size());
+    TC_LOG_INFO("server.loading", ">> Loaded %u entries.", uint32(_ipLocationStore.size()));
 }
 
 Iplocation* IPLocation::GetData(std::string const& ipAddress)
