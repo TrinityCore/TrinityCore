@@ -79,8 +79,8 @@ void IPLocation::Load()
         std::transform(country_code.begin(), country_code.end(), country_code.begin(), ::tolower);
 
         Iplocation data;
-        data.ip_from        = (uint64)_atoi64(ip_from.c_str());;
-        data.ip_to          = (uint64)_atoi64(ip_to.c_str());;
+        data.ip_from        = (uint64)atoll(ip_from.c_str());;
+        data.ip_to          = (uint64)atoll(ip_to.c_str());;
         data.country_code   = country_code;
         data.country_name   = country_name;
 
