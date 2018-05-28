@@ -205,63 +205,33 @@ public:
 
     static bool HandleResetTalentsCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = nullptr;
-        ObjectGuid targetGuid;
-        std::string targetName;
+        CommandArgs::PlayerResult playerResult;
         bool resetSpec = true;
 
-        if (*args)
-        {
-            CommandArgs cmdArgs = CommandArgs(handler, args, { CommandArgs::ARG_STRING, CommandArgs::ARG_STRING });
-            if (cmdArgs.Count() >= 1)
-            {
-                if (cmdArgs.GetNextArg<std::string>() == "only")
-                {
-                    resetSpec = false;
-                    if (cmdArgs.Count() >= 2)
-                    {
-                        std::string name = cmdArgs.GetNextArg<std::string>();
-                        // has playername as second arg
-                        // test if first arg is playername
-                        target = ObjectAccessor::FindPlayerByName(name);
+        CommandArgs cmdArgs = CommandArgs(handler, args, { CommandArgs::ARG_STRING_OPTIONAL, CommandArgs::ARG_PLAYER_OPTIONAL });
 
-                        // if player is offline
-                        if (!target)
-                        {
-                            // get data from database
-                            targetGuid = ObjectMgr::GetPlayerGUIDByName(name);
-                            if (!targetGuid.IsEmpty())
-                            {
-                                targetName = name;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
-                    {
-                        handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-                        handler->SetSentErrorMessage(true);
-                        return false;
-                    }
-                }
-            }
+        if (cmdArgs.Count() >= 1)
+        {
+            if (cmdArgs.GetNextArg<std::string>() == "only")
+                resetSpec = false;
+
+            if (cmdArgs.Count() >= 2)
+                playerResult = cmdArgs.GetNextArg<CommandArgs::PlayerResult>();
         }
 
         // no character name provided as argument so use our current target
-        if (!target)
-            target = handler->getSelectedPlayer();
+        if (!playerResult.Player)
+            playerResult.Player = handler->getSelectedPlayer();
 
-        if (target)
+        if (playerResult.Player)
         {
-            target->ResetTalents(true);
+            playerResult.Player->ResetTalents(true);
             if (resetSpec)
-                target->ResetTalentSpecialization();
-            target->SendTalentsInfoData();
-            ChatHandler(target->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
-            if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
-                handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(target).c_str());
+                playerResult.Player->ResetTalentSpecialization();
+            playerResult.Player->SendTalentsInfoData();
+            ChatHandler(playerResult.Player->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
+            if (!handler->GetSession() || handler->GetSession()->GetPlayer() != playerResult.Player)
+                handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(playerResult.Player).c_str());
 
             /* TODO: 6.x remove/update pet talents
             Pet* pet = target->GetPet();
@@ -271,14 +241,14 @@ public:
             */
             return true;
         }
-        else if (!targetGuid.IsEmpty())
+        else if (!playerResult.Guid.IsEmpty())
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS));
-            stmt->setUInt64(1, targetGuid.GetCounter());
+            stmt->setUInt64(1, playerResult.Guid.GetCounter());
             CharacterDatabase.Execute(stmt);
 
-            std::string nameLink = handler->playerLink(targetName);
+            std::string nameLink = handler->playerLink(playerResult.Name);
             handler->PSendSysMessage(LANG_RESET_TALENTS_OFFLINE, nameLink.c_str());
             return true;
         }

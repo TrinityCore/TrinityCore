@@ -154,7 +154,8 @@ enum MageSpells
     SPELL_MAGE_HYPOTHERMIA                       = 41425,
     SPELL_INFERNO                                = 253220,
     SPELL_MAGE_BLAZING_BARRIER                   = 235313,
-    SPELL_MAGE_BLAZING_SOUL                      = 235365
+    SPELL_MAGE_BLAZING_SOUL                      = 235365,
+    SPELL_MAGE_CONTROLLED_BURN                   = 205033
 };
 
 enum TemporalDisplacementSpells
@@ -934,7 +935,12 @@ class spell_mage_pyroblast_clearcasting_driver : public AuraScript
         if (!caster->HasAura(SPELL_MAGE_HEATING_UP) && !caster->HasAura(SPELL_MAGE_HOT_STREAK))
         {
             caster->CastSpell(caster, SPELL_MAGE_HEATING_UP, true);
+
             procCheck = true;
+
+            if (AuraEffect* burn = caster->GetAuraEffect(SPELL_MAGE_CONTROLLED_BURN, EFFECT_0))
+                if (roll_chance_i(burn->GetAmount()))
+                    procCheck = false;
         }
 
 
