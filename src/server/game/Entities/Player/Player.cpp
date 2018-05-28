@@ -26470,7 +26470,7 @@ void Player::UnsummonPetTemporaryIfAny()
         m_oldpetspell = pet->GetUInt32Value(UNIT_CREATED_BY_SPELL);
     }
 
-    RemovePet(pet, PET_SAVE_DISMISS);
+    RemovePet(pet, PET_SAVE_TEMP_UNSUMMON);
 }
 
 void Player::ResummonPetTemporaryUnSummonedIfAny()

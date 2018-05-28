@@ -31,12 +31,13 @@ enum PetType
 // stored in character_pet.slot
 enum PetSaveMode
 {
-    PET_SAVE_AS_DELETED        = -1,  // not saved in fact
+    PET_SAVE_AS_DELETED        = -1,  // removes pet from DB and erases from playerPetDataStore
     PET_SAVE_UPADTE_SLOT       =  0,  // not used yet
-    PET_SAVE_CURRENT_STATE     =  1,  // Saves everything like it is atm
-    PET_SAVE_DISMISS           =  2,  // Saves everything like it is atm, but removes auras and sets unactive
-    PET_SAVE_LOGOUT            =  3,  // Saves everything like it is atm, but removes auras
-    PET_SAVE_NEW_PET           =  4
+    PET_SAVE_CURRENT_STATE     =  1,  // Saves everything like it is atm, current = true
+    PET_SAVE_DISMISS           =  2,  // Saves everything like it is atm, removes auras and current = false
+    PET_SAVE_LOGOUT            =  3,  // Saves everything like it is atm, removes auras and current = true
+    PET_SAVE_NEW_PET           =  4,   // Saves everything like it is atm, current = true and pushes new into playerPetDataStore
+    PET_SAVE_TEMP_UNSUMMON = PET_SAVE_LOGOUT
 };
 
 enum PetStableSlot
