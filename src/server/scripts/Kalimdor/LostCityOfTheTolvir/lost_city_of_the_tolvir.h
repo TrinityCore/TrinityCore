@@ -77,7 +77,7 @@ enum LCTCreatureIds
 
 enum LCTGameObjectIds
 {
-    GO_SIAMAT_PLATFORM = 205365
+    GO_SIAMATS_PLATFORM = 205365
 };
 
 enum LCTSpells

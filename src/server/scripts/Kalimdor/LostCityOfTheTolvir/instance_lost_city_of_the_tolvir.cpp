@@ -66,8 +66,8 @@ ObjectData const creatureData[] =
 
 ObjectData const gameObjectData[] =
 {
-    { GO_SIAMAT_PLATFORM,       DATA_SIAMAT_PLATFORM   },
-    { 0,                        0                      } // End
+    { GO_SIAMATS_PLATFORM,  DATA_SIAMAT_PLATFORM   },
+    { 0,                    0                      } // End
 };
 
 class instance_lost_city_of_the_tolvir : public InstanceMapScript
@@ -88,6 +88,14 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             void Initialize()
             {
                 heroicAughSpawned = false;
+                if (IsSiamatEnabled())
+                {
+                    if (Creature* siamat = GetCreature(DATA_SIAMAT))
+                        siamat->setActive(true);
+
+                    instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
+                    instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
+                }
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -98,6 +106,25 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     addStalkerGUIDs.push_back(creature->GetGUID());
                 else if (creature->GetEntry() == NPC_WIND_TUNNEL)
                     creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
+            void OnGameObjectCreate(GameObject* go) override
+            {
+                InstanceScript::OnGameObjectCreate(go);
+
+                switch (go->GetEntry())
+                {
+                    case GO_SIAMATS_PLATFORM:
+                        if (IsSiamatEnabled())
+                        {
+                            go->setActive(true);
+                            go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                            go->EnableCollision(true);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -122,7 +149,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
                     case DATA_HIGH_PROPHET_BARIM:
-                        if (state == DONE && CheckSiamatsPlatform())
+                        if (state == DONE && IsSiamatEnabled())
                         {
                             if (GameObject* platform = GetGameObject(DATA_SIAMAT_PLATFORM))
                             {
@@ -142,7 +169,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         }
                         break;
                     case DATA_SIAMAT: // anti-cheat protection
-                        if (state == IN_PROGRESS && !CheckSiamatsPlatform())
+                        if (state == IN_PROGRESS && !IsSiamatEnabled())
                             if (Creature* siamat = GetCreature(DATA_SIAMAT))
                                 siamat->AI()->EnterEvadeMode();
                         if (state == DONE)
@@ -193,7 +220,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            bool CheckSiamatsPlatform()
+            bool IsSiamatEnabled()
             {
                 for (LCTDataTypes boss : { DATA_GENERAL_HUSAM, DATA_LOCKMAW_AND_AUGH, DATA_HIGH_PROPHET_BARIM })
                     if (GetBossState(boss) != DONE)
