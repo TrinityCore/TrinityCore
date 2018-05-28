@@ -821,7 +821,12 @@ class npc_grandmother : public CreatureScript
         struct npc_grandmotherAI : public ScriptedAI
         {
             npc_grandmotherAI(Creature* creature) : ScriptedAI(creature) { }
-
+            bool GossipHello(Player* player) override
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "hello grandma", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, OPTION_WHAT_PHAT_LEWTS_YOU_HAVE, me->GetGUID());
+                return true;
+            }
             bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == OPTION_WHAT_PHAT_LEWTS_YOU_HAVE && gossipListId == 0)

@@ -354,6 +354,7 @@ public:
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
                     CloseGossipMenuFor(player);
+                    m_uiEventId = urand(1, 3);
                     StartEvent();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
