@@ -1223,7 +1223,7 @@ class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
         }
 };
 
-// -7235 - Shadow Ward
+// -6229 - Shadow Ward
 class spell_warl_shadow_ward : public SpellScriptLoader
 {
     public:

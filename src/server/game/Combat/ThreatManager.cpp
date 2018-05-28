@@ -74,7 +74,7 @@ void ThreatReference::UpdateOnlineState()
 {
     if (a->GetTypeId() == TYPEID_UNIT && a->ToCreature()->IsTrigger())
         return false;
-    if (a->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
+    if (a->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
     {
         if (b->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
             return false;
@@ -108,26 +108,21 @@ ThreatReference::OnlineState ThreatReference::SelectOnlineState()
     return ONLINE_STATE_ONLINE;
 }
 
-void ThreatReference::UpdateTauntState(bool victimIsTaunting)
+void ThreatReference::UpdateTauntState(TauntState state)
 {
-    if (victimIsTaunting)
-    {
-        _taunted = TAUNT_STATE_TAUNT;
-        HeapNotifyIncreased();
-        return;
-    }
-
     // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-    for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
-        if (eff->GetCasterGUID() == _owner->GetGUID())
-        {
-            _taunted = TAUNT_STATE_DETAUNT;
-            HeapNotifyDecreased();
-            return;
-        }
+    if (state < TAUNT_STATE_TAUNT && _victim->HasAuraTypeWithCaster(SPELL_AURA_MOD_DETAUNT, _owner->GetGUID()))
+        state = TAUNT_STATE_DETAUNT;
 
-    _taunted = TAUNT_STATE_NONE;
-    HeapNotifyChanged();
+    if (state == _taunted)
+        return;
+
+    std::swap(state, _taunted);
+
+    if (_taunted < state)
+        HeapNotifyDecreased();
+    else
+        HeapNotifyIncreased();
 }
 
 void ThreatReference::ClearThreat(bool sendRemove)
@@ -155,7 +150,7 @@ void ThreatReference::ClearThreat(bool sendRemove)
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _ownerEngaged(false), _updateClientTimer(CLIENT_THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _ownerEngaged(false), _updateClientTimer(CLIENT_THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
@@ -414,21 +409,21 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 void ThreatManager::TauntUpdate()
 {
     std::list<AuraEffect*> const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
-    auto threatEnd = _myThreatListEntries.end();
-    ThreatReference* tauntRef = nullptr;
+
+    uint32 state = ThreatReference::TAUNT_STATE_TAUNT;
+    std::unordered_map<ObjectGuid, ThreatReference::TauntState> tauntStates;
     // Only the last taunt effect applied by something still on our threat list is considered
-    for (auto it = tauntEffects.rbegin(), end = tauntEffects.rend(); it != end; ++it)
-    {
-        auto threatIt = _myThreatListEntries.find((*it)->GetCasterGUID());
-        if (threatIt == threatEnd)
-            continue;
-        if (!threatIt->second->IsAvailable())
-            continue;
-        tauntRef = threatIt->second;
-        break;
-    }
+    for (auto it = tauntEffects.begin(), end = tauntEffects.end(); it != end; ++it)
+        tauntStates[(*it)->GetCasterGUID()] = ThreatReference::TauntState(state++);
+
     for (auto const& pair : _myThreatListEntries)
-        pair.second->UpdateTauntState(pair.second == tauntRef);
+    {
+        auto it = tauntStates.find(pair.first);
+        if (it != tauntStates.end())
+            pair.second->UpdateTauntState(it->second);
+        else
+            pair.second->UpdateTauntState();
+    }
 }
 
 void ThreatManager::ResetAllThreat()
@@ -456,10 +451,36 @@ void ThreatManager::ClearAllThreat()
     while (!_myThreatListEntries.empty());
 }
 
+void ThreatManager::FixateTarget(Unit* target)
+{
+    if (target)
+    {
+        auto it = _myThreatListEntries.find(target->GetGUID());
+        if (it != _myThreatListEntries.end())
+        {
+            _fixateRef = it->second;
+            return;
+        }
+    }
+    _fixateRef = nullptr;
+}
+
+Unit* ThreatManager::GetFixateTarget() const
+{
+    if (_fixateRef)
+        return _fixateRef->GetVictim();
+    else
+        return nullptr;
+}
+
 ThreatReference const* ThreatManager::ReselectVictim()
 {
+    // fixated target is always preferred
+    if (_fixateRef && _fixateRef->IsAvailable())
+        return _fixateRef;
+
     ThreatReference const* oldVictimRef = _currentVictimRef;
-    if (oldVictimRef && !oldVictimRef->IsAvailable())
+    if (oldVictimRef && oldVictimRef->IsOffline())
         oldVictimRef = nullptr;
     // in 99% of cases - we won't need to actually look at anything beyond the first element
     ThreatReference const* highest = _sortedThreatList.top();
@@ -704,6 +725,8 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
 
     if (_currentVictimRef == ref)
         _currentVictimRef = nullptr;
+    if (_fixateRef == ref)
+        _fixateRef = nullptr;
 
     _sortedThreatList.erase(ref->_handle);
     if (sendRemove && ref->IsAvailable())

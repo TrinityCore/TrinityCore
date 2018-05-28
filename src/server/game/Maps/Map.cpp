@@ -1801,7 +1801,7 @@ bool GridMap::loadData(char const* filename)
         if (header.holesSize && !loadHolesData(in, header.holesOffset, header.holesSize))
         {
             TC_LOG_ERROR("maps", "Error loading map holes data\n");
-        fclose(in);
+            fclose(in);
             return false;
         }
         fclose(in);
@@ -2485,7 +2485,7 @@ uint32 Map::GetAreaId(float x, float y, float z) const
 {
     uint32 mogpFlags;
     int32 adtId, rootId, groupId;
-    float vmapZ;
+    float vmapZ = z;
     bool hasVmapArea = VMAP::VMapFactory::createOrGetVMapManager()->getAreaInfo(GetId(), x, y, vmapZ, mogpFlags, adtId, rootId, groupId);
 
     uint32 gridAreaId = 0;
@@ -2604,24 +2604,24 @@ ZLiquidStatus Map::GetLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
 
     if (useGridLiquid)
     {
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
-    {
-        LiquidData map_data;
-        ZLiquidStatus map_result = gmap->GetLiquidStatus(x, y, z, ReqLiquidType, &map_data, collisionHeight);
-        // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
-        if (map_result != LIQUID_MAP_NO_WATER && (map_data.level > ground_level))
+        if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
         {
-            if (data)
+            LiquidData map_data;
+            ZLiquidStatus map_result = gmap->GetLiquidStatus(x, y, z, ReqLiquidType, &map_data, collisionHeight);
+            // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
+            if (map_result != LIQUID_MAP_NO_WATER && (map_data.level > ground_level))
             {
-                // hardcoded in client like this
-                if (GetId() == 530 && map_data.entry == 2)
-                    map_data.entry = 15;
+                if (data)
+                {
+                    // hardcoded in client like this
+                    if (GetId() == 530 && map_data.entry == 2)
+                        map_data.entry = 15;
 
-                *data = map_data;
+                    *data = map_data;
+                }
+                return map_result;
             }
-            return map_result;
         }
-    }
     }
     return result;
 }
@@ -2687,8 +2687,8 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
             data.outdoors = (areaEntry->flags & (AREA_FLAG_INSIDE | AREA_FLAG_OUTSIDE)) != AREA_FLAG_INSIDE;
     }
 
-        if (!data.areaId)
-            data.areaId = i_mapEntry->linked_zone;
+    if (!data.areaId)
+        data.areaId = i_mapEntry->linked_zone;
 
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId);
 

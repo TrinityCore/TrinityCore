@@ -17,7 +17,9 @@
 
 #include "ChaseMovementGenerator.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "G3DPosition.hpp"
+#include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
@@ -26,10 +28,17 @@
 
 static bool IsMutualChase(Unit* owner, Unit* target)
 {
-    MovementGenerator const* gen = target->GetMotionMaster()->topOrNull();
-    if (!gen || gen->GetMovementGeneratorType() != CHASE_MOTION_TYPE)
+    if (target->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
         return false;
-    return (static_cast<ChaseMovementGenerator const*>(gen)->GetTarget() == owner);
+
+    return (static_cast<ChaseMovementGenerator const*>(target->GetMotionMaster()->top())->GetTarget() == owner);
+}
+
+static void DoMovementInform(Unit* owner, Unit* target)
+{
+    if (Creature* cOwner = owner->ToCreature())
+        if (CreatureAI* ai = cOwner->AI())
+            ai->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
 static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
@@ -49,6 +58,7 @@ void ChaseMovementGenerator::Initialize(Unit* owner)
 {
     owner->AddUnitState(UNIT_STATE_CHASE);
     owner->SetWalk(false);
+    _path = nullptr;
 }
 
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -94,6 +104,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
                 _path = nullptr;
                 owner->StopMoving();
                 owner->SetInFront(target);
+                DoMovementInform(owner, target);
                 return true;
             }
         }
@@ -105,6 +116,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         _path = nullptr;
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
         owner->SetInFront(target);
+        DoMovementInform(owner, target);
     }
 
     // if the target moved, we have to consider whether to adjust
