@@ -88,14 +88,6 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             void Initialize()
             {
                 heroicAughSpawned = false;
-                if (IsSiamatEnabled())
-                {
-                    if (Creature* siamat = GetCreature(DATA_SIAMAT))
-                        siamat->setActive(true);
-
-                    instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
-                    instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
-                }
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -250,6 +242,18 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         default:
                             break;
                     }
+                }
+            }
+
+            void ReadSaveDataMore(std::istringstream& /*data*/) override
+            {
+                if (IsSiamatEnabled())
+                {
+                    if (Creature* siamat = GetCreature(DATA_SIAMAT))
+                        siamat->setActive(true);
+
+                    instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
+                    instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
                 }
             }
 
