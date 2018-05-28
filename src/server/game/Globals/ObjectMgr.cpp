@@ -148,14 +148,23 @@ bool normalizePlayerName(std::string& name)
     wchar_t wstr_buf[MAX_INTERNAL_PLAYER_NAME+1];
     size_t wstr_len = MAX_INTERNAL_PLAYER_NAME;
 
+    wchar_t new_wstr_buf[MAX_INTERNAL_PLAYER_NAME + 1];
+    memset(new_wstr_buf, 0, sizeof(new_wstr_buf));
+    size_t new_wstr_len = 1;
+
     if (!Utf8toWStr(name, &wstr_buf[0], wstr_len))
         return false;
 
-    wstr_buf[0] = wcharToUpper(wstr_buf[0]);
+    new_wstr_buf[0] = wcharToUpper(wstr_buf[0]);
     for (size_t i = 1; i < wstr_len; ++i)
-        wstr_buf[i] = wcharToLower(wstr_buf[i]);
+    {
+        wchar_t character = wcharToLower(wstr_buf[i]);
+        if (character == '-') break; // Player name can be Username-ServerName since multi-realm, we just want player name
+        new_wstr_buf[i] = character;
+        ++new_wstr_len;
+    }
 
-    if (!WStrToUtf8(wstr_buf, wstr_len, name))
+    if (!WStrToUtf8(new_wstr_buf, new_wstr_len, name))
         return false;
 
     return true;
