@@ -824,7 +824,7 @@ class npc_grandmother : public CreatureScript
 
             bool GossipHello(Player* player) override
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "hello grandma", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, OPTION_WHAT_PHAT_LEWTS_YOU_HAVE, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, OPTION_WHAT_PHAT_LEWTS_YOU_HAVE, me->GetGUID());
                 return true;
             }
