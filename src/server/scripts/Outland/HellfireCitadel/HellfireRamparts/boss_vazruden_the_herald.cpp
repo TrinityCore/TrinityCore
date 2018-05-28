@@ -96,8 +96,8 @@ class boss_nazan : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-               if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
-                   VazrudenGUID = me->FindNearestCreature(NPC_VAZRUDEN, 100.0f)->GetGUID();
+                if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
+                    VazrudenGUID = summoner->GetGUID();
             }
 
             void JustSummoned(Creature* summoned) override
@@ -350,14 +350,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Creature* Vazruden = me->SummonCreature(NPC_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         VazrudenGUID = Vazruden->GetGUID();
                     if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
-                    {
                         NazanGUID = Nazan->GetGUID();
-                        Unit* player = Nazan->SelectNearestPlayer(60.00f);
-                        if (player)
-                        {
-                            Nazan->AI()->AttackStart(player);
-                        }
-                    }
                     summoned = true;
                     me->SetVisible(false);
                     me->AddUnitState(UNIT_STATE_ROOT);
@@ -443,8 +436,6 @@ class boss_vazruden_the_herald : public CreatureScript
                                 EnterEvadeMode();
                                 return;
                             }
-                        }else{
-                            me->DisappearAndDie();
                         }
                         check = 2000;
                     }
