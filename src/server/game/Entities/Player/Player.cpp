@@ -15233,7 +15233,15 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (quest->RewardCurrencyId[i])
-            ModifyCurrency(quest->RewardCurrencyId[i], quest->RewardCurrencyCount[i], !quest->IsDFQuest());
+        {
+            uint32 rewardCurrencyCount = quest->RewardCurrencyCount[i];
+
+            CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(quest->RewardCurrencyId[i]);
+            if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                rewardCurrencyCount = rewardCurrencyCount * CURRENCY_PRECISION;
+
+            ModifyCurrency(quest->RewardCurrencyId[i], rewardCurrencyCount, !quest->IsDFQuest());
+        }
 
     if (uint32 skill = quest->GetRewardSkillId())
         UpdateSkillPro(skill, 1000, quest->GetRewardSkillPoints());
@@ -27600,6 +27608,11 @@ float Player::GetAverageItemLevel() const
         // don't check tabard or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_BODY)
             continue;
+
+        if (i == EQUIPMENT_SLOT_OFFHAND)
+            if (Item* weapon = m_items[EQUIPMENT_SLOT_MAINHAND])
+                if (weapon->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                    continue;
 
         if (m_items[i])
             sum += m_items[i]->GetTemplate()->ItemLevel;

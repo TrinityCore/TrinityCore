@@ -67,9 +67,15 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
         {
             if (uint32 currencyId = quest->RewardCurrencyId[i])
             {
+                uint32 rewardCurrencyCount = quest->RewardCurrencyCount[i];
+
+                CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
+                if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                    rewardCurrencyCount = rewardCurrencyCount * CURRENCY_PRECISION;
+
                 data << uint32(currencyId);
                 data << uint32(0);
-                data << uint32(quest->RewardCurrencyCount[i]);
+                data << uint32(rewardCurrencyCount);
                 data << uint8(1);                                           // Is currency
             }
         }
@@ -332,7 +338,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
                 for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
                     if (firstQuest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
-                        rewValorPoints += firstQuest->RewardCurrencyCount[i];
+                        rewValorPoints += firstQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION;
             }
 
             if (Quest const* otherQuest = sObjectMgr->GetQuestTemplate(reward->otherQuest))
@@ -342,7 +348,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
                 for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
                     if (otherQuest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
-                        rewValorPoints += otherQuest->RewardCurrencyCount[i];
+                        rewValorPoints += otherQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION;
             }
         }
 
@@ -352,15 +358,17 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         if (currency && rewValorPoints && !reward->completionsPerPeriod)
         {
+            uint32 weekCap = player->GetCurrencyWeekCap(currency);
+
             data << uint32(rewValorPoints);                                                 // currencyQuantity (valor points from selected dungeon)
-            data << uint32(player->GetCurrencyWeekCap(currency));                           // some sort of overall cap/weekly cap
+            data << uint32(weekCap);                                                        // some sort of overall cap/weekly cap
             data << uint32(CURRENCY_TYPE_VALOR_POINTS);                                     // currencyID (displays name above the cap bar)
             data << uint32(0);                                                              // tier1Quantity (current valor points from lfr)
-            data << uint32(player->GetCurrencyWeekCap(currency));                           // tier1Limit (total valor points from lfr - always 10000)
+            data << uint32(weekCap);                                                        // tier1Limit (total valor points from lfr)
             data << uint32(0);                                                              // overallQuantity (current valor points from lfg - always 0)
-            data << uint32(player->GetCurrencyWeekCap(currency));                           // overallLimit (total valor points from lfg)
+            data << uint32(weekCap);                                                        // overallLimit (total valor points from lfg)
             data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));   // periodPurseQuantity (valor points this week)
-            data << uint32(player->GetCurrencyWeekCap(currency));                           // periodPurseLimit (weekly cap)
+            data << uint32(weekCap);                                                        // periodPurseLimit (weekly cap)
             data << uint32(player->GetCurrency(CURRENCY_TYPE_VALOR_POINTS, false));         // purseQuantity (overall valor points)
             data << uint32(0);                                                              // purseLimit
             data << uint32(rewValorPoints);                                                 // some sort of reward for completion
