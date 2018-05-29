@@ -1144,6 +1144,7 @@ void MotionMaster::Delete(MovementGenerator* movement, bool active, bool movemen
 
     movement->Finalize(_owner, active, movementInform);
     ClearBaseUnitState(movement);
+    MovementGeneratorPointerDeleter(movement);
 }
 
 void MotionMaster::DeleteDefault(bool active, bool movementInform)
