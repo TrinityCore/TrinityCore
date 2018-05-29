@@ -1302,7 +1302,7 @@ public:
             return false;
         }
 
-        MovementGenerator* movement = creature->GetMotionMaster()->GetMovementGenerator([player](MovementGenerator* a) -> bool
+        MovementGenerator* movement = creature->GetMotionMaster()->GetMovementGenerator([player](MovementGenerator const* a) -> bool
         {
             if (a->GetMovementGeneratorType() == FOLLOW_MOTION_TYPE)
             {

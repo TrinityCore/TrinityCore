@@ -243,7 +243,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         }
                         case EVENT_BONE_STORM_END:
-                            if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator* a) -> bool
+                            if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool
                             {
                                 if (a->GetMovementGeneratorType() == POINT_MOTION_TYPE)
                                 {

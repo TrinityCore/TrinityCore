@@ -213,7 +213,7 @@ SplineChainResumeInfo SplineChainMovementGenerator::GetResumeInfo(Unit const* ow
 
 /* static */ void SplineChainMovementGenerator::GetResumeInfo(Unit const* owner, uint32 id, SplineChainResumeInfo& info)
 {
-    std::function<bool(MovementGenerator*)> criteria = [id](MovementGenerator* movement) -> bool
+    std::function<bool(MovementGenerator const*)> criteria = [id](MovementGenerator const* movement) -> bool
     {
         if (movement->GetMovementGeneratorType() == SPLINE_CHAIN_MOTION_TYPE)
         {
