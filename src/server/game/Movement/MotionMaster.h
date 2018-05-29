@@ -63,6 +63,11 @@ enum MotionMasterDelayedActionType : uint8
     MOTIONMASTER_DELAYED_INITIALIZE
 };
 
+struct MovementGeneratorDeleter
+{
+    void operator()(MovementGenerator* a);
+};
+
 struct MovementGeneratorComparator
 {
     public:
@@ -96,8 +101,8 @@ class TC_GAME_API MotionMaster
         MovementGeneratorType GetCurrentMovementGeneratorType(MovementSlot slot) const;
         MovementGenerator* GetCurrentMovementGenerator(MovementSlot slot) const;
         // Returns first found MovementGenerator that matches the given criteria
-        MovementGenerator* GetMovementGenerator(std::function<bool(MovementGenerator*)> const& filter, MovementSlot slot = MOTION_SLOT_ACTIVE) const;
-        bool HasMovementGenerator(std::function<bool(MovementGenerator*)> const& filter, MovementSlot slot = MOTION_SLOT_ACTIVE) const;
+        MovementGenerator* GetMovementGenerator(std::function<bool(MovementGenerator const*)> const& filter, MovementSlot slot = MOTION_SLOT_ACTIVE) const;
+        bool HasMovementGenerator(std::function<bool(MovementGenerator const*)> const& filter, MovementSlot slot = MOTION_SLOT_ACTIVE) const;
 
         void Update(uint32 diff);
         void Add(MovementGenerator* movement, MovementSlot slot = MOTION_SLOT_ACTIVE);
@@ -163,7 +168,9 @@ class TC_GAME_API MotionMaster
 
         void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
-        typedef std::unordered_map<uint32, std::multiset<MovementGenerator*, MovementGeneratorComparator>> MotionMasterContainer;
+        typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
+        typedef std::multiset<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;
+        typedef std::unordered_multimap<uint32, MovementGenerator const*> MotionMasterUnitStatesContainer;
 
         void AddFlag(uint8 const flag) { _flags |= flag; }
         bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
@@ -173,7 +180,7 @@ class TC_GAME_API MotionMaster
         void DirectInitialize();
         void DirectClear();
         void DirectClearDefault();
-        void DirectClear(std::function<bool(MovementGenerator const*)> const& filter);
+        void DirectClear(std::function<bool(MovementGenerator*)> const& filter);
         void DirectAdd(MovementGenerator* movement, MovementSlot slot);
 
         void Delete(MovementGenerator* movement, bool active, bool movementInform);
@@ -183,8 +190,9 @@ class TC_GAME_API MotionMaster
         void ClearBaseUnitStates();
 
         Unit* _owner;
-        MovementGenerator* _defaultGenerator;
+        MovementGeneratorPointer _defaultGenerator;
         MotionMasterContainer _generators;
+        MotionMasterUnitStatesContainer _baseUnitStatesMap;
         std::deque<std::unique_ptr<MotionMasterDelayedAction>> _delayedActions;
         uint8 _flags;
 };
