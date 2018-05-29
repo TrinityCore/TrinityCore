@@ -25,9 +25,9 @@
 #include "MovementDefines.h"
 #include "MovementGenerator.h"
 #include "SharedDefines.h"
-#include <boost/container/set.hpp>
 #include <deque>
 #include <functional>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -63,17 +63,10 @@ enum MotionMasterDelayedActionType : uint8
     MOTIONMASTER_DELAYED_INITIALIZE
 };
 
-struct MovementGeneratorDeleter
-{
-    void operator()(MovementGenerator* a);
-};
-
-typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
-
 struct MovementGeneratorComparator
 {
     public:
-        bool operator()(MovementGeneratorPointer const& a, MovementGeneratorPointer const& b) const;
+        bool operator()(MovementGenerator const* a, MovementGenerator const* b) const;
 };
 
 struct MovementGeneratorInformation
@@ -96,7 +89,7 @@ class TC_GAME_API MotionMaster
 
         bool Empty() const;
         uint32 Size() const;
-        std::vector<MovementGeneratorInformation> GetMovementGeneratorsInformation() const;
+        std::vector<MovementGeneratorInformation>& GetMovementGeneratorsInformation() const;
         MovementSlot GetCurrentSlot() const;
         MovementGenerator* GetCurrentMovementGenerator() const;
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
@@ -170,30 +163,28 @@ class TC_GAME_API MotionMaster
 
         void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
-        typedef boost::container::multiset<MovementGeneratorPointer, MovementGeneratorComparator> MotionMasterContainer;
+        typedef std::unordered_map<uint32, std::multiset<MovementGenerator*, MovementGeneratorComparator>> MotionMasterContainer;
 
         void AddFlag(uint8 const flag) { _flags |= flag; }
         bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
-        MovementGeneratorPointer const& Top() const;
         void Pop(bool active, bool movementInform);
         void DirectInitialize();
         void DirectClear();
         void DirectClearDefault();
-        void DirectClear(std::function<bool(MovementGeneratorPointer const&)> const& filter);
+        void DirectClear(std::function<bool(MovementGenerator const*)> const& filter);
         void DirectAdd(MovementGenerator* movement, MovementSlot slot);
 
-        void Delete(MovementGeneratorPointer&& movement, bool active, bool movementInform);
+        void Delete(MovementGenerator* movement, bool active, bool movementInform);
         void DeleteDefault(bool active, bool movementInform);
         void AddBaseUnitState(MovementGenerator const* movement);
         void ClearBaseUnitState(MovementGenerator const* movement);
         void ClearBaseUnitStates();
 
         Unit* _owner;
-        MovementGeneratorPointer _defaultGenerator;
+        MovementGenerator* _defaultGenerator;
         MotionMasterContainer _generators;
-        std::unordered_multimap<uint32, MovementGenerator const*> _baseUnitStatesMap;
         std::deque<std::unique_ptr<MotionMasterDelayedAction>> _delayedActions;
         uint8 _flags;
 };
