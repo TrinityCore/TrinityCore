@@ -125,6 +125,7 @@ public:
         {
             _Reset();
             Initialize();
+            me->SetCanDualWield(true);
             DoSummon(NPC_GLUBTOK_FIREWALL_PLATTER, firewallPlatterSplineEndpoint, 0, TEMPSUMMON_MANUAL_DESPAWN);
             me->SetHover(false);
         }
