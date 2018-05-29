@@ -327,8 +327,10 @@ class boss_vanessa_van_cleef : public CreatureScript
                                 me->CastSpell(x, y, z, defiasReinforcementSpells[_currentReinforcement], true);
                                 _currentReinforcement++;
 
-                                if (_currentReinforcement <= REINFORCEMENT_BLOOD_WIZARD)
-                                    events.Repeat(Seconds(10));
+                                if (_currentReinforcement == REINFORCEMENT_BLOOD_WIZARD)
+                                    _currentReinforcement = REINFORCEMENT_ENFORCER;
+
+                                events.Repeat(Seconds(10));
                             }
                             break;
                         }
