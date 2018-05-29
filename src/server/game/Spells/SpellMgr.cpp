@@ -2507,6 +2507,12 @@ void SpellMgr::LoadSpellInfoCorrections()
 {
     uint32 oldMSTime = getMSTime();
 
+    // Ring of Frost
+    ApplySpellFix({ 82691 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL; // it is multitarget aoe spell
+    });
+
     ApplySpellFix({
         63026, // Summon Aspirant Test NPC (HACK: Target shouldn't be changed)
         63137  // Summon Valiant Test (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
