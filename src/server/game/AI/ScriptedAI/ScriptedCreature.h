@@ -408,6 +408,8 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
         // is supposed to run more than once
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
+        virtual void ScheduleTasks() { }
+
         void Reset() override { _Reset(); }
         void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
