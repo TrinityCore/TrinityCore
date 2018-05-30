@@ -200,7 +200,7 @@ class TC_GAME_API MotionMaster
 class MotionMasterDelayedAction
 {
     public:
-        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(action), Type(type) { }
+        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Type(type) { }
         ~MotionMasterDelayedAction() { }
 
         void Resolve() { Action(); }
