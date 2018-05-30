@@ -1300,10 +1300,16 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         return;
     float radius = effect->CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
-    if (radius)
-        SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), effect->ImplicitTargetConditions);
-    else if (targetType.GetTarget() == TARGET_UNIT_CASTER_PET)
+    if (targetType.GetTarget() == TARGET_UNIT_CASTER_PET)
+    {
         targets.push_back(referer);
+
+        if (referer->IsPlayer())
+            if (Pet* pet = referer->ToPlayer()->GetPet())
+                targets.push_back(pet);
+    }
+    else if (radius)
+        SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), effect->ImplicitTargetConditions);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
 
