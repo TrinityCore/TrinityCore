@@ -469,7 +469,8 @@ class spell_foe_reaper_5000_acquire_target : public SpellScriptLoader
 
             void HandleHit(SpellEffIndex effIndex)
             {
-                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints);
             }
 
             void Register() override
@@ -524,7 +525,8 @@ class spell_foe_reaper_5000_fixate_targeting : public SpellScriptLoader
 
             void HandleHit(SpellEffIndex effIndex)
             {
-                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
             }
 
             void Register() override

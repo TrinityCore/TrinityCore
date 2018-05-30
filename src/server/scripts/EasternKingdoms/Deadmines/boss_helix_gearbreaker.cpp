@@ -660,7 +660,8 @@ class spell_helix_oaf_grab_targeting : public SpellScriptLoader
 
             void HandleHit(SpellEffIndex effIndex)
             {
-                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
             }
 
             void Register() override

@@ -710,7 +710,8 @@ class spell_vanessa_backslash_targeting : public SpellScriptLoader
 
             void HandleHit(SpellEffIndex effIndex)
             {
-                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
