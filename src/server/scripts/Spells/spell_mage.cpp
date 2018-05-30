@@ -2800,8 +2800,10 @@ class spell_mage_blazing_soul : public AuraScript
         Unit* caster = GetCaster();
         Unit* victim = eventInfo.GetActionTarget();
         int32 dist = aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount();
-        if (!caster || !victim || caster->GetDistance(victim) > dist)
+
+        if (!caster || !victim || caster->GetDistance(victim) > dist || !eventInfo.GetDamageInfo())
             return;
+
         if (AuraEffect* barrier = caster->GetAuraEffect(SPELL_MAGE_BLAZING_BARRIER, EFFECT_0))
         {
             int32 bonus = eventInfo.GetDamageInfo()->GetDamage() * aurEff->GetAmount() / 100;
