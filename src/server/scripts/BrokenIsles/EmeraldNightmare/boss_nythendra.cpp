@@ -86,7 +86,7 @@ struct boss_nythendra : public BossAI
     {
         if (spellInfo->Id != SPELL_INFESTED && damageType != DIRECT_DAMAGE && IsHeroic())
         {
-            me->CastSpell(victim, SPELL_INFESTED_TARGET, true);
+            victim->CastSpell(victim, SPELL_INFESTED_TARGET, true);
             me->CastSpell(victim, SPELL_INFESTED, true);
         }
     }
