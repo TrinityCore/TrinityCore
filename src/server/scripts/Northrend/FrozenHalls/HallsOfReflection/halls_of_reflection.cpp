@@ -17,10 +17,12 @@
 
 #include "halls_of_reflection.h"
 #include "Creature.h"
+#include "EventProcessor.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
+#include "ObjectGuid.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -30,6 +32,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
+#include "Unit.h"
 
 enum Text
 {
@@ -344,12 +347,6 @@ Position const IceWallTargetPosition[] =
     { 5439.976f, 1879.005f, 752.7048f, 1.064651f  }, // 3rd Icewall
     { 5318.289f, 1749.184f, 771.9423f, 0.8726646f }  // 4th Icewall
 };
-
-void GameObjectDeleteDelayEvent::DeleteGameObject()
-{
-    if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
-        go->Delete();
-}
 
 class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 {
@@ -798,6 +795,33 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
         }
 };
 
+class HoRGameObjectDeleteDelayEvent : public BasicEvent
+{
+    public:
+        explicit HoRGameObjectDeleteDelayEvent(Unit* owner, ObjectGuid gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
+
+        void DeleteGameObject()
+        {
+            if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
+                go->Delete();
+        }
+
+        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+        {
+            DeleteGameObject();
+            return true;
+        }
+
+        void Abort(uint64 /*execTime*/) override
+        {
+            DeleteGameObject();
+        }
+
+    private:
+        Unit* _owner;
+        ObjectGuid _gameObjectGUID;
+};
+
 class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 {
     public:
@@ -895,7 +919,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_SYLVANAS_DESTROY_ICE_WALL);
 
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_ICEWALL), true);
-                me->m_Events.AddEvent(new GameObjectDeleteDelayEvent(me, _instance->GetGuidData(DATA_ICEWALL)), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new HoRGameObjectDeleteDelayEvent(me, _instance->GetGuidData(DATA_ICEWALL)), me->m_Events.CalculateTime(5000));
 
                 if (Creature* wallTarget = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ICEWALL_TARGET)))
                     wallTarget->DespawnOrUnsummon();
