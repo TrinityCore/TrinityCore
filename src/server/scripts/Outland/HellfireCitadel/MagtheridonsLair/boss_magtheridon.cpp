@@ -347,6 +347,10 @@ class npc_hellfire_channeler : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 DoCastAOE(SPELL_SOUL_TRANSFER);
+
+                // Channelers killed by "Hit Kill" need trigger combat event too. It's needed for Cata+
+                if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
+                    magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
             }
 
             void JustSummoned(Creature* summon) override
