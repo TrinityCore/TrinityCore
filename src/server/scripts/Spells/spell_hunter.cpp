@@ -94,6 +94,7 @@ enum HunterSpells
     SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,
     SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,
     SPELL_HUNTER_LACERATE                           = 185855,
+    SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MARKED_SHOT                        = 185901,
     SPELL_HUNTER_MARKED_SHOT_DAMAGE                 = 212621,
     SPELL_HUNTER_MARKING_TARGETS                    = 223138,
@@ -2623,6 +2624,26 @@ public:
     }
 };
 
+// 883 - Call Pet 1
+// 83242 - Call Pet 2
+// 83243 - Call Pet 3
+// 83244 - Call Pet 4
+// 83245 - Call Pet 5
+class spell_hun_call_pet : public SpellScript
+{
+    PrepareSpellScript(spell_hun_call_pet);
+
+    SpellCastResult CheckCast()
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_LONE_WOLF) ? SPELL_FAILED_SPELL_UNAVAILABLE : SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_hun_call_pet::CheckCast);
+    }
+};
+
 // Flare - 1543
 // AreaTriggerID - 510
 class at_hun_flare : public AreaTriggerEntityScript
@@ -3176,6 +3197,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterAuraScript(aura_hun_volley);
     RegisterAuraScript(aura_trailblazer);
+    RegisterSpellScript(spell_hun_call_pet);
 
     // Spell Pet scripts
     new spell_hun_pet_last_stand();
