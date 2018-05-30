@@ -31,7 +31,6 @@
 #include <unordered_map>
 #include <vector>
 
-class MotionMasterDelayedAction;
 class PathGenerator;
 class Unit;
 struct Position;
@@ -81,6 +80,18 @@ struct MovementGeneratorInformation
     MovementGeneratorType Type;
     ObjectGuid TargetGUID;
     std::string TargetName;
+};
+
+class MotionMasterDelayedAction
+{
+    public:
+        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Type(type) { }
+        ~MotionMasterDelayedAction() { }
+
+        void Resolve() { Action(); }
+
+        std::function<void()> Action;
+        uint8 Type;
 };
 
 class TC_GAME_API MotionMaster
@@ -195,18 +206,6 @@ class TC_GAME_API MotionMaster
         MotionMasterUnitStatesContainer _baseUnitStatesMap;
         std::deque<MotionMasterDelayedAction> _delayedActions;
         uint8 _flags;
-};
-
-class MotionMasterDelayedAction
-{
-    public:
-        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Type(type) { }
-        ~MotionMasterDelayedAction() { }
-
-        void Resolve() { Action(); }
-
-        std::function<void()> Action;
-        uint8 Type;
 };
 
 #endif // MOTIONMASTER_H
