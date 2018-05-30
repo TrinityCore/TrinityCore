@@ -740,7 +740,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     if (IsAIEnabled)
+    {
         GetAI()->DamageDealt(victim, damage, damagetype);
+        GetAI()->DamageDealt(victim, damage, damagetype, spellProto);
+    }
 
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(this, victim, damage);
