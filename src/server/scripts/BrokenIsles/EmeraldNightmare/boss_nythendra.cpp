@@ -84,9 +84,9 @@ struct boss_nythendra : public BossAI
 
     void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType damageType, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id != SPELL_INFESTED && damageType != DIRECT_DAMAGE && IsHeroic())
+        if (spellInfo && spellInfo->Id != SPELL_INFESTED && damageType != DIRECT_DAMAGE && IsHeroic())
         {
-            victim->CastSpell(victim, SPELL_INFESTED_TARGET, true);
+            me->AddAura(SPELL_INFESTED_TARGET, victim);
             me->CastSpell(victim, SPELL_INFESTED, true);
         }
     }
@@ -213,7 +213,7 @@ class aura_nythendra_infested : public AuraScript
             {
                 if (!target->HasAura(SPELL_INFESTED_MIND))
                 {
-                    target->CastSpell(target, SPELL_INFESTED_TARGET, true);
+                    caster->AddAura(SPELL_INFESTED_TARGET, target);
                     caster->CastSpell(target, SPELL_INFESTED_MIND, true);
                 }
             }
