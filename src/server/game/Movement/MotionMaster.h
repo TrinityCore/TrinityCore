@@ -193,93 +193,20 @@ class TC_GAME_API MotionMaster
         MovementGeneratorPointer _defaultGenerator;
         MotionMasterContainer _generators;
         MotionMasterUnitStatesContainer _baseUnitStatesMap;
-        std::deque<std::unique_ptr<MotionMasterDelayedAction>> _delayedActions;
+        std::deque<MotionMasterDelayedAction> _delayedActions;
         uint8 _flags;
 };
 
 class MotionMasterDelayedAction
 {
     public:
-        explicit MotionMasterDelayedAction(MotionMaster* master, uint8 type) : Master(master), Type(type) { }
-        virtual ~MotionMasterDelayedAction() { }
+        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(action), Type(type) { }
+        ~MotionMasterDelayedAction() { }
 
-        virtual void Resolve() = 0;
+        void Resolve() { Action(); }
 
-        MotionMaster* Master;
+        std::function<void()> Action;
         uint8 Type;
-};
-
-class MotionMasterDelayedClear : public MotionMasterDelayedAction
-{
-    public:
-        MotionMasterDelayedClear(MotionMaster* master) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR), Value(0) { }
-        MotionMasterDelayedClear(MotionMaster* master, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR_SLOT), Value(slot) { }
-        MotionMasterDelayedClear(MotionMaster* master, MovementGeneratorMode mode) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR_MODE), Value(mode) { }
-        MotionMasterDelayedClear(MotionMaster* master, MovementGeneratorPriority priority) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_CLEAR_PRIORITY), Value(priority) { }
-        void Resolve() override
-        {
-            switch (Type)
-            {
-                case MOTIONMASTER_DELAYED_CLEAR:
-                    Master->Clear();
-                    break;
-                case MOTIONMASTER_DELAYED_CLEAR_SLOT:
-                    Master->Clear(MovementSlot(Value));
-                    break;
-                case MOTIONMASTER_DELAYED_CLEAR_MODE:
-                    Master->Clear(MovementGeneratorMode(Value));
-                    break;
-                case MOTIONMASTER_DELAYED_CLEAR_PRIORITY:
-                    Master->Clear(MovementGeneratorPriority(Value));
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        uint32 Value;
-};
-
-class MotionMasterDelayedAdd : public MotionMasterDelayedAction
-{
-    public:
-        MotionMasterDelayedAdd(MotionMaster* master, MovementGenerator* movement, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_ADD), Movement(movement), Slot(slot) { }
-        void Resolve() override { Master->Add(Movement, MovementSlot(Slot)); }
-
-        MovementGenerator* Movement;
-        uint8 Slot;
-};
-
-class MotionMasterDelayedRemove : public MotionMasterDelayedAction
-{
-    public:
-        MotionMasterDelayedRemove(MotionMaster* master, MovementGenerator* movement, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_REMOVE), Movement(movement), MovementType(MAX_MOTION_TYPE), Slot(slot) { }
-        MotionMasterDelayedRemove(MotionMaster* master, MovementGeneratorType movementType, MovementSlot slot) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_REMOVE_TYPE), Movement(nullptr), MovementType(movementType), Slot(slot) { }
-        void Resolve() override
-        {
-            switch (Type)
-            {
-                case MOTIONMASTER_DELAYED_REMOVE:
-                    Master->Remove(Movement, MovementSlot(Slot));
-                    break;
-                case MOTIONMASTER_DELAYED_REMOVE_TYPE:
-                    Master->Remove(MovementGeneratorType(MovementType), MovementSlot(Slot));
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        MovementGenerator* Movement;
-        uint8 MovementType;
-        uint8 Slot;
-};
-
-class MotionMasterDelayedInitialize : public MotionMasterDelayedAction
-{
-    public:
-        MotionMasterDelayedInitialize(MotionMaster* master) : MotionMasterDelayedAction(master, MOTIONMASTER_DELAYED_INITIALIZE) { }
-        void Resolve() override { Master->Initialize(); }
 };
 
 #endif // MOTIONMASTER_H

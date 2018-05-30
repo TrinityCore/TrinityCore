@@ -96,7 +96,10 @@ void MotionMaster::Initialize()
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedInitialize>(this));
+        std::function<void()> action = [this]() {
+            Initialize();
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_INITIALIZE);
         return;
     }
 
@@ -309,7 +312,7 @@ void MotionMaster::Update(uint32 diff)
 
     while (!_delayedActions.empty())
     {
-        _delayedActions.front()->Resolve();
+        _delayedActions.front().Resolve();
         _delayedActions.pop_front();
     }
 }
@@ -326,7 +329,12 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
     }
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedAdd>(this, movement, slot));
+    {
+        std::function<void()> action = [this, movement, slot]() {
+            Add(movement, slot);
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_ADD);
+    }
     else
         DirectAdd(movement, slot);
 }
@@ -338,7 +346,10 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedRemove>(this, movement, slot));
+        std::function<void()> action = [this, movement, slot]() {
+            Remove(movement, slot);
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_REMOVE);
         return;
     }
 
@@ -376,7 +387,10 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedRemove>(this, type, slot));
+        std::function<void()> action = [this, type, slot]() {
+            Remove(type, slot);
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_REMOVE_TYPE);
         return;
     }
 
@@ -415,7 +429,10 @@ void MotionMaster::Clear()
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedClear>(this));
+        std::function<void()> action = [this]() {
+            Clear();
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_CLEAR);
         return;
     }
 
@@ -430,7 +447,10 @@ void MotionMaster::Clear(MovementSlot slot)
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedClear>(this, slot));
+        std::function<void()> action = [this, slot]() {
+            Clear(slot);
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_CLEAR_SLOT);
         return;
     }
 
@@ -454,7 +474,10 @@ void MotionMaster::Clear(MovementGeneratorMode mode)
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedClear>(this, mode));
+        std::function<void()> action = [this, mode]() {
+            Clear(mode);
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_CLEAR_MODE);
         return;
     }
 
@@ -472,7 +495,10 @@ void MotionMaster::Clear(MovementGeneratorPriority priority)
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        _delayedActions.push_back(std::make_unique<MotionMasterDelayedClear>(this, priority));
+        std::function<void()> action = [this, priority]() {
+            Clear(priority);
+        };
+        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_CLEAR_PRIORITY);
         return;
     }
 
