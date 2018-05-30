@@ -118,7 +118,7 @@ uint32 MotionMaster::Size() const
     return _defaultGenerator ? 1 : 0 + uint32(_generators.size());
 }
 
-std::vector<MovementGeneratorInformation>& MotionMaster::GetMovementGeneratorsInformation() const
+std::vector<MovementGeneratorInformation> MotionMaster::GetMovementGeneratorsInformation() const
 {
     std::vector<MovementGeneratorInformation> list;
 
