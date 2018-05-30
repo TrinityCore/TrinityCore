@@ -195,7 +195,7 @@ public:
 
     struct PlayerResult
     {
-        Player* Player = nullptr;
+        Player* PlayerPtr = nullptr;
         ObjectGuid Guid;
         std::string Name;
     };

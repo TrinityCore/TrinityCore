@@ -220,18 +220,18 @@ public:
         }
 
         // no character name provided as argument so use our current target
-        if (!playerResult.Player)
-            playerResult.Player = handler->getSelectedPlayer();
+        if (!playerResult.PlayerPtr)
+            playerResult.PlayerPtr = handler->getSelectedPlayer();
 
-        if (playerResult.Player)
+        if (playerResult.PlayerPtr)
         {
-            playerResult.Player->ResetTalents(true);
+            playerResult.PlayerPtr->ResetTalents(true);
             if (resetSpec)
-                playerResult.Player->ResetTalentSpecialization();
-            playerResult.Player->SendTalentsInfoData();
-            ChatHandler(playerResult.Player->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
-            if (!handler->GetSession() || handler->GetSession()->GetPlayer() != playerResult.Player)
-                handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(playerResult.Player).c_str());
+                playerResult.PlayerPtr->ResetTalentSpecialization();
+            playerResult.PlayerPtr->SendTalentsInfoData();
+            ChatHandler(playerResult.PlayerPtr->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
+            if (!handler->GetSession() || handler->GetSession()->GetPlayer() != playerResult.PlayerPtr)
+                handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(playerResult.PlayerPtr).c_str());
 
             /* TODO: 6.x remove/update pet talents
             Pet* pet = target->GetPet();

@@ -1326,7 +1326,7 @@ void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
                 case ARG_PLAYER_OPTIONAL:
                 {
                     PlayerResult result;
-                    _handler->extractPlayerTarget((char*)argsVector[i].c_str(), &result.Player, &result.Guid, &result.Name);
+                    _handler->extractPlayerTarget((char*)argsVector[i].c_str(), &result.PlayerPtr, &result.Guid, &result.Name);
                     _args.push_back(result);
                     break;
                 }
