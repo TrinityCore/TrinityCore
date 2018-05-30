@@ -47,4 +47,10 @@ enum Creatures
     NPC_XAVIUS              = 103769,
 };
 
+enum GameObjects
+{
+    GOB_NYTHENDRA_ENTRANCE_1    = 251535,
+    GOB_NYTHENDRA_ENTRANCE_2    = 251536,
+};
+
 #endif

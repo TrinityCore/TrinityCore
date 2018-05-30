@@ -28,9 +28,9 @@ enum Spells
 {
     // Stage One
     SPELL_INFESTED                  = 204504,
+    SPELL_INFESTED_TARGET           = 220189,
     SPELL_INFESTED_DAMAGE           = 204506,
     SPELL_INFESTED_MIND             = 205043,
-    SPELL_INFESTED_MIND_TARGET      = 220189,
     SPELL_SPREAD_INFESTATION        = 205070,
     SPELL_INFESTED_GROUND           = 203044,
     SPELL_INFESTED_GROUND_DAMAGE    = 203045,
@@ -57,6 +57,8 @@ struct boss_nythendra : public BossAI
 
     void Reset() override
     {
+        _Reset();
+
         me->RemoveAllAreaTriggers();
 
         me->SetPowerType(POWER_ENERGY);
@@ -64,7 +66,7 @@ struct boss_nythendra : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void ScheduleTasks() override
     {
         events.ScheduleEvent(SPELL_ROT,             10s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
@@ -74,13 +76,19 @@ struct boss_nythendra : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        _JustDied();
+
+        me->RemoveAllAreaTriggers();
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
     }
 
-    void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType damageType) override
+    void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType damageType, SpellInfo const* spellInfo) override
     {
-        if (damageType != DIRECT_DAMAGE && IsHeroic())
+        if (spellInfo->Id != SPELL_INFESTED && damageType != DIRECT_DAMAGE && IsHeroic())
+        {
+            me->CastSpell(victim, SPELL_INFESTED_TARGET, true);
             me->CastSpell(victim, SPELL_INFESTED, true);
+        }
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -166,8 +174,14 @@ struct npc_nythendra_corrupted_vermin : public ScriptedAI
 {
     npc_nythendra_corrupted_vermin(Creature* creature) : ScriptedAI(creature) { }
 
+    void Reset() override
+    {
+        me->SetObjectScale(0.2f);
+    }
+
     void DoAction(int32 /*action*/) override
     {
+        me->SetObjectScale(1.f);
         me->GetScheduler().Schedule(1s, [](TaskContext context)
         {
             GetContextUnit()->CastSpell(GetContextUnit(), SPELL_BURST_OF_CORRUPTION, false);
@@ -197,9 +211,9 @@ class aura_nythendra_infested : public AuraScript
         {
             if (GetAura()->GetCharges() >= 10)
             {
-                if (!target->HasAura(SPELL_INFESTED_MIND_TARGET))
+                if (!target->HasAura(SPELL_INFESTED_MIND))
                 {
-                    target->CastSpell(target, SPELL_INFESTED_MIND_TARGET, true);
+                    target->CastSpell(target, SPELL_INFESTED_TARGET, true);
                     caster->CastSpell(target, SPELL_INFESTED_MIND, true);
                 }
             }
@@ -208,7 +222,7 @@ class aura_nythendra_infested : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveAurasDueToSpell(SPELL_INFESTED_MIND_TARGET);
+        GetTarget()->RemoveAurasDueToSpell(SPELL_INFESTED_TARGET);
     }
 
     void Register() override
