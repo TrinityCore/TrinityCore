@@ -200,7 +200,9 @@ class TC_GAME_API MotionMaster
 class MotionMasterDelayedAction
 {
     public:
-        MotionMasterDelayedAction(MotionMaster* master, uint8 type) : Master(master), Type(type) { }
+        explicit MotionMasterDelayedAction(MotionMaster* master, uint8 type) : Master(master), Type(type) { }
+        virtual ~MotionMasterDelayedAction() { }
+
         virtual void Resolve() = 0;
 
         MotionMaster* Master;
