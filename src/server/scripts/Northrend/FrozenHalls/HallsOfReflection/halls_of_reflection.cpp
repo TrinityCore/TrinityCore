@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "halls_of_reflection.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -2126,7 +2127,7 @@ enum EscapeEvents
 class HoRStartMovementEvent : public BasicEvent
 {
     public:
-        HoRStartMovementEvent(Creature* owner) : _owner(owner) { }
+        explicit HoRStartMovementEvent(Creature* owner) : _owner(owner) { }
 
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
