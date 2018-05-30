@@ -1,3 +1,4 @@
+/*
 -- Doc Mixilpixil
 DELETE FROM `creature_text` WHERE `CreatureID`=7207;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -41,3 +42,4 @@ DELETE FROM `waypoints` WHERE `entry`=7207;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (7207,1,-8806.36,338.259,95.0989,""),
 (7207,2,-8805.56,331.968,95.0986,"");
+*/

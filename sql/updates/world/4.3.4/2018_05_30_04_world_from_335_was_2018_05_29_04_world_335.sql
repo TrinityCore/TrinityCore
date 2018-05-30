@@ -1,3 +1,4 @@
+/*
 -- Lord Baurles K. Wishock
 DELETE FROM `creature_text` WHERE `CreatureID`=1439;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -14,3 +15,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (143900,9,2,0,0,0,100,0,4000,4000,0,0,17,64,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lord Baurles K. Wishock - On Script - Set Emote State 'Stun'"),
 (143900,9,3,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lord Baurles K. Wishock - On Script - Say Line 1"),
 (143900,9,4,0,0,0,100,0,5000,5000,0,0,11,2596,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lord Baurles K. Wishock - On Script - Cast touch-of-the-black-claw");
+*/

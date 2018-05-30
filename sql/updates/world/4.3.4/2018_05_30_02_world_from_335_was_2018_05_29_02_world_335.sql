@@ -1,3 +1,4 @@
+/*
 -- Defias Tower Patroller
 DELETE FROM `creature_text` WHERE `CreatureID`=7052;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -85,3 +86,4 @@ DELETE FROM `waypoint_data` WHERE `id` IN (669880,669910);
 DELETE FROM `creature_addon` WHERE `guid` IN (66988,66991);
 UPDATE `creature` SET `position_x`=-11152.5, `position_y`=552.716, `position_z`=55.8919, `orientation`=5.50239, `MovementType`=0 WHERE `guid`=66988;
 UPDATE `creature` SET `position_x`=-11151.1, `position_y`=551.26, `position_z`=55.8923, `orientation`=2.36865, `MovementType`=0 WHERE `guid`=66991;
+*/

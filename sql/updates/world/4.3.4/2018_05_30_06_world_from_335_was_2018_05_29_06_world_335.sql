@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gossip_menu` WHERE `MenuID`=2912 AND `TextID`=3591;
 DELETE FROM `gossip_menu` WHERE `MenuID`=2913 AND `TextID`=3592;
@@ -20,3 +21,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,2603,3594,0,0,8,0,4963,0,0,1,0,0,"","Show gossip text 3592 if quest 'Shard of an Infernal' is not rewarded"),
 (14,2603,3298,0,0,15,0,1279,0,0,0,0,0,"","Show gossip text 3299 if if Player is not a Warlock"),
 (14,2603,3299,0,0,15,0,256,0,0,0,0,0,"","Show gossip text 3299 if if Player is a Warlock");
+*/
