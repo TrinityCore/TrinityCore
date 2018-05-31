@@ -1088,6 +1088,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetPower(Powers power, int32 val);
         void SetMaxPower(Powers power, int32 val);
         void CheckPowerProc(Powers power, int32 oldVal, int32 newVal);
+        void CheckPowerProc(Powers power, int32 oldVal, int32 newVal, AuraEffectList effects);
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
