@@ -17,21 +17,20 @@
 
 #include "IPLocation.h"
 #include "Config.h"
-#include "ByteConverter.h"
 #include "IpAddress.h"
 #include "Log.h"
 #include <fstream>
 #include <iostream>
 
-IPLocation::IPLocation()
+IpLocationStore::IpLocationStore()
 {
 }
 
-IPLocation::~IPLocation()
+IpLocationStore::~IpLocationStore()
 {
 }
 
-void IPLocation::Load()
+void IpLocationStore::Load()
 {
     std::string const value = sConfigMgr->GetStringDefault("IPLocationFile", "");
     if (value.empty())
@@ -78,37 +77,36 @@ void IPLocation::Load()
         // Convert country code to lowercase
         std::transform(country_code.begin(), country_code.end(), country_code.begin(), ::tolower);
 
-        Iplocation data;
-        data.ip_from        = (uint64)atoll(ip_from.c_str());;
-        data.ip_to          = (uint64)atoll(ip_to.c_str());;
+        IpLocationRecord data;
+        data.ip_from        = (uint32)atoull(ip_from.c_str());
+        data.ip_to          = (uint32)atoull(ip_to.c_str());
         data.country_code   = country_code;
         data.country_name   = country_name;
 
         _ipLocationStore.push_back(data);
     }
 
+    std::sort(_ipLocationStore.begin(), _ipLocationStore.end(), [](IpLocationRecord const& a, IpLocationRecord const& b) { return a.ip_from < b.ip_from; });
+
     ipfile.close();
 
     TC_LOG_INFO("server.loading", ">> Loaded %u entries.", uint32(_ipLocationStore.size()));
 }
 
-Iplocation* IPLocation::GetData(std::string const& ipAddress)
+IpLocationRecord* IpLocationStore::GetData(std::string const& ipAddress)
 {
     if (_ipLocationStore.empty())
         return nullptr;
 
-    uint64 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(ipAddress));
-    for (auto itr = _ipLocationStore.begin(); itr != _ipLocationStore.end(); ++itr)
-    {
-        if (itr->ip_from <= ip && itr->ip_to >= ip)
-            return &(*itr);
-    }
+    uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(ipAddress));
+    auto itr = std::upper_bound(_ipLocationStore.begin(), _ipLocationStore.end(), ip, [](uint32 ip, IpLocationRecord const& loc) { return loc.ip_to >= ip; });
+    ASSERT(&(*itr));
 
-    return nullptr;
+    return &(*itr);
 }
 
-IPLocation* IPLocation::instance()
+IpLocationStore* IpLocationStore::instance()
 {
-    static IPLocation instance;
+    static IpLocationStore instance;
     return &instance;
 }

@@ -291,7 +291,7 @@ public:
         {
             if (param == "on")
             {
-                if (Iplocation* location = sIPLocation->GetData(handler->GetSession()->GetRemoteAddress()))
+                if (IpLocationRecord* location = sIPLocation->GetData(handler->GetSession()->GetRemoteAddress()))
                 {
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
                     stmt->setString(0, location->country_code);

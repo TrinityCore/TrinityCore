@@ -18,27 +18,26 @@
 #include "Define.h"
 #include <string>
 
-struct Iplocation
+struct IpLocationRecord
 {
-    uint64 ip_from;
-    uint64 ip_to;
+    uint32 ip_from;
+    uint32 ip_to;
     std::string country_code;
     std::string country_name;
 };
 
-class TC_COMMON_API IPLocation
+class TC_COMMON_API IpLocationStore
 {
     public:
-        IPLocation();
-        ~IPLocation();
-        static IPLocation* instance();
+        IpLocationStore();
+        ~IpLocationStore();
+        static IpLocationStore* instance();
 
         void Load();
-        Iplocation* GetData(std::string const& ipAddress);
+        IpLocationRecord* GetData(std::string const& ipAddress);
 
     private:
-        std::vector<Iplocation> _ipLocationStore;
+        std::vector<IpLocationRecord> _ipLocationStore;
 };
 
-#define sIPLocation IPLocation::instance()
-
+#define sIPLocation IpLocationStore::instance()
