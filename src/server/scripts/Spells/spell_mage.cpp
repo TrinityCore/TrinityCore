@@ -156,7 +156,10 @@ enum MageSpells
     SPELL_INFERNO                                = 253220,
     SPELL_MAGE_BLAZING_BARRIER                   = 235313,
     SPELL_MAGE_BLAZING_SOUL                      = 235365,
-    SPELL_MAGE_CONTROLLED_BURN                   = 205033
+    SPELL_MAGE_CONTROLLED_BURN                   = 205033,
+    SPELL_MAGE_FLAME_PATCH                       = 205037,
+    SPELL_MAGE_FLAME_PATCH_TRIGGER               = 205470,
+    SPELL_MAGE_FLAME_PATCH_AOE_DMG               = 205472
 };
 
 enum TemporalDisplacementSpells
@@ -868,9 +871,26 @@ class spell_mage_flamestrike : public SpellScript
         }
     }
 
+    void HandleDummy()
+    {
+        Unit* caster = GetCaster();
+        WorldLocation const* dest = GetExplTargetDest();
+        if (!caster || !dest)
+            return;
+
+        if (caster->HasAura(SPELL_MAGE_FLAME_PATCH))
+        {
+            if (WorldLocation const* dest = GetExplTargetDest())
+            {
+                caster->CastSpell(dest->GetPosition(), SPELL_MAGE_FLAME_PATCH_TRIGGER, true);
+            }
+        }
+    }
+
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_mage_flamestrike::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterCast += SpellCastFn(spell_mage_flamestrike::HandleDummy);
     }
 };
 
@@ -2818,6 +2838,40 @@ class spell_mage_blazing_soul : public AuraScript
     }
 };
 
+// Flame Patch
+// AreaTriggerID - 10801
+struct at_mage_flame_patch : AreaTriggerAI
+{
+    at_mage_flame_patch(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+
+    void OnCreate() override
+    {
+        timeInterval = 1000;
+    }
+
+    int32 timeInterval;
+
+    void OnUpdate(uint32 diff) override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        timeInterval += diff;
+        if (timeInterval < 1000)
+            return;
+
+        caster->CastSpell(at->GetPosition(), SPELL_MAGE_FLAME_PATCH_AOE_DMG, true);
+
+        timeInterval -= 1000;
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new playerscript_mage_arcane();
@@ -2881,6 +2935,7 @@ void AddSC_mage_spell_scripts()
     //7.3.2.25549 END
 
     RegisterAuraScript(spell_mage_blazing_soul);
+    RegisterSpellScript(spell_mage_flamestrike);
     RegisterAuraScript(spell_mage_ring_of_frost);
     new spell_mage_ring_of_frost_stun();
     
@@ -2894,6 +2949,7 @@ void AddSC_mage_spell_scripts()
     RegisterAreaTriggerAI(at_mage_rune_of_power);
     new at_mage_frozen_orb();
     new at_mage_arcane_orb();
+    RegisterAreaTriggerAI(at_mage_flame_patch);
 
     // NPC Scripts
     new npc_mirror_image(); 
