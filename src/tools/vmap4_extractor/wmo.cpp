@@ -26,6 +26,7 @@
 #include <cassert>
 #undef min
 #undef max
+#include "Errors.h"
 #include "mpqfile.h"
 
 extern uint16 *LiqType;
@@ -379,7 +380,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         // translate triangle indices to new numbers
         for (int i=0; i<3*nColTriangles; ++i)
         {
-            assert(MoviEx[i] < nVertices);
+            ASSERT(MoviEx[i] < nVertices);
             MoviEx[i] = IndexRenum[MoviEx[i]];
         }
 
@@ -396,7 +397,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
             if (IndexRenum[i] >= 0)
                 check -= fwrite(MOVT+3*i, sizeof(float), 3, output);
 
-        assert(check==0);
+        ASSERT(check==0);
 
         delete [] MoviEx;
         delete [] IndexRenum;
