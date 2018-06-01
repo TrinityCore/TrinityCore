@@ -28,10 +28,10 @@
 template<class T>
 ConfusedMovementGenerator<T>::ConfusedMovementGenerator() : _timer(0), _x(0.f), _y(0.f), _z(0.f)
 {
-    MovementGenerator::Mode = MOTION_MODE_DEFAULT;
-    MovementGenerator::Priority = MOTION_PRIORITY_HIGHEST;
-    MovementGenerator::Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
-    MovementGenerator::BaseUnitState = UNIT_STATE_CONFUSED;
+    this->Mode = MOTION_MODE_DEFAULT;
+    this->Priority = MOTION_PRIORITY_HIGHEST;
+    this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    this->BaseUnitState = UNIT_STATE_CONFUSED;
 }
 
 template<class T>

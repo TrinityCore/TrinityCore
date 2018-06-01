@@ -33,10 +33,10 @@
 template<class T>
 FleeingMovementGenerator<T>::FleeingMovementGenerator(ObjectGuid fleeTargetGUID) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
 {
-    MovementGenerator::Mode = MOTION_MODE_DEFAULT;
-    MovementGenerator::Priority = MOTION_PRIORITY_HIGHEST;
-    MovementGenerator::Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
-    MovementGenerator::BaseUnitState = UNIT_STATE_FLEEING;
+    this->Mode = MOTION_MODE_DEFAULT;
+    this->Priority = MOTION_PRIORITY_HIGHEST;
+    this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    this->BaseUnitState = UNIT_STATE_FLEEING;
 }
 
 template<class T>

@@ -28,10 +28,10 @@
 template<class T>
 RandomMovementGenerator<T>::RandomMovementGenerator(float distance) : _timer(0), _reference(), _wanderDistance(distance)
 {
-    MovementGenerator::Mode = MOTION_MODE_DEFAULT;
-    MovementGenerator::Priority = MOTION_PRIORITY_NORMAL;
-    MovementGenerator::Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
-    MovementGenerator::BaseUnitState = UNIT_STATE_ROAMING;
+    this->Mode = MOTION_MODE_DEFAULT;
+    this->Priority = MOTION_PRIORITY_NORMAL;
+    this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    this->BaseUnitState = UNIT_STATE_ROAMING;
 }
 
 template RandomMovementGenerator<Creature>::RandomMovementGenerator(float/* distance*/);
@@ -180,7 +180,7 @@ void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active,
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         owner->StopMoving();
 
-        // TODO: ???????????
+        // TODO: Research if this modification is needed, which most likely isnt
         owner->SetWalk(false);
     }
 }

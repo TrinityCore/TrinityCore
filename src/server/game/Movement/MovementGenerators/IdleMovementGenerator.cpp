@@ -79,7 +79,7 @@ void RotateMovementGenerator::Initialize(Unit* owner)
     owner->StopMoving();
 
     /*
-     *  TODO: so wrong that I'm removing it
+     *  TODO: This code should be handled somewhere else, like MovementInform
      *
      *  if (owner->GetVictim())
      *      owner->SetInFront(owner->GetVictim());
@@ -204,20 +204,17 @@ void DistractMovementGenerator::Deactivate(Unit*)
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 }
 
-void DistractMovementGenerator::Finalize(Unit* /*owner*/, bool/* active*/, bool/* movementInform*/)
+void DistractMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
-    /*
-     *  TODO: ugh
-     *
-     *  // If this is a creature, then return orientation to original position (for idle movement creatures)
-     *  if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && owner->GetTypeId() == TYPEID_UNIT)
-     *  {
-     *      float angle = owner->ToCreature()->GetHomePosition().GetOrientation();
-     *      owner->SetFacingTo(angle);
-     *  }
-     */
+    // TODO: This code should be handled somewhere else
+    // If this is a creature, then return orientation to original position (for idle movement creatures)
+    if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && owner->GetTypeId() == TYPEID_UNIT)
+    {
+        float angle = owner->ToCreature()->GetHomePosition().GetOrientation();
+        owner->SetFacingTo(angle);
+    }
 }
 
 MovementGeneratorType DistractMovementGenerator::GetMovementGeneratorType() const

@@ -224,7 +224,7 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
 
-        // TODO: ???????
+        // TODO: Research if this modification is needed, which most likely isnt
         owner->SetWalk(false);
     }
 }

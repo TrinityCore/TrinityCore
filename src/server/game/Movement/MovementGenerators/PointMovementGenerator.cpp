@@ -31,10 +31,10 @@
 template<class T>
 PointMovementGenerator<T>::PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed, Optional<float> finalOrient) : _movementId(id), _x(x), _y(y), _z(z), _speed(speed), _generatePath(generatePath), _finalOrient(finalOrient)
 {
-    MovementGenerator::Mode = MOTION_MODE_DEFAULT;
-    MovementGenerator::Priority = MOTION_PRIORITY_NORMAL;
-    MovementGenerator::Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
-    MovementGenerator::BaseUnitState = UNIT_STATE_ROAMING;
+    this->Mode = MOTION_MODE_DEFAULT;
+    this->Priority = MOTION_PRIORITY_NORMAL;
+    this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    this->BaseUnitState = UNIT_STATE_ROAMING;
 }
 
 template<class T>
