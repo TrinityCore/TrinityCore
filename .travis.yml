@@ -10,19 +10,18 @@ git:
 
 addons:
   apt:
-    update: true
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:rexut/factory'
+      - sourceline: 'ppa:kzemek/boost'
     packages:
       - g++-6
-      - libboost1.62-dev
-      - libboost-filesystem1.62-dev
-      - libboost-iostreams1.62-dev
-      - libboost-program-options1.62-dev
-      - libboost-regex1.62-dev
-      - libboost-system1.62-dev
-      - libboost-thread1.62-dev
+      - libboost1.58-dev
+      - libboost-filesystem1.58-dev
+      - libboost-iostreams1.58-dev
+      - libboost-program-options1.58-dev
+      - libboost-regex1.58-dev
+      - libboost-system1.58-dev
+      - libboost-thread1.58-dev
       - libssl-dev
       - libmysqlclient-dev
       - libreadline6-dev
