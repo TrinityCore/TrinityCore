@@ -159,7 +159,10 @@ enum MageSpells
     SPELL_MAGE_CONTROLLED_BURN                   = 205033,
     SPELL_MAGE_FLAME_PATCH                       = 205037,
     SPELL_MAGE_FLAME_PATCH_TRIGGER               = 205470,
-    SPELL_MAGE_FLAME_PATCH_AOE_DMG               = 205472
+    SPELL_MAGE_FLAME_PATCH_AOE_DMG               = 205472,
+    SPELL_MAGE_CINDERSTORM                       = 198929,
+    SPELL_MAGE_CINDERSTORM_DMG                   = 198928,
+    SPELL_MAGE_IGNITE_DOT                        = 12654
 };
 
 enum TemporalDisplacementSpells
@@ -2872,6 +2875,47 @@ struct at_mage_flame_patch : AreaTriggerAI
     }
 };
 
+// Cinderstorm - 198929
+// AreaTriggerID - 10194
+struct at_mage_cinderstorm : AreaTriggerAI
+{
+    at_mage_cinderstorm(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_MAGE_CINDERSTORM_DMG, true);
+    }
+};
+
+// Cinderstorm - 198928
+class spell_mage_cinderstorm : public SpellScript
+{
+    PrepareSpellScript(spell_mage_cinderstorm);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        if (target->HasAura(SPELL_MAGE_IGNITE_DOT))
+        {
+            int32 pct = sSpellMgr->GetSpellInfo(SPELL_MAGE_CINDERSTORM)->GetEffect(EFFECT_0)->CalcValue(caster);
+            int32 dmg = GetHitDamage();
+            AddPct(dmg, pct);
+            SetHitDamage(dmg);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_cinderstorm::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new playerscript_mage_arcane();
@@ -2938,6 +2982,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_flamestrike);
     RegisterAuraScript(spell_mage_ring_of_frost);
     new spell_mage_ring_of_frost_stun();
+    RegisterSpellScript(spell_mage_cinderstorm);
     
     // Spell Pet scripts
     new spell_mage_pet_freeze();
@@ -2950,6 +2995,7 @@ void AddSC_mage_spell_scripts()
     new at_mage_frozen_orb();
     new at_mage_arcane_orb();
     RegisterAreaTriggerAI(at_mage_flame_patch);
+    RegisterAreaTriggerAI(at_mage_cinderstorm);
 
     // NPC Scripts
     new npc_mirror_image(); 
