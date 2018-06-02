@@ -26,6 +26,7 @@
 #include <map>
 #include <cstdio>
 #include <cstdlib>
+#include "Errors.h"
 
 WMORoot::WMORoot(std::string const& filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
@@ -450,7 +451,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         // translate triangle indices to new numbers
         for (int i=0; i<3*nColTriangles; ++i)
         {
-            assert(MoviEx[i] < nVertices);
+            ASSERT(MoviEx[i] < nVertices);
             MoviEx[i] = IndexRenum[MoviEx[i]];
         }
 
@@ -467,7 +468,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
             if(IndexRenum[i] >= 0)
                 check -= fwrite(MOVT+3*i, sizeof(float), 3, output);
 
-        assert(check==0);
+        ASSERT(check==0);
 
         delete [] MoviEx;
         delete [] IndexRenum;
