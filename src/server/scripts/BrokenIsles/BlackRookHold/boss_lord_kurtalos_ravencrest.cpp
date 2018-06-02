@@ -397,8 +397,11 @@ struct npc_latosius : public ScriptedAI
                     TeleportToCenter();
                     me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
                     me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
-                    me->GetMotionMaster()->MoveChase(me->GetVictim());
-                    me->SetTarget(me->GetVictim()->GetGUID());
+                    if (me->GetVictim())
+                    {
+                        me->SetTarget(me->GetVictim()->GetGUID());
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                    }
                     return;
                 }
 
