@@ -1325,19 +1325,19 @@ class npc_sulfuras: public CreatureScript
         };
 };
 
-class npc_son_of_flame: public CreatureScript
+class npc_son_of_flame_firelands: public CreatureScript
 {
     public:
-        npc_son_of_flame() : CreatureScript("npc_son_of_flame") {}
+        npc_son_of_flame_firelands() : CreatureScript("npc_son_of_flame_firelands") {}
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_son_of_flameAI(creature);
+            return new npc_son_of_flame_firelandsAI(creature);
         }
 
-        struct npc_son_of_flameAI: public ScriptedAI
+        struct npc_son_of_flame_firelandsAI: public ScriptedAI
         {
-            npc_son_of_flameAI(Creature* creature) : ScriptedAI(creature)
+            npc_son_of_flame_firelandsAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -2224,7 +2224,7 @@ void AddSC_boss_ragnaros_firelands()
     new npc_engulfing_flames();
     new npc_molten_seed();
     new npc_living_meteor();
-    new npc_son_of_flame();
+    new npc_son_of_flame_firelands();
     new npc_lava_scion();
     new npc_molten_elemental();
     new npc_entrapping_roots();
