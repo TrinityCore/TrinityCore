@@ -476,7 +476,7 @@ public:
         Movement::MoveSplineInit init(_owner);
         init.DisableTransportPathTransformations();
         init.MoveTo(_dest.GetPositionX(), _dest.GetPositionY(), _dest.GetPositionZ(), false);
-        _owner->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+        _owner->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
         return true;
     }
@@ -570,7 +570,7 @@ struct gunship_npc_AI : public ScriptedAI
             Movement::MoveSplineInit init(me);
             init.DisableTransportPathTransformations();
             init.MoveTo(x, y, z, false);
-            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
         }
     }
 
@@ -943,7 +943,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                     Movement::MoveSplineInit init(me);
                     init.DisableTransportPathTransformations();
                     init.MovebyPath(path, 0);
-                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
                     me->DespawnOrUnsummon(18000);
                 }
@@ -1207,7 +1207,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                     Movement::MoveSplineInit init(me);
                     init.DisableTransportPathTransformations();
                     init.MovebyPath(path, 0);
-                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
                     me->DespawnOrUnsummon(18000);
                 }
