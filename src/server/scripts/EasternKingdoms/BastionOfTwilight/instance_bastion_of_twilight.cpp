@@ -88,6 +88,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 _unresponsiveDragonEntrySecond = 0;
                 _deadOrphanedEmeraldWhelps = 0;
                 _lastAreatriggerIndex = 0;
+                _valionaAuraDummyGUID = ObjectGuid::Empty;
                 GenerateHalfusDragonData();
             }
 
@@ -128,6 +129,12 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         if (creature->GetPositionZ() < 850.0f)
                             _dancingFlamesInvisibleStalkerGUIDs.insert(creature->GetGUID());
                         break;
+                    case NPC_COLLAPSING_TWILIGHT_PORTAL:
+                        if (Creature* valiona = GetCreature(DATA_VALIONA))
+                            valiona->AI()->JustSummoned(creature);
+
+                        _collapsingTwilightPortalGUIDs.insert(creature->GetGUID());
+                        break;
                     case NPC_CONVECTIVE_FLAMES:
                         if (Creature* valiona = GetCreature(DATA_VALIONA))
                             valiona->AI()->JustSummoned(creature);
@@ -136,6 +143,14 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     case NPC_FABULOUS_FLAMES:
                         if (Creature* theralion = GetCreature(DATA_THERALION))
                             theralion->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_VALIONA_DUMMY:
+                        _valionaDummyGUIDs.insert(creature->GetGUID());
+                        if (creature->GetOrientation() == 0.0f) // Blizzard uses a single dummy with 0.0 orientation as aura target dummy
+                            _valionaAuraDummyGUID = creature->GetGUID();
+                        break;
+                    case NPC_UNSTABLE_TWILIGHT:
+                        _unstableTwilightGUIDs.insert(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -237,6 +252,20 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
                         break;
+                    case DATA_THERALION_AND_VALIONA:
+                        if (state == FAIL)
+                        {
+                            for (ObjectGuid guid : _valionaDummyGUIDs)
+                                if (Creature* creature = instance->GetCreature(guid))
+                                    creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
+
+                            for (ObjectGuid guid : _unstableTwilightGUIDs)
+                                if (Creature* creature = instance->GetCreature(guid))
+                                    creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
+
+                            _collapsingTwilightPortalGUIDs.clear();
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -325,6 +354,21 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 }
             }
 
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_RANDOM_VALIONA_DUMMY:
+                        return Trinity::Containers::SelectRandomContainerElement(_valionaDummyGUIDs);
+                    case DATA_VALIONA_AURA_DUMMY:
+                        return _valionaAuraDummyGUID;
+                    default:
+                        break;
+                }
+
+                return ObjectGuid::Empty;
+            }
+
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
@@ -333,6 +377,16 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         return _unresponsiveDragonEntryFirst;
                     case DATA_UNRESPONSIVE_DRAGON_SECOND:
                         return _unresponsiveDragonEntrySecond;
+                    case DATA_COLLAPSING_TWILIGHT_PORTAL_COUNT:
+                    {
+                        uint8 portalCount = 0;
+                        for (ObjectGuid guid : _collapsingTwilightPortalGUIDs)
+                            if (instance->GetCreature(guid))
+                                portalCount++;
+                        return portalCount;
+                    }
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -393,6 +447,10 @@ class instance_bastion_of_twilight : public InstanceMapScript
             EventMap events;
             GuidSet _halfusEncounterGUIDs;
             GuidSet _dancingFlamesInvisibleStalkerGUIDs;
+            GuidSet _valionaDummyGUIDs;
+            GuidSet _unstableTwilightGUIDs;
+            GuidSet _collapsingTwilightPortalGUIDs;
+            ObjectGuid _valionaAuraDummyGUID;
             std::set<uint32> _activeDragonEntries;
             uint32 _unresponsiveDragonEntryFirst;
             uint32 _unresponsiveDragonEntrySecond;

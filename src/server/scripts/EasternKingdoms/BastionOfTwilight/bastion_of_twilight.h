@@ -58,6 +58,9 @@ enum BoTDataTypes
     DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE,
 
     /*Theralion and Valiona*/
+    DATA_RANDOM_VALIONA_DUMMY,
+    DATA_COLLAPSING_TWILIGHT_PORTAL_COUNT,
+    DATA_VALIONA_AURA_DUMMY
 };
 
 enum BoTDataStates
@@ -105,6 +108,9 @@ enum BoTCreatures
     NPC_CONVECTIVE_FLAMES               = 46588,
     NPC_DAZZLING_DESTRUCTION_STALKER    = 46374,
     NPC_FABULOUS_FLAMES                 = 46448,
+    NPC_COLLAPSING_TWILIGHT_PORTAL      = 46301,
+    NPC_VALIONA_DUMMY                   = 46147,
+    NPC_UNSTABLE_TWILIGHT               = 46304,
 
     // Generic Creatures
     NPC_INVISIBLE_STALKER               = 42098
