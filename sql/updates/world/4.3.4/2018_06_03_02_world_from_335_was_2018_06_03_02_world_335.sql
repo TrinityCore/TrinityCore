@@ -1,3 +1,4 @@
+/*
 -- Quest "Kobold Camp Cleanup"
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=6 WHERE `ID`=7;
 
@@ -1768,3 +1769,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (1475,1,1,1,1,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=1 WHERE `ID`=1475;
 UPDATE `quest_offer_reward` SET `Emote1`=4, `Emote2`=1, `Emote3`=2 WHERE `ID`=1475;
+*/
