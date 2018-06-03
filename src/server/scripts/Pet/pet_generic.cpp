@@ -350,7 +350,7 @@ class npc_pet_gen_lil_ragnaros : public CreatureScript
                 _submerged = false;
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCastSelf(SPELL_DND_LR_2, true);
                 DoCastSelf(SPELL_DND_SUMMON_BASIC_CAMPFIRE, true);
