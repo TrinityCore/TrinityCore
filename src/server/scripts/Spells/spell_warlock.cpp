@@ -134,15 +134,6 @@ enum WarlockSpells
     SPELL_WARLOCK_SHADOWBURN_ENERGIZE               = 125882,
     SPELL_WARLOCK_SHADOWFLAME                       = 47960,
     SPELL_WARLOCK_SHIELD_OF_SHADOW                  = 115232,
-    SPELL_WARLOCK_SOULBURN_AURA                     = 74434,
-    SPELL_WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE      = 114794,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_1               = 93312,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_2               = 93313,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_3               = 104245,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_4               = 104249,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_5               = 104250,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_6               = 104251,
-    SPELL_WARLOCK_SOULBURN_OVERRIDE_7               = 114787,
     SPELL_WARLOCK_SOUL_LEECH_AURA                   = 108370,
     SPELL_WARLOCK_SOUL_LEECH_ABSORB                 = 108366,
     SPELL_WARLOCK_SOUL_LINK_DUMMY_AURA              = 108446,
@@ -1898,154 +1889,6 @@ public:
     }
 };
 
-class spell_warl_soulburn_override : public SpellScriptLoader
-{
-public:
-    spell_warl_soulburn_override() : SpellScriptLoader("spell_warl_soulburn_override") { }
-
-    class spell_warl_soulburn_override_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_soulburn_override_AuraScript);
-
-        void OnApply(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (!GetCaster())
-                return;
-
-            if (Player* player = GetCaster()->ToPlayer())
-            {
-                // Overrides Seed of Corruption
-                player->CastSpell(player, SPELL_WARLOCK_SOULBURN_OVERRIDE_2, true);
-                // Overrides Demonic Circle : Teleport
-                player->CastSpell(player, SPELL_WARLOCK_SOULBURN_OVERRIDE_4, true);
-            }
-        }
-
-        void OnRemove(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (!GetCaster())
-                return;
-
-            if (Player* player = GetCaster()->ToPlayer())
-            {
-                // Overrides Seed of Corruption
-                player->RemoveAura(SPELL_WARLOCK_SOULBURN_OVERRIDE_2);
-                // Overrides Demonic Circle : Teleport
-                player->RemoveAura(SPELL_WARLOCK_SOULBURN_OVERRIDE_4);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_warl_soulburn_override_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_warl_soulburn_override_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_warl_soulburn_override_AuraScript();
-    }
-};
-
-class spell_warl_soulburn_remove : public SpellScriptLoader
-{
-public:
-    spell_warl_soulburn_remove() : SpellScriptLoader("spell_warl_soulburn_remove") { }
-
-    class spell_warl_soulburn_remove_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_soulburn_remove_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Player* player = GetCaster()->ToPlayer())
-                if (player->HasAura(SPELL_WARLOCK_SOULBURN_AURA))
-                    player->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_AURA);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_warl_soulburn_remove_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warl_soulburn_remove_SpellScript();
-    }
-};
-
-class spell_warl_soulburn_seed_of_corruption : public SpellScriptLoader
-{
-public:
-    spell_warl_soulburn_seed_of_corruption() : SpellScriptLoader("spell_warl_soulburn_seed_of_corruption") { }
-
-    class spell_warl_soulburn_seed_of_corruption_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_soulburn_seed_of_corruption_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Player* player = GetCaster()->ToPlayer())
-            {
-                player->CastSpell(player, SPELL_WARLOCK_SEED_OF_CORRUPTION_DUMMY, true);
-
-                if (player->HasAura(SPELL_WARLOCK_SOULBURN_AURA))
-                    player->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_AURA);
-            }
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warl_soulburn_seed_of_corruption_SpellScript();
-    }
-};
-
-class spell_warl_soulburn_seed_of_corruption_damage : public SpellScriptLoader
-{
-public:
-    spell_warl_soulburn_seed_of_corruption_damage() : SpellScriptLoader("spell_warl_soulburn_seed_of_corruption_damage") { }
-
-    class spell_warl_soulburn_seed_of_corruption_damage_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_soulburn_seed_of_corruption_damage_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            if (GetExplTargetUnit())
-                targets.remove(GetExplTargetUnit());
-        }
-
-        void HandleScript()
-        {
-            if (!GetCaster())
-                return;
-
-            // Remove Soul Burn aura
-            if (GetCaster()->HasAura(SPELL_WARLOCK_SEED_OF_CORRUPTION_DUMMY))
-                GetCaster()->RemoveAurasDueToSpell(SPELL_WARLOCK_SEED_OF_CORRUPTION_DUMMY);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            AfterHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleScript);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warl_soulburn_seed_of_corruption_damage_SpellScript();
-    }
-};
-
 class spell_warl_twilight_ward_s12 : public SpellScriptLoader
 {
 public:
@@ -3727,10 +3570,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap_dot_marker();
     new spell_warl_soul_swap_exhale();
     new spell_warl_soul_swap_override();
-    new spell_warl_soulburn_override();
-    new spell_warl_soulburn_remove();
-    new spell_warl_soulburn_seed_of_corruption();
-    new spell_warl_soulburn_seed_of_corruption_damage();
     new spell_warl_soulshatter();
     new spell_warl_twilight_ward_s12();
     RegisterSpellScript(spell_warl_unstable_affliction);
