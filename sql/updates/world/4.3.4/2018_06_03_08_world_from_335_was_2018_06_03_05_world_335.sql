@@ -1,3 +1,4 @@
+/*
 -- J.D. Collie
 DELETE FROM `creature_text` WHERE `CreatureID`=9117 AND `GroupID` IN (8,9);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -31,3 +32,4 @@ DELETE FROM `waypoints` WHERE `entry`=9117;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (9117,1,-6027.85,-1020.16,-217.056,""),
 (9117,2,-6033.25,-1017.56,-217.055,"");
+*/
