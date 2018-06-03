@@ -538,7 +538,7 @@ public:
                 Talk(SAY_ATIESH);
                 me->SetFacingTo(me->GetAbsoluteAngle(player));
                 me->ClearUnitState(UNIT_STATE_MOVING);
-                me->GetMotionMaster()->MoveDistract(7 * IN_MILLISECONDS);
+                me->GetMotionMaster()->MoveDistract(7 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
                 break;
             }
         }

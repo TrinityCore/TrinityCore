@@ -30,7 +30,6 @@
 #include "LFGScripts.h"
 #include "Log.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -1363,11 +1362,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         if (!player->GetMap()->IsDungeon())
             player->SetBattlegroundEntryPoint();
 
-        if (player->IsInFlight())
-        {
-            player->GetMotionMaster()->MovementExpired();
-            player->CleanupAfterTaxiFlight();
-        }
+        player->FinishTaxiFlight();
 
         if (!player->TeleportTo(mapid, x, y, z, orientation))
             error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;

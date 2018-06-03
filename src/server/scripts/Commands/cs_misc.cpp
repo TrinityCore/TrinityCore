@@ -20,12 +20,10 @@
 #include "ArenaTeamMgr.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
-#include "ChaseMovementGenerator.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
-#include "FollowMovementGenerator.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -41,7 +39,6 @@
 #include "MMapFactory.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
-#include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -459,13 +456,9 @@ public:
 
             // stop flight if need
             if (_player->IsInFlight())
-            {
-                _player->GetMotionMaster()->MovementExpired();
-                _player->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+                _player->FinishTaxiFlight();
             else
-                _player->SaveRecallPosition();
+                _player->SaveRecallPosition(); // save only in non-flight case
 
             // to point to see at target with same orientation
             float x, y, z;
@@ -494,13 +487,9 @@ public:
 
             // stop flight if need
             if (_player->IsInFlight())
-            {
-                _player->GetMotionMaster()->MovementExpired();
-                _player->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+                _player->FinishTaxiFlight();
             else
-                _player->SaveRecallPosition();
+                _player->SaveRecallPosition(); // save only in non-flight case
 
             _player->TeleportTo(map, x, y, z, _player->GetOrientation());
         }
@@ -590,14 +579,10 @@ public:
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
 
             // stop flight if need
-            if (target->IsInFlight())
-            {
-                target->GetMotionMaster()->MovementExpired();
-                target->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+            if (_player->IsInFlight())
+                _player->FinishTaxiFlight();
             else
-                target->SaveRecallPosition();
+                _player->SaveRecallPosition(); // save only in non-flight case
 
             // before GM
             float x, y, z;
@@ -899,12 +884,7 @@ public:
             return false;
         }
 
-        // stop flight if need
-        if (target->IsInFlight())
-        {
-            target->GetMotionMaster()->MovementExpired();
-            target->CleanupAfterTaxiFlight();
-        }
+        target->FinishTaxiFlight();
 
         target->Recall();
         return true;
@@ -2210,20 +2190,19 @@ public:
 
         handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUID().ToString().c_str());
 
-        MotionMaster* motionMaster = unit->GetMotionMaster();
-        float x, y, z;
-        motionMaster->GetDestination(x, y, z);
-
-        for (uint8 itr = 0; itr < MAX_MOTION_SLOT; ++itr)
+        if (unit->GetMotionMaster()->Empty())
         {
-            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(MovementSlot(itr));
-            if (!movementGenerator)
-            {
-                handler->SendSysMessage("Empty");
-                continue;
-            }
+            handler->SendSysMessage("Empty");
+            return true;
+        }
 
-            switch (movementGenerator->GetMovementGeneratorType())
+        float x, y, z;
+        unit->GetMotionMaster()->GetDestination(x, y, z);
+
+        std::vector<MovementGeneratorInformation> list = unit->GetMotionMaster()->GetMovementGeneratorsInformation();
+        for (MovementGeneratorInformation info : list)
+        {
+            switch (info.Type)
             {
                 case IDLE_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_IDLE);
@@ -2238,45 +2217,33 @@ public:
                     handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
                     break;
                 case CHASE_MOTION_TYPE:
-                {
-                    Unit* target = static_cast<ChaseMovementGenerator const*>(movementGenerator)->GetTarget();
-
-                    if (!target)
+                    if (info.TargetGUID.IsEmpty())
                         handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                    else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName().c_str(), target->GetGUID().ToString().c_str());
+                    else if (info.TargetGUID.IsPlayer())
+                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, info.TargetName.c_str(), info.TargetGUID.ToString().c_str());
                     else
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName().c_str(), target->GetGUID().ToString().c_str());
+                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, info.TargetName.c_str(), info.TargetGUID.ToString().c_str());
                     break;
-                }
                 case FOLLOW_MOTION_TYPE:
-                {
-                    Unit* target = static_cast<FollowMovementGenerator const*>(movementGenerator)->GetTarget();
-
-                    if (!target)
+                    if (info.TargetGUID.IsEmpty())
                         handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                    else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName().c_str(), target->GetGUID().ToString().c_str());
+                    else if (info.TargetGUID.IsPlayer())
+                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, info.TargetName.c_str(), info.TargetGUID.ToString().c_str());
                     else
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName().c_str(), target->GetGUID().ToString().c_str());
+                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, info.TargetName.c_str(), info.TargetGUID.ToString().c_str());
                     break;
-                }
                 case HOME_MOTION_TYPE:
-                {
                     if (unit->GetTypeId() == TYPEID_UNIT)
                         handler->PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE, x, y, z);
                     else
                         handler->SendSysMessage(LANG_MOVEGENS_HOME_PLAYER);
                     break;
-                }
                 case FLIGHT_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_FLIGHT);
                     break;
                 case POINT_MOTION_TYPE:
-                {
                     handler->PSendSysMessage(LANG_MOVEGENS_POINT, x, y, z);
                     break;
-                }
                 case FLEEING_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_FEAR);
                     break;
@@ -2287,7 +2254,7 @@ public:
                     handler->SendSysMessage(LANG_MOVEGENS_EFFECT);
                     break;
                 default:
-                    handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, movementGenerator->GetMovementGeneratorType());
+                    handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, info.Type);
                     break;
             }
         }

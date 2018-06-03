@@ -590,7 +590,7 @@ enum SMART_ACTION
     SMART_ACTION_LOAD_EQUIPMENT                     = 124,    // id
     SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT         = 125,    // id min range, id max range
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
-    SMART_ACTION_STOP_MOTION                        = 127,    // stopMoving, movementExpired
+    SMART_ACTION_REMOVE_MOVEMENT                    = 127,    // movementType, forced
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
@@ -1162,9 +1162,9 @@ struct SmartAction
 
         struct
         {
-            uint32 stopMovement;
-            uint32 movementExpired;
-        } stopMotion;
+            uint32 movementType;
+            uint32 forced;
+        } removeMovement;
 
         struct
         {

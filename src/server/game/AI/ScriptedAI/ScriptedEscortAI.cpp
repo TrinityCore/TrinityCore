@@ -204,7 +204,7 @@ void EscortAI::UpdateAI(uint32 diff)
                 else if (_resume)
                 {
                     _resume = false;
-                    if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
+                    if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetCurrentMovementGenerator(MOTION_SLOT_DEFAULT))
                         movementGenerator->Resume(0);
                 }
             }
@@ -328,7 +328,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
         TC_LOG_DEBUG("scripts", "EscortAI::Start: (script: %s, creature entry: %u) is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn.", me->GetScriptName().c_str(), me->GetEntry());
 
     me->GetMotionMaster()->MoveIdle();
-    me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+    me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
 
     // disable npcflags
     me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
@@ -366,7 +366,7 @@ void EscortAI::SetEscortPaused(bool on)
     if (on)
     {
         AddEscortState(STATE_ESCORT_PAUSED);
-        if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
+        if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetCurrentMovementGenerator(MOTION_SLOT_DEFAULT))
             movementGenerator->Pause(0);
     }
     else

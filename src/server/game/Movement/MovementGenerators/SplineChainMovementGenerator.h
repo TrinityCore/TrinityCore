@@ -27,29 +27,31 @@ class Unit;
 class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
 {
     public:
-        explicit SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk = false) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), finished(false), _nextIndex(0), _nextFirstWP(0), _msToNext(0) { }
-        explicit SplineChainMovementGenerator(SplineChainResumeInfo const& info) : _id(info.PointID), _chain(*info.Chain), _chainSize(info.Chain->size()), _walk(info.IsWalkMode), finished(info.SplineIndex >= info.Chain->size()), _nextIndex(info.SplineIndex), _nextFirstWP(info.PointIndex), _msToNext(info.TimeToNext) { }
+        explicit SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk = false);
+        explicit SplineChainMovementGenerator(SplineChainResumeInfo const& info);
 
-        void Initialize(Unit* me) override;
-        void Finalize(Unit* me) override;
-        void Reset(Unit* /*me*/) override { };
-        bool Update(Unit* me, uint32 diff) override;
+        void Initialize(Unit*) override;
+        void Reset(Unit*) override;
+        bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
 
         // Builds info that can later be used to resume this spline chain movement at the current position
-        static void GetResumeInfo(Unit const* me, SplineChainResumeInfo& info);
+        static void GetResumeInfo(Unit const* owner, uint32 id, SplineChainResumeInfo& info);
         // Leaving the object method public for people that know what they're doing to use
         // But really, 99% of the time you should be using the static one instead
-        SplineChainResumeInfo GetResumeInfo(Unit const* me) const;
+        SplineChainResumeInfo GetResumeInfo(Unit const* owner) const;
+        uint32 GetId() const { return _id; }
 
     private:
-        void SendSplineFor(Unit* me, uint32 index, uint32& toNext);
-        uint32 SendPathSpline(Unit* me, Movement::PointsArray const& wp) const;
+        void SendSplineFor(Unit* owner, uint32 index, uint32& duration);
+        uint32 SendPathSpline(Unit* owner, Movement::PointsArray const& path) const;
+
         uint32 const _id;
         std::vector<SplineChainLink> const& _chain;
         uint8 const _chainSize;
         bool const _walk;
-        bool finished;
         uint8 _nextIndex;
         uint8 _nextFirstWP; // only used for resuming
         uint32 _msToNext;

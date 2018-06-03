@@ -31,7 +31,6 @@
 #include "Group.h"
 #include "Language.h"
 #include "Log.h"
-#include "MotionMaster.h"
 #include "NPCPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
@@ -364,11 +363,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
             _player->SpawnCorpseBones();
         }
         // stop taxi flight at port
-        if (_player->IsInFlight())
-        {
-            _player->GetMotionMaster()->MovementExpired();
-            _player->CleanupAfterTaxiFlight();
-        }
+        _player->FinishTaxiFlight();
 
         WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
         sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, bg, _player, battlefieldPort.Ticket.Id, _player->GetBattlegroundQueueJoinTime(bgQueueTypeId), bg->GetArenaType());

@@ -724,7 +724,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
         {
             _inBanish = true;
             me->StopMoving();
-            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(1, me->GetPositionX() + frand(-8.0f, 8.0f), me->GetPositionY() + frand(-8.0f, 8.0f), me->GetPositionZ());
 
             _scheduler.Schedule(Seconds(1) + Milliseconds(500), [this](TaskContext sorcer_channel)
