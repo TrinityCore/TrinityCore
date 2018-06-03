@@ -338,9 +338,9 @@ class npc_pet_gen_lil_ragnaros : public CreatureScript
     public:
         npc_pet_gen_lil_ragnaros() : CreatureScript("npc_pet_gen_lil_ragnaros") { }
 
-        struct npc_pet_gen_lil_ragnarosAI : public PetAI
+        struct npc_pet_gen_lil_ragnarosAI : public ScriptedAI
         {
-            npc_pet_gen_lil_ragnarosAI(Creature* creature) : PetAI(creature)
+            npc_pet_gen_lil_ragnarosAI(Creature* creature) : ScriptedAI(creature)
             {
                 Initialize();
             }
