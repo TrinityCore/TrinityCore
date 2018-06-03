@@ -664,6 +664,16 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
     }
 }
 
+// Kill all players with this aura in the instance
+void InstanceScript::DoKillPlayersWithAura(uint32 spell)
+{
+    Map::PlayerList const& PlayerList = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        if (Player* player = itr->GetSource())
+            if (player->HasAura(spell))
+                player->Kill(player);
+}
+
 // Cast spell on all players in instance
 void InstanceScript::DoCastSpellOnPlayers(uint32 spell, Unit* caster /*= nullptr*/, bool triggered /*= true*/)
 {

@@ -3769,6 +3769,7 @@ bool Map::IsRaid() const
     return i_mapEntry && i_mapEntry->IsRaid();
 }
 
+// Will also return true for Mythics
 bool Map::IsRaidOrHeroicDungeon() const
 {
     return IsRaid() || IsHeroic();

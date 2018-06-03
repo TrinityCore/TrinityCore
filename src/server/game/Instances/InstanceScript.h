@@ -232,6 +232,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
+        // Kill all players with this aura in the instance
+        void DoKillPlayersWithAura(uint32 spell);
+
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell, Unit* caster = nullptr, bool triggered = true);
 
