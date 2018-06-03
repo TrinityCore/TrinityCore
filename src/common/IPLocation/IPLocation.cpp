@@ -32,16 +32,26 @@ IpLocationStore::~IpLocationStore()
 
 void IpLocationStore::Load()
 {
-    std::ifstream ipfile("./IP2LOCATION-LITE-DB1.CSV");
-    if (!ipfile)
+    std::string const value = sConfigMgr->GetStringDefault("IPLocationFile", "");
+    if (value.empty())
         return;
 
     _ipLocationStore.clear();
     TC_LOG_INFO("server.loading", "Loading IP Location Database...");
 
+    // Check file extension
+    std::string extension = value.substr(value.find_last_of('.') + 1);
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+    if (extension != "csv")
+    {
+        TC_LOG_INFO("server.loading", "IPLocation:: File extension is not valid, must be .CSV extension");
+        return;
+    }
+
+    std::ifstream ipfile(value);
     if (!ipfile.is_open())
     {
-        TC_LOG_ERROR("server.loading", "IPLocation:: The file can not be opened.");
+        TC_LOG_INFO("server.loading", "IPLocation:: No database file exists.");
         return;
     }
 
@@ -76,9 +86,9 @@ void IpLocationStore::Load()
         _ipLocationStore.push_back(data);
     }
 
-    ipfile.close();
-
     std::sort(_ipLocationStore.begin(), _ipLocationStore.end(), [](IpLocationRecord const& a, IpLocationRecord const& b) { return a.ip_from < b.ip_from; });
+
+    ipfile.close();
 
     TC_LOG_INFO("server.loading", ">> Loaded %u entries.", uint32(_ipLocationStore.size()));
 }
