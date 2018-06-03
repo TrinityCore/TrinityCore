@@ -164,7 +164,7 @@ MySQLExecutable = ""
 #                     "/home/trinity/IP2Location.csv"
 #        Default:     "" - (Disabled)
 
-IPLocationFile = ""
+IPLocationFile = "./IP2LOCATION-LITE-DB1.CSV"
 
 #
 ###################################################################################################
