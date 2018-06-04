@@ -3072,6 +3072,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({
         379,   // Earth Shield
         33778, // Lifebloom Final Bloom
+        22845, // Frenzied Regeneration
 
         52042, // Healing Stream Totem
         // this one is here because we have no SP bonus for dmgclass none spell
@@ -3086,6 +3087,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         // We need more spells to find a general way (if there is any)
         spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+    });
+
+    // Frenzied Regeneration
+    ApplySpellFix({ 22845 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NATURE;
     });
 
     // Spell Reflection
