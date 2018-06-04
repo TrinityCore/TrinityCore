@@ -441,10 +441,10 @@ class FrozenThroneResetWorker
         }
 };
 
-class StartMovementEvent : public BasicEvent
+class LichKingStartMovementEvent : public BasicEvent
 {
     public:
-        StartMovementEvent(Creature* summoner, Creature* owner)
+        LichKingStartMovementEvent(Creature* summoner, Creature* owner)
             : _summonerGuid(summoner->GetGUID()), _owner(owner)
         {
         }
@@ -737,7 +737,7 @@ class boss_the_lich_king : public CreatureScript
                         summon->CastSpell(summon, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                         summon->SetReactState(REACT_PASSIVE);
                         summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        summon->m_Events.AddEvent(new StartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
+                        summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
                         break;
                     case NPC_ICE_SPHERE:
                     {
@@ -1690,7 +1690,7 @@ class npc_strangulate_vehicle : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TELEPORT:
-                            me->GetMotionMaster()->Clear(false);
+                            me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveIdle();
                             if (TempSummon* summ = me->ToTempSummon())
                             {
