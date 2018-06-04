@@ -183,35 +183,24 @@ class spell_dru_bear_form_passive : public SpellScriptLoader
 };
 
 // -50334 - Berserk
-class spell_dru_berserk : public SpellScriptLoader
+class spell_dru_berserk : public AuraScript
 {
-    public:
-        spell_dru_berserk() : SpellScriptLoader("spell_dru_berserk") { }
+    PrepareAuraScript(spell_dru_berserk);
 
-            class spell_dru_berserk_AuraScript : public AuraScript
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // Remove cooldown on Mangle (bear)
+        GetTarget()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
         {
-            PrepareAuraScript(spell_dru_berserk_AuraScript);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+            return spellInfo && spellInfo->GetCategory() == SPELL_CATEGORY_MANGLE_BEAR;
+        }, true);
+    }
 
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                // Remove cooldown on Mangle (bear)
-                GetTarget()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                    return spellInfo && spellInfo->GetCategory() == SPELL_CATEGORY_MANGLE_BEAR;
-                }, true);
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_berserk_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dru_berserk_AuraScript();
-        }
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_berserk::HandleEffectApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // -1850 - Dash
@@ -2392,7 +2381,7 @@ void AddSC_druid_spell_scripts()
 {
     new spell_dru_barkskin();
     new spell_dru_bear_form_passive();
-    new spell_dru_berserk();
+    RegisterAuraScript(spell_dru_berserk);
     new spell_dru_dash();
     new spell_dru_eclipse();
     new spell_dru_enrage();
