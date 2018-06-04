@@ -23,6 +23,7 @@
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "PointMovementGenerator.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
@@ -242,8 +243,16 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         }
                         case EVENT_BONE_STORM_END:
-                            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                                me->GetMotionMaster()->MovementExpired();
+                            if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool
+                            {
+                                if (a->GetMovementGeneratorType() == POINT_MOTION_TYPE)
+                                {
+                                    PointMovementGenerator<Creature> const* pointMovement = dynamic_cast<PointMovementGenerator<Creature> const*>(a);
+                                    return pointMovement && pointMovement->GetId() == POINT_TARGET_BONESTORM_PLAYER;
+                                }
+                                return false;
+                            }))
+                                me->GetMotionMaster()->Remove(movement);
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
@@ -473,7 +482,7 @@ class npc_bone_spike : public CreatureScript
                 Movement::MoveSplineInit init(passenger);
                 init.DisableTransportPathTransformations();
                 init.MoveTo(-0.02206125f, -0.02132235f, 5.514783f, false);
-                passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_SLOT_CONTROLLED);
+                passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
             }
 
             void UpdateAI(uint32 diff) override

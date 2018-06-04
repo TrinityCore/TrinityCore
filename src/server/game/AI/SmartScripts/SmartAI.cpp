@@ -112,7 +112,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
     {
-        me->PauseMovement(delay, MOTION_SLOT_IDLE, forced);
+        me->PauseMovement(delay, MOTION_SLOT_DEFAULT, forced);
         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
         {
             std::pair<uint32, uint32> waypointInfo = me->GetCurrentWaypointInfo();
@@ -544,8 +544,11 @@ void SmartAI::JustReachedHome()
     CreatureGroup* formation = me->GetFormation();
     if (!formation || formation->GetLeader() == me || !formation->IsFormed())
     {
-        if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != WAYPOINT_MOTION_TYPE && me->GetWaypointPath())
-            me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != WAYPOINT_MOTION_TYPE)
+        {
+            if (me->GetWaypointPath())
+                me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+        }
         else
             me->ResumeMovement();
     }
@@ -591,7 +594,8 @@ void SmartAI::AttackStart(Unit* who)
 
     if (who && me->Attack(who, mCanAutoAttack))
     {
-        me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+        me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+        me->PauseMovement();
 
         if (mCanCombatMove)
         {
@@ -770,13 +774,22 @@ void SmartAI::SetCombatMove(bool on)
 
     if (me->IsEngaged())
     {
-        if (on && !me->HasReactState(REACT_PASSIVE) && me->GetVictim() && me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == MAX_MOTION_TYPE)
+        if (on)
         {
-            SetRun(mRun);
-            me->GetMotionMaster()->MoveChase(me->GetVictim());
+            if (!me->HasReactState(REACT_PASSIVE) && me->GetVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
+            {
+                return movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
+            }))
+            {
+                SetRun(mRun);
+                me->GetMotionMaster()->MoveChase(me->GetVictim());
+            }
         }
-        else if (!on && me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == CHASE_MOTION_TYPE)
-            me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+        else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool
+        {
+            return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Mode == MOTION_MODE_DEFAULT && a->Priority == MOTION_PRIORITY_NORMAL;
+        }))
+            me->GetMotionMaster()->Remove(movement);
     }
 }
 

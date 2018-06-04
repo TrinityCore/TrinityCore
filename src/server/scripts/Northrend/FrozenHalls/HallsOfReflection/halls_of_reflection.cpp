@@ -15,20 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "halls_of_reflection.h"
+#include "Creature.h"
+#include "EventProcessor.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
+#include "ObjectGuid.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
+#include "Unit.h"
 
 enum Text
 {
@@ -343,12 +347,6 @@ Position const IceWallTargetPosition[] =
     { 5439.976f, 1879.005f, 752.7048f, 1.064651f  }, // 3rd Icewall
     { 5318.289f, 1749.184f, 771.9423f, 0.8726646f }  // 4th Icewall
 };
-
-void GameObjectDeleteDelayEvent::DeleteGameObject()
-{
-    if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
-        go->Delete();
-}
 
 class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 {
@@ -797,6 +795,33 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
         }
 };
 
+class HoRGameObjectDeleteDelayEvent : public BasicEvent
+{
+    public:
+        explicit HoRGameObjectDeleteDelayEvent(Unit* owner, ObjectGuid gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
+
+        void DeleteGameObject()
+        {
+            if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
+                go->Delete();
+        }
+
+        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+        {
+            DeleteGameObject();
+            return true;
+        }
+
+        void Abort(uint64 /*execTime*/) override
+        {
+            DeleteGameObject();
+        }
+
+    private:
+        Unit* _owner;
+        ObjectGuid _gameObjectGUID;
+};
+
 class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 {
     public:
@@ -894,7 +919,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_SYLVANAS_DESTROY_ICE_WALL);
 
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_ICEWALL), true);
-                me->m_Events.AddEvent(new GameObjectDeleteDelayEvent(me, _instance->GetGuidData(DATA_ICEWALL)), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new HoRGameObjectDeleteDelayEvent(me, _instance->GetGuidData(DATA_ICEWALL)), me->m_Events.CalculateTime(5000));
 
                 if (Creature* wallTarget = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ICEWALL_TARGET)))
                     wallTarget->DespawnOrUnsummon();
@@ -2123,13 +2148,10 @@ enum EscapeEvents
     EVENT_LUMBERING_ABOMINATION_CLEAVE
 };
 
-namespace hor
-{
-
-class StartMovementEvent : public BasicEvent
+class HoRStartMovementEvent : public BasicEvent
 {
     public:
-        StartMovementEvent(Creature* owner) : _owner(owner) { }
+        explicit HoRStartMovementEvent(Creature* owner) : _owner(owner) { }
 
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
@@ -2142,8 +2164,6 @@ class StartMovementEvent : public BasicEvent
     private:
         Creature* _owner;
 };
-
-} // namespace hor
 
 struct npc_escape_event_trash : public ScriptedAI
 {
@@ -2197,7 +2217,7 @@ class npc_raging_ghoul : public CreatureScript
                 me->CastSpell(me, SPELL_RAGING_GHOUL_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new hor::StartMovementEvent(me), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5000));
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2263,7 +2283,7 @@ class npc_risen_witch_doctor : public CreatureScript
                 me->CastSpell(me, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new hor::StartMovementEvent(me), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5000));
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
