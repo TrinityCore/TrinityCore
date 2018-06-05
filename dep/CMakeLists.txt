@@ -35,6 +35,5 @@ if(SERVERS)
 endif()
 
 if(TOOLS)
-  add_subdirectory(bzip2)
   add_subdirectory(StormLib)
 endif()
