@@ -111,6 +111,8 @@ enum BoTCreatures
     NPC_COLLAPSING_TWILIGHT_PORTAL      = 46301,
     NPC_VALIONA_DUMMY                   = 46147,
     NPC_UNSTABLE_TWILIGHT               = 46304,
+    NPC_TWILIGHT_SENTRY                 = 50008,
+    NPC_TWILIGHT_RIFT                   = 50014,
 
     // Generic Creatures
     NPC_INVISIBLE_STALKER               = 42098

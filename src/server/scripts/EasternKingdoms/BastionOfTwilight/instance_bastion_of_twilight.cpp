@@ -136,6 +136,8 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         _collapsingTwilightPortalGUIDs.insert(creature->GetGUID());
                         break;
                     case NPC_CONVECTIVE_FLAMES:
+                    case NPC_TWILIGHT_SENTRY:
+                    case NPC_TWILIGHT_RIFT:
                         if (Creature* valiona = GetCreature(DATA_VALIONA))
                             valiona->AI()->JustSummoned(creature);
                         break;
@@ -146,7 +148,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         break;
                     case NPC_VALIONA_DUMMY:
                         _valionaDummyGUIDs.insert(creature->GetGUID());
-                        if (creature->GetOrientation() == 0.0f) // Blizzard uses a single dummy with 0.0 orientation as aura target dummy
+                        if (creature->GetOrientation() == 0.0f) // Blizzard uses a single dummy with 0.0f orientation as aura target dummy
                             _valionaAuraDummyGUID = creature->GetGUID();
                         break;
                     case NPC_UNSTABLE_TWILIGHT:
@@ -264,6 +266,16 @@ class instance_bastion_of_twilight : public InstanceMapScript
                                     creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
 
                             _collapsingTwilightPortalGUIDs.clear();
+                        }
+                        else if (state == DONE)
+                        {
+                            for (ObjectGuid guid : _valionaDummyGUIDs)
+                                if (Creature* creature = instance->GetCreature(guid))
+                                    creature->DespawnOrUnsummon();
+
+                            for (ObjectGuid guid : _unstableTwilightGUIDs)
+                                if (Creature* creature = instance->GetCreature(guid))
+                                    creature->DespawnOrUnsummon();
                         }
                         break;
                     default:

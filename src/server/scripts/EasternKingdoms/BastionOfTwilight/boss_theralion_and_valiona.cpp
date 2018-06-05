@@ -20,8 +20,10 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "Player.h"
 #include "PhasingHandler.h"
+#include "PassiveAI.h"
 #include "bastion_of_twilight.h"
 
 enum Texts
@@ -29,6 +31,9 @@ enum Texts
     // Theralion and Valiona
     SAY_ARGUE_WITH_SIBLING_1            = 0,
     SAY_ARGUE_WITH_SIBLING_2            = 1,
+    SAY_RESPOND_TO_SIBLING              = 5,
+    SAY_SLAY                            = 6,
+    SAY_DEATH                           = 7,
 
     // Theralion
     SAY_DAZZLING_DESTRUCTION            = 2,
@@ -38,7 +43,7 @@ enum Texts
     // Valiona
     SAY_ANNOUNCE_BLACKOUT               = 2,
     SAY_ANNOUNCE_DEEP_BREATH            = 3,
-    SAY_DEEP_BREATH                     = 4
+    SAY_DEEP_BREATH                     = 4,
 };
 
 enum Spells
@@ -73,7 +78,7 @@ enum Spells
     SPELL_TWILIGHT_SHIFT                            = 93053,
     SPELL_TWILIGHT_PROTECTION_BUFF                  = 86415,
     SPELL_SHIFTING_REALITY                          = 93055,
-    SPELL_TWILIGHT_SHIFT_PHASE                      = 93064,
+    SPELL_TWILIGHT_SHIFT_ALLY                       = 93064,
 
     // Valiona (Dummy)
     SPELL_TWILIGHT_FLAMES_TRIGGER                   = 86194,
@@ -82,9 +87,13 @@ enum Spells
     SPELL_TWILIGHT_ZONE                             = 86210,
     SPELL_SUMMON_TWILIGHT_PORTAL_DUMMY              = 86287,
     SPELL_SUMMON_TWILIGHT_PORTAL                    = 86289,
+    SPELL_SUMMON_TWILIGHT_SENTRY_DUMMY              = 93029,
+    SPELL_SUMMON_TWILIGHT_SENTRY                    = 93034,
+    SPELL_TRIGGER_ACTION_THERALION                  = 88815,
 
     // Dazzling Destruction Stalker
     SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL       = 86383,
+    SPELL_TRIGGER_ACTION_VALIONA                    = 88816,
 
     // Unstable Twilight
     SPELL_UNSTABLE_TWILIGHT_DUMMY                   = 86301,
@@ -92,6 +101,9 @@ enum Spells
 
     // Collapsing Twilight Portal
     SPELL_COLLAPSING_TWILIGHT_PORTAL                = 86291,
+
+    // Twilight Sentry
+    SPELL_TWILIGHT_RIFT                             = 93017
 };
 
 enum Events
@@ -102,6 +114,7 @@ enum Events
     EVENT_FLY_TO_DESTINATION,
     EVENT_LAND,
     EVENT_ATTACK_PLAYERS,
+    EVENT_RESPOND_TO_SIBLING,
 
     // Theralion
     EVENT_TWILIGHT_BLAST,
@@ -127,13 +140,14 @@ enum Events
 enum Actions
 {
     // ACTION_START_ARGUMENT_INTRO = 1,
-    ACTION_LIFTOFF = 2,
+    ACTION_LIFTOFF = 2
 };
 
 enum Phases
 {
-    PHASE_INTRO  = 0,
-    PHASE_COMBAT = 1
+    PHASE_INTRO     = 0,
+    PHASE_GROUND     = 1,
+    PHASE_AIR       = 2
 };
 
 enum AnimKits
@@ -231,7 +245,6 @@ class boss_theralion : public CreatureScript
             {
                 _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.SetPhase(PHASE_COMBAT);
 
                 if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
                     valiona->AI()->AttackStart(who);
@@ -244,12 +257,18 @@ class boss_theralion : public CreatureScript
 
             void KilledUnit(Unit* victim) override
             {
-                //if (victim->GetTypeId() == TYPEID_PLAYER)
-                //    Talk(SAY_SLAY);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
+                if (events.IsInPhase(PHASE_GROUND))
+                {
+                    Talk(SAY_DEATH);
+                    DoCastSelf(SPELL_INSTAKILL_VALIONA, true);
+                }
+
                 _JustDied();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
@@ -276,6 +295,9 @@ class boss_theralion : public CreatureScript
                         if (!caster->HasAura(SPELL_SHARE_HEALTH_1))
                             DoCastAOE(SPELL_SHARE_HEALTH_1, true);
                         break;
+                    case SPELL_TRIGGER_ACTION_THERALION:
+                        events.RescheduleEvent(EVENT_RESPOND_TO_SIBLING, Seconds(1));
+                        break;
                     default:
                         break;
                 }
@@ -296,9 +318,10 @@ class boss_theralion : public CreatureScript
                         me->SendSetPlayHoverAnim(true);
                         me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         _dazzlingDestructionCount = 0;
-                        events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
+                        events.SetPhase(PHASE_AIR);
                         events.CancelEvent(EVENT_FABULOUS_FLAMES);
                         events.CancelEvent(EVENT_ENGULFING_MAGIC);
+                        events.ScheduleEvent(EVENT_FLY_TO_DESTINATION, Seconds(1));
                         events.ScheduleEvent(EVENT_DAZZLING_DESTRUCTION, Minutes(1) + Seconds(22));
                         break;
                     default:
@@ -324,11 +347,6 @@ class boss_theralion : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const override
-            {
-                return 0;
-            }
-
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
@@ -344,9 +362,6 @@ class boss_theralion : public CreatureScript
                         me->SendSetPlayHoverAnim(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
-
-                        if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
-                            valiona->AI()->DoAction(ACTION_LIFTOFF);
                         break;
                     default:
                         break;
@@ -403,8 +418,14 @@ class boss_theralion : public CreatureScript
                             else
                                 events.ScheduleEvent(EVENT_LAND, Seconds(4));
                             break;
+                        case EVENT_RESPOND_TO_SIBLING:
+                            Talk(SAY_RESPOND_TO_SIBLING);
+                            break;
                         case EVENT_LAND:
+                            events.SetPhase(PHASE_GROUND);
                             me->GetMotionMaster()->MoveLand(POINT_LAND, TheralionLandingPos);
+                            if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
+                                valiona->AI()->DoAction(ACTION_LIFTOFF);
                             break;
                         case EVENT_ATTACK_PLAYERS:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -472,7 +493,7 @@ class boss_valiona : public CreatureScript
             {
                 _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.SetPhase(PHASE_COMBAT);
+                events.SetPhase(PHASE_GROUND);
                 events.ScheduleEvent(EVENT_BLACKOUT, Seconds(10) + Milliseconds(500));
                 events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(25));
 
@@ -481,9 +502,13 @@ class boss_valiona : public CreatureScript
 
                 if (Creature* valionaDummy = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA_AURA_DUMMY)))
                 {
-                    valionaDummy->CastSpell(valionaDummy, SPELL_SUMMON_TWILIGHT_PORTAL_DUMMY);
+                    valionaDummy->AddAura(SPELL_SUMMON_TWILIGHT_PORTAL_DUMMY, valionaDummy);
+
                     if (IsHeroic())
+                    {
                         valionaDummy->CastSpell(valionaDummy, SPELL_TWILIGHT_ZONE);
+                        valionaDummy->CastSpell(valionaDummy, SPELL_SUMMON_TWILIGHT_SENTRY_DUMMY);
+                    }
                 }
 
                 if (Creature* theralion = instance->GetCreature(DATA_THERALION))
@@ -492,12 +517,18 @@ class boss_valiona : public CreatureScript
 
             void KilledUnit(Unit* victim) override
             {
-                //if (victim->GetTypeId() == TYPEID_PLAYER)
-                //    Talk(SAY_SLAY);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
+                if (events.IsInPhase(PHASE_GROUND))
+                {
+                    Talk(SAY_DEATH);
+                    DoCastSelf(SPELL_INSTAKILL_THERALION, true);
+                }
+
                 _JustDied();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
@@ -524,6 +555,9 @@ class boss_valiona : public CreatureScript
                         if (!caster->HasAura(SPELL_SHARE_HEALTH_2))
                             DoCastAOE(SPELL_SHARE_HEALTH_2, true);
                         break;
+                    case SPELL_TRIGGER_ACTION_VALIONA:
+                        events.RescheduleEvent(EVENT_RESPOND_TO_SIBLING, Seconds(1));
+                        break;
                     default:
                         break;
                 }
@@ -539,6 +573,7 @@ class boss_valiona : public CreatureScript
                     case ACTION_LIFTOFF:
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
+                        events.SetPhase(PHASE_AIR);
                         events.CancelEvent(EVENT_BLACKOUT);
                         events.CancelEvent(EVENT_DEVOURING_FLAMES);
                         me->PlayOneShotAnimKitId(ANIM_KIT_LIFTOFF);
@@ -566,7 +601,19 @@ class boss_valiona : public CreatureScript
                         DoCast(summon, SPELL_DEVOURING_FLAMES);
                         break;
                     case NPC_COLLAPSING_TWILIGHT_PORTAL:
+                        if (Creature* valionaDummy = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA_AURA_DUMMY)))
+                            PhasingHandler::InheritPhaseShift(summon, valionaDummy);
+
                         summon->CastSpell(summon, SPELL_COLLAPSING_TWILIGHT_PORTAL, true);
+                        summon->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        break;
+                    case NPC_TWILIGHT_SENTRY:
+                        if (Creature* valionaDummy = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA_AURA_DUMMY)))
+                            PhasingHandler::InheritPhaseShift(summon, valionaDummy);
+                        break;
+                    case NPC_TWILIGHT_RIFT:
+                        PhasingHandler::InheritPhaseShift(summon, me);
                         break;
                     default:
                         break;
@@ -588,9 +635,6 @@ class boss_valiona : public CreatureScript
                         me->SendSetPlayHoverAnim(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
-
-                        if (Creature* theralion = instance->GetCreature(DATA_THERALION))
-                            theralion->AI()->DoAction(ACTION_LIFTOFF);
                         break;
                     case POINT_DEEP_BREATH_1:
                         events.ScheduleEvent(EVENT_FACE_TO_DIRECTION, Seconds(1));
@@ -600,6 +644,8 @@ class boss_valiona : public CreatureScript
                         break;
                     case POINT_DEEP_BREATH_3:
                         me->RemoveAurasDueToSpell(SPELL_SPEED_BURST);
+                        me->RemoveAurasDueToSpell(SPELL_TRIGGER_BOTTOM_STRAFE);
+                        me->RemoveAurasDueToSpell(SPELL_TRIGGER_TOP_STRAFE);
                         events.ScheduleEvent(EVENT_DEEP_BREATH, Seconds(1));
                         break;
                     case POINT_PREPARE_LAND:
@@ -669,6 +715,9 @@ class boss_valiona : public CreatureScript
                             else 
                                 me->GetMotionMaster()->MovePoint(POINT_PREPARE_LAND, DeepBreathStartingPositions[_currentRoomSide], false);
                             break;
+                        case EVENT_RESPOND_TO_SIBLING:
+                            Talk(SAY_RESPOND_TO_SIBLING);
+                            break;
                         case EVENT_FACE_TO_DIRECTION:
                             _currentDeepBreathWaypoint.clear();
                             _currentDeepBreathWaypoint = Trinity::Containers::SelectRandomContainerElement(_deepBreathWaypoints);
@@ -694,6 +743,13 @@ class boss_valiona : public CreatureScript
                             break;
                         case EVENT_FLY_TO_OTHER_SIDE:
                             DoCastSelf(SPELL_SPEED_BURST);
+                            if (me->GetPositionX() < -730.0f && me->GetPositionX() > -750.0f)
+                                DoCastSelf(SPELL_TRIGGER_MIDDLE_STRAFE, true);
+                            else if (me->GetPositionX() < -758.0f && me->GetPositionX() > -760.0f)
+                                DoCastSelf(SPELL_TRIGGER_BOTTOM_STRAFE, true);
+                            else
+                                DoCastSelf(SPELL_TRIGGER_TOP_STRAFE, true);
+
                             if (_currentRoomSide == SIDE_THERALION)
                             {
                                 me->GetMotionMaster()->MovePoint(POINT_DEEP_BREATH_3, _currentDeepBreathWaypoint.front(), false);
@@ -706,7 +762,10 @@ class boss_valiona : public CreatureScript
                             }
                             break;
                         case EVENT_LAND:
+                            events.SetPhase(PHASE_GROUND);
                             me->GetMotionMaster()->MoveLand(POINT_LAND, ValionaLandingPositions[_currentRoomSide]);
+                            if (Creature* theralion = instance->GetCreature(DATA_THERALION))
+                                theralion->AI()->DoAction(ACTION_LIFTOFF);
                             break;
                         case EVENT_ATTACK_PLAYERS:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -799,32 +858,39 @@ class npc_theralion_and_valiona_unstable_twilight : public CreatureScript
         }
 };
 
-class spell_theralion_dazzling_destruction_targeting : public SpellScriptLoader
+class npc_theralion_and_valiona_twilight_sentry : public CreatureScript
 {
     public:
-        spell_theralion_dazzling_destruction_targeting() : SpellScriptLoader("spell_theralion_dazzling_destruction_targeting") { }
+        npc_theralion_and_valiona_twilight_sentry() : CreatureScript("npc_theralion_and_valiona_twilight_sentry") { }
 
-        class spell_theralion_dazzling_destruction_targeting_SpellScript : public SpellScript
+        struct npc_theralion_and_valiona_twilight_sentryAI : public PassiveAI
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_targeting_SpellScript);
+            npc_theralion_and_valiona_twilight_sentryAI(Creature* creature) : PassiveAI(creature), _summons(me) { }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
+                DoCastSelf(SPELL_TWILIGHT_RIFT);
             }
 
-            void Register() override
+            void JustSummoned(Creature* summon) override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                _summons.Summon(summon);
             }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                me->DespawnOrUnsummon(Seconds(5));
+                _summons.DespawnAll();
+            }
+
+        private:
+            EventMap _events;
+            SummonList _summons;
         };
 
-        SpellScript* GetSpellScript() const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new spell_theralion_dazzling_destruction_targeting_SpellScript();
+            return GetBastionOfTwilightAI<npc_theralion_and_valiona_twilight_sentryAI>(creature);
         }
 };
 
@@ -897,7 +963,11 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_DAZZLING_DESTRUCTION_TWILIGHT_REALM });
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DAZZLING_DESTRUCTION_TWILIGHT_REALM,
+                        SPELL_TRIGGER_ACTION_VALIONA,
+                    });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -906,6 +976,11 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
                     return;
 
                 targets.remove_if(IsInTwilightPhaseCheck());
+            }
+
+            void HandleActionEffect(SpellEffIndex effIndex)
+            {
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRIGGER_ACTION_VALIONA, true);
             }
 
             void HandleScriptEffect(SpellEffIndex effIndex)
@@ -920,8 +995,8 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
                     if (GetExplTargetDest() && GetExplTargetDest()->GetPosition() == target->GetPosition())
                     {
                         target->RemoveAllAuras();
-                        target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
                         target->CastSpell(target, SPELL_DAZZLING_DESTRUCTION_TWILIGHT_REALM, true);
+                        target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
                     }
                 }
             }
@@ -930,6 +1005,7 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_dazzling_destruction_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_SpellScript::HandleActionEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_SpellScript::HandleScriptEffectTrigger, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnEffectHitTarget += SpellEffectFn(spell_theralion_dazzling_destruction_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -941,15 +1017,14 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
         }
 };
 
-class TwilightProtectionCheck
+class IsNotInTwilightRealmCheck
 {
     public:
-        TwilightProtectionCheck() { }
+        IsNotInTwilightRealmCheck() { }
 
         bool operator()(WorldObject* object)
         {
-            return (object->ToUnit()->HasAura(SPELL_TWILIGHT_PROTECTION_BUFF)
-                || !object->GetPhaseShift().HasPhase(PHASE_ID_TWILIGHT_SHIFT));
+            return (!object->GetPhaseShift().HasPhase(PHASE_ID_TWILIGHT_SHIFT));
         }
 };
 
@@ -967,7 +1042,7 @@ class spell_theralion_dazzling_destruction_twilight_realm: public SpellScriptLoa
                 if (targets.empty())
                     return;
 
-                targets.remove_if(TwilightProtectionCheck());
+                targets.remove_if(IsNotInTwilightRealmCheck());
             }
 
             void Register() override
@@ -982,37 +1057,6 @@ class spell_theralion_dazzling_destruction_twilight_realm: public SpellScriptLoa
         }
 };
 
-class spell_theralion_twilight_shift: public SpellScriptLoader
-{
-    public:
-        spell_theralion_twilight_shift() : SpellScriptLoader("spell_theralion_twilight_shift") { }
-
-        class spell_theralion_twilight_shift_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_theralion_twilight_shift_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.remove_if(IsInTwilightPhaseCheck());
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_twilight_shift_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_twilight_shift_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_twilight_shift_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_theralion_twilight_shift_SpellScript();
-        }
-};
-
 class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
 {
     public:
@@ -1022,14 +1066,6 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_theralion_fabulous_flames_targeting_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
             void HandleHit(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1038,7 +1074,6 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_fabulous_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_theralion_fabulous_flames_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -1150,14 +1185,6 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_valiona_blackout_dummy_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
             void HandleHit(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1166,7 +1193,6 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_blackout_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_valiona_blackout_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -1208,35 +1234,6 @@ class spell_valiona_blackout: public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_valiona_blackout_AuraScript();
-        }
-};
-
-class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
-{
-    public:
-        spell_valiona_devouring_flames_targeting() : SpellScriptLoader("spell_valiona_devouring_flames_targeting") { }
-
-        class spell_valiona_devouring_flames_targeting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_valiona_devouring_flames_targeting_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_devouring_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_valiona_devouring_flames_targeting_SpellScript();
         }
 };
 
@@ -1328,29 +1325,97 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
         }
 };
 
+class StrafeLaneCheck
+{
+    public:
+        StrafeLaneCheck(Unit* _caster) : caster(_caster) { }
+
+        bool operator()(WorldObject* object)
+        {
+            if (Unit* target = object->ToUnit())
+            {
+                if (target->HasAura(SPELL_TWILIGHT_FLAMES_TRIGGER))
+                    return true;
+
+                // Top Lane
+                if (caster->GetPositionX() < -750.0f && target->GetPositionX() < -750.0f)
+                    return false;
+
+                // Bottom Lane
+                if (caster->GetPositionX() > -730.0f && target->GetPositionX() > -730.0f)
+                    return false;
+
+                // Middle Lane
+                if ((caster->GetPositionX() < -737.0f && target->GetPositionX() < -737.0f)
+                    && (caster->GetPositionX() > -744.0f && target->GetPositionX() > -744.0f))
+                    return false;
+            }
+
+            return true;
+        }
+    private:
+        Unit* caster;
+};
+
 class spell_valiona_strafe : public SpellScriptLoader
 {
     public:
         spell_valiona_strafe() : SpellScriptLoader("spell_valiona_strafe") { }
 
+        class spell_valiona_strafe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_strafe_SpellScript);
+
+            void SetTarget(WorldObject*& target)
+            {
+                Unit* caster = GetCaster();
+
+                std::list<Creature*> dummyList;
+                caster->GetCreatureListWithEntryInGrid(dummyList, NPC_VALIONA_DUMMY, 20.0f);
+                dummyList.remove(caster->ToCreature());
+                dummyList.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
+
+                if (!dummyList.empty())
+                    dummyList.remove_if(StrafeLaneCheck(caster));
+
+                if (!dummyList.empty())
+                    target = dummyList.front();
+            }
+
+            void Register() override
+            {
+                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_valiona_strafe_SpellScript::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+            }
+        };
+
         class spell_valiona_strafe_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_valiona_strafe_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, SPELL_TWILIGHT_FLAMES_TRIGGER, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                if (Unit* target = GetTarget())
+                    if (GetCaster() && GetCaster() != target)
+                        target->CastSpell(target, SPELL_STRAFE, true);
             }
 
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_valiona_strafe_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_valiona_strafe_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_valiona_strafe_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_strafe_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const override
         {
@@ -1393,6 +1458,130 @@ class spell_valiona_summon_twilight_portal : public SpellScriptLoader
         }
 };
 
+class spell_valiona_summon_twilight_sentry : public SpellScriptLoader
+{
+    public:
+        spell_valiona_summon_twilight_sentry() : SpellScriptLoader("spell_valiona_summon_twilight_sentry") { }
+
+        class spell_valiona_summon_twilight_sentry_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_valiona_summon_twilight_sentry_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_SUMMON_TWILIGHT_SENTRY });
+            }
+
+            void HandlePeriodic(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    if (InstanceScript* instance = caster->GetInstanceScript())
+                        if (Creature* valionaDummy = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_RANDOM_VALIONA_DUMMY)))
+                            valionaDummy->CastSpell(valionaDummy, SPELL_SUMMON_TWILIGHT_SENTRY, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_valiona_summon_twilight_sentry_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_valiona_summon_twilight_sentry_AuraScript();
+        }
+};
+
+class spell_valiona_twilight_flames : public SpellScriptLoader
+{
+    public:
+        spell_valiona_twilight_flames() : SpellScriptLoader("spell_valiona_twilight_flames") { }
+
+        class spell_valiona_twilight_flames_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_twilight_flames_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_TRIGGER_ACTION_THERALION });
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(IsInTwilightPhaseCheck());
+            }
+
+            void HandleActionEffect(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_TRIGGER_ACTION_THERALION, true);
+            }
+
+            void HandleEffect(SpellEffIndex effIndex)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_flames_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_valiona_twilight_flames_SpellScript::HandleActionEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_valiona_twilight_flames_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_twilight_flames_SpellScript();
+        }
+};
+
+class TwilightProtectionCheck
+{
+    public:
+        TwilightProtectionCheck() { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (object->ToUnit()->HasAura(SPELL_TWILIGHT_PROTECTION_BUFF)
+                || !object->GetPhaseShift().HasPhase(PHASE_ID_TWILIGHT_SHIFT));
+        }
+};
+
+class spell_valiona_twilight_flame_twilight_realm: public SpellScriptLoader
+{
+    public:
+        spell_valiona_twilight_flame_twilight_realm() : SpellScriptLoader("spell_valiona_twilight_flame_twilight_realm") { }
+
+        class spell_valiona_twilight_flame_twilight_realm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_twilight_flame_twilight_realm_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(TwilightProtectionCheck());
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_flame_twilight_realm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_twilight_flame_twilight_realm_SpellScript();
+        }
+};
+
 class spell_theralion_and_valiona_twilight_shift : public SpellScriptLoader
 {
     public:
@@ -1408,11 +1597,11 @@ class spell_theralion_and_valiona_twilight_shift : public SpellScriptLoader
                     {
                         SPELL_TWILIGHT_PROTECTION_BUFF,
                         SPELL_SHIFTING_REALITY,
-                        SPELL_TWILIGHT_SHIFT_PHASE
+                        SPELL_TWILIGHT_SHIFT_ALLY
                     });
             }
 
-            void HandleEffect(SpellEffIndex effIndex)
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
                 {
@@ -1420,7 +1609,7 @@ class spell_theralion_and_valiona_twilight_shift : public SpellScriptLoader
                     {
                         target->CastSpell(target, SPELL_TWILIGHT_PROTECTION_BUFF, true);
                         target->CastSpell(target, SPELL_SHIFTING_REALITY, true);
-                        target->CastSpell(target, SPELL_TWILIGHT_SHIFT_PHASE, true);
+                        target->CastSpell(target, SPELL_TWILIGHT_SHIFT_ALLY, true);
                         target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
                     }
                 }
@@ -1438,6 +1627,101 @@ class spell_theralion_and_valiona_twilight_shift : public SpellScriptLoader
         }
 };
 
+class spell_theralion_and_valiona_twilight_shift_phase: public SpellScriptLoader
+{
+    public:
+        spell_theralion_and_valiona_twilight_shift_phase() : SpellScriptLoader("spell_theralion_and_valiona_twilight_shift_phase") { }
+
+        class spell_theralion_and_valiona_twilight_shift_phase_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_phase_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(IsInTwilightPhaseCheck());
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_and_valiona_twilight_shift_phase_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_theralion_and_valiona_twilight_shift_phase_SpellScript();
+        }
+};
+
+class spell_theralion_and_valiona_twilight_shift_phase_ally: public SpellScriptLoader
+{
+    public:
+        spell_theralion_and_valiona_twilight_shift_phase_ally() : SpellScriptLoader("spell_theralion_and_valiona_twilight_shift_phase_ally") { }
+
+        class spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(IsInTwilightPhaseCheck());
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_theralion_and_valiona_twilight_shift_phase_ally_SpellScript();
+        }
+};
+
+class spell_theralion_and_valiona_twilight_shift_spellclick : public SpellScriptLoader
+{
+    public:
+        spell_theralion_and_valiona_twilight_shift_spellclick() : SpellScriptLoader("spell_theralion_and_valiona_twilight_shift_spellclick") { }
+
+        class spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_TWILIGHT_SHIFT_ALLY });
+            }
+
+            void HandleEffectScript(SpellEffIndex effIndex)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(GetSpellInfo()->Effects[effIndex].BasePoints, target);
+                    target->RemoveAurasDueToSpell(spellId);
+                    target->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ALLY);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript::HandleEffectScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript::HandleEffectScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_theralion_and_valiona_twilight_shift_spellclick_SpellScript();
+        }
+};
+
 class spell_theralion_and_valiona_shifting_reality : public SpellScriptLoader
 {
     public:
@@ -1452,7 +1736,7 @@ class spell_theralion_and_valiona_shifting_reality : public SpellScriptLoader
                 return ValidateSpellInfo(
                     {
                         SPELL_TWILIGHT_PROTECTION_BUFF,
-                        SPELL_TWILIGHT_SHIFT_PHASE
+                        SPELL_TWILIGHT_SHIFT_ALLY
                     });
             }
 
@@ -1461,7 +1745,7 @@ class spell_theralion_and_valiona_shifting_reality : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     target->CastSpell(target, SPELL_TWILIGHT_PROTECTION_BUFF, true);
-                    target->CastSpell(target, SPELL_TWILIGHT_SHIFT_PHASE, true);
+                    target->CastSpell(target, SPELL_TWILIGHT_SHIFT_ALLY, true);
                 }
             }
 
@@ -1486,15 +1770,28 @@ class spell_theralion_and_valiona_collapsing_twilight_portal : public SpellScrip
         {
             PrepareAuraScript(spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript);
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* aurEff)
             {
                 if (Unit* target = GetTarget())
-                    target->SetObjectScale(target->GetObjectScale() - 0.03f);
+                    if (target->GetObjectScale() >= 1.03f)
+                        target->SetObjectScale(target->GetObjectScale() - 0.03f);
+            }
+
+            void Apply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                uint8 ticks = 0;
+                if (AuraEffect* eff0 = GetAura()->GetEffect(EFFECT_0))
+                    ticks = eff0->GetTotalTicks();
+
+                int32 scale = aurEff->GetAmount() * ticks;
+                if (AuraEffect* eff1 = GetAura()->GetEffect(EFFECT_1))
+                    eff1->ChangeAmount(scale);
             }
 
             void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectApply += AuraEffectApplyFn(spell_theralion_and_valiona_collapsing_twilight_portal_AuraScript::Apply, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -1509,25 +1806,27 @@ void AddSC_boss_theralion_and_valiona()
     new boss_theralion();
     new boss_valiona();
     new npc_theralion_and_valiona_unstable_twilight();
+    new npc_theralion_and_valiona_twilight_sentry();
 
-    new spell_theralion_dazzling_destruction_targeting();
     new spell_theralion_dazzling_destruction_dummy();
     new spell_theralion_dazzling_destruction();
     new spell_theralion_dazzling_destruction_twilight_realm();
-    new spell_theralion_twilight_shift();
     new spell_theralion_fabulous_flames_targeting();
     new spell_theralion_engulfing_magic_targeting();
     new spell_theralion_engulfing_magic();
-
     new spell_valiona_blackout_dummy();
     new spell_valiona_blackout();
-    new spell_valiona_devouring_flames_targeting();
     new spell_valiona_devouring_flames();
     new spell_valiona_twilight_meteorite_targeting();
     new spell_valiona_strafe();
     new spell_valiona_summon_twilight_portal();
-
+    new spell_valiona_summon_twilight_sentry();
+    new spell_valiona_twilight_flames();
+    new spell_valiona_twilight_flame_twilight_realm();
     new spell_theralion_and_valiona_twilight_shift();
+    new spell_theralion_and_valiona_twilight_shift_phase();
+    new spell_theralion_and_valiona_twilight_shift_phase_ally();
+    new spell_theralion_and_valiona_twilight_shift_spellclick();
     new spell_theralion_and_valiona_shifting_reality();
     new spell_theralion_and_valiona_collapsing_twilight_portal();
 }

@@ -4220,6 +4220,51 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
     });
 
+    // Rift Blast
+    ApplySpellFix({
+        93019,
+        93020,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Devouring Flames
+    ApplySpellFix({ 86832 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Dazzling Destruction (10 Player)
+    ApplySpellFix({
+        86380,
+        92924,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Dazzling Destruction (25 Player)
+    ApplySpellFix({
+        92923,
+        92925,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
+
+    // Fabulous Flames
+    ApplySpellFix({ 86495 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Blackout
+    ApplySpellFix({ 86673 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF BASTION OF TWILIGHT
 
     //
