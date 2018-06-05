@@ -221,7 +221,7 @@ class boss_ick : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                 if (!UpdateVictim())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
