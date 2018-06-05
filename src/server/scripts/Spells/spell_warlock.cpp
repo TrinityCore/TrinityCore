@@ -193,6 +193,11 @@ enum WarlockSpells
     SPELL_WARLOCK_PHANTOMATIC_SINGULARITY           = 205179,
     SPELL_WARLOCK_PHANTOMATIC_SINGULARITY_DAMAGE    = 205246,
     SPELL_WARLOCK_SUMMON_DREADSTALKER               = 193332,
+    SPELL_WARLOCK_GRIMOIRE_IMP                         = 111859,
+    SPELL_WARLOCK_GRIMOIRE_VOIDWALKER                  = 111895,
+    SPELL_WARLOCK_GRIMOIRE_SUCCUBUS                    = 111896,
+    SPELL_WARLOCK_GRIMOIRE_FELHUNTER                   = 111897,
+    SPELL_WARLOCK_GRIMOIRE_FELGUARD                    = 111898,
 };
 
 enum WarlockSpellIcons
@@ -3119,19 +3124,19 @@ public:
 
             switch (GetSpellInfo()->Id)
             {
-                case 111859: // Imp
+                case SPELL_WARLOCK_GRIMOIRE_IMP: // Imp
                     creature->CastSpell(caster, eServiceSpells::SPELL_IMP_SINGE_MAGIC, true);
                     break;
-                case 111895: // Voidwalker
+                case SPELL_WARLOCK_GRIMOIRE_VOIDWALKER: // Voidwalker
                     creature->CastSpell(target, eServiceSpells::SPELL_VOIDWALKER_SUFFERING, true);
                     break;
-                case 111896: // Succubus
+                case SPELL_WARLOCK_GRIMOIRE_SUCCUBUS: // Succubus
                     creature->CastSpell(target, eServiceSpells::SPELL_SUCCUBUS_SEDUCTION, true);
                     break;
-                case 111897: // Felhunter
+                case SPELL_WARLOCK_GRIMOIRE_FELHUNTER: // Felhunter
                     creature->CastSpell(target, eServiceSpells::SPELL_FELHUNTER_SPELL_LOCK, true);
                     break;
-                case 111898: // Felguard
+                case SPELL_WARLOCK_GRIMOIRE_FELGUARD: // Felguard
                     creature->CastSpell(target, eServiceSpells::SPELL_FELGUARD_AXE_TOSS, true);
                     break;
             }
@@ -3520,6 +3525,41 @@ class aura_warl_phantomatic_singularity : public AuraScript
     }
 };
 
+// Grimoire of Service - 108501
+class spell_warl_grimoire_of_service_aura : public AuraScript
+{
+    PrepareAuraScript(spell_warl_grimoire_of_service_aura);
+
+    void Handlearn(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            player->LearnSpell(SPELL_WARLOCK_GRIMOIRE_IMP, false);
+            player->LearnSpell(SPELL_WARLOCK_GRIMOIRE_VOIDWALKER, false);
+            player->LearnSpell(SPELL_WARLOCK_GRIMOIRE_SUCCUBUS, false);
+            player->LearnSpell(SPELL_WARLOCK_GRIMOIRE_FELHUNTER, false);
+            if (player->GetSpecializationId() == TALENT_SPEC_WARLOCK_DEMONOLOGY)
+                player->LearnSpell(SPELL_WARLOCK_GRIMOIRE_FELGUARD, false);
+        }
+    }
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            player->RemoveSpell(SPELL_WARLOCK_GRIMOIRE_IMP, false, false);
+            player->RemoveSpell(SPELL_WARLOCK_GRIMOIRE_VOIDWALKER, false, false);
+            player->RemoveSpell(SPELL_WARLOCK_GRIMOIRE_SUCCUBUS, false, false);
+            player->RemoveSpell(SPELL_WARLOCK_GRIMOIRE_FELHUNTER, false, false);
+            player->RemoveSpell(SPELL_WARLOCK_GRIMOIRE_FELGUARD, false, false);
+        }
+    }
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_warl_grimoire_of_service_aura::Handlearn, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectApplyFn(spell_warl_grimoire_of_service_aura::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_call_dreadstalker);
@@ -3598,6 +3638,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaotic_energies();
     new spell_warl_eradication();
     RegisterAuraScript(aura_warl_phantomatic_singularity);
+    RegisterAuraScript(spell_warl_grimoire_of_service_aura);
 
     ///AreaTrigger scripts
     RegisterAreaTriggerAI(at_warl_rain_of_fire);
