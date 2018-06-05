@@ -826,7 +826,7 @@ class npc_anubarak_spike : public CreatureScript
                 me->GetThreatManager().ResetAllThreat();
                 DoZoneInCombat();
                 AddThreat(who, 1000000.0f);
-                me->GetMotionMaster()->Clear(true);
+                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveChase(who);
             }
 

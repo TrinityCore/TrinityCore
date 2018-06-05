@@ -288,9 +288,6 @@ public:
                         {
                             if (GameObject* go = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
-                                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-                                    me->GetMotionMaster()->MovementExpired();
-
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();
 
@@ -329,7 +326,9 @@ public:
             {
                 DoCastVictim(SPELL_NETHER_BREATH);
                 CastTimer = 5000;
-            } else CastTimer -= diff;
+            }
+            else
+                CastTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

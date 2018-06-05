@@ -23,15 +23,15 @@
 template<class Entity, class BasePath>
 class PathMovementBase
 {
-public:
-    PathMovementBase() : _path(), _currentNode(0) { }
-    virtual ~PathMovementBase() { };
+    public:
+        PathMovementBase() : _path(), _currentNode(0) { }
+        virtual ~PathMovementBase() { };
 
-    uint32 GetCurrentNode() const { return _currentNode; }
+        uint32 GetCurrentNode() const { return _currentNode; }
 
-protected:
-    BasePath _path;
-    uint32 _currentNode;
+    protected:
+        BasePath _path;
+        uint32 _currentNode;
 };
 
 #endif // PathMovementBase_h__

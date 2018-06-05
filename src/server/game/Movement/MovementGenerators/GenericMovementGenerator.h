@@ -29,12 +29,13 @@ enum MovementGeneratorType : uint8;
 class GenericMovementGenerator : public MovementGenerator
 {
     public:
-        explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id) : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0) { }
+        explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id);
 
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit*) override { }
+        void Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return _type; }
 
     private:
