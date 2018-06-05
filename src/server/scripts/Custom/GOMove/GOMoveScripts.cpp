@@ -123,13 +123,9 @@ public:
                     {
                         // stop flight if need
                         if (player->IsInFlight())
-                        {
-                            player->GetMotionMaster()->MovementExpired();
-                            player->CleanupAfterTaxiFlight();
-                        }
-                        // save only in non-flight case
+                            player->FinishTaxiFlight();
                         else
-                            player->SaveRecallPosition();
+                            player->SaveRecallPosition(); // save only in non-flight case
                         player->TeleportTo(target->GetMapId(), x, y, z, o);
                     } break;
                     case GROUND:
