@@ -94,30 +94,86 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 
 
 
+-- Crucible of Earth SAI
+SET @ENTRY := 39737;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,64,0,100,512,0,0,0,0,72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"On gossip hello close gossip - Quest 25303"),
+(@ENTRY,0,1,2,64,0,100,512,0,0,0,0,11,74288,2,18,35,0,0,1,0,0,0,0,0,0,0,"On gossip hello give credit - Quest 25303"),
+(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,33,39741,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+-- Crucible of Water SAI
+SET @ENTRY := 39738;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,64,0,100,512,0,0,0,0,72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"On gossip hello close gossip - Quest 25303"),
+(@ENTRY,0,1,2,64,0,100,512,0,0,0,0,11,74292,2,18,35,0,0,1,0,0,0,0,0,0,0,"On gossip hello give credit - Quest 25303"),
+(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,33,39740,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+-- Crucible of Fire SAI
+SET @ENTRY := 39730;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,64,0,100,512,0,0,0,0,72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"On gossip hello close gossip - Quest 25303"),
+(@ENTRY,0,1,2,64,0,100,512,0,0,0,0,11,74287,2,18,35,0,0,1,0,0,0,0,0,0,0,"On gossip hello give credit - Quest 25303"),
+(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,33,39727,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+-- Crucible of Air SAI
+SET @ENTRY := 39736;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,64,0,100,512,0,0,0,0,72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"On gossip hello close gossip - Quest 25303"),
+(@ENTRY,0,1,2,64,0,100,512,0,0,0,0,11,74290,2,18,35,0,0,1,0,0,0,0,0,0,0,"On gossip hello give credit - Quest 25303"),
+(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,33,39739,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit"),
+(@ENTRY,0,3,0,64,0,100,0,0,0,0,0,12,39756,6,180000,0,0,0,8,0,0,0,5007.78,-2030.27,1270.89,0.4474,"On gossip hello summon creature - Quest 25303"),
+(@ENTRY,0,4,0,64,0,100,0,0,0,0,0,1,0,3000,0,0,0,0,9,39756,1,30,0,0,0,0,"");
+
+
+UPDATE `creature_template` SET `npcflag` = 3, `rank` = 0, `type` = 1 WHERE `entry` = 39622;
+DELETE FROM `creature` WHERE `id`=39622;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116742, 39622, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5130.97, -2306.4, 1280.83, 0.181265, 300, 0, 0, 2626, 0, 0, 16777218, 0, 0, 0, 0, '', 0);
+DELETE FROM `creature` WHERE `id`=39627;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116745, 39627, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5165.56, -2270.54, 1278.79, 6.08669, 300, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, '', 0);
+
+
+UPDATE `creature_template` SET `faction` = 35 WHERE `entry` = 39622;
+UPDATE `creature_template` SET `VehicleId` = 0 WHERE `entry` = 39622;
+replace INTO `creature_queststarter` (`id`,`quest`) VALUES ('39432','25279'),('39432','25617'); 
+replace INTO `creature_questender` (`id`,`quest`) VALUES ('39432','25272'),('39432','25355'); 
 
 
 
+SET @ENTRY := 39622;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25617,0,0,0,62,1,0,0,0,0,0,7,0,0,0,5009.08,-2044.73,1149.06,5,'Teleport on Quest Add');
 
 
+SET @ENTRY := 39627;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25618,0,0,0,62,1,0,0,0,0,0,7,0,0,0,5009.08,-2044.73,1149.06,5,'Teleport on Quest Add');
+
+SET @ENTRY := 39433;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25623,0,0,0,62,1,0,0,0,0,0,7,0,0,0,5009.08,-2044.73,1149.06,5,'Teleport on Quest Add');
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SET @ENTRY := 39432;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25624,0,0,0,62,1,0,0,0,0,0,7,0,0,0,5009.08,-2044.73,1149.06,5,'Teleport on Quest Add');
 
 
 
