@@ -357,7 +357,7 @@ class boss_algalon_the_observer : public CreatureScript
                         Movement::MoveSplineInit init(me);
                         init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
                         init.SetOrientationFixed(true);
-                        me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_ALGALON_LAND, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+                        me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_ALGALON_LAND, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);

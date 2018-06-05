@@ -3239,7 +3239,8 @@ enum EventId
 
     EVENT_FACE              = 1006,
     EVENT_VEHICLE_BOARD     = 1007,
-    EVENT_VEHICLE_EXIT      = 1008
+    EVENT_VEHICLE_EXIT      = 1008,
+    EVENT_ASSIST_MOVE       = 1009,
 };
 
 enum ResponseCodes
