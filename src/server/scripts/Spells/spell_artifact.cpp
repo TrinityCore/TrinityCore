@@ -54,6 +54,8 @@ enum SpellIds
     SPELL_SHAMAN_HEALING_STREAM_TOTEM               = 5394,
     SPELL_SHAMAN_REINCARNATION                      = 20608,
     SPELL_SHAMAN_SERVANT_OF_THE_QUEEN               = 207357,
+    SPELL_SHAMAN_FURY_OF_THE_STORMS                 = 191717,
+    SPELL_SHAMAN_SUMMON_LIGHTHING_ELEMENTAL         = 191716,
     SPELL_WARLOCK_DEADWIND_HARVERST                 = 216708,
     SPELL_WARLOCK_TORMENTED_SOULS                   = 216695,
     SPELL_WARLOCK_THALKIELS_CONSUMPTION_DAMAGE      = 211715,
@@ -685,6 +687,23 @@ class spell_arti_pal_tyr_deliverance : public SpellScript
     }
 };
 
+// 205495 - Stormkeeper
+class aura_artifact_shaman_stormkeeper : public AuraScript
+{
+    PrepareAuraScript(aura_artifact_shaman_stormkeeper);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetCaster()->HasAura(SPELL_SHAMAN_FURY_OF_THE_STORMS))
+            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_SUMMON_LIGHTHING_ELEMENTAL, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(aura_artifact_shaman_stormkeeper::AfterApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_artifact_spell_scripts()
 {
     RegisterSpellScript(spell_arti_dru_new_moon);
@@ -715,4 +734,6 @@ void AddSC_artifact_spell_scripts()
     RegisterCreatureAI(npc_arti_priest_void_tendril);
 
     RegisterSpellScript(spell_arti_pal_tyr_deliverance);
+    
+    RegisterAuraScript(aura_artifact_shaman_stormkeeper);
 }

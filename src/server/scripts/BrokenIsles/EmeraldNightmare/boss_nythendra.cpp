@@ -45,6 +45,25 @@ enum Spells
     SPELL_BURST_OF_CORRUPTION       = 203646,
 };
 
+class EntryCheckWithPlayerNearPredicate
+{
+public:
+    EntryCheckWithPlayerNearPredicate(Unit* owner, uint32 entry, float distance) : _owner(owner), _entry(entry), _distance(distance) { }
+    bool operator()(ObjectGuid const& guid) const
+    {
+        if (guid.GetEntry() != _entry)
+            return false;
+
+        Creature* summon = ObjectAccessor::GetCreature(*_owner, guid);
+        return summon && summon->SelectNearestPlayer(_distance);
+    }
+
+private:
+    Unit* _owner;
+    uint32 _entry;
+    uint32 _distance;
+};
+
 struct boss_nythendra : public BossAI
 {
     boss_nythendra(Creature* creature) : BossAI(creature, DATA_NYTHENDRA) { }
@@ -71,7 +90,7 @@ struct boss_nythendra : public BossAI
     {
         events.ScheduleEvent(SPELL_ROT,             10s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
-        events.ScheduleEvent(SPELL_INFESTED_BREATH, 60s,    EVENTS_PHASE_1);
+        events.ScheduleEvent(SPELL_INFESTED_BREATH, 15s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_TAIL_LASH,       20s,    EVENTS_PHASE_1);
     }
 
@@ -90,6 +109,25 @@ struct boss_nythendra : public BossAI
             me->AddAura(SPELL_INFESTED_TARGET, victim);
             me->CastSpell(victim, SPELL_INFESTED, true);
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            if (eventId != SPELL_BURST_OF_CORRUPTION && me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            ExecuteEvent(eventId);
+        }
+
+        if (!me->HasUnitState(UNIT_STATE_CASTING))
+            DoMeleeAttackIfReady();
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -116,7 +154,7 @@ struct boss_nythendra : public BossAI
             case SPELL_INFESTED_BREATH:
             {
                 me->CastSpell(nullptr, SPELL_INFESTED_BREATH, false);
-                events.Repeat(60s);
+                events.Repeat(15s);
 
                 me->ModifyPower(POWER_ENERGY, -50);
 
@@ -134,7 +172,7 @@ struct boss_nythendra : public BossAI
             }
             case SPELL_BURST_OF_CORRUPTION:
             {
-                EntryCheckPredicate pred(NPC_CORRUPTED_VERMIN);
+                EntryCheckWithPlayerNearPredicate pred(me, NPC_CORRUPTED_VERMIN, 3.f);
                 summons.DoAction(0, pred, 1);
                 events.Repeat(2s);
                 break;
@@ -148,13 +186,13 @@ private:
     void SwitchPhase2()
     {
         events.DelayEvents(25s);
-        events.ScheduleEvent(SPELL_BURST_OF_CORRUPTION, 2s);
 
         me->GetScheduler()
             .Schedule(4s, [this](TaskContext /*context*/)
             {
                 me->CastSpell(me, SPELL_HEART_OF_THE_SWARM, false);
                 me->SummonCreatureGroup(0);
+                events.ScheduleEvent(SPELL_BURST_OF_CORRUPTION, 2s);
             })
             .Schedule(8s, [this](TaskContext /*context*/)
             {
@@ -164,7 +202,7 @@ private:
                 for (AreaTrigger* at : areatriggers)
                     at->SetDestination(me->GetPosition(), 5000);
             })
-            .Schedule(25s, [this](TaskContext context)
+            .Schedule(25s, [this](TaskContext /*context*/)
             {
                 summons.DespawnEntry(NPC_CORRUPTED_VERMIN);
                 events.CancelEvent(SPELL_BURST_OF_CORRUPTION);
@@ -185,12 +223,12 @@ struct npc_nythendra_corrupted_vermin : public ScriptedAI
     void DoAction(int32 /*action*/) override
     {
         me->SetObjectScale(1.f);
-        me->GetScheduler().Schedule(1s, [](TaskContext context)
+        me->GetScheduler().Schedule(2s, [](TaskContext context)
         {
             GetContextUnit()->CastSpell(GetContextUnit(), SPELL_BURST_OF_CORRUPTION, false);
 
             if (context.GetRepeatCounter() < 3)
-                context.Repeat();
+                context.Repeat(2s);
         });
     }
 };
