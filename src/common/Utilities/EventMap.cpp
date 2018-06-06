@@ -144,7 +144,7 @@ void EventMap::CancelEvent(uint32 eventId)
 
     for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
     {
-        if (eventId == (itr->second & 0x0000FFFF))
+        if (eventId == (itr->second & 0x00000000FFFFFFFF))
             _eventMap.erase(itr++);
         else
             ++itr;
@@ -171,7 +171,7 @@ uint32 EventMap::GetNextEventTime(uint32 eventId) const
         return 0;
 
     for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
-        if (eventId == (itr->second & 0x0000FFFF))
+        if (eventId == (itr->second & 0x00000000FFFFFFFF))
             return itr->first;
 
     return 0;
@@ -180,7 +180,7 @@ uint32 EventMap::GetNextEventTime(uint32 eventId) const
 uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
 {
     for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
-        if (eventId == (itr->second & 0x0000FFFF))
+        if (eventId == (itr->second & 0x00000000FFFFFFFF))
             return itr->first - _time;
 
     return std::numeric_limits<uint32>::max();
