@@ -182,7 +182,7 @@ class spell_dru_bear_form_passive : public SpellScriptLoader
         }
 };
 
-// -50334 - Berserk
+// 50334 - Berserk
 class spell_dru_berserk : public AuraScript
 {
     PrepareAuraScript(spell_dru_berserk);
