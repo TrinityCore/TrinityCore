@@ -1,10 +1,14 @@
-﻿-- Template Updates
+-- Template Updates
 -- Theralion
 UPDATE `creature_template` SET `ScriptName`= 'boss_theralion', `difficulty_entry_1`= 49903, `difficulty_entry_2`= 49904, `difficulty_entry_3`= 49905 WHERE `entry`= 45993;
 UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `DamageModifier`= 80, `flags_extra`= 1 | 512, `mechanic_immune_mask`= 617299839, `exp`= 3, `faction`= 2146, `unit_flags`= 32832, `unit_flags2`= 134219776 WHERE `entry` IN (45993, 49903, 49904, 49905);
+UPDATE `creature_template` SET `mingold`= 1100000, `maxgold`= 1200000 WHERE `entry` IN (45993, 49904);
+UPDATE `creature_template` SET `mingold`= 2450000, `maxgold`= 2550000 WHERE `entry` IN (49903, 49905);
 -- Valiona
 UPDATE `creature_template` SET `ScriptName`= 'boss_valiona', `difficulty_entry_1`= 49897, `difficulty_entry_2`= 49898, `difficulty_entry_3`= 49899 WHERE `entry`= 45992;
 UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `DamageModifier`= 80, `flags_extra`= 1 | 512, `mechanic_immune_mask`= 617299839, `exp`= 3, `faction`= 2146, `unit_flags`= 32832, `unit_flags2`= 134219776 WHERE `entry` IN (45992, 49897, 49898, 49899);
+UPDATE `creature_template` SET `mingold`= 1100000, `maxgold`= 1200000 WHERE `entry` IN (45992, 49898);
+UPDATE `creature_template` SET `mingold`= 2450000, `maxgold`= 2550000 WHERE `entry` IN (49897, 49899);
 -- Valiona (Fire Dummy)
 UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry`= 46147;
 -- Theralion Flight Target Stalker
@@ -28,7 +32,6 @@ UPDATE `creature_template` SET `unit_flags`= 33554432, `InhabitType`= 5, `flags_
 -- Template Addon
 DELETE FROM `creature_template_addon` WHERE `entry` IN (46374, 46448, 50014);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
-(46374, '86383'),
 (46448, '86506'),
 (50014, '93010');
 
@@ -97,7 +100,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_valiona_summon_twilight_sentry',
 'spell_theralion_and_valiona_twilight_shift_phase_ally',
 'spell_valiona_twilight_flame_twilight_realm',
-'spell_valiona_twilight_flames');
+'spell_valiona_twilight_flames',
+'spell_valiona_devouring_flames_targeting');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (86673, 'spell_valiona_blackout_dummy'),
@@ -150,7 +154,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (86199, 'spell_valiona_twilight_flames'),
 (92868, 'spell_valiona_twilight_flames'),
 (92869, 'spell_valiona_twilight_flames'),
-(92870, 'spell_valiona_twilight_flames');
+(92870, 'spell_valiona_twilight_flames'),
+(86832, 'spell_valiona_devouring_flames_targeting');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceEntry` IN (90346, 90345, 86840, 86379, 86408, 86406, 92926, 92927, 92928, 86144, 86139, 86136, 86138, 88816, 88815) AND `SourceTypeOrReferenceId`= 13;
@@ -185,3 +190,75 @@ DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`= 46301;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (46301, 86293, 3, 0),
 (46301, 86296, 0, 0);
+
+-- Currency Loot
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (45992, 49897, 49898, 49899);
+INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
+(45992, 396, 11500),
+(49897, 396, 13500),
+(49898, 396, 11500),
+(49899, 396, 13500);
+
+-- Loot
+-- Valiona
+DELETE FROM `reference_loot_template` WHERE `Entry` IN (459920, 498980);
+-- Theralion
+DELETE FROM `reference_loot_template` WHERE `Entry` IN (459930, 499040);
+INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
+-- Valiona
+-- Normal Mode
+(459920, 59512, 0, 1, 1, 1, 1), -- Valiona's Medallion
+(459920, 59515, 0, 1, 1, 1, 1), -- Vial of Stolen Memories
+(459920, 59517, 0, 1, 1, 1, 1), -- Necklace of Strife
+(459920, 59518, 0, 1, 1, 1, 1), -- Ring of Rivalry
+(459920, 63531, 0, 1, 1, 1, 1), -- Daybreaker Helm
+(459920, 63533, 0, 1, 1, 1, 1), -- Fang of Twilight
+-- Heroic Mode
+(498980, 65112, 0, 1, 1, 1, 1), -- Valiona's Medallion
+(498980, 65109, 0, 1, 1, 1, 1), -- Vial of Stolen Memories
+(498980, 65107, 0, 1, 1, 1, 1), -- Necklace of Strife
+(498980, 65106, 0, 1, 1, 1, 1), -- Ring of Rivalry
+(498980, 65096, 0, 1, 1, 1, 1), -- Daybreaker Helm
+(498980, 65095, 0, 1, 1, 1, 1), -- Fang of Twilight
+-- Theralion
+-- Normal Mode
+(459930, 59516, 0, 1, 1, 1, 1), -- Drape of the Twins
+(459930, 59519, 0, 1, 1, 1, 1), -- Theralion's Mirror
+(459930, 63532, 0, 1, 1, 1, 1), -- Dragonheart Piercer
+(459930, 63534, 0, 1, 1, 1, 1), -- Helm of Eldritch Authority
+(459930, 63535, 0, 1, 1, 1, 1), -- Waistguard of Hatred
+(459930, 63536, 0, 1, 1, 1, 1), -- Blade of the Watching Hour
+-- Heroic Mode
+(499040, 65108, 0, 1, 1, 1, 1), -- Drape of the Twins
+(499040, 65105, 0, 1, 1, 1, 1), -- Theralion's Mirror
+(499040, 65095, 0, 1, 1, 1, 1), -- Dragonheart Piercer
+(499040, 65093, 0, 1, 1, 1, 1), -- Helm of Eldritch Authority
+(499040, 65092, 0, 1, 1, 1, 1), -- Waistguard of Hatred
+(499040, 65091, 0, 1, 1, 1, 1); -- Blade of the Watching Hour
+
+-- Valiona
+DELETE FROM `creature_loot_template` WHERE `entry` IN (45992, 49897, 49898, 49899);
+UPDATE `creature_template` SET `lootid`= `entry` WHERE `entry` IN (45992, 49897, 49898, 49899);
+-- Theralion
+DELETE FROM `creature_loot_template` WHERE `entry` IN (45993, 49903, 49904, 49905);
+UPDATE `creature_template` SET `lootid`= `entry` WHERE `entry` IN (45993, 49903, 49904, 49905);
+
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Reference`, `MaxCount`) VALUES
+-- Valiona
+-- 10 Player Normal
+(45992, 459920, 100, 1, 459920, 1),
+-- 25 Player Normal
+(49897, 459920, 100, 1, 459920, 2),
+-- 10 Player Heroic
+(49898, 498980, 100, 1, 498980, 1),
+-- 25 Player Heroic
+(49899, 498980, 100, 1, 498980, 2),
+-- Theralion
+-- 10 Player Normal
+(45993, 459930, 100, 1, 459930, 1),
+-- 25 Player Normal
+(49903, 459930, 100, 1, 459930, 2),
+-- 10 Player Heroic
+(49904, 499040, 100, 1, 499040, 1),
+-- 25 Player Heroic
+(49905, 499040, 100, 1, 499040, 2);

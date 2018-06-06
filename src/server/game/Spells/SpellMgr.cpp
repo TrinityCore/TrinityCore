@@ -4229,19 +4229,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Devouring Flames
-    ApplySpellFix({ 86832 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 1;
-    });
-
     // Dazzling Destruction (10 Player)
     ApplySpellFix({
         86380,
         92924,
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->MaxAffectedTargets = 1;
+        spellInfo->MaxAffectedTargets = 2;
     });
 
     // Dazzling Destruction (25 Player)

@@ -336,8 +336,9 @@ class boss_theralion : public CreatureScript
                 switch (summon->GetEntry())
                 {
                     case NPC_DAZZLING_DESTRUCTION_STALKER:
-                        DoCast(summon, SPELL_DAZZLING_DESTRUCTION_DUMMY);
                         PhasingHandler::InheritPhaseShift(summon, me);
+                        DoCast(summon, SPELL_DAZZLING_DESTRUCTION_DUMMY);
+                        summon->CastSpell(summon, SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL, true);
                         break;
                     case NPC_FABULOUS_FLAMES:
                         PhasingHandler::InheritPhaseShift(summon, me);
@@ -563,6 +564,21 @@ class boss_valiona : public CreatureScript
                 }
             }
 
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            {
+                if (!target)
+                    return;
+
+                switch (spell->Id)
+                {
+                    case SPELL_DEVOURING_FLAMES_TARGETING: // tempoary workarround to fix a core internal focusing issue
+                        me->SetOrientation(me->GetAngle(target));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void DoAction(int32 action)
             {
                 switch (action)
@@ -701,6 +717,7 @@ class boss_valiona : public CreatureScript
                             if (_deepBreathCount == 0)
                             {
                                 events.CancelEvent(EVENT_TWILIGHT_METEORITE);
+                                me->CastStop(); // workarround to fix a conflict in which Twilight Meteorite is triggering a delayed cast
                                 if (me->GetDistance(DeepBreathStartingPositions[SIDE_THERALION]) <= me->GetDistance(DeepBreathStartingPositions[SIDE_VALIONA]))
                                     _currentRoomSide = SIDE_THERALION;
                                 else
@@ -992,7 +1009,7 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if (GetExplTargetDest() && GetExplTargetDest()->GetPosition() == target->GetPosition())
+                    if (target->ToTempSummon()->GetTimer() <= 5000)
                     {
                         target->RemoveAllAuras();
                         target->CastSpell(target, SPELL_DAZZLING_DESTRUCTION_TWILIGHT_REALM, true);
@@ -1121,7 +1138,8 @@ class spell_theralion_engulfing_magic_targeting : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                Trinity::Containers::RandomResize(targets, 1);
+                if (Unit* caster = GetCaster())
+                    Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
             }
 
             void Register() override
@@ -1303,6 +1321,11 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
+                targets.remove_if(IsInTwilightPhaseCheck());
+
+                if (targets.empty())
+                    return;
+
                 Trinity::Containers::RandomResize(targets, 1);
             }
 
@@ -1322,6 +1345,40 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_valiona_twilight_meteorite_targeting_SpellScript();
+        }
+};
+
+class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
+{
+    public:
+        spell_valiona_devouring_flames_targeting() : SpellScriptLoader("spell_valiona_devouring_flames_targeting") { }
+
+        class spell_valiona_devouring_flames_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_devouring_flames_targeting_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(IsInTwilightPhaseCheck());
+
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_devouring_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_devouring_flames_targeting_SpellScript();
         }
 };
 
@@ -1523,7 +1580,7 @@ class spell_valiona_twilight_flames : public SpellScriptLoader
             void HandleEffect(SpellEffIndex effIndex)
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints);
+                    target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
             }
 
             void Register() override
@@ -1807,7 +1864,6 @@ void AddSC_boss_theralion_and_valiona()
     new boss_valiona();
     new npc_theralion_and_valiona_unstable_twilight();
     new npc_theralion_and_valiona_twilight_sentry();
-
     new spell_theralion_dazzling_destruction_dummy();
     new spell_theralion_dazzling_destruction();
     new spell_theralion_dazzling_destruction_twilight_realm();
@@ -1818,6 +1874,7 @@ void AddSC_boss_theralion_and_valiona()
     new spell_valiona_blackout();
     new spell_valiona_devouring_flames();
     new spell_valiona_twilight_meteorite_targeting();
+    new spell_valiona_devouring_flames_targeting();
     new spell_valiona_strafe();
     new spell_valiona_summon_twilight_portal();
     new spell_valiona_summon_twilight_sentry();
