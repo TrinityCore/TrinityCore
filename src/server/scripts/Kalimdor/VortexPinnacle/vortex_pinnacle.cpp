@@ -59,8 +59,8 @@ enum Spells
     SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA    = 84989, // Triggered by SPELL_SLIPSTREAM_SECOND.  Targets second closest NPC_SLIPSTREAM.
     SPELL_SLIPSTREAM_THIRD                          = 85394, // Cast on passenger by Slipstream 6.
     SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA     = 85395, // Triggered by SPELL_SLIPSTREAM_THIRD.  Unknown how it targets next NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_FORTH                          = 85397, // Cast on passenger by Slipstream 7.
-    SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA     = 85396, // Triggered by SPELL_SLIPSTREAM_FORTH. Unknown how it targets next NPC_SLIPSTREAM.
+    SPELL_SLIPSTREAM_FOURTH                         = 85397, // Cast on passenger by Slipstream 7.
+    SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA    = 85396, // Triggered by SPELL_SLIPSTREAM_FORTH. Unknown how it targets next NPC_SLIPSTREAM.
     SPELL_SLIPSTREAM_LAST                           = 85016, // Cast on passenger by Slipstream 3 and 8.
     SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA      = 85017, // Triggered by SPELL_SLIPSTREAM_LAST. Targets NPC_SLIPSTREAM_LANDING_ZONE.
 
@@ -208,23 +208,23 @@ public:
                 return;
 
             if (me->HasAura(SPELL_SLIPSTREAM_SPELLCLICK))
-                DoCast(who, SPELL_SLIPSTREAM_FIRST);
+                DoCast(who, SPELL_SLIPSTREAM_FIRST, true);
             else if (me->HasAura(SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_SECOND);
+                DoCast(who, SPELL_SLIPSTREAM_SECOND, true);
             else if (me->HasAura(SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA))
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
                     if (instance->GetCreature(DATA_SLIPSTREAM_3) == me)
-                        who->CastSpell(who, SPELL_SLIPSTREAM_LAST, true);
+                        DoCast(who, SPELL_SLIPSTREAM_LAST, true);
                     else
-                        DoCast(who, SPELL_SLIPSTREAM_THIRD);
+                        DoCast(who, SPELL_SLIPSTREAM_THIRD, true);
                 }
             }
             else if (me->HasAura(SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_FORTH);
-            else if (me->HasAura(SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA))
-                who->CastSpell(who, SPELL_SLIPSTREAM_LAST, true);
+                DoCast(who, SPELL_SLIPSTREAM_FOURTH, true);
+            else if (me->HasAura(SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA))
+                DoCast(who, SPELL_SLIPSTREAM_LAST, true);
         }
     };
 
@@ -785,11 +785,12 @@ public:
                 case SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA:
                     target = instance->GetCreature(DATA_SLIPSTREAM_7);
                     break;
-                case SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA:
+                case SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA:
                     target = instance->GetCreature(DATA_SLIPSTREAM_8);
                     break;
                 case SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA:
-                    target = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f);
+                    if (Creature* landingZone = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f))
+                        target = landingZone;
                     break;
                 default:
                     break;
@@ -821,7 +822,13 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_HOWLING_GALE_VISUAL, SPELL_HOWLING_GALE_KNOCKBACK, SPELL_HOWLING_GALE_VISUAL_2, SPELL_HOWLING_GALE_KNOCKBACK_2 });
+            return ValidateSpellInfo(
+                {
+                    SPELL_HOWLING_GALE_VISUAL,
+                    SPELL_HOWLING_GALE_KNOCKBACK,
+                    SPELL_HOWLING_GALE_VISUAL_2,
+                    SPELL_HOWLING_GALE_KNOCKBACK_2
+                });
         }
 
         void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
