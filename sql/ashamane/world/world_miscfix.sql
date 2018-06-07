@@ -255,14 +255,14 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,0,0,100,0,0,0,3400,4700,11,77508,64,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Fireball');
-
+replace INTO `creature_loot_template` (`Entry`, `Item`, `QuestRequired`) VALUES ('40340', '54745', '1'); 
 -- Core Hound
 SET @ENTRY := 46910;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,87356,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Breath');
-
+UPDATE `creature_template` SET `faction` = 35 WHERE `entry` = 52176;
 -- Brimstone Destroyer
 SET @ENTRY := 52794;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
@@ -270,8 +270,116 @@ DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,13729,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Flame Shock'),
 (@ENTRY,0,1,0,9,0,100,0,0,45,15000,25000,11,75024,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Rush of Flame on Close');
-
+DELETE FROM `creature` WHERE `id`=52557;
 UPDATE `creature_loot_template` SET `Chance` = '100' WHERE `Entry` = '46910' AND `Item` = '54609'; 
+UPDATE `creature_template` SET `KillCredit1` = 40544, `KillCredit2` = 40545 WHERE `entry` = 40551;
+UPDATE `creature_template` SET `KillCredit1` = 40461, `KillCredit2` = 40462 WHERE `entry` = 46925;
+
+DELETE FROM `creature` WHERE `id`=41003;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116758, 41003, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4435.19, -2081.94, 1205.95, 5.85987, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0),
+(285696, 41003, 1, 616, 4990, 1, 0, 0, 0, -1, 32251, 0, 4895.39, -2803.11, 1437.76, 2.61799, 300, 0, 0, 44679, 8338, 0, 0, 0, 0, 0, 0, '', 0);
+
+DELETE FROM `quest_objectives` WHERE `ID` = '254075'; 
+SET @ENTRY := 41003;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25810,0,0,0,62,1,0,0,0,0,0,7,0,0,0,4605.25,-2510.36,828.833,3.94444,'Teleport on Quest Add');
+
+
+UPDATE `creature_template` SET `unit_flags` = 32768 WHERE `entry` = 39835;
+
+UPDATE `creature` SET `spawndist` = 3, `MovementType` = 1 WHERE `id` in (39835);
+
+DELETE FROM `creature` WHERE `id`=39835;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116771, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4549.79, -2540.49, 826.03, 6.22524, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116770, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4543.92, -2554.92, 828.165, 6.22524, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116769, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4557.98, -2566.8, 828.748, 1.05654, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116768, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4561.24, -2581.06, 829.648, 0.797354, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116767, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4574.83, -2577.24, 829.64, 1.54427, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116766, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4591.36, -2567.1, 826.869, 3.16533, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116765, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4592.9, -2588.28, 828.198, 1.80816, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116764, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4604.03, -2593.17, 827.667, 2.10504, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116763, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4612.7, -2583.81, 826.406, 3.01532, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116762, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4619.23, -2594.16, 826.478, 1.97388, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(210116761, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4622.49, -2592.26, 825.729, 2.0642, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299495, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4614.61, -2446.05, 746.808, 3.96968, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299501, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4593.14, -2386.43, 804.154, 0.458206, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299503, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4625.12, -2416.68, 812.276, 1.41607, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299505, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4660.38, -2365.65, 769.855, 3.24437, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299543, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4743.86, -2523.7, 681.62, 2.64682, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299617, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4707.02, -2498.42, 838.618, 1.86034, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299622, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4682.69, -2451.38, 703.391, 6.24548, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299624, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4717.31, -2440.71, 729.093, 4.92607, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299627, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4641.96, -2434.1, 780.159, 0.305067, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299629, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4730.79, -2381.3, 756.567, 4.46338, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299632, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4711.08, -2407.69, 814.326, 1.28471, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299634, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4719.84, -2397.11, 706.612, 3.99618, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299636, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4709.36, -2498.12, 745.621, 4.1822, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299638, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4653.7, -2523.16, 793.214, 1.54523, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299640, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4744.31, -2486.23, 745.621, 2.81037, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299642, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4662.97, -2502.79, 703.391, 2.45251, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299645, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4691.92, -2350.07, 706.612, 0.0692019, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299647, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4719.13, -2350.19, 756.567, 5.54955, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299649, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4667.39, -2364.04, 769.855, 3.4831, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299651, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4624.81, -2418.29, 812.276, 1.37194, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299653, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4639.39, -2433.97, 780.159, 0.377156, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299655, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4696.45, -2408.11, 706.612, 3.11717, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299657, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4666.99, -2364.19, 769.855, 3.4653, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299659, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4709.46, -2497.95, 745.621, 4.17592, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299661, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4657.34, -2539.03, 793.214, 2.03379, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299665, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4669.86, -2476.95, 838.618, 3.45647, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299667, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4617.29, -2429.95, 780.159, 5.72586, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(299669, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4773.48, -2445.9, 729.093, 1.22928, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0);
+UPDATE `quest_objectives` SET `ObjectID` = '39835' , `Amount` = '10' WHERE `ID` = '266244'; 
+UPDATE `creature_template` SET `KillCredit1` = 40660 WHERE `entry` = 39835;
+
+SET @ENTRY := 40578;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25832,0,0,0,62,1,0,0,0,0,0,7,0,0,0,4837.35,-2812.55,1444.61,0,'Teleport on Quest Add');
+
+UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=41308; 
+UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=41308; 
+UPDATE `creature` SET `phaseId`=0 WHERE `id`=41308; 
+UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id`=41308);
+DELETE FROM `creature` WHERE `id`=41006;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(285642, 41006, 1, 616, 4990, 1, 0, 0, 0, -1, 32254, 0, 4909.09, -2719.22, 1438.96, 0.235444, 300, 0, 0, 44679, 8338, 0, 0, 0, 0, 0, 0, '', 0),
+(210116780, 41006, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4195.98, -2323.49, 1149.13, 3.07319, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0);
+
+
+UPDATE `creature` SET `phaseId`=0 WHERE `id`=41300; 
+UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=41300; 
+UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=41300; 
+UPDATE `creature` SET `phaseId`=0 WHERE `id`=41300; 
+UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id`=41300);
+
+SET @ENTRY := 41300;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,8,0,100,0,77394,0,0,0,33,41310,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Spell Hit - Give Credit");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
