@@ -1088,6 +1088,11 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
                 if (targets.size() <= 1)
                     return;
 
+                targets.remove_if(IsInTwilightPhaseCheck());
+
+                if (targets.empty())
+                    return;
+
                 Trinity::Containers::RandomResize(targets, 1);
             }
 
