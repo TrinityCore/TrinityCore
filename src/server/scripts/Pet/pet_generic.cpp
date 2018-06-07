@@ -320,10 +320,97 @@ class npc_pet_gen_mojo : public CreatureScript
         }
 };
 
+// Lil' Ragnaros
+enum LilRagnaros
+{
+    SPELL_DND_LR_2                      = 95804, // Root and emerge effect
+    SPELL_DND_SUMMON_BASIC_CAMPFIRE     = 95811,
+    SPELL_DND_LR                        = 95802,
+    SPELL_SCORCHLING                    = 45887,
+    SPELL_DND_LR_1                      = 95803, // Submerge effect
+    SPELL_DND_DESPAWN_BASIC_CAMPFIRE    = 95813,
+
+    EVENT_CHECK_PLAYER_DISTANCE         = 1,
+};
+
+class npc_pet_gen_lil_ragnaros : public CreatureScript
+{
+    public:
+        npc_pet_gen_lil_ragnaros() : CreatureScript("npc_pet_gen_lil_ragnaros") { }
+
+        struct npc_pet_gen_lil_ragnarosAI : public ScriptedAI
+        {
+            npc_pet_gen_lil_ragnarosAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _submerged = false;
+            }
+
+            void IsSummonedBy(Unit* /*summoner*/) override
+            {
+                DoCastSelf(SPELL_DND_LR_2, true);
+                DoCastSelf(SPELL_DND_SUMMON_BASIC_CAMPFIRE, true);
+                DoCastSelf(SPELL_DND_LR, true);
+                DoCastSelf(SPELL_SCORCHLING, true);
+                _events.ScheduleEvent(EVENT_CHECK_PLAYER_DISTANCE, Seconds(1));
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                if (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CHECK_PLAYER_DISTANCE:
+                            if (Unit* owner = me->GetCharmerOrOwner())
+                            {
+                                if (me->GetDistance(owner) >= 20.0f && !_submerged)
+                                {
+                                    me->RemoveAllAuras();
+                                    DoCastSelf(SPELL_DND_LR_1, true);
+                                    DoCastSelf(SPELL_DND_DESPAWN_BASIC_CAMPFIRE, true);
+                                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                                    _submerged = true;
+                                }
+                                else if (me->GetDistance(owner) <= 5.0f && _submerged)
+                                {
+                                    me->RemoveAurasDueToSpell(SPELL_DND_LR_1);
+                                    DoCastSelf(SPELL_DND_LR_2, true);
+                                    DoCastSelf(SPELL_DND_SUMMON_BASIC_CAMPFIRE, true);
+                                    DoCastSelf(SPELL_DND_LR, true);
+                                    DoCastSelf(SPELL_SCORCHLING, true);
+                                    _submerged = false;
+                                }
+                            }
+                            _events.Repeat(Seconds(1));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        private:
+            EventMap _events;
+            bool _submerged;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_pet_gen_lil_ragnarosAI(creature);
+        }
+};
+
 void AddSC_generic_pet_scripts()
 {
     new npc_pet_gen_baby_blizzard_bear();
     new npc_pet_gen_egbert();
     new npc_pet_gen_pandaren_monk();
     new npc_pet_gen_mojo();
+    new npc_pet_gen_lil_ragnaros();
 }
