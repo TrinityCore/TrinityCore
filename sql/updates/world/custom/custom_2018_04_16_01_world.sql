@@ -132,13 +132,13 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Re
 -- 10 Player Normal
 (44600, 446000, 100, 1, 446000, 2),
 -- 25 Player Normal
-(46209, 446000, 100, 1, 446000, 4),
+(46209, 446000, 100, 1, 446000, 6),
 -- 10 Player Heroic
 (46210, 462100, 100, 1, 462100, 2),
 (46210, 462101, 100, 1, 462101, 1),
 -- 25 Player Heroic
-(46211, 462100, 100, 1, 462100, 4),
-(46211, 462101, 100, 1, 462101, 2);
+(46211, 462100, 100, 1, 462100, 6),
+(46211, 462101, 100, 1, 462101, 3);
 
 -- Achievements
 DELETE FROM `achievement_criteria_data` WHERE `ScriptName`= 'achievement_the_only_escape';

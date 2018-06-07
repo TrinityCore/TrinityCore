@@ -200,10 +200,7 @@ INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCou
 (49899, 396, 13500);
 
 -- Loot
--- Valiona
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (459920, 498980);
--- Theralion
-DELETE FROM `reference_loot_template` WHERE `Entry` IN (459930, 499040);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
 -- Valiona
 -- Normal Mode
@@ -213,28 +210,25 @@ INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `G
 (459920, 59518, 0, 1, 1, 1, 1), -- Ring of Rivalry
 (459920, 63531, 0, 1, 1, 1, 1), -- Daybreaker Helm
 (459920, 63533, 0, 1, 1, 1, 1), -- Fang of Twilight
+(459920, 59516, 0, 1, 1, 1, 1), -- Drape of the Twins
+(459920, 59519, 0, 1, 1, 1, 1), -- Theralion's Mirror
+(459920, 63532, 0, 1, 1, 1, 1), -- Dragonheart Piercer
+(459920, 63534, 0, 1, 1, 1, 1), -- Helm of Eldritch Authority
+(459920, 63535, 0, 1, 1, 1, 1), -- Waistguard of Hatred
+(459920, 63536, 0, 1, 1, 1, 1), -- Blade of the Watching Hour
 -- Heroic Mode
 (498980, 65112, 0, 1, 1, 1, 1), -- Valiona's Medallion
 (498980, 65109, 0, 1, 1, 1, 1), -- Vial of Stolen Memories
 (498980, 65107, 0, 1, 1, 1, 1), -- Necklace of Strife
 (498980, 65106, 0, 1, 1, 1, 1), -- Ring of Rivalry
 (498980, 65096, 0, 1, 1, 1, 1), -- Daybreaker Helm
-(498980, 65095, 0, 1, 1, 1, 1), -- Fang of Twilight
--- Theralion
--- Normal Mode
-(459930, 59516, 0, 1, 1, 1, 1), -- Drape of the Twins
-(459930, 59519, 0, 1, 1, 1, 1), -- Theralion's Mirror
-(459930, 63532, 0, 1, 1, 1, 1), -- Dragonheart Piercer
-(459930, 63534, 0, 1, 1, 1, 1), -- Helm of Eldritch Authority
-(459930, 63535, 0, 1, 1, 1, 1), -- Waistguard of Hatred
-(459930, 63536, 0, 1, 1, 1, 1), -- Blade of the Watching Hour
--- Heroic Mode
-(499040, 65108, 0, 1, 1, 1, 1), -- Drape of the Twins
-(499040, 65105, 0, 1, 1, 1, 1), -- Theralion's Mirror
-(499040, 65095, 0, 1, 1, 1, 1), -- Dragonheart Piercer
-(499040, 65093, 0, 1, 1, 1, 1), -- Helm of Eldritch Authority
-(499040, 65092, 0, 1, 1, 1, 1), -- Waistguard of Hatred
-(499040, 65091, 0, 1, 1, 1, 1); -- Blade of the Watching Hour
+(498980, 65094, 0, 1, 1, 1, 1), -- Fang of Twilight
+(498980, 65108, 0, 1, 1, 1, 1), -- Drape of the Twins
+(498980, 65105, 0, 1, 1, 1, 1), -- Theralion's Mirror
+(498980, 65095, 0, 1, 1, 1, 1), -- Dragonheart Piercer
+(498980, 65093, 0, 1, 1, 1, 1), -- Helm of Eldritch Authority
+(498980, 65092, 0, 1, 1, 1, 1), -- Waistguard of Hatred
+(498980, 65091, 0, 1, 1, 1, 1); -- Blade of the Watching Hour
 
 -- Valiona
 DELETE FROM `creature_loot_template` WHERE `entry` IN (45992, 49897, 49898, 49899);
@@ -248,17 +242,17 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Re
 -- 10 Player Normal
 (45992, 459920, 100, 1, 459920, 1),
 -- 25 Player Normal
-(49897, 459920, 100, 1, 459920, 2),
+(49897, 459920, 100, 1, 459920, 3),
 -- 10 Player Heroic
 (49898, 498980, 100, 1, 498980, 1),
 -- 25 Player Heroic
-(49899, 498980, 100, 1, 498980, 2),
+(49899, 498980, 100, 1, 498980, 3),
 -- Theralion
 -- 10 Player Normal
-(45993, 459930, 100, 1, 459930, 1),
+(45993, 459920, 100, 1, 459920, 1),
 -- 25 Player Normal
-(49903, 459930, 100, 1, 459930, 2),
+(49903, 459920, 100, 1, 459920, 3),
 -- 10 Player Heroic
-(49904, 499040, 100, 1, 499040, 1),
+(49904, 498980, 100, 1, 498980, 1),
 -- 25 Player Heroic
-(49905, 499040, 100, 1, 499040, 2);
+(49905, 498980, 100, 1, 498980, 3);
