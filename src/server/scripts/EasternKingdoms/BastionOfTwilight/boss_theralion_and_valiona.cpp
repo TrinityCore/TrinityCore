@@ -1083,6 +1083,14 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_theralion_fabulous_flames_targeting_SpellScript);
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() <= 1)
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
             void HandleHit(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1092,6 +1100,7 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
             void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_theralion_fabulous_flames_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_theralion_fabulous_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1101,17 +1110,18 @@ class spell_theralion_fabulous_flames_targeting : public SpellScriptLoader
         }
 };
 
-class SpellcasterClassCheck
+class EngulfingMagicCheck
 {
     public:
-        SpellcasterClassCheck() { }
+        EngulfingMagicCheck() { }
 
         bool operator()(WorldObject* object)
         {
             if (Unit* target = object->ToUnit())
-                return (target->getClass() == CLASS_HUNTER
+                return ((target->getClass() == CLASS_HUNTER
                     || target->getClass() == CLASS_WARRIOR
-                    || target->getClass() == CLASS_DEATH_KNIGHT);
+                    || target->getClass() == CLASS_DEATH_KNIGHT
+                    ) && !target->HasAura(SPELL_TWILIGHT_METEORITE_TARGETING));
 
             return false;
         }
@@ -1128,18 +1138,21 @@ class spell_theralion_engulfing_magic_targeting : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
+                if (targets.size() <= 1)
                     return;
 
-                // according to sniffs if no spellcaster class is found, the current victim is the target instead
-                if (targets.size() > 1)
-                    targets.remove_if(SpellcasterClassCheck());
+                targets.remove_if(EngulfingMagicCheck());
 
                 if (targets.empty())
                     return;
 
                 if (Unit* caster = GetCaster())
-                    Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
+                {
+                    if (GetCaster()->GetMap()->Is25ManRaid() && targets.size() > 3)
+                        Trinity::Containers::RandomResize(targets, 3);
+                    else if (!GetCaster()->GetMap()->Is25ManRaid())
+                        Trinity::Containers::RandomResize(targets, 1);
+                }
             }
 
             void Register() override
@@ -1203,6 +1216,19 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_valiona_blackout_dummy_SpellScript);
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() <= 1)
+                    return;
+
+                targets.remove_if(EngulfingMagicCheck());
+
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
             void HandleHit(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1212,6 +1238,7 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
             void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_valiona_blackout_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_blackout_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1285,6 +1312,40 @@ class spell_valiona_devouring_flames : public SpellScriptLoader
         }
 };
 
+class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
+{
+    public:
+        spell_valiona_devouring_flames_targeting() : SpellScriptLoader("spell_valiona_devouring_flames_targeting") { }
+
+        class spell_valiona_devouring_flames_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_devouring_flames_targeting_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(IsInTwilightPhaseCheck());
+
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_devouring_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_devouring_flames_targeting_SpellScript();
+        }
+};
+
 class TheralionVictimCheck
 {
     public:
@@ -1345,40 +1406,6 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_valiona_twilight_meteorite_targeting_SpellScript();
-        }
-};
-
-class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
-{
-    public:
-        spell_valiona_devouring_flames_targeting() : SpellScriptLoader("spell_valiona_devouring_flames_targeting") { }
-
-        class spell_valiona_devouring_flames_targeting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_valiona_devouring_flames_targeting_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.remove_if(IsInTwilightPhaseCheck());
-
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_devouring_flames_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_valiona_devouring_flames_targeting_SpellScript();
         }
 };
 
@@ -1873,8 +1900,8 @@ void AddSC_boss_theralion_and_valiona()
     new spell_valiona_blackout_dummy();
     new spell_valiona_blackout();
     new spell_valiona_devouring_flames();
-    new spell_valiona_twilight_meteorite_targeting();
     new spell_valiona_devouring_flames_targeting();
+    new spell_valiona_twilight_meteorite_targeting();
     new spell_valiona_strafe();
     new spell_valiona_summon_twilight_portal();
     new spell_valiona_summon_twilight_sentry();
