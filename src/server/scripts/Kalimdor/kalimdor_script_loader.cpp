@@ -107,11 +107,13 @@ void AddSC_boss_ammunae();
 void AddSC_boss_isiset();
 void AddSC_boss_setesh();
 void AddSC_boss_rajh();
-void AddSC_vortex_pinnacle(); //Vortex Pinnacle
+void AddSC_vortex_pinnacle();                //Vortex Pinnacle
 void AddSC_instance_vortex_pinnacle();
 void AddSC_boss_grand_vizier_ertan();
 void AddSC_boss_altairus();
 void AddSC_boss_asaad();
+void AddSC_instance_throne_of_the_four_winds(); // Throne of the Four Winds
+void AddSC_throne_of_the_four_winds();
 void AddSC_instance_firelands();             //Firelands
 void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
@@ -226,11 +228,13 @@ void AddKalimdorScripts()
     AddSC_boss_isiset();
     AddSC_boss_setesh();
     AddSC_boss_rajh();
-    AddSC_vortex_pinnacle();
+    AddSC_vortex_pinnacle();                // Vortex Pinnacle
     AddSC_instance_vortex_pinnacle();
     AddSC_boss_grand_vizier_ertan();
     AddSC_boss_altairus();
     AddSC_boss_asaad();
+    AddSC_instance_throne_of_the_four_winds(); // Throne of the Four Winds
+    AddSC_throne_of_the_four_winds();
     AddSC_instance_firelands();             //Firelands
     AddSC_boss_alysrazor();
     AddSC_boss_baleroc();
