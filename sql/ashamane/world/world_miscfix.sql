@@ -144,7 +144,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUs
 
 UPDATE `creature_template` SET `faction` = 35 WHERE `entry` = 39622;
 UPDATE `creature_template` SET `VehicleId` = 0 WHERE `entry` = 39622;
-replace INTO `creature_queststarter` (`id`,`quest`) VALUES ('39432','25279'),('39432','25617'); 
+replace INTO `creature_queststarter` (`id`,`quest`) VALUES ('39432','25279'),('39432','25617'),('41504','25843'); 
 replace INTO `creature_questender` (`id`,`quest`) VALUES ('39432','25272'),('39432','25355'); 
 
 
@@ -357,7 +357,7 @@ UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=41300;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=41300; 
 UPDATE `creature` SET `phaseId`=0 WHERE `id`=41300; 
 UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id`=41300);
-
+DELETE FROM `creature` WHERE `id`=52300;
 SET @ENTRY := 41300;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
@@ -366,11 +366,88 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 
 
+UPDATE `creature_template` SET `unit_flags` = 32768 WHERE `entry` = 52300;
+UPDATE `creature_template` SET `minlevel` = 5, `maxlevel` = 5, `rank` = 0, `unit_flags` = 32768, `dynamicflags` = 1 WHERE `entry` = 52300;
+
+SET @ENTRY := 52300;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,96693,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Chain Fireball'),
+(@ENTRY,0,1,0,0,0,100,0,3000,4000,10000,22000,11,15616,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Flame Shock');
+
+DELETE FROM `creature` WHERE `id`=52300;
+
+DELETE FROM `creature` WHERE `id`=41224;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116787, 41224, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3962.28, -2240.37, 1135.59, 0.501004, 300, 0, 0, 3546, 0, 0, 16777216, 0, 0, 0, 0, '', 0);
+UPDATE `creature_template` SET `spell1` = 0, `spell2` = 0 WHERE `entry` = 52300;
+DELETE FROM `creature` WHERE `id`=41261;
+-- Twilight Juggernaut SAI
+SET @ENTRY := 41031;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,1,0,100,0,500,1000,600000,600000,11,77224,0,0,0,0,0,1,0,0,0,0,0,0,0,"Cast Armor Plating on Spawn"),
+(@ENTRY,0,1,1,8,0,100,0,77231,0,0,0,28,77224,0,0,0,0,0,0,0,0,0,0,0,0,0,"on Spell Hit - Remove Aura");
+UPDATE `creature_template` SET `KillCredit1` = 41218 WHERE `entry` = 41226;
+UPDATE `creature_template` SET `KillCredit1` = 41031 WHERE `entry` = 41029;
+
+DELETE FROM `creature` WHERE `id`=52300;
+
+DELETE FROM `creature` WHERE `id`=50080;
+
+SET @ENTRY := 41255;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,0,0,3400,4700,11,78129,64,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Twilight Bolt'),
+(@ENTRY,0,1,0,0,0,100,0,5000,8000,12000,15000,11,78143,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Twilight Breath'),
+(@ENTRY,0,2,0,0,0,100,0,10000,10000,20000,22000,11,78160,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Twilight Fissure');
+
+DELETE FROM `quest_objectives` WHERE `ID` = '266474'; 
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=41499);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (41499, 0, 0, 0, 1, 0, 84063); 
+
+
+SET @ENTRY := 41499;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,11524,0,0,0,33,41510,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit"),
+(@ENTRY,0,1,0,61,0,100,0,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"on Spell Hit - Despawn");
+
+UPDATE `creature_template` SET `gossip_menu_id` = 11524 WHERE `entry` = 41499;
+
+DELETE FROM `creature` WHERE `id`=39858;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116752, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
+(284439, 39858, 1, 616, 5019, 1, 0, 0, 0, -1, 31605, 0, 4422.33, -2080.43, 1211.12, 5.65487, 300, 0, 0, 115954, 9470, 0, 0, 0, 0, 0, 0, '', 0);
+UPDATE `creature_template` SET `unit_flags` = 33280 WHERE `entry` = 41504;
 
 
 
+SET @ENTRY := 41504;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25906,0,0,0,62,1,0,0,0,0,0,7,0,0,0,4678.29,-3658.86,696.786,5.53269,'Teleport on Quest Add');
 
+SET @ENTRY := 41504;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25906,0,0,0,62,1,0,0,0,0,0,7,0,0,0,4678.29,-3658.86,696.786,5.53269,'Teleport on Quest Add');
 
+SET @ENTRY := 41498;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,19,0,100,0,25928,0,0,0,62,1,0,0,0,0,0,7,0,0,0,4475.76,-2707.74,1101.39,4.5204,'Teleport on Quest Add');
+
+UPDATE `creature_template` SET `KillCredit1` = 41602 WHERE `entry` = 41565;
 
 
 
