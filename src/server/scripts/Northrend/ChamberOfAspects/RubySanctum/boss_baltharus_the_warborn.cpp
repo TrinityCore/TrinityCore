@@ -205,8 +205,8 @@ class boss_baltharus_the_warborn : public CreatureScript
                             events.Repeat(Seconds(24));
                             break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             events.Repeat(Seconds(26));
                             break;
