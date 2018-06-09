@@ -72,7 +72,7 @@ enum MiscSpells
     SPELL_CATEGORY_MANGLE_BEAR              = 971
 };
 
-// -50334 - Berserk
+// 50334 - Berserk
 class spell_dru_berserk : public AuraScript
 {
     PrepareAuraScript(spell_dru_berserk);
