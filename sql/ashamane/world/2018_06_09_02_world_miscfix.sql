@@ -449,38 +449,79 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 UPDATE `creature_template` SET `KillCredit1` = 41602 WHERE `entry` = 41565;
 
+DELETE FROM `creature_template_addon` WHERE (`entry`=39453);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (39453, 0, 0, 0, 1, 0, 84063);
 
+DELETE FROM `creature` WHERE `id`=40575;
+UPDATE `creature_template` SET `faction` = 189 WHERE `entry` = 40434;
+UPDATE `creature_template` SET `KillCredit1` = 39673 WHERE `entry` = 39658;
+DELETE FROM `gameobject` WHERE `id`=202952;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`ScriptName`,`VerifiedBuild`) VALUES
+(51013418, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4697.09, -4362, 899.002, 2.96108, 0, 0, -0.99593, -0.0901347, 300, 255, 1, 0, '', 0),
+(178918, 202952, 1, 616, 4991, 1, 0, 0, 0, -1, 4408.25, -4033.29, 961.206, 0, 0, 0, 0, 1, 300, 255, 1, 0, '', 0),
+(178919, 202952, 1, 616, 4991, 1, 0, 0, 0, -1, 4366.48, -4243.95, 919.674, 0, 0, 0, 0, 1, 300, 255, 1, 0, '', 0),
+(178975, 202952, 1, 616, 4991, 1, 0, 0, 0, -1, 4406.88, -4102.88, 949.371, 0, 0, 0, 0, 1, 300, 255, 1, 0, '', 0),
+(51013419, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4727.24, -4362.98, 898.027, 0.219252, 0, 0, -0.109407, -0.993997, 300, 255, 1, 0, '', 0),
+(51013420, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4751.51, -4346.46, 900.513, 0.978732, 0, 0, -0.470067, -0.882631, 300, 255, 1, 0, '', 0),
+(51013421, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4726.64, -4302.57, 895.591, 3.12444, 0, 0, -0.999963, -0.00857553, 300, 255, 1, 0, '', 0),
+(51013422, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4690.11, -4302.63, 900.879, 3.84465, 0, 0, -0.938847, 0.344334, 300, 255, 1, 0, '', 0),
+(51013423, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4654.38, -4297.58, 901.963, 2.37439, 0, 0, -0.927322, -0.374264, 300, 255, 1, 0, '', 0),
+(51013424, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4628.63, -4281.85, 902.954, 2.86212, 0, 0, -0.990253, -0.139283, 300, 255, 1, 0, '', 0),
+(51013425, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4570.25, -4307.64, 906.508, 2.79379, 0, 0, -0.984917, -0.173027, 300, 255, 1, 0, '', 0),
+(51013426, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4521.93, -4331.95, 905.492, 3.77711, 0, 0, -0.949939, 0.312437, 300, 255, 1, 0, '', 0),
+(51013427, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4491.19, -4338.1, 902.879, 4.07949, 0, 0, -0.892045, 0.451947, 300, 255, 1, 0, '', 0),
+(51013428, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4444.62, -4368.38, 902.899, 4.24207, 0, 0, -0.852401, 0.522889, 300, 255, 1, 0, '', 0),
+(51013429, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4509, -4463.17, 889.468, 6.11524, 0, 0, -0.0838731, 0.996476, 300, 255, 1, 0, '', 0),
+(51013430, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4559.05, -4466.41, 885.134, 0.168992, 0, 0, -0.0843958, -0.996432, 300, 255, 1, 0, '', 0),
+(51013431, 202952, 1, 0, 0, 1, 0, 0, 0, -1, 4583.96, -4521.86, 887.162, 4.71095, 0, 0, -0.707616, 0.706597, 300, 255, 1, 0, '', 0);
+UPDATE `quest_template_addon` SET `PrevQuestID` = '25608' WHERE `ID` = '25548'; 
+UPDATE `creature_template` SET `KillCredit1` = 40440, `minlevel` = 1, `maxlevel` = 1 WHERE `entry` = 40434;
+UPDATE `creature_template` SET `KillCredit1` = 39724 WHERE `entry` = 48725;
+-- High Cultist Azennios
+SET @ENTRY := 40491;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,0,0,3400,4700,11,9613,64,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Shadow Bolt');
+DELETE FROM `quest_objectives` WHERE `ID` = '266297'; 
+SET @ENTRY := 40409;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,62,0,100,0,11382,0,0,0,2,22,0,0,0,0,0,1,0,0,0,0,0,0,0,"On Gossip - Change Faction");
+UPDATE `creature_template` SET `InhabitType` = 4, `HoverHeight` = 5 WHERE `entry` = 48725;
+UPDATE `quest_template_addon` SET `NextQuestID` = '25548' WHERE `ID` = '25608'; 
+UPDATE `quest_template_addon` SET `PrevQuestID` = '25531' WHERE `ID` = '25608'; 
+UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (39453,40536,41634);
 
+DELETE FROM `creature` WHERE `id`=39867;
 
+SET @ENTRY := 40713;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,80607,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Flamestep');
+DELETE FROM `creature` WHERE `id`=40974;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116790, 40974, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3758.62, -3231.32, 975.855, 4.67291, 300, 0, 0, 6958, 4169, 0, 0, 0, 0, 0, 0, '', 0);
+DELETE FROM `creature` WHERE `id`=41634;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(305560, 41634, 1, 616, 5040, 1, 0, 0, 0, -1, 31188, 0, 4027.45, -3054.09, 569.141, 1.97222, 300, 0, 0, 22339500, 0, 0, 0, 0, 0, 0, 0, '', 0);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+DELETE FROM `creature` WHERE `id`=40805;
+UPDATE `creature_template` SET `unit_flags` = 32768, `type_flags` = 0 WHERE `entry` = 40974;
+UPDATE `creature_template` SET `unit_flags` = 32768, `type_flags` = 4, `AIName` = '' WHERE `entry` = 41634;
+UPDATE `creature_template` SET `unit_flags` = 32768, `type_flags` = 2147483652, `AIName` = '' WHERE `entry` = 41634;
+UPDATE `creature_template` SET `KillCredit1` = 40793, `AIName` = '' WHERE `entry` = 41634;
+SET @ENTRY := 41634;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,84402,0,0,0,0,0,1,0,0,0,0,0,0,0,'Cast Wrath of Ragnaros');
+DELETE FROM `creature` WHERE `id`=40804;
+DELETE FROM `creature` WHERE `id`=41632;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116793, 41632, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3937.07, -2823.61, 618.747, 5.08702, 300, 0, 0, 581620, 4735000, 0, 0, 0, 0, 0, 0, '', 0);
+DELETE FROM `creature` WHERE `id`=41630;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116794, 41630, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 3961.6, -2817.7, 618.747, 5.05639, 300, 0, 0, 1740, 60, 0, 0, 0, 0, 0, 0, '', 0);
