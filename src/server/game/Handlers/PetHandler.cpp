@@ -526,14 +526,12 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     }
 
     std::vector<Unit*> pets;
-    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-        if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
-            pets.push_back(*itr);
+    for (Unit* controlled : _player->m_Controlled)
+        if (controlled->GetEntry() == pet->GetEntry() && controlled->IsAlive())
+            pets.push_back(controlled);
 
-    for (std::vector<Unit*>::iterator itr = pets.begin(); itr != pets.end(); ++itr)
+    for (Unit* pet : pets)
     {
-        Unit* pet = *itr;
-
         // check swap (at command->spell swap client remove spell first in another packet, so check only command move correctness)
         if (move_command)
         {
@@ -749,14 +747,12 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     }
 
     std::vector<Unit*> pets;
-    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-        if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
-            pets.push_back(*itr);
+    for (Unit* controlled : _player->m_Controlled)
+        if (controlled->GetEntry() == pet->GetEntry() && controlled->IsAlive())
+            pets.push_back(controlled);
 
-    for (std::vector<Unit*>::iterator itr = pets.begin(); itr != pets.end(); ++itr)
+    for (Unit* pet : pets)
     {
-        Unit* pet = *itr;
-
         if (pet->IsPet())
             ((Pet*)pet)->ToggleAutocast(spellInfo, state != 0);
         else
