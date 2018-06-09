@@ -117,7 +117,7 @@ void Vehicle::Install()
             case POWER_WIND_POWER_2:
             case POWER_WIND_POWER_3:
                 _me->SetMaxPower(POWER_MANA, 90);
-                _me->SetPower(POWER_MANA, 90);
+                _me->SetPower(POWER_MANA, 0);
                 break;
             default:
                 break;
