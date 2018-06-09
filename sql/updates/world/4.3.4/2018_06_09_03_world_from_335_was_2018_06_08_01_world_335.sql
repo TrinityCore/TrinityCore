@@ -1,3 +1,4 @@
+/*
 -- Muigin
 DELETE FROM `creature_text` WHERE `CreatureID`=9119;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -42,3 +43,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (9157,4,-6172.88,-1129.4,-216.835,""),
 (9157,5,-6162.34,-1146.16,-217.942,""),
 (9157,6,-6166.14,-1153.26,-216.84,"");
+*/

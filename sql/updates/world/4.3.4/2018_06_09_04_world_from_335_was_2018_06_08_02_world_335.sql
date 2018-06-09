@@ -1,3 +1,4 @@
+/*
 -- Quest "Assisting Arch Druid Runetotem"
 DELETE FROM `quest_details` WHERE `ID`=936;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -326,3 +327,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (9053,1,1,0,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=6, `EmoteOnComplete`=6 WHERE `ID`=9053;
 UPDATE `quest_offer_reward` SET `Emote1`=4, `Emote2`=2 WHERE `ID`=9053;
+*/
