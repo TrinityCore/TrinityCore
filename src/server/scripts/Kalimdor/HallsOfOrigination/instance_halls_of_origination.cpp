@@ -23,8 +23,6 @@
 #include "CreatureGroups.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Transport.h"
-#include "TransportMgr.h"
 #include "Map.h"
 #include "World.h"
 
@@ -110,7 +108,6 @@ class instance_halls_of_origination : public InstanceMapScript
                         UpdateTransitDevice(go);
                         break;
                     case GO_LIFT_OF_THE_MAKERS:
-                        go->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
                         go->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 0);
                         break;
                     case GO_VAULT_OF_LIGHTS_DOOR:
