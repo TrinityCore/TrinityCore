@@ -23,6 +23,8 @@
 #include "CreatureGroups.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Transport.h"
+#include "TransportMgr.h"
 #include "Map.h"
 #include "World.h"
 
@@ -108,7 +110,7 @@ class instance_halls_of_origination : public InstanceMapScript
                         UpdateTransitDevice(go);
                         break;
                     case GO_LIFT_OF_THE_MAKERS:
-                        go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                        go->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
                         go->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 0);
                         break;
                     case GO_VAULT_OF_LIGHTS_DOOR:
@@ -167,12 +169,14 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_HOO_CAMEL:
                         _hooCamelGUIDs.insert(creature->GetGUID());
                         break;
-                    case NPC_BEETLE_STALKER: // Must be active (sometimes they fail to summon adds, hopefully not anymore).
-                        creature->setActive(true);
+                    case NPC_BEETLE_STALKER:
+                        _beetleStalkerGUIDS.insert(creature->GetGUID());
                         break;
                     case NPC_DUSTBONE_HORROR:
                     case NPC_JEWELED_SCARAB:
                         creature->SetInCombatWithZone();
+                        if (Creature* ptah = GetCreature(DATA_EARTHRAGER_PTAH))
+                            ptah->AI()->JustSummoned(creature);
                         break;
                     case BOSS_ANRAPHET: // Must be active (their AI runs the event at the Vault of Lights).
                     case NPC_BRANN_BRONZEBEARD_0:
@@ -206,6 +210,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_CAVE_IN_STALKER:
                         if (creature->GetPositionZ() <= 70.0f)
                             _caveInStalkerGUIDs.insert(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -262,6 +267,14 @@ class instance_halls_of_origination : public InstanceMapScript
                             }
                         }
                         break;
+                    case DATA_SUMMON_SANDSTORM_ADDS:
+                        for (ObjectGuid guid : _beetleStalkerGUIDS)
+                            if (Creature* beetleStalker = instance->GetCreature(guid))
+                                if (-400.f < beetleStalker->GetPositionY() && beetleStalker->GetPositionY() < -390.f) // 2 stalkers in the middle
+                                    beetleStalker->CastSpell(beetleStalker, SPELL_SUMMON_DUSTBONE_HORROR);
+                                else
+                                    beetleStalker->CastSpell(beetleStalker, SPELL_BEETLE_BURROW);
+                        break;
                     default:
                         break;
                 }
@@ -314,6 +327,10 @@ class instance_halls_of_origination : public InstanceMapScript
                             for (ObjectGuid guid : _hooCamelGUIDs)
                                 if (Creature* camel = instance->GetCreature(guid))
                                     camel->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
+                            for (ObjectGuid guid : _beetleStalkerGUIDS)
+                                if (Creature* beetleStalker = instance->GetCreature(guid))
+                                    beetleStalker->RemoveAllAuras();
                         }
                         break;
                     case DATA_VAULT_OF_LIGHTS:
@@ -452,6 +469,7 @@ class instance_halls_of_origination : public InstanceMapScript
             GuidSet _hooCamelGUIDs;
             GuidSet _isisetTrashGUIDs;
             GuidSet _caveInStalkerGUIDs;
+            GuidSet _beetleStalkerGUIDS;
             uint32 _brannIntroStarted;
             uint32 _wardenPositionSpells[WARDEN_ENTRY_MAX_COUNT];
             uint32 _deadElementals;

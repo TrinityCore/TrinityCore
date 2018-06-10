@@ -62,6 +62,9 @@ enum HOOData
     DATA_ANRAPHET_SUN_MIRROR,
     DATA_ANRAPHET_DOOR,
 
+    // Earthrager Ptah
+    DATA_SUMMON_SANDSTORM_ADDS,
+
     // Isiset
     DATA_ISISET_PHASE,
     DATA_ISISET_ASTRAL_RAIN_ALIVE,
@@ -202,7 +205,12 @@ enum HOOMisc
     SPELL_SHIELD_VISUAL_LEFT            = 83697,
     SPELL_SHIELD_VISUAL_RIGHT           = 83698,
     SPELL_BEAM_OF_LIGHT_LEFT            = 74930,
-    SPELL_BEAM_OF_LIGHT_RIGHT           = 76573
+    SPELL_BEAM_OF_LIGHT_RIGHT           = 76573,
+
+    // Beetle Stalker
+    SPELL_BEETLE_BURROW                 = 75463, // Visual
+    SPELL_SUMMON_JEWELED_SCARAB         = 75462,
+    SPELL_SUMMON_DUSTBONE_HORROR        = 75521
 };
 
 enum HOOGlobalActions

@@ -107,44 +107,6 @@ public:
             DoCastAOE(SPELL_DEACTIVATE_BEACONS, true);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            // Already in shield phase? 2 shields are enough.
-            if (events.IsInPhase(PHASE_SHIELD) || _countShield == 2)
-                return;
-            
-            // About to die? One-hit cases...
-            if (int64(me->GetHealth()) - int64(damage) <= 0)
-                return;
-
-            // Shield phase happens at 66% and 33% health remaining.
-            if ((me->HealthBelowPctDamaged(66, damage) && _countShield == 0) ||
-                (me->HealthBelowPctDamaged(33, damage) && _countShield == 1))
-                EnterShieldPhase();
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
-            {
-                case ACTION_DISABLE_BEACON_L:
-                    _leftBeaconDisabled = true;
-                    break;
-                case ACTION_DISABLE_BEACON_R:
-                    _rightBeaconDisabled = true;
-                    break;
-                case ACTION_HYMN_EXPIRED:
-                    RemoveShieldOfLight();
-                    break;
-                default:
-                    break;
-            }
-
-            // Exit shield phase if both beacons are disabled or channeling Reverberating Hymn finished.
-            if (_leftBeaconDisabled && _rightBeaconDisabled)
-                RemoveShieldOfLight();
-        }
-
         void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -191,6 +153,44 @@ public:
                 events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
                 events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
             }
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            // Already in shield phase? 2 shields are enough.
+            if (events.IsInPhase(PHASE_SHIELD) || _countShield == 2)
+                return;
+            
+            // About to die? One-hit cases...
+            if (int64(me->GetHealth()) - int64(damage) <= 0)
+                return;
+
+            // Shield phase happens at 66% and 33% health remaining.
+            if ((me->HealthBelowPctDamaged(66, damage) && _countShield == 0) ||
+                (me->HealthBelowPctDamaged(33, damage) && _countShield == 1))
+                EnterShieldPhase();
+        }
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+                case ACTION_DISABLE_BEACON_L:
+                    _leftBeaconDisabled = true;
+                    break;
+                case ACTION_DISABLE_BEACON_R:
+                    _rightBeaconDisabled = true;
+                    break;
+                case ACTION_HYMN_EXPIRED:
+                    RemoveShieldOfLight();
+                    break;
+                default:
+                    break;
+            }
+
+            // Exit shield phase if both beacons are disabled or channeling Reverberating Hymn finished.
+            if (_leftBeaconDisabled && _rightBeaconDisabled)
+                RemoveShieldOfLight();
         }
 
         void UpdateAI(uint32 diff) override
