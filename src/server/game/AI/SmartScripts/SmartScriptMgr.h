@@ -573,8 +573,9 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_SPELL_VISUAL                  = 201,    // id, travelSpeed, target type variation.
     SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL           = 202,    // id, travelSpeed, target type variation.
     SMART_ACTION_CANCEL_VISUAL                      = 203,    // VisualType, VisualId.
+    SMART_ACTION_CIRCLE_PATH                        = 204,    // Radius, Clockwise, StepCount
     
-    SMART_ACTION_END                                = 204
+    SMART_ACTION_END                                = 205
 };
 
 struct SmartAction
@@ -1135,6 +1136,13 @@ struct SmartAction
             uint32 typeVisual;
             uint32 cancelVisualId;
         } cancelSpellVisual;
+        
+        struct
+        {
+            uint32 radius;
+            uint32 clockWise;
+			uint32 stepCount;
+        } moveCirclePath;
         
         //! Note for any new future actions
         //! All parameters must have type uint32
