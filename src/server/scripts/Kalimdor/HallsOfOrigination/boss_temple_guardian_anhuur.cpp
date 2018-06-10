@@ -34,7 +34,7 @@ enum Texts
     SAY_AGGRO                    = 0,
     SAY_SHIELD                   = 1,
     EMOTE_SHIELD                 = 2, 
-    EMOTE_UNSHIELD               = 3,
+    EMOTE_SHIELD_REMOVED         = 3,
     SAY_KILL                     = 4,
     SAY_DEATH                    = 5
 };
@@ -64,13 +64,7 @@ enum Spells
     SPELL_DEACTIVATE_BEACONS     = 76600,
 
     // Cave In Stalker (eyes)
-    SPELL_BURNING_LIGHT_SEAR     = 75194,
-
-    // Cave In Stalker (beacons)
-    SPELL_SHIELD_VISUAL_LEFT     = 83697,
-    SPELL_SHIELD_VISUAL_RIGHT    = 83698,
-    SPELL_BEAM_OF_LIGHT_LEFT     = 74930,
-    SPELL_BEAM_OF_LIGHT_RIGHT    = 76573
+    SPELL_BURNING_LIGHT_SEAR     = 75194
 };
 
 enum Phases
@@ -109,13 +103,8 @@ public:
         {
             Initialize();
             _Reset();
-            CleanStalkers();
             me->MakeInterruptable(false);
-            me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
             DoCastAOE(SPELL_DEACTIVATE_BEACONS, true);
-            me->SetReactState(REACT_AGGRESSIVE);
-            events.SetPhase(PHASE_FIGHT);
-            ScheduleEvents();
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -136,16 +125,24 @@ public:
 
         void DoAction(int32 action) override
         {
-            if (action == ACTION_DISABLE_BEACON_L)
-                _leftBeaconDisabled = true;
-            else if (action == ACTION_DISABLE_BEACON_R)
-                _rightBeaconDisabled = true;
-            else if (action == ACTION_HYMN_EXPIRED) // We manually deactivate beacons.
-                DoCastAOE(SPELL_DEACTIVATE_BEACONS, true);
+            switch (action)
+            {
+                case ACTION_DISABLE_BEACON_L:
+                    _leftBeaconDisabled = true;
+                    break;
+                case ACTION_DISABLE_BEACON_R:
+                    _rightBeaconDisabled = true;
+                    break;
+                case ACTION_HYMN_EXPIRED:
+                    RemoveShieldOfLight();
+                    break;
+                default:
+                    break;
+            }
 
             // Exit shield phase if both beacons are disabled or channeling Reverberating Hymn finished.
-            if ((_leftBeaconDisabled && _rightBeaconDisabled) || action == ACTION_HYMN_EXPIRED)
-                ExitShieldPhase();
+            if (_leftBeaconDisabled && _rightBeaconDisabled)
+                RemoveShieldOfLight();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -153,9 +150,12 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             Talk(SAY_AGGRO);
             _JustEngagedWith();
+            events.SetPhase(PHASE_FIGHT);
+            events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
+            events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
 
             instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 0);
-            sWorld->setWorldState(WS_I_HATE_THIS_SONG, 0); // To-do: make InstanceScript::DoUpdateWorldState do the World::setWorldState.
+            sWorld->setWorldState(WS_I_HATE_THIS_SONG, 0);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -175,6 +175,7 @@ public:
         {
             DoCastAOE(SPELL_DEACTIVATE_BEACONS, true);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            instance->SetData(DATA_HANDLE_BEAM_OF_LIGHT, NOT_STARTED);
             _EnterEvadeMode();
             _DespawnAtEvade();
         }
@@ -186,8 +187,9 @@ public:
             if (spell->Id == SPELL_REVERBERATING_HYMN)
             {
                 events.CancelEvent(EVENT_ACHIEVEMENT_FAILED);
-                DoAction(ACTION_HYMN_EXPIRED);
-                ScheduleEvents();
+                events.SetPhase(PHASE_FIGHT);
+                events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
+                events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
             }
         }
 
@@ -224,8 +226,8 @@ public:
                         break;
                     case EVENT_CAST_SHIELD:
                         me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-                        me->SetFacingTo(1.5708f); // Sniffs set it again
-                        DoCastSelf(SPELL_SHIELD_OF_LIGHT); // Note: stun!
+                        me->SetFacingTo(1.5708f); 
+                        DoCastSelf(SPELL_SHIELD_OF_LIGHT);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
                         events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, Seconds(2), 0, PHASE_SHIELD);
                         break;
@@ -233,16 +235,16 @@ public:
                         Talk(EMOTE_SHIELD);
                         DoCastAOE(SPELL_ACTIVATE_BEACONS, true);
                         DoCastSelf(SPELL_REVERBERATING_HYMN);
-                        HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, true);
+                        instance->SetData(DATA_HANDLE_SHIELD_VISUAL, IN_PROGRESS);
                         events.ScheduleEvent(EVENT_CAST_BEAMS, Seconds(1), 0, PHASE_SHIELD);
                         events.ScheduleEvent(EVENT_ACHIEVEMENT_FAILED, Seconds(15), 0, PHASE_SHIELD);
                         break;
                     case EVENT_CAST_BEAMS:
-                        HandleVisuals(SPELL_BEAM_OF_LIGHT_LEFT, SPELL_BEAM_OF_LIGHT_RIGHT, true);
+                        instance->SetData(DATA_HANDLE_BEAM_OF_LIGHT, IN_PROGRESS);
                         break;
-                    case EVENT_ACHIEVEMENT_FAILED: // Happens on normal too, heroic check is in dbc.
+                    case EVENT_ACHIEVEMENT_FAILED:
                         instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 1);
-                        sWorld->setWorldState(WS_I_HATE_THIS_SONG, 1); // To-do: make InstanceScript::DoUpdateWorldState do the World::setWorldState.
+                        sWorld->setWorldState(WS_I_HATE_THIS_SONG, 1);
                         break;
                     default:
                         break;
@@ -256,15 +258,6 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-    private:
-        void ScheduleEvents()
-        {
-            events.Reset();
-            events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
-            events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
-        }
-
-        // To-do: Ideal for a custom spell.
         void HandleSearingLight()
         {
             Unit* target = me->FindNearestCreature(NPC_SEARING_LIGHT, 100.0f);
@@ -294,7 +287,7 @@ public:
         void EnterShieldPhase()
         {
             events.SetPhase(PHASE_SHIELD);
-            ++_countShield;
+            _countShield++;
             _leftBeaconDisabled = false;
             _rightBeaconDisabled = false;
 
@@ -308,42 +301,14 @@ public:
             events.ScheduleEvent(EVENT_CAST_SHIELD, Seconds(1), 0, PHASE_SHIELD);
         }
 
-        void ExitShieldPhase()
+        void RemoveShieldOfLight()
         {
-            CleanStalkers();
+            instance->SetData(DATA_HANDLE_BEAM_OF_LIGHT, NOT_STARTED); // includes whole aura removal
             me->MakeInterruptable(true);
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
             me->SetReactState(REACT_AGGRESSIVE);
-            Talk(EMOTE_UNSHIELD);
-            events.SetPhase(PHASE_FIGHT);
-        }
-
-        void CleanStalkers()
-        {
-            HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, false);
-            HandleVisuals(SPELL_BEAM_OF_LIGHT_LEFT, SPELL_BEAM_OF_LIGHT_RIGHT, false);
-        }
-
-        void HandleVisuals(uint32 leftSpellId, uint32 rightSpellId, bool apply)
-        {
-            std::list<Creature*> stalkers;
-            GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
-            {
-                // Target only the bottom stalkers (Y: 65.392f and 64.9004f)
-                if ((*itr)->GetPositionZ() > 70.f)
-                    return;
-
-                // Left stalker X: -603.465f; right stalker X: -678.132f
-                uint32 spellId = ((*itr)->GetPositionX() > -640.0f) ? leftSpellId : rightSpellId;
-                if (apply)
-                    (*itr)->CastSpell((*itr), spellId, true);
-                else
-                {
-                    (*itr)->InterruptNonMeleeSpells(true, spellId);
-                    (*itr)->RemoveAurasDueToSpell(spellId);
-                }
-            }
+            DoCastAOE(SPELL_DEACTIVATE_BEACONS, true);
+            Talk(EMOTE_SHIELD_REMOVED);
         }
 
         uint8 _countShield;
@@ -394,7 +359,6 @@ public:
 
 // 74930 - Shield of Light (left)
 // 76573 - Shield of Light (right)
-
 class spell_anhuur_shield_of_light : public SpellScriptLoader
 {
     public:
@@ -406,16 +370,14 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                {
-                    if (GameObject* go = instance->GetGameObject(DATA_ANHUUR_DOOR))
-                    {
-                        targets.remove_if(Trinity::HeightDifferenceCheck(go, 5.0f, false));
-                        targets.remove(GetCaster());
-                        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                        targets.resize(2);
-                    }
-                }
+                if (targets.empty())
+                    return;
+
+                targets.remove(GetCaster());
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+
+                if (targets.size() > 2)
+                    targets.resize(2);
             }
 
             void Register() override

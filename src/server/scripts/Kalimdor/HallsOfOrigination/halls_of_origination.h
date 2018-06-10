@@ -43,6 +43,8 @@ enum HOOData
 
     // Temple Guardian Anhuur
     DATA_ANHUUR_DOOR,
+    DATA_HANDLE_SHIELD_VISUAL,
+    DATA_HANDLE_BEAM_OF_LIGHT,
 
     // Anraphet
     DATA_BRANN_0,
@@ -194,7 +196,13 @@ enum HOOMisc
     SPELL_TELEPORT_EARTH                = 82329, // South-West
     SPELL_TELEPORT_AIR                  = 82330, // South-East
     SPELL_TELEPORT_FIRE                 = 82331, // North-West
-    SPELL_TELEPORT_WATER                = 82332  // North-East
+    SPELL_TELEPORT_WATER                = 82332, // North-East
+
+    // Cave In Stalker (beacons)
+    SPELL_SHIELD_VISUAL_LEFT            = 83697,
+    SPELL_SHIELD_VISUAL_RIGHT           = 83698,
+    SPELL_BEAM_OF_LIGHT_LEFT            = 74930,
+    SPELL_BEAM_OF_LIGHT_RIGHT           = 76573
 };
 
 enum HOOGlobalActions

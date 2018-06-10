@@ -102,8 +102,8 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (go->GetEntry())
                 {
-                    case GO_HOO_TRANSIT_DEVICE: // 5 spawns
-                    case GO_HOO_TRANSIT_DEVICE_2: // 1 spawn: elevator
+                    case GO_HOO_TRANSIT_DEVICE:
+                    case GO_HOO_TRANSIT_DEVICE_2:
                         _transitDeviceGUIDs.insert(go->GetGUID());
                         UpdateTransitDevice(go);
                         break;
@@ -203,6 +203,9 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_ALPHA_BEAM:
                         if (Creature* anraphet = GetCreature(DATA_ANRAPHET))
                             anraphet->AI()->JustSummoned(creature);
+                    case NPC_CAVE_IN_STALKER:
+                        if (creature->GetPositionZ() <= 70.0f)
+                            _caveInStalkerGUIDs.insert(creature->GetGUID());
                     default:
                         break;
                 }
@@ -226,6 +229,40 @@ class instance_halls_of_origination : public InstanceMapScript
                         break;
                     case DATA_ISISET_VEIL_OF_SKY_ALIVE:
                         _isisetVeilOfSkyAlive = value;
+                        break;
+                    case DATA_HANDLE_SHIELD_VISUAL:
+                        for (ObjectGuid guid : _caveInStalkerGUIDs)
+                        {
+                            if (Creature* stalker = instance->GetCreature(guid))
+                            {
+                                if (value == IN_PROGRESS)
+                                {
+                                    if (stalker->GetPositionX() > -640.0f)
+                                        stalker->CastSpell(stalker, SPELL_SHIELD_VISUAL_LEFT, true);
+                                    else
+                                        stalker->CastSpell(stalker, SPELL_SHIELD_VISUAL_RIGHT, true);
+                                }
+                            }
+                        }
+                        break;
+                    case DATA_HANDLE_BEAM_OF_LIGHT:
+                        for (ObjectGuid guid : _caveInStalkerGUIDs)
+                        {
+                            if (Creature* stalker = instance->GetCreature(guid))
+                            {
+                                if (value == IN_PROGRESS)
+                                {
+                                    if (stalker->GetPositionX() > -640.0f)
+                                        stalker->CastSpell(stalker, SPELL_BEAM_OF_LIGHT_LEFT, true);
+                                    else
+                                        stalker->CastSpell(stalker, SPELL_BEAM_OF_LIGHT_RIGHT, true);
+                                }
+                                else
+                                    stalker->RemoveAllAuras();
+                            }
+                        }
+                        break;
+                    default:
                         break;
                 }
             }
