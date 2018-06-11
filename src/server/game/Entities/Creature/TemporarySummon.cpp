@@ -303,16 +303,22 @@ void Minion::RemoveFromWorld()
 void Minion::setDeathState(DeathState s)
 {
     Creature::setDeathState(s);
-    if (s == JUST_DIED && IsGuardianPet())
-        if (Unit* owner = GetOwner())
-            if (owner->GetTypeId() == TYPEID_PLAYER && owner->GetMinionGUID() == GetGUID())
-                for (Unit* controlled : owner->m_Controlled)
-                    if (controlled->GetEntry() == GetEntry() && controlled->IsAlive())
-                    {
-                        owner->SetMinionGUID(controlled->GetGUID());
-                        owner->SetPetGUID(controlled->GetGUID());
-                        owner->ToPlayer()->CharmSpellInitialize();
-                    }
+    if (s != JUST_DIED || !IsGuardianPet())
+        return;
+
+    Unit* owner = GetOwner();
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER || owner->GetMinionGUID() != GetGUID())
+        return;
+                
+    for (Unit* controlled : owner->m_Controlled)
+    {
+        if (controlled->GetEntry() == GetEntry() && controlled->IsAlive())
+        {
+            owner->SetMinionGUID(controlled->GetGUID());
+            owner->SetPetGUID(controlled->GetGUID());
+            owner->ToPlayer()->CharmSpellInitialize();
+        }
+    }
 }
 
 bool Minion::IsGuardianPet() const
