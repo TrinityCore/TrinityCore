@@ -317,6 +317,7 @@ void Minion::setDeathState(DeathState s)
             owner->SetMinionGUID(controlled->GetGUID());
             owner->SetPetGUID(controlled->GetGUID());
             owner->ToPlayer()->CharmSpellInitialize();
+            break;
         }
     }
 }
