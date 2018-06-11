@@ -114,14 +114,12 @@ public:
                 return true;
 
             // Handle elevator: gossip item index => stopFrame (floor index).
-            uint32 stopFrame = action;
-            printf("we have stop frame %u \n", action);
             GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
             if (!elevator)
                 return true;
 
-            elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, stopFrame);
-            elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, stopFrame);
+            elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, action);
+            elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, action);
 
             return true;
         }
