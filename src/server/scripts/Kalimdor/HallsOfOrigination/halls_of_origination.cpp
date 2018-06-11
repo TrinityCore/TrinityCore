@@ -91,7 +91,7 @@ public:
             AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_FIRST_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 0);
 
             // Second floor: Anraphet must be defeated first.
-            if (instance->GetBossState(DATA_ANRAPHET) == DONE)
+            if (instance->GetBossState(DATA_ANRAPHET) == DONE || instance->GetBossState(DATA_EARTHRAGER_PTAH) == DONE)
                 AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_SECOND_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             // Third floor: Constructs of The Four Seats must be defeated first.
@@ -114,13 +114,15 @@ public:
                 return true;
 
             // Handle elevator: gossip item index => stopFrame (floor index).
-            uint32 stopFrame = action - GOSSIP_ACTION_INFO_DEF;
+            uint32 stopFrame = action;
+            printf("we have stop frame %u \n", action);
             GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
             if (!elevator)
                 return true;
 
-            elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+            elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, stopFrame);
             elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, stopFrame);
+
             return true;
         }
     };
