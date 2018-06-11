@@ -297,6 +297,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
                 m_goValue.Transport.PathProgress -= m_goValue.Transport.PathProgress % GetTransportPeriod();    // align to period
             m_goValue.Transport.CurrentSeg = 0;
             m_goValue.Transport.StateUpdateTimer = 0;
+            m_goValue.Transport.CurrentStopFrameIndex = 0;
             m_goValue.Transport.StopFrames = new std::vector<uint32>();
 
             m_goValue.Transport.StopFrames->push_back(0); // assign default stop frame
@@ -2240,9 +2241,15 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
         ASSERT(state < GOState(GO_STATE_TRANSPORT_STOPPED + MAX_GO_STATE_TRANSPORT_STOP_FRAMES));
         ASSERT(stopFrame < m_goValue.Transport.StopFrames->size());
 
-        // If we return to stop frame 0 we are going to use the passed transport travel time to get back
-        uint32 stopFrameTime = stopFrame ? m_goValue.Transport.StopFrames->at(stopFrame) : m_goValue.Transport.PathProgress;
+        uint32 stopFrameTime = m_goValue.Transport.StopFrames->at(stopFrame);
+
+        // If we return to StopFrame 0 we are going to use the sum of passed transport frames to get a valid travel time to avoid "teleports"
+        if (!stopFrame)
+            for (uint8 i = 0; i <= m_goValue.Transport.CurrentStopFrameIndex; i++)
+                stopFrameTime += m_goValue.Transport.StopFrames->at(i);
+
         m_goValue.Transport.PathProgress = getMSTime() + stopFrameTime;
+        m_goValue.Transport.CurrentStopFrameIndex = stopFrame;
         SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame));
     }
 
