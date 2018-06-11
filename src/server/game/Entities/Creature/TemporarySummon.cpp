@@ -300,6 +300,21 @@ void Minion::RemoveFromWorld()
     TempSummon::RemoveFromWorld();
 }
 
+void Minion::setDeathState(DeathState s)
+{
+    Creature::setDeathState(s);
+    if (s == JUST_DIED && IsGuardianPet())
+        if (Unit* owner = GetOwner())
+            if (owner->GetTypeId() == TYPEID_PLAYER && owner->GetMinionGUID() == GetGUID())
+                for (Unit* controlled : owner->m_Controlled)
+                    if (controlled->GetEntry() == GetEntry() && controlled->IsAlive())
+                    {
+                        owner->SetMinionGUID(controlled->GetGUID());
+                        owner->SetPetGUID(controlled->GetGUID());
+                        owner->ToPlayer()->CharmSpellInitialize();
+                    }
+}
+
 bool Minion::IsGuardianPet() const
 {
     return IsPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);

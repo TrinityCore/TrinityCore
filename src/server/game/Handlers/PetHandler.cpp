@@ -735,17 +735,6 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    // do not add not learned spells/ passive spells
-    if (!pet->HasSpell(spellid) || !spellInfo->IsAutocastable())
-        return;
-
-    CharmInfo* charmInfo = pet->GetCharmInfo();
-    if (!charmInfo)
-    {
-        TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
-        return;
-    }
-
     std::vector<Unit*> pets;
     for (Unit* controlled : _player->m_Controlled)
         if (controlled->GetEntry() == pet->GetEntry() && controlled->IsAlive())
@@ -753,6 +742,17 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
     for (Unit* pet : pets)
     {
+        // do not add not learned spells/ passive spells
+        if (!pet->HasSpell(spellid) || !spellInfo->IsAutocastable())
+            return;
+
+        CharmInfo* charmInfo = pet->GetCharmInfo();
+        if (!charmInfo)
+        {
+            TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
+            return;
+        }
+
         if (pet->IsPet())
             ((Pet*)pet)->ToggleAutocast(spellInfo, state != 0);
         else
