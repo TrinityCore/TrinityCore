@@ -37,10 +37,10 @@ UPDATE `gameobject` SET `spawnMask`= 2 WHERE `guid` IN (200969, 200968);
 
 -- Creature Pit Viper 39444 SAI
 SET @ENTRY := 39444;
-UPDATE `creature_template` SET `AIName`="SmartAI", `DamageModifier`= 5, `difficulty_entry_1`= 48891 WHERE `entry`= @ENTRY;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 6, 0, 100, 0, 0, 0, 0, 0, 41, 6000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On death - Self: Despawn in 6000 ms // "),
+(@ENTRY, 0, 0, 0, 6, 0, 100, 0, 0, 0, 0, 0, 116, 6000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On death - Sets corpse delay of Self to 6000ms // "),
 (@ENTRY, 0, 1, 0, 0, 0, 100, 0, 5000, 5000, 6000, 7000, 11, 74538, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 5000 and 5000 ms (and later repeats every 6000 and 7000 ms) - Self: Cast spell 74538 on Victim // ");
 
 UPDATE `creature_template` SET `DamageModifier`= 5, `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 16 WHERE `entry`= 48891;
