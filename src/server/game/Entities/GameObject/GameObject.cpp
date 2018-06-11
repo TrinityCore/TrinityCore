@@ -298,6 +298,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
             m_goValue.Transport.CurrentSeg = 0;
             m_goValue.Transport.StateUpdateTimer = 0;
             m_goValue.Transport.StopFrames = new std::vector<uint32>();
+
+            m_goValue.Transport.StopFrames->push_back(0); // assign default stop frame
             if (goinfo->transport.stopFrame1 > 0)
                 m_goValue.Transport.StopFrames->push_back(goinfo->transport.stopFrame1);
             if (goinfo->transport.stopFrame2 > 0)
@@ -2237,9 +2239,15 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
     {
         ASSERT(state < GOState(GO_STATE_TRANSPORT_STOPPED + MAX_GO_STATE_TRANSPORT_STOP_FRAMES));
         ASSERT(stopFrame < m_goValue.Transport.StopFrames->size());
-        m_goValue.Transport.PathProgress = getMSTime() + m_goValue.Transport.StopFrames->at(stopFrame);
+
+        // If we return to stop frame 0 we are going to use the passed transport travel time to get back
+        uint32 stopFrameTime = stopFrame ? m_goValue.Transport.StopFrames->at(stopFrame) : m_goValue.Transport.PathProgress;
+        m_goValue.Transport.PathProgress = getMSTime() + stopFrameTime;
         SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame));
     }
+
+    ForceValuesUpdateAtIndex(GAMEOBJECT_LEVEL);
+    ForceValuesUpdateAtIndex(GAMEOBJECT_BYTES_1);
 }
 
 void GameObject::SetDisplayId(uint32 displayid)
