@@ -1046,10 +1046,15 @@ enum Language : uint32
     LANG_PANDAREN_ALLIANCE = 43,
     LANG_PANDAREN_HORDE    = 44,
     LANG_RIKKITUN          = 168,
+    LANG_SHATHYAR          = 178,
+    LANG_NERGLISH          = 179,
+    LANG_MOONKIN           = 180,
+    LANG_SHALASSIAN        = 181,
+    LANG_THALASSIAN_2      = 182,
     LANG_ADDON             = 0xFFFFFFFF // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
-#define LANGUAGES_COUNT   25
+#define LANGUAGES_COUNT   30
 
 enum FactionSelection
 {
