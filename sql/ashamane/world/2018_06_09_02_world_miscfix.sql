@@ -279,7 +279,7 @@ UPDATE `creature_template` SET `KillCredit1` = 40461, `KillCredit2` = 40462 WHER
 
 DELETE FROM `creature` WHERE `id`=41003;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116758, 41003, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4435.19, -2081.94, 1205.95, 5.85987, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+23, 41003, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4435.19, -2081.94, 1205.95, 5.85987, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0),
 (285696, 41003, 1, 616, 4990, 1, 0, 0, 0, -1, 32251, 0, 4895.39, -2803.11, 1437.76, 2.61799, 300, 0, 0, 44679, 8338, 0, 0, 0, 0, 0, 0, '', 0);
 
 DELETE FROM `quest_objectives` WHERE `ID` = '254075'; 
@@ -425,7 +425,7 @@ UPDATE `creature_template` SET `gossip_menu_id` = 11524 WHERE `entry` = 41499;
 
 DELETE FROM `creature` WHERE `id`=39858;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116752, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+24, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
 (284439, 39858, 1, 616, 5019, 1, 0, 0, 0, -1, 31605, 0, 4422.33, -2080.43, 1211.12, 5.65487, 300, 0, 0, 115954, 9470, 0, 0, 0, 0, 0, 0, '', 0);
 UPDATE `creature_template` SET `unit_flags` = 33280 WHERE `entry` = 41504;
 
