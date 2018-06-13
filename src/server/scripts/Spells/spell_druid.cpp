@@ -93,6 +93,11 @@ enum DruidSpells
     SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845
 };
 
+enum MiscSpells
+{
+    SPELL_CATEGORY_MANGLE_BEAR              = 971
+};
+
 // 22812 - Barkskin
 class spell_dru_barkskin : public SpellScriptLoader
 {
@@ -175,6 +180,27 @@ class spell_dru_bear_form_passive : public SpellScriptLoader
         {
             return new spell_dru_bear_form_passive_AuraScript();
         }
+};
+
+// 50334 - Berserk
+class spell_dru_berserk : public AuraScript
+{
+    PrepareAuraScript(spell_dru_berserk);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // Remove cooldown on Mangle (bear)
+        GetTarget()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+            return spellInfo && spellInfo->GetCategory() == SPELL_CATEGORY_MANGLE_BEAR;
+        }, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_berserk::HandleEffectApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // -1850 - Dash
@@ -496,7 +522,7 @@ class spell_dru_frenzied_regeneration : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         // Converts up to 10 rage per second into health for $d.  Each point of rage is converted into ${$m2/10}.1% of max health.
-        if (GetTarget()->getPowerType() != POWER_RAGE)
+        if (GetTarget()->GetPowerType() != POWER_RAGE)
             return;
 
         uint32 rage = GetTarget()->GetPower(POWER_RAGE);
@@ -505,7 +531,7 @@ class spell_dru_frenzied_regeneration : public AuraScript
             return;
 
         int32 const mod = std::min(static_cast<int32>(rage), 100);
-        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(nullptr, GetSpellInfo(), EFFECT_1) * mod / 100.f);
+        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(GetSpellInfo(), EFFECT_1) * mod / 100.f);
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(regen);
         GetTarget()->CastSpell(nullptr, SPELL_DRUID_FRENZIED_REGENERATION_HEAL, args);
@@ -1357,7 +1383,7 @@ class spell_dru_revitalize : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 uint32 spellId;
 
-                switch (target->getPowerType())
+                switch (target->GetPowerType())
                 {
                     case POWER_MANA:
                         spellId = SPELL_DRUID_REVITALIZE_ENERGIZE_MANA;
@@ -1803,7 +1829,7 @@ class spell_dru_t3_2p_bonus : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 uint32 spellId;
 
-                switch (target->getPowerType())
+                switch (target->GetPowerType())
                 {
                     case POWER_MANA:
                         spellId = SPELL_DRUID_T3_PROC_ENERGIZE_MANA;
@@ -2111,8 +2137,6 @@ class spell_dru_t10_balance_4p_bonus : public SpellScriptLoader
 
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
-                // Add remaining ticks to damage done
-                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);
@@ -2357,6 +2381,7 @@ void AddSC_druid_spell_scripts()
 {
     new spell_dru_barkskin();
     new spell_dru_bear_form_passive();
+    RegisterAuraScript(spell_dru_berserk);
     new spell_dru_dash();
     new spell_dru_eclipse();
     new spell_dru_enrage();

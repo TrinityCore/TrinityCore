@@ -715,7 +715,7 @@ class spell_sha_flametongue_weapon : public SpellScriptLoader
                 if (!item || !item->IsEquipped())
                     return false;
 
-                WeaponAttackType attType = static_cast<WeaponAttackType>(player->GetAttackBySlot(item->GetSlot()));
+                WeaponAttackType attType = Player::GetAttackBySlot(item->GetSlot());
                 if (attType != BASE_ATTACK && attType != OFF_ATTACK)
                     return false;
 
@@ -738,26 +738,32 @@ class spell_sha_flametongue_weapon : public SpellScriptLoader
 
                 Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
 
-                float const basePoints = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue();
+                float basePoints = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue();
 
                 // Flametongue max damage is normalized based on a 4.0 speed weapon
                 // Tooltip says max damage = BasePoints / 25, so BasePoints / 25 / 4 to get base damage per 1.0s AS
+                float attackSpeed = player->GetAttackTime(attType) / 1000.f;
                 float fireDamage = basePoints / 100.0f;
-                float const attackSpeed = player->GetAttackTime(attType) / 1000.f;
                 fireDamage *= attackSpeed;
 
                 // clip value between (BasePoints / 77) and (BasePoints / 25) as the tooltip indicates
                 RoundToInterval(fireDamage, basePoints / 77.0f, basePoints / 25.0f);
 
                 // Calculate Spell Power scaling
-                float spellPowerBonus = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) + target->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE);
+                float spellPowerBonus = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
+                spellPowerBonus += target->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, SPELL_SCHOOL_MASK_FIRE);
+
+                // calculate penalty from passive aura as is the one with level
+                float const factorMod = player->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+
                 float const spCoeff = 0.03811f;
-                spellPowerBonus *= spCoeff * attackSpeed;
+                spellPowerBonus *= spCoeff * attackSpeed * factorMod;
 
                 // All done, now proc damage
                 CastSpellExtraArgs args(aurEff);
-                args.CastItem = item;
-                args.AddSpellBP0(fireDamage + spellPowerBonus);
+                args
+                    .SetCastItem(item)
+                    .AddSpellBP0(fireDamage + spellPowerBonus);
                 player->CastSpell(target, SPELL_SHAMAN_FLAMETONGUE_ATTACK, args);
             }
 
@@ -984,19 +990,22 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     Unit* caster = GetCaster();
-                    if (caster->GetTypeId() == TYPEID_UNIT && caster->IsTotem())
-                        if (Unit* owner = caster->GetOwner())
-                            caster = owner;
+                    ObjectGuid originalCasterGuid = caster->GetGUID();
 
-                    // Restorative Totems
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
-                        AddPct(damage, aurEff->GetAmount());
+                    if (Player* player = caster->GetAffectingPlayer())
+                    {
+                        originalCasterGuid = player->GetGUID();
 
-                    // Glyph of Healing Stream Totem
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
-                        AddPct(damage, aurEff->GetAmount());
+                        // Restorative Totems
+                        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
+                            AddPct(damage, aurEff->GetAmount());
 
-                    CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
+                        // Glyph of Healing Stream Totem
+                        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
+                            AddPct(damage, aurEff->GetAmount());
+                    }
+
+                    CastSpellExtraArgs args(originalCasterGuid);
                     args.AddSpellBP0(damage);
                     caster->CastSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, args);
                 }
@@ -1532,7 +1541,7 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                     if (Unit* caster = GetCaster())
-                        if (target->getPowerType() == POWER_MANA)
+                        if (target->GetPowerType() == POWER_MANA)
                         {
                             CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
                             args.AddSpellBP0(GetEffectValue());
@@ -1599,7 +1608,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
                 {
                     if (Unit* unitTarget = GetHitUnit())
                     {
-                        if (unitTarget->getPowerType() == POWER_MANA)
+                        if (unitTarget->GetPowerType() == POWER_MANA)
                         {
                             int32 effValue = GetEffectValue();
                             // Glyph of Mana Tide
@@ -2070,10 +2079,8 @@ class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to damage done
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_SHAMAN_ELECTRIFIED, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);
@@ -2121,10 +2128,8 @@ class spell_sha_t9_elemental_4p_bonus : public SpellScriptLoader
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to damage done
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);
@@ -2217,10 +2222,8 @@ class spell_sha_t10_restoration_4p_bonus : public SpellScriptLoader
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to healing done
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_SHAMAN_CHAINED_HEAL, SPELL_AURA_PERIODIC_HEAL);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);

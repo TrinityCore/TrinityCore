@@ -277,7 +277,7 @@ public:
             {
                 case 0:
                     //me->AttackStop();
-                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->Clear();
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->StopMoving();
                     Talk(YELL_TAKEOFF);
@@ -361,7 +361,7 @@ public:
                     break;
                 }
                 case 6:
-                    me->SetFacingTo(me->GetAngle(breathX, breathY));
+                    me->SetFacingTo(me->GetAbsoluteAngle(breathX, breathY));
                     //DoTextEmote("takes a deep breath.", nullptr);
                     events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
                     break;

@@ -49,11 +49,13 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
             return;
     }
 
-    if (channelName.empty())
+    if (channelName.empty() || isdigit(channelName[0]))
+    {
+        WorldPacket data(SMSG_CHANNEL_NOTIFY, 1 + channelName.size());
+        data << uint8(CHAT_INVALID_NAME_NOTICE) << channelName;
+        SendPacket(&data);
         return;
-
-    if (isdigit(channelName[0]))
-        return;
+    }
 
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetJoinChannel(channelId, channelName, zone))

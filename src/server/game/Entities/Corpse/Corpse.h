@@ -64,7 +64,8 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans);
 
-        ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
+        ObjectGuid GetOwnerGUID() const override { return GetGuidValue(CORPSE_FIELD_OWNER); }
+        uint32 GetFaction() const override;
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime();

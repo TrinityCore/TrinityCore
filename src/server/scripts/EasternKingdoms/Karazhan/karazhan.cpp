@@ -354,6 +354,7 @@ public:
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
                     CloseGossipMenuFor(player);
+                    m_uiEventId = urand(EVENT_OZ, EVENT_RAJ);
                     StartEvent();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
@@ -559,6 +560,7 @@ public:
                 {
                     arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
                     arca->setActive(true);
+                    arca->SetFarVisible(true);
                     arca->InterruptNonMeleeSpells(true);
                     arca->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                 }

@@ -832,7 +832,7 @@ struct HolidaysEntry
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
     char* TextureFilename;                                  // 51       m_textureFilename
     uint32 Priority;                                        // 52       m_priority
-    uint32 CalendarFilterType;                              // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
+    int32 CalendarFilterType;                               // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
@@ -1404,7 +1404,7 @@ struct SpellEntry
     uint32    SpellVisual[2];                               // 131-132  m_spellVisualID
     uint32    SpellIconID;                                  // 133      m_spellIconID
     uint32    activeIconID;                                 // 134      m_activeIconID
-    //uint32    spellPriority;                              // 135 not used
+    uint32    SpellPriority;                                // 135      m_spellPriority
     char*     SpellName[16];                                // 136-151  m_name_lang
     //uint32    SpellNameFlag;                              // 152 not used
     char*     Rank[16];                                     // 153-168  m_nameSubtext_lang

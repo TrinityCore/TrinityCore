@@ -44,16 +44,8 @@
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return false;
-    if (a->IsControlledByPlayer() || b->IsControlledByPlayer())
-    { // PvSomething, only block friendly fire
-        if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
-            return false;
-    }
-    else
-    { // CvC, need hostile reaction to start a fight
-        if (!a->IsHostileTo(b) && !b->IsHostileTo(a))
-            return false;
-    }
+    if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
+        return false;
     Player const* playerA = a->GetCharmerOrOwnerPlayerOrPlayerItself();
     Player const* playerB = b->GetCharmerOrOwnerPlayerOrPlayerItself();
     // ...neither of the two units must be (owned by) a player with .gm on
@@ -223,8 +215,8 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
         if (!IsInCombatWith(ref.first))
         {
             Unit* target = ref.second->GetOther(who);
-            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)) ||
-                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)))
+            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) ||
+                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)))
                 continue;
             SetInCombatWith(target);
         }
@@ -234,8 +226,8 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
         if (!IsInCombatWith(ref.first))
         {
             Unit* target = ref.second->GetOther(who);
-            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)) ||
-                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)))
+            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) ||
+                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)))
                 continue;
             SetInCombatWith(target);
         }

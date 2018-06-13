@@ -548,6 +548,13 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                 return;
             }
 
+            // Check name uniqueness in the same step as saving to database
+            if (sCharacterCache->GetCharacterCacheByName(createInfo->Name))
+            {
+                SendCharCreate(CHAR_CREATE_NAME_IN_USE);
+                return;
+            }
+
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
             if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo.get()))
@@ -1560,7 +1567,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
             if (msg == EQUIP_ERR_OK)
             {
-                if (_player->CanEquipItem(NULL_SLOT, dstpos, uItem, false) != EQUIP_ERR_OK)
+                if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
                     continue;
 
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
@@ -1575,7 +1582,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (item->GetPos() == dstpos)
             continue;
 
-        if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
+        if (_player->CanEquipItem(i, dstpos, item, true) != EQUIP_ERR_OK)
             continue;
 
         _player->SwapItem(item->GetPos(), dstpos);

@@ -161,7 +161,8 @@ bool Group::Create(Player* leader)
 
         Group::ConvertLeaderInstancesToGroup(leader, this, false);
 
-        ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
+        bool addMemberResult = AddMember(leader);
+        ASSERT(addMemberResult); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
     }
     else if (!AddMember(leader))
         return false;
@@ -1929,10 +1930,10 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
         // don't let join if someone from the group is in bg queue random
-        if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
+        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
-        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue())
+        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue(true))
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
         if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground(bgOrTemplate))

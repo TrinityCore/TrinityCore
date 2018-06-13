@@ -91,9 +91,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
-        bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const override { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
-        bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
+        CreatureMovementData const& GetMovementTemplate() const;
+        bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
+        bool CanSwim() const override { return GetMovementTemplate().IsSwimAllowed() || IsPet(); }
+        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed(); }
+        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover; }
+
         bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
         bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
 
@@ -119,8 +122,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         void LoadTemplateImmunities();
-        bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const override;
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
+        bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
         bool isElite() const;
         bool isWorldBoss() const;
 
@@ -130,6 +133,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Destroy();
+        bool AIM_Create(CreatureAI* ai = nullptr);
+        void AI_InitializeAndEnable();
         bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
@@ -236,7 +241,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction = true) const;
         bool _IsTargetAcceptable(Unit const* target) const;
 
-        MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
+        MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
         void RemoveCorpse(bool setSpawnTime = true, bool destroyForNearbyPlayers = true);

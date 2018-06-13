@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef TRINITY_SPELLDEFINES_H
 #define TRINITY_SPELLDEFINES_H
 
@@ -118,7 +119,8 @@ enum SpellValueMod : uint8
     SPELLVALUE_BASE_POINT2,
     SPELLVALUE_RADIUS_MOD,
     SPELLVALUE_MAX_TARGETS,
-    SPELLVALUE_AURA_STACK
+    SPELLVALUE_AURA_STACK,
+    SPELLVALUE_CRIT_CHANCE
 };
 
 enum SpellFacingFlags
@@ -180,7 +182,7 @@ struct TC_GAME_API CastSpellExtraArgs
     struct
     {
         friend struct CastSpellExtraArgs;
-        friend class Unit;
+        friend class WorldObject;
 
         private:
             void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }

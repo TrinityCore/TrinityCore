@@ -139,7 +139,6 @@ class boss_magtheridon : public CreatureScript
 
             void CombatStart()
             {
-                events.SetPhase(PHASE_2);
                 events.CancelEvent(EVENT_START_FIGHT);
                 events.CancelEvent(EVENT_NEARLY_EMOTE);
                 events.ScheduleEvent(EVENT_RELEASED, Seconds(6));
@@ -220,10 +219,13 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!events.IsInPhase(PHASE_BANISH) && !events.IsInPhase(PHASE_1) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -251,6 +253,7 @@ class boss_magtheridon : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
                             DoZoneInCombat();
+                            events.SetPhase(PHASE_2);
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
                             events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
@@ -293,9 +296,6 @@ class boss_magtheridon : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                if (!UpdateVictim())
-                    return;
 
                 DoMeleeAttackIfReady();
             }
@@ -347,6 +347,10 @@ class npc_hellfire_channeler : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 DoCastAOE(SPELL_SOUL_TRANSFER);
+
+                // Channelers killed by "Hit Kill" need trigger combat event too. It's needed for Cata+
+                if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
+                    magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
             }
 
             void JustSummoned(Creature* summon) override

@@ -368,7 +368,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                             if (!sphereTarget)
                                 return;
 
-                            float angle = me->GetAngle(sphereTarget) + angleOffset;
+                            float angle = me->GetAbsoluteAngle(sphereTarget) + angleOffset;
                             float x = me->GetPositionX() + distOffset * std::cos(angle);
                             float y = me->GetPositionY() + distOffset * std::sin(angle);
 

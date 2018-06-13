@@ -86,9 +86,7 @@ void WorldSession::HandleMoveWorldportAck()
         return;
     }
 
-    float z = loc.GetPositionZ();
-    if (GetPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += GetPlayer()->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+    float z = loc.GetPositionZ() + GetPlayer()->GetHoverOffset();
     GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
     GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
 
@@ -129,29 +127,29 @@ void WorldSession::HandleMoveWorldportAck()
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
     // flight fast teleport case
-    if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+    if (GetPlayer()->IsInFlight())
     {
         if (!_player->InBattleground())
         {
             // short preparations to continue flight
-            MovementGenerator* movementGenerator = GetPlayer()->GetMotionMaster()->top();
+            MovementGenerator* movementGenerator = GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator();
             movementGenerator->Initialize(GetPlayer());
             return;
         }
 
         // battleground state prepare, stop flight
-        GetPlayer()->GetMotionMaster()->MovementExpired();
-        GetPlayer()->CleanupAfterTaxiFlight();
+        GetPlayer()->FinishTaxiFlight();
     }
 
     // resurrect character at enter into instance where his corpse exist after add to map
-
     if (mEntry->IsDungeon() && !GetPlayer()->IsAlive())
+    {
         if (GetPlayer()->GetCorpseLocation().GetMapId() == mEntry->MapID)
         {
             GetPlayer()->ResurrectPlayer(0.5f, false);
             GetPlayer()->SpawnCorpseBones();
         }
+    }
 
     bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)

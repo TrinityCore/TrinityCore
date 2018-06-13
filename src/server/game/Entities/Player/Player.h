@@ -46,6 +46,7 @@ struct ItemSetEffect;
 struct ItemTemplate;
 struct Loot;
 struct Mail;
+struct ScalingStatDistributionEntry;
 struct ScalingStatValuesEntry;
 struct TrainerSpell;
 struct VendorItem;
@@ -908,7 +909,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
 
         void SetInWater(bool apply);
 
@@ -944,10 +945,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
+        void FinishTaxiFlight();
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight() const;
         void SendTaxiNodeStatusMultiple();
-                                                            // mount_id can be used in scripting calls
+
         bool isAcceptWhispers() const { return (m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS) != 0; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
         bool IsGameMaster() const { return (m_ExtraFlags & PLAYER_EXTRA_GM_ON) != 0; }
@@ -1454,7 +1456,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         template <class T>
         void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
-        static bool HasSpellModApplied(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
@@ -1462,7 +1463,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = nullptr);
 
-        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura);
+        void SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura);
 
         void ClearResurrectRequestData()
         {
@@ -1827,8 +1828,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
+        ScalingStatDistributionEntry const* GetScalingStatDistributionFor(ItemTemplate const& itemTemplate) const;
+        ScalingStatValuesEntry const* GetScalingStatValuesFor(ItemTemplate const& itemTemplate) const;
         void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
-        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply);
+        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply);
         void _ApplyAmmoBonuses();
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
@@ -1873,7 +1876,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
 
-        bool InBattlegroundQueue() const;
+        bool InBattlegroundQueue(bool ignoreArena = false) const;
 
         BattlegroundQueueTypeId GetBattlegroundQueueTypeId(uint32 index) const;
         uint32 GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const;
@@ -2104,7 +2107,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
         void ResetAchievementCriteria(AchievementCriteriaCondition condition, uint32 value, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, WorldObject* ref = nullptr);
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);

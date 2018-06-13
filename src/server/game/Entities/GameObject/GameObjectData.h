@@ -445,6 +445,19 @@ struct GameObjectTemplate
         }
     }
 
+    bool IsIgnoringLOSChecks() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_BUTTON: return button.losOK == 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.losOK == 0;
+            case GAMEOBJECT_TYPE_CHEST: return chest.losOK == 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.losOK == 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND: return flagstand.losOK == 0;
+            default: return false;
+        }
+    }
+
     uint32 GetLockId() const
     {
         switch (type)
@@ -562,14 +575,18 @@ struct GameObjectTemplate
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
-// From `gameobject_template_addon`
-struct GameObjectTemplateAddon
+// From `gameobject_template_addon`, `gameobject_overrides`
+struct GameObjectOverride
 {
-    uint32  entry;
-    uint32  faction;
-    uint32  flags;
-    uint32  mingold;
-    uint32  maxgold;
+    uint32 Faction;
+    uint32 Flags;
+};
+
+// From `gameobject_template_addon`
+struct GameObjectTemplateAddon : public GameObjectOverride
+{
+    uint32 Mingold;
+    uint32 Maxgold;
 };
 
 struct GameObjectLocale

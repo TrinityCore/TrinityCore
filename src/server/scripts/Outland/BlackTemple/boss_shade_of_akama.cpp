@@ -288,7 +288,7 @@ struct boss_shade_of_akama : public BossAI
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
         for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             if (Player* player = i->GetSource())
-                if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))
+                if (player->IsAlive() && !player->IsGameMaster() && IsInBoundary(player))
                     return;
 
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
@@ -724,7 +724,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
         {
             _inBanish = true;
             me->StopMoving();
-            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(1, me->GetPositionX() + frand(-8.0f, 8.0f), me->GetPositionY() + frand(-8.0f, 8.0f), me->GetPositionZ());
 
             _scheduler.Schedule(Seconds(1) + Milliseconds(500), [this](TaskContext sorcer_channel)

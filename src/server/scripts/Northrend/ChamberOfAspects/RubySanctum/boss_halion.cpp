@@ -319,10 +319,13 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO))
                     return;
 
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -764,7 +767,7 @@ class npc_halion_controller : public CreatureScript
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                     if (Player* player = i->GetSource())
-                        if (player->IsAlive() && CheckBoundary(player) && !player->IsGameMaster())
+                        if (player->IsAlive() && IsInBoundary(player) && !player->IsGameMaster())
                             return;
 
                 EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
@@ -921,13 +924,6 @@ class npc_orb_carrier : public CreatureScript
                     me->CastSpell(nullptr, SPELL_TRACK_ROTATION, false);
 
                 scheduler.Update(diff);
-
-                /// Workaround: This is here because even though the above spell has SPELL_ATTR1_CHANNEL_TRACK_TARGET,
-                /// we are having two creatures involded here. This attribute is handled clientside, meaning the client
-                /// sends orientation update itself. Here, no packet is sent, and the creature does not rotate. By
-                /// forcing the carrier to always be facing the rotation focus, we ensure everything works as it should.
-                if (Creature* rotationFocus = _instance->GetCreature(DATA_ORB_ROTATION_FOCUS))
-                    me->SetFacingToObject(rotationFocus); // setInFront
             }
 
             void DoAction(int32 action) override
@@ -1033,7 +1029,7 @@ class npc_meteor_strike_initial : public CreatureScript
                     Position const* ownerPos = halionAI->GetMeteorStrikePosition();
                     float randomAdjustment = frand(static_cast<float>(M_PI / 5.0f), static_cast<float>(M_PI / 2.0f));
                     float angle[4];
-                    angle[0] = me->GetAngle(ownerPos);
+                    angle[0] = me->GetAbsoluteAngle(ownerPos);
                     angle[1] = angle[0] + randomAdjustment;
                     angle[2] = angle[0] + static_cast<float>(M_PI);
                     angle[3] = angle[2] + randomAdjustment;
@@ -1082,6 +1078,7 @@ class npc_meteor_strike : public CreatureScript
                 {
                     DoCastSelf(SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(500));
                 }
             }

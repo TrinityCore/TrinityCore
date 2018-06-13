@@ -370,9 +370,10 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            Player* player = killer->ToPlayer();
-            if (!player)
+            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
                 return;
+
+            Player* player = killer->ToPlayer();
 
             if (player->GetQuestStatus(QUEST_TAKEN_BY_THE_SCOURGE) == QUEST_STATUS_INCOMPLETE)
             {
@@ -720,7 +721,7 @@ public:
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
             owner->GetThreatManager().ClearAllThreat();
-            owner->GetMotionMaster()->Clear(false);
+            owner->GetMotionMaster()->Clear();
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
@@ -1237,26 +1238,29 @@ public:
                 {
                     DoCastVictim(SPELL_SHADOW_BOLT);
                     shadowBoltTimer = urand(5000, 12000);
-                } else shadowBoltTimer -= diff;
+                }
+                else shadowBoltTimer -= diff;
 
                 if (deflectionTimer <= diff)
                 {
                     DoCastVictim(SPELL_DEFLECTION);
                     deflectionTimer = urand(20000, 25000);
-                } else deflectionTimer -= diff;
+                }
+                else deflectionTimer -= diff;
 
                 if (soulBlastTimer <= diff)
                 {
                     DoCastVictim(SPELL_SOUL_BLAST);
-                    soulBlastTimer  = urand(12000, 18000);
-                } else soulBlastTimer -= diff;
+                    soulBlastTimer = urand(12000, 18000);
+                }
+                else soulBlastTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
-       }
+        }
 
-       void JustDied(Unit* killer) override
-       {
+        void JustDied(Unit* killer) override
+        {
             if (!leryssaGUID || !arlosGUID)
                 return;
 
@@ -1274,8 +1278,8 @@ public:
             leryssa->SetWalk(false);
             leryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
 
-            if (Player* player = killer->ToPlayer())
-                player->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
+            if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                killer->ToPlayer()->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
         }
     };
 
@@ -1944,13 +1948,14 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            Player* player = killer->ToPlayer();
-            if (!player)
+            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
                 return;
+
+            Player* player = killer->ToPlayer();
 
             if (player->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
                 (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
-                me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
+                    me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)

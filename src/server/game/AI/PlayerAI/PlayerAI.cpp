@@ -919,7 +919,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             VerifyAndPushSpellCast(spells, SPELL_FREEZING_ARROW, TARGET_VICTIM, 2);
             VerifyAndPushSpellCast(spells, SPELL_RAPID_FIRE, TARGET_NONE, 10);
             VerifyAndPushSpellCast(spells, SPELL_KILL_SHOT, TARGET_VICTIM, 10);
-            if (me->GetVictim() && me->GetVictim()->getPowerType() == POWER_MANA && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_VIPER_STING, me->GetGUID()))
+            if (me->GetVictim() && me->GetVictim()->GetPowerType() == POWER_MANA && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_VIPER_STING, me->GetGUID()))
                 VerifyAndPushSpellCast(spells, SPELL_VIPER_STING, TARGET_VICTIM, 5);
 
             switch (GetSpec())
@@ -1375,7 +1375,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
 
         if (me->IsStopped() && !me->HasUnitState(UNIT_STATE_CANNOT_TURN))
         {
-            float targetAngle = me->GetAngle(target);
+            float targetAngle = me->GetAbsoluteAngle(target);
             if (_forceFacing || fabs(me->GetOrientation() - targetAngle) > 0.4f)
             {
                 me->SetFacingTo(targetAngle);

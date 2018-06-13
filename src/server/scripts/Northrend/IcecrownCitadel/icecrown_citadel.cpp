@@ -419,12 +419,16 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                                 if (Creature* factionNPC = me->FindNearestCreature(_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_SE_HIGH_OVERLORD_SAURFANG : NPC_SE_MURADIN_BRONZEBEARD, 50.0f))
                                 {
                                     me->setActive(true);
+                                    me->SetFarVisible(true);
                                     _theLichKing = theLichKing->GetGUID();
                                     theLichKing->setActive(true);
+                                    theLichKing->SetFarVisible(true);
                                     _bolvarFordragon = bolvarFordragon->GetGUID();
                                     bolvarFordragon->setActive(true);
+                                    bolvarFordragon->SetFarVisible(true);
                                     _factionNPC = factionNPC->GetGUID();
                                     factionNPC->setActive(true);
+                                    factionNPC->SetFarVisible(true);
                                 }
                             }
                         }
@@ -516,6 +520,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                             {
                                 bolvarFordragon->AI()->Talk(SAY_BOLVAR_INTRO_1);
                                 bolvarFordragon->setActive(false);
+                                bolvarFordragon->SetFarVisible(false);
                             }
                             break;
                         case EVENT_LK_INTRO_5:
@@ -523,6 +528,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                             {
                                 theLichKing->AI()->Talk(SAY_LK_INTRO_5);
                                 theLichKing->setActive(false);
+                                theLichKing->SetFarVisible(false);
                             }
                             break;
                         case EVENT_SAURFANG_INTRO_1:
@@ -836,6 +842,7 @@ class boss_sister_svalna : public CreatureScript
                         break;
                     case ACTION_START_GAUNTLET:
                         me->setActive(true);
+                        me->SetFarVisible(true);
                         _isEventInProgress = true;
                         me->SetImmuneToAll(true);
                         events.ScheduleEvent(EVENT_SVALNA_START, 25000);
@@ -848,6 +855,7 @@ class boss_sister_svalna : public CreatureScript
                         break;
                     case ACTION_RESET_EVENT:
                         me->setActive(false);
+                        me->SetFarVisible(false);
                         Reset();
                         break;
                     default:
@@ -871,6 +879,7 @@ class boss_sister_svalna : public CreatureScript
 
                 _isEventInProgress = false;
                 me->setActive(false);
+                me->SetFarVisible(false);
                 me->SetImmuneToAll(false);
                 me->SetDisableGravity(false);
                 me->SetHover(false);
@@ -1004,6 +1013,7 @@ class npc_crok_scourgebane : public CreatureScript
                     _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14000);
                     _events.ScheduleEvent(EVENT_START_PATHING, 37000);
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     for (uint32 i = 0; i < 4; ++i)
                         if (Creature* crusader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_CAPTAIN_ARNATH + i)))
                             crusader->AI()->DoAction(ACTION_START_GAUNTLET);
@@ -1013,6 +1023,7 @@ class npc_crok_scourgebane : public CreatureScript
                     _isEventActive = false;
                     _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
                     me->setActive(false);
+                    me->SetFarVisible(false);
                     _aliveTrash.clear();
                     _currentWPid = 0;
                 }
@@ -1030,6 +1041,7 @@ class npc_crok_scourgebane : public CreatureScript
                         {
                             _isEventActive = false;
                             me->setActive(false);
+                            me->SetFarVisible(false);
                             Talk(SAY_CROK_FINAL_WP);
                             if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_RESURRECT_CAPTAINS);
@@ -1059,6 +1071,7 @@ class npc_crok_scourgebane : public CreatureScript
                         {
                             _isEventActive = false;
                             me->setActive(false);
+                            me->SetFarVisible(false);
                             Talk(SAY_CROK_FINAL_WP);
                             if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_RESURRECT_CAPTAINS);
@@ -1277,12 +1290,13 @@ struct npc_argent_captainAI : public ScriptedAI
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
                 {
                     me->SetReactState(REACT_DEFENSIVE);
-                    FollowAngle = me->GetAngle(crok) + me->GetOrientation();
+                    FollowAngle = me->GetAbsoluteAngle(crok) + me->GetOrientation();
                     FollowDist = me->GetDistance2d(crok);
-                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_DEFAULT);
                 }
 
                 me->setActive(true);
+                me->SetFarVisible(true);
             }
             else if (action == ACTION_RESET_EVENT)
             {
@@ -1306,7 +1320,7 @@ struct npc_argent_captainAI : public ScriptedAI
         void EnterEvadeMode(EvadeReason why) override
         {
             // not yet following
-            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
+            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType(MOTION_SLOT_DEFAULT) != FOLLOW_MOTION_TYPE || IsUndead)
             {
                 ScriptedAI::EnterEvadeMode(why);
                 return;
@@ -1317,9 +1331,9 @@ struct npc_argent_captainAI : public ScriptedAI
 
             if (!me->GetVehicle())
             {
-                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->Clear();
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
-                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_DEFAULT);
             }
 
             Reset();
@@ -1851,12 +1865,12 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                         return;
                 }
 
-                if (GameObject* trap = GetCaster()->FindNearestGameObject(trapId, 5.0f))
+                if (GameObject* trap = GetGObjCaster()->FindNearestGameObject(trapId, 5.0f))
                     trap->SetRespawnTime(trap->GetGOInfo()->GetAutoCloseTime() / IN_MILLISECONDS);
 
                 std::list<Creature*> wards;
-                GetCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
-                wards.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                GetGObjCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
+                wards.sort(Trinity::ObjectDistanceOrderPred(GetGObjCaster()));
                 for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
                 {
                     if ((*itr)->IsAlive() && (*itr)->HasAura(SPELL_STONEFORM))

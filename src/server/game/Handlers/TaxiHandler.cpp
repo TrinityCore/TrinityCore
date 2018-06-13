@@ -119,7 +119,7 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    GetPlayer()->GetMotionMaster()->Clear(MOTION_SLOT_CONTROLLED);
+    GetPlayer()->GetMotionMaster()->Remove(FLIGHT_MOTION_TYPE);
 
     if (mountDisplayId)
         GetPlayer()->Mount(mountDisplayId);
@@ -224,13 +224,11 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         // far teleport case
-        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId())
+        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
         {
-            if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+            if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
             {
                 // short preparations to continue flight
-                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-
                 flight->SetCurrentNodeAfterTeleport();
                 TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
                 flight->SkipCurrentNode();

@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AIException.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "CreatureAIFactory.h"
@@ -25,6 +26,7 @@
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 
+#include "Log.h"
 #include "ScriptMgr.h"
 
 namespace FactorySelector
@@ -84,17 +86,26 @@ namespace FactorySelector
             return ASSERT_NOTNULL(sCreatureAIRegistry->GetRegistryItem("PetAI"))->Create(creature);
 
         // scriptname in db
-        if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
-            return scriptedAI;
+        try
+        {
+            if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
+                return scriptedAI;
+        }
+        catch (InvalidAIException const& e)
+        {
+            TC_LOG_ERROR("entities.unit", "Exception trying to assign script '%s' to Creature (Entry: %u), this Creature will have a default AI. Exception message: %s",
+                creature->GetScriptName().c_str(), creature->GetEntry(), e.what());
+        }
 
         return SelectFactory<CreatureAI>(creature)->Create(creature);
     }
 
     MovementGenerator* SelectMovementGenerator(Unit* unit)
     {
-        MovementGeneratorType type = IDLE_MOTION_TYPE;
-        if (unit->GetTypeId() == TYPEID_UNIT)
-            type = unit->ToCreature()->GetDefaultMovementType();
+        MovementGeneratorType type = unit->GetDefaultMovementType();
+        if (Creature* creature = unit->ToCreature())
+            if (!creature->GetPlayerMovingMe())
+                type = creature->GetDefaultMovementType();
 
         MovementGeneratorCreator const* mv_factory = sMovementGeneratorRegistry->GetRegistryItem(type);
         return ASSERT_NOTNULL(mv_factory)->Create(unit);

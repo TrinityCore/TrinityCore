@@ -441,10 +441,10 @@ class FrozenThroneResetWorker
         }
 };
 
-class StartMovementEvent : public BasicEvent
+class LichKingStartMovementEvent : public BasicEvent
 {
     public:
-        StartMovementEvent(Creature* summoner, Creature* owner)
+        LichKingStartMovementEvent(Creature* summoner, Creature* owner)
             : _summonerGuid(summoner->GetGUID()), _owner(owner)
         {
         }
@@ -737,7 +737,7 @@ class boss_the_lich_king : public CreatureScript
                         summon->CastSpell(summon, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                         summon->SetReactState(REACT_PASSIVE);
                         summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                        summon->m_Events.AddEvent(new StartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
+                        summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
                         break;
                     case NPC_ICE_SPHERE:
                     {
@@ -1077,6 +1077,7 @@ class boss_the_lich_king : public CreatureScript
                                     triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, true));
                                     Creature* spawner = triggers.front();
                                     spawner->setActive(true);
+                                    spawner->SetFarVisible(true);
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
                                     spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3000));
@@ -1689,7 +1690,7 @@ class npc_strangulate_vehicle : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TELEPORT:
-                            me->GetMotionMaster()->Clear(false);
+                            me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveIdle();
                             if (TempSummon* summ = me->ToTempSummon())
                             {
@@ -1714,7 +1715,7 @@ class npc_strangulate_vehicle : public CreatureScript
                             {
                                 if (me->GetExactDist(lichKing) > 10.0f)
                                 {
-                                    Position pos = lichKing->GetNearPosition(float(rand_norm()) * 5.0f  + 7.5f, lichKing->GetAngle(me));
+                                    Position pos = lichKing->GetNearPosition(float(rand_norm()) * 5.0f  + 7.5f, lichKing->GetAbsoluteAngle(me));
                                     me->GetMotionMaster()->MovePoint(0, pos);
                                 }
                             }
@@ -1764,6 +1765,7 @@ class npc_terenas_menethil : public CreatureScript
                 {
                     case ACTION_FROSTMOURNE_INTRO:
                         me->setActive(true);
+                        me->SetFarVisible(false);
                         if (!IsHeroic())
                             me->SetHealth(me->GetMaxHealth() / 2);
                         DoCast(me, SPELL_LIGHTS_FAVOR);

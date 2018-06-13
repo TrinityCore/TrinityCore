@@ -29,6 +29,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptSystem.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
@@ -409,7 +410,7 @@ class npc_wg_give_promotion_credit : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                if (killer->GetTypeId() != TYPEID_PLAYER)
+                if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG));
@@ -587,14 +588,42 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 {
     PrepareAuraScript(spell_wintergrasp_tenacity_refresh);
 
-    void Refresh(AuraEffect* /*aurEff*/)
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        GetAura()->RefreshDuration();
+        uint32 triggeredSpellId = spellInfo->Effects[EFFECT_2].CalcValue();
+        return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });
+    }
+
+    void Refresh(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        if (uint32 triggeredSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue())
+        {
+            int32 bp = 0;
+            if (AuraEffect const* healEffect = GetEffect(EFFECT_0))
+                bp = healEffect->GetAmount();
+
+            CastSpellExtraArgs args(aurEff);
+            args
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, bp)
+                .AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
+            GetTarget()->CastSpell(nullptr, triggeredSpellId, args);
+        }
+
+        RefreshDuration();
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (uint32 triggeredSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue())
+            GetTarget()->RemoveAurasDueToSpell(triggeredSpellId);
     }
 
     void Register() override
     {
-        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_wintergrasp_tenacity_refresh::Refresh, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_wintergrasp_tenacity_refresh::Refresh, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_wintergrasp_tenacity_refresh::OnRemove, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

@@ -1022,7 +1022,7 @@ void PretendToDie(Creature* creature)
     creature->RemoveAllAuras();
     creature->SetHealth(0);
     creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    creature->GetMotionMaster()->MovementExpired(false);
+    creature->GetMotionMaster()->Clear();
     creature->GetMotionMaster()->MoveIdle();
     creature->SetStandState(UNIT_STAND_STATE_DEAD);
 }

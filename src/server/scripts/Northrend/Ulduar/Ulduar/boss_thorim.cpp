@@ -651,8 +651,6 @@ class boss_thorim : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_LIGHTNING_DESTRUCTION, true);
 
-                        summon->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, LightningOrbPath[LightningOrbPathSize - 1], false);
-
                         Movement::PointsArray path;
                         path.reserve(LightningOrbPathSize);
                         std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
@@ -662,7 +660,7 @@ class boss_thorim : public CreatureScript
 
                         Movement::MoveSplineInit init(summon);
                         init.MovebyPath(path);
-                        init.Launch();
+                        summon->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         break;
                     }
                     case NPC_DARK_RUNE_CHAMPION:
@@ -1142,6 +1140,7 @@ class npc_thorim_pre_phase : public CreatureScript
             npc_thorim_pre_phaseAI(Creature* creature) : npc_thorim_trashAI(creature)
             {
                 me->setActive(true); // prevent grid unload
+                me->SetFarVisible(true);
             }
 
             void Reset() override
@@ -1157,7 +1156,7 @@ class npc_thorim_pre_phase : public CreatureScript
                     SetCombatMovement(false);
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* thorim = _instance->GetCreature(BOSS_THORIM))
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
@@ -1244,7 +1243,7 @@ class npc_thorim_arena_phase : public CreatureScript
                 if (_isInArena && HeightPositionCheck(true)(who))
                     return false;
 
-                return CheckBoundary(who);
+                return IsInBoundary(who);
             }
 
             void Reset() override
@@ -1337,7 +1336,7 @@ struct npc_thorim_minibossAI : public ScriptedAI
 
     bool CanAIAttack(Unit const* who) const final override
     {
-        return CheckBoundary(who);
+        return IsInBoundary(who);
     }
 
     void JustSummoned(Creature* summon) final override
@@ -1416,7 +1415,7 @@ class npc_runic_colossus : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 // open the Runic Door
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_RUNIC_DOOR), true);
@@ -1527,7 +1526,7 @@ class npc_ancient_rune_giant : public CreatureScript
                 _events.ScheduleEvent(EVENT_RUNE_DETONATION, 25000);
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 // opem the Stone Door
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_STONE_DOOR), true);

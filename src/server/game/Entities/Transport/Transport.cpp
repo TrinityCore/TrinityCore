@@ -85,10 +85,10 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
-    if (m_goTemplateAddon)
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
-        SetFaction(m_goTemplateAddon->faction);
-        SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
+        SetFaction(goOverride->Faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
     }
 
     m_goValue.Transport.PathProgress = 0;
@@ -300,9 +300,12 @@ void Transport::RemovePassenger(WorldObject* passenger)
 Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
 {
     Map* map = GetMap();
+    if (map->GetCreatureRespawnTime(guid))
+        return nullptr;
+
     Creature* creature = new Creature();
 
-    if (!creature->LoadFromDB(guid, map, false, true))
+    if (!creature->LoadFromDB(guid, map, false, false))
     {
         delete creature;
         return nullptr;
@@ -345,6 +348,9 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
 GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     Map* map = GetMap();
+    if (map->GetGORespawnTime(guid))
+        return nullptr;
+
     GameObject* go = new GameObject();
 
     if (!go->LoadFromDB(guid, map, false))

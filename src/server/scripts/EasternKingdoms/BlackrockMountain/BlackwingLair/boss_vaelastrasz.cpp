@@ -194,7 +194,7 @@ public:
                         {
                             //selects a random target that isn't the current victim and is a mana user (selects mana users) but not pets
                             //it also ignores targets who have the aura. We don't want to place the debuff on the same target twice.
-                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !u->IsPet() && u->getPowerType() == POWER_MANA && !u->HasAura(SPELL_BURNINGADRENALINE); }))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !u->IsPet() && u->GetPowerType() == POWER_MANA && !u->HasAura(SPELL_BURNINGADRENALINE); }))
                             {
                                 me->CastSpell(target, SPELL_BURNINGADRENALINE, true);
                             }

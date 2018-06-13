@@ -296,9 +296,6 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     ASSERT(spellInfo->GetMaxTicks() > 0);
                     damage /= spellInfo->GetMaxTicks();
 
-                    // Add remaining ticks to damage done
-                    damage += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, SPELL_AURA_PERIODIC_DAMAGE);
-
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                     args.AddSpellBP0(damage);
                     caster->CastSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, args);

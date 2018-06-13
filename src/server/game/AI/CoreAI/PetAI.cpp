@@ -17,6 +17,7 @@
  */
 
 #include "PetAI.h"
+#include "AIException.h"
 #include "Creature.h"
 #include "Errors.h"
 #include "Group.h"
@@ -45,6 +46,8 @@ int32 PetAI::Permissible(Creature const* creature)
 
 PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
+    if (!me->GetCharmInfo())
+        throw InvalidAIException("Creature doesn't have a valid charm info");
     UpdateAllies();
 }
 
@@ -153,7 +156,7 @@ void PetAI::UpdateAI(uint32 diff)
             if (!spellInfo)
                 continue;
 
-            if (me->GetCharmInfo() && me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
+            if (me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
                 continue;
 
             // check spell cooldown
@@ -479,7 +482,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
             ClearCharmInfoFlags();
             me->GetCharmInfo()->SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
             me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveChase(target, me->GetPetChaseDistance());
+            me->GetMotionMaster()->MoveChase(target, me->GetPetChaseDistance(), (float)M_PI);
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {

@@ -351,12 +351,14 @@ class boss_algalon_the_observer : public CreatureScript
                         me->SetDisableGravity(true);
                         DoCast(me, SPELL_ARRIVAL, true);
                         DoCast(me, SPELL_RIDE_THE_LIGHTNING, true);
-                        me->GetMotionMaster()->MovePoint(POINT_ALGALON_LAND, AlgalonLandPos);
+
                         me->SetHomePosition(AlgalonLandPos);
+
                         Movement::MoveSplineInit init(me);
                         init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
                         init.SetOrientationFixed(true);
-                        init.Launch();
+                        me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_ALGALON_LAND, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);
                         events.ScheduleEvent(EVENT_INTRO_1, 5000, 0, PHASE_ROLE_PLAY);
@@ -416,6 +418,7 @@ class boss_algalon_the_observer : public CreatureScript
                         brann->AI()->DoAction(ACTION_FINISH_INTRO);
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     DoZoneInCombat();
                     introDelay = 26000;
                     summons.DespawnEntry(NPC_AZEROTH);
@@ -990,7 +993,7 @@ class go_celestial_planetarium_access : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnReportUse(Player* player) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return true;

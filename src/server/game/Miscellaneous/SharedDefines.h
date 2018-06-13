@@ -421,7 +421,7 @@ enum SpellAttr2
     SPELL_ATTR2_UNK25                            = 0x02000000, // 25
     SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE = 0x04000000, // 26 unaffected by school immunity
     SPELL_ATTR2_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR2_IGNORE_ITEM_CHECK                = 0x10000000, // 28 Spell is cast without checking item requirements (charges/reagents/totem)
+    SPELL_ATTR2_UNK28                            = 0x10000000, // 28
     SPELL_ATTR2_CANT_CRIT                        = 0x20000000, // 29 Spell can't crit
     SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC       = 0x40000000, // 30 spell can trigger even if triggered
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
@@ -492,7 +492,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK24                            = 0x01000000, // 24 some shoot spell
     SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // 25 pet scaling auras
     SPELL_ATTR4_CAST_ONLY_IN_OUTLAND             = 0x04000000, // 26 Can only be used in Outland.
-    SPELL_ATTR4_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR4_INHERIT_CRIT_FROM_AURA           = 0x08000000, // 27 Volley, Arcane Missiles, Penance -> related to critical on channeled periodical damage spell
     SPELL_ATTR4_UNK28                            = 0x10000000, // 28 Aimed Shot
     SPELL_ATTR4_UNK29                            = 0x20000000, // 29
     SPELL_ATTR4_UNK30                            = 0x40000000, // 30
@@ -3235,7 +3235,12 @@ enum EventId
     /// Special charge event which is used for charge spells that have explicit targets
     /// and had a path already generated - using it in PointMovementGenerator will not
     /// create a new spline and launch it
-    EVENT_CHARGE_PREPATH    = 1005
+    EVENT_CHARGE_PREPATH    = 1005,
+
+    EVENT_FACE              = 1006,
+    EVENT_VEHICLE_BOARD     = 1007,
+    EVENT_VEHICLE_EXIT      = 1008,
+    EVENT_ASSIST_MOVE       = 1009,
 };
 
 enum ResponseCodes

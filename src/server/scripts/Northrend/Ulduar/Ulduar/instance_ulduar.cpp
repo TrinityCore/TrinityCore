@@ -281,7 +281,10 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_SALVAGED_DEMOLISHER:
                     case NPC_SALVAGED_SIEGE_ENGINE:
                     case NPC_SALVAGED_CHOPPER:
-                        LeviathanVehicleGUIDs.push_back(creature->GetGUID());
+                        if (GetBossState(BOSS_LEVIATHAN) == DONE)
+                            DespawnLeviatanVehicle(creature);
+                        else
+                            LeviathanVehicleGUIDs.push_back(creature->GetGUID());
                         break;
 
                     // XT-002 Deconstructor
@@ -756,7 +759,7 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case DATA_COLOSSUS:
                         ColossusData = data;
-                        if (data == 2 && GetBossState(BOSS_LEVIATHAN) == NOT_STARTED)
+                        if (data >= 2 && GetBossState(BOSS_LEVIATHAN) == NOT_STARTED)
                         {
                             _events.ScheduleEvent(EVENT_LEVIATHAN_BREAK_DOOR, 5 * IN_MILLISECONDS);
                             SaveToDB();
@@ -963,7 +966,7 @@ class instance_ulduar : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << GetData(DATA_COLOSSUS) << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
+                data << ColossusData << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
 
                 for (uint8 i = 0; i < 4; ++i)
                     data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
@@ -975,8 +978,6 @@ class instance_ulduar : public InstanceMapScript
             {
                 uint32 tempState;
                 data >> tempState;
-                if (tempState == IN_PROGRESS || tempState > SPECIAL)
-                    tempState = NOT_STARTED;
                 SetData(DATA_COLOSSUS, tempState);
 
                 data >> _algalonTimer;
@@ -1039,17 +1040,8 @@ class instance_ulduar : public InstanceMapScript
                             // Eject all players from vehicles and make them untargetable.
                             // They will be despawned after a while
                             for (auto const& vehicleGuid : LeviathanVehicleGUIDs)
-                            {
                                 if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
-                                {
-                                    if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
-                                    {
-                                        vehicle->RemoveAllPassengers();
-                                        vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                        vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
-                                    }
-                                }
-                            }
+                                    DespawnLeviatanVehicle(vehicleCreature);
                             break;
                         case EVENT_LEVIATHAN_BREAK_DOOR:
                             if (Creature* leviathan = GetCreature(BOSS_LEVIATHAN))
@@ -1058,6 +1050,16 @@ class instance_ulduar : public InstanceMapScript
                                 gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                             break;
                     }
+                }
+            }
+
+            void DespawnLeviatanVehicle(Creature* vehicleCreature)
+            {
+                if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
+                {
+                    vehicle->RemoveAllPassengers();
+                    vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
                 }
             }
 
@@ -1074,7 +1076,7 @@ class instance_ulduar : public InstanceMapScript
             void AddDoor(GameObject* door, bool add) override
             {
                 // Leviathan doors are South except the one it uses to enter the room
-                // which is North and should not be used for boundary checks in BossAI::CheckBoundary()
+                // which is North and should not be used for boundary checks in BossAI::IsInBoundary()
                 if (door->GetEntry() == GO_LEVIATHAN_DOOR && door->GetPositionX() > 400.f)
                 {
                     if (add)
