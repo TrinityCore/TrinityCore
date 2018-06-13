@@ -1713,8 +1713,8 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         }
 
         // remove other shapeshift before applying a new one
-        // skip on rogue shadow dance
-        if (!target->HasAura(51713))
+        // skip for rogue
+        if (target->getClass() != CLASS_ROGUE)
             target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, ObjectGuid::Empty, GetBase());
 
         // stop handling the effect if it was removed by linked event
