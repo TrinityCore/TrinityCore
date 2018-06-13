@@ -711,3 +711,29 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Void Wyrm heroic entry
 UPDATE `creature_template` SET `difficulty_entry_1` = 49305 WHERE `entry` = 41374;
+
+-- From 4.3.4 (author Girip Dragos Andrei, date 13/6/2018)
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_flags` = 64 WHERE `entry` = 49305;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_run` = 1, `unit_flags` = 64 WHERE `entry` = 49304;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_run` = 1, `unit_flags` = 262208 WHERE `entry` = 49303;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16 WHERE `entry` = 48889;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16 WHERE `entry` = 48888;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16 WHERE `entry` = 48717;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_run` = 1, `unit_class` = 2, `unit_flags` = 64, `unit_flags2` = 33556480 WHERE `entry` = 49300;
+UPDATE `creature_template` SET `unit_flags` = 64, `InhabitType` = 12 WHERE `entry` = 49299;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16  WHERE `entry` = 48716;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_run` = 1, `unit_class` = 2, `unit_flags` = 64  WHERE `entry` = 49292;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 91, `speed_walk` = 1.55556, `unit_flags` = 64  WHERE `entry` = 49291;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16 WHERE `entry` = 48897;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16 WHERE `entry` = 48899;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_flags` = 64 WHERE `entry` = 49302;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_class` = 2, `unit_flags` = 64 WHERE `entry` = 49295;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_flags` = 64 WHERE `entry` = 49301;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_flags` = 33816640 WHERE `entry` = 49286;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_flags` = 33816576 WHERE `entry` = 49306;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `unit_flags` = 33816640 WHERE `entry` = 49294;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_walk`= 0.666668, `unit_flags` = 32832 WHERE `entry` = 49308;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_walk`= 0.666668, `unit_flags` = 32832 WHERE `entry` = 49309;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_walk`= 0.666668, `unit_flags` = 32832 WHERE `entry` = 49307;
+UPDATE `creature_template` SET `minlevel` = 85, `maxlevel` = 85, `exp` = 3, `faction` = 16, `speed_walk`= 0.666668, `unit_flags` = 32832 WHERE `entry` = 49310;
+
