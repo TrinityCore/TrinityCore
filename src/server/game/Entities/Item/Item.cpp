@@ -554,7 +554,13 @@ void Item::SaveToDB(SQLTransaction& trans)
             static ItemModifier const modifiersTable[] =
             {
                 ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL,
-                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL
+                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL,
+                ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED
             };
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_MODIFIERS);
@@ -567,6 +573,12 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID));
+                stmt->setUInt32(4, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL));
+                stmt->setUInt32(5, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1));
+                stmt->setUInt32(6, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2));
+                stmt->setUInt32(7, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3));
+                stmt->setUInt32(8, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED));
                 trans->Append(stmt);
             }
 
@@ -760,6 +772,13 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[43].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[44].GetUInt32());
+
+    SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID,  fields[45].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL,         fields[46].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1,    fields[47].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2,    fields[48].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3,    fields[49].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED,    fields[50].GetUInt32());
 
     // Enchants must be loaded after all other bonus/scaling data
     _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);

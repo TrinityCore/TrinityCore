@@ -19080,8 +19080,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
                     item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second), std::get<3>(artifactDataItr->second));
 
-                ObjectGuid bagGuid = fields[45].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[45].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[46].GetUInt8();
+                ObjectGuid bagGuid = fields[51].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[51].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[52].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -19213,7 +19213,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
     do
     {
-        // SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs FROM character_void_storage WHERE playerGuid = ?
+        // SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, challengeId, challengeLevel, challengeAffix1, challengeAffix2, challengeAffix3, challengeIsCharged, context, bonusListIDs FROM character_void_storage WHERE playerGuid = ?
         Field* fields = result->Fetch();
 
         uint64 itemId = fields[0].GetUInt64();
@@ -19225,9 +19225,10 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 upgradeId = fields[7].GetUInt32();
         uint32 fixedScalingLevel = fields[8].GetUInt32();
         uint32 artifactKnowledgeLevel = fields[9].GetUInt32();
-        uint8 context = fields[10].GetUInt8();
+        // Todo : Challenge Data
+        uint8 context = fields[16].GetUInt8();
         std::vector<uint32> bonusListIDs;
-        Tokenizer bonusListIdTokens(fields[11].GetString(), ' ');
+        Tokenizer bonusListIdTokens(fields[17].GetString(), ' ');
         for (char const* token : bonusListIdTokens)
             bonusListIDs.push_back(atoul(token));
 
@@ -19429,7 +19430,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[45].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[45].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[51].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[51].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -21126,7 +21127,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
         }
         else
         {
-            // REPLACE INTO character_void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, bonusListIDs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            // REPLACE INTO character_void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, challengeId, challengeLevel, challengeAffix1, challengeAffix2, challengeAffix3, challengeIsCharged, context, bonusListIDs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
             stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
             stmt->setUInt64(1, GetGUID().GetCounter());
@@ -21139,11 +21140,17 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(8, _voidStorageItems[i]->ItemUpgradeId);
             stmt->setUInt32(9, _voidStorageItems[i]->FixedScalingLevel);
             stmt->setUInt32(10, _voidStorageItems[i]->ArtifactKnowledgeLevel);
-            stmt->setUInt8(11, _voidStorageItems[i]->Context);
+            stmt->setUInt32(11, 0);
+            stmt->setUInt32(12, 0);
+            stmt->setUInt32(13, 0);
+            stmt->setUInt32(14, 0);
+            stmt->setUInt32(15, 0);
+            stmt->setUInt32(16, 0);
+            stmt->setUInt8(17, _voidStorageItems[i]->Context);
             std::ostringstream bonusListIDs;
             for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
                 bonusListIDs << bonusListID << ' ';
-            stmt->setString(12, bonusListIDs.str());
+            stmt->setString(18, bonusListIDs.str());
         }
 
         trans->Append(stmt);
