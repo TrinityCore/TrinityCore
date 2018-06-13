@@ -3784,7 +3784,7 @@ bool Map::IsHeroic() const
 
 bool Map::IsMythic() const
 {
-    return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
+    return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
 }
 
 bool Map::Is25ManRaid() const

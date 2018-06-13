@@ -204,6 +204,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         Creature* GetCreature(uint32 type);
         GameObject* GetGameObject(uint32 type);
 
+        void OnPlayerEnter(Player*) override;
+        void OnPlayerDeath(Player*) override;
+
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
         // * use HandleGameObject(GUID, boolen, NULL); in any other script
@@ -301,18 +304,18 @@ class TC_GAME_API InstanceScript : public ZoneScript
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time
         /// @p_Function : Callback function
-        void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
+        void AddTimedDelayedOperation(uint32 timeout, std::function<void()> && function)
         {
-            m_EmptyWarned = false;
-            m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
+            emptyWarned = false;
+            timedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(timeout, function));
         }
 
         /// Called after last delayed operation was deleted
         /// Do whatever you want
         virtual void LastOperationCalled() { }
 
-        std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
-        bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
+        std::vector<std::pair<int32, std::function<void()>>>    timedDelayedOperations;   ///< Delayed operations
+        bool                                                    emptyWarned;              ///< Warning when there are no more delayed operations
 
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 priority = 0);
         void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
@@ -336,6 +339,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void ResetCombatResurrections();
         uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
         uint32 GetCombatResurrectionChargeInterval() const;
+
+        // Challenge Modes
+        void StartChallengeMode(uint8 level);
+        bool IsChallengeModeStarted() const { return _challengeModeStarted; }
+        uint8 GetChallengeModeLevel() const { return _challengeModeLevel; }
+        uint32 GetChallengeModeCurrentDuration() const;
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
@@ -386,6 +395,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint32 _combatResurrectionTimer;
         uint8 _combatResurrectionCharges; // the counter for available battle resurrections
         bool _combatResurrectionTimerStarted;
+
+        bool _challengeModeStarted;
+        uint8 _challengeModeLevel;
+        uint32 _challengeModeStartTime;
+        uint32 _challengeModeDeathCount;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module

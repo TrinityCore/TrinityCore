@@ -90,7 +90,7 @@ struct boss_nythendra : public BossAI
     {
         events.ScheduleEvent(SPELL_ROT,             10s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
-        events.ScheduleEvent(SPELL_INFESTED_BREATH, 15s,    EVENTS_PHASE_1);
+        events.ScheduleEvent(SPELL_INFESTED_BREATH, 60s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_TAIL_LASH,       20s,    EVENTS_PHASE_1);
     }
 
@@ -154,7 +154,7 @@ struct boss_nythendra : public BossAI
             case SPELL_INFESTED_BREATH:
             {
                 me->CastSpell(nullptr, SPELL_INFESTED_BREATH, false);
-                events.Repeat(15s);
+                events.Repeat(60s);
 
                 me->ModifyPower(POWER_ENERGY, -50);
 

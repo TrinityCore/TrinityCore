@@ -951,6 +951,29 @@ namespace WorldPackets
 
             uint32 FactionChoice = 0;
         };
+
+        class StartTimer final : public ServerPacket
+        {
+        public:
+            StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Type;
+            uint32 TimeLeft;
+            uint32 TotalTime;
+        };
+
+        class StartElapsedTimer final : public ServerPacket
+        {
+        public:
+            StartElapsedTimer() : ServerPacket(SMSG_START_ELAPSED_TIMER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TimerID;
+            uint32 CurrentDuration;
+        };
     }
 }
 

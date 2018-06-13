@@ -698,3 +698,20 @@ void WorldPackets::Misc::AdventureJournalStartQuest::Read()
 {
     _worldPacket >> QuestID;
 }
+
+WorldPacket const* WorldPackets::Misc::StartTimer::Write()
+{
+    _worldPacket << Type;
+    _worldPacket << TimeLeft;
+    _worldPacket << TotalTime;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
+{
+    _worldPacket << TimerID;
+    _worldPacket << CurrentDuration;
+
+    return &_worldPacket;
+}

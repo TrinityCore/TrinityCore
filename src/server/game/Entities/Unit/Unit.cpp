@@ -23,6 +23,7 @@
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
 #include "CellImpl.h"
+#include "ChallengeModeMgr.h"
 #include "ChatPackets.h"
 #include "ChatTextBuilder.h"
 #include "CombatLogPackets.h"
@@ -730,6 +731,11 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
         if (IsPlayer() && victim->IsCreature())
             if (GetMapId() != MAP_EBON_HOLD_DK_START_ZONE)
                 damage *= Trinity::GetDamageMultiplierForExpansion(getLevel(), victim->ToCreature()->GetCreatureTemplate()->HealthScalingExpansion);
+
+    if (IsCreature() && this != victim && !IsPet())
+        if (InstanceScript* instance = GetInstanceScript())
+            if (instance->IsChallengeModeStarted())
+                AddPct(damage, sChallengeModeMgr->GetDamageMultiplier(instance->GetChallengeModeLevel()));
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
@@ -748,7 +754,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(this, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER && this != victim)
+    if (victim->IsPlayer() && this != victim)
     {
         // Signal to pets that their owner was attacked - except when DOT.
         if (damagetype != DOT)
@@ -766,7 +772,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     // Signal the pet it was attacked so the AI can respond if needed
-    if (victim->GetTypeId() == TYPEID_UNIT && this != victim && victim->IsPet() && victim->IsAlive())
+    if (victim->IsCreature() && this != victim && victim->IsPet() && victim->IsAlive())
         victim->ToPet()->AI()->AttackedBy(this);
 
     if (damagetype != NODAMAGE)
@@ -860,7 +866,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER && this != victim)
+    if (IsPlayer() && this != victim)
     {
         Player* killer = ToPlayer();
 
@@ -8732,7 +8738,12 @@ void Unit::setDeathState(DeathState s)
 
         // players in instance don't have ZoneScript, but they have InstanceScript
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
+        {
             zoneScript->OnUnitDeath(this);
+
+            if (IsPlayer())
+                zoneScript->OnPlayerDeath(ToPlayer());
+        }
     }
     else if (s == JUST_RESPAWNED)
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
@@ -11185,6 +11196,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (creature)
     {
         isRewardAllowed = creature->IsDamageEnoughForLootingAndReward();
+
+        if (InstanceScript* instance = creature->GetInstanceScript())
+            if (instance->IsChallengeModeStarted())
+                isRewardAllowed = false;
+
         if (!isRewardAllowed)
             creature->SetLootRecipient(NULL);
     }

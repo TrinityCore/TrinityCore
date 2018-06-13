@@ -860,7 +860,7 @@ class boss_tectus : public CreatureScript
 
                 for (uint8 l_I = 0; l_I < eMiscs::ShardSpawnCount; ++l_I)
                 {
-                    float orientation = frand(0, 2 * M_PI);
+                    float orientation = frand(0, 2 * float(M_PI));
                     float l_X = l_OrigX + (l_Range * cos(orientation));
                     float l_Y = l_OrigY + (l_Range * sin(orientation));
 

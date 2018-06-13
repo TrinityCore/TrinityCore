@@ -19,6 +19,8 @@
 #include "InstanceScript.h"
 #include "AreaBoundary.h"
 #include "AchievementMgr.h"
+#include "ChallengeModeMgr.h"
+#include "ChallengeModePackets.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -30,6 +32,7 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -50,7 +53,8 @@ BossBoundaryData::~BossBoundaryData()
 }
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
-_entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
+_entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false),
+_challengeModeStarted(false), _challengeModeLevel(0), _challengeModeStartTime(0), _challengeModeDeathCount(0)
 {
     _scriptType = ZONE_SCRIPT_TYPE_INSTANCE;
 
@@ -135,6 +139,38 @@ Creature* InstanceScript::GetCreature(uint32 type)
 GameObject* InstanceScript::GetGameObject(uint32 type)
 {
     return instance->GetGameObject(GetObjectGuid(type));
+}
+
+void InstanceScript::OnPlayerEnter(Player* player)
+{
+    if (IsChallengeModeStarted())
+    {
+        WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
+        startElapsedTimer.TimerID = 1;
+        startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
+        player->SendDirectMessage(startElapsedTimer.Write());
+
+        WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
+        updateDeathCount.DeathCount = _challengeModeDeathCount;
+        player->SendDirectMessage(updateDeathCount.Write());
+    }
+}
+
+void InstanceScript::OnPlayerDeath(Player* /*player*/)
+{
+    if (IsChallengeModeStarted())
+    {
+        ++_challengeModeDeathCount;
+
+        WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
+        startElapsedTimer.TimerID = 1;
+        startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
+        instance->SendToPlayers(startElapsedTimer.Write());
+
+        WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
+        updateDeathCount.DeathCount = _challengeModeDeathCount;
+        instance->SendToPlayers(updateDeathCount.Write());
+    }
 }
 
 void InstanceScript::SetHeaders(std::string const& dataHeaders)
@@ -480,36 +516,36 @@ void InstanceScript::HandleGameObject(ObjectGuid guid, bool open, GameObject* go
 
 void InstanceScript::UpdateOperations(uint32 const diff)
 {
-    for (auto l_It = m_TimedDelayedOperations.begin(); l_It != m_TimedDelayedOperations.end(); l_It++)
+    for (auto itr = timedDelayedOperations.begin(); itr != timedDelayedOperations.end(); itr++)
     {
-        l_It->first -= diff;
+        itr->first -= diff;
 
-        if (l_It->first < 0)
+        if (itr->first < 0)
         {
-            l_It->second();
-            l_It->second = nullptr;
+            itr->second();
+            itr->second = nullptr;
         }
     }
 
-    uint32 l_TimedDelayedOperationCountToRemove = std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+    uint32 timedDelayedOperationCountToRemove = std::count_if(std::begin(timedDelayedOperations), std::end(timedDelayedOperations), [](const std::pair<int32, std::function<void()>> & pair) -> bool
     {
-        return p_Pair.second == nullptr;
+        return pair.second == nullptr;
     });
 
-    for (uint32 l_I = 0; l_I < l_TimedDelayedOperationCountToRemove; l_I++)
+    for (uint32 i = 0; i < timedDelayedOperationCountToRemove; i++)
     {
-        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        auto itr = std::find_if(std::begin(timedDelayedOperations), std::end(timedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
         {
             return p_Pair.second == nullptr;
         });
 
-        if (l_It != std::end(m_TimedDelayedOperations))
-            m_TimedDelayedOperations.erase(l_It);
+        if (itr != std::end(timedDelayedOperations))
+            timedDelayedOperations.erase(itr);
     }
 
-    if (m_TimedDelayedOperations.empty() && !m_EmptyWarned)
+    if (timedDelayedOperations.empty() && !emptyWarned)
     {
-        m_EmptyWarned = true;
+        emptyWarned = true;
         LastOperationCalled();
     }
 }
@@ -1047,6 +1083,91 @@ uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
         interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
 
     return interval;
+}
+
+class ChallengeModeWorker
+{
+public:
+    ChallengeModeWorker(uint32 healthMultiplier) : _healthMultiplier(healthMultiplier) { }
+
+    void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+    {
+        for (auto const& p : creatureMap)
+        {
+            if (p.second->IsInWorld() && !p.second->IsPet())
+            {
+                if (!p.second->IsAlive())
+                    p.second->Respawn();
+
+                p.second->SetMaxHealth(CalculatePct(p.second->GetMaxHealth(), 100 + _healthMultiplier));
+                p.second->SetFullHealth();
+            }
+        }
+    }
+
+    template<class T>
+    void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+
+private:
+    uint32 _healthMultiplier;
+};
+
+void InstanceScript::StartChallengeMode(uint8 level)
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntry(instance->GetId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    // Todo : Abort if 1 boss already dead
+
+    instance->SendToPlayers(WorldPackets::ChallengeMode::ChangePlayerDifficultyResult(5).Write());
+
+    ChallengeModeWorker worker(sChallengeModeMgr->GetHealthMultiplier(level));
+    TypeContainerVisitor<ChallengeModeWorker, MapStoredObjectTypesContainer> visitor(worker);
+    visitor.Visit(instance->GetObjectsStore());
+    // Todo : Tp back all players to begin
+    // Todo : Spawn doors
+
+    // Remove the Font of Power
+    if (GameObject* gameObject = GetGameObject(246779))
+        gameObject->Delete();
+
+    WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
+    changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
+    changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
+    instance->SendToPlayers(changePlayerDifficultyResult.Write());
+
+    instance->SendToPlayers(WorldPackets::ChallengeMode::Reset(instance->GetId()).Write());
+
+    WorldPackets::Misc::StartTimer startTimer;
+    startTimer.Type = 9;
+    startTimer.TimeLeft = 10;  
+    startTimer.TotalTime = 1;
+    instance->SendToPlayers(startTimer.Write());
+
+    WorldPackets::ChallengeMode::Start start;
+    start.MapId = instance->GetId();
+    start.ChallengeId = mapChallengeModeEntry->ID;
+    start.ChallengeLevel = level;
+    instance->SendToPlayers(start.Write());
+
+    _challengeModeStarted = true;
+    _challengeModeLevel = level;
+
+    AddTimedDelayedOperation(10000, [this]()
+    {
+        WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
+        startElapsedTimer.TimerID = 1;
+        startElapsedTimer.CurrentDuration = 0;
+        instance->SendToPlayers(startElapsedTimer.Write());
+
+        _challengeModeStartTime = getMSTime();
+    });
+}
+
+uint32 InstanceScript::GetChallengeModeCurrentDuration() const
+{
+    return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
 }
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName)

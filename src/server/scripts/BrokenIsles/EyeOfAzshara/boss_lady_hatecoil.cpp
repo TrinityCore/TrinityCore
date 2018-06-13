@@ -18,7 +18,41 @@
 #include "ScriptMgr.h"
 #include "eye_of_azshara.h"
 
+enum Spells
+{
+    SPELL_STATIC_NOVA                   = 193597,
+    SPELL_FOCUSED_LIGHT                 = 193611,
+    
+    SPELL_BECKON_STORM                  = 193682,
+    SPELL_BECKON_STORM_SUMMON           = 193683,
+    SPELL_WATERY_SPLASH                 = 193636,
+    
+    SPELL_CURSE_OF_THE_WITCH            = 193698,
+    SPELL_CURSE_OF_THE_WITCH_KNOCK_BACK = 193700,
+    SPELL_CURSE_OF_THE_WITCH_KILL       = 193720,
+    SPELL_CURSE_OF_THE_WITCH_ROOT       = 194197,
+};
+
+// 91784
+struct boss_lady_hatecoil : public BossAI
+{
+    boss_lady_hatecoil(Creature* creature) : BossAI(creature, DATA_LADY_HATECOIL) { }
+
+    void ScheduleTasks() override
+    {
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            default:
+                break;
+        }
+    }
+};
+
 void AddSC_boss_lady_hatecoil()
 {
-
+    RegisterCreatureAI(boss_lady_hatecoil);
 }

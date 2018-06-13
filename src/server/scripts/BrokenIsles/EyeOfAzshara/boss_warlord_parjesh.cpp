@@ -41,7 +41,7 @@ struct boss_warlord_parjesh : public BossAI
 {
     boss_warlord_parjesh(Creature* creature) : BossAI(creature, DATA_WARLORD_PARJESH) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void ScheduleTasks() override
     {
         events.ScheduleEvent(SPELL_CRASHING_WAVE, 20000, 24000);
         events.ScheduleEvent(SPELL_IMPALING_SPEAR_CAST, 28000, 32000);
