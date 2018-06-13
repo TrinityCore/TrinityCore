@@ -801,8 +801,6 @@ void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
     }
 
     Update(diff, caster);
-    
-    HeartbeatResistance(diff, caster);
 
     if (m_updateTargetMapInterval <= int32(diff))
         UpdateTargetMap(caster);
@@ -855,6 +853,33 @@ void Aura::Update(uint32 diff, Unit* caster)
                 }
             }
         }
+    }
+    
+    if (m_heartBeatTimer)
+    {
+        if (m_heartBeatTimer < int32(diff))
+        {     
+            m_heartBeatTimer += m_maxDuration / 4 - diff;
+            
+            SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
+            // Skip auras with schoolmask NORMAL
+            if (schoolMask == SPELL_SCHOOL_MASK_NORMAL)
+                return;
+
+            if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                uint32 resistance = target->GetResistance(GetFirstSchoolInMask(schoolMask));
+                uint32 breakPct = uint32(resistance / powf(float(GetUnitOwner()->getLevel()), 1.441f) * 0.10 * 100) + 5;
+
+                if (roll_chance_i(breakPct))
+                {
+                    Remove();
+                    TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
+                }
+            }
+        }
+        else
+            m_heartBeatTimer -= diff;
     }
 }
 
@@ -2180,40 +2205,6 @@ void Aura::TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, Pro
     // Remove aura if we've used last charge to proc
     if (IsUsingCharges() && !GetCharges())
         Remove();
-}
-
-void Aura::HeartbeatResistance(uint32 diff, Unit* caster)
-{
-    Unit* target = GetOwner()->ToUnit();
-    if (!target || !caster)
-        return;
-  
-    if (m_heartBeatTimer)
-    {
-        if (m_heartBeatTimer < int32(diff))
-        {     
-            m_heartBeatTimer += m_maxDuration / 4 - diff;
-            
-            SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
-            // Skip auras with schoolmask NORMAL
-            if (schoolMask == SPELL_SCHOOL_MASK_NORMAL)
-                return;
-            
-            if (target->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                uint32 resistance = target->GetResistance(GetFirstSchoolInMask(schoolMask));
-                uint32 breakPct = uint32(resistance / powf(float(target->getLevel()), 1.441f) * 0.10 * 100) + 5;
-
-                if (roll_chance_i(breakPct))
-                {
-                    Remove();
-                    TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
-                }
-            }
-        }
-        else
-            m_heartBeatTimer -= diff;
-    }
 }
 
 void Aura::_DeleteRemovedApplications()
