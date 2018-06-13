@@ -93,13 +93,13 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
         void InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget);
-        AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const;
+        AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const { return _areaTriggerCircularMovementInfo; }
 
-        ObjectGuid const& GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
-        void SetCircularMovementCenterGUID(ObjectGuid const& guid) { _circularMovementCenterGUID = guid; }
+        Optional<ObjectGuid> GetCircularMovementCenterGUID() const { return _areaTriggerCircularMovementInfo.TargetGUID; }
+        void SetCircularMovementCenterGUID(ObjectGuid const& guid) { _areaTriggerCircularMovementInfo.TargetGUID = guid; }
 
-        Position const& GetCircularMovementCenterPosition() const;
-        void SetCircularMovementCenterPosition(Position const& pos) { _circularMovementCenterPosition = pos; }
+        Position const* GetCircularMovementCenterPosition() const;
+        void SetCircularMovementCenterPosition(Position const& pos) { _areaTriggerCircularMovementInfo.Center = pos; }
 
         void UpdateShape();
 
@@ -148,8 +148,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         std::unique_ptr<AreaTriggerAI> _ai;
 
-        ObjectGuid _circularMovementCenterGUID;
-        Position _circularMovementCenterPosition;
+        AreaTriggerCircularMovementInfo _areaTriggerCircularMovementInfo;
 };
 
 #endif
