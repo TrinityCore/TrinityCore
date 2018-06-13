@@ -1460,63 +1460,7 @@ public:
         if (!cArgs.ValidArgs())
             return false;
 
-        uint32 itemId = 138019;
-        int32 count = 1;
-
-        Player* player = handler->GetSession()->GetPlayer();
-        Player* playerTarget = handler->getSelectedPlayer();
-        if (!playerTarget)
-            playerTarget = player;
-
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_ADDITEM), itemId, count);
-
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
-        if (!itemTemplate)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // Adding items
-        uint32 noSpaceForCount = 0;
-
-        // check space and find places
-        ItemPosCountVec dest;
-        InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
-        if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
-            count -= noSpaceForCount;
-
-        if (count == 0 || dest.empty())                         // can't add any
-        {
-            handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0);
-
-        // remove binding (let GM give it to another player later)
-        if (player == playerTarget)
-            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
-                if (Item* item1 = player->GetItemByPos(itr->pos))
-                    item1->SetBinding(false);
-
-        if (count > 0 && item)
-        {
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID,  cArgs.GetArg<uint32>(0));
-
-            uint32 mythicKeyLevel = cArgs.Count() >= 2 ? cArgs.GetArg<uint32>(1) : 2;
-            item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, mythicKeyLevel);
-
-            player->SendNewItem(item, count, false, true);
-            if (player != playerTarget)
-                playerTarget->SendNewItem(item, count, true, false);
-        }
-
-        if (noSpaceForCount > 0)
-            handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
-
+        handler->getSelectedPlayerOrSelf()->AddChallengeKey(cArgs.GetArg<uint32>(0), cArgs.GetArg<uint32>(1, 2));
         return true;
     }
 

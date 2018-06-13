@@ -1217,6 +1217,7 @@ void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
     try
     {
         std::vector<CommandArgsType> argsTypeVector = std::vector<CommandArgsType>(argsType);
+        _argsTypeVector = argsTypeVector;
 
         if (!_charArgs || !*_charArgs)
         {

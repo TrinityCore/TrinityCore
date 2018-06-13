@@ -215,9 +215,15 @@ public:
     T GetNextArg() { return GetArg<T>(_pos++); }
 
     template<typename T>
-    T GetArg(uint8 index)
+    T GetArg(uint8 index, T defaultValue = T())
     {
-        ASSERT(index < _args.size());
+        ASSERT(index < _argsTypeVector.size());
+
+        if (_argsTypeVector[index] <= ARG_OPTIONAL_BEGIN)
+            ASSERT(index < _args.size());
+        else if (index >= _args.size())
+            return defaultValue;
+
         return boost::any_cast<T>(_args[index]);
     }
 
@@ -225,7 +231,7 @@ private:
     bool _validArgs;
     ChatHandler* _handler;
     char const* _charArgs;
-    std::initializer_list<CommandArgsType> _argsType;
+    std::vector<CommandArgsType> _argsTypeVector;
     std::vector<boost::any> _args;
     uint8 _pos;
 };
