@@ -145,14 +145,8 @@ void InstanceScript::OnPlayerEnter(Player* player)
 {
     if (IsChallengeModeStarted())
     {
-        WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
-        startElapsedTimer.TimerID = 1;
-        startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
-        player->SendDirectMessage(startElapsedTimer.Write());
-
-        WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
-        updateDeathCount.DeathCount = _challengeModeDeathCount;
-        player->SendDirectMessage(updateDeathCount.Write());
+        SendChallengeModeElapsedTimer();
+        SendChallengeModeDeathCount();
     }
 }
 
@@ -162,14 +156,8 @@ void InstanceScript::OnPlayerDeath(Player* /*player*/)
     {
         ++_challengeModeDeathCount;
 
-        WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
-        startElapsedTimer.TimerID = 1;
-        startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
-        instance->SendToPlayers(startElapsedTimer.Write());
-
-        WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
-        updateDeathCount.DeathCount = _challengeModeDeathCount;
-        instance->SendToPlayers(updateDeathCount.Write());
+        SendChallengeModeElapsedTimer();
+        SendChallengeModeDeathCount();
     }
 }
 
@@ -1156,18 +1144,50 @@ void InstanceScript::StartChallengeMode(uint8 level)
 
     AddTimedDelayedOperation(10000, [this]()
     {
-        WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
-        startElapsedTimer.TimerID = 1;
-        startElapsedTimer.CurrentDuration = 0;
-        instance->SendToPlayers(startElapsedTimer.Write());
-
         _challengeModeStartTime = getMSTime();
+
+        SendChallengeModeElapsedTimer();
     });
+}
+
+void InstanceScript::CompleteChallengeMode()
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntry(instance->GetId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    WorldPackets::ChallengeMode::Complete complete;
+    complete.Duration = GetChallengeModeCurrentDuration();
+    complete.MapId = instance->GetId();
+    complete.ChallengeId = mapChallengeModeEntry->ID;
+    complete.ChallengeLevel = _challengeModeLevel;
+    instance->SendToPlayers(complete.Write());
+
+    // Todo : Send stats
+
+    // Todo : Reward players with new random key
+
+    SpawnChallengeModeRewardChest();
 }
 
 uint32 InstanceScript::GetChallengeModeCurrentDuration() const
 {
     return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
+}
+
+void InstanceScript::SendChallengeModeDeathCount() const
+{
+    WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
+    updateDeathCount.DeathCount = _challengeModeDeathCount;
+    instance->SendToPlayers(updateDeathCount.Write());
+}
+
+void InstanceScript::SendChallengeModeElapsedTimer() const
+{
+    WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
+    startElapsedTimer.TimerID = 1;
+    startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
+    instance->SendToPlayers(startElapsedTimer.Write());
 }
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName)

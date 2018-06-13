@@ -19,6 +19,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -152,6 +153,16 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
                 SetStepState(step, SCENARIO_STEP_DONE);
         }
     }
+}
+
+void InstanceScenario::CompleteScenario()
+{
+    Scenario::CompleteScenario();
+
+    if (InstanceMap* iMap = const_cast<Map*>(_map)->ToInstanceMap())
+        if (InstanceScript* instance = iMap->GetInstanceScript())
+            if (instance->IsChallengeModeStarted())
+                instance->CompleteChallengeMode();
 }
 
 std::string InstanceScenario::GetOwnerInfo() const

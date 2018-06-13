@@ -342,9 +342,16 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Challenge Modes
         void StartChallengeMode(uint8 level);
+        void CompleteChallengeMode();
+
         bool IsChallengeModeStarted() const { return _challengeModeStarted; }
         uint8 GetChallengeModeLevel() const { return _challengeModeLevel; }
         uint32 GetChallengeModeCurrentDuration() const;
+
+        void SendChallengeModeDeathCount() const;
+        void SendChallengeModeElapsedTimer() const;
+
+        virtual void SpawnChallengeModeRewardChest() { }
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
