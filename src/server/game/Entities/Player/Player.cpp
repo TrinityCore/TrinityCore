@@ -27937,6 +27937,36 @@ bool Player::AddItem(uint32 itemId, uint32 count)
     return true;
 }
 
+bool Player::AddChallengeKey(uint32 challengeId, uint32 challengeLevel/* = 2*/)
+{
+    uint32 itemId = 138019;
+    uint8 count = 1;
+    uint32 noSpaceForCount = 0;
+    ItemPosCountVec dest;
+    InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+    if (msg != EQUIP_ERR_OK)
+        count -= noSpaceForCount;
+
+    if (count == 0 || dest.empty())
+    {
+        /// @todo Send to mailbox if no space
+        ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
+        return false;
+    }
+
+    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId));
+    if (item)
+    {
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, challengeId);
+        item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, challengeLevel);
+
+        SendNewItem(item, count, true, false);
+    }
+    else
+        return false;
+    return true;
+}
+
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error) const
 {
     WorldPackets::Item::ItemPurchaseRefundResult itemPurchaseRefundResult;

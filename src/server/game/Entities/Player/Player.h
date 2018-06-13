@@ -1372,6 +1372,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LoadPetsFromDB(PreparedQueryResult result);
 
         bool AddItem(uint32 itemId, uint32 count);
+        bool AddChallengeKey(uint32 challengeId, uint32 challengeLevel = 2);
 
         uint32 m_stableSlots;
 
