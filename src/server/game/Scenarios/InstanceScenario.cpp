@@ -16,6 +16,7 @@
  */
 
 #include "InstanceScenario.h"
+#include "ChallengeModeMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
@@ -160,9 +161,21 @@ void InstanceScenario::CompleteScenario()
     Scenario::CompleteScenario();
 
     if (InstanceMap* iMap = const_cast<Map*>(_map)->ToInstanceMap())
+    {
         if (InstanceScript* instance = iMap->GetInstanceScript())
+        {
             if (instance->IsChallengeModeStarted())
+            {
                 instance->CompleteChallengeMode();
+            }
+            else if (_map->IsMythic())
+            {
+                Map::PlayerList const &players = _map->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId());
+            }
+        }
+    }
 }
 
 std::string InstanceScenario::GetOwnerInfo() const

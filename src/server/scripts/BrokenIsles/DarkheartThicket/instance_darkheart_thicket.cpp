@@ -73,6 +73,8 @@ struct instance_darkheart_thicket : public InstanceScript
             creature->SetMaxHealth(creature->GetMaxHealth() * 2.f);
         if (instance->IsMythic())
             creature->SetMaxHealth(creature->GetMaxHealth() * 1.33f);
+
+        creature->SetCreateHealth((uint32)creature->GetMaxHealth());
         creature->SetFullHealth();
     }
 

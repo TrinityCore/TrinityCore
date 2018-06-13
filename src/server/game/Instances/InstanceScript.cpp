@@ -98,6 +98,9 @@ void InstanceScript::OnCreatureCreate(Creature* creature)
 {
     AddObject(creature, true);
     AddMinion(creature, true);
+
+    if (IsChallengeModeStarted())
+        CastChallengeCreatureSpell(creature);
 }
 
 void InstanceScript::OnCreatureRemove(Creature* creature)
@@ -145,6 +148,11 @@ void InstanceScript::OnPlayerEnter(Player* player)
 {
     if (IsChallengeModeStarted())
     {
+        WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
+        changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
+        changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
+        instance->SendToPlayers(changePlayerDifficultyResult.Write());
+
         SendChallengeModeElapsedTimer();
         SendChallengeModeDeathCount();
     }
@@ -1076,7 +1084,7 @@ uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
 class ChallengeModeWorker
 {
 public:
-    ChallengeModeWorker(uint32 healthMultiplier) : _healthMultiplier(healthMultiplier) { }
+    ChallengeModeWorker(InstanceScript* instance) : _instance(instance) { }
 
     void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
     {
@@ -1087,8 +1095,7 @@ public:
                 if (!p.second->IsAlive())
                     p.second->Respawn();
 
-                p.second->SetMaxHealth(CalculatePct(p.second->GetMaxHealth(), 100 + _healthMultiplier));
-                p.second->SetFullHealth();
+                _instance->CastChallengeCreatureSpell(p.second);
             }
         }
     }
@@ -1097,7 +1104,7 @@ public:
     void Visit(std::unordered_map<ObjectGuid, T*>&) { }
 
 private:
-    uint32 _healthMultiplier;
+    InstanceScript* _instance;
 };
 
 void InstanceScript::StartChallengeMode(uint8 level)
@@ -1106,19 +1113,28 @@ void InstanceScript::StartChallengeMode(uint8 level)
     if (!mapChallengeModeEntry)
         return;
 
-    // Todo : Abort if 1 boss already dead
+    if (IsChallengeModeStarted())
+        return;
+
+    if (GetCompletedEncounterMask() != 0)
+        return;
 
     instance->SendToPlayers(WorldPackets::ChallengeMode::ChangePlayerDifficultyResult(5).Write());
 
-    ChallengeModeWorker worker(sChallengeModeMgr->GetHealthMultiplier(level));
+    // Add the health/dmg modifier aura to all creatures
+    ChallengeModeWorker worker(this);
     TypeContainerVisitor<ChallengeModeWorker, MapStoredObjectTypesContainer> visitor(worker);
     visitor.Visit(instance->GetObjectsStore());
-    // Todo : Tp back all players to begin
-    // Todo : Spawn doors
 
-    // Remove the Font of Power
-    if (GameObject* gameObject = GetGameObject(246779))
-        gameObject->Delete();
+    // Tp back all players to begin
+    Position entranceLocation;
+    if (WorldSafeLocsEntry const* entranceSafeLocEntry = sWorldSafeLocsStore.LookupEntry(GetEntranceLocation()))
+        entranceLocation.Relocate(entranceSafeLocEntry->Loc.X, entranceSafeLocEntry->Loc.Y, entranceSafeLocEntry->Loc.Z, entranceSafeLocEntry->Facing);
+    else if (AreaTriggerTeleportStruct const* areaTrigger = sObjectMgr->GetMapEntranceTrigger(instance->GetId()))
+        entranceLocation.Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, areaTrigger->target_Orientation);
+    DoNearTeleportPlayers(entranceLocation);
+
+    // Todo : Spawn doors
 
     WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
     changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
@@ -1156,8 +1172,10 @@ void InstanceScript::CompleteChallengeMode()
     if (!mapChallengeModeEntry)
         return;
 
+    uint32 totalDuration = GetChallengeModeCurrentDuration();
+
     WorldPackets::ChallengeMode::Complete complete;
-    complete.Duration = GetChallengeModeCurrentDuration();
+    complete.Duration = totalDuration;
     complete.MapId = instance->GetId();
     complete.ChallengeId = mapChallengeModeEntry->ID;
     complete.ChallengeLevel = _challengeModeLevel;
@@ -1165,7 +1183,34 @@ void InstanceScript::CompleteChallengeMode()
 
     // Todo : Send stats
 
-    // Todo : Reward players with new random key
+    uint8 mythicIncrement = 0;
+
+    for (uint8 i = 0; i < 3; ++i)
+        if (uint32(mapChallengeModeEntry->CriteriaCount[i]) > totalDuration)
+            ++mythicIncrement;
+
+    Map::PlayerList const &players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), _challengeModeLevel + mythicIncrement);
+
+    // Achievements only if timer respected
+    if (mythicIncrement)
+    {
+        if (_challengeModeLevel >= 2)
+            DoCompleteAchievement(11183);
+
+        if (_challengeModeLevel >= 5)
+            DoCompleteAchievement(11184);
+
+        if (_challengeModeLevel >= 10)
+            DoCompleteAchievement(11185);
+
+        if (_challengeModeLevel >= 15)
+        {
+            DoCompleteAchievement(11162);
+            DoCompleteAchievement(11224);
+        }
+    }
 
     SpawnChallengeModeRewardChest();
 }
@@ -1188,6 +1233,29 @@ void InstanceScript::SendChallengeModeElapsedTimer() const
     startElapsedTimer.TimerID = 1;
     startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
     instance->SendToPlayers(startElapsedTimer.Write());
+}
+
+void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
+{
+    CustomSpellValues values;
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT0, sChallengeModeMgr->GetHealthMultiplier(_challengeModeLevel));
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT1, sChallengeModeMgr->GetDamageMultiplier(_challengeModeLevel));
+
+    // Affixes
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT2,  0); // 6 Raging
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT3,  0); // 6 Raging
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT4,  0); // 7 Bolstering
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT5,  0); //
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT6,  0); //
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT7,  0); // 9 Tyrannical
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT8,  0); // 3 Volcanic
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT9,  0); // 4 Necrotic
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT10, 0); // 10 Fortified
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT11, 0); // 8 Sanguine
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT12, 0); // 14 Quaking
+    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT13, 0); // 13 Explosive
+
+    creature->CastCustomSpell(CHALLENGER_MIGHT, values, creature, TRIGGERED_FULL_MASK);
 }
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName)

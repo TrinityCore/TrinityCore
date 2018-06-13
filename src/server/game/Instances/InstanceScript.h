@@ -91,6 +91,12 @@ enum DoorType
     MAX_DOOR_TYPES
 };
 
+enum ChallengeModeSpells
+{
+    CHALLENGER_MIGHT    = 206150,
+    CHALLENGER_BURDEN   = 206151
+};
+
 struct DoorData
 {
     uint32 entry, bossId;
@@ -350,6 +356,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SendChallengeModeDeathCount() const;
         void SendChallengeModeElapsedTimer() const;
+
+        void CastChallengeCreatureSpell(Creature* creature);
 
         virtual void SpawnChallengeModeRewardChest() { }
 

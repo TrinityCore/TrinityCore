@@ -731,11 +731,6 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
         if (IsPlayer() && victim->IsCreature())
             if (GetMapId() != MAP_EBON_HOLD_DK_START_ZONE)
                 damage *= Trinity::GetDamageMultiplierForExpansion(getLevel(), victim->ToCreature()->GetCreatureTemplate()->HealthScalingExpansion);
-
-    if (IsCreature() && this != victim && !IsPet())
-        if (InstanceScript* instance = GetInstanceScript())
-            if (instance->IsChallengeModeStarted())
-                AddPct(damage, sChallengeModeMgr->GetDamageMultiplier(instance->GetChallengeModeLevel()));
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
