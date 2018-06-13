@@ -25,6 +25,9 @@
 #include "Transaction.h"
 #include "Util.h"
 #include <errmsg.h>
+#ifdef MARIADB_VERSION_ID // hack for MariaDB storing necessary values in server/errmsg.h instead of the expected `errmsg.h` from MySQL.
+#include <server/errmsg.h>
+#endif
 #ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
 #include <winsock2.h>
 #endif
