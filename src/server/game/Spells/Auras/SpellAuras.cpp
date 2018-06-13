@@ -861,14 +861,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         {     
             m_heartBeatTimer += m_maxDuration / 4 - diff;
             
-            SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
-            // Skip auras with schoolmask NORMAL
-            if (schoolMask == SPELL_SCHOOL_MASK_NORMAL)
-                return;
-
             if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                uint32 resistance = target->GetResistance(GetFirstSchoolInMask(schoolMask));
+            {      
+                uint32 resistance = target->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
                 uint32 breakPct = uint32(resistance / powf(float(GetUnitOwner()->getLevel()), 1.441f) * 0.10 * 100) + 5;
 
                 if (roll_chance_i(breakPct))
