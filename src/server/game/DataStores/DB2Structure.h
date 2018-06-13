@@ -1998,6 +1998,15 @@ struct MapEntry
     bool IsWorldPvPMap() const { return (Flags[1] & MAP_FLAG2_WORLD_PVP) != 0; }
 };
 
+struct MapChallengeModeEntry
+{
+    LocalizedString* Name;
+    uint32 ID;
+    uint16 MapID;
+    int16 CriteriaCount[3];
+    uint8 Flags;
+};
+
 struct MapDifficultyEntry
 {
     uint32 ID;
