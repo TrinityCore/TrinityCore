@@ -2190,7 +2190,7 @@ void Aura::HeartbeatResistance(uint32 diff, Unit* caster)
   
     if (m_heartBeatTimer)
     {
-        if (m_heartBeatTimer < diff)
+        if (m_heartBeatTimer < int32(diff))
         {     
             m_heartBeatTimer += m_maxDuration / 4 - diff;
             
