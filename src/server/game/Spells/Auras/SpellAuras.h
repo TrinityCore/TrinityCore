@@ -281,6 +281,7 @@ class TC_GAME_API Aura
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
         int32 m_timeCla;                                    // Timer for power per sec calcultion
+        int32 m_heartBeatTimer;                             // Heartbeat resistance timer
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
         CasterInfo _casterInfo;
@@ -295,8 +296,6 @@ class TC_GAME_API Aura
         bool m_isUsingCharges:1;
 
         ChargeDropEvent* m_dropEvent;
-
-        uint32 m_heartBeatTimer;                        // Heartbeat resist timer
 
         std::chrono::steady_clock::time_point m_procCooldown;
 
