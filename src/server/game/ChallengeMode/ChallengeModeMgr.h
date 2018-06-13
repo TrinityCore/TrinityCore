@@ -29,6 +29,8 @@ public:
 
     uint32 GetDamageMultiplier(uint8 challengeLevel);
     uint32 GetHealthMultiplier(uint8 challengeLevel);
+
+    uint32 GetRandomChallengeId(uint32 flags = 4);
 };
 
 #define sChallengeModeMgr ChallengeModeMgr::instance()

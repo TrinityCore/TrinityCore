@@ -16,6 +16,7 @@
  */
 
 #include "ChallengeModeMgr.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 
 ChallengeModeMgr* ChallengeModeMgr::instance()
@@ -92,4 +93,20 @@ uint32 ChallengeModeMgr::GetHealthMultiplier(uint8 challengeLevel)
     }
 
     return 1;
+}
+
+uint32 ChallengeModeMgr::GetRandomChallengeId(uint32 flags/* = 4*/)
+{
+    std::vector<uint32> challenges;
+
+    for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
+        if (MapChallengeModeEntry const* challengeModeEntry = sMapChallengeModeStore.LookupEntry(i))
+            if (challengeModeEntry->Flags & flags &&
+                (challengeModeEntry->ID == 198 || challengeModeEntry->ID == 199)) // Temp fix, only doable dungeons here
+                challenges.push_back(challengeModeEntry->ID);
+
+    if (challenges.empty())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(challenges);
 }
