@@ -136,6 +136,7 @@ class TC_GAME_API Aura
 
         void UpdateOwner(uint32 diff, WorldObject* owner);
         void Update(uint32 diff, Unit* caster);
+        void HeartbeatResistance(uint32 diff, Unit* caster);
 
         time_t GetApplyTime() const { return m_applyTime; }
         int32 GetMaxDuration() const { return m_maxDuration; }
@@ -222,8 +223,6 @@ class TC_GAME_API Aura
         uint8 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
-
-        void HeartbeatResistance(uint32 diff, Unit* caster);
 
         // AuraScript
         void LoadScripts();
