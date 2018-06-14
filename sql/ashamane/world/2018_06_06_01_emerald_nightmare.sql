@@ -42,3 +42,6 @@ INSERT INTO `reference_loot_template` (`entry`, `Item`, `Reference`, `Chance`, `
 ('102672', '139320', '0', '14.80031', '0', '1', '1', '1', '1', ''),
 ('102672', '139321', '0', '9.576939', '0', '1', '1', '1', '1', '');
 
+DELETE FROM graveyard_zone WHERE GhostZone = 8026;
+INSERT INTO graveyard_zone VALUES
+(5687, 8026, 0, "Emerald Nightmare");

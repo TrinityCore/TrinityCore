@@ -56,6 +56,7 @@ class TC_GAME_API ZoneScript : public ScriptObject
         virtual void OnGameObjectRemove(GameObject* ) { }
 
         virtual void OnUnitDeath(Unit*) { }
+        virtual void OnPlayerDeath(Player*) { }
 
         // Called when a player successfully enters or exit the zone.
         virtual void OnPlayerEnter(Player* /*player*/) { }

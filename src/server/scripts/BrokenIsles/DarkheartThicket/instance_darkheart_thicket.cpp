@@ -54,6 +54,7 @@ struct instance_darkheart_thicket : public InstanceScript
     {
         SetBossNumber(DATA_MAX_ENCOUNTERS);
         LoadDoorData(doorData);
+        SetChallengeDoorPos({ 3231.927979f, 1826.731812f, 233.376038f, 3.374087f });
     }
 
     void OnUnitDeath(Unit* unit) override
@@ -70,10 +71,9 @@ struct instance_darkheart_thicket : public InstanceScript
         InstanceScript::OnCreatureCreate(creature);
 
         if (instance->IsHeroic())
-            creature->SetMaxHealth(creature->GetMaxHealth() * 2.f);
+            creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
         if (instance->IsMythic())
-            creature->SetMaxHealth(creature->GetMaxHealth() * 1.33f);
-        creature->SetFullHealth();
+            creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
     }
 
     bool SetBossState(uint32 type, EncounterState state) override

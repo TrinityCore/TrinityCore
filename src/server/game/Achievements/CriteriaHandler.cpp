@@ -696,6 +696,11 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                     continue;
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
+            case CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
+                if (miscValue1 != criteria->Entry->Asset.DungeonEncounterID)
+                    continue;
+                SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
+                break;
             // FIXME: not triggered in code as result, need to implement
             case CRITERIA_TYPE_COMPLETE_RAID:
             case CRITERIA_TYPE_PLAY_ARENA:
@@ -730,7 +735,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT:
             case CRITERIA_TYPE_ENTER_AREA:
             case CRITERIA_TYPE_LEAVE_AREA:
-            case CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
             case CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
             case CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             case CRITERIA_TYPE_UPGRADE_GARRISON:
@@ -1137,6 +1141,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
         case CRITERIA_TYPE_EARN_HONOR_XP:
         case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
+        case CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
             return progress->Counter >= requiredAmount;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case CRITERIA_TYPE_COMPLETE_QUEST:

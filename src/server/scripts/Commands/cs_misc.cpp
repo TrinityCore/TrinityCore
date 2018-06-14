@@ -68,6 +68,7 @@ public:
         {
             { "additem",          rbac::RBAC_PERM_COMMAND_ADDITEM,          false, &HandleAddItemCommand,          "" },
             { "additemset",       rbac::RBAC_PERM_COMMAND_ADDITEMSET,       false, &HandleAddItemSetCommand,       "" },
+            { "addmkey",          rbac::RBAC_PERM_COMMAND_ADDITEM,          false, &HandleAddMKeyCommand,          "" },
             { "appear",           rbac::RBAC_PERM_COMMAND_APPEAR,           false, &HandleAppearCommand,           "" },
             { "aura",             rbac::RBAC_PERM_COMMAND_AURA,             false, &HandleAuraCommand,             "" },
             { "bank",             rbac::RBAC_PERM_COMMAND_BANK,             false, &HandleBankCommand,             "" },
@@ -1450,6 +1451,16 @@ public:
             return false;
         }
 
+        return true;
+    }
+
+    static bool HandleAddMKeyCommand(ChatHandler* handler, char const* args)
+    {
+        CommandArgs cArgs = CommandArgs(handler, args, { CommandArgs::ARG_UINT, CommandArgs::ARG_UINT_OPTIONAL });
+        if (!cArgs.ValidArgs())
+            return false;
+
+        handler->getSelectedPlayerOrSelf()->AddChallengeKey(cArgs.GetArg<uint32>(0), cArgs.GetArg<uint32>(1, 2));
         return true;
     }
 

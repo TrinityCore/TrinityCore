@@ -190,6 +190,15 @@ namespace WorldPackets
         class CalendarComplain;
     }
 
+    namespace ChallengeMode
+    {
+        class StartRequest;
+        class ChangePlayerDifficultyResult;
+        class Start;
+        class Reset;
+        class UpdateDeathCount;
+    }
+
     namespace Character
     {
         struct CharacterCreateInfo;
@@ -489,6 +498,8 @@ namespace WorldPackets
         class AdventureJournalOpenQuest;
         class FactionSelect;
         class AdventureJournalStartQuest;
+        class StartTimer;
+        class StartElapsedTimer;
     }
 
     namespace Movement
@@ -1783,6 +1794,9 @@ class TC_GAME_API WorldSession
 
         // Honor
         void HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp& /*pvpPrestigeRankUp*/);
+
+        // Challenge Modes
+        void HandleChallengeModeStart(WorldPackets::ChallengeMode::StartRequest& /*start*/);
 
         union ConnectToKey
         {

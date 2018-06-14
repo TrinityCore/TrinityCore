@@ -3784,7 +3784,7 @@ bool Map::IsHeroic() const
 
 bool Map::IsMythic() const
 {
-    return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
+    return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
 }
 
 bool Map::Is25ManRaid() const
@@ -3920,6 +3920,25 @@ void BattlegroundMap::RemoveAllPlayers()
             if (Player* player = itr->GetSource())
                 if (!player->IsBeingTeleportedFar())
                     player->TeleportTo(player->GetBattlegroundEntryPoint());
+}
+
+GameObject* Map::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
+{
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
+    if (!goinfo)
+    {
+        TC_LOG_ERROR("sql.sql", "Gameobject template %u not found in database!", entry);
+        return nullptr;
+    }
+
+    GameObject* go = GameObject::CreateGameObject(entry, this, pos, rot, 255, GO_STATE_READY);
+    if (!go)
+        return nullptr;
+
+    go->SetRespawnTime(respawnTime);
+    go->SetSpawnedByDefault(false);
+    AddToMap(go);
+    return go;
 }
 
 AreaTrigger* Map::GetAreaTrigger(ObjectGuid const& guid)

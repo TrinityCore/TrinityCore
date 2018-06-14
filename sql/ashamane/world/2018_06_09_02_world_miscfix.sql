@@ -1,3 +1,5 @@
+SET @CGUID := 210118235;
+
 UPDATE `creature_template` SET `gossip_menu_id` = 1750, `npcflag` = 3 WHERE `entry` = 1750;
 
 REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('1750','0','0','I am ready to GO!','0','1','1','29416');
@@ -13,7 +15,7 @@ DELETE FROM `creature` WHERE `id`=66292;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (10645862, 66292, 870, 5785, 6516, 1, 0, 0, 0, -1, 0, 0, -463.317, -1904.94, 53.5756, 1.26051, 300, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', 0),
 (10646285, 66292, 870, 5785, 5853, 1, 0, 0, 0, -1, 0, 0, -664.501, -1485.42, 0.272252, 4.44604, 300, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', 0),
-(210116735, 66292, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -8454.1, 1375.32, 139.892, 0.197222, 300, 0, 0, 18387, 0, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+1, 66292, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -8454.1, 1375.32, 139.892, 0.197222, 300, 0, 0, 18387, 0, 0, 0, 0, 0, 0, 0, '', 0);
 
 UPDATE `creature_template` SET `gossip_menu_id` = 66292, `npcflag` = 3 WHERE `entry` = 66292;
 
@@ -38,7 +40,7 @@ UPDATE `creature_template` SET `KillCredit1` = 66398 WHERE `entry` = 66290;
 DELETE FROM `creature` WHERE `id`=15187;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (20548900, 15187, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -8335.77, 290.446, 156.832, 4.77213, 300, 0, 0, 5534, 3994, 0, 0, 0, 0, 0, 0, '', 0),
-(210116738, 15187, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -8317.97, 292.232, 156.834, 3.86346, 300, 0, 0, 15117, 3994, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+2, 15187, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -8317.97, 292.232, 156.834, 3.86346, 300, 0, 0, 15117, 3994, 0, 0, 0, 0, 0, 0, '', 0);
 
 REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('15187','0','0','Could you, please, send me to Moonglade, Emissary?','0','1','1','29416');
 UPDATE `creature_template` SET `gossip_menu_id` = 15187 WHERE `entry` = 15187;
@@ -136,10 +138,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 UPDATE `creature_template` SET `npcflag` = 3, `rank` = 0, `type` = 1 WHERE `entry` = 39622;
 DELETE FROM `creature` WHERE `id`=39622;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116742, 39622, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5130.97, -2306.4, 1280.83, 0.181265, 300, 0, 0, 2626, 0, 0, 16777218, 0, 0, 0, 0, '', 0);
+(@CGUID+3, 39622, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5130.97, -2306.4, 1280.83, 0.181265, 300, 0, 0, 2626, 0, 0, 16777218, 0, 0, 0, 0, '', 0);
 DELETE FROM `creature` WHERE `id`=39627;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116745, 39627, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5165.56, -2270.54, 1278.79, 6.08669, 300, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+4, 39627, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5165.56, -2270.54, 1278.79, 6.08669, 300, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, '', 0);
 
 
 UPDATE `creature_template` SET `faction` = 35 WHERE `entry` = 39622;
@@ -188,7 +190,7 @@ DELETE FROM `creature` WHERE `id`=39640;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (10656189, 39640, 1, 616, 4988, 1, 0, 0, 0, -1, 0, 0, 5044.72, -2082.93, 1274.31, 3.58247, 300, 0, 0, 5534, 0, 0, 0, 0, 0, 0, 0, '', 0),
 (10656540, 39640, 1, 616, 4988, 1, 0, 0, 0, -1, 0, 0, 5044.74, -2083.5, 1274.35, 4.23408, 300, 0, 0, 5534, 0, 0, 0, 0, 0, 0, 0, '', 0),
-(210116749, 39640, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5040.31, -2018.62, 1271.13, 3.64905, 300, 0, 0, 15117, 0, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+5, 39640, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 5040.31, -2018.62, 1271.13, 3.64905, 300, 0, 0, 15117, 0, 0, 0, 0, 0, 0, 0, '', 0);
 
 
 UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=39640; 
@@ -204,7 +206,7 @@ UPDATE `creature_template` SET `KillCredit2` = 39808 WHERE `entry` = 39643;
 DELETE FROM `creature` WHERE `id`=39858;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (284439, 39858, 1, 616, 5019, 1, 0, 0, 0, -1, 31605, 0, 4422.33, -2080.43, 1211.12, 5.65487, 300, 0, 0, 115954, 9470, 0, 0, 0, 0, 0, 0, '', 0),
-(210116752, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+6, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
 (10613680, 39858, 1, 616, 4989, 1, 0, 0, 0, -1, 0, 0, 5125.25, -1758.53, 1334.55, 3.42085, 300, 0, 0, 13735, 9470, 0, 0, 0, 0, 0, 0, '', 0);
 
 UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=39858; 
@@ -277,7 +279,7 @@ UPDATE `creature_template` SET `KillCredit1` = 40461, `KillCredit2` = 40462 WHER
 
 DELETE FROM `creature` WHERE `id`=41003;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116758, 41003, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4435.19, -2081.94, 1205.95, 5.85987, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+23, 41003, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4435.19, -2081.94, 1205.95, 5.85987, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0),
 (285696, 41003, 1, 616, 4990, 1, 0, 0, 0, -1, 32251, 0, 4895.39, -2803.11, 1437.76, 2.61799, 300, 0, 0, 44679, 8338, 0, 0, 0, 0, 0, 0, '', 0);
 
 DELETE FROM `quest_objectives` WHERE `ID` = '254075'; 
@@ -294,17 +296,17 @@ UPDATE `creature` SET `spawndist` = 3, `MovementType` = 1 WHERE `id` in (39835);
 
 DELETE FROM `creature` WHERE `id`=39835;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116771, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4549.79, -2540.49, 826.03, 6.22524, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116770, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4543.92, -2554.92, 828.165, 6.22524, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116769, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4557.98, -2566.8, 828.748, 1.05654, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116768, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4561.24, -2581.06, 829.648, 0.797354, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116767, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4574.83, -2577.24, 829.64, 1.54427, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116766, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4591.36, -2567.1, 826.869, 3.16533, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116765, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4592.9, -2588.28, 828.198, 1.80816, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116764, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4604.03, -2593.17, 827.667, 2.10504, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116763, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4612.7, -2583.81, 826.406, 3.01532, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116762, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4619.23, -2594.16, 826.478, 1.97388, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
-(210116761, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4622.49, -2592.26, 825.729, 2.0642, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+7, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4549.79, -2540.49, 826.03, 6.22524, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+8, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4543.92, -2554.92, 828.165, 6.22524, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+9, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4557.98, -2566.8, 828.748, 1.05654, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+10, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4561.24, -2581.06, 829.648, 0.797354, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+11, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4574.83, -2577.24, 829.64, 1.54427, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+12, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4591.36, -2567.1, 826.869, 3.16533, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+13, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4592.9, -2588.28, 828.198, 1.80816, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+14, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4604.03, -2593.17, 827.667, 2.10504, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+15, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4612.7, -2583.81, 826.406, 3.01532, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+16, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4619.23, -2594.16, 826.478, 1.97388, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+17, 39835, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 4622.49, -2592.26, 825.729, 2.0642, 300, 3, 0, 15327, 0, 1, 0, 0, 0, 0, 0, '', 0),
 (299495, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4614.61, -2446.05, 746.808, 3.96968, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
 (299501, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4593.14, -2386.43, 804.154, 0.458206, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
 (299503, 39835, 1, 616, 5050, 1, 0, 0, 0, -1, 31966, 0, 4625.12, -2416.68, 812.276, 1.41607, 300, 3, 0, 37187, 0, 1, 0, 0, 0, 0, 0, '', 0),
@@ -349,7 +351,7 @@ UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (SELECT `guid` FROM `crea
 DELETE FROM `creature` WHERE `id`=41006;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (285642, 41006, 1, 616, 4990, 1, 0, 0, 0, -1, 32254, 0, 4909.09, -2719.22, 1438.96, 0.235444, 300, 0, 0, 44679, 8338, 0, 0, 0, 0, 0, 0, '', 0),
-(210116780, 41006, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4195.98, -2323.49, 1149.13, 3.07319, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+18, 41006, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 4195.98, -2323.49, 1149.13, 3.07319, 300, 0, 0, 16235, 4169, 0, 0, 0, 0, 0, 0, '', 0);
 
 
 UPDATE `creature` SET `phaseId`=0 WHERE `id`=41300; 
@@ -380,7 +382,7 @@ DELETE FROM `creature` WHERE `id`=52300;
 
 DELETE FROM `creature` WHERE `id`=41224;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116787, 41224, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3962.28, -2240.37, 1135.59, 0.501004, 300, 0, 0, 3546, 0, 0, 16777216, 0, 0, 0, 0, '', 0);
+(@CGUID+19, 41224, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3962.28, -2240.37, 1135.59, 0.501004, 300, 0, 0, 3546, 0, 0, 16777216, 0, 0, 0, 0, '', 0);
 UPDATE `creature_template` SET `spell1` = 0, `spell2` = 0 WHERE `entry` = 52300;
 DELETE FROM `creature` WHERE `id`=41261;
 -- Twilight Juggernaut SAI
@@ -423,7 +425,7 @@ UPDATE `creature_template` SET `gossip_menu_id` = 11524 WHERE `entry` = 41499;
 
 DELETE FROM `creature` WHERE `id`=39858;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116752, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
+(@CGUID+24, 39858, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 5147.7, -1757.21, 1334.97, 0.53594, 300, 0, 0, 3926, 9470, 0, 0, 0, 0, 0, 0, '', 0),
 (284439, 39858, 1, 616, 5019, 1, 0, 0, 0, -1, 31605, 0, 4422.33, -2080.43, 1211.12, 5.65487, 300, 0, 0, 115954, 9470, 0, 0, 0, 0, 0, 0, '', 0);
 UPDATE `creature_template` SET `unit_flags` = 33280 WHERE `entry` = 41504;
 
@@ -503,7 +505,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,80607,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Flamestep');
 DELETE FROM `creature` WHERE `id`=40974;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116790, 40974, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3758.62, -3231.32, 975.855, 4.67291, 300, 0, 0, 6958, 4169, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+20, 40974, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3758.62, -3231.32, 975.855, 4.67291, 300, 0, 0, 6958, 4169, 0, 0, 0, 0, 0, 0, '', 0);
 DELETE FROM `creature` WHERE `id`=41634;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (305560, 41634, 1, 616, 5040, 1, 0, 0, 0, -1, 31188, 0, 4027.45, -3054.09, 569.141, 1.97222, 300, 0, 0, 22339500, 0, 0, 0, 0, 0, 0, 0, '', 0);
@@ -521,7 +523,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `creature` WHERE `id`=40804;
 DELETE FROM `creature` WHERE `id`=41632;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116793, 41632, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3937.07, -2823.61, 618.747, 5.08702, 300, 0, 0, 581620, 4735000, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+21, 41632, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3937.07, -2823.61, 618.747, 5.08702, 300, 0, 0, 581620, 4735000, 0, 0, 0, 0, 0, 0, '', 0);
 DELETE FROM `creature` WHERE `id`=41630;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(210116794, 41630, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 3961.6, -2817.7, 618.747, 5.05639, 300, 0, 0, 1740, 60, 0, 0, 0, 0, 0, 0, '', 0);
+(@CGUID+22, 41630, 1, 0, 0, 1, 0, 0, 0, -1, 0, 1, 3961.6, -2817.7, 618.747, 5.05639, 300, 0, 0, 1740, 60, 0, 0, 0, 0, 0, 0, '', 0);
