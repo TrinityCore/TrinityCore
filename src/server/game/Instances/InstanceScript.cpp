@@ -1155,7 +1155,8 @@ void InstanceScript::StartChallengeMode(uint8 level)
         entranceLocation.Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, areaTrigger->target_Orientation);
     DoNearTeleportPlayers(entranceLocation);
 
-    // Todo : Spawn doors
+    if (_challengeModeDoorPosition.is_initialized())
+        instance->SummonGameObject(GOB_CHALLENGER_DOOR, *_challengeModeDoorPosition, QuaternionData(), WEEK);
 
     WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
     changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
@@ -1181,6 +1182,9 @@ void InstanceScript::StartChallengeMode(uint8 level)
         _challengeModeStartTime = getMSTime();
 
         SendChallengeModeElapsedTimer();
+
+        if (GameObject* door = GetGameObject(GOB_CHALLENGER_DOOR))
+            DoUseDoorOrButton(door->GetGUID(), WEEK);
     });
 }
 

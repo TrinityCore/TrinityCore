@@ -52,6 +52,8 @@ struct instance_black_rook_hold : public InstanceScript
 
         SetData(DATA_ILLYSANNA_PREEVENT_LOWER, NOT_STARTED);
         SetData(DATA_ILLYSANNA_PREEVENT_UPPER, NOT_STARTED);
+
+        SetChallengeDoorPos({ 3468.448242f, 7631.900391f, -9.821134f, 4.351523f });
     }
 
     void OnCreatureCreate(Creature* creature) override

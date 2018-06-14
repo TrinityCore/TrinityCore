@@ -54,6 +54,7 @@ struct instance_darkheart_thicket : public InstanceScript
     {
         SetBossNumber(DATA_MAX_ENCOUNTERS);
         LoadDoorData(doorData);
+        SetChallengeDoorPos({ 3231.927979f, 1826.731812f, 233.376038f, 3.374087f });
     }
 
     void OnUnitDeath(Unit* unit) override

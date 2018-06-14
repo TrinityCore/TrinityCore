@@ -21,6 +21,8 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
+#include "Optional.h"
+#include "Position.h"
 #include <map>
 #include <memory>
 #include <set>
@@ -91,8 +93,10 @@ enum DoorType
     MAX_DOOR_TYPES
 };
 
-enum ChallengeModeSpells
+enum ChallengeMode
 {
+    GOB_CHALLENGER_DOOR     = 239408,
+
     SPELL_CHALLENGER_MIGHT  = 206150,
     SPELL_CHALLENGER_BURDEN = 206151
 };
@@ -362,6 +366,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void CastChallengeCreatureSpell(Creature* creature);
         void CastChallengePlayerSpell(Player* player);
 
+        void SetChallengeDoorPos(Position pos) { _challengeModeDoorPosition = pos; }
         virtual void SpawnChallengeModeRewardChest() { }
 
     protected:
@@ -418,6 +423,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint8 _challengeModeLevel;
         uint32 _challengeModeStartTime;
         uint32 _challengeModeDeathCount;
+        Optional<Position> _challengeModeDoorPosition;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
