@@ -1586,6 +1586,14 @@ void Creature::SetSpawnHealth()
     SetHealth((m_deathState == ALIVE || m_deathState == JUST_RESPAWNED) ? curhealth : 0);
 }
 
+void Creature::SetBaseHealth(uint64 health)
+{
+    SetMaxHealth(health);
+    SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
+    SetCreateHealth((uint32)health);
+    SetFullHealth();
+}
+
 bool Creature::hasQuest(uint32 quest_id) const
 {
     QuestRelationBounds qr = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());

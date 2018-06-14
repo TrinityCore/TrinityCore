@@ -87,6 +87,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateLevelDependantStats();
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
+        void SetBaseHealth(uint64 health);
 
 		void ReLoad(bool skipDB);
 

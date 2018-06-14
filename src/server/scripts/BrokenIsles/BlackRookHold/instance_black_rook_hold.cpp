@@ -59,12 +59,9 @@ struct instance_black_rook_hold : public InstanceScript
         InstanceScript::OnCreatureCreate(creature);
 
         if (instance->IsHeroic())
-            creature->SetMaxHealth(creature->GetMaxHealth() * 2.f);
+            creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
         if (instance->IsMythic())
-            creature->SetMaxHealth(creature->GetMaxHealth() * 1.33f);
-
-        creature->SetCreateHealth((uint32)creature->GetMaxHealth());
-        creature->SetFullHealth();
+            creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
 
         if (creature->isDead())
             return;
