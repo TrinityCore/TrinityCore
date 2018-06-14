@@ -11209,77 +11209,81 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (creature && creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
         isXpRewardAllowed = isLootRewardAllowed = false;
 
-    Group* group = player->GetGroup();
-    if (isXpRewardAllowed && player && player != victim)
+    if (player && player != victim)
     {
-        WorldPackets::Party::PartyKillLog partyKillLog;
-        partyKillLog.Player = player->GetGUID();
-        partyKillLog.Victim = victim->GetGUID();
+        Group* group = player->GetGroup();
 
-        if (group)
-            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
-        else
-            player->SendDirectMessage(partyKillLog.Write());
-
-        player->RewardPlayerAndGroupAtKill(victim, false);
-    }
-
-    // Reward player, his pets, and group/raid members
-    // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if (isLootRewardAllowed && player && player != victim)
-    {
-        Player* looter = player;
-        bool hasLooterGuid = false;
-
-        if (group)
+        if (isXpRewardAllowed)
         {
-            if (creature)
-            {
-                group->UpdateLooterGuid(creature, true);
-                if (!group->GetLooterGuid().IsEmpty())
-                {
-                    looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
-                    if (looter)
-                    {
-                        hasLooterGuid = true;
-                        creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (creature)
-            {
-                WorldPackets::Loot::LootList lootList;
-                lootList.Owner = creature->GetGUID();
-                lootList.LootObj = creature->loot.GetGUID();
+            WorldPackets::Party::PartyKillLog partyKillLog;
+            partyKillLog.Player = player->GetGUID();
+            partyKillLog.Victim = victim->GetGUID();
 
-                player->SendMessageToSet(lootList.Write(), true);
-            }
+            if (group)
+                group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
+            else
+                player->SendDirectMessage(partyKillLog.Write());
+
+            player->RewardPlayerAndGroupAtKill(victim, false);
         }
 
-        // Generate loot before updating looter
-        if (creature)
+        // Reward player, his pets, and group/raid members
+        // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
+        if (isLootRewardAllowed)
         {
-            Loot* loot = &creature->loot;
-
-            loot->clear();
-            if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
-
-            loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+            Player* looter = player;
+            bool hasLooterGuid = false;
 
             if (group)
             {
-                if (hasLooterGuid)
-                    group->SendLooter(creature, looter);
-                else
-                    group->SendLooter(creature, NULL);
+                if (creature)
+                {
+                    group->UpdateLooterGuid(creature, true);
+                    if (!group->GetLooterGuid().IsEmpty())
+                    {
+                        looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
+                        if (looter)
+                        {
+                            hasLooterGuid = true;
+                            creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (creature)
+                {
+                    WorldPackets::Loot::LootList lootList;
+                    lootList.Owner = creature->GetGUID();
+                    lootList.LootObj = creature->loot.GetGUID();
 
-                // Update round robin looter only if the creature had loot
-                if (!loot->empty())
-                    group->UpdateLooterGuid(creature);
+                    player->SendMessageToSet(lootList.Write(), true);
+                }
+            }
+
+            // Generate loot before updating looter
+            if (creature)
+            {
+                Loot* loot = &creature->loot;
+
+                loot->clear();
+                if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+                    loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
+
+                loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+
+                if (group)
+                {
+                    if (hasLooterGuid)
+                        group->SendLooter(creature, looter);
+                    else
+                        group->SendLooter(creature, NULL);
+
+                    // Update round robin looter only if the creature had loot
+                    if (!loot->empty())
+                        group->UpdateLooterGuid(creature);
+                }
             }
         }
     }
