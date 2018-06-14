@@ -61,5 +61,5 @@ void WorldSession::HandleChallengeModeStart(WorldPackets::ChallengeMode::StartRe
         instanceScript->StartChallengeMode(challengeModeLevel);
 
     // Blizzard do not delete the key at challenge start, will require mort research
-    _player->RemoveItem(start.Bag, start.Slot, true);
+    _player->DestroyItem(start.Bag, start.Slot, true);
 }
