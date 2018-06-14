@@ -354,8 +354,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint8 GetChallengeModeLevel() const { return _challengeModeLevel; }
         uint32 GetChallengeModeCurrentDuration() const;
 
-        void SendChallengeModeDeathCount() const;
-        void SendChallengeModeElapsedTimer() const;
+        void SendChallengeModeDeathCount(Player* player = nullptr) const;
+        void SendChallengeModeElapsedTimer(Player* player = nullptr) const;
 
         void CastChallengeCreatureSpell(Creature* creature);
 

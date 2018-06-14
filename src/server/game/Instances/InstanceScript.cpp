@@ -151,10 +151,10 @@ void InstanceScript::OnPlayerEnter(Player* player)
         WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
         changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
         changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
-        instance->SendToPlayers(changePlayerDifficultyResult.Write());
+        player->SendDirectMessage(changePlayerDifficultyResult.Write());
 
-        SendChallengeModeElapsedTimer();
-        SendChallengeModeDeathCount();
+        SendChallengeModeElapsedTimer(player);
+        SendChallengeModeDeathCount(player);
     }
 }
 
@@ -1220,19 +1220,27 @@ uint32 InstanceScript::GetChallengeModeCurrentDuration() const
     return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
 }
 
-void InstanceScript::SendChallengeModeDeathCount() const
+void InstanceScript::SendChallengeModeDeathCount(Player* player/* = nullptr*/) const
 {
     WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
     updateDeathCount.DeathCount = _challengeModeDeathCount;
-    instance->SendToPlayers(updateDeathCount.Write());
+
+    if (player)
+        player->SendDirectMessage(updateDeathCount.Write());
+    else
+        instance->SendToPlayers(updateDeathCount.Write());
 }
 
-void InstanceScript::SendChallengeModeElapsedTimer() const
+void InstanceScript::SendChallengeModeElapsedTimer(Player* player/* = nullptr*/) const
 {
     WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
     startElapsedTimer.TimerID = 1;
     startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
-    instance->SendToPlayers(startElapsedTimer.Write());
+
+    if (player)
+        player->SendDirectMessage(startElapsedTimer.Write());
+    else
+        instance->SendToPlayers(startElapsedTimer.Write());
 }
 
 void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
