@@ -1,3 +1,4 @@
+/*
 -- https://www.youtube.com/watch?v=nJ26fkwO9uI
 UPDATE `quest_template_locale` SET `OfferRewardText`='Ah, gut. Noch ein Freiwilliger. Es kommen viele davon in letzter Zeit. $B$BHoffentlich sind es genug.$B$BDas Menschenland wird von außerhalb bedroht und große Teile unserer Streitkräfte wurden ins Ausland beordert. Das lässt Raum für verderbte und gesetzlose Gruppen, die sich innerhalb unserer Grenzen ausbreiten können.$B$BWir kämpfen hier gleich an mehreren Fronten, $N. Stellt Euch auf eine lange Kampagne ein.' WHERE `ID`=783 AND `locale`='deDE';
 UPDATE `quest_template_locale` SET `Objectives`='Tötet 8 von dem Koboldgezücht und kehrt dann zu Marschall McBride zurück.', `OfferRewardText`='Gut gemacht, Bürger. Diese Kobolde sind Diebe und Feiglinge, aber wenn sie in Massen auftreten, dann sind sie doch eine Gefahr für uns. Und die Menschen von Sturmwind können nun wirklich keine weitere Gefahr gebrauchen.$B$BHabt meinen Dank dafür, dass Ihr sie besiegtet!' WHERE `ID`=7 AND `locale`='deDE';
@@ -74,3 +75,4 @@ UPDATE `quest_template_locale` SET `RequestItemsText`='Habt Ihr Tommy Joe meinen
 -- https://www.youtube.com/watch?v=cWnT_Qndfx0
 UPDATE `quest_template_locale` SET `RequestItemsText`='Ja, Hogger stellt für mich und meine Männer schon seit längerem ein echtes Problem dar. Habt Ihr mir etwas über die Bestie zu berichten?', `OfferRewardText`='Ha! Gut gemacht! Ich hatte schon befürchtet, niemand würde diesem Monster den Garaus machen!$B$BHier, bitte schön, $N. Und danke - dieser Gnoll hat mir Kopfschmerzen vom Ausmaß der Schwarzfelsspitze verursacht!' WHERE `ID`=176 AND `locale`='deDE';
 UPDATE `quest_template_locale` SET `RequestItemsText`='Seid gegrüßt, $N. Wart Ihr Gnolle töten?', `OfferRewardText`='Wie ich sehe, wart Ihr fleißig! Habt Dank, $N.' WHERE `ID`=11 AND `locale`='deDE';
+*/

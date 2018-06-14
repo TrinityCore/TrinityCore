@@ -1,3 +1,4 @@
+/*
 -- Great Goretusk
 UPDATE `smart_scripts` SET `event_chance`=100 WHERE `entryorguid`=547 AND `source_type`=0 AND `id`=0;
 
@@ -268,3 +269,4 @@ UPDATE `gameobject` SET `position_x`=-9668.03, `position_y`=-2031.67, `position_
 UPDATE `gameobject` SET `position_x`=-8964.17, `position_y`=-2652.36, `position_z`=154.183, `orientation`=4.79 WHERE `guid`=5637; -- beneath the ground
 UPDATE `gameobject` SET `position_x`=-9102.35, `position_y`=-2805.85, `position_z`=118.746, `orientation`=4.97 WHERE `guid`=5632; -- unreachable
 UPDATE `gameobject` SET `position_x`=-9047.56, `position_y`=-3322.43, `position_z`=106.844, `orientation`=4.673 WHERE `guid`=5632; -- inside a tree
+*/

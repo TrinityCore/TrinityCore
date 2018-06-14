@@ -1,3 +1,4 @@
+/*
 -- Rachel & Nathan
 UPDATE `waypoint_data` SET `move_type`=1 WHERE `id`=61540;
 
@@ -84,3 +85,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (100830,6,-9226.36,-2155.17,63.7313,0,0,0,0,100,0),
 (100830,7,-9218.98,-2155.23,64.354,0,0,0,0,100,0),
 (100830,8,-9218.18,-2153.63,64.3548,0,0,0,0,100,0);
+*/
