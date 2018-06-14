@@ -11187,42 +11187,52 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
     Creature* creature = victim->ToCreature();
 
-    bool isRewardAllowed = true;
+    bool isXpRewardAllowed = true;
+    bool isLootRewardAllowed = true;
+
     if (creature)
     {
-        isRewardAllowed = creature->IsDamageEnoughForLootingAndReward();
+        isXpRewardAllowed = isLootRewardAllowed = creature->IsDamageEnoughForLootingAndReward();
 
         if (InstanceScript* instance = creature->GetInstanceScript())
             if (instance->IsChallengeModeStarted())
-                isRewardAllowed = false;
+                isLootRewardAllowed = false;
 
-        if (!isRewardAllowed)
+        if (!isLootRewardAllowed)
             creature->SetLootRecipient(NULL);
     }
 
-    if (isRewardAllowed && creature && creature->GetLootRecipient())
+    if (isLootRewardAllowed && creature && creature->GetLootRecipient())
         player = creature->GetLootRecipient();
 
     // Exploit fix
     if (creature && creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
-        isRewardAllowed = false;
+        isXpRewardAllowed = isLootRewardAllowed = false;
 
-    // Reward player, his pets, and group/raid members
-    // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if (isRewardAllowed && player && player != victim)
+    Group* group = player->GetGroup();
+    if (isXpRewardAllowed && player && player != victim)
     {
         WorldPackets::Party::PartyKillLog partyKillLog;
         partyKillLog.Player = player->GetGUID();
         partyKillLog.Victim = victim->GetGUID();
 
+        if (group)
+            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
+        else
+            player->SendDirectMessage(partyKillLog.Write());
+
+        player->RewardPlayerAndGroupAtKill(victim, false);
+    }
+
+    // Reward player, his pets, and group/raid members
+    // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
+    if (isLootRewardAllowed && player && player != victim)
+    {
         Player* looter = player;
-        Group* group = player->GetGroup();
         bool hasLooterGuid = false;
 
         if (group)
         {
-            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
-
             if (creature)
             {
                 group->UpdateLooterGuid(creature, true);
@@ -11239,8 +11249,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         }
         else
         {
-            player->SendDirectMessage(partyKillLog.Write());
-
             if (creature)
             {
                 WorldPackets::Loot::LootList lootList;
@@ -11274,8 +11282,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     group->UpdateLooterGuid(creature);
             }
         }
-
-        player->RewardPlayerAndGroupAtKill(victim, false);
     }
 
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
