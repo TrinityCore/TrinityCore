@@ -157,7 +157,14 @@ void InstanceScript::OnPlayerEnter(Player* player)
         SendChallengeModeStart(player);
         SendChallengeModeElapsedTimer(player);
         SendChallengeModeDeathCount(player);
+
+        CastChallengePlayerSpell(player);
     }
+}
+
+void InstanceScript::OnPlayerExit(Player* player)
+{
+    player->RemoveAurasDueToSpell(SPELL_CHALLENGER_BURDEN);
 }
 
 void InstanceScript::OnPlayerDeath(Player* /*player*/)
@@ -1165,6 +1172,10 @@ void InstanceScript::StartChallengeMode(uint8 level)
 
     SendChallengeModeStart();
 
+    Map::PlayerList const &players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        CastChallengePlayerSpell(itr->GetSource());
+
     AddTimedDelayedOperation(10000, [this]()
     {
         _challengeModeStartTime = getMSTime();
@@ -1271,24 +1282,36 @@ void InstanceScript::SendChallengeModeElapsedTimer(Player* player/* = nullptr*/)
 void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
 {
     CustomSpellValues values;
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT0, sChallengeModeMgr->GetHealthMultiplier(_challengeModeLevel));
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT1, sChallengeModeMgr->GetDamageMultiplier(_challengeModeLevel));
+    values.AddSpellMod(SPELLVALUE_BASE_POINT0, sChallengeModeMgr->GetHealthMultiplier(_challengeModeLevel));
+    values.AddSpellMod(SPELLVALUE_BASE_POINT1, sChallengeModeMgr->GetDamageMultiplier(_challengeModeLevel));
 
     // Affixes
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT2,  0); // 6 Raging
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT3,  0); // 6 Raging
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT4,  0); // 7 Bolstering
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT5,  0); //
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT6,  0); //
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT7,  0); // 9 Tyrannical
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT8,  0); // 3 Volcanic
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT9,  0); // 4 Necrotic
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT10, 0); // 10 Fortified
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT11, 0); // 8 Sanguine
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT12, 0); // 14 Quaking
-    values.AddSpellMod(SpellValueMod::SPELLVALUE_BASE_POINT13, 0); // 13 Explosive
+    values.AddSpellMod(SPELLVALUE_BASE_POINT2,  0); // 6 Raging
+    values.AddSpellMod(SPELLVALUE_BASE_POINT3,  0); // 7 Bolstering
+    values.AddSpellMod(SPELLVALUE_BASE_POINT4,  0); // 9 Tyrannical
+    values.AddSpellMod(SPELLVALUE_BASE_POINT5,  0); //
+    values.AddSpellMod(SPELLVALUE_BASE_POINT6,  0); //
+    values.AddSpellMod(SPELLVALUE_BASE_POINT7,  0); // 3 Volcanic
+    values.AddSpellMod(SPELLVALUE_BASE_POINT8,  0); // 4 Necrotic
+    values.AddSpellMod(SPELLVALUE_BASE_POINT9,  0); // 10 Fortified
+    values.AddSpellMod(SPELLVALUE_BASE_POINT10, 0); // 8 Sanguine
+    values.AddSpellMod(SPELLVALUE_BASE_POINT11, 0); // 14 Quaking
+    values.AddSpellMod(SPELLVALUE_BASE_POINT12, 0); // 13 Explosive
+    values.AddSpellMod(SPELLVALUE_BASE_POINT13, 0); // 11 Bursting
 
-    creature->CastCustomSpell(CHALLENGER_MIGHT, values, creature, TRIGGERED_FULL_MASK);
+    creature->CastCustomSpell(SPELL_CHALLENGER_MIGHT, values, creature, TRIGGERED_FULL_MASK);
+}
+
+void InstanceScript::CastChallengePlayerSpell(Player* player)
+{
+    CustomSpellValues values;
+
+    // Affixes
+    values.AddSpellMod(SPELLVALUE_BASE_POINT1,  0); // 12 Grievous
+    values.AddSpellMod(SPELLVALUE_BASE_POINT2,  0); // 2 Skittish
+    values.AddSpellMod(SPELLVALUE_BASE_POINT3,  0); //
+
+    player->CastCustomSpell(SPELL_CHALLENGER_BURDEN, values, player, TRIGGERED_FULL_MASK);
 }
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName)

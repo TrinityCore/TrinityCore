@@ -93,8 +93,8 @@ enum DoorType
 
 enum ChallengeModeSpells
 {
-    CHALLENGER_MIGHT    = 206150,
-    CHALLENGER_BURDEN   = 206151
+    SPELL_CHALLENGER_MIGHT  = 206150,
+    SPELL_CHALLENGER_BURDEN = 206151
 };
 
 struct DoorData
@@ -211,6 +211,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         GameObject* GetGameObject(uint32 type);
 
         void OnPlayerEnter(Player*) override;
+        void OnPlayerExit(Player*) override;
         void OnPlayerDeath(Player*) override;
 
         // Handle open / close objects
@@ -359,6 +360,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SendChallengeModeElapsedTimer(Player* player = nullptr) const;
 
         void CastChallengeCreatureSpell(Creature* creature);
+        void CastChallengePlayerSpell(Player* player);
 
         virtual void SpawnChallengeModeRewardChest() { }
 
