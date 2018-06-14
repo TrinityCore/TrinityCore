@@ -100,7 +100,8 @@ void InstanceScript::OnCreatureCreate(Creature* creature)
     AddMinion(creature, true);
 
     if (IsChallengeModeStarted())
-        CastChallengeCreatureSpell(creature);
+        if (!creature->IsPet())
+            CastChallengeCreatureSpell(creature);
 }
 
 void InstanceScript::OnCreatureRemove(Creature* creature)
@@ -153,6 +154,7 @@ void InstanceScript::OnPlayerEnter(Player* player)
         changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
         player->SendDirectMessage(changePlayerDifficultyResult.Write());
 
+        SendChallengeModeStart(player);
         SendChallengeModeElapsedTimer(player);
         SendChallengeModeDeathCount(player);
     }
@@ -960,6 +962,15 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->Bit;
+
+            if (InstanceScenario* scenario = instance->ToInstanceMap()->GetInstanceScenario())
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+
+                if (players.begin() != players.end())
+                    scenario->UpdateCriteria(CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER, encounter->dbcEntry->ID, 0, 0, nullptr, players.begin()->GetSource());
+            }
+
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
@@ -1119,6 +1130,9 @@ void InstanceScript::StartChallengeMode(uint8 level)
     if (GetCompletedEncounterMask() != 0)
         return;
 
+    _challengeModeStarted = true;
+    _challengeModeLevel = level;
+
     instance->SendToPlayers(WorldPackets::ChallengeMode::ChangePlayerDifficultyResult(5).Write());
 
     // Add the health/dmg modifier aura to all creatures
@@ -1149,14 +1163,7 @@ void InstanceScript::StartChallengeMode(uint8 level)
     startTimer.TotalTime = 1;
     instance->SendToPlayers(startTimer.Write());
 
-    WorldPackets::ChallengeMode::Start start;
-    start.MapId = instance->GetId();
-    start.ChallengeId = mapChallengeModeEntry->ID;
-    start.ChallengeLevel = level;
-    instance->SendToPlayers(start.Write());
-
-    _challengeModeStarted = true;
-    _challengeModeLevel = level;
+    SendChallengeModeStart();
 
     AddTimedDelayedOperation(10000, [this]()
     {
@@ -1174,13 +1181,6 @@ void InstanceScript::CompleteChallengeMode()
 
     uint32 totalDuration = GetChallengeModeCurrentDuration();
 
-    WorldPackets::ChallengeMode::Complete complete;
-    complete.Duration = totalDuration;
-    complete.MapId = instance->GetId();
-    complete.ChallengeId = mapChallengeModeEntry->ID;
-    complete.ChallengeLevel = _challengeModeLevel;
-    instance->SendToPlayers(complete.Write());
-
     // Todo : Send stats
 
     uint8 mythicIncrement = 0;
@@ -1192,6 +1192,13 @@ void InstanceScript::CompleteChallengeMode()
     Map::PlayerList const &players = instance->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), _challengeModeLevel + mythicIncrement);
+
+    WorldPackets::ChallengeMode::Complete complete;
+    complete.Duration = totalDuration;
+    complete.MapId = instance->GetId();
+    complete.ChallengeId = mapChallengeModeEntry->ID;
+    complete.ChallengeLevel = _challengeModeLevel + mythicIncrement;
+    instance->SendToPlayers(complete.Write());
 
     // Achievements only if timer respected
     if (mythicIncrement)
@@ -1218,6 +1225,24 @@ void InstanceScript::CompleteChallengeMode()
 uint32 InstanceScript::GetChallengeModeCurrentDuration() const
 {
     return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
+}
+
+void InstanceScript::SendChallengeModeStart(Player* player/* = nullptr*/) const
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntry(instance->GetId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    WorldPackets::ChallengeMode::Start start;
+    start.MapId = instance->GetId();
+    start.ChallengeId = mapChallengeModeEntry->ID;
+    start.ChallengeLevel = _challengeModeLevel;
+    instance->SendToPlayers(start.Write());
+
+    if (player)
+        player->SendDirectMessage(start.Write());
+    else
+        instance->SendToPlayers(start.Write());
 }
 
 void InstanceScript::SendChallengeModeDeathCount(Player* player/* = nullptr*/) const
