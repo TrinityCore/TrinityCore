@@ -184,6 +184,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_VISUAL                  = 92795,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_SOULWELL_CREATE_HEALTHSTONE       = 34130,
+    SPELL_WARLOCK_SOW_THE_SEEDS                     = 196226,
     SPELL_WARLOCK_SPAWN_PURPLE_DEMONIC_GATEWAY      = 113890,
     SPELL_WARLOCK_SUMMON_DREADSTALKER               = 193332,
     SPELL_WARLOCK_SUPPLANT_DEMONIC_COMMAND          = 119904,
@@ -807,29 +808,40 @@ class spell_warl_healthstone_heal : public SpellScript
     }
 };
 
-// 27285 - Seed of Corruption
-/// Updated 4.3.4
+// 27243 - Seed of Corruption
 class spell_warl_seed_of_corruption : public SpellScript
 {
     PrepareSpellScript(spell_warl_seed_of_corruption);
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void HandleOnHitMainTarget(SpellEffIndex effIndex)
     {
-        if (GetExplTargetUnit())
-            targets.remove(GetExplTargetUnit());
+        _maxTargets = 1;
+
+        if (Aura* aura = GetCaster()->GetAura(SPELL_WARLOCK_SOW_THE_SEEDS))
+            _maxTargets += aura->GetSpellEffectInfo(EFFECT_0)->BasePoints;
+
+        _maxTargets *= 2;
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleOnHitTarget(SpellEffIndex effIndex)
     {
-        Unit* target = GetHitUnit();
-        GetCaster()->CastSpell(target, SPELL_WARLOCK_CORRUPTION, true);
+        if (Unit* target = GetHitUnit())
+            if (!GetCaster()->HasAura(SPELL_WARLOCK_SOW_THE_SEEDS) || !_maxTargets)
+                if (target != GetExplTargetUnit())
+                    PreventHitDefaultEffect(effIndex);
+
+        if (_maxTargets)
+            --_maxTargets;
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleOnHitMainTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleOnHitTarget, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleOnHitTarget, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
     }
+private:
+    uint8 _maxTargets;
 };
 
 // -7235 - Shadow Ward
@@ -3528,9 +3540,6 @@ class spell_warl_incinerate : public SpellScript
 
     void HandleOnHitMainTarget(SpellEffIndex effIndex)
     {
-        if (Unit* target = GetHitUnit())
-            mainTargetGUID = target->GetGUID();
-
         GetCaster()->ModifyPower(POWER_SOUL_SHARDS, 20);
     }
 
@@ -3538,7 +3547,7 @@ class spell_warl_incinerate : public SpellScript
     {
         if (Unit* target = GetHitUnit())
             if (!GetCaster()->HasAura(SPELL_WARLOCK_FIRE_AND_BRIMSTONE))
-                if (target->GetGUID() != mainTargetGUID)
+                if (target != GetExplTargetUnit())
                     PreventHitDamage();
     }
 
@@ -3547,8 +3556,6 @@ class spell_warl_incinerate : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_warl_incinerate::HandleOnHitMainTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
         OnEffectHitTarget += SpellEffectFn(spell_warl_incinerate::HandleOnHitTarget, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
-private:
-    ObjectGuid mainTargetGUID;
 };
 
 void AddSC_warlock_spell_scripts()
