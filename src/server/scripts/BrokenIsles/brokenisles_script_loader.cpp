@@ -143,6 +143,14 @@ void AddSC_boss_advisor_melandrus();
 void AddSC_court_of_stars();
 void AddSC_instance_court_of_stars();
 
+// Seat of Triumvirate
+void AddSC_boss_zuraal_the_ascended();
+void AddSC_boss_saprish();
+void AddSC_boss_viceroy_nezhar();
+void AddSC_boss_lura();
+void AddSC_seat_of_triumvirate();
+void AddSC_instance_seat_of_triumvirate();
+
 // Emerald Nightmare
 void AddSC_nythendra();
 void AddSC_ilgynoth();
@@ -295,6 +303,14 @@ void AddBrokenIslesScripts()
     AddSC_boss_advisor_melandrus();
     AddSC_court_of_stars();
     AddSC_instance_court_of_stars();
+
+    // Seat of Triumvirate
+    AddSC_boss_zuraal_the_ascended();
+    AddSC_boss_saprish();
+    AddSC_boss_viceroy_nezhar();
+    AddSC_boss_lura();
+    AddSC_seat_of_triumvirate();
+    AddSC_instance_seat_of_triumvirate();
 
     // Emerald Nightmare
     AddSC_nythendra();

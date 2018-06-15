@@ -271,88 +271,30 @@ public:
 };
 
 // Between the Eyes - 199804
-class spell_rog_between_the_eyes : public SpellScriptLoader
+class spell_rog_between_the_eyes :public SpellScript
 {
-public:
+    PrepareSpellScript(spell_rog_between_the_eyes);
 
-    spell_rog_between_the_eyes() : SpellScriptLoader("spell_rog_between_the_eyes") {}
-
-    class spell_rog_between_the_eyes_SpellScript :public SpellScript
+    void HandleTakePower(Powers& power, int32& powerCount)
     {
-        PrepareSpellScript(spell_rog_between_the_eyes_SpellScript);
-
-        bool Load() override
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return false;
-            _cp = caster->GetPower(POWER_COMBO_POINTS);
-            return true;
-        }
-
-        uint8 _cp;
-
-        void CheckTarget(WorldObject*& target)
-        {
-            // Sometimes it stuns the caster instead of the target
-            Unit* caster = GetCaster();
-            Unit* explTarget = GetExplTargetUnit();
-
-            if (!caster || !explTarget)
-                return;
-
-            if (target == caster)
-                target = GetExplTargetUnit();
-        }
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            int32 dmg = GetHitDamage();
-            SetHitDamage(dmg*_cp);
-        }
-
-        void RemoveCP()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->SetPower(POWER_COMBO_POINTS, 0);
-        }
-
-        void CheckStun(SpellEffIndex effIndex)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            if (caster == target)
-            {
-                PreventHitAura();
-                PreventHitDamage();
-                PreventHitDefaultEffect(effIndex);
-                PreventHitEffect(effIndex);
-            }
-        }
-
-        void Register() override
-        {
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_rog_between_the_eyes_SpellScript::CheckTarget, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-            OnEffectHitTarget += SpellEffectFn(spell_rog_between_the_eyes_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectLaunchTarget += SpellEffectFn(spell_rog_between_the_eyes_SpellScript::CheckStun, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-            AfterHit += SpellHitFn(spell_rog_between_the_eyes_SpellScript::RemoveCP);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_between_the_eyes_SpellScript();
+        if (power == POWER_COMBO_POINTS)
+            _cp = powerCount;
     }
+
+    void HandleAfterHit()
+    {
+        if (Unit* target = GetHitUnit())
+            if (Aura* aura = target->GetAura(SPELL_ROGUE_BETWEEN_THE_EYES, GetCaster()->GetGUID()))
+                aura->SetDuration(_cp * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_rog_between_the_eyes::HandleTakePower);
+        AfterHit += SpellHitFn(spell_rog_between_the_eyes::HandleAfterHit);
+    }
+private:
+    uint8 _cp = 0;
 };
 
 // Grappling Hook - 195457
@@ -2759,7 +2701,7 @@ void AddSC_rogue_spell_scripts()
     ///SpellScripts
     new spell_rog_alacrity();
     new spell_rog_backstab();
-    new spell_rog_between_the_eyes();
+    RegisterSpellScript(spell_rog_between_the_eyes);
     new spell_rog_blade_flurry();
     new spell_rog_cannonball_barrage();
     new spell_rog_cheat_death();
