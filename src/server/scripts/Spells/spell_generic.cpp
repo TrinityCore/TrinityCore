@@ -4730,7 +4730,7 @@ class spell_arcane_pulse : public SpellScript
         float damage = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 2.f;
 
         if (!damage)
-            damage = GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, false) * 0.75f;
+            damage = float(GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, false)) * 0.75f;
 
         SetHitDamage(damage);
     }
