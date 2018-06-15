@@ -31,7 +31,10 @@ static bool IsMutualChase(Unit* owner, Unit* target)
     if (target->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
         return false;
 
-    return (dynamic_cast<ChaseMovementGenerator const*>(target->GetMotionMaster()->GetCurrentMovementGenerator())->GetTarget() == owner);
+    if (ChaseMovementGenerator* movement = dynamic_cast<ChaseMovementGenerator*>(target->GetMotionMaster()->GetCurrentMovementGenerator()))
+        return movement->GetTarget() == owner;
+
+    return false;
 }
 
 static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
