@@ -2072,51 +2072,41 @@ public:
 };
 
 // Saber slash - 193315
-class spell_rog_saber_slash : public SpellScriptLoader
+class spell_rog_saber_slash : public SpellScript
 {
-public:
-    spell_rog_saber_slash() : SpellScriptLoader("spell_rog_saber_slash") {}
+    PrepareSpellScript(spell_rog_saber_slash);
 
-    class spell_rog_saber_slash_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_rog_saber_slash_SpellScript);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
+        if (!caster || !target)
+            return;
+
+        //Saber slash has 35% chance to strike again and make your next Pistol Shot free (buff called Opportunity)
+        int32 chance = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SABER_SLASH)->GetEffect(4)->BasePoints;
+
+        //Jolly Roger increases the chance by 40%
+        if (caster->HasAura(SPELL_ROGUE_JOLLY_ROGER))
+            chance += sSpellMgr->GetSpellInfo(SPELL_ROGUE_JOLLY_ROGER)->GetEffect(0)->BasePoints;
+
+        if (roll_chance_i(chance))
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
+            caster->CastSpell(caster, SPELL_ROGUE_OPPORTUNITY, true);
 
-            if (!caster || !target)
-                return;
+            SpellNonMeleeDamage dmg(caster, target, SPELL_ROGUE_SABER_SLASH, GetSpellInfo()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask);
+            dmg.damage = GetHitDamage();
+            caster->DealSpellDamage(&dmg, false);
+            caster->SendSpellNonMeleeDamageLog(&dmg);
 
-            //Saber slash has 35% chance to strike again and make your next Pistol Shot free (buff called Opportunity)
-            int32 chance = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SABER_SLASH)->GetEffect(4)->BasePoints;
-
-            //Jolly Roger increases the chance by 40%
-            if (caster->HasAura(SPELL_ROGUE_JOLLY_ROGER))
-                chance += sSpellMgr->GetSpellInfo(SPELL_ROGUE_JOLLY_ROGER)->GetEffect(0)->BasePoints;
-
-            if (roll_chance_i(chance))
-            {
-                SpellNonMeleeDamage dmg(caster, target, SPELL_ROGUE_SABER_SLASH, GetSpellInfo()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask);
-                dmg.damage = GetHitDamage();
-                caster->DealSpellDamage(&dmg, false);
-                caster->SendSpellNonMeleeDamageLog(&dmg);
-                caster->CastSpell(caster, SPELL_ROGUE_OPPORTUNITY, true);
-                if (caster->GetPower(POWER_COMBO_POINTS) + 1 <= caster->GetMaxPower(POWER_COMBO_POINTS))
-                    caster->SetPower(POWER_COMBO_POINTS, caster->GetPower(POWER_COMBO_POINTS) + 1);
-            }
+            caster->ModifyPower(POWER_COMBO_POINTS, 1);
         }
+    }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_rog_saber_slash_SpellScript::HandleHit, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_rog_saber_slash_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_rog_saber_slash::HandleHit, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
     }
 };
 
@@ -2731,7 +2721,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_roll_the_bones_visual();
     new spell_rog_ruthlessness();
     RegisterSpellScript(spell_rog_rupture);
-    new spell_rog_saber_slash();
+    RegisterSpellScript(spell_rog_saber_slash);
     new spell_rog_serrated_blades();
     new spell_rog_shadowstrike();
     new spell_rog_shadow_dance();
