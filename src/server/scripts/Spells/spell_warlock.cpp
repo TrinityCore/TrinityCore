@@ -1169,9 +1169,16 @@ class aura_warl_unstable_affliction : public AuraScript
         }
     }
 
+    void HandleRemove(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /* mode */)
+    {
+        if (GetCaster() && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            GetCaster()->ModifyPower(POWER_SOUL_SHARDS, 10);
+    }
+
     void Register() override
     {
         AfterDispel += AuraDispelFn(aura_warl_unstable_affliction::HandleDispel);
+        OnEffectRemove += AuraEffectApplyFn(aura_warl_unstable_affliction::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
