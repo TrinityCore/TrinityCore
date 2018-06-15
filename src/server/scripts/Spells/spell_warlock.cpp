@@ -1392,7 +1392,7 @@ class spell_warl_chaos_bolt : public SpellScript
 {
     PrepareSpellScript(spell_warl_chaos_bolt);
 
-    void HandleCritChance(Unit* victim, float& chance)
+    void HandleCritChance(Unit* /*victim*/, float& chance)
     {
         chance = 100.f;
     }
@@ -3554,7 +3554,7 @@ class spell_warl_incinerate : public SpellScript
         GetCaster()->ModifyPower(POWER_SOUL_SHARDS, 20);
     }
 
-    void HandleOnHitTarget(SpellEffIndex effIndex)
+    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
             if (!GetCaster()->HasAura(SPELL_WARLOCK_FIRE_AND_BRIMSTONE))
