@@ -170,7 +170,10 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
 
     WorldPackets::Spells::AuraInfo inf;
     BuildUpdatePacket(inf, remove);
-    inf.AuraData->SpellID = auraId;
+
+    if (inf.AuraData.is_initialized())
+        inf.AuraData->SpellID = auraId;
+
     data.Auras.push_back(inf);
 
     _target->SendMessageToSet(data.Write(), true);
