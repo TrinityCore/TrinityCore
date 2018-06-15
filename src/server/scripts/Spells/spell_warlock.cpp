@@ -1392,6 +1392,11 @@ class spell_warl_chaos_bolt : public SpellScript
 {
     PrepareSpellScript(spell_warl_chaos_bolt);
 
+    void HandleCritChance(Unit* victim, float& chance)
+    {
+        chance = 100.f;
+    }
+
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* player = GetOriginalCaster())
@@ -1409,6 +1414,7 @@ class spell_warl_chaos_bolt : public SpellScript
 
     void Register() override
     {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_chaos_bolt::HandleCritChance);
         OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
