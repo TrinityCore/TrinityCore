@@ -3573,6 +3573,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TriggerSpell = 203044;
     });
 
+    ApplySpellFix({ 48020 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->CasterAuraSpell = 0;
+    });
+
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {

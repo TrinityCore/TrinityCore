@@ -169,8 +169,8 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
     data.UnitGUID = GetTarget()->GetGUID();
 
     WorldPackets::Spells::AuraInfo inf;
-    inf.AuraData->SpellID = auraId;
     BuildUpdatePacket(inf, remove);
+    inf.AuraData->SpellID = auraId;
     data.Auras.push_back(inf);
 
     _target->SendMessageToSet(data.Write(), true);
