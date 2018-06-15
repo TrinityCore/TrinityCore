@@ -44,7 +44,7 @@ Quest::Quest(Field* questRecord)
     Type = questRecord[5].GetUInt16();
     SuggestedPlayers = questRecord[6].GetUInt8();
     TimeAllowed = questRecord[7].GetUInt32();
-    AllowableRaces = questRecord[8].GetUInt16();
+    AllowableRaces = questRecord[8].GetUInt32();
     RequiredFactionId1 = questRecord[9].GetUInt16();
     RequiredFactionId2 = questRecord[10].GetUInt16();
     RequiredFactionValue1 = questRecord[11].GetInt32();
