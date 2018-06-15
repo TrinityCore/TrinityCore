@@ -3540,6 +3540,8 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
     if (i_scenario)
         i_scenario->OnPlayerExit(player);
+    if (i_data)
+        i_data->OnPlayerExit(player);
     Map::RemovePlayerFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
