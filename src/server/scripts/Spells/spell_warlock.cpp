@@ -1530,6 +1530,7 @@ class spell_warl_demonic_gateway : public SpellScript
     }
 };
 
+// Drain Soul - 198590
 class spell_warl_drain_soul : public SpellScriptLoader
 {
 public:
@@ -1541,12 +1542,8 @@ public:
 
         void HandleRemove(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /* mode */)
         {
-            if (GetCaster())
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode == AURA_REMOVE_BY_DEATH)
-                    GetCaster()->SetPower(POWER_SOUL_SHARDS, GetCaster()->GetPower(POWER_SOUL_SHARDS) + 30);
-            }
+            if (GetCaster() && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                GetCaster()->ModifyPower(POWER_SOUL_SHARDS, 10);
         }
 
         void HandleDummyPeriodic(AuraEffect const* /* auraEffect */)
