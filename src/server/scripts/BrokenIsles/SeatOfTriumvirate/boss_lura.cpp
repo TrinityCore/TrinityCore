@@ -31,7 +31,7 @@ struct boss_lura : public BossAI
     {
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 /*eventId*/) override
     {
     }
 };

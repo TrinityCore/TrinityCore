@@ -20,6 +20,27 @@
 
 enum Spells
 {
+    SPELL_NULL_PALM             = 246134,
+    SPELL_VOID_SLUDGE           = 244588,
+    SPELL_VOID_INFUSION         = 244300,
+    SPELL_DECIMATE              = 344579,
+
+    SPELL_DARK_EXPULSION        = 244599,
+    SPELL_UMBRAL_EJECTION       = 244731,
+    SPELL_UMBRA_SHIFT           = 244433,
+    SPELL_FIXATE                = 244657,
+    SPELL_MADDENED_FRENZY       = 247038,
+
+    SPELL_RELEASE_VOID_ENERGY   = 244618,
+    SPELL_VOID_TEAR             = 244621,
+
+    SPELL_PHYSICAL_REALM        = 244074,
+};
+
+enum Npcs
+{
+    NPC_COALESCED_VOID          = 122716,
+    NPC_DARK_ABERRATION         = 122482
 };
 
 // 122313
@@ -31,7 +52,7 @@ struct boss_zuraal_the_ascended : public BossAI
     {
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 /*eventId*/) override
     {
     }
 };

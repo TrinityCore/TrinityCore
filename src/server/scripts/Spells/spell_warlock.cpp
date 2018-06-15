@@ -3538,7 +3538,7 @@ class spell_warl_incinerate : public SpellScript
 {
     PrepareSpellScript(spell_warl_incinerate);
 
-    void HandleOnHitMainTarget(SpellEffIndex effIndex)
+    void HandleOnHitMainTarget(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->ModifyPower(POWER_SOUL_SHARDS, 20);
     }
