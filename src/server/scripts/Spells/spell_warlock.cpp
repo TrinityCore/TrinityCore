@@ -813,7 +813,7 @@ class spell_warl_seed_of_corruption : public SpellScript
 {
     PrepareSpellScript(spell_warl_seed_of_corruption);
 
-    void HandleOnHitMainTarget(SpellEffIndex effIndex)
+    void HandleOnHitMainTarget(SpellEffIndex /*effIndex*/)
     {
         _maxTargets = 1;
 
