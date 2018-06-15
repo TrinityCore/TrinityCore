@@ -129,7 +129,6 @@ enum WarlockSpells
     SPELL_WARLOCK_HAND_OF_GULDAN_SUMMON             = 196282,
     SPELL_WARLOCK_HARVEST_LIFE_HEAL                 = 125314,
     SPELL_WARLOCK_HAUNT                             = 48181,
-    SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
     SPELL_WARLOCK_HAVOC                             = 80240,
     SPELL_WARLOCK_HEALTH_FUNNEL_HEAL                = 217979,
     SPELL_WARLOCK_IMMOLATE                          = 348,
@@ -740,45 +739,22 @@ class spell_warl_devour_magic : public SpellScript
 };
 
 // 48181 - Haunt
-/// Updated 4.3.4
-class spell_warl_haunt : public SpellScript
-{
-    PrepareSpellScript(spell_warl_haunt);
-
-    void HandleAfterHit()
-    {
-        if (Aura* aura = GetHitAura())
-            if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-                aurEff->SetAmount(CalculatePct(aurEff->GetAmount(), GetHitDamage()));
-    }
-
-    void Register() override
-    {
-        AfterHit += SpellHitFn(spell_warl_haunt::HandleAfterHit);
-    }
-};
-
 class aura_warl_haunt : public AuraScript
 {
     PrepareAuraScript(aura_warl_haunt);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_HAUNT_HEAL });
-    }
+        Unit* caster = GetCaster();
+        if (!caster || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            return;
 
-    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            int32 amount = aurEff->GetAmount();
-            GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
-        }
+        caster->GetSpellHistory()->ResetCooldown(SPELL_WARLOCK_HAUNT, true);
     }
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectApplyFn(aura_warl_haunt::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectRemove += AuraEffectApplyFn(aura_warl_haunt::HandleRemove, EFFECT_1, SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -3600,7 +3576,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_glyph_of_soulwell();
     new spell_warl_hand_of_guldan();
     new spell_warl_hand_of_guldan_damage();
-    RegisterSpellAndAuraScriptPair(spell_warl_haunt, aura_warl_haunt);
+    RegisterAuraScript(aura_warl_haunt);
     new spell_warl_havoc();
     RegisterAuraScript(spell_warl_health_funnel);
     RegisterSpellScript(spell_warl_healthstone_heal);
