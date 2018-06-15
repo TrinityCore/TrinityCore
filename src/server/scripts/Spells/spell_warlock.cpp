@@ -391,6 +391,7 @@ class spell_warl_immolate_dot : public AuraScript
         if (!caster)
             return;
 
+        caster->ModifyPower(POWER_SOUL_SHARDS, 10);
         caster->CastSpell(caster, SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR, true);
     }
 
@@ -505,6 +506,8 @@ class spell_warl_conflagrate : public SpellScript
 
         if (caster->HasAura(SPELL_WARLOCK_BACKDRAFT_AURA))
             caster->CastSpell(caster, SPELL_WARLOCK_BACKDRAFT, true);
+
+        caster->ModifyPower(POWER_SOUL_SHARDS, 50);
 
         if (caster->HasAura(SPELL_WARLOCK_ROARING_BLAZE))
         {
@@ -3541,6 +3544,8 @@ class spell_warl_incinerate : public SpellScript
     {
         if (Unit* target = GetHitUnit())
             mainTargetGUID = target->GetGUID();
+
+        GetCaster()->ModifyPower(POWER_SOUL_SHARDS, 20);
     }
 
     void HandleOnHitTarget(SpellEffIndex effIndex)
