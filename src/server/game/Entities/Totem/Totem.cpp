@@ -152,6 +152,7 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Uni
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
         case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_MOD_FEAR_2:
         case SPELL_AURA_TRANSFORM:
             return true;
         default:

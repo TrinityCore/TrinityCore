@@ -3123,6 +3123,7 @@ void SpellInfo::_LoadImmunityInfo()
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
                         break;
                     }
@@ -3139,6 +3140,7 @@ void SpellInfo::_LoadImmunityInfo()
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                                immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
                                 // no break intended
                             case 61869: // Overload
@@ -3166,6 +3168,7 @@ void SpellInfo::_LoadImmunityInfo()
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
                         }
                         break;
@@ -3186,6 +3189,7 @@ void SpellInfo::_LoadImmunityInfo()
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
                         }
                         break;
@@ -3213,6 +3217,7 @@ void SpellInfo::_LoadImmunityInfo()
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
                         }
                         break;
@@ -3232,6 +3237,7 @@ void SpellInfo::_LoadImmunityInfo()
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                            immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                             immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
                         }
                         break;
@@ -3270,7 +3276,10 @@ void SpellInfo::_LoadImmunityInfo()
                     if (miscVal & (1 << 2))
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                     if (miscVal & (1 << 9))
+                    {
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
+                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
+                    }
                     if (miscVal & (1 << 7))
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_DISARM);
                 }

@@ -6103,7 +6103,8 @@ bool Spell::CheckSpellCancelsPacify(uint32* param1) const
 
 bool Spell::CheckSpellCancelsFear(uint32* param1) const
 {
-    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_FEAR, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_FEAR, param1) &&
+        CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_FEAR_2, param1);
 }
 
 bool Spell::CheckSpellCancelsConfuse(uint32* param1) const
