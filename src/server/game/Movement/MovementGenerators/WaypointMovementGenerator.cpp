@@ -96,7 +96,7 @@ bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit* /*owner*/, floa
 
 void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
     if (_loadedFromDB)
     {
