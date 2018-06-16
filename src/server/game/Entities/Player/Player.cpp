@@ -25571,38 +25571,26 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType /*runeType*/) const
     return RUNE_BASE_COOLDOWN;
 }
 
-void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false*/)
+void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo)
 {
-    uint32 gracePeriod = GetRuneTimer(index);
+    m_runes->runes[index].ConvertAura = aura;
+    m_runes->runes[index].ConvertAuraType = auraType;
+    m_runes->runes[index].ConvertAuraInfo = spellInfo;
+}
 
-    // Improved Blood Presence
+void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo)
+{
+    SetRuneConvertAura(index, aura, auraType, spellInfo);
+    ConvertRune(index, newType);
+}
+
+void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
+{
     if (AuraEffect* aurEff = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, 2636, EFFECT_2))
-        cooldown *= 1.0 - CalculatePct(aurEff->GetAmount(), 1);
-
-    if (casted && IsInCombat())
-    {
-        if (gracePeriod < 0xFFFFFFFF && cooldown > 0)
-        {
-            uint32 lessCd = std::min(uint32(2500), gracePeriod);
-            cooldown = (cooldown > lessCd) ? (cooldown - lessCd) : 0;
-            SetLastRuneGraceTimer(index, lessCd);
-        }
-
-        SetRuneTimer(index, 0);
-    }
+        cooldown *= 1.0 - (aurEff->GetAmount() / 100);
 
     m_runes->runes[index].Cooldown = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
-}
-
-void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura)
-{
-    m_runes->runes[index].ConvertAura = aura;
-}
-
-void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura)
-{
-    SetRuneConvertAura(index, aura); ConvertRune(index, newType);
 }
 
 void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
@@ -25612,35 +25600,28 @@ void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
         if (m_runes->runes[i].ConvertAura == aura)
         {
             ConvertRune(i, GetBaseRune(i));
-            SetRuneConvertAura(i, nullptr);
+            SetRuneConvertAura(i, nullptr, SPELL_AURA_NONE, nullptr);
         }
     }
 }
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    AuraEffect const* aura = m_runes->runes[index].ConvertAura;
-    // If rune was converted by a non-passive aura that still active we should keep it converted
-    if (aura && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
-        return;
+    SpellInfo const* spellInfo = m_runes->runes[index].ConvertAuraInfo;
+    AuraType type = m_runes->runes[index].ConvertAuraType;
+    // If rune was converted by a non-pasive aura that still active we should keep it converted
+    if (spellInfo)
+    {
+       if (!(spellInfo->Attributes & SPELL_ATTR0_PASSIVE))
+           return;
 
-    // Don't even convert aura for passive convertion
-    if (aura && aura->GetBase()->IsPassive() && aura->GetAuraType() == SPELL_AURA_CONVERT_RUNE)
-        return;
+       // Don't even convert aura for passive convertion
+       if (spellInfo->IsPassive() && type == SPELL_AURA_CONVERT_RUNE)
+           return;
+    }
 
     ConvertRune(index, GetBaseRune(index));
-    SetRuneConvertAura(index, nullptr);
-
-    // Don't drop passive talents providing rune convertion
-    if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
-        return;
-
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
-        if (aura == m_runes->runes[i].ConvertAura)
-            return;
-    }
-    aura->GetBase()->Remove();
+    SetRuneConvertAura(index, NULL, SPELL_AURA_NONE, NULL);
 }
 
 void Player::ConvertRune(uint8 index, RuneType newType)
@@ -25650,10 +25631,10 @@ void Player::ConvertRune(uint8 index, RuneType newType)
     WorldPacket data(SMSG_CONVERT_RUNE, 2);
     data << uint8(index);
     data << uint8(newType);
-    SendDirectMessage(&data);
+    GetSession()->SendPacket(&data);
 }
 
-void Player::ResyncRunes(uint8 count) const
+void Player::ResyncRunes(uint8 count)
 {
     WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
     data << uint32(count);
@@ -25662,14 +25643,14 @@ void Player::ResyncRunes(uint8 count) const
         data << uint8(GetCurrentRune(i));                   // rune type
         data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
     }
-    SendDirectMessage(&data);
+    GetSession()->SendPacket(&data);
 }
 
-void Player::AddRunePower(uint8 index) const
+void Player::AddRunePower(uint8 mask)
 {
     WorldPacket data(SMSG_ADD_RUNE_POWER, 4);
-    data << uint32(1 << index);                             // mask (0x00-0x3F probably)
-    SendDirectMessage(&data);
+    data << uint32(mask);                             // mask (0x00-0x3F probably)
+    GetSession()->SendPacket(&data);
 }
 
 static RuneType runeSlotTypes[MAX_RUNES] =
@@ -25691,15 +25672,14 @@ void Player::InitRunes()
 
     m_runes->runeState = 0;
     m_runes->lastUsedRune = RUNE_BLOOD;
+    m_runes->lastUsedRuneMask = 0;
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
-        SetBaseRune(i, runeSlotTypes[i]);                               // init base types
-        SetCurrentRune(i, runeSlotTypes[i]);                            // init current types
-        SetRuneCooldown(i, 0);                                          // reset cooldowns
-        SetRuneTimer(i, 0xFFFFFFFF);                                    // Reset rune flags
-        SetLastRuneGraceTimer(i, 0);
-        SetRuneConvertAura(i, nullptr);
+        SetBaseRune(i, runeSlotTypes[i]);                              // init base types
+        SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
+        SetRuneCooldown(i, 0);                                         // reset cooldowns
+        SetRuneConvertAura(i, NULL, SPELL_AURA_NONE, NULL);
         m_runes->SetRuneState(i);
     }
 

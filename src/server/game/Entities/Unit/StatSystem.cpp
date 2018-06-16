@@ -770,7 +770,7 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
-    if (getPowerType() == POWER_MANA)
+    if (getPowerType() == POWER_MANA || getClass() == CLASS_DRUID)
     {
         // Mana regen from spirit
         float spirit_regen = OCTRegenMPPerSpirit();

@@ -341,6 +341,8 @@ struct RuneInfo
     uint8 CurrentRune;
     uint32 Cooldown;
     AuraEffect const* ConvertAura;
+    AuraType ConvertAuraType;
+    SpellInfo const* ConvertAuraInfo;
 };
 
 struct Runes
@@ -348,6 +350,7 @@ struct Runes
     RuneInfo runes[MAX_RUNES];
     uint8 runeState;                                        // mask of available runes
     RuneType lastUsedRune;
+    uint8 lastUsedRuneMask;
 
     void SetRuneState(uint8 index, bool set = true)
     {
@@ -2274,6 +2277,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool isAllowedToLoot(Creature const* creature);
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
+
         uint8 GetRunesState() const { return m_runes->runeState; }
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
@@ -2281,18 +2285,21 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
         uint32 GetRuneTypeBaseCooldown(RuneType runeType) const;
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
-        RuneType GetLastUsedRune() const { return m_runes->lastUsedRune; }
+        RuneType GetLastUsedRune() { return m_runes->lastUsedRune; }
+        uint8 GetLastUsedRuneMask() { return m_runes->lastUsedRuneMask; }
+        void ClearLastUsedRuneMask() { m_runes->lastUsedRuneMask = 0; }
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
+        void SetLastUsedRuneIndex(uint8 index) { m_runes->lastUsedRuneMask |= (1 << index); }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
-        void SetRuneCooldown(uint8 index, uint32 cooldown, bool casted = false);
-        void SetRuneConvertAura(uint8 index, AuraEffect const* aura);
-        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura);
+        void SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo);
+        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo);
+        void SetRuneCooldown(uint8 index, uint32 cooldown);
         void RemoveRunesByAuraEffect(AuraEffect const* aura);
         void RestoreBaseRune(uint8 index);
         void ConvertRune(uint8 index, RuneType newType);
-        void ResyncRunes(uint8 count) const;
-        void AddRunePower(uint8 index) const;
+        void ResyncRunes(uint8 count);
+        void AddRunePower(uint8 mask);
         void InitRunes();
 
         void SendRespondInspectAchievements(Player* player) const;
