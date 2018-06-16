@@ -948,9 +948,17 @@ class spell_dk_death_grip : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(GetExplTargetDest()->GetPosition(), GetEffectValue(), true);
+                Unit* target = GetHitUnit();
+                Unit* caster = GetCaster();
+
+                if (!target || target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+                    return;
+
+                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(47528); // Mind Freeze
+                if (!target->IsImmunedToSpellEffect(spellInfo, EFFECT_0, caster))
+                    target->InterruptNonMeleeSpells(false);
+
+                target->CastSpell(GetExplTargetDest()->GetPosition(), GetEffectValue(), true);
             }
 
             void Register() override
