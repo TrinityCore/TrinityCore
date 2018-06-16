@@ -29,11 +29,12 @@ UPDATE `spell_bonus_data` SET `direct_bonus`= 0.223, `ap_bonus`= 0.142 WHERE `en
 -- Seal of Justice
 UPDATE `spell_bonus_data` SET `direct_bonus`= 0.25, `ap_bonus`= 0.16 WHERE `entry`= 20170;
 
-DELETE FROM `spell_bonus_data` WHERE `entry` IN (77767, 50842, 47476, 45462, 45902, 49143, 19434, 82928);
+DELETE FROM `spell_bonus_data` WHERE `entry` IN (77767, 50842, 47476, 45462, 45902, 49143, 19434, 82928, 55050);
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (77767, 0, 0, 0.017, 0, 'Hunter - Cobra Shot'),
 (19434, 0, 0, 0.724, 0, 'Hunter - Aimed Shot'),
 (82928, 0, 0, 0.724, 0, 'Hunter - Aimed Shot!'),
 (45462, 0, 0, 0, 0, 'Death Knight - Plague Strike'),
 (45902, 0, 0, 0, 0, 'Death Knight - Blood Strike'),
-(49143, 0, 0, 0, 0, 'Death Knight - Frost Strike');
+(49143, 0, 0, 0, 0, 'Death Knight - Frost Strike'),
+(55050, 0, 0, 0, 0, 'Death Knight - Heart Strike');
