@@ -48,7 +48,7 @@ MovementGeneratorType FleeingMovementGenerator<T>::GetMovementGeneratorType() co
 template<class T>
 void FleeingMovementGenerator<T>::DoInitialize(T* owner)
 {
-    MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING);
+    MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner || !owner->IsAlive())

@@ -46,7 +46,7 @@ MovementGeneratorType PointMovementGenerator<T>::GetMovementGeneratorType() cons
 template<class T>
 void PointMovementGenerator<T>::DoInitialize(T* owner)
 {
-    MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING);
+    MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (_movementId == EVENT_CHARGE_PREPATH)
@@ -84,7 +84,6 @@ void PointMovementGenerator<T>::DoReset(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    owner->StopMoving();
     DoInitialize(owner);
 }
 
