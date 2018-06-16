@@ -75,6 +75,7 @@ enum RogueSpells
     SPELL_ROGUE_HEMORRHAGE_DOT                      = 89775,
     SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
+    SPELL_ROGUE_KIDNEY_SHOT                         = 408,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
@@ -271,88 +272,30 @@ public:
 };
 
 // Between the Eyes - 199804
-class spell_rog_between_the_eyes : public SpellScriptLoader
+class spell_rog_between_the_eyes :public SpellScript
 {
-public:
+    PrepareSpellScript(spell_rog_between_the_eyes);
 
-    spell_rog_between_the_eyes() : SpellScriptLoader("spell_rog_between_the_eyes") {}
-
-    class spell_rog_between_the_eyes_SpellScript :public SpellScript
+    void HandleTakePower(Powers& power, int32& powerCount)
     {
-        PrepareSpellScript(spell_rog_between_the_eyes_SpellScript);
-
-        bool Load() override
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return false;
-            _cp = caster->GetPower(POWER_COMBO_POINTS);
-            return true;
-        }
-
-        uint8 _cp;
-
-        void CheckTarget(WorldObject*& target)
-        {
-            // Sometimes it stuns the caster instead of the target
-            Unit* caster = GetCaster();
-            Unit* explTarget = GetExplTargetUnit();
-
-            if (!caster || !explTarget)
-                return;
-
-            if (target == caster)
-                target = GetExplTargetUnit();
-        }
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            int32 dmg = GetHitDamage();
-            SetHitDamage(dmg*_cp);
-        }
-
-        void RemoveCP()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->SetPower(POWER_COMBO_POINTS, 0);
-        }
-
-        void CheckStun(SpellEffIndex effIndex)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            if (caster == target)
-            {
-                PreventHitAura();
-                PreventHitDamage();
-                PreventHitDefaultEffect(effIndex);
-                PreventHitEffect(effIndex);
-            }
-        }
-
-        void Register() override
-        {
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_rog_between_the_eyes_SpellScript::CheckTarget, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-            OnEffectHitTarget += SpellEffectFn(spell_rog_between_the_eyes_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectLaunchTarget += SpellEffectFn(spell_rog_between_the_eyes_SpellScript::CheckStun, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-            AfterHit += SpellHitFn(spell_rog_between_the_eyes_SpellScript::RemoveCP);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_between_the_eyes_SpellScript();
+        if (power == POWER_COMBO_POINTS)
+            _cp = powerCount;
     }
+
+    void HandleAfterHit()
+    {
+        if (Unit* target = GetHitUnit())
+            if (Aura* aura = target->GetAura(SPELL_ROGUE_BETWEEN_THE_EYES, GetCaster()->GetGUID()))
+                aura->SetDuration(_cp * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_rog_between_the_eyes::HandleTakePower);
+        AfterHit += SpellHitFn(spell_rog_between_the_eyes::HandleAfterHit);
+    }
+private:
+    uint8 _cp = 0;
 };
 
 // Grappling Hook - 195457
@@ -1147,59 +1090,31 @@ public:
     }
 };
 
-class spell_rog_kidney_shot : public SpellScriptLoader
+// Kidney Shot - 408
+class spell_rog_kidney_shot :public SpellScript
 {
-public:
-    spell_rog_kidney_shot() : SpellScriptLoader("spell_rog_kidney_shot") { }
+    PrepareSpellScript(spell_rog_kidney_shot);
 
-    class spell_rog_kidney_shot_SpellScript : public SpellScript
+    void HandleTakePower(Powers& power, int32& powerCount)
     {
-        PrepareSpellScript(spell_rog_kidney_shot_SpellScript);
-
-        uint8 _cp;
-
-        bool Load() override
-        {
-            if (Unit* caster = GetCaster())
-            {
-                int32 maxcp = caster->HasAura(SPELL_ROGUE_DEEPER_STRATAGEM) ? 6 : 5;
-                _cp = std::min(caster->GetPower(POWER_COMBO_POINTS) + 1, maxcp);
-            }
-            return true;
-        }
-
-        void HandleOnHit()
-        {
-            Unit* target = GetHitUnit();
-            if (!target)
-                return;
-            if (!GetCaster())
-                return;
-
-            // Internal Bleeding
-            if (GetCaster()->HasAura(154904))
-                GetCaster()->CastSpell(target, 154953, true);
-
-            GetCaster()->ToPlayer()->ModifyPower(POWER_COMBO_POINTS, -1*(_cp-1)); //remove combo points after cast
-            SpellCategoryEntry const* catEntry = sSpellCategoryStore.LookupEntry(sSpellMgr->GetSpellInfo(SPELL_ROGUE_SHADOW_DANCE)->ChargeCategoryId);
-            if (GetCaster()->HasAura(SPELL_ROGUE_DEEPENING_SHADOWS))
-                GetCaster()->GetSpellHistory()->ReduceChargeCooldown(catEntry, _cp * 3000);
-            if (GetCaster()->HasAura(SPELL_ROGUE_RELENTLESS_STRIKES) && roll_chance_i(20*_cp))
-                GetCaster()->CastSpell(GetCaster(), SPELL_ROGUE_RELENTLESS_STRIKES_POWER, true);
-            if (GetCaster()->HasAura(SPELL_ROGUE_ALACRITY) && roll_chance_i(20 * _cp))
-                GetCaster()->CastSpell(GetCaster(), SPELL_ROGUE_ALACRITY_BUFF, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_rog_kidney_shot_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_kidney_shot_SpellScript();
+        if (power == POWER_COMBO_POINTS)
+            _cp = powerCount + 1;
     }
+
+    void HandleAfterHit()
+    {
+        if (Unit* target = GetHitUnit())
+            if (Aura* aura = target->GetAura(SPELL_ROGUE_KIDNEY_SHOT, GetCaster()->GetGUID()))
+                aura->SetDuration(_cp * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_rog_kidney_shot::HandleTakePower);
+        AfterHit += SpellHitFn(spell_rog_kidney_shot::HandleAfterHit);
+    }
+private:
+    uint8 _cp = 0;
 };
 
 // Blade Flurry
@@ -2130,51 +2045,41 @@ public:
 };
 
 // Saber slash - 193315
-class spell_rog_saber_slash : public SpellScriptLoader
+class spell_rog_saber_slash : public SpellScript
 {
-public:
-    spell_rog_saber_slash() : SpellScriptLoader("spell_rog_saber_slash") {}
+    PrepareSpellScript(spell_rog_saber_slash);
 
-    class spell_rog_saber_slash_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_rog_saber_slash_SpellScript);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
+        if (!caster || !target)
+            return;
+
+        //Saber slash has 35% chance to strike again and make your next Pistol Shot free (buff called Opportunity)
+        int32 chance = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SABER_SLASH)->GetEffect(4)->BasePoints;
+
+        //Jolly Roger increases the chance by 40%
+        if (caster->HasAura(SPELL_ROGUE_JOLLY_ROGER))
+            chance += sSpellMgr->GetSpellInfo(SPELL_ROGUE_JOLLY_ROGER)->GetEffect(0)->BasePoints;
+
+        if (roll_chance_i(chance))
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
+            caster->CastSpell(caster, SPELL_ROGUE_OPPORTUNITY, true);
 
-            if (!caster || !target)
-                return;
+            SpellNonMeleeDamage dmg(caster, target, SPELL_ROGUE_SABER_SLASH, GetSpellInfo()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask);
+            dmg.damage = GetHitDamage();
+            caster->DealSpellDamage(&dmg, false);
+            caster->SendSpellNonMeleeDamageLog(&dmg);
 
-            //Saber slash has 35% chance to strike again and make your next Pistol Shot free (buff called Opportunity)
-            int32 chance = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SABER_SLASH)->GetEffect(4)->BasePoints;
-
-            //Jolly Roger increases the chance by 40%
-            if (caster->HasAura(SPELL_ROGUE_JOLLY_ROGER))
-                chance += sSpellMgr->GetSpellInfo(SPELL_ROGUE_JOLLY_ROGER)->GetEffect(0)->BasePoints;
-
-            if (roll_chance_i(chance))
-            {
-                SpellNonMeleeDamage dmg(caster, target, SPELL_ROGUE_SABER_SLASH, GetSpellInfo()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask);
-                dmg.damage = GetHitDamage();
-                caster->DealSpellDamage(&dmg, false);
-                caster->SendSpellNonMeleeDamageLog(&dmg);
-                caster->CastSpell(caster, SPELL_ROGUE_OPPORTUNITY, true);
-                if (caster->GetPower(POWER_COMBO_POINTS) + 1 <= caster->GetMaxPower(POWER_COMBO_POINTS))
-                    caster->SetPower(POWER_COMBO_POINTS, caster->GetPower(POWER_COMBO_POINTS) + 1);
-            }
+            caster->ModifyPower(POWER_COMBO_POINTS, 1);
         }
+    }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_rog_saber_slash_SpellScript::HandleHit, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_rog_saber_slash_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_rog_saber_slash::HandleHit, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
     }
 };
 
@@ -2701,7 +2606,6 @@ public:
     }
 };
 
-
 // Smoke Bomb - 212182
 // AreaTriggerID - 6951
 class at_rog_smoke_bomb : public AreaTriggerEntityScript
@@ -2759,7 +2663,7 @@ void AddSC_rogue_spell_scripts()
     ///SpellScripts
     new spell_rog_alacrity();
     new spell_rog_backstab();
-    new spell_rog_between_the_eyes();
+    RegisterSpellScript(spell_rog_between_the_eyes);
     new spell_rog_blade_flurry();
     new spell_rog_cannonball_barrage();
     new spell_rog_cheat_death();
@@ -2776,7 +2680,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_garrote();
     new spell_rog_grappling_hook();
     new spell_rog_hemorrhage();
-    new spell_rog_kidney_shot();
+    RegisterSpellScript(spell_rog_kidney_shot);
     new spell_rog_killing_spree();
     new spell_rog_nerve_strike();
     new spell_rog_nerve_strike_aura();
@@ -2789,7 +2693,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_roll_the_bones_visual();
     new spell_rog_ruthlessness();
     RegisterSpellScript(spell_rog_rupture);
-    new spell_rog_saber_slash();
+    RegisterSpellScript(spell_rog_saber_slash);
     new spell_rog_serrated_blades();
     new spell_rog_shadowstrike();
     new spell_rog_shadow_dance();

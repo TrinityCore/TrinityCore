@@ -120,8 +120,10 @@ class boss_erekem : public CreatureScript
                     SPELL_AURA_MOD_STUN,
                     SPELL_AURA_MOD_DECREASE_SPEED,
                     SPELL_AURA_MOD_ROOT,
+                    SPELL_AURA_MOD_ROOT_2,
                     SPELL_AURA_MOD_CONFUSE,
-                    SPELL_AURA_MOD_FEAR
+                    SPELL_AURA_MOD_FEAR,
+                    SPELL_AURA_MOD_FEAR_2
                 };
 
                 if (guard->HasAuraWithMechanic(MechanicImmunityList))

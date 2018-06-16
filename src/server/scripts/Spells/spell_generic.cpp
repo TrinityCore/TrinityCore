@@ -4720,6 +4720,27 @@ class spell_gen_mobile_bank : public SpellScript
     }
 };
 
+// Arcane Pulse (Nightborne racial) - 260364
+class spell_arcane_pulse : public SpellScript
+{
+    PrepareSpellScript(spell_arcane_pulse);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        float damage = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 2.f;
+
+        if (!damage)
+            damage = float(GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, false)) * 0.75f;
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arcane_pulse::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4829,4 +4850,5 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
     RegisterSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
     RegisterSpellScript(spell_gen_mobile_bank);
+    RegisterSpellScript(spell_arcane_pulse);
 }
