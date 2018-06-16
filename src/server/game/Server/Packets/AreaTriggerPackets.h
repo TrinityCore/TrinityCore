@@ -19,10 +19,9 @@
 #define AreaTriggerPackets_h__
 
 #include "AreaTriggerTemplate.h"
-#include "Packet.h"
-#include "Position.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Packet.h"
 
 namespace WorldPackets
 {
