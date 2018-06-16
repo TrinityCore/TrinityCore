@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -27,29 +27,29 @@
 enum Spells
 {
     // Commander Springvale
-    SPELL_MALEFIC_STRIKE                = 93685,
-    SPELL_UNHOLY_POWER                  = 93686,
-    SPELL_UNHOLY_POWER_HC               = 93735,
-    SPELL_SHIELD_OF_THE_PERFIDIOUS_DUMMY = 93716,
-    SPELL_SHIELD_OF_THE_PERFIDIOUS      = 93693,
-    SPELL_DESECRATION_DUMMY             = 93688,
-    SPELL_DESECRATION                   = 93687,
-    SPELL_DESECRATION_ARM_AURA          = 67803,
-    SPELL_WORD_OF_SHAME                 = 93852,
+    SPELL_MALEFIC_STRIKE                    = 93685,
+    SPELL_UNHOLY_POWER                      = 93686,
+    SPELL_UNHOLY_POWER_HC                   = 93735,
+    SPELL_SHIELD_OF_THE_PERFIDIOUS_DUMMY    = 93716,
+    SPELL_SHIELD_OF_THE_PERFIDIOUS          = 93693,
+    SPELL_DESECRATION_DUMMY                 = 93688,
+    SPELL_DESECRATION                       = 93687,
+    SPELL_DESECRATION_ARM_AURA              = 67803,
+    SPELL_WORD_OF_SHAME                     = 93852,
 
     // Wailing Guardsman
-    SPELL_UNHOLY_EMPOWERMENT            = 93844,
-    SPELL_SCREAMS_OF_THE_PAST           = 7074,
-    SPELL_MORTAL_STRIKE                 = 91801,
+    SPELL_UNHOLY_EMPOWERMENT                = 93844,
+    SPELL_SCREAMS_OF_THE_PAST               = 7074,
+    SPELL_MORTAL_STRIKE                     = 91801,
 
     //Tormented Officer
-    SPELL_FORSAKEN_ABILITY              = 7054,
-    SPELL_FORSAKEN_ABILITY_DAMAGE       = 7038,
-    SPELL_FORSAKEN_ABILITY_ARMOR        = 7039,
-    SPELL_FORSAKEN_ABILITY_HEAL         = 7041,
-    SPELL_FORSAKEN_ABILITY_SPEED        = 7042,
-    SPELL_FORSAKEN_ABILITY_HEALTH       = 7040,
-    SPELL_SHIELD_WALL                   = 91463
+    SPELL_FORSAKEN_ABILITY                  = 7054,
+    SPELL_FORSAKEN_ABILITY_DAMAGE           = 7038,
+    SPELL_FORSAKEN_ABILITY_ARMOR            = 7039,
+    SPELL_FORSAKEN_ABILITY_HEAL             = 7041,
+    SPELL_FORSAKEN_ABILITY_SPEED            = 7042,
+    SPELL_FORSAKEN_ABILITY_HEALTH           = 7040,
+    SPELL_SHIELD_WALL                       = 91463
 };
 
 enum Texts

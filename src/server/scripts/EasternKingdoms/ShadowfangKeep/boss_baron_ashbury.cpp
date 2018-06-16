@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ enum Spells
 
     // Wings
     SPELL_RIDE_VEHICLE_HARDCODED    = 46598,
-    SPELL_CALAMITY_AURA             = 93766,
+    SPELL_CALAMITY_AURA             = 93766
 };
 
 enum Texts
@@ -50,7 +50,7 @@ enum Texts
     SAY_ANNOUNCE_STAY   = 3,
     SAY_STAY_EXECUTION  = 4,
     SAY_ARCHANGEL       = 5,
-    SAY_DEATH           = 6,
+    SAY_DEATH           = 6
 };
 
 enum Events
@@ -61,12 +61,12 @@ enum Events
     EVENT_WRACKING_PAIN,
     EVENT_DARK_ARCHANGEL,
     EVENT_APPLY_IMMUNITY,
-    EVENT_DISABLE_ACHIEVEMENT,
+    EVENT_DISABLE_ACHIEVEMENT
 };
 
 enum AchievementData
 {
-    DATA_PARDON_DENIED = 1,
+    DATA_PARDON_DENIED = 1
 };
 
 class boss_baron_ashbury : public CreatureScript

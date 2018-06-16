@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@ enum Texts
 {
     SAY_AGGRO = 0,
     SAY_DEATH = 1,
-    SAY_SLAY  = 2,
+    SAY_SLAY  = 2
 };
 
 enum Events
