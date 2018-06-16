@@ -58,6 +58,26 @@ uint32 ChallengeModeMgr::GetDamageMultiplier(uint8 challengeLevel)
         case 18: return 405;
         case 19: return 456;
         case 20: return 512;
+        case 21: return 573;
+        case 22: return 640;
+        case 23: return 714;
+        case 24: return 795;
+        case 25: return 885;
+        case 26: return 983;
+        case 27: return 1092;
+        case 28: return 1211;
+        case 29: return 1342;
+        case 30: return 1486;
+        case 31: return 1645;
+        case 32: return 1819;
+        case 33: return 2011;
+        case 34: return 2223;
+        case 35: return 2455;
+        case 36: return 2710;
+        case 37: return 2991;
+        case 38: return 3300;
+        case 39: return 3640;
+        case 40: return 4014;
         default:
             break;
     }
@@ -88,6 +108,26 @@ uint32 ChallengeModeMgr::GetHealthMultiplier(uint8 challengeLevel)
         case 18: return 405;
         case 19: return 456;
         case 20: return 512;
+        case 21: return 573;
+        case 22: return 640;
+        case 23: return 714;
+        case 24: return 795;
+        case 25: return 885;
+        case 26: return 983;
+        case 27: return 1092;
+        case 28: return 1211;
+        case 29: return 1342;
+        case 30: return 1486;
+        case 31: return 1645;
+        case 32: return 1819;
+        case 33: return 2011;
+        case 34: return 2223;
+        case 35: return 2455;
+        case 36: return 2710;
+        case 37: return 2991;
+        case 38: return 3300;
+        case 39: return 3640;
+        case 40: return 4014;
         default:
             break;
     }
