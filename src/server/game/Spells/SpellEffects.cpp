@@ -543,6 +543,12 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.035f);
                     }
                 }
+
+                // Merciless Combat (Icy Touch and Howling Blast)
+                if (m_spellInfo->SpellFamilyFlags[0] & 0x2 || m_spellInfo->SpellFamilyFlags[1] & 0x2)
+                    if (unitTarget->GetHealthPct() < 35.0f)
+                        if (AuraEffect const* mercilessCombat = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2656, 0))
+                            AddPct(damage, mercilessCombat->GetAmount());
                 break;
             }
         }
@@ -2987,7 +2993,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
                     if (uint32 runic = std::min<uint32>(uint32(m_caster->GetPower(POWER_RUNIC_POWER) / 2.5f), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
                         AddPct(totalDamagePercentMod, runic);
-                break;
             }
             // Obliterate / Blood Strike (12.5% more damage per disease) / Heart Strike (15% more damage per disease)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[0] & 0x400000 || m_spellInfo->SpellFamilyFlags[0] & 0x1000000)
@@ -3005,14 +3010,17 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPct(bonusAmount, aurEff->GetAmount());
                 AddPct(totalDamagePercentMod, bonusAmount);
-                break;
             }
+
             // Blood-Caked Strike - Blood-Caked Blade
             if (m_spellInfo->SpellIconID == 1736)
-            {
                 AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 50.0f);
-                break;
-            }
+
+            // Merciless Combat (Obliterate and Frost Strike)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[1] & 0x4)
+                if (unitTarget->GetHealthPct() < 35.0f)
+                    if (AuraEffect const* mercilessCombat = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2656, 0))
+                        AddPct(totalDamagePercentMod, mercilessCombat->GetAmount());
             break;
         }
     }
