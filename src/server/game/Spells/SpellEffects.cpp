@@ -3188,16 +3188,19 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     if (!target)
         target = m_caster;
 
-    float x, y, z;
+    float x, y, z, o;
     if (m_targets.HasDst())
         destTarget->GetPosition(x, y, z);
     else
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
+    o = frand(0, float(M_PI * 2));
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
+
     Map* map = target->GetMap();
 
     if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map,
-        m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), QuaternionData(), 255, GO_STATE_READY))
+        m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -4881,9 +4884,11 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
         m_caster->GetPosition(fx, fy, fz);
 
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(fo, 0.f, 0.f);
+
     GameObject* pGameObj = new GameObject;
 
-    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, 0, Position(fx, fy, fz, m_caster->GetOrientation()), QuaternionData(), 255, GO_STATE_READY))
+    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, 0, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
         return;
