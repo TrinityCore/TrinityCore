@@ -225,7 +225,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunchTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleLaunch, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectLaunch += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleLaunch, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
@@ -1019,7 +1019,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunchTarget += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+                OnEffectLaunch += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -1071,7 +1071,8 @@ class spell_hun_improved_steady_shot : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_hun_improved_steady_shot_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
 
-        uint8 _steadyShotCounter;
+        private:
+            uint8 _steadyShotCounter;
         };
 
         AuraScript* GetAuraScript() const override
