@@ -1730,6 +1730,44 @@ class spell_dk_runic_empowerment : public SpellScriptLoader
         }
 };
 
+// 49184 - Howling Blast
+class spell_dk_howling_blast : public SpellScriptLoader
+{
+    public:
+        spell_dk_howling_blast() : SpellScriptLoader("spell_dk_howling_blast") { }
+
+        class spell_dk_howling_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_howling_blast_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                if (Unit* target = GetExplTargetUnit())
+                    guid = target->GetGUID();
+            }
+
+            void HandleHit(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitUnit()->GetGUID() != guid)
+                    SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+            }
+
+            void Register() override
+            {
+                BeforeCast += SpellCastFn(spell_dk_howling_blast_SpellScript::HandleBeforeCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+
+        private:
+            ObjectGuid guid;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dk_howling_blast_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1748,6 +1786,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_strike();
     new spell_dk_death_strike_enabler();
     new spell_dk_ghoul_explode();
+    new spell_dk_howling_blast();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_frost_presence();
