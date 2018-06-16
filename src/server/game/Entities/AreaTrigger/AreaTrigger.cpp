@@ -677,7 +677,7 @@ void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cm
 
 Position const* AreaTrigger::GetCircularMovementCenterPosition() const
 {
-    if (!_areaTriggerCircularMovementInfo.Center.is_initialized() && _areaTriggerCircularMovementInfo.TargetGUID.is_initialized())
+    if (_areaTriggerCircularMovementInfo.TargetGUID.is_initialized())
         if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_areaTriggerCircularMovementInfo.TargetGUID))
             return center;
 
@@ -691,6 +691,9 @@ void AreaTrigger::UpdateCircularMovementPosition()
         return;
 
     AreaTriggerCircularMovementInfo& cmi = _areaTriggerCircularMovementInfo;
+    if (cmi.StartDelay > GetElapsedTimeForMovement())
+        return;
+
     cmi.TimeToTarget = GetTimeToTarget();
     cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement();
 

@@ -97,9 +97,14 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         Optional<ObjectGuid> GetCircularMovementCenterGUID() const { return _areaTriggerCircularMovementInfo.TargetGUID; }
         void SetCircularMovementCenterGUID(ObjectGuid const& guid) { _areaTriggerCircularMovementInfo.TargetGUID = guid; }
+        void ResetCircularMovementCenterGUID() { _areaTriggerCircularMovementInfo.TargetGUID.reset(); }
 
         Position const* GetCircularMovementCenterPosition() const;
         void SetCircularMovementCenterPosition(Position const& pos) { _areaTriggerCircularMovementInfo.Center = pos; }
+        void ResetCircularMovementCenterPosition() { _areaTriggerCircularMovementInfo.Center.reset(); }
+
+        // Won't work if its used after the AreaTrigger was created
+        void SetCircularMovementStartDelay(uint32 delay) { _areaTriggerCircularMovementInfo.StartDelay = delay; }
 
         void UpdateShape();
 

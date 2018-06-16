@@ -100,7 +100,7 @@ struct AreaTriggerCircularMovementInfo
     bool CanLoop = false;
     uint32 TimeToTarget = 0;
     int32 ElapsedTimeForMovement = 0;
-    uint32 UnkUInt2 = 0;
+    uint32 StartDelay = 0;
     float Radius = 0.0f;
     float BlendFromRadius = 0.0f;
     float InitialAngle = 0.0f;

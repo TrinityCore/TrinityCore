@@ -40,7 +40,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& 
 
     data << uint32(areaTriggerCircularMovement.TimeToTarget);
     data << int32(areaTriggerCircularMovement.ElapsedTimeForMovement);
-    data << uint32(areaTriggerCircularMovement.UnkUInt2);
+    data << uint32(areaTriggerCircularMovement.StartDelay);
     data << float(areaTriggerCircularMovement.Radius);
     data << float(areaTriggerCircularMovement.BlendFromRadius);
     data << float(areaTriggerCircularMovement.InitialAngle);
