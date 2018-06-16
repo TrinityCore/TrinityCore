@@ -72,6 +72,7 @@ enum DeathKnightSpells
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     SPELL_DK_MASTER_OF_GHOULS                   = 52143,
+    SPELL_DK_MIND_FREEZE                        = 47528,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_RAISE_DEAD_USE_REAGENT             = 48289,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
@@ -948,9 +949,17 @@ class spell_dk_death_grip : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(GetExplTargetDest()->GetPosition(), GetEffectValue(), true);
+                Unit* target = GetHitUnit();
+                Unit* caster = GetCaster();
+
+                if (!target || target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+                    return;
+
+                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_DK_MIND_FREEZE);
+                if (!target->IsImmunedToSpellEffect(spellInfo, EFFECT_0, caster))
+                    target->InterruptNonMeleeSpells(false);
+
+                target->CastSpell(GetExplTargetDest()->GetPosition(), GetEffectValue(), true);
             }
 
             void Register() override
