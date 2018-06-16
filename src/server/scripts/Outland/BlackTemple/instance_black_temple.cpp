@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 
 DoorData const doorData[] =
