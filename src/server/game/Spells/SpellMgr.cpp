@@ -4505,7 +4505,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Desecration Arm
     ApplySpellFix({ 67802 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
     });
 
     // Desecration
