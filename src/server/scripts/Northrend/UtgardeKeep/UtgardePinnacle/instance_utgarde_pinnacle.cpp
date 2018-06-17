@@ -20,7 +20,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "utgarde_pinnacle.h"
 
 BossBoundaryData const boundaries =
@@ -42,7 +41,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 
         struct instance_utgarde_pinnacle_InstanceMapScript : public InstanceScript
         {
-            instance_utgarde_pinnacle_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_utgarde_pinnacle_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
