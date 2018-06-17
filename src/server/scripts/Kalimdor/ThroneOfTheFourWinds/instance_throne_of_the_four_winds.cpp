@@ -66,6 +66,16 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 
                 creature->setActive(true);
                 creature->SetFarVisible(true);
+
+                switch (creature->GetEntry())
+                {
+                    case BOSS_ANSHAL:
+                    case BOSS_NEZIR:
+                    case BOSS_ROHASH:
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -80,6 +90,25 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
+
+                switch (type)
+                {
+                    case DATA_CONCLAVE_OF_WIND:
+                        if (state == IN_PROGRESS)
+                        {
+                            if (Creature* anshal = GetCreature(DATA_ANSHAL))
+                                anshal->SetInCombatWithZone();
+
+                            if (Creature* nezir = GetCreature(DATA_NEZIR))
+                                nezir->SetInCombatWithZone();
+
+                            if (Creature* rohash = GetCreature(DATA_ROHASH))
+                                rohash->SetInCombatWithZone();
+                        }
+                        break;
+                    default:
+                        break;
+                }
 
                 return true;
             }

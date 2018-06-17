@@ -43,6 +43,12 @@ enum Events
     EVENT_THROW_PASSENGER           = 2,
 };
 
+enum Actions
+{
+    // action id 1 is used by boss_conclave_of_wind
+    ACTION_PLAYER_LEFT_PLATFORM = 2,
+};
+
 enum VehicleSeats
 {
     SEAT_0 = 0
@@ -56,9 +62,17 @@ class at_totfw_jet_stream : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (!player->HasAura(SPELL_JET_STREAM_TRIGGERED) && !player->GetVehicle())
+            {
                 if (Creature* trigger = player->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f, true))
                     trigger->CastSpell(player, SPELL_JET_STREAM, true);
 
+                if (Creature* anshal = player->FindNearestCreature(BOSS_ANSHAL, 90.0f, true))
+                    anshal->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+                else if (Creature* nezir = player->FindNearestCreature(BOSS_NEZIR, 90.0f, true))
+                    nezir->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+                else if (Creature* rohash = player->FindNearestCreature(BOSS_ROHASH, 90.0f, true))
+                    rohash->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+            }
             return true;
         }
 };
