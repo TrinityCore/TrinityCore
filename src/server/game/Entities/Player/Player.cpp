@@ -25631,7 +25631,7 @@ void Player::ConvertRune(uint8 index, RuneType newType)
     WorldPacket data(SMSG_CONVERT_RUNE, 2);
     data << uint8(index);
     data << uint8(newType);
-    GetSession()->SendPacket(&data);
+    SendDirectMessage(&data);
 }
 
 void Player::ResyncRunes(uint8 count)
@@ -25643,14 +25643,14 @@ void Player::ResyncRunes(uint8 count)
         data << uint8(GetCurrentRune(i));                   // rune type
         data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
     }
-    GetSession()->SendPacket(&data);
+    SendDirectMessage(&data);
 }
 
 void Player::AddRunePower(uint8 mask)
 {
     WorldPacket data(SMSG_ADD_RUNE_POWER, 4);
     data << uint32(mask);                             // mask (0x00-0x3F probably)
-    GetSession()->SendPacket(&data);
+    SendDirectMessage(&data);
 }
 
 static RuneType runeSlotTypes[MAX_RUNES] =
@@ -25679,7 +25679,7 @@ void Player::InitRunes()
         SetBaseRune(i, runeSlotTypes[i]);                              // init base types
         SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
         SetRuneCooldown(i, 0);                                         // reset cooldowns
-        SetRuneConvertAura(i, NULL, SPELL_AURA_NONE, NULL);
+        SetRuneConvertAura(i, nullptr, SPELL_AURA_NONE, nullptr);
         m_runes->SetRuneState(i);
     }
 

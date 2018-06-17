@@ -4803,12 +4803,14 @@ void Spell::TakeRunePower(bool didHit)
     player->ClearLastUsedRuneMask();
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
+    int32 runicPowerGain = runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME);
 
+    // Apply rune cost modifiers
     for (uint32 i = 0; i < RUNE_DEATH; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], const_cast<Spell*>(this));
     }
 
     // Let's say we use a skill that requires a Frost rune. This is the order:
@@ -4856,24 +4858,31 @@ void Spell::TakeRunePower(bool didHit)
 
     // you can gain some runic power when use runes
     if (didHit)
-        if (int32 rp = int32(runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
+    {
+        if (runicPowerGain)
         {
             Unit::AuraEffectList const& bonusPct = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_RUNE_REGEN_SPEED);
-            for (Unit::AuraEffectList::const_iterator i = bonusPct.begin(); i != bonusPct.end(); ++i)
+            for (auto i = bonusPct.begin(); i != bonusPct.end(); ++i)
             {
                 // Improved Frost Presence
                 if ((*i)->GetId() == 63621)
                 {
                     // Apply bonus when in Unholy or Blood Presence
                     if (player->HasAura(48265) || player->HasAura(48263))
-                        AddPct(rp, (*i)->GetAmount());
+                        AddPct(runicPowerGain, (*i)->GetAmount());
                     continue;
                 }
                 else
-                    AddPct(rp, (*i)->GetAmount());
+                    AddPct(runicPowerGain, (*i)->GetAmount());
             }
-            player->ModifyPower(POWER_RUNIC_POWER, rp);
+
+            // Apply runic power gain modifiers
+            if (Player* modOwner = m_caster->GetSpellModOwner())
+                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runicPowerGain, const_cast<Spell*>(this));
+
+            player->ModifyPower(POWER_RUNIC_POWER, std::max(0, runicPowerGain));
         }
+    }
 }
 
 void Spell::TakeReagents()
