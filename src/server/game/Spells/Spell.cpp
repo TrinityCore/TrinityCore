@@ -2981,7 +2981,7 @@ bool Spell::UpdateChanneledTargetList()
         if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
         {
             channelAuraMask |= 1 << effect->EffectIndex;
-            maxRadius = effect->CalcRadius(m_caster, this);
+            maxRadius = std::max(effect->CalcRadius(m_caster, this), maxRadius);
         }
     }
 
