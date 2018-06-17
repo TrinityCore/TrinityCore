@@ -40,6 +40,9 @@ class TC_GAME_API AreaTriggerAI
         // Called on each AreaTrigger update
         virtual void OnUpdate(uint32 /*diff*/) { }
 
+        // Called on each AreaTrigger proc, timer defined by at->SetPeriodicProcTimer(uint32)
+        virtual void OnPeriodicProc() { }
+
         // Called when the AreaTrigger reach splineIndex
         virtual void OnSplineIndexReached(int /*splineIndex*/) { }
 
