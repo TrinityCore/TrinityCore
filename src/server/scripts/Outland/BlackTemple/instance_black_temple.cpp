@@ -92,7 +92,7 @@ class instance_black_temple : public InstanceMapScript
 
         struct instance_black_temple_InstanceMapScript : public InstanceScript
         {
-            instance_black_temple_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_black_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
