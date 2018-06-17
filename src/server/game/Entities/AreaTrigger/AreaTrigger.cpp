@@ -695,19 +695,19 @@ void AreaTrigger::UpdateCircularMovementPosition()
         return;
 
     cmi.TimeToTarget = GetTimeToTarget();
-    cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement();
+    cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement() - cmi.StartDelay;
 
     float circle = 2.0f * float(M_PI);
 
     // AreaTrigger make exactly "TimeToTarget / Duration" loops during his life time
-    float angleDiff = circle * (float(GetTimeSinceCreated()) / float(GetTimeToTarget()));
+    float angleDiff = circle * (float(cmi.ElapsedTimeForMovement) / float(GetTimeToTarget()));
 
     // Adapt angle diff depending of circle direction
     if (!cmi.CounterClockwise)
         angleDiff *= -1;
 
     // We already made one circle & can't loop
-    if (!cmi.CanLoop && (angleDiff <= -circle || angleDiff >= circle))
+    if (!cmi.CanLoop && angleDiff >= std::abs(circle))
         angleDiff = 0.0f;
 
     float angle = cmi.InitialAngle + angleDiff;

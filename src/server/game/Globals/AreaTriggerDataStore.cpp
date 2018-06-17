@@ -17,7 +17,6 @@
 
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
-#include "AreaTriggerPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
