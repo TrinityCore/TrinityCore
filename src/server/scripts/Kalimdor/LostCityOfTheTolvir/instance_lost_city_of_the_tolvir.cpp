@@ -42,6 +42,10 @@ enum Actions
     ACTION_AUGH_INTRO       = 1,
     ACTION_AUGH_ATTACKABLE  = 2,
 
+    // High Prophet Barim
+
+    ACTION_PULL_BACK        = 1,
+
     // Siamat
     ACTION_UNLEASHED        = 1
 };
@@ -94,10 +98,21 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             {
                 InstanceScript::OnCreatureCreate(creature);
 
-                if (creature->GetEntry() == NPC_ADD_STALKER)
-                    addStalkerGUIDs.push_back(creature->GetGUID());
-                else if (creature->GetEntry() == NPC_WIND_TUNNEL)
-                    creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                switch (creature->GetEntry())
+                {
+                    case NPC_ADD_STALKER:
+                        addStalkerGUIDs.push_back(creature->GetGUID());
+                        break;
+                    case NPC_WIND_TUNNEL:
+                        creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        break;
+                    case NPC_REPENTANCE:
+                        repenteanceGUIDs.push_back(creature->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+                    
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -138,9 +153,11 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         else if (state == FAIL)
                             events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(30));
                         break;
+                    case DATA_HIGH_PROPHET_BARIM:
+                        if (state == FAIL)
+                            repenteanceGUIDs.clear();
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
-                    case DATA_HIGH_PROPHET_BARIM:
                         if (state == DONE && IsSiamatEnabled())
                         {
                             if (GameObject* platform = GetGameObject(DATA_SIAMAT_PLATFORM))
@@ -207,6 +224,11 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                                 break;
                         }
                         break;
+                    case DATA_REPENTEANCE_ENDED:
+                        for (ObjectGuid guid : repenteanceGUIDs)
+                            if (Creature* repenteance = instance->GetCreature(guid))
+                                repenteance->AI()->DoAction(ACTION_PULL_BACK);
+                        break;
                     default:
                         break;
                 }
@@ -261,6 +283,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             EventMap events;
             bool heroicAughSpawned;
             GuidVector addStalkerGUIDs;
+            GuidVector repenteanceGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

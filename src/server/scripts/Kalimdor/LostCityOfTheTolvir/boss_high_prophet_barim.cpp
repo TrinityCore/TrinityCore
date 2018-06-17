@@ -33,7 +33,7 @@ enum Spells
     SPELL_FIFTY_LASHINGS                = 82506,
     SPELL_PLAGUE_OF_AGES                = 82622,
     SPELL_HEAVENS_FURY                  = 81939,
-    SPELL_REPANTANCE                    = 82320,
+    SPELL_REPENTANCE                    = 82320,
     SPELL_REPENTANCE_PULL               = 82168,
     SPELL_REPENTANCE_STUN               = 81947,
     SPELL_REPENTANCE_KNOCKBACK          = 82012,
@@ -127,13 +127,20 @@ public:
 
     struct boss_high_prophet_barimAI : public BossAI
     {
-        boss_high_prophet_barimAI(Creature* creature) : BossAI(creature, DATA_HIGH_PROPHET_BARIM) { }
+        boss_high_prophet_barimAI(Creature* creature) : BossAI(creature, DATA_HIGH_PROPHET_BARIM)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _repentanceStarted = false;
+        }
 
         void Reset() override
         {
             _Reset();
-            me->SetReactState(REACT_AGGRESSIVE);
-            _repentanceStarted = false;
+            Initialize();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -182,7 +189,7 @@ public:
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->StopMoving();
-                DoCastSelf(SPELL_REPANTANCE);
+                DoCastSelf(SPELL_REPENTANCE);
                 events.ScheduleEvent(EVENT_REPENTANCE_PULL, Seconds(1));
                 _repentanceStarted = true;
             }
@@ -194,18 +201,18 @@ public:
             {
                 case ACTION_PULL_BACK:
                 {
-                    std::list<Creature*> units;
-                    GetCreatureListWithEntryInGrid(units, me, NPC_REPENTANCE, 30.0f);
-                    for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
-                        (*itr)->AI()->DoAction(ACTION_PULL_BACK);
-
-                    me->RemoveAurasDueToSpell(SPELL_REPANTANCE);
+                    instance->SetData(DATA_REPENTEANCE_ENDED, DONE);
+                    me->RemoveAurasDueToSpell(SPELL_REPENTANCE);
                     me->SetReactState(REACT_AGGRESSIVE);
 
                     summons.DespawnEntry(NPC_SOUL_FRAGMENT);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_SEVER);
                     if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
                         blaze->AI()->DoAction(ACTION_ATTACK_PLAYERS);
+
+                    events.ScheduleEvent(EVENT_FIFTY_LASHINGS, Seconds(2));
+                    events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, Seconds(2));
+                    events.ScheduleEvent(EVENT_HEAVENS_FURY, Seconds(3) + Milliseconds(500));
                     break;
                 }
                 case ACTION_BLAZE_DIED:
@@ -257,6 +264,9 @@ public:
                         events.ScheduleEvent(EVENT_REPENTANCE_KNOCKBACK, Seconds(6));
                         break;
                     case EVENT_REPENTANCE_KNOCKBACK:
+                        if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
+                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, blaze);
+
                         DoCastAOE(SPELL_REPENTANCE_KNOCKBACK);
                         DoCastAOE(SPELL_REPENTANCE_SCREEN_EFFECT, true);
                         DoCastSelf(SPELL_WAIL_OF_DARKNESS_DUMMY, true);
@@ -434,16 +444,23 @@ public:
 
     struct npc_barim_blaze_of_the_heavensAI : public ScriptedAI
     {
-        npc_barim_blaze_of_the_heavensAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+        npc_barim_blaze_of_the_heavensAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+        {
+            Initialize();
+        }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void Initialize()
         {
             _isInEgg = false;
             _isTransforming = false;
+        }
+
+        void IsSummonedBy(Unit* /*summoner*/) override
+        {
             me->SetReactState(REACT_PASSIVE);
+            PhasingHandler::ResetPhaseShift(me);
             DoZoneInCombat();
             DoCastSelf(SPELL_BIRTH, true);
-            PhasingHandler::AddPhase(me, PHASE_ID_REPENTANCE, true);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -472,6 +489,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
+            _events.Reset();
             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
@@ -498,6 +516,8 @@ public:
                 case ACTION_MAKE_PASSIVE:
                     _events.Reset();
                     me->AttackStop();
+                    me->StopMoving();
+                    me->RemoveAllAuras();
                     me->SetReactState(REACT_PASSIVE);
                     break;
                 default:
@@ -522,9 +542,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
-                return;
-
             _events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -543,7 +560,8 @@ public:
                         DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_TRIGGER, true);
                         break;
                     case EVENT_SUMMON_BLAZE_FLAME:
-                        DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_FLAME, true);
+                        if (!me->FindNearestCreature(NPC_BLAZE_OF_THE_HEAVENS_FIRE, 5.0f, true))
+                            DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_FLAME, true);
                         _events.Repeat(Seconds(1));
                         break;
                     case EVENT_TRANSFORMED:
@@ -551,7 +569,7 @@ public:
                         _events.ScheduleEvent(EVENT_CHECK_HEALTH, Seconds(1));
                         break;
                     case EVENT_CHECK_HEALTH:
-                        if (me->GetHealthPct() == 100.0f)
+                        if (me->GetHealthPct() == 100.0f && me->GetReactState() == REACT_AGGRESSIVE)
                         {
                             me->RemoveAurasDueToSpell(SPELL_TRANSFORM);
                             DoCastSelf(SPELL_BIRTH, true);

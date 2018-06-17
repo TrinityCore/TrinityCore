@@ -334,7 +334,7 @@ class boss_augh : public CreatureScript
                         case EVENT_PLAY_EMOTE:
                             me->HandleEmoteCommand(EMOTE_STATE_SPELL_CHANNEL_OMNI);
                             events.ScheduleEvent(EVENT_MAKE_ATTACKABLE, Seconds(4), 0, PHASE_INTRO);
-                            events.ScheduleEvent(EVENT_TALK_TAUNT_1, Seconds(5), PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_TALK_TAUNT_1, Seconds(15), PHASE_INTRO);
                             break;
                         case EVENT_MAKE_ATTACKABLE:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -342,14 +342,15 @@ class boss_augh : public CreatureScript
                             break;
                         case EVENT_TALK_TAUNT_1:
                             Talk(SAY_AUGH_TAUNT_1);
-                            events.ScheduleEvent(EVENT_TALK_TAUNT_2, Seconds(5), 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_TALK_TAUNT_2, Seconds(8), 0, PHASE_INTRO);
                             break;
                         case EVENT_TALK_TAUNT_2:
                             Talk(SAY_AUGH_TAUNT_2);
-                            events.ScheduleEvent(EVENT_TALK_TAUNT_3, Seconds(5), 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_TALK_TAUNT_3, Seconds(8), 0, PHASE_INTRO);
                             break;
                         case EVENT_TALK_TAUNT_3:
                             Talk(SAY_AUGH_TAUNT_3);
+                            events.ScheduleEvent(EVENT_TALK_TAUNT_1, Seconds(8), 0, PHASE_INTRO);
                             break;
                         case EVENT_PARALYTIC_BLOW_DART:
                             DoCastAOE(SPELL_PARALYTIC_BLOW_DART);
