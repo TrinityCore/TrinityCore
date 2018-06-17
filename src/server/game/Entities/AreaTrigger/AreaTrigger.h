@@ -78,6 +78,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration);
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
+        void SetPeriodicProcTimer(uint32 periodicProctimer) { _basePeriodicProcTimer = periodicProctimer; _periodicProcTimer = periodicProctimer; }
 
         GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
@@ -140,6 +141,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _duration;
         int32 _totalDuration;
         uint32 _timeSinceCreated;
+        uint32 _periodicProcTimer;
+        uint32 _basePeriodicProcTimer;
         float _previousCheckOrientation;
         bool _isRemoved;
 

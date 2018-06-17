@@ -42,7 +42,8 @@
 #include <G3D/AABox.h>
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
-    _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
+    _duration(0), _totalDuration(0), _timeSinceCreated(0), _periodicProcTimer(0), _basePeriodicProcTimer(0),
+    _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
     _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _spawnId(0), _guidScriptId(0), _ai()
 {
@@ -288,6 +289,17 @@ void AreaTrigger::Update(uint32 diff)
     }
 
     _ai->OnUpdate(diff);
+
+    if (_basePeriodicProcTimer)
+    {
+        if (_periodicProcTimer <= diff)
+        {
+            _ai->OnPeriodicProc();
+            _periodicProcTimer = _basePeriodicProcTimer;
+        }
+        else
+            _periodicProcTimer -= diff;
+    }
 
     UpdateTargetList();
 }
