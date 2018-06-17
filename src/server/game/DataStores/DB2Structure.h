@@ -824,6 +824,9 @@ struct CriteriaEntry
         // CRITERIA_TYPE_FISH_IN_GAMEOBJECT     = 72
         uint32 GameObjectID;
 
+        //CRITERIA_TYPE_SEND_EVENT_SCENARIO     = 92
+        uint32 ScenarioEventID;
+
         // CRITERIA_TYPE_HIGHEST_POWER          = 96
         uint32 PowerType;
 
