@@ -699,7 +699,7 @@ void AreaTrigger::UpdateCircularMovementPosition()
 
     float circle = 2.0f * float(M_PI);
 
-    // AreaTrigger make exactly "TimeToTarget / Duration" loops during his life time
+    // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
     float angleDiff = circle * (float(cmi.ElapsedTimeForMovement) / float(GetTimeToTarget()));
 
     // Adapt angle diff depending of circle direction
