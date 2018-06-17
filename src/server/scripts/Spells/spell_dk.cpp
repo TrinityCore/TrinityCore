@@ -43,6 +43,8 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_PRESENCE_TRIGGERED           = 61261,
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
+    SPELL_DK_BLOOD_STRIKE                       = 45902,
+    SPELL_DK_BLOOD_STRIKE_OFFHAND               = 66215,
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DARK_TRANSFORMATION_DUMMY          = 93426,
@@ -51,6 +53,8 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_GRIP                         = 49560,
+    SPELL_DK_DEATH_STRIKE                       = 49998,
+    SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832,
     SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
@@ -60,6 +64,7 @@ enum DeathKnightSpells
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48266,
     SPELL_DK_FROST_STRIKE                       = 49143,
+    SPELL_DK_FROST_STRIKE_OFFHAND               = 66196,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
     SPELL_DK_HOWLING_BLAST                      = 49184,
@@ -74,9 +79,14 @@ enum DeathKnightSpells
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     SPELL_DK_MASTER_OF_GHOULS                   = 52143,
+    SPELL_DK_OBLITERATE                         = 49020,
+    SPELL_DK_OBLITERATE_OFFHAND                 = 66198,
+    SPELL_DK_PLAGUE_STRIKE                      = 45462,
+    SPELL_DK_PLAGUE_STRIKE_OFFHAND              = 66216,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_RUNIC_CORRUPTION_TRIGGERED         = 51460,
     SPELL_DK_RUNE_STRIKE                        = 56815,
+    SPELL_DK_RUNE_STRIKE_OFFHAND                = 66217,
     SPELL_DK_RUNE_TAP                           = 48982,
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
@@ -1822,6 +1832,88 @@ class spell_dk_chill_of_the_grave : public SpellScriptLoader
         }
 };
 
+class spell_dk_threat_of_thassarian : public SpellScriptLoader
+{
+    public:
+        spell_dk_threat_of_thassarian() : SpellScriptLoader("spell_dk_threat_of_thassarian") { }
+
+        class spell_dk_threat_of_thassarian_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_threat_of_thassarian_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DK_OBLITERATE,
+                        SPELL_DK_OBLITERATE_OFFHAND,
+                        SPELL_DK_FROST_STRIKE,
+                        SPELL_DK_FROST_STRIKE_OFFHAND,
+                        SPELL_DK_PLAGUE_STRIKE,
+                        SPELL_DK_PLAGUE_STRIKE_OFFHAND,
+                        SPELL_DK_DEATH_STRIKE,
+                        SPELL_DK_DEATH_STRIKE_OFFHAND,
+                        SPELL_DK_RUNE_STRIKE,
+                        SPELL_DK_RUNE_STRIKE_OFFHAND,
+                        SPELL_DK_BLOOD_STRIKE,
+                        SPELL_DK_BLOOD_STRIKE_OFFHAND
+                    });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetTarget()->haveOffhandWeapon())
+                    return;
+
+                if (!roll_chance_i(aurEff->GetAmount()))
+                    return;
+
+                if (SpellInfo const* spell = eventInfo.GetSpellInfo())
+                {
+                    uint32 offhandSpellId = 0;
+                    switch (spell->Id)
+                    {
+                        case SPELL_DK_OBLITERATE:
+                            offhandSpellId = SPELL_DK_OBLITERATE_OFFHAND;
+                            break;
+                        case SPELL_DK_FROST_STRIKE:
+                            offhandSpellId = SPELL_DK_FROST_STRIKE_OFFHAND;
+                            break;                        
+                        case SPELL_DK_PLAGUE_STRIKE:
+                            offhandSpellId = SPELL_DK_PLAGUE_STRIKE_OFFHAND;
+                            break;                        
+                        case SPELL_DK_DEATH_STRIKE:
+                            offhandSpellId = SPELL_DK_DEATH_STRIKE_OFFHAND;
+                            break;                        
+                        case SPELL_DK_RUNE_STRIKE:
+                            offhandSpellId = SPELL_DK_RUNE_STRIKE_OFFHAND;
+                            break;                        
+                        case SPELL_DK_BLOOD_STRIKE:
+                            offhandSpellId = SPELL_DK_BLOOD_STRIKE_OFFHAND;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (offhandSpellId && eventInfo.GetProcTarget())
+                        GetTarget()->CastSpell(eventInfo.GetProcTarget(), offhandSpellId, true, nullptr, aurEff);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_threat_of_thassarian_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_threat_of_thassarian_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1855,6 +1947,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_scent_of_blood();
     new spell_dk_shadow_infusion();
     new spell_dk_scourge_strike();
+    new spell_dk_threat_of_thassarian();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
     new spell_dk_death_grip_initial();
