@@ -13,6 +13,7 @@ It is fully based on *TrinityCore*, with upgrades like :
 
 - Class Hall Basics (WIP)
 - World Quests
+- Challenge Mode (Mythic+)
 - Legion scripts (WIP)
     - BlackRookHold
     - Darkheart Thicket
@@ -54,6 +55,9 @@ Windows, Linux and macOS.
 Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
 Windows, Linux and macOS.
 
+## Contribute
+
+You can help Ashamane using our [Patreon Page](https://www.patreon.com/ashamane). All the collected money will be used to pay developers for their work using bountysource
 
 ## Reporting issues
 
