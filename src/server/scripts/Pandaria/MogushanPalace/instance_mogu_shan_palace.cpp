@@ -74,7 +74,7 @@ public:
         ObjectGuid doorAfterTrialGUID;
         ObjectGuid doorBeforeKingGUID;
 
-        instance_mogu_shan_palace_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_mogu_shan_palace_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
         void Initialize() override
         {

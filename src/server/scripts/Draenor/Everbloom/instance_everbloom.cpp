@@ -33,7 +33,7 @@ public:
 
     struct instance_everbloom_instancemapscript : public InstanceScript
     {
-        instance_everbloom_instancemapscript(Map* map) : InstanceScript(map)
+        instance_everbloom_instancemapscript(InstanceMap* map) : InstanceScript(map)
         {
             SetBossNumber(EncounterCount);
         }

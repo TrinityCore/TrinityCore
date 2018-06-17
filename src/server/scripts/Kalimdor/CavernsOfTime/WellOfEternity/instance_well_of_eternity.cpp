@@ -40,7 +40,7 @@ public:
 
     struct instance_well_of_eternity_InstanceMapScript : public InstanceScript
     {
-        instance_well_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_well_of_eternity_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_ENCOUNTER);
             LoadDoorData(doordata);

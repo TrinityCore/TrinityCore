@@ -26,7 +26,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "temple_of_ahnqiraj.h"
 
 class instance_temple_of_ahnqiraj : public InstanceMapScript
@@ -41,7 +40,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 
         struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {
-            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_temple_of_ahnqiraj_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 IsBossDied[0] = false;

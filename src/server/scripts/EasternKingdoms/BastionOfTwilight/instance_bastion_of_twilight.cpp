@@ -36,7 +36,7 @@ public:
 
     struct instance_the_bastion_of_twilight_InstanceMapScript: public InstanceScript
     {
-        instance_the_bastion_of_twilight_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_the_bastion_of_twilight_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
         void Initialize() override
         {

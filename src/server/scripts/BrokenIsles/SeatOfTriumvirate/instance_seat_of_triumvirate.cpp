@@ -22,7 +22,7 @@
 
 struct instance_seat_of_triumvirate : public InstanceScript
 {
-    instance_seat_of_triumvirate(Map* map) : InstanceScript(map)
+    instance_seat_of_triumvirate(InstanceMap* map) : InstanceScript(map)
     {
         SetHeaders(DataHeader);
         SetBossNumber(EncounterCount);

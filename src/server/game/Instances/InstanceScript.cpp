@@ -52,7 +52,7 @@ BossBoundaryData::~BossBoundaryData()
         delete it->Boundary;
 }
 
-InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
+InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false),
 _challengeModeStarted(false), _challengeModeLevel(0), _challengeModeStartTime(0), _challengeModeDeathCount(0)
 {
@@ -70,7 +70,7 @@ _challengeModeStarted(false), _challengeModeLevel(0), _challengeModeStartTime(0)
 
 void InstanceScript::SaveToDB()
 {
-    if (InstanceScenario* scenario = instance->ToInstanceMap()->GetInstanceScenario())
+    if (InstanceScenario* scenario = instance->GetInstanceScenario())
         scenario->SaveToDB();
 
     std::string data = GetSaveData();

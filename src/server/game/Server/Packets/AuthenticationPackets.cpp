@@ -150,6 +150,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         {
             _worldPacket << uint32(SuccessInfo->Billing.BillingPlan);
             _worldPacket << uint32(SuccessInfo->Billing.TimeRemain);
+            _worldPacket << uint32(SuccessInfo->Billing.Unknown735);
             // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
             _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
             _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan

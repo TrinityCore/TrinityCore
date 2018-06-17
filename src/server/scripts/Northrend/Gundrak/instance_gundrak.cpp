@@ -62,7 +62,7 @@ class instance_gundrak : public InstanceMapScript
 
         struct instance_gundrak_InstanceMapScript : public InstanceScript
         {
-            instance_gundrak_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_gundrak_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

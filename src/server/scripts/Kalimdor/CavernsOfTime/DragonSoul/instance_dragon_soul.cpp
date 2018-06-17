@@ -55,7 +55,7 @@ class instance_dragon_soul : public InstanceMapScript
 
         struct instance_dragon_soul_InstanceMapScript : public InstanceScript
         {
-            instance_dragon_soul_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_dragon_soul_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
 

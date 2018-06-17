@@ -51,7 +51,7 @@ class instance_highmaul : public InstanceMapScript
 
         struct instance_highmaul_InstanceMapScript : public InstanceScript
         {
-            instance_highmaul_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_highmaul_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 m_Initialized               = false;
                 m_ForTests                  = false;

@@ -29,7 +29,7 @@ class instance_shadowmoon_burial_grounds : public InstanceMapScript
 
         struct instance_shadowmoon_burial_grounds_InstanceMapScript : public InstanceScript
         {
-            instance_shadowmoon_burial_grounds_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_shadowmoon_burial_grounds_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
             }

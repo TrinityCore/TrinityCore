@@ -24,7 +24,7 @@
 
 struct instance_maw_of_souls : public InstanceScript
 {
-    instance_maw_of_souls(Map* map) : InstanceScript(map)
+    instance_maw_of_souls(InstanceMap* map) : InstanceScript(map)
     {
         SetHeaders(DataHeader);
         SetBossNumber(EncounterCount);
