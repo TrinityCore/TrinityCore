@@ -1614,6 +1614,59 @@ class spell_gen_elune_candle : public SpellScript
     }
 };
 
+// 50051 - Ethereal Pet Aura
+enum EtherealPet
+{
+    SPELL_STEAL_ESSENCE_VISUAL          = 50101,
+    SPELL_CREATE_TOKEN                  = 50063
+};
+
+class spell_ethereal_pet_aura : public AuraScript
+{
+    PrepareAuraScript(spell_ethereal_pet_aura);
+
+    void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Player* owner = GetTarget()->ToPlayer();
+        Unit* target = eventInfo.GetActionTarget();
+        if (!owner || !target)
+            return;
+
+        Creature* pet = owner->GetMap()->GetCreature(owner->m_SummonSlot[SUMMON_TYPE_MINIPET]);
+        pet->CastSpell(target, SPELL_STEAL_ESSENCE_VISUAL, false);
+        pet->AI()->Talk(1);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_ethereal_pet_aura::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 50101 - Steal Essence Visual
+class spell_steal_essence_visual : public AuraScript
+{
+    PrepareAuraScript(spell_steal_essence_visual);
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Creature* pet = GetCaster()->ToCreature();
+        Unit* owner = GetCaster()->GetOwner();
+        if (!pet || !owner)
+            return;
+
+        pet->CastSpell(owner, SPELL_CREATE_TOKEN, false);
+        pet->AI()->Talk(2);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_steal_essence_visual::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum TransporterBackfires
 {
     SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH     = 23444,
@@ -3977,6 +4030,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_ds_flush_knockback);
     RegisterSpellScript(spell_gen_dungeon_credit);
     RegisterSpellScript(spell_gen_elune_candle);
+    RegisterAuraScript(spell_ethereal_pet_aura);
+    RegisterAuraScript(spell_steal_essence_visual);
     RegisterSpellScript(spell_gen_gadgetzan_transporter_backfire);
     RegisterAuraScript(spell_gen_gift_of_naaru);
     RegisterSpellScript(spell_gen_gnomish_transporter);
