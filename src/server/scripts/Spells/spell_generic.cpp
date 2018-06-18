@@ -1617,8 +1617,11 @@ class spell_gen_elune_candle : public SpellScript
 // 50051 - Ethereal Pet Aura
 enum EtherealPet
 {
-    SPELL_STEAL_ESSENCE_VISUAL          = 50101,
-    SPELL_CREATE_TOKEN                  = 50063
+    SAY_STEAL_ESSENCE           = 1,
+    SAY_CREATE_TOKEN            = 2,
+
+    SPELL_STEAL_ESSENCE_VISUAL  = 50101,
+    SPELL_CREATE_TOKEN          = 50063
 };
 
 class spell_ethereal_pet_aura : public AuraScript
@@ -1635,8 +1638,8 @@ class spell_ethereal_pet_aura : public AuraScript
             return;
 
         Creature* pet = owner->GetMap()->GetCreature(owner->m_SummonSlot[SUMMON_TYPE_MINIPET]);
-        pet->CastSpell(target, SPELL_STEAL_ESSENCE_VISUAL, false);
-        pet->AI()->Talk(1);
+        pet->CastSpell(target, SPELL_STEAL_ESSENCE_VISUAL);
+        pet->AI()->Talk(SAY_STEAL_ESSENCE);
     }
 
     void Register() override
@@ -1657,8 +1660,8 @@ class spell_steal_essence_visual : public AuraScript
         if (!pet || !owner)
             return;
 
-        pet->CastSpell(owner, SPELL_CREATE_TOKEN, false);
-        pet->AI()->Talk(2);
+        pet->CastSpell(owner, SPELL_CREATE_TOKEN);
+        pet->AI()->Talk(SAY_CREATE_TOKEN);
     }
 
     void Register() override

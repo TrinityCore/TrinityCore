@@ -322,30 +322,21 @@ class npc_pet_gen_mojo : public CreatureScript
 
 enum SoulTrader
 {
-    SPELL_PROC_TRIGGER_ON_KILL_AURA     = 50051
+    SAY_INRO                        = 0,
+
+    SPELL_PROC_TRIGGER_ON_KILL_AURA = 50051
 };
 
-class npc_pet_gen_soul_trader : public CreatureScript
+struct npc_pet_gen_soul_trader : public ScriptedAI
 {
-    public:
-        npc_pet_gen_soul_trader() : CreatureScript("npc_pet_gen_soul_trader") { }
+    npc_pet_gen_soul_trader(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_pet_gen_soul_traderAI : public ScriptedAI
-        {
-            npc_pet_gen_soul_traderAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void JustAppeared() override
-            {
-                Talk(0);
-                if (Unit* owner = me->GetOwner())
-                    owner->CastSpell(owner, SPELL_PROC_TRIGGER_ON_KILL_AURA, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_gen_soul_traderAI(creature);
-        }
+    void JustAppeared() override
+    {
+        Talk(SAY_INRO);
+        if (Unit* owner = me->GetOwner())
+            owner->CastSpell(owner, SPELL_PROC_TRIGGER_ON_KILL_AURA, true);
+    }
 };
 
 void AddSC_generic_pet_scripts()
@@ -354,5 +345,5 @@ void AddSC_generic_pet_scripts()
     new npc_pet_gen_egbert();
     new npc_pet_gen_pandaren_monk();
     new npc_pet_gen_mojo();
-    new npc_pet_gen_soul_trader();
+    RegisterCreatureAI(npc_pet_gen_soul_trader);
 }
