@@ -1,0 +1,189 @@
+DELETE FROM `creature_queststarter` WHERE `id` = '63258' AND `quest` = '31142'; 
+
+UPDATE `creature_template` SET `dynamicflags` = 35 WHERE `entry` = 66457;
+
+UPDATE `creature_template` SET `faction` = 189, `unit_flags` = 262656 WHERE `entry` = 66339;
+
+
+UPDATE `creature_template` SET `KillCredit1` = 66383, `KillCredit2` = 66384 WHERE `entry` = 66396;
+
+SET @ENTRY := 66396;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,1,0,100,1,1000,1000,1000,1000,11,130624,2,0,0,0,0,1,0,0,0,0,0,0,0,'Cast Greater Demonic Circle: Teleport on Spawn'),
+(@ENTRY,0,1,0,7,0,100,1,0,0,0,0,11,130624,2,0,0,0,0,1,0,0,0,0,0,0,0,'Cast Greater Demonic Circle: Teleport on Evade');
+
+
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('65910','0','0','Iam from Allience','0','1','1','29416');
+
+SET @ENTRY := 65910;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,65910,0,0,0,33,65910,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+
+
+
+UPDATE `creature_template` SET `npcflag` = 1, `type_flags` = 0 WHERE `entry` = 66567;
+UPDATE `creature_template` SET `gossip_menu_id` = 66567, `npcflag` = 1, `type_flags` = 0 WHERE `entry` = 66567;
+UPDATE `creature_template` SET `gossip_menu_id` = 66564, `npcflag` = 1, `type_flags` = 0 WHERE `entry` = 66564;
+
+
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('66567','0','0','You saved now!','0','1','1','29416');
+UPDATE `creature_template` SET `KillCredit1` = 64354 WHERE `entry` = 59979;
+SET @ENTRY := 66567;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,66567,0,0,0,33,54929,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=66564);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (66564, 0, 0, 0, 1, 0, 84063);
+
+
+
+UPDATE `creature_template` SET `gossip_menu_id` = 66564, `npcflag` = 1, `type_flags` = 0 WHERE `entry` = 66564;
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('66564','0','0','You saved now!','0','1','1','29416');
+UPDATE `creature_template` SET `KillCredit1` = 64354 WHERE `entry` = 59979;
+SET @ENTRY := 66564;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,66564,0,0,0,33,54929,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=66564);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (66564, 0, 0, 0, 1, 0, 84063);
+
+
+UPDATE `creature_template` SET `gossip_menu_id` = 61492, `npcflag` = 1, `type_flags` = 0 WHERE `entry` = 61492;
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('61492','0','0','You saved now!','0','1','1','29416');
+UPDATE `creature_template` SET `KillCredit1` = 64354 WHERE `entry` = 59979;
+SET @ENTRY := 61492;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,61492,0,0,0,33,54929,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=61492);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (61492, 0, 0, 0, 1, 0, 84063);
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=59979);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (59979, 0, 0, 0, 1, 234, '');
+
+REPLACE INTO `creature_equip_template` (`CreatureID`, `ItemID1`) VALUES ('59979', '1905'); 
+
+UPDATE `creature_template` SET `KillCredit1` = 66301, `faction` = 189 WHERE `entry` = 12922;
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=11260);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (11260, 0, 0, 0, 1, 234, '');
+
+UPDATE `creature_template` SET `unit_flags` = 131588, `unit_flags2` = 2048 WHERE `entry` = 66279;
+UPDATE `creature_template` SET `KillCredit1` = 66366, `KillCredit2` = 66366 WHERE `entry` = 66367;
+
+UPDATE `creature_template` SET `KillCredit1` = 66304, `unit_flags` = 131588, `unit_flags2` = 2048,`faction` = 189 WHERE `entry` = 66279;
+
+
+UPDATE `creature_template` SET `KillCredit1` = 66302, `KillCredit2` = 66303 WHERE `entry` = 66277;
+
+UPDATE `quest_template_addon` SET `NextQuestID` = '0' WHERE `ID` = '26657'; 
+UPDATE `quest_template_addon` SET `NextQuestID` = '0' WHERE `ID` = '26750'; 
+UPDATE `quest_template_addon` SET `NextQuestID` = '0' WHERE `ID` = '26584'; 
+DELETE FROM `creature` WHERE `id`=54014;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116839, 54014, 861, 0, 0, 1, 0, 0, 0, -1, 0, 1, 1452.01, 340.643, 51.4103, 0.867748, 300, 0, 0, 18387, 8908, 0, 0, 0, 0, 0, 0, '', 0);
+UPDATE `creature_template` SET `KillCredit1` = 53926 WHERE `entry` = 53928;
+
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('12943','0','0','I am prepared. Let us go to the Firelands and finish this.','0','1','1','29416');
+UPDATE `creature_template` SET `KillCredit1` = 66302, `KillCredit2` = 66303, `unit_flags` = 163840 WHERE `entry` = 66277;
+SET @ENTRY := 53738;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,12943,0,0,0,62,861,0,0,0,0,0,7,0,0,0,1453.81,354.121,55.5129,0.608567,"Teleport"),
+(@ENTRY,0,1,0,61,0,100,0,0,0,0,0,33,53738,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Spell Hit - Despawn");
+UPDATE `creature_template` SET `faction` = 189 WHERE `entry` = 66277;
+
+
+UPDATE `creature_template` SET `unit_flags` = 32768 WHERE `entry` = 66277;
+
+
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('67067','0','0','Lets Go!','0','1','1','29416');
+
+
+
+
+UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (45303,43036,44768,45364,44289,43170,43952,42900,43101,45305,44078,43388);
+DELETE FROM `creature_template_addon` WHERE (`entry`=54623);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (54623, 0, 0, 0, 1, 0, 84063);
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=59022);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (59022, 0, 0, 0, 1, 0, 84063);
+
+
+UPDATE `creature` SET `spawndist` = 5, `MovementType` = 1 WHERE `id` IN (66282,12922,66290,54627);
+
+
+UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (11260);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
