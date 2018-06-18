@@ -5619,12 +5619,12 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
 inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
 {
     if (SkillValue >= GrayLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY)*10;
+        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY) * 10;
     if (SkillValue >= GreenLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN)*10;
-    if (SkillValue >= YellowLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW)*10;
-    return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10;
+        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN)* 10;
+    if (SkillValue >= YellowLevel) 
+        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW) * 10;
+    return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE) * 10;
 }
 
 bool Player::UpdateCraftSkill(uint32 spellid)
@@ -5649,10 +5649,22 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
+            uint32 craft_skill_points = _spell_idx->second->character_points[0];
+
+            if (craft_skill_points)
+            {
+                craft_skill_points *= craft_skill_gain;
+                TC_LOG_INFO("entities.player", "craft_skill_points is %u, spellID: %u, skillID: %u", craft_skill_points, spellid, _spell_idx->second->skillId);
+                return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
+                    _spell_idx->second->max_value,
+                    (_spell_idx->second->max_value + _spell_idx->second->min_value) / 2,
+                    _spell_idx->second->min_value),
+                    craft_skill_points);
+            }
 
             return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
                 _spell_idx->second->max_value,
-                (_spell_idx->second->max_value + _spell_idx->second->min_value)/2,
+                (_spell_idx->second->max_value + _spell_idx->second->min_value) / 2,
                 _spell_idx->second->min_value),
                 craft_skill_gain);
         }
@@ -15309,6 +15321,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         AddQuestRewardedTalentCount(talents);
         InitTalentForLevel();
+    }
+
+    if (uint32 skill = quest->GetRewardSkillId())
+    {
+        if (HasSkill(skill) && (GetSkillValue(skill) + quest->GetRewardSkillPoints()) <= GetMaxSkillValue(skill))
+            SetSkill(skill, GetSkillStep(skill), GetSkillValue(skill) + quest->GetRewardSkillPoints(), GetMaxSkillValue(skill));
     }
 
     // Send reward mail
