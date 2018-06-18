@@ -134,8 +134,8 @@ uint32 LootStore::LoadLootTable()
     // Clearing store (for reloading case)
     Clear();
 
-    //                                                  0     1            2               3         4         5             6
-    QueryResult result = WorldDatabase.PQuery("SELECT Entry, Item, Reference, Chance, QuestRequired, LootMode, GroupId, MinCount, MaxCount FROM %s", GetName());
+    //                                                0      1     2          3       4              5           6         7        8         9
+    QueryResult result = WorldDatabase.PQuery("SELECT Entry, Item, Reference, Chance, QuestRequired, IsCurrency, LootMode, GroupId, MinCount, MaxCount FROM %s", GetName());
     if (!result)
         return 0;
 
@@ -150,10 +150,11 @@ uint32 LootStore::LoadLootTable()
         uint32 reference           = fields[2].GetUInt32();
         float  chance              = fields[3].GetFloat();
         bool   needsquest          = fields[4].GetBool();
-        uint16 lootmode            = fields[5].GetUInt16();
-        uint8  groupid             = fields[6].GetUInt8();
-        uint8  mincount            = fields[7].GetUInt8();
-        uint8  maxcount            = fields[8].GetUInt8();
+        bool   iscurrency          = fields[5].GetBool();
+        uint16 lootmode            = fields[6].GetUInt16();
+        uint8  groupid             = fields[7].GetUInt8();
+        uint8  mincount            = fields[8].GetUInt8();
+        uint8  maxcount            = fields[9].GetUInt8();
 
         if (groupid >= 1 << 7)                                     // it stored in 7 bit field
         {
@@ -161,16 +162,16 @@ uint32 LootStore::LoadLootTable()
             return 0;
         }
 
-        LootStoreItem* storeitem = new LootStoreItem(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
+        LootStoreItem* storeitem = new LootStoreItem(item, reference, chance, needsquest, iscurrency, lootmode, groupid, mincount, maxcount);
 
-        if (!storeitem->IsValid(*this, entry))            // Validity checks
+        if (!storeitem->IsValid(*this, entry)) // Validity checks
         {
             delete storeitem;
             continue;
         }
 
         // Looking for the template of the entry
-                                                         // often entries are put together
+        // often entries are put together
         if (m_LootTemplates.empty() || tab->first != entry)
         {
             // Searching the template (in case template Id changed)
@@ -291,6 +292,9 @@ bool LootStoreItem::Roll(bool rate) const
     if (reference > 0)                                   // reference case
         return roll_chance_f(chance* (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
 
+    if (is_currency)
+        return roll_chance_f(chance);
+
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
 
     float qualityModifier = pProto && rate ? sWorld->getRate(qualityToRate[pProto->Quality]) : 1.0f;
@@ -309,11 +313,23 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 
     if (reference == 0)                                      // item (quest or non-quest) entry, maybe grouped
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-        if (!proto)
+        if (!is_currency)
         {
-            TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
-            return false;
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
+            if (!proto)
+            {
+                TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
+                return false;
+            }
+        }
+        else
+        {
+            CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(itemid);
+            if (!currency)
+            {
+                TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d CurrencyId %d: currency does not exist in `CurrencyTypes.dbc` - skipped", store.GetName(), entry, itemid);
+                return false;
+            }
         }
 
         if (chance == 0 && groupid == 0)                     // Zero chance is allowed for grouped entries only

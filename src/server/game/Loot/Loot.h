@@ -140,6 +140,7 @@ struct TC_GAME_API LootItem
     bool    is_underthreshold : 1;
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
+    bool    is_currency       : 1;                          // currency loot
     bool    follow_loot_rules : 1;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
@@ -148,7 +149,8 @@ struct TC_GAME_API LootItem
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
     LootItem() : itemid(0), randomSuffix(0), randomPropertyId(0), count(0), is_looted(false), is_blocked(false),
-                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false)
+                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), is_currency(false),
+                 follow_loot_rules(false)
                  { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
@@ -167,20 +169,6 @@ struct NotNormalLootItem
 
     NotNormalLootItem(uint8 _index, bool _islooted = false)
         : index(_index), is_looted(_islooted) { }
-};
-
-struct LootCurrency
-{
-    uint8 index;
-    uint32 id;
-    uint32 count;
-    bool looted;
-
-    LootCurrency()
-        : index(0), id(0), count(0), looted(false) { }
-
-    LootCurrency(uint32 _id, uint32 _count)
-        : index(0), id(_id), count(_count), looted(false) { }
 };
 
 typedef std::vector<NotNormalLootItem> NotNormalLootItemList;
@@ -227,11 +215,9 @@ struct TC_GAME_API Loot
 
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
-    std::vector<LootCurrency> currencies;
 
     uint32 gold;
     uint8 unlootedCount;
-    uint8 unlootedCurrency;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
@@ -269,14 +255,13 @@ struct TC_GAME_API Loot
         quest_items.clear();
         gold = 0;
         unlootedCount = 0;
-        unlootedCurrency = 0;
         roundRobinPlayer.Clear();
         loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
     }
 
     bool empty() const { return items.empty() && gold == 0; }
-    bool isLooted() const { return gold == 0 && unlootedCount == 0 && unlootedCurrency == 0; }
+    bool isLooted() const { return gold == 0 && unlootedCount == 0; }
 
     void NotifyItemRemoved(uint8 lootIndex);
     void NotifyQuestItemRemoved(uint8 questIndex);
@@ -291,14 +276,13 @@ struct TC_GAME_API Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
 
+    void LootCurrencyInSlot(uint8 lootSlot, Player* player);
+
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = nullptr, NotNormalLootItem** ffaitem = nullptr, NotNormalLootItem** conditem = nullptr);
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemForAll() const;
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
-
-    void AddCurrency(uint32 entry, uint32 min, uint32 max);
-    LootCurrency* LootCurrencyInSlot(uint32 lootSlot, Player* player);
 
     private:
         void FillNotNormalLootFor(Player* player, bool presentAtLooting);

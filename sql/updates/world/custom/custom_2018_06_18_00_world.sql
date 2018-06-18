@@ -1,0 +1,12 @@
+ALTER TABLE `creature_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `disenchant_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `fishing_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `gameobject_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `item_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `mail_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `milling_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `pickpocketing_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `prospecting_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `reference_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `skinning_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;
+ALTER TABLE `spell_loot_template` ADD COLUMN `IsCurrency` TINYINT(1) DEFAULT 0 NOT NULL AFTER `QuestRequired`;

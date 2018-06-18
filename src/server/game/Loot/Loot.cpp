@@ -36,15 +36,24 @@ LootItem::LootItem(LootStoreItem const& li)
 {
     itemid      = li.itemid;
     conditions   = li.conditions;
+    is_currency = li.is_currency;
 
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-    freeforall  = proto && (proto->Flags & ITEM_FLAG_MULTI_DROP);
-    follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
+    if (!is_currency)
+    {
+        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
+        freeforall = proto && (proto->Flags & ITEM_FLAG_MULTI_DROP);
+        follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
+    }
+    else
+    {
+        freeforall = false;
+        follow_loot_rules = false;
+    }
 
     needs_quest = li.needs_quest;
 
-    randomSuffix = GenerateEnchSuffixFactor(itemid);
-    randomPropertyId = GenerateItemRandomPropertyId(itemid);
+    randomSuffix =  !is_currency ? GenerateEnchSuffixFactor(itemid) : 0;
+    randomPropertyId = !is_currency ? GenerateItemRandomPropertyId(itemid) : 0;
     count = 0;
     is_looted = 0;
     is_blocked = 0;
@@ -91,7 +100,7 @@ void LootItem::AddAllowedLooter(Player const* player)
 // --------- Loot ---------
 //
 
-Loot::Loot(uint32 _gold /*= 0*/) : gold(_gold), unlootedCount(0), unlootedCurrency(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0)
+Loot::Loot(uint32 _gold /*= 0*/) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0)
 {
 }
 
@@ -103,15 +112,39 @@ Loot::~Loot()
 // Inserts the item into the loot (called by LootTemplate processors)
 void Loot::AddItem(LootStoreItem const& item)
 {
+    std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
+    uint32 limit = item.needs_quest ? MAX_NR_QUEST_ITEMS : MAX_NR_LOOT_ITEMS;
+
+    if (item.is_currency)
+    {
+        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(item.itemid);
+        if (!currency)
+            return;
+
+        uint32 totalCap = currency->TotalCap > 0 ? currency->TotalCap : 1;
+        uint32 count = urand(item.mincount, item.maxcount);
+        uint32 stacks = count / totalCap + ((count % totalCap) ? 1 : 0);
+
+        for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
+        {
+            LootItem generatedLoot(item);
+            generatedLoot.count = std::min(count, currency->TotalCap);
+            lootItems.push_back(generatedLoot);
+            count -= currency->TotalCap;
+
+            // Never seen a currency that needs a quest but just in case
+            if (!item.needs_quest)
+                ++unlootedCount;
+        }
+        return;
+    }
+
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
     if (!proto)
         return;
 
     uint32 count = urand(item.mincount, item.maxcount);
     uint32 stacks = count / proto->GetMaxStackSize() + ((count % proto->GetMaxStackSize()) ? 1 : 0);
-
-    std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
-    uint32 limit = item.needs_quest ? MAX_NR_QUEST_ITEMS : MAX_NR_LOOT_ITEMS;
 
     for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
     {
@@ -128,25 +161,20 @@ void Loot::AddItem(LootStoreItem const& item)
     }
 }
 
-void Loot::AddCurrency(uint32 entry, uint32 min, uint32 max)
+void Loot::LootCurrencyInSlot(uint8 lootSlot, Player* player)
 {
-    uint32 amount = urand(min, max);
+    if (items[lootSlot].is_looted || !items[lootSlot].is_currency)
+        return;
 
-    currencies.push_back(LootCurrency(entry, amount));
+    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(items[lootSlot].itemid);
+    if (!currency)
+        return;
 
-    unlootedCurrency++;
-}
+    NotifyCurrencyRemoved(lootSlot);
+    player->ModifyCurrency(items[lootSlot].itemid, items[lootSlot].count);
 
-LootCurrency* Loot::LootCurrencyInSlot(uint32 lootSlot, Player* /*player*/)
-{
-    if (currencies[lootSlot].looted)
-        return nullptr;
-
-    currencies[lootSlot].looted = true;
-
-    unlootedCurrency--;
-
-    return &(currencies[lootSlot]);
+    items[lootSlot].is_looted = true;
+    unlootedCount--;
 }
 
 // Calls processor of corresponding LootTemplate (which handles everything including references)
@@ -214,23 +242,6 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
     // if not auto-processed player will have to come and pick it up manually
     if (!presentAtLooting)
         return;
-
-    // Process currency items
-    uint32 max_slot = GetMaxSlotInLootFor(player);
-    LootItem const* item = nullptr;
-    uint32 itemsSize = uint32(items.size());
-    for (uint32 i = 0; i < max_slot; ++i)
-    {
-        if (i < items.size())
-            item = &items[i];
-        else
-            item = &quest_items[i-itemsSize];
-
-        if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player))
-            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
-                if (proto->IsCurrencyToken())
-                    player->StoreLootItem(i, this);
-    }
 }
 
 NotNormalLootItemList* Loot::FillFFALoot(Player* player)
@@ -603,7 +614,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             // blocked rolled items and quest items, and !ffa items
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
-                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer) && !l.items[i].is_currency)
                 {
                     uint8 slot_type;
 
@@ -658,7 +669,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         {
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
-                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer) && !!l.items[i].is_currency)
                 {
                     if (!l.roundRobinPlayer.IsEmpty() && lv.viewer->GetGUID() != l.roundRobinPlayer)
                         // item shall not be displayed.
@@ -677,7 +688,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             uint8 slot_type = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
-                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer) && !l.items[i].is_currency)
                 {
                     b << uint8(i) << l.items[i];
                     b << uint8(slot_type);
@@ -786,16 +797,14 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         }
     }
 
-    for (uint8 i = 0; i < l.currencies.size(); ++i)
+    for (uint8 i = 0; i < l.items.size(); ++i)
     {
-        if (l.currencies[i].count == 0 || l.currencies[i].id == 0 || l.currencies[i].looted)
+        if (!l.items[i].is_currency || l.items[i].count == 0 || l.items[i].is_looted)
             continue;
 
-        l.currencies[i].index = currenciesShown + itemsShown;
-
-        b << uint8(l.currencies[i].index);
-        b << uint32(l.currencies[i].id);
-        b << uint32(l.currencies[i].count);
+        b << uint8(i);
+        b << uint32(l.items[i].itemid);
+        b << uint32(l.items[i].count);
         ++currenciesShown;
     }
 

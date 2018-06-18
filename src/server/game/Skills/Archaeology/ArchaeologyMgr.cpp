@@ -285,32 +285,6 @@ uint32 ArchaeologyMgr::GetSiteType(uint16 entry)
     return _objectMap[entry];
 }
 
-uint32 ArchaeologyMgr::GetFindCurrency(uint32 go_entry)
-{
-    switch (go_entry)
-    {
-        case FIND_OBJECT_DRAENEI:
-            return CURRENCY_TYPE_DRAENEI_FRAGMENT;
-        case FIND_OBJECT_DWARF:
-            return CURRENCY_TYPE_DWARF_FRAGMENT;
-        case FIND_OBJECT_FOSSIL:
-            return CURRENCY_TYPE_FOSSIL_FRAGMENT;
-        case FIND_OBJECT_NERUBIAN:
-            return CURRENCY_TYPE_NERUBIAN_FRAGMENT;
-        case FIND_OBJECT_NIGHT_ELF:
-            return CURRENCY_TYPE_NELF_FRAGMENT;
-        case FIND_OBJECT_ORC:
-            return CURRENCY_TYPE_ORC_FRAGMENT;
-        case FIND_OBJECT_TOL_VIR:
-            return CURRENCY_TYPE_TOLVIR_FRAGMENT;
-        case FIND_OBJECT_TROLL:
-            return CURRENCY_TYPE_TROLL_FRAGMENT;
-        case FIND_OBJECT_VRYKUL:
-            return CURRENCY_TYPE_VRYKUL_FRAGMENT;
-    }
-    return 0;
-}
-
 uint16 ArchaeologyMgr::GetNewProject(uint8 branchId, BranchData* branch, std::map<uint16, std::pair<int32, int32>>* completedMap, uint32 playerSkill)
 {
     std::vector<uint16>* _rares = &_rareProjects[branchId];

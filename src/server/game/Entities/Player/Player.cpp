@@ -8672,8 +8672,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 go->getFishLoot(loot, this);
             else if (loot_type == LOOT_FISHING_JUNK)
                 go->getFishLootJunk(loot, this);
-            else if (loot_type == LOOT_ARCHAEOLOGY)
-                go->getArchaeologyLoot(loot, this);
 
             if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
             {
@@ -25813,21 +25811,6 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);
-}
-
-
-void Player::StoreLootCurrency(uint8 lootSlot, Loot* loot)
-{
-    LootCurrency* currency = loot->LootCurrencyInSlot(lootSlot, this);
-
-    if (!currency)
-    {
-        SendEquipError(EQUIP_ERR_LOOT_GONE, nullptr, nullptr);
-        return;
-    }
-
-    loot->NotifyCurrencyRemoved(lootSlot);
-    ModifyCurrency(currency->id, currency->count);
 }
 
 uint32 Player::CalculateTalentsPoints() const

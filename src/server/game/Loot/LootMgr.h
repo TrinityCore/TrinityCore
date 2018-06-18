@@ -39,21 +39,21 @@ struct TC_GAME_API LootStoreItem
     float   chance;                                         // chance to drop for both quest and non-quest items, chance to be used for refs
     uint16  lootmode;
     bool    needs_quest : 1;                                // quest drop (quest is required for item to drop)
+    bool    is_currency : 1;                                // currency loot (entry is currency instead of an item)
     uint8   groupid     : 7;
     uint8   mincount;                                       // mincount for drop items
     uint8   maxcount;                                       // max drop count for the item mincount or Ref multiplicator
-    ConditionContainer conditions;                               // additional loot condition
+    ConditionContainer conditions;                          // additional loot condition
 
     // Constructor
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint32 _reference, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, int32 _mincount, uint8 _maxcount)
-        : itemid(_itemid), reference(_reference), chance(_chance), lootmode(_lootmode),
-        needs_quest(_needs_quest), groupid(_groupid), mincount(_mincount), maxcount(_maxcount)
+    LootStoreItem(uint32 _itemid, uint32 _reference, float _chance, bool _needs_quest, bool _is_currency, uint16 _lootmode, uint8 _groupid, int32 _mincount, uint8 _maxcount)
+        : itemid(_itemid), reference(_reference), chance(_chance), needs_quest(_needs_quest), is_currency(_is_currency),
+        lootmode(_lootmode), groupid(_groupid), mincount(_mincount), maxcount(_maxcount)
          { }
 
-    bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
-    bool IsValid(LootStore const& store, uint32 entry) const;
-                                                            // Checks correctness of values
+    bool Roll(bool rate) const;                                 // Checks if the entry takes it's chance (at loot generation)
+    bool IsValid(LootStore const& store, uint32 entry) const;   // Checks correctness of values
 };
 
 typedef std::list<LootStoreItem*> LootStoreItemList;

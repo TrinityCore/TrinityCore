@@ -170,7 +170,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SendGameObjectDespawn();
         void getFishLoot(Loot* loot, Player* loot_owner);
         void getFishLootJunk(Loot* loot, Player* loot_owner);
-        void getArchaeologyLoot(Loot* loot, Player* loot_owner);
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }

@@ -832,11 +832,6 @@ void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
     }
 }
 
-void GameObject::getArchaeologyLoot(Loot* loot, Player* /*loot_owner*/)
-{
-    loot->AddCurrency(sArchaeologyMgr->GetFindCurrency(GetEntry()), 4, 9);
-}
-
 void GameObject::SaveToDB()
 {
     // this should only be used when the gameobject has already been loaded

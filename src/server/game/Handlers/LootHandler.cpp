@@ -140,7 +140,7 @@ void WorldSession::HandleLootCurrencyOpcode(WorldPacket& recvData)
             return;
     }
 
-    player->StoreLootCurrency(lootSlot, loot);
+    loot->LootCurrencyInSlot(lootSlot, player);
 }
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)

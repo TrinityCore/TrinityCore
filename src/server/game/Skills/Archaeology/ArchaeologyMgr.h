@@ -111,7 +111,6 @@ class TC_GAME_API ArchaeologyMgr
         void LoadData();
 
         // Site Functionality
-        static uint32 GetFindCurrency(uint32 go_entry);
         uint16 GetNewSite(Continent continent, SiteData *sites, bool extended, uint32 playerLevel);
         bool SetSiteCoords(SiteData &site);
         uint32 GetSiteType(uint16 entry);
