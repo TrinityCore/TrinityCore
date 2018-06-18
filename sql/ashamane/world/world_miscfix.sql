@@ -129,6 +129,25 @@ UPDATE `creature_template` SET `KillCredit1` = 43978 WHERE `entry` = 43954;
 DELETE FROM `quest_objectives` WHERE `ID` = '251934'; 
 UPDATE `creature_template` SET `KillCredit1` = 44126 WHERE `entry` = 44035;
 
+DELETE FROM `creature` WHERE `id`=44352;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210116810, 44352, 646, 0, 0, 1, 0, 0, 0, -1, 0, 1, 1483.58, 584.057, -60.2142, 1.43167, 300, 0, 0, 15760, 53448, 0, 0, 0, 0, 0, 0, '', 0),
+(315904, 44352, 646, 5042, 5291, 1, 0, 0, 0, -1, 33048, 0, 1392.42, 782.094, -60.0816, 0.546001, 300, 3, 0, 464940, 53448, 1, 0, 0, 0, 0, 0, '', 0);
+UPDATE `creature_template` SET `KillCredit1` = 42731 WHERE `entry` = 44352;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (45303,43036,44768,45364,44289,43170,43952);
 
 
