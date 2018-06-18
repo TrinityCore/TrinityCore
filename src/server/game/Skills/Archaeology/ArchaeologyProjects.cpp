@@ -65,10 +65,9 @@ void Archaeology::LoadCurrentProjectsFromDB()
         uint8 branch = fields[0].GetUInt8();
         uint16 project = fields[1].GetUInt16();
 
-        auto itr = _branches.find(branch);
-        if (itr != _branches.end())
+        if (uint16 old_project = _branches[branch].Project)
         {
-            TC_LOG_ERROR("player.skills", "ERROR - Archaeology: Tried to assign project %u to branch %u, which already holds project %u!", project, branch, itr->second.Project);
+            TC_LOG_ERROR("player.skills", "ERROR - Archaeology: Tried to assign project %u to branch %u, which already holds project %u!", project, branch, old_project);
             continue;
         }
 

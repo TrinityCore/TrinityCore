@@ -78,6 +78,8 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
                     recvPacket >> archData.FragId;      // Currency id
                     recvPacket >> archData.FragCount;   // Currency count
                     break;
+                default:
+                    break;
             }
         }
 

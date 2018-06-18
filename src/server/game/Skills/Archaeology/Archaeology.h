@@ -27,10 +27,10 @@ class Player;
 
 struct ArchData
 {
-    uint32 FragId;
-    uint32 FragCount;
-    uint32 KeyId;
-    uint32 KeyCount;
+    uint32 FragId = 0;
+    uint32 FragCount = 0;
+    uint32 KeyId = 0;
+    uint32 KeyCount = 0;
 };
 
 enum ContinentState
