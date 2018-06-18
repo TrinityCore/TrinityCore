@@ -71,7 +71,7 @@ public:
 
         uint32 dataStorage[MAX_DATA];
 
-        instance_shadopan_monastery_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_shadopan_monastery_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
         void Initialize() override
         {

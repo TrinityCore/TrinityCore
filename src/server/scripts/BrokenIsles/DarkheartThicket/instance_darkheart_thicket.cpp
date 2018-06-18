@@ -48,7 +48,7 @@ DoorData const doorData[] =
 
 struct instance_darkheart_thicket : public InstanceScript
 {
-    instance_darkheart_thicket(Map* map) : InstanceScript(map), _introDone(false) { }
+    instance_darkheart_thicket(InstanceMap* map) : InstanceScript(map), _introDone(false) { }
 
     void Initialize() override
     {

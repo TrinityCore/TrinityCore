@@ -86,7 +86,7 @@ namespace Instances
 
                     uint8 playersTeamId;
 
-                    instance_BloodmaulInstanceMapScript(Map* map)
+                    instance_BloodmaulInstanceMapScript(InstanceMap* map)
                         : InstanceScript(map),
                         m_BeginningTime(0),
                         m_CanUpdate(false),

@@ -41,7 +41,7 @@ DoorData const doorData[] =
 
 struct instance_black_rook_hold : public InstanceScript
 {
-    instance_black_rook_hold(Map* map) : InstanceScript(map) { }
+    instance_black_rook_hold(InstanceMap* map) : InstanceScript(map) { }
 
     void Initialize() override
     {

@@ -38,7 +38,7 @@ class instance_tomb_of_sargeras : public InstanceMapScript
 
         struct instance_tomb_of_sargeras_InstanceMapScript : public InstanceScript
         {
-            instance_tomb_of_sargeras_InstanceMapScript(Map* map) : InstanceScript(map) { }
+            instance_tomb_of_sargeras_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
             void Initialize() override
             {

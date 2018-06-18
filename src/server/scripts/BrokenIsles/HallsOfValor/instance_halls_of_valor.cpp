@@ -36,7 +36,7 @@ DoorData const doorData[] =
 
 struct instance_halls_of_valor : public InstanceScript
 {
-    instance_halls_of_valor(Map* map) : InstanceScript(map) { }
+    instance_halls_of_valor(InstanceMap* map) : InstanceScript(map) { }
 
     void Initialize() override
     {

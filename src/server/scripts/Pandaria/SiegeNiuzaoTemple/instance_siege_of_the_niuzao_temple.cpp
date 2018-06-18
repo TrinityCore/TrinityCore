@@ -37,7 +37,7 @@ public:
         ObjectGuid pavalakGUID;
         ObjectGuid neronokGUID;
 
-        instance_siege_of_the_niuzao_temple_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_siege_of_the_niuzao_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
         void Initialize() override
         {

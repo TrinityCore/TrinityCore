@@ -31,7 +31,7 @@ DoorData const doorData[] =
 
 struct instance_emerald_nightmare : public InstanceScript
 {
-    instance_emerald_nightmare(Map* map) : InstanceScript(map) { }
+    instance_emerald_nightmare(InstanceMap* map) : InstanceScript(map) { }
 
     void Initialize() override
     {

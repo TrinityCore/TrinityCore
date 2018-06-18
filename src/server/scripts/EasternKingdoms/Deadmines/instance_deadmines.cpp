@@ -30,7 +30,7 @@ public:
 
     struct instance_deadmines_InstanceMapScript : public InstanceScript
     {
-        instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_deadmines_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_BOSSES);
         };

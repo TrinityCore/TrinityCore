@@ -36,7 +36,7 @@ public:
         ObjectGuid hoptallusGUID;
         ObjectGuid yanzhuGUID;
 
-        instance_stormstout_brewery_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_stormstout_brewery_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
         void Initialize() override
         {

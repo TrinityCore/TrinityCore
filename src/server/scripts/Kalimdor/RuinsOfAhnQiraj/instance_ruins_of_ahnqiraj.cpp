@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ruins_of_ahnqiraj.h"
 
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
@@ -28,7 +27,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
 
         struct instance_ruins_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {
-            instance_ruins_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_ruins_of_ahnqiraj_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(NUM_ENCOUNTER);

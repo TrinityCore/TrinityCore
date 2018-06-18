@@ -49,7 +49,7 @@ class instance_firelands : public InstanceMapScript
 
         struct instance_firelands_InstanceMapScript : public InstanceScript
         {
-            instance_firelands_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_firelands_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
