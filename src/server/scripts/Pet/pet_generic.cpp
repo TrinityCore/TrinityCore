@@ -322,7 +322,7 @@ class npc_pet_gen_mojo : public CreatureScript
 
 enum SoulTrader
 {
-    SAY_INRO                        = 0,
+    SAY_SOUL_TRADER_INTRO           = 0,
 
     SPELL_PROC_TRIGGER_ON_KILL_AURA = 50051
 };
@@ -333,7 +333,7 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
 
     void JustAppeared() override
     {
-        Talk(SAY_INRO);
+        Talk(SAY_SOUL_TRADER_INTRO);
         if (Unit* owner = me->GetOwner())
             owner->CastSpell(owner, SPELL_PROC_TRIGGER_ON_KILL_AURA, true);
     }
