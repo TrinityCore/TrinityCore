@@ -697,25 +697,34 @@ void AreaTrigger::UpdateCircularMovementPosition()
     cmi.TimeToTarget = GetTimeToTarget();
     cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement() - cmi.StartDelay;
 
-    float circle = 2.0f * float(M_PI);
-
     // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
-    float angleDiff = circle * (float(cmi.ElapsedTimeForMovement) / float(GetTimeToTarget()));
+    float pathProgress = float(cmi.ElapsedTimeForMovement) / float(cmi.TimeToTarget);
 
-    // Adapt angle diff depending of circle direction
+    // We already made one circle and can't loop
+    if (!cmi.CanLoop && G3D::fuzzyEq(std::min(1.f, pathProgress), 1.f))
+        return;
+
+    float radius = cmi.Radius;
+    if (G3D::fuzzyNe(cmi.BlendFromRadius, radius))
+    {
+        float blender = std::max((cmi.BlendFromRadius - radius) / radius, 1.f);
+        // 4.f Defines four quarters
+        blender = std::min(blender, 4.f) / 4.f;
+        float blendProgress = std::min(1.f, pathProgress / blender);
+        radius = G3D::lerp(cmi.BlendFromRadius, cmi.Radius, blendProgress);
+    }
+
+    // Adapt Path progress depending of circle direction
     if (!cmi.CounterClockwise)
-        angleDiff *= -1;
+        pathProgress *= -1;
 
-    // We already made one circle & can't loop
-    if (!cmi.CanLoop && angleDiff >= std::abs(circle))
-        angleDiff = 0.0f;
-
-    float angle = cmi.InitialAngle + angleDiff;
-    float x = centerPos->GetPositionX() + (cmi.Radius * std::cos(angle));
-    float y = centerPos->GetPositionY() + (cmi.Radius * std::sin(angle));
+    float angle = cmi.InitialAngle + 2.f * float(M_PI) * pathProgress;
+    float x = centerPos->GetPositionX() + (radius * std::cos(angle));
+    float y = centerPos->GetPositionY() + (radius * std::sin(angle));
     float z = centerPos->GetPositionZ() + cmi.ZOffset;
 
-    GetMap()->AreaTriggerRelocation(this, x, y, z, angle);
+    // We have to use relocate here because cell update in Map->RelocateAreaTrigger is delayed
+    Relocate(x, y, z, angle);
 #ifdef TRINITY_DEBUG
     DebugVisualizePosition();
 #endif
