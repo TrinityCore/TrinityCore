@@ -56,7 +56,8 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0), _worldEffectID(0)
+    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0),
+    _worldEffectID(0), _scheduler(this)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -84,6 +85,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+
+    m_shouldIntersectWithAllPhases = false;
 }
 
 GameObject::~GameObject()
@@ -129,6 +132,9 @@ void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 
     if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
         RemoveFromOwner();
+
+    m_Events.KillAllEvents(false);
+    _scheduler.CancelAll();
 }
 
 void GameObject::RemoveFromOwner()
@@ -427,6 +433,9 @@ GameObject* GameObject::CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map*
 
 void GameObject::Update(uint32 diff)
 {
+    m_Events.Update(diff);
+    _scheduler.Update(diff);
+
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
@@ -937,6 +946,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.go_state = GetGoState();
     data.spawnMask = spawnMask;
     data.artKit = GetGoArtKit();
+    data.isActive = isActiveObject();
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
@@ -968,6 +978,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setInt32(index++, int32(m_respawnDelayTime));
     stmt->setUInt8(index++, GetGoAnimProgress());
     stmt->setUInt8(index++, uint8(GetGoState()));
+    stmt->setUInt32(index++, uint8(isActiveObject()));
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1028,6 +1039,8 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     }
 
     m_goData = data;
+
+    setActive(data->isActive || GetGoType() == GAMEOBJECT_TYPE_PHASEABLE_MO);
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -1129,6 +1142,11 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
 
     if (!GetUInt32Value(GAMEOBJECT_DISPLAYID))
         return true;
+
+    if (seer->IsPlayer() && GetGoType() == GAMEOBJECT_TYPE_CHEST)
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(GetGOInfo()->chest.conditionID1))
+            if (!sConditionMgr->IsPlayerMeetingCondition(seer->ToPlayer(), playerCondition))
+                return true;
 
     return false;
 }
@@ -1784,6 +1802,7 @@ void GameObject::Use(Unit* user)
             break;
         }
 
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:                 // 42
         case GAMEOBJECT_TYPE_FLAGSTAND:                     // 24
         {
             if (user->GetTypeId() != TYPEID_PLAYER)
@@ -1860,7 +1879,7 @@ void GameObject::Use(Unit* user)
                     {
                         case 179785:                        // Silverwing Flag
                         case 179786:                        // Warsong Flag
-                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
+                            if (bg->GetTypeID(true) == BATTLEGROUND_WS || bg->GetTypeID(true) == BATTLEGROUND_TP)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 184142:                        // Netherstorm Flag

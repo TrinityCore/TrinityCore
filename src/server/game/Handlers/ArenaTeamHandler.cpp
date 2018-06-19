@@ -21,7 +21,7 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 
-void WorldSession::SendNotInArenaTeamPacket(uint8 type)
+void WorldSession::SendNotInArenaGroupPacket(uint8 type)
 {
     WorldPacket data(SMSG_ARENA_ERROR, 4+1);
     uint32 error = 0;

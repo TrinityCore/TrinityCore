@@ -50,6 +50,7 @@ class MapInstanced;
 class Object;
 class PhaseShift;
 class Player;
+class Spell;
 class TempSummon;
 class Unit;
 class Weather;
@@ -58,6 +59,7 @@ class WorldPacket;
 struct MapDifficultyEntry;
 struct MapEntry;
 struct Position;
+struct QuaternionData;
 struct ScriptAction;
 struct ScriptInfo;
 struct SummonPropertiesEntry;
@@ -260,6 +262,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
+        Ashamane::AnyData Variables;
+
         Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent = NULL);
         virtual ~Map();
 
@@ -402,7 +406,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsRaid() const;
         bool IsRaidOrHeroicDungeon() const;
         bool IsHeroic() const;
+        bool IsMythic() const;
         bool Is25ManRaid() const;   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsLFR() const;
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;
@@ -446,9 +452,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0, bool visibleOnlyBySummoner = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false, Spell const* summonSpell = nullptr);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
+        GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */);
         AreaTrigger* GetAreaTrigger(ObjectGuid const& guid);
+        SceneObject* GetSceneObject(ObjectGuid const& guid);
         Conversation* GetConversation(ObjectGuid const& guid);
         Corpse* GetCorpse(ObjectGuid const& guid);
         Creature* GetCreature(ObjectGuid const& guid);

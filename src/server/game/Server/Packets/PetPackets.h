@@ -125,7 +125,7 @@ namespace WorldPackets
             uint32 CreatureID = 0;
             uint32 DisplayID = 0;
             uint32 ExperienceLevel = 0;
-            uint32 PetFlags = 0;
+            uint8 PetFlags = 0;
             std::string PetName;
         };
 
@@ -237,6 +237,28 @@ namespace WorldPackets
             uint16 SpecID = 0;
         };
 
+        class PetSlotUpdated final : public ServerPacket
+        {
+        public:
+            PetSlotUpdated() : ServerPacket(SMSG_PET_SLOT_UPDATED, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 PetNumberA;
+            int32 PetSlotA;
+            int32 PetNumberB;
+            int32 PetSlotB;
+        };
+
+        class PetAdded final : public ServerPacket
+        {
+        public:
+            PetAdded() : ServerPacket(SMSG_PET_ADDED, 4 + 4 + 4 + 4 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            PetStableInfo NewPet;
+        };
     }
 }
 

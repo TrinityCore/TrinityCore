@@ -110,8 +110,8 @@ public:
 
     static bool HandleCastBackCommand(ChatHandler* handler, char const* args)
     {
-        Creature* caster = handler->getSelectedCreature();
-        if (!caster)
+        WorldObject* caster = handler->getSelectedObject();
+        if (!caster || !caster->IsUnit())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -135,7 +135,7 @@ public:
         }
 
         TriggerCastFlags triggered = (triggeredStr != NULL) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        caster->CastSpell(handler->GetSession()->GetPlayer(), spellId, triggered);
+        caster->ToUnit()->CastSpell(handler->GetSession()->GetPlayer(), spellId, triggered);
 
         return true;
     }

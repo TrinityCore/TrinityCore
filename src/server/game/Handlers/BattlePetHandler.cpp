@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "BattlePet.h"
 #include "BattlePetMgr.h"
 #include "BattlePetPackets.h"
 #include "Player.h"
@@ -27,15 +28,15 @@ void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::Battle
 
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
-        GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot)->Pet = pet->PacketInfo;
+    if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
+        GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot)->Pet = *pet;
 }
 
 void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName)
 {
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetModifyName.PetGuid))
+    if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetModifyName.PetGuid))
     {
-        pet->PacketInfo.Name = battlePetModifyName.Name;
+        pet->Name = battlePetModifyName.Name;
 
         if (pet->SaveInfo != BATTLE_PET_NEW)
             pet->SaveInfo = BATTLE_PET_CHANGED;
@@ -49,12 +50,12 @@ void WorldSession::HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDe
 
 void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags)
 {
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
+    if (BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
         if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)
-            pet->PacketInfo.Flags |= battlePetSetFlags.Flags;
+            pet->Flags |= battlePetSetFlags.Flags;
         else // FLAGS_CONTROL_TYPE_REMOVE
-            pet->PacketInfo.Flags &= ~battlePetSetFlags.Flags;
+            pet->Flags &= ~battlePetSetFlags.Flags;
 
         if (pet->SaveInfo != BATTLE_PET_NEW)
             pet->SaveInfo = BATTLE_PET_CHANGED;

@@ -26,6 +26,7 @@
 #include "PacketUtilities.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "ItemPackets.h"
 #include <array>
 #include <map>
 
@@ -151,6 +152,23 @@ namespace WorldPackets
             void Read() override;
 
             int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
+        };
+
+        class PlayerSelectFaction final : public ClientPacket
+        {
+        public:
+            PlayerSelectFaction(WorldPacket&& packet) : ClientPacket(CMSG_NEUTRAL_PLAYER_SELECT_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            // DestrinyFrame.xml : lua function NeutralPlayerSelectFaction
+            enum Values
+            {
+                Horde       = 0,
+                Alliance    = 1
+            };
+
+            uint32 SelectedFaction = -1; ///< 0 - horde, 1 - alliance
         };
 
         class TimeSyncRequest final : public ServerPacket
@@ -894,6 +912,67 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid SourceGuid;
+        };
+
+        class AdventureJournalOpenQuest final : public ClientPacket
+        {
+        public:
+            AdventureJournalOpenQuest(WorldPacket&& packet) : ClientPacket(CMSG_ADVENTURE_JOURNAL_OPEN_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 AdventureJournalID;
+        };
+
+        class AdventureJournalStartQuest final : public ClientPacket
+        {
+        public:
+            AdventureJournalStartQuest(WorldPacket&& packet) : ClientPacket(CMSG_ADVENTURE_JOURNAL_START_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID;
+        };
+
+        class FactionSelectUI final : public ServerPacket
+        {
+        public:
+            FactionSelectUI() : ServerPacket(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class FactionSelect final : public ClientPacket
+        {
+        public:
+            FactionSelect(WorldPacket&& packet) : ClientPacket(CMSG_NEUTRAL_PLAYER_SELECT_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 FactionChoice = 0;
+        };
+
+        class StartTimer final : public ServerPacket
+        {
+        public:
+            StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Type;
+            uint32 TimeLeft;
+            uint32 TotalTime;
+        };
+
+        class StartElapsedTimer final : public ServerPacket
+        {
+        public:
+            StartElapsedTimer() : ServerPacket(SMSG_START_ELAPSED_TIMER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TimerID;
+            uint32 CurrentDuration;
         };
     }
 }

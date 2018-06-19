@@ -20,6 +20,7 @@
 
 #include "Object.h"
 #include "MapObject.h"
+#include "AreaTriggerTemplate.h"
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
@@ -41,6 +42,8 @@ namespace Movement
     class Spline;
 }
 
+typedef std::list<AreaTrigger*> AreaTriggerList;
+
 class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
     public:
@@ -57,8 +60,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
     private:
         bool Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId, AuraEffect const* aurEff);
+        bool CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guidLow, Position const& p_Pos, Map* p_Map, uint32 scriptId = 0);
     public:
         static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map);
 
         void Update(uint32 p_time) override;
         void Remove();
@@ -68,28 +73,41 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
         uint32 GetTimeToTargetScale() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE); }
+        void UpdateTimeToTarget(uint32 timeToTarget);
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration);
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
+        void SetPeriodicProcTimer(uint32 periodicProctimer) { _basePeriodicProcTimer = periodicProctimer; _periodicProcTimer = periodicProctimer; }
 
         GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
         AreaTriggerMiscTemplate const* GetMiscTemplate() const { return _areaTriggerMiscTemplate; }
         AreaTriggerTemplate const* GetTemplate() const;
+        ObjectGuid::LowType GetSpawnId() const { return _spawnId; }
         uint32 GetScriptId() const;
 
         ObjectGuid const& GetCasterGuid() const { return GetGuidValue(AREATRIGGER_CASTER); }
         Unit* GetCaster() const;
         Unit* GetTarget() const;
 
-        Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
-        Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
+        Position const& GetRollPitchYaw() const;
+        Position const& GetTargetRollPitchYaw() const;
         void InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget);
         void InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
         bool HasSplines() const;
+        bool SetDestination(Position const& pos, uint32 timeToTarget);
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
+
+        AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const;
+
+        ObjectGuid GetCircularMovementCenterGUID() const { return _circularMovementCenterGUID; }
+        void SetCircularMovementCenterGUID(ObjectGuid guid) { _circularMovementCenterGUID = guid; }
+        void SetCasterAsCircularMovementCenter() { _circularMovementCenterGUID = GetCasterGuid(); }
+
+        Position const& GetCircularMovementCenterPosition() const;
+        void SetCircularMovementCenterPosition(Position pos) { _circularMovementCenterPosition = pos; }
 
         void UpdateShape();
 
@@ -105,10 +123,13 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool CheckIsInPolygon2D(Position const* pos) const;
         void HandleUnitEnterExit(std::list<Unit*> const& targetList);
 
+        float GetCurrentTimePercent();
+
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
+        void UpdateCircularMovementPosition();
         void UpdateSplinePosition(uint32 diff);
 
         void DebugVisualizePosition(); // Debug purpose only
@@ -120,11 +141,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _duration;
         int32 _totalDuration;
         uint32 _timeSinceCreated;
+        uint32 _periodicProcTimer;
+        uint32 _basePeriodicProcTimer;
         float _previousCheckOrientation;
         bool _isRemoved;
 
-        Position _rollPitchYaw;
-        Position _targetRollPitchYaw;
         std::vector<Position> _polygonVertices;
         std::unique_ptr<::Movement::Spline<int32>> _spline;
 
@@ -132,10 +153,16 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _lastSplineIndex;
         uint32 _movementTime;
 
+        AreaTriggerTemplate const* _areaTriggerTemplate;
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
 
+        ObjectGuid::LowType _spawnId;
+        uint32 _guidScriptId;
         std::unique_ptr<AreaTriggerAI> _ai;
+
+        ObjectGuid _circularMovementCenterGUID;
+        Position _circularMovementCenterPosition;
 };
 
 #endif

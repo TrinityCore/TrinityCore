@@ -16,6 +16,7 @@
  */
 
 #include "CellImpl.h"
+#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"

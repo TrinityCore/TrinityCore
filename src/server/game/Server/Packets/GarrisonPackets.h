@@ -278,6 +278,42 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class GarrisonCheckUpgradeable final : public ClientPacket
+        {
+        public:
+            GarrisonCheckUpgradeable(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_CHECK_UPGRADEABLE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GarrisonCheckUpgradeableResult final : public ServerPacket
+        {
+        public:
+            GarrisonCheckUpgradeableResult(bool upgradeable = false) : ServerPacket(SMSG_GARRISON_IS_UPGRADEABLE_RESULT, 4), IsUpgradeable(upgradeable) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsUpgradeable = false;
+        };
+
+        class GarrisonUpgrade final : public ClientPacket
+        {
+        public:
+            GarrisonUpgrade(WorldPacket&& packet) : ClientPacket(CMSG_UPGRADE_GARRISON, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+        };
+
+        class GarrisonUpgradeResult final : public ServerPacket
+        {
+        public:
+            GarrisonUpgradeResult() : ServerPacket(SMSG_GARRISON_UPGRADE_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+        };
+
         class GarrisonRequestBlueprintAndSpecializationDataResult final : public ServerPacket
         {
         public:
@@ -296,6 +332,48 @@ namespace WorldPackets
             GarrisonGetBuildingLandmarks(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_GET_BUILDING_LANDMARKS, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class GarrisonOpenMissionNpcClient final : public ClientPacket
+        {
+        public:
+            GarrisonOpenMissionNpcClient(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_MISSION_NPC, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            int32 GarrTypeID = 0;
+        };
+
+        class ShowAdventureMap final : public ServerPacket
+        {
+        public:
+            ShowAdventureMap(ObjectGuid guid) : ServerPacket(SMSG_SHOW_ADVENTURE_MAP, 4), Unit(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
+        class GarrisonRequestScoutingMap final : public ClientPacket
+        {
+        public:
+            GarrisonRequestScoutingMap(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_REQUEST_SCOUTING_MAP, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ID;
+        };
+
+        class GarrisonScoutingMapResult final : public ServerPacket
+        {
+        public:
+            GarrisonScoutingMapResult() : ServerPacket(SMSG_GARRISON_SCOUTING_MAP_RESULT, 5) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ID = 0;
+            bool Active = true;
         };
 
         struct GarrisonBuildingLandmark
@@ -371,6 +449,20 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GarrPlotInstanceID = 0;
+        };
+
+        class GarrisonOpenMissionNpc final : public ServerPacket
+        {
+        public:
+            GarrisonOpenMissionNpc() : ServerPacket(SMSG_GARRISON_OPEN_MISSION_NPC, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 garrType = 3;
+            uint32 result = 0;
+            std::vector<uint32 /* dbID */> Missions;
+            bool   unk4 = false;
+            bool   preventXmlOpenMissionEvent = false;
         };
     }
 }

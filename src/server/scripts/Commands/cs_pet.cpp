@@ -127,7 +127,7 @@ public:
         pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
 
         player->SetMinion(pet, true);
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
         player->PetSpellInitialize();
 
         return true;

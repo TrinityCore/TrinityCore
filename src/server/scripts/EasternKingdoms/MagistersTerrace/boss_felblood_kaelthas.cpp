@@ -539,6 +539,7 @@ public:
                 me->StopMoving();
                 me->RemoveAllAurasOnDeath();
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_HEALTHLESS_25_PERCENT, false);
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();

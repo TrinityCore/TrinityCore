@@ -1,0 +1,2 @@
+DELETE FROM creature WHERE map = 1 AND (position_x BETWEEN 16065 AND 16561) AND (position_y BETWEEN 16097 AND 16613);
+DELETE FROM gameobject WHERE map = 1 AND (position_x BETWEEN 16065 AND 16561) AND (position_y BETWEEN 16097 AND 16613);

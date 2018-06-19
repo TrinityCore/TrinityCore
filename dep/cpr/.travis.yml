@@ -1,0 +1,125 @@
+language: cpp
+
+sudo: false
+cache: ccache
+
+compiler: clang
+
+# gcc 4.9 default
+addons: &addons
+  apt:
+    packages: &packages
+      - g++-4.9
+      - clang-format-3.8
+      - python-pip
+    sources: &sources
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.5
+      - llvm-toolchain-precise-3.6
+      - llvm-toolchain-precise-3.7
+      - llvm-toolchain-precise-3.8
+
+env:
+  global:
+    - BUILD_CPR_TESTS=ON
+    - GTEST_SHUFFLE=1
+    - USE_SYSTEM_CURL=ON
+  matrix:
+    - COMPILER=g++-4.9 CCOMPILER=gcc-4.9 GENERATE_COVERAGE=ON FORMAT_CHECK=ON
+
+matrix:
+  include:
+    # gcc 4.6
+    - env: COMPILER=g++-4.6 CCOMPILER=gcc-4.6
+      addons:
+        apt:
+          packages: g++-4.6
+          sources: *sources
+
+    # gcc 4.7
+    - env: COMPILER=g++-4.7 CCOMPILER=gcc-4.7 EXTRA_CXXFLAGS=-D_GLIBCXX_USE_NANOSLEEP
+      addons:
+        apt:
+          packages: g++-4.7
+          sources: *sources
+
+    # gcc 4.8
+    - env: COMPILER=g++-4.8 CCOMPILER=gcc-4.8
+      addons:
+        apt:
+          packages: g++-4.8
+          sources: *sources
+
+    # gcc 5
+    - env: COMPILER=g++-5 CCOMPILER=gcc-5
+      addons:
+        apt:
+          packages: g++-5
+          sources: *sources
+
+    # Clang 3.4
+    - env: COMPILER=clang++ CCOMPILER=clang LINUX_CLANG=1
+      addons:
+        apt:
+          packages: clang-3.4
+          sources: *sources
+
+    # Clang 3.5
+    - env: COMPILER=clang++-3.5 CCOMPILER=clang-3.5
+      addons:
+        apt:
+          packages: clang-3.5
+          sources: *sources
+
+    # Clang 3.6
+    - env: COMPILER=clang++-3.6 CCOMPILER=clang-3.6
+      addons:
+        apt:
+          packages: clang-3.6
+          sources: *sources
+
+    # Clang 3.7
+    - env: COMPILER=clang++-3.7 CCOMPILER=clang-3.7
+      addons:
+        apt:
+          packages: clang-3.7
+          sources: *sources
+
+    # Clang 3.8
+    - env: COMPILER=clang++-3.8 CCOMPILER=clang-3.8
+      addons:
+        apt:
+          packages: clang-3.8
+          sources: *sources
+
+    # Xcode 6.4
+    - os: osx
+      env: COMPILER=clang++ CCOMPILER=clang
+      osx_image: xcode6.4
+
+    # Xcode 7
+    - os: osx
+      env: COMPILER=clang++ CCOMPILER=clang
+      osx_image: xcode7
+  allow_failures:
+    - env: COMPILER=g++-4.6 CCOMPILER=gcc-4.6
+    - env: COMPILER=clang++ CCOMPILER=clang LINUX_CLANG=1
+
+install:
+  - if [ "$GENERATE_COVERAGE" == "ON" ]; then pip install --user git+git://github.com/eddyxu/cpp-coveralls.git; fi
+
+before_script:
+  - export CXX=$COMPILER CC=$CCOMPILER
+  - export CXXFLAGS=$EXTRA_CXXFLAGS
+  - cmake --version
+  - mkdir build
+  - cd build
+  - cmake -LAH ..
+
+script:
+  - make -j2 VERBOSE=1
+  - ctest -V
+  - if [ "$FORMAT_CHECK" == "ON" ]; then cd ${TRAVIS_BUILD_DIR} && ./format-check.sh; fi
+
+after_success:
+  - if [ "$GENERATE_COVERAGE" == "ON" ]; then cd ${TRAVIS_BUILD_DIR}/build && coveralls -i 'cpr' -i 'include' -e '../include/cpr.h' --root '../' --verbose --gcov-options '\-lp' --gcov 'gcov-4.9'; fi

@@ -38,14 +38,14 @@ struct TC_GAME_API ArenaScore : public BattlegroundScore
         uint32 PostMatchMMR = 0;
 };
 
-struct TC_GAME_API ArenaTeamScore
+struct TC_GAME_API ArenaGroupScore
 {
     friend class Arena;
     friend class Battleground;
 
     protected:
-        ArenaTeamScore();
-        virtual ~ArenaTeamScore();
+        ArenaGroupScore();
+        virtual ~ArenaGroupScore();
 
         void Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
 
