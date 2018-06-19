@@ -1995,6 +1995,37 @@ class spell_dk_blood_rites : public SpellScriptLoader
         }
 };
 
+class spell_dk_crimson_scourge : public SpellScriptLoader
+{
+    public:
+        spell_dk_crimson_scourge() : SpellScriptLoader("spell_dk_crimson_scourge") { }
+
+        class spell_dk_crimson_scourge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_crimson_scourge_AuraScript);
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                if (DamageInfo* damage = eventInfo.GetDamageInfo())
+                    if (Unit* target = damage->GetVictim())
+                        if (target->GetDiseasesByCaster(GetTarget()->GetGUID(), false))
+                            return;
+
+                PreventDefaultAction();
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_crimson_scourge_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_crimson_scourge_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -2005,6 +2036,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_rites();
     new spell_dk_butchery();
     new spell_dk_chill_of_the_grave();
+    new spell_dk_crimson_scourge();
     new spell_dk_dark_transformation();
     new spell_dk_dark_transformation_aura();
     new spell_dk_death_and_decay();
