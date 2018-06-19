@@ -1628,6 +1628,15 @@ class spell_ethereal_pet_aura : public AuraScript
 {
     PrepareAuraScript(spell_ethereal_pet_aura);
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        uint32 levelDiff = std::abs(GetTarget()->getLevel() - eventInfo.GetProcTarget()->getLevel());
+        if (levelDiff >= 9)
+            return false;
+
+        return true;
+    }
+
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
@@ -1647,6 +1656,7 @@ class spell_ethereal_pet_aura : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_ethereal_pet_aura::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_ethereal_pet_aura::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
