@@ -331,6 +331,12 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
 {
     npc_pet_gen_soul_trader(Creature* creature) : ScriptedAI(creature) { }
 
+    void Reset() override
+    {
+        if (Unit* owner = me->GetOwner())
+            owner->RemoveAurasDueToSpell(SPELL_PROC_TRIGGER_ON_KILL_AURA);
+    }
+
     void JustAppeared() override
     {
         Talk(SAY_SOUL_TRADER_INTRO);

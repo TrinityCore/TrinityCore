@@ -1638,9 +1638,11 @@ class spell_ethereal_pet_aura : public AuraScript
             return;
 
         Creature* pet = owner->GetMap()->GetCreature(owner->m_SummonSlot[SUMMON_TYPE_MINIPET]);
-        if (pet)
-            pet->CastSpell(target, SPELL_STEAL_ESSENCE_VISUAL);
-            pet->AI()->Talk(SAY_STEAL_ESSENCE);
+        if (!pet)
+            return;
+
+        pet->CastSpell(target, SPELL_STEAL_ESSENCE_VISUAL);
+        pet->AI()->Talk(SAY_STEAL_ESSENCE);
     }
 
     void Register() override
