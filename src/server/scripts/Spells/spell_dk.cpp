@@ -1914,6 +1914,46 @@ class spell_dk_threat_of_thassarian : public SpellScriptLoader
         }
 };
 
+class spell_dk_reaping : public SpellScriptLoader
+{
+    public:
+        spell_dk_reaping() : SpellScriptLoader("spell_dk_reaping") { }
+
+        class spell_dk_reaping_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_reaping_AuraScript);
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Player* player = GetTarget()->ToPlayer();
+                if (!player)
+                    return;
+
+                uint8 runeMask = player->GetLastUsedRuneMask();
+
+                for (uint8 i = 0; i < MAX_RUNES; i++)
+                {
+                    if (runeMask & (1 << i) && player->GetCurrentRune(i) == RUNE_BLOOD)
+                        player->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff, SPELL_AURA_PERIODIC_DUMMY, GetSpellInfo());
+                }
+
+                GetEffect(EFFECT_0)->ResetPeriodic(true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_reaping_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_reaping_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1942,6 +1982,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_pestilence();
     new spell_dk_presence();
     new spell_dk_raise_dead();
+    new spell_dk_reaping();
     new spell_dk_rune_tap_party();
     new spell_dk_runic_empowerment();
     new spell_dk_scent_of_blood();
