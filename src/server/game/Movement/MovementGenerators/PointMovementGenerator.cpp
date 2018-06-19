@@ -140,7 +140,13 @@ bool EffectMovementGenerator::Update(Unit* unit, uint32)
 void EffectMovementGenerator::Finalize(Unit* unit)
 {
     if (_arrivalSpellId)
-        unit->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+    {
+        Unit* caster = unit;
+        if (!_arrivalSpellCasterGuid.IsEmpty())
+            caster = ObjectAccessor::GetUnit(*unit, _arrivalSpellCasterGuid);
+
+        caster->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+    }
 
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;

@@ -1258,7 +1258,7 @@ class npc_lorekeeper : public CreatureScript
                             {
                                 brann->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 delorah->GetMotionMaster()->MovePoint(0, brann->GetPositionX() - 4, brann->GetPositionY(), brann->GetPositionZ());
-                                /// @todo delorah->AI()->Talk(xxxx, brann->GetGUID()); when reached at branz
+                                /// @todo delorah->AI()->Talk(xxxx, brann); when reached at branz
                             }
                         }
                     }

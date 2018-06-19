@@ -97,6 +97,7 @@ enum RotateDirection
 struct JumpArrivalCastArgs
 {
     uint32 SpellId;
+    ObjectGuid Caster;
     ObjectGuid Target;
 };
 
@@ -159,6 +160,7 @@ class TC_GAME_API MotionMaster
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
 
+        void MoveCharge(Position* pos, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
@@ -183,6 +185,7 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 path_id, bool repeatable);
         void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
+        void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
 
     private:
         void pop();

@@ -15,6 +15,10 @@ if(WIN32)
   )
 endif(WIN32)
 
+if (WITH_CPR)
+    add_definitions(-DWITH_CPR)
+endif(WITH_CPR)
+
 add_subdirectory(genrev)
 add_subdirectory(common)
 

@@ -637,6 +637,7 @@ struct boss_faction_championsAI : public BossAI
     {
         me->RemoveAurasByType(SPELL_AURA_MOD_STUN);
         me->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
+        me->RemoveAurasByType(SPELL_AURA_MOD_FEAR_2);
         me->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         me->RemoveAurasByType(SPELL_AURA_MOD_PACIFY);
         me->RemoveAurasByType(SPELL_AURA_MOD_CONFUSE);

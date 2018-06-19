@@ -343,7 +343,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_gluth_decimate_SpellScript();
     }
@@ -377,7 +377,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_gluth_zombiechow_search_SpellScript();
     }

@@ -1,0 +1,46 @@
+DELETE FROM `quest_offer_reward` WHERE  `ID`=0;
+DELETE FROM `quest_template_addon` WHERE  `ID` IN (44761,44781,44853,44854,44951,44963,44965,44966,44970,45022,45023,45165,45302,45309,45310,45313,45315,45405,45518,45546,45636,45753,45758,45759,45762,45773,45815,45817,45822,45823,45824,45825,45826,45827,45828,45829,45830,45831,45984,46002,46033,46665,46709,46767,46768,46775,46793,46835,46870,46871,46939,46952,46955,47021,47038,47044,47053,47062,47063,47064,47065,47092,47093,47094,47095,47096,47191,47193,47194,47195,47196,47207,
+47208,47209,47210,47211,47212,47213,47829,47954,47956,48030,48031,48032,48033,48064);
+
+UPDATE `quest_objectives` SET `ObjectID`='23552', `Amount`='1' WHERE  `ID`=260310;
+
+UPDATE `creature_template` SET `npcflag`='1048576' WHERE  `entry` IN (16711,17506,17507,19855);
+UPDATE `creature_template` SET `npcflag`='1048578' WHERE  `entry`=34991;
+
+REPLACE INTO `battlemaster_entry` (`entry`, `bg_template`) VALUES
+(18439, 6),
+(32169, 32),
+(32170, 32),
+(34976, 32),
+(34978, 32),
+(35596, 32),
+(35597, 32),
+(35598, 32),
+(35599, 32),
+(35600, 32),
+(35601, 32),
+(35602, 32),
+(35603, 32),
+(35611, 32),
+(35612, 32),
+(49573, 32),
+(415103, 32),
+(415106, 32);
+
+DELETE FROM `spell_loot_template` WHERE  `Item` IN (62312,62336,62337,62338,107976,107977,107978,107979,107980,107981,107982,107983,108050,108063,108064,108065,108066,108067,108068,108069,108230,131103,153738,153739,153799);
+
+UPDATE `spell_loot_template` SET `Chance`='33' WHERE  `Entry`=263149;
+UPDATE `spell_loot_template` SET `Chance`='34' WHERE  `Entry`=263149 AND `Item`=139115;
+UPDATE `spell_loot_template` SET `Chance`='0.42' WHERE  `Entry`=263150;
+UPDATE `spell_loot_template` SET `Chance`='0.46' WHERE  `Entry`=263150 AND `Item`=144364;
+UPDATE `spell_loot_template` SET `Chance`='0.8' WHERE  `Entry`=263151;
+UPDATE `spell_loot_template` SET `Chance`='1.6' WHERE  `Entry`=263151 AND `Item`=151822;
+UPDATE `spell_loot_template` SET `Chance`='46' WHERE  `Entry`=263152 AND `Item`=124124;
+UPDATE `spell_loot_template` SET `Chance`='0.22' WHERE  `Entry`=263154;
+UPDATE `spell_loot_template` SET `Chance`='3.86' WHERE  `Entry`=263154 AND `Item`=134308;
+
+REPLACE INTO `spell_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
+(75183, 54464, 0, 100, 0, 1, 0, 1, 1, NULL);
+
+DELETE FROM `trainer_spell` WHERE  `TrainerId`=62 AND `SpellId`=42613;
+

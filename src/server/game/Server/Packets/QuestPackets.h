@@ -617,14 +617,12 @@ namespace WorldPackets
 
         struct WorldQuestUpdateInfo
         {
-            WorldQuestUpdateInfo(int32 lastUpdate, uint32 questID, uint32 timer, int32 variableID, int32 value) :
-                LastUpdate(lastUpdate), QuestID(questID), Timer(timer), VariableID(variableID), Value(value) { }
-            int32 LastUpdate;
-            uint32 QuestID;
-            uint32 Timer;
+            int32 LastUpdate = 0;
+            uint32 QuestID = 0;
+            uint32 Timer = 0;
             // WorldState
-            int32 VariableID;
-            int32 Value;
+            int32 VariableID = 0;
+            int32 Value = 0;
         };
 
         class WorldQuestUpdate final : public ServerPacket
@@ -634,7 +632,44 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
+            std::vector<WorldPackets::Quest::WorldQuestUpdateInfo> WorldQuestUpdates;
+        };
+
+        class QueryQuestReward final : public ClientPacket
+        {
+        public:
+            QueryQuestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUEST_REWARDS, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID;
+            uint32 Unk;
+        };
+
+        class QueryQuestRewardResponse final : public ServerPacket
+        {
+        public:
+            QueryQuestRewardResponse() : ServerPacket(SMSG_QUERY_QUEST_REWARD_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            struct CurrencyReward
+            {
+                uint32 CurrencyID = 0;
+                uint32 Quantity = 0;
+            };
+
+            struct ItemReward
+            {
+                WorldPackets::Item::ItemInstance Item;
+                uint32 Quantity = 0;
+            };
+
+            uint32 QuestID;
+            uint32 Unk1 = 0;
+            uint64 Money = 0;
+            std::vector<CurrencyReward> CurrencyRewards;
+            std::vector<ItemReward> ItemRewards;
         };
 
         struct PlayerChoiceResponseRewardEntry

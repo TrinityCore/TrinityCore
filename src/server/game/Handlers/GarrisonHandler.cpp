@@ -16,14 +16,17 @@
  */
 
 #include "WorldSession.h"
-#include "Garrison.h"
+#include "WodGarrison.h"
+#include "ClassHall.h"
+#include "GarrisonAI.h"
+#include "GarrisonMgr.h"
 #include "GarrisonPackets.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 
 void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& /*getGarrisonInfo*/)
 {
-    if (Garrison* garrison = _player->GetGarrison())
-        garrison->SendInfo();
+    _player->SendGarrisonInfo();
 }
 
 void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& garrisonPurchaseBuilding)
@@ -31,8 +34,8 @@ void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::Garris
     if (!_player->GetNPCIfCanInteractWith(garrisonPurchaseBuilding.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
         return;
 
-    if (Garrison* garrison = _player->GetGarrison())
-        garrison->PlaceBuilding(garrisonPurchaseBuilding.PlotInstanceID, garrisonPurchaseBuilding.BuildingID);
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+        garrison->ToWodGarrison()->PlaceBuilding(garrisonPurchaseBuilding.PlotInstanceID, garrisonPurchaseBuilding.BuildingID);
 }
 
 void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& garrisonCancelConstruction)
@@ -40,18 +43,73 @@ void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::Garr
     if (!_player->GetNPCIfCanInteractWith(garrisonCancelConstruction.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
         return;
 
-    if (Garrison* garrison = _player->GetGarrison())
-        garrison->CancelBuildingConstruction(garrisonCancelConstruction.PlotInstanceID);
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+        garrison->ToWodGarrison()->CancelBuildingConstruction(garrisonCancelConstruction.PlotInstanceID);
+}
+
+void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& /*garrisonCheckUpgradeable*/)
+{
+    bool canUpgrade = false;
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+        canUpgrade = garrison->ToWodGarrison()->CanUpgrade(false);
+
+    SendPacket(WorldPackets::Garrison::GarrisonCheckUpgradeableResult(canUpgrade).Write());
+}
+
+void WorldSession::HandleGarrisonUpgrade(WorldPackets::Garrison::GarrisonUpgrade& garrisonUpgrade)
+{
+    if (!_player->GetNPCIfCanInteractWith(garrisonUpgrade.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+    {
+        /*bool result = */garrison->ToWodGarrison()->Upgrade();
+        //SendPacket(WorldPackets::Garrison::GarrisonUpgradeResult().Write());
+    }
 }
 
 void WorldSession::HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& /*garrisonRequestBlueprintAndSpecializationData*/)
 {
-    if (Garrison* garrison = _player->GetGarrison())
-        garrison->SendBlueprintAndSpecializationData();
+    _player->SendGarrisonBlueprintAndSpecializationData();
 }
 
 void WorldSession::HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& /*garrisonGetBuildingLandmarks*/)
 {
-    if (Garrison* garrison = _player->GetGarrison())
-        garrison->SendBuildingLandmarks(_player);
+    if (Garrison* garrison = _player->GetGarrison(GARRISON_TYPE_GARRISON))
+        garrison->ToWodGarrison()->SendBuildingLandmarks(_player);
+}
+
+void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpcClient& garrisonOpenMissionNpcClient)
+{
+    if (!_player->GetNPCIfCanInteractWith(garrisonOpenMissionNpcClient.NpcGUID, UNIT_NPC_FLAG_GARRISON_MISSION_NPC))
+        return;
+
+    GarrisonType garType = GARRISON_TYPE_CLASS_HALL; // Todo : differenciate depending of NPC
+
+    Garrison const* garrison = _player->GetGarrison(garType);
+
+    if (!garrison)
+        return;
+
+    if (garType == GARRISON_TYPE_CLASS_HALL)
+    {
+        SendPacket(WorldPackets::Garrison::ShowAdventureMap(garrisonOpenMissionNpcClient.NpcGUID).Write());
+    }
+    else
+    {
+        WorldPackets::Garrison::GarrisonOpenMissionNpc garrisonOpenMissionNpc;
+        for (auto const& p : garrison->GetMissions())
+        {
+            garrisonOpenMissionNpc.Missions.push_back(p.first);
+        }
+        SendPacket(garrisonOpenMissionNpc.Write());
+    }
+}
+
+void WorldSession::HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::GarrisonRequestScoutingMap& scoutingMap)
+{
+    WorldPackets::Garrison::GarrisonScoutingMapResult result;
+    result.ID = scoutingMap.ID;
+    result.Active = true;
+    SendPacket(result.Write());
 }

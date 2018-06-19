@@ -137,10 +137,10 @@ void CollectionMgr::ToySetFavorite(uint32 itemId, bool favorite)
     itr->second = favorite;
 }
 
-void CollectionMgr::OnItemAdded(Item* item)
+void CollectionMgr::OnItemAdded(Item* item, Player* owner)
 {
     if (sDB2Manager.GetHeirloomByItemId(item->GetEntry()))
-        AddHeirloom(item->GetEntry(), 0);
+        AddHeirloom(item->GetEntry(), 0, owner);
 
     AddItemAppearance(item);
 }
@@ -209,12 +209,14 @@ void CollectionMgr::LoadHeirlooms()
     }
 }
 
-void CollectionMgr::AddHeirloom(uint32 itemId, uint32 flags)
+void CollectionMgr::AddHeirloom(uint32 itemId, uint32 flags, Player* owner)
 {
+    Player* playerOwner = owner ? owner : _owner->GetPlayer();
+
     if (UpdateAccountHeirlooms(itemId, flags))
     {
-        _owner->GetPlayer()->AddDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, itemId);
-        _owner->GetPlayer()->AddDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, flags);
+        playerOwner->AddDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, itemId);
+        playerOwner->AddDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, flags);
     }
 }
 
@@ -663,6 +665,9 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
 
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemModifiedAppearance->ItemID);
     if (!itemTemplate)
+        return false;
+
+    if (!_owner->GetPlayer())
         return false;
 
     if (_owner->GetPlayer()->CanUseItem(itemTemplate) != EQUIP_ERR_OK)

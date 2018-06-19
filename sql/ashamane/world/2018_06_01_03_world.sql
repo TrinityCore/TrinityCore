@@ -1,0 +1,2 @@
+DELETE FROM `spell_proc` WHERE `SpellId` = 155148;
+INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES (155148, 0, 3, 4194304, 0, 2097160, 0, 0, 1, 2, 2, 2, 0, 0, 0, 0);

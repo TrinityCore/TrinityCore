@@ -84,7 +84,8 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CHANNEL,
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
-    TARGET_SELECT_CATEGORY_AREA
+    TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_LINE
 };
 
 enum SpellTargetReferenceTypes
@@ -122,7 +123,9 @@ enum SpellTargetCheckTypes : uint8
     TARGET_CHECK_PARTY,
     TARGET_CHECK_RAID,
     TARGET_CHECK_RAID_CLASS,
-    TARGET_CHECK_PASSENGER
+    TARGET_CHECK_PASSENGER,
+    TARGET_CHECK_DEATH,
+    TARGET_CHECK_RAID_DEATH
 };
 
 enum SpellTargetDirectionTypes
@@ -197,6 +200,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
     SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET         = 0x00040000,
     SPELL_ATTR0_CU_NEEDS_AMMO_DATA               = 0x00080000,
+    SPELL_ATTR0_CU_DONT_TURN_DURING_CAST         = 0x00100000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -317,8 +321,10 @@ struct TC_GAME_API ImmunityInfo
 
 class TC_GAME_API SpellEffectInfo
 {
-    SpellInfo const* _spellInfo;
 public:
+    Ashamane::AnyData Variables;
+
+    SpellInfo const* _spellInfo;
     uint32    EffectIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
@@ -384,6 +390,8 @@ public:
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
 
     ImmunityInfo const* GetImmunityInfo() const { return &_immunityInfo; }
+
+    bool HasSameTargets(SpellEffectInfo const* effect) const { return TargetA.GetTarget() == effect->TargetA.GetTarget() && TargetB.GetTarget() == effect->TargetB.GetTarget(); }
 
 private:
     struct StaticData
@@ -528,6 +536,8 @@ class TC_GAME_API SpellInfo
         bool HasAreaAuraEffect(uint32 difficulty) const;
         bool HasAreaAuraEffect() const;
         bool HasOnlyDamageEffects() const;
+        bool HasTarget(uint32 target) const;
+        bool CasterCanTurnDuringCast() const;
 
         bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
         bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
@@ -638,6 +648,7 @@ class TC_GAME_API SpellInfo
         std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
+        bool IsTargetingLine() const;
 
         bool IsRanked() const;
         uint8 GetRank() const;

@@ -112,9 +112,9 @@ void Bag::SaveToDB(SQLTransaction& trans)
     Item::SaveToDB(trans);
 }
 
-bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
+bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry, Player const* owner/* = nullptr*/)
 {
-    if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
+    if (!Item::LoadFromDB(guid, owner_guid, fields, entry, owner))
         return false;
 
     ItemTemplate const* itemProto = GetTemplate(); // checked in Item::LoadFromDB

@@ -135,6 +135,11 @@ void WorldPackets::Battleground::BattlemasterJoinArena::Read()
     _worldPacket >> Roles;
 }
 
+void WorldPackets::Battleground::BattlemasterJoinArenaSkirmish::Read()
+{
+    _worldPacket.clear();
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
 {
     data << header.Ticket;

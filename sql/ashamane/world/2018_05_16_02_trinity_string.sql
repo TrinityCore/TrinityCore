@@ -1,0 +1,1 @@
+UPDATE `trinity_string` SET `content_default` = 'Map: %u (%s) Zone: %u (%s) Area: %u (%s)\r\nX: |cffffffff|Hpos:|h%f|h|r Y: |cffffffff|Hpos:|h%f|h|r Z: |cffffffff|Hpos:|h%f|h|r Orientation: |cffffffff|Hpos:|h%f|h|r' WHERE `entry` = '101'; 

@@ -34,12 +34,15 @@ add_library(game-interface INTERFACE)
 
 target_include_directories(game-interface
   INTERFACE
-    ${PUBLIC_INCLUDES})
+    ${PUBLIC_INCLUDES}
+    ${DUKGLUE_HEADERS})
 
 target_link_libraries(game-interface
   INTERFACE
     shared
-    Detour)
+    Detour
+    duktape
+    dukglue)
 
 add_library(game
   ${PRIVATE_SOURCES})
