@@ -1924,7 +1924,7 @@ class spell_dk_reaping : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_reaping_AuraScript);
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -1955,6 +1955,46 @@ class spell_dk_reaping : public SpellScriptLoader
         }
 };
 
+class spell_dk_blood_rites : public SpellScriptLoader
+{
+    public:
+        spell_dk_blood_rites() : SpellScriptLoader("spell_dk_blood_rites") { }
+
+        class spell_dk_blood_rites_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blood_rites_AuraScript);
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Player* player = GetTarget()->ToPlayer();
+                if (!player)
+                    return;
+
+                uint8 runeMask = player->GetLastUsedRuneMask();
+
+                for (uint8 i = 0; i < MAX_RUNES; i++)
+                {
+                    if (runeMask & (1 << i) && player->GetCurrentRune(i) != RUNE_DEATH)
+                        player->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff, SPELL_AURA_PERIODIC_DUMMY, GetSpellInfo());
+                }
+
+                GetEffect(EFFECT_0)->ResetPeriodic(true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_blood_rites_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_blood_rites_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1962,6 +2002,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_zone();
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
+    new spell_dk_blood_rites();
     new spell_dk_butchery();
     new spell_dk_chill_of_the_grave();
     new spell_dk_dark_transformation();
