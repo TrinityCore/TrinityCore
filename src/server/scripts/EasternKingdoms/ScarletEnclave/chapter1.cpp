@@ -347,8 +347,8 @@ class go_acherus_soul_prison : public GameObjectScript
 };
 
  /*######
- ## npc_eye_of_acherus
- ######*/
+## npc_eye_of_acherus
+######*/
 
 enum EyeOfAcherus
 {
@@ -447,7 +447,6 @@ class npc_eye_of_acherus : public CreatureScript
             return new npc_eye_of_acherusAI(creature);
         }
 };
-
 
 /*######
 ## npc_death_knight_initiate
