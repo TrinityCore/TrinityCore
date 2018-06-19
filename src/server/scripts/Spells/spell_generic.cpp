@@ -1668,12 +1668,11 @@ class spell_steal_essence_visual : public AuraScript
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Creature* pet = GetCaster()->ToCreature();
-        Unit* owner = GetCaster()->GetOwner();
-        if (!pet || !owner)
+        if (!GetCaster() || !GetCaster()->GetOwner())
             return;
 
-        pet->CastSpell(owner, SPELL_CREATE_TOKEN);
+        Creature* pet = GetCaster()->ToCreature();
+        pet->CastSpell(GetCaster()->GetOwner(), SPELL_CREATE_TOKEN);
         pet->AI()->Talk(SAY_CREATE_TOKEN);
     }
 
