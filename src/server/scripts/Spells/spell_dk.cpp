@@ -688,6 +688,8 @@ class spell_dk_death_strike_enabler : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
+
                 if (!GetUnitOwner()->HasAura(SPELL_DK_BLOOD_PRESENCE))
                 {
                     for (uint8 i = 0; i < 5; ++i)
