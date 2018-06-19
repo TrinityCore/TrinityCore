@@ -1641,11 +1641,11 @@ class spell_ethereal_pet_aura : public AuraScript
     {
         PreventDefaultAction();
 
-        if (!GetTarget() || !eventInfo.GetActionTarget())
-            return;
-
         Player* owner = GetTarget()->ToPlayer();
         Unit* target = eventInfo.GetActionTarget();
+        if (!owner || !target)
+            return;
+
         Creature* pet = owner->GetMap()->GetCreature(owner->m_SummonSlot[SUMMON_TYPE_MINIPET]);
         if (!pet)
             return;
