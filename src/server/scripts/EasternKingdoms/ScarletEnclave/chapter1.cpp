@@ -376,6 +376,7 @@ class npc_eye_of_acherus : public CreatureScript
         {
             npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
             {
+            	me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 me->CastSpell(me, SPELL_EYE_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisableGravity(true);
