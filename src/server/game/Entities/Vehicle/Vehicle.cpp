@@ -106,7 +106,7 @@ void Vehicle::Install()
             case POWER_FUEL:
             case POWER_SUN_POWER:
             case POWER_TWILIGHT_ENERGY:
-                _me->SetMaxPower(POWER_ENERGY, 100);
+                 _me->SetMaxPower(POWER_ENERGY, 100);
                  _me->SetPower(POWER_ENERGY, 100);
                 break;
             case POWER_PYRITE:

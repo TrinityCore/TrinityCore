@@ -3728,6 +3728,27 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_2] = SpellEffectInfo();
     });
 
+    // Highlight (Plants vs. Zombie)
+    ApplySpellFix(
+    {
+        92276,
+        94032,
+    },
+    [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(35); // 35 Yards
+    });
+
+    ApplySpellFix(
+    {
+        91748, // Venom Spit
+        92441, // Freezya Blast
+    },
+    [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
+    });
+
     // Award Reputation - Boss Kill
     ApplySpellFix({ 73843, 73844, 73845, 73846 }, [](SpellInfo* spellInfo)
     {
