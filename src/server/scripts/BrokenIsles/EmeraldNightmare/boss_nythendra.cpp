@@ -43,6 +43,8 @@ enum Spells
     // Stage Two
     SPELL_HEART_OF_THE_SWARM        = 203552,
     SPELL_BURST_OF_CORRUPTION       = 203646,
+
+    SPELL_ENRAGE                    = 47008
 };
 
 class EntryCheckWithPlayerNearPredicate
@@ -92,6 +94,14 @@ struct boss_nythendra : public BossAI
         events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_INFESTED_BREATH, 60s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_TAIL_LASH,       20s,    EVENTS_PHASE_1);
+
+        if (IsHeroic())
+        {
+            me->GetScheduler().Schedule(8min, [this](TaskContext /*context*/)
+            {
+                me->CastSpell(me, SPELL_ENRAGE, true);
+            });
+        }
     }
 
     void JustDied(Unit* /*killer*/) override
