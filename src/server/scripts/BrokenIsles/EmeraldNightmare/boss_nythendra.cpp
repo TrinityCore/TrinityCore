@@ -208,8 +208,9 @@ private:
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
 
-                std::vector<AreaTrigger*> areatriggers = me->GetAreaTriggers(SPELL_INFESTED_GROUND);
-                for (AreaTrigger* at : areatriggers)
+                std::list<AreaTrigger*> ats;
+                me->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_INFESTED_GROUND, 500.f);
+                for (AreaTrigger* at : ats)
                     at->SetDestination(me->GetPosition(), 5000);
             })
             .Schedule(25s, [this](TaskContext /*context*/)
