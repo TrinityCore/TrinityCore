@@ -4741,6 +4741,33 @@ class spell_arcane_pulse : public SpellScript
     }
 };
 
+enum SpatialRiftSpells
+{
+    SPELL_SPATIAL_RIFT_AT           = 256948,
+    SPELL_SPATIAL_RIFT_TELEPORT     = 257034,
+    SPELL_SPATIAL_RIFT_DESPAWN_AT   = 257040
+};
+
+// Spatial Rift teleport (Void Elf racial) - 257040
+class spell_spatial_rift_despawn : public SpellScript
+{
+    PrepareSpellScript(spell_spatial_rift_despawn);
+
+    void OnDespawnAreaTrigger(SpellEffIndex /*effIndex*/)
+    {
+        if (AreaTrigger* at = GetCaster()->GetAreaTrigger(SPELL_SPATIAL_RIFT_AT))
+        {
+            GetCaster()->CastSpell(at->GetPosition(), SPELL_SPATIAL_RIFT_TELEPORT, true);
+            at->SetDuration(0);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_spatial_rift_despawn::OnDespawnAreaTrigger, EFFECT_0, SPELL_EFFECT_DESPAWN_AREATRIGGER);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4851,4 +4878,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
     RegisterSpellScript(spell_gen_mobile_bank);
     RegisterSpellScript(spell_arcane_pulse);
+    RegisterSpellScript(spell_spatial_rift_despawn);
 }
