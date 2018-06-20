@@ -2324,7 +2324,7 @@ public:
             {
                 caster->CastSpell(caster, SPELL_DH_METAMORPHOSIS_BUFFS, true); // Metamorphosis
                 if (Aura* aur = caster->GetAura(SPELL_DH_METAMORPHOSIS_BUFFS))
-                    aur->SetDuration(5000);
+                    aur->SetDuration(8000);
             }
         }
 
