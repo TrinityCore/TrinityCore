@@ -405,10 +405,11 @@ struct at_nythendra_infested_ground : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        Unit* caster = at->GetCaster();
-        if (caster && unit)
-            if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_INFESTED_GROUND_DAMAGE, true);
+        if (Unit* caster = at->GetCaster())
+            if (InstanceScript* instance = caster->GetInstanceScript())
+                if (Creature* nythendra = instance->GetCreature(NPC_NYTHENDRA))
+                    if (nythendra->IsValidAttackTarget(unit))
+                        nythendra->CastSpell(unit, SPELL_INFESTED_GROUND_DAMAGE, true);
     }
 
     void OnUnitExit(Unit* unit) override
