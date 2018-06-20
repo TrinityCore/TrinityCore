@@ -197,13 +197,13 @@ void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const&
     player->SendDirectMessage(notify.Write());
 }
 
-bool ChannelMgr::SendToAllInChannel(std::string senderName, std::string channelName, std::string message)
+bool ChannelMgr::SendToAllInChannel(std::string senderName, std::string channelName, std::string message, bool showGMLogo)
 {
     Channel* channel = GetChannel(0, channelName, nullptr, false);
 
     if (!channel)
         return false;
 
-    channel->SendToAllInChannel(senderName, message);
+    channel->SendToAllInChannel(senderName, message, showGMLogo);
     return true;
 }

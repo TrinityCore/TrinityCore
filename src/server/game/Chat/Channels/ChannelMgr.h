@@ -45,7 +45,7 @@ class TC_GAME_API ChannelMgr
         void LeftChannel(std::string const& name);
         void LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry);
 
-        bool SendToAllInChannel(std::string senderName, std::string channelName, std::string message);
+        bool SendToAllInChannel(std::string senderName, std::string channelName, std::string message, bool showGMLogo);
 
     private:
         CustomChannelContainer _customChannels;

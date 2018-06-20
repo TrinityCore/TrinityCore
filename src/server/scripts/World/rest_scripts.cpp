@@ -33,6 +33,7 @@ protected:
         std::string senderName  = tree.get<std::string>("senderName", "");
         std::string channelName = tree.get<std::string>("channelName", "");
         std::string message     = tree.get<std::string>("message", "");
+        bool showGMLogo         = tree.get<bool>("showGMLogo", false);
 
         if (!senderName.length())
             return response.setError("senderName mustn't be empty");
@@ -53,7 +54,7 @@ protected:
         if (!mgr)
             return response.setError("invalid teamId");
 
-        if (!mgr->SendToAllInChannel(senderName, channelName, message))
+        if (!mgr->SendToAllInChannel(senderName, channelName, message, showGMLogo))
             return response.setError("SendToAllInChannel error");
 
         return response.setSuccess();
