@@ -1769,6 +1769,13 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     uint8 playerClass = characterInfo->Class;
     uint8 level       = characterInfo->Level;
 
+    TeamId oldTeamId = Player::TeamIdForRace(oldRace);
+    if (oldTeamId == TEAM_NEUTRAL)
+    {
+        SendCharFactionChange(CHAR_CREATE_RESTRICTED_RACECLASS, factionChangeInfo.get());
+        return;
+    }
+
     if (!sObjectMgr->GetPlayerInfo(factionChangeInfo->RaceID, playerClass))
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
@@ -1789,11 +1796,15 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     TeamId newTeamId = Player::TeamIdForRace(factionChangeInfo->RaceID);
     if (newTeamId == TEAM_NEUTRAL)
     {
-        SendCharFactionChange(CHAR_CREATE_RESTRICTED_RACECLASS, factionChangeInfo.get());
-        return;
+        if (factionChangeInfo->FactionChange)
+            factionChangeInfo->RaceID = (oldTeamId == TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLIANCE);
+        else
+            factionChangeInfo->RaceID = (oldTeamId == TEAM_ALLIANCE ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE);
+
+        newTeamId = Player::TeamIdForRace(factionChangeInfo->RaceID);
     }
 
-    if (factionChangeInfo->FactionChange == (Player::TeamIdForRace(oldRace) == newTeamId))
+    if (factionChangeInfo->FactionChange == (oldTeamId == newTeamId))
     {
         SendCharFactionChange(factionChangeInfo->FactionChange ? CHAR_CREATE_CHARACTER_SWAP_FACTION : CHAR_CREATE_CHARACTER_RACE_ONLY, factionChangeInfo.get());
         return;
@@ -1944,6 +1955,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 case RACE_TROLL:                raceLang = 315;     break;
                 case RACE_BLOODELF:             raceLang = 137;     break;
                 case RACE_GOBLIN:               raceLang = 792;     break;
+                case RACE_PANDAREN_ALLIANCE:
+                case RACE_PANDAREN_HORDE:       raceLang = 905;     break;
                 case RACE_NIGHTBORNE:           raceLang = 2464;    break;
                 case RACE_VOID_ELF:             raceLang = 2465;    break;
                 default:
