@@ -2850,24 +2850,17 @@ struct at_dh_sigil_of_misery : AreaTriggerAI
 };
 
 // Sigil of Flame - 204596
-// AreaTriggerID - 6039
+// AreaTriggerID - 10727
 struct at_dh_sigil_of_flame : AreaTriggerAI
 {
     at_dh_sigil_of_flame(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnRemove() override
     {
-        Unit* caster = at->GetCaster();
-        if (!caster || !caster->IsPlayer())
-            return;
-
-        if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+        if (Unit* caster = at->GetCaster())
         {
-            tempSumm->setFaction(caster->getFaction());
-            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            PhasingHandler::InheritPhaseShift(tempSumm, caster);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_TRIGGER, true);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_EXPLOSION, true);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_FLAME_TRIGGER, true);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_FLAME_EXPLOSION, true);
         }
     }
 };
