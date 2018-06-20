@@ -132,7 +132,7 @@ enum DHSpells
     SPELL_DH_SHATTERED_SOULS                = 178940,
     SPELL_DH_SHATTERED_SOULS_AT_DEMON       = 203795,
     SPELL_DH_SHATTERED_SOULS_AT_NORMAL      = 228537,
-    SPELL_DH_SHATTERED_SOULS_LESSER         = 204256,
+    SPELL_DH_SHATTERED_SOULS_LESSER         = 204255,
     SPELL_DH_SHATTERED_SOULS_MISSILE        = 209651,
     SPELL_DH_SHEAR                          = 203782,
     SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION      = 208673,
@@ -631,13 +631,11 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            int32 bp = SPELL_DH_SHATTERED_SOULS_LESSER;
-            caster->CastCustomSpell(caster, SPELL_DH_SHATTERED_SOULS_MISSILE, &bp, NULL, NULL, true);
-            caster->CastCustomSpell(caster, SPELL_DH_SHATTERED_SOULS_MISSILE, &bp, NULL, NULL, true);
+            if (Unit* caster = GetCaster())
+            {
+                caster->CastCustomSpell(SPELL_DH_SHATTERED_SOULS_MISSILE, SpellValueMod(SPELLVALUE_TRIGGER_SPELL + EFFECT_1), SPELL_DH_SHATTERED_SOULS_LESSER, caster, TRIGGERED_FULL_MASK);
+                caster->CastCustomSpell(SPELL_DH_SHATTERED_SOULS_MISSILE, SpellValueMod(SPELLVALUE_TRIGGER_SPELL + EFFECT_1), SPELL_DH_SHATTERED_SOULS_LESSER, caster, TRIGGERED_FULL_MASK);
+            }
         }
 
         void Register() override
@@ -704,15 +702,9 @@ public:
 
         void HandleShatter(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            if (roll_chance_i(15))
-            {
-                int32 bp = SPELL_DH_SHATTERED_SOULS_LESSER;
-                caster->CastCustomSpell(caster, SPELL_DH_SHATTERED_SOULS_MISSILE, &bp, NULL, NULL, true);
-            }
+            if (Unit* caster = GetCaster())
+                if (roll_chance_i(15))
+                    caster->CastCustomSpell(SPELL_DH_SHATTERED_SOULS_MISSILE, SpellValueMod(SPELLVALUE_TRIGGER_SPELL + EFFECT_1), SPELL_DH_SHATTERED_SOULS_LESSER, caster, TRIGGERED_FULL_MASK);
         }
 
         void Register() override
@@ -977,15 +969,9 @@ public:
         {
             PreventDefaultAction();
 
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            if (roll_chance_i(20))
-            {
-                int32 bp = SPELL_DH_SHATTERED_SOULS_LESSER;
-                caster->CastCustomSpell(caster, SPELL_DH_SHATTERED_SOULS_MISSILE, &bp, NULL, NULL, true);
-            }
+            if (Unit* caster = GetCaster())
+                if (roll_chance_i(20))
+                    caster->CastCustomSpell(SPELL_DH_SHATTERED_SOULS_MISSILE, SpellValueMod(SPELLVALUE_TRIGGER_SPELL + EFFECT_1), SPELL_DH_SHATTERED_SOULS_LESSER, caster, TRIGGERED_FULL_MASK);
         }
 
         void Register() override
@@ -2605,12 +2591,8 @@ public:
         {
             PreventDefaultAction();
 
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            int32 bp = SPELL_DH_SHATTERED_SOULS_LESSER;
-            caster->CastCustomSpell(caster, SPELL_DH_SHATTERED_SOULS_MISSILE, &bp, NULL, NULL, true);
+            if (Unit* caster = GetCaster())
+                caster->CastCustomSpell(SPELL_DH_SHATTERED_SOULS_MISSILE, SpellValueMod(SPELLVALUE_TRIGGER_SPELL + EFFECT_1), SPELL_DH_SHATTERED_SOULS_LESSER, caster, TRIGGERED_FULL_MASK);
         }
 
         void Register() override
