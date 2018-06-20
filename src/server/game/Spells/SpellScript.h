@@ -982,6 +982,8 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // returns proto of the spell
         SpellInfo const* GetSpellInfo() const;
+        // returns proto of the spell effect if exist
+        SpellEffectInfo const* GetEffectInfo(SpellEffIndex effIndex) const;
         // returns spellid of the spell
         uint32 GetId() const;
 

@@ -229,7 +229,8 @@ public:
 
     void OnPlayerExit(Player* player) override
     {
-        player->SeamlessTeleportToMap(MAP_BROKEN_ISLANDS);
+        if (player->GetMapId() == MAP_DALARAN_UNDERBELLY)
+            player->SeamlessTeleportToMap(MAP_BROKEN_ISLANDS);
     }
 };
 

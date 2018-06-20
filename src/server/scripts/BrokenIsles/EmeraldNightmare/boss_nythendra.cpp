@@ -43,6 +43,8 @@ enum Spells
     // Stage Two
     SPELL_HEART_OF_THE_SWARM        = 203552,
     SPELL_BURST_OF_CORRUPTION       = 203646,
+
+    SPELL_ENRAGE                    = 47008
 };
 
 class EntryCheckWithPlayerNearPredicate
@@ -78,7 +80,7 @@ struct boss_nythendra : public BossAI
     {
         _Reset();
 
-        me->RemoveAllAreaTriggers();
+        RemoveAllAreaTriggers();
 
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 100);
@@ -92,6 +94,14 @@ struct boss_nythendra : public BossAI
         events.ScheduleEvent(SPELL_VOLATILE_ROT,    30s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_INFESTED_BREATH, 60s,    EVENTS_PHASE_1);
         events.ScheduleEvent(SPELL_TAIL_LASH,       20s,    EVENTS_PHASE_1);
+
+        if (IsHeroic())
+        {
+            me->GetScheduler().Schedule(8min, [this](TaskContext /*context*/)
+            {
+                me->CastSpell(me, SPELL_ENRAGE, true);
+            });
+        }
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -198,8 +208,9 @@ private:
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
 
-                std::vector<AreaTrigger*> areatriggers = me->GetAreaTriggers(SPELL_INFESTED_GROUND);
-                for (AreaTrigger* at : areatriggers)
+                std::list<AreaTrigger*> ats;
+                me->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_INFESTED_GROUND, 500.f);
+                for (AreaTrigger* at : ats)
                     at->SetDestination(me->GetPosition(), 5000);
             })
             .Schedule(25s, [this](TaskContext /*context*/)
@@ -207,6 +218,17 @@ private:
                 summons.DespawnEntry(NPC_CORRUPTED_VERMIN);
                 events.CancelEvent(SPELL_BURST_OF_CORRUPTION);
             });
+    }
+
+    // Some AT are spawned by players, force remove them
+    void RemoveAllAreaTriggers()
+    {
+        me->RemoveAllAreaTriggers();
+
+        std::list<AreaTrigger*> ats;
+        me->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_INFESTED_GROUND, 500.f);
+        for (AreaTrigger* at : ats)
+            at->SetDuration(0);
     }
 };
 
@@ -383,10 +405,11 @@ struct at_nythendra_infested_ground : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        Unit* caster = at->GetCaster();
-        if (caster && unit)
-            if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_INFESTED_GROUND_DAMAGE, true);
+        if (Unit* caster = at->GetCaster())
+            if (InstanceScript* instance = caster->GetInstanceScript())
+                if (Creature* nythendra = instance->GetCreature(NPC_NYTHENDRA))
+                    if (nythendra->IsValidAttackTarget(unit))
+                        nythendra->CastSpell(unit, SPELL_INFESTED_GROUND_DAMAGE, true);
     }
 
     void OnUnitExit(Unit* unit) override

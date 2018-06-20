@@ -3578,6 +3578,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->CasterAuraSpell = 0;
     });
 
+    // DH - Felblade - Charge damage
+    ApplySpellFix({ 213241 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TriggerSpell = 213243;
+    });
+
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
