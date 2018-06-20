@@ -149,7 +149,8 @@ enum DHSpells
     SPELL_DH_SOUL_CLEAVE_DAMAGE             = 228478,
     SPELL_DH_SOUL_RENDING_HAVOC             = 204909,
     SPELL_DH_SOUL_RENDING_VENGEANCE         = 217996,
-    SPELL_DH_SPIRIT_BOMB_DAMAGE             = 218677,
+    SPELL_DH_SPIRIT_BOMB                    = 247454,
+    SPELL_DH_SPIRIT_BOMB_DAMAGE             = 247455,
     SPELL_DH_SPIRIT_BOMB_HEAL               = 227255,
     SPELL_DH_THROW_GLAIVE                   = 185123,
     SPELL_DH_VENGEFUL_RETREAT               = 198793,
@@ -386,133 +387,92 @@ public:
 };
 
 // Fraility - 224509
-class spell_dh_fraility : public SpellScriptLoader
+class aura_dh_fraility : public AuraScript
 {
-public:
-    spell_dh_fraility() : SpellScriptLoader("spell_dh_fraility") {}
+    PrepareAuraScript(aura_dh_fraility);
 
-    class spell_dh_fraility_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_dh_fraility_AuraScript);
+        return ValidateSpellInfo({ SPELL_DH_SPIRIT_BOMB_HEAL });
+    }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            Unit* caster = aurEff->GetCaster();
-            if (!caster)
-                return;
-
-            int32 healAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 10);
-            caster->CastCustomSpell(caster, SPELL_DH_SPIRIT_BOMB_HEAL, &healAmount, NULL, NULL, true);
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_dh_fraility_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        return new spell_dh_fraility_AuraScript();
+        Unit* caster = aurEff->GetCaster();
+        if (!caster)
+            return;
+
+        int32 healAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffectInfo(EFFECT_0)->BasePoints);
+        caster->CastCustomSpell(caster, SPELL_DH_SPIRIT_BOMB_HEAL, &healAmount, NULL, NULL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(aura_dh_fraility::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
-// Spirit Bomb damage - 218677
-class spell_dh_spirit_bomb_damage : public SpellScriptLoader
+// Spirit Bomb - 247454
+class spell_dh_spirit_bomb : public SpellScript
 {
-public:
-    spell_dh_spirit_bomb_damage() : SpellScriptLoader("spell_dh_spirit_bomb_damage") {}
+    PrepareSpellScript(spell_dh_spirit_bomb);
 
-    class spell_dh_spirit_bomb_damage_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_dh_spirit_bomb_damage_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            caster->CastSpell(target, SPELL_DH_FRAILITY, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_dh_spirit_bomb_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dh_spirit_bomb_damage_SpellScript();
+        return ValidateSpellInfo({ SPELL_DH_SPIRIT_BOMB, SPELL_DH_SPIRIT_BOMB_DAMAGE, SPELL_DH_SPIRIT_BOMB_HEAL });
     }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return SPELL_FAILED_DONT_REPORT;
+
+        float range = float(GetEffectInfo(EFFECT_0)->BasePoints);
+
+        std::list<AreaTrigger*> ats;
+        caster->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_DH_SHATTERED_SOULS_AT_NORMAL, range);
+        caster->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_DH_SHATTERED_SOULS_AT_DEMON, range);
+        caster->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_DH_SHATTERED_SOULS_LESSER, range);
+
+        _shatteredSoulsCount = ats.size();
+        for (AreaTrigger* at : ats)
+            at->SetDuration(0);
+
+        return !_shatteredSoulsCount ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW: SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            for (uint8 i = 0; i < _shatteredSoulsCount; ++i)
+                caster->CastSpell(caster, SPELL_DH_SPIRIT_BOMB_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dh_spirit_bomb::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_spirit_bomb::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+private:
+    uint8 _shatteredSoulsCount;
 };
 
-// Spirit Bomb - 218679
-class spell_dh_spirit_bomb : public SpellScriptLoader
+// Spirit Bomb damage - 247455
+class spell_dh_spirit_bomb_damage : public SpellScript
 {
-public:
-    spell_dh_spirit_bomb() : SpellScriptLoader("spell_dh_spirit_bomb") {}
+    PrepareSpellScript(spell_dh_spirit_bomb_damage);
 
-    class spell_dh_spirit_bomb_SpellScript : public SpellScript
+    void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_dh_spirit_bomb_SpellScript);
+        if (Unit* caster = GetCaster())
+            if (Unit* target = GetHitUnit())
+                caster->CastSpell(target, SPELL_DH_FRAILITY, true);
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_SPIRIT_BOMB_DAMAGE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DH_SPIRIT_BOMB_HEAL))
-                return false;
-            return true;
-        }
-
-        SpellCastResult CheckCast()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return SPELL_FAILED_DONT_REPORT;
-
-            std::list<WorldObject*> units;
-            Trinity::AllWorldObjectsInRange check(caster, 25.0f);
-            Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(caster, units, check);
-            Cell::VisitAllObjects(caster, searcher, 25.0f);
-
-            for (WorldObject* unit : units)
-            {
-                if (unit->GetTypeId() != TYPEID_AREATRIGGER)
-                    continue;
-
-                if (unit->ToAreaTrigger()->GetCaster() == caster)
-                {
-                    unit->ToAreaTrigger()->SetDuration(0);
-                    return SPELL_CAST_OK;
-                }
-            }
-
-            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-        }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            caster->CastSpell(target, SPELL_DH_SPIRIT_BOMB_DAMAGE, true);
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_dh_spirit_bomb_SpellScript::CheckCast);
-            OnEffectHitTarget += SpellEffectFn(spell_dh_spirit_bomb_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_dh_spirit_bomb_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_dh_spirit_bomb_damage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -3083,7 +3043,7 @@ void AddSC_demon_hunter_spell_scripts()
     new spell_dh_fiery_brand_absorb();
     new spell_dh_fiery_brand_dot();
     new spell_dh_fracture();
-    new spell_dh_fraility();
+    RegisterAuraScript(aura_dh_fraility);
     new spell_dh_glide();
     new spell_dh_immolation_aura();
     new spell_dh_immolation_aura_damage();
@@ -3104,8 +3064,8 @@ void AddSC_demon_hunter_spell_scripts()
     new spell_dh_soul_barrier();
     new spell_dh_soul_cleave();
     new spell_dh_soul_cleave_damage();
-    new spell_dh_spirit_bomb();
-    new spell_dh_spirit_bomb_damage();
+    RegisterSpellScript(spell_dh_spirit_bomb);
+    RegisterSpellScript(spell_dh_spirit_bomb_damage);
     new spell_dh_vengeful_retreat();
     new spell_dh_vengeful_retreat_fury_refiller();
     new spell_dh_vengeful_retreat_trigger();
