@@ -99,6 +99,7 @@ enum DHSpells
     SPELL_DH_FEL_RUSH_DASH2                 = 208101,
     SPELL_DH_FELBLADE                       = 232893,
     SPELL_DH_FELBLADE_CHARGE                = 213241,
+    SPELL_DH_FELBLADE_DAMAGE                = 213243,
     SPELL_DH_FIERY_BRAND_DOT                = 207771,
     SPELL_DH_FIRST_BLOOD                    = 206416,
     SPELL_DH_FLAME_CRASH                    = 227322,
@@ -2815,7 +2816,7 @@ class spell_dh_felblade : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_dh_felblade::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_felblade::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
