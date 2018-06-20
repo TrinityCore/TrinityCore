@@ -1118,6 +1118,11 @@ SpellInfo const* AuraScript::GetSpellInfo() const
     return m_aura->GetSpellInfo();
 }
 
+SpellEffectInfo const* AuraScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return GetSpellInfo()->GetEffect(effIndex);
+}
+
 uint32 AuraScript::GetId() const
 {
     return m_aura->GetId();
