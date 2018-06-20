@@ -80,7 +80,7 @@ struct boss_nythendra : public BossAI
     {
         _Reset();
 
-        me->RemoveAllAreaTriggers();
+        RemoveAllAreaTriggers();
 
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 100);
@@ -217,6 +217,17 @@ private:
                 summons.DespawnEntry(NPC_CORRUPTED_VERMIN);
                 events.CancelEvent(SPELL_BURST_OF_CORRUPTION);
             });
+    }
+
+    // Some AT are spawned by players, force remove them
+    void RemoveAllAreaTriggers()
+    {
+        me->RemoveAllAreaTriggers();
+
+        std::list<AreaTrigger*> ats;
+        me->GetAreaTriggerListWithSpellIDInRange(ats, SPELL_INFESTED_GROUND, 500.f);
+        for (AreaTrigger* at : ats)
+            at->SetDuration(0);
     }
 };
 
