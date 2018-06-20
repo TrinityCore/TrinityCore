@@ -373,6 +373,21 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     mover->m_movementInfo = movementInfo;
 
+    // Send Multiple Movement Messages if there is a new player visible.
+    if (sWorld->getBoolConfig(CONFIG_SEND_INITIAL_MOVEMENT_HEARTBEAT) && _player->_movementUpdate)
+    {
+        for (GuidUnorderedSet::iterator it = _player->m_clientGUIDs.begin(); it != _player->m_clientGUIDs.end(); ++it)
+        {
+            if (Player* target = ObjectAccessor::GetPlayer(_player->GetMap(), *it))
+            {
+                WorldPacket data(MSG_MOVE_HEARTBEAT, recvData.size());
+                WriteMovementInfo(&data, &movementInfo);
+                target->GetSession()->SendPacket(&data);
+            }
+        }
+        _player->_movementUpdate = false;
+    }
+
     // Some vehicles allow the passenger to turn by himself
     if (Vehicle* vehicle = mover->GetVehicle())
     {
