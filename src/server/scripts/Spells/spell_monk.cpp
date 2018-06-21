@@ -60,6 +60,7 @@ enum MonkSpells
     SPELL_MONK_ENVELOPING_MIST                          = 124682,
     SPELL_MONK_ENVELOPING_MIST_HEAL                     = 132120,
     SPELL_MONK_ESSENCE_FONT_HEAL                        = 191840,
+    SPELL_MONK_FISTS_OF_FURY                            = 113656,
     SPELL_MONK_FISTS_OF_FURY_DAMAGE                     = 117418,
     SPELL_MONK_FLYING_SERPENT_KICK                      = 101545,
     SPELL_MONK_FLYING_SERPENT_KICK_AOE                  = 123586,
@@ -134,6 +135,9 @@ enum MonkSpells
     SPELL_MONK_UPLIFT_ALLOWING_CAST                     = 123757,
     SPELL_MONK_VIVIFY                                   = 116670,
     SPELL_MONK_WEAKENED_BLOWS                           = 115798,
+    SPELL_MONK_WHIRLING_DRAGON_PUNCH                    = 152175,
+    SPELL_MONK_WHIRLING_DRAGON_PUNCH_CASTER_AURA        = 196742,
+    SPELL_MONK_WHIRLING_DRAGON_PUNCH_DAMAGE             = 158221,
     SPELL_MONK_WINDWALKER_AURA                          = 166646,
     SPELL_MONK_WINDWALKING                              = 157411,
     SPELL_MONK_ZEN_FLIGHT                               = 125883,
@@ -618,30 +622,19 @@ public:
 // En attente
 
 // Path of Blossom - 124336
-class spell_monk_path_of_blossom : public SpellScriptLoader
+class spell_monk_path_of_blossom : public AuraScript
 {
-public:
-    spell_monk_path_of_blossom() : SpellScriptLoader("spell_monk_path_of_blossom") { }
+    PrepareAuraScript(spell_monk_path_of_blossom);
 
-    class spell_monk_path_of_blossom_AuraScript : public AuraScript
+    void OnTick(AuraEffect const* /* aurEff */)
     {
-        PrepareAuraScript(spell_monk_path_of_blossom_AuraScript);
+        if (GetCaster())
+            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER, true);
+    }
 
-        void OnTick(AuraEffect const* /* aurEff */)
-        {
-            if (GetCaster())
-                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER, true);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_path_of_blossom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_monk_path_of_blossom_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_path_of_blossom::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -3082,169 +3075,147 @@ public:
 
 // Windwalking - 157411
 // AreaTriggerID - 2763
-class at_monk_windwalking : public AreaTriggerEntityScript
+struct at_monk_windwalking : AreaTriggerAI
 {
-public:
-    at_monk_windwalking() : AreaTriggerEntityScript("at_monk_windwalking") {}
+    at_monk_windwalking(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_monk_windwalkingAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_monk_windwalkingAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
 
-        void OnUnitEnter(Unit* unit) override
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA))
+            aur->SetDuration(-1);
+        else if (caster->IsFriendlyTo(unit))
+            caster->CastSpell(unit, SPELL_MONK_WINDWALKER_AURA, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
+            return;
+
+        if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
         {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA))
-                aur->SetDuration(-1);
-            else if (caster->IsFriendlyTo(unit))
-                caster->CastSpell(unit, SPELL_MONK_WINDWALKER_AURA, true);
+            aur->SetMaxDuration(10 * IN_MILLISECONDS);
+            aur->SetDuration(10 * IN_MILLISECONDS);
         }
+    }
 
-        void OnUnitExit(Unit* unit) override
+    void OnRemove() override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        for (auto guid : at->GetInsideUnits())
         {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
-                return;
-
-            if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
+            if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
             {
-                aur->SetMaxDuration(10 * IN_MILLISECONDS);
-                aur->SetDuration(10 * IN_MILLISECONDS);
-            }
-        }
+                if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
+                    continue;
 
-        void OnRemove() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            for (auto guid : at->GetInsideUnits())
-            {
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
                 {
-                    if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
-                        continue;
-
-                    if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
-                    {
-                        aur->SetMaxDuration(10 * IN_MILLISECONDS);
-                        aur->SetDuration(10 * IN_MILLISECONDS);
-                    }
+                    aur->SetMaxDuration(10 * IN_MILLISECONDS);
+                    aur->SetDuration(10 * IN_MILLISECONDS);
                 }
             }
         }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_monk_windwalkingAI(areatrigger);
     }
 };
 
 //AT ID : 373
-class at_monk_gift_of_the_ox_sphere : public AreaTriggerEntityScript
+struct at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 {
-public:
-    at_monk_gift_of_the_ox_sphere() : AreaTriggerEntityScript("at_monk_gift_of_the_ox_sphere") { }
+    int32 pickupDelay;
 
-    struct at_monk_gift_of_the_ox_sphereAI : AreaTriggerAI
+    at_monk_gift_of_the_ox_sphere(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
-        int32 pickupDelay;
+        pickupDelay = 1000;
+    }
 
-        at_monk_gift_of_the_ox_sphereAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            pickupDelay = 1000;
-        }
-
-        enum SpellsUsed
-        {
-            SPELL_MONK_GIFT_OF_THE_OX_HEAL      = 178173,
-            SPELL_MONK_HEALING_SPHERE_COOLDOWN  = 224863
-        };
-
-        void OnUpdate(uint32 diff)  override
-        {
-            if(pickupDelay >= 0)
-                pickupDelay -= diff;
-
-            if(pickupDelay < 0)
-                pickupDelay = 0;
-        }
-
-        void OnCreate() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            for (ObjectGuid guid : at->GetInsideUnits())
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if(unit == caster && !pickupDelay)
-                    {
-                        caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
-                        at->Remove();
-                    }
-        }
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (unit == caster && pickupDelay == 0)
-            {
-                caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
-                at->Remove();
-            }
-        }
-
-        void OnRemove() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            //Todo : Remove cooldown
-            if(caster->HasAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN))
-                caster->RemoveAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN);
-        }
+    enum SpellsUsed
+    {
+        SPELL_MONK_GIFT_OF_THE_OX_HEAL      = 178173,
+        SPELL_MONK_HEALING_SPHERE_COOLDOWN  = 224863
     };
 
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUpdate(uint32 diff)  override
     {
-        return new at_monk_gift_of_the_ox_sphereAI(areatrigger);
+        if(pickupDelay >= 0)
+            pickupDelay -= diff;
+
+        if(pickupDelay < 0)
+            pickupDelay = 0;
+    }
+
+    void OnCreate() override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        for (ObjectGuid guid : at->GetInsideUnits())
+            if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                if(unit == caster && !pickupDelay)
+                {
+                    caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
+                    at->Remove();
+                }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (unit == caster && pickupDelay == 0)
+        {
+            caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
+            at->Remove();
+        }
+    }
+
+    void OnRemove() override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        //Todo : Remove cooldown
+        if(caster->HasAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN))
+            caster->RemoveAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN);
     }
 };
 
@@ -3474,45 +3445,34 @@ public:
 };
 
 //5484
-class at_monk_song_of_chiji : public AreaTriggerEntityScript
+struct at_monk_song_of_chiji : AreaTriggerAI
 {
-public:
-    at_monk_song_of_chiji() : AreaTriggerEntityScript("at_monk_song_of_chiji") { }
+    at_monk_song_of_chiji(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_monk_song_of_chijiAI : AreaTriggerAI
+    /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
     {
-        at_monk_song_of_chijiAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        if (!caster)
+            return;
 
-        /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
-        {
-            if (!caster)
-                return;
+        if (!caster->ToPlayer())
+            return;
 
-            if (!caster->ToPlayer())
-                return;
+        startPos = caster->GetPosition();
+        at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
+    }*/
 
-            startPos = caster->GetPosition();
-            at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
-        }*/
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if(unit != caster && caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_MONK_SONG_OF_CHIJI, true);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitEnter(Unit* unit) override
     {
-        return new at_monk_song_of_chijiAI(areatrigger);
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if(unit != caster && caster->IsValidAttackTarget(unit))
+            caster->CastSpell(unit, SPELL_MONK_SONG_OF_CHIJI, true);
     }
 };
 
@@ -3730,24 +3690,70 @@ public:
     }
 };
 
+// Whirling Dragon Punch - 152175
+class playerScript_monk_whirling_dragon_punch : public PlayerScript
+{
+public:
+    playerScript_monk_whirling_dragon_punch() : PlayerScript("playerScript_monk_whirling_dragon_punch") {}
+
+    void OnCooldownStart(Player* player, SpellInfo const* spellInfo, uint32 /*itemId*/, int32& cooldown, uint32& /*categoryId*/, int32& /*categoryCooldown*/) override
+    {
+        if (spellInfo->Id == SPELL_MONK_FISTS_OF_FURY)
+        {
+            SpellInfo const* risingSunKickInfo  = sSpellMgr->GetSpellInfo(SPELL_MONK_RISING_SUN_KICK);
+            ApplyCasterAura(player, cooldown, player->GetSpellHistory()->GetChargeRecoveryTime(risingSunKickInfo->ChargeCategoryId));
+        }
+    }
+
+    void OnChargeRecoveryTimeStart(Player* player, uint32 chargeCategoryId, int32& chargeRecoveryTime) override
+    {
+        SpellInfo const* risingSunKickInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RISING_SUN_KICK);
+        if (risingSunKickInfo->ChargeCategoryId == chargeCategoryId)
+        {
+            SpellInfo const* fistsOfFuryInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RISING_SUN_KICK);
+            ApplyCasterAura(player, chargeRecoveryTime, player->GetSpellHistory()->GetRemainingCooldown(fistsOfFuryInfo));
+        }
+    }
+
+private:
+    void ApplyCasterAura(Player* player, int32 cooldown1, int32 cooldown2)
+    {
+        if (cooldown1 > 0 && cooldown2 > 0)
+        {
+            uint32 whirlingDragonPunchAuraDuration = std::min(cooldown1, cooldown2);
+            player->CastSpell(player, SPELL_MONK_WHIRLING_DRAGON_PUNCH_CASTER_AURA, true);
+
+            if (Aura* aura = player->GetAura(SPELL_MONK_WHIRLING_DRAGON_PUNCH_CASTER_AURA))
+                aura->SetDuration(whirlingDragonPunchAuraDuration);
+        }
+    }
+};
+
+// Whirling Dragon Punch - 152175
+class spell_monk_whirling_dragon_punch : public AuraScript
+{
+    PrepareAuraScript(spell_monk_whirling_dragon_punch);
+
+    void OnTick(AuraEffect const* /*aurEff*/)
+    {
+        if (GetCaster())
+            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_WHIRLING_DRAGON_PUNCH_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_whirling_dragon_punch::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
-    new at_monk_gift_of_the_ox_sphere();
-    new at_monk_windwalking();
+    RegisterAreaTriggerAI(at_monk_gift_of_the_ox_sphere);
+    RegisterAreaTriggerAI(at_monk_windwalking);
     RegisterAreaTriggerAI(at_monk_chi_burst_damage);
     RegisterAreaTriggerAI(at_monk_chi_burst_heal);
-    new at_monk_song_of_chiji();
+    RegisterAreaTriggerAI(at_monk_song_of_chiji);
 
-    //new spell_monk_black_ox_statue();
-    //new spell_monk_chi_wave_bolt();
-    //new spell_monk_diffuse_magic();
-    //new spell_monk_elusive_brew();
-    //new spell_monk_glyph_of_zen_flight();
-    //new spell_monk_grapple_weapon();
-    //new spell_monk_healing_elixirs();
-    //new spell_monk_renewing_mist();
-    //new spell_monk_tigereye_brew();
-    //new spell_monk_tigers_lust();
     new spell_monk_black_ox_brew();
     new spell_monk_blackout_kick();
     new spell_monk_breath_of_fire();
@@ -3786,7 +3792,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_life_cocoon();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();
-    new spell_monk_path_of_blossom();
+    RegisterAuraScript(spell_monk_path_of_blossom);
     new spell_monk_power_strikes();
     new spell_monk_provoke();
     new spell_monk_purifying_brew();
@@ -3817,6 +3823,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_flight_check();
     new spell_monk_zen_pilgrimage();
     new spell_monk_zen_pulse();
+    new playerScript_monk_whirling_dragon_punch();
+    RegisterAuraScript(spell_monk_whirling_dragon_punch);
 
     new npc_sef_earth_spirit();
     new npc_sef_fire_spirit();
