@@ -4768,7 +4768,7 @@ class spell_spatial_rift_despawn : public SpellScript
     }
 };
 
-// 256893
+// Light's Judgement - 256893  (Lightforged Draenei Racial)
 class spell_light_judgement : public SpellScript
 {
     PrepareSpellScript(spell_light_judgement);
@@ -4782,6 +4782,26 @@ class spell_light_judgement : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_light_judgement::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Light's Reckoning - 255652 (Lightforged Draenei Racial)
+class playerscript_light_reckoning : public PlayerScript
+{
+public:
+    playerscript_light_reckoning() : PlayerScript("playerscript_light_reckoning") { }
+
+    enum
+    {
+        SPELL_LIGHT_RECKONING = 255652
+    };
+
+    void OnDeath(Player* player) override
+    {
+        if (player->HasAura(SPELL_LIGHT_RECKONING))
+            if (SpellInfo const* info = sSpellMgr->GetSpellInfo(SPELL_LIGHT_RECKONING))
+                if (SpellEffectInfo const* effectInfo = info->GetEffect(EFFECT_0))
+                    player->CastSpell(player, effectInfo->TriggerSpell, true);
     }
 };
 
@@ -4897,4 +4917,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_arcane_pulse);
     RegisterSpellScript(spell_spatial_rift_despawn);
     RegisterSpellScript(spell_light_judgement);
+    new playerscript_light_reckoning();
 }

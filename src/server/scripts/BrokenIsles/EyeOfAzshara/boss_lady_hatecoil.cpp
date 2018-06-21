@@ -44,11 +44,11 @@ struct boss_lady_hatecoil : public BossAI
 
     void ExecuteEvent(uint32 eventId) override
     {
-        switch (eventId)
+        /*switch (eventId)
         {
             default:
                 break;
-        }
+        }*/
     }
 };
 
