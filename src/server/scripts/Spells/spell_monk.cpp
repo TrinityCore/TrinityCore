@@ -28,119 +28,120 @@
 
 enum MonkSpells
 {
-    SPELL_MONK_LEGACY_OF_THE_EMPEROR                    = 117667,
-    SPELL_MONK_FORTIFYING_BREW                          = 120954,
-    SPELL_MONK_PROVOKE                                  = 118635,
-    SPELL_MONK_BLACKOUT_KICK_DOT                        = 128531,
-    SPELL_MONK_BLACKOUT_KICK_HEAL                       = 128591,
-    SPELL_MONK_SHUFFLE                                  = 115307,
-    SPELL_MONK_ZEN_PILGRIMAGE                           = 126892,
-    SPELL_MONK_ZEN_PILGRIMAGE_RETURN                    = 126895,
-    SPELL_MONK_DISABLE_ROOT                             = 116706,
-    SPELL_MONK_DISABLE                                  = 116095,
-    SPELL_MONK_SOOTHING_MIST_VISUAL                     = 125955,
-    SPELL_MONK_SOOTHING_MIST_ENERGIZE                   = 116335,
-    SPELL_MONK_BREATH_OF_FIRE_DOT                       = 123725,
-    SPELL_MONK_BREATH_OF_FIRE_CONFUSED                  = 123393,
-    SPELL_MONK_ELUSIVE_BREW_STACKS                      = 128939,
-    SPELL_MONK_ELUSIVE_BREW                             = 115308,
-    SPELL_MONK_KEG_SMASH_VISUAL                         = 123662,
-    SPELL_MONK_KEG_SMASH_ENERGIZE                       = 127796,
-    SPELL_MONK_WEAKENED_BLOWS                           = 115798,
-    SPELL_MONK_DIZZYING_HAZE                            = 116330,
-    SPELL_MONK_LIGHT_STAGGER                            = 124275,
-    SPELL_MONK_MODERATE_STAGGER                         = 124274,
-    SPELL_MONK_HEAVY_STAGGER                            = 124273,
-    SPELL_MONK_ROLL                                     = 109132,
-    SPELL_MONK_ROLL_BACKWARD                            = 109131,
-    SPELL_MONK_ROLL_TRIGGER                             = 107427,
-    SPELL_MONK_ENHANCED_ROLL                            = 157361,
-    SPELL_MONK_CHI_TORPEDO_HEAL                         = 124040,
-    SPELL_MONK_CHI_TORPEDO_DAMAGE                       = 117993,
-    SPELL_MONK_FLYING_SERPENT_KICK                      = 101545,
-    SPELL_MONK_FLYING_SERPENT_KICK_NEW                  = 115057,
-    SPELL_MONK_FLYING_SERPENT_KICK_AOE                  = 123586,
-    SPELL_MONK_TIGEREYE_BREW                            = 116740,
-    SPELL_MONK_TIGEREYE_BREW_STACKS                     = 125195,
-    SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE                = 116709,
-    SPELL_MONK_ZEN_PULSE_DAMAGE                         = 124081,
-    SPELL_MONK_ZEN_PULSE_HEAL                           = 198487,
-    SPELL_MONK_HEALING_ELIXIRS_AURA                     = 122280,
-    SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH           = 122281,
-    SPELL_MONK_RENEWING_MIST_HOT                        = 119611,
-    SPELL_MONK_RENEWING_MIST_JUMP_AURA                  = 119607,
-    SPELL_MONK_GLYPH_OF_RENEWING_MIST                   = 123334,
-    SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
-    SPELL_MONK_ENVELOPING_MIST_HEAL                     = 132120,
-    SPELL_MONK_PLUS_ONE_MANA_TEA                        = 123760,
-    SPELL_MONK_MANA_TEA_STACKS                          = 115867,
-    SPELL_MONK_MANA_TEA_REGEN                           = 115294,
-    MONK_NPC_JADE_SERPENT_STATUE                        = 60849,
-    SPELL_MONK_UPLIFT_ALLOWING_CAST                     = 123757,
-    SPELL_MONK_THUNDER_FOCUS_TEA                        = 116680,
-    SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER              = 122035,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE            = 118852,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT               = 123407,
-    SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE           = 124280,
-    SPELL_MONK_JADE_LIGHTNING_ENERGIZE                  = 123333,
-    SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP                = 117962,
-    SPELL_MONK_POWER_STRIKES_TALENT                     = 121817,
-    SPELL_MONK_CREATE_CHI_SPHERE                        = 121286,
-    SPELL_MONK_GLYPH_OF_ZEN_FLIGHT                      = 125893,
-    SPELL_MONK_ZEN_FLIGHT                               = 125883,
     ITEM_MONK_T14_TANK_4P                               = 123159,
     MONK_NPC_BLACK_OX_STATUE                            = 61146,
-    SPELL_MONK_GUARD                                    = 115295,
-    SPELL_MONK_ITEM_2_S12_MISTWEAVER                    = 131561,
-    SPELL_MONK_ITEM_4_S12_MISTWEAVER                    = 124487,
-    SPELL_MONK_ZEN_FOCUS                                = 124488,
-    SPELL_MONK_EMINENCE_HEAL                            = 126890,
-    SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE               = 123231,
-    SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE              = 123232,
-    SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE              = 123234,
-    SPELL_MONK_GLYPH_OF_BLACKOUT_KICK                   = 132005,
-    SPELL_MONK_CHI_WAVE_HEAL                            = 132463,
+    MONK_NPC_JADE_SERPENT_STATUE                        = 60849,
+    SPELL_MONK_BLACKOUT_KICK_DOT                        = 128531,
+    SPELL_MONK_BLACKOUT_KICK_HEAL                       = 128591,
+    SPELL_MONK_BLACK_OX_BREW                            = 115399,
+    SPELL_MONK_BREATH_OF_FIRE_CONFUSED                  = 123393,
+    SPELL_MONK_BREATH_OF_FIRE_DOT                       = 123725,
+    SPELL_MONK_CHI_BURST_DAMAGE                         = 148135,
+    SPELL_MONK_CHI_BURST_HEAL                           = 130654,
+    SPELL_MONK_CHI_TORPEDO_DAMAGE                       = 117993,
+    SPELL_MONK_CHI_TORPEDO_HEAL                         = 124040,
     SPELL_MONK_CHI_WAVE_DAMAGE                          = 132467,
+    SPELL_MONK_CHI_WAVE_HEAL                            = 132463,
     SPELL_MONK_CHI_WAVE_HEALING_BOLT                    = 132464,
     SPELL_MONK_CHI_WAVE_TALENT_AURA                     = 115098,
-    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                    = 124489,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL         = 117952,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
-    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
-    SPELL_MONK_RING_OF_PEACE_DISARM                     = 137461,
-    SPELL_MONK_RING_OF_PEACE_SILENCE                    = 137460,
-    SPELL_MONK_STAGGER                                  = 124255,
-    SPELL_MONK_RENEWING_MIST_PERIODIC                   = 119611,
-    SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
-    SPELL_MONK_PROVOKE_AOE                              = 118635,
-    SPELL_MONK_SOOTHING_MIST                            = 115175,
-    SPELL_MONK_SOOTHING_MIST_AURA                       = 193884,
-    SPELL_MONK_RISING_THUNDER                           = 210804,
-    SPELL_MONK_TEACHINGS_OF_THE_MONASTERY               = 116645,
-    SPELL_MONK_TEACHINGS_OF_THE_MONASTERY_AURA          = 202090,
-    SPELL_MONK_SPIRIT_OF_THE_CRANE_MANA                 = 210803,
-    SPELL_MONK_SPIRIT_OF_THE_CRANE_AURA                 = 210802,
-    SPELL_MONK_RISING_SUN_KICK                          = 107428,
-    SPELL_MONK_ROLL_ANIMATION                           = 111396,
-    SPELL_MONK_MORTAL_WOUNDS                            = 115804,
+    SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP                = 117962,
+    SPELL_MONK_CREATE_CHI_SPHERE                        = 121286,
+    SPELL_MONK_DISABLE                                  = 116095,
+    SPELL_MONK_DISABLE_ROOT                             = 116706,
+    SPELL_MONK_DIZZYING_HAZE                            = 116330,
+    SPELL_MONK_ELUSIVE_BREW                             = 115308,
+    SPELL_MONK_ELUSIVE_BREW_STACKS                      = 128939,
+    SPELL_MONK_EMINENCE_HEAL                            = 126890,
+    SPELL_MONK_ENHANCED_ROLL                            = 157361,
+    SPELL_MONK_ENVELOPING_MIST                          = 124682,
+    SPELL_MONK_ENVELOPING_MIST_HEAL                     = 132120,
     SPELL_MONK_ESSENCE_FONT_HEAL                        = 191840,
     SPELL_MONK_FISTS_OF_FURY_DAMAGE                     = 117418,
+    SPELL_MONK_FLYING_SERPENT_KICK                      = 101545,
+    SPELL_MONK_FLYING_SERPENT_KICK_AOE                  = 123586,
+    SPELL_MONK_FLYING_SERPENT_KICK_NEW                  = 115057,
+    SPELL_MONK_FORTIFYING_BREW                          = 120954,
+    SPELL_MONK_GIFT_OF_THE_OX_AURA                      = 124502,
+    SPELL_MONK_GLYPH_OF_BLACKOUT_KICK                   = 132005,
+    SPELL_MONK_GLYPH_OF_RENEWING_MIST                   = 123334,
+    SPELL_MONK_GLYPH_OF_ZEN_FLIGHT                      = 125893,
+    SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE               = 123231,
+    SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE              = 123234,
+    SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE              = 123232,
+    SPELL_MONK_GUARD                                    = 115295,
+    SPELL_MONK_HEALING_ELIXIRS_AURA                     = 122280,
+    SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH           = 122281,
+    SPELL_MONK_HEAVY_STAGGER                            = 124273,
+    SPELL_MONK_ITEM_2_S12_MISTWEAVER                    = 131561,
+    SPELL_MONK_ITEM_4_S12_MISTWEAVER                    = 124487,
+    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                    = 124489,
+    SPELL_MONK_JADE_LIGHTNING_ENERGIZE                  = 123333,
+    SPELL_MONK_KEG_SMASH_AURA                           = 121253,
+    SPELL_MONK_KEG_SMASH_ENERGIZE                       = 127796,
+    SPELL_MONK_KEG_SMASH_VISUAL                         = 123662,
+    SPELL_MONK_LEGACY_OF_THE_EMPEROR                    = 117667,
+    SPELL_MONK_LIFECYCLES_ENVELOPING_MIST               = 197919,
+    SPELL_MONK_LIFECYCLES_VIVIFY                        = 197916,
+    SPELL_MONK_LIGHT_STAGGER                            = 124275,
+    SPELL_MONK_MANA_TEA_REGEN                           = 115294,
+    SPELL_MONK_MANA_TEA_STACKS                          = 115867,
+    SPELL_MONK_MODERATE_STAGGER                         = 124274,
+    SPELL_MONK_MORTAL_WOUNDS                            = 115804,
+    SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER              = 122035,
+    SPELL_MONK_PLUS_ONE_MANA_TEA                        = 123760,
+    SPELL_MONK_POWER_STRIKES_TALENT                     = 121817,
+    SPELL_MONK_PROVOKE                                  = 118635,
+    SPELL_MONK_PROVOKE_AOE                              = 118635,
+    SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
+    SPELL_MONK_PURIFYING_BREW                           = 119582,
+    SPELL_MONK_RENEWING_MIST_HOT                        = 119611,
+    SPELL_MONK_RENEWING_MIST_JUMP_AURA                  = 119607,
+    SPELL_MONK_RENEWING_MIST_PERIODIC                   = 119611,
+    SPELL_MONK_RING_OF_PEACE_DISARM                     = 137461,
+    SPELL_MONK_RING_OF_PEACE_SILENCE                    = 137460,
+    SPELL_MONK_RISING_SUN_KICK                          = 107428,
+    SPELL_MONK_RISING_THUNDER                           = 210804,
+    SPELL_MONK_ROLL                                     = 109132,
+    SPELL_MONK_ROLL_ANIMATION                           = 111396,
+    SPELL_MONK_ROLL_BACKWARD                            = 109131,
+    SPELL_MONK_ROLL_TRIGGER                             = 107427,
+    SPELL_MONK_SHUFFLE                                  = 115307,
+    SPELL_MONK_SONG_OF_CHIJI                            = 198909,
+    SPELL_MONK_SOOTHING_MIST                            = 115175,
+    SPELL_MONK_SOOTHING_MIST_AURA                       = 193884,
+    SPELL_MONK_SOOTHING_MIST_ENERGIZE                   = 116335,
+    SPELL_MONK_SOOTHING_MIST_VISUAL                     = 125955,
+    SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE                = 116709,
+    SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE            = 118852,
+    SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT               = 123407,
+    SPELL_MONK_SPIRIT_OF_THE_CRANE_AURA                 = 210802,
+    SPELL_MONK_SPIRIT_OF_THE_CRANE_MANA                 = 210803,
+    SPELL_MONK_STAGGER                                  = 124255,
+    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
+    SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+    SPELL_MONK_TEACHINGS_OF_THE_MONASTERY               = 116645,
+    SPELL_MONK_TEACHINGS_OF_THE_MONASTERY_AURA          = 202090,
+    SPELL_MONK_THUNDER_FOCUS_TEA                        = 116680,
+    SPELL_MONK_TIGEREYE_BREW                            = 116740,
+    SPELL_MONK_TIGEREYE_BREW_STACKS                     = 125195,
+    SPELL_MONK_TOUCH_OF_DEATH                           = 115080,
+    SPELL_MONK_TOUCH_OF_DEATH_DAMAGE                    = 229980,
+    SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE           = 124280,
+    SPELL_MONK_UPLIFT_ALLOWING_CAST                     = 123757,
+    SPELL_MONK_VIVIFY                                   = 116670,
+    SPELL_MONK_WEAKENED_BLOWS                           = 115798,
     SPELL_MONK_WINDWALKER_AURA                          = 166646,
     SPELL_MONK_WINDWALKING                              = 157411,
-    SPELL_MONK_GIFT_OF_THE_OX_AURA                      = 124502,
-    SPELL_MONK_KEG_SMASH_AURA                           = 121253,
-    SPELL_MONK_CHI_BURST_HEAL                           = 130654,
-    SPELL_MONK_CHI_BURST_DAMAGE                         = 148135,
-    SPELL_MONK_LIFECYCLES_VIVIFY                        = 197916,
-    SPELL_MONK_LIFECYCLES_ENVELOPING_MIST               = 197919,
-    SPELL_MONK_VIVIFY                                   = 116670,
-    SPELL_MONK_ENVELOPING_MIST                          = 124682,
-    SPELL_MONK_SONG_OF_CHIJI                            = 198909,
-    SPELL_MONK_TOUCH_OF_DEATH                           = 115080,
-    SPELL_MONK_BLACK_OX_BREW                            = 115399,
-    SPELL_MONK_PURIFYING_BREW                           = 119582
+    SPELL_MONK_ZEN_FLIGHT                               = 125883,
+    SPELL_MONK_ZEN_FOCUS                                = 124488,
+    SPELL_MONK_ZEN_PILGRIMAGE                           = 126892,
+    SPELL_MONK_ZEN_PILGRIMAGE_RETURN                    = 126895,
+    SPELL_MONK_ZEN_PULSE_DAMAGE                         = 124081,
+    SPELL_MONK_ZEN_PULSE_HEAL                           = 198487,
 };
 
 enum SEFSpells
@@ -1275,42 +1276,27 @@ public:
 // En attente
 
 // Touch of Death - 115080
-class spell_monk_touch_of_death : public SpellScriptLoader
+class spell_monk_touch_of_death : public AuraScript
 {
-public:
-    spell_monk_touch_of_death() : SpellScriptLoader("spell_monk_touch_of_death") { }
+    PrepareAuraScript(spell_monk_touch_of_death);
 
-    class spell_monk_touch_of_death_AuraScript : public AuraScript
+    void OnTick(AuraEffect const* aurEff)
     {
-        PrepareAuraScript(spell_monk_touch_of_death_AuraScript);
-
-        void DoDamageCalc(const AuraEffect* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        if (Unit* caster = GetCaster())
         {
+            uint32 damagePct = GetEffectInfo(EFFECT_1)->BasePoints;
 
-            if (Unit* caster = GetCaster())
-            {
-                uint32 baseDamage = caster->GetMaxHealth();
+            // Damage reduced to Players, need to check reduction value
+            if (GetTarget()->IsPlayer())
+                damagePct /= 2;
 
-                baseDamage *= 0.5;
-                if(Unit* target = GetUnitOwner())
-                    if (target->ToPlayer())
-                    {
-                        baseDamage *= 0.5; //-50% damage against players
-                    }
-
-                amount = baseDamage;
-            }
+            caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_DEATH_DAMAGE, SPELLVALUE_BASE_POINT0, CalculatePct(caster->GetMaxHealth(), damagePct), GetTarget());
         }
+    }
 
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_touch_of_death_AuraScript::DoDamageCalc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_monk_touch_of_death_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_touch_of_death::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -3823,7 +3809,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_teachings_of_the_monastery();
     new spell_monk_tiger_lust();
     new spell_monk_tigereye_brew_stacks();
-    new spell_monk_touch_of_death();
+    RegisterAuraScript(spell_monk_touch_of_death);
     new spell_monk_touch_of_karma();
     RegisterSpellAndAuraScriptPair(spell_monk_transcendence, aura_monk_transcendence);
     RegisterSpellScript(spell_monk_transcendence_clone_visual);
