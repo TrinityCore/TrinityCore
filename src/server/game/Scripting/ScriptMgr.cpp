@@ -2445,6 +2445,16 @@ void ScriptMgr::OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 r
     FOREACH_SCRIPT(PlayerScript)->OnPlayerChoiceResponse(player, choiceId, responseId);
 }
 
+void ScriptMgr::OnCooldownStart(Player* player, SpellInfo const* spellInfo, uint32 itemId, int32& cooldown, uint32& categoryId, int32& categoryCooldown)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnCooldownStart(player, spellInfo, itemId, cooldown, categoryId, categoryCooldown);
+}
+
+void ScriptMgr::OnChargeRecoveryTimeStart(Player* player, uint32 chargeCategoryId, int32& chargeRecoveryTime)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnChargeRecoveryTimeStart(player, chargeCategoryId, chargeRecoveryTime);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
