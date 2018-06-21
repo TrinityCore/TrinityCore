@@ -3381,109 +3381,30 @@ public:
 };
 
 // Chi Burst damage - 123986
-// AreaTriggerID - 1316
-class at_monk_chi_burst_damage : public AreaTriggerEntityScript
+// AreaTriggerID - 5302
+struct at_monk_chi_burst_damage : AreaTriggerAI
 {
-public:
-    at_monk_chi_burst_damage() : AreaTriggerEntityScript("at_monk_chi_burst_damage")
+    at_monk_chi_burst_damage(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
     {
-    }
-
-    struct at_monk_chi_burst_damageAI : AreaTriggerAI
-    {
-        at_monk_chi_burst_damageAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
-        {
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            startPos = caster->GetPosition();
-            at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
-        }*/
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
+        if (Unit* caster = at->GetCaster())
             if (caster->IsValidAttackTarget(unit))
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE);
-                if (!spellInfo)
-                    return;
-                SpellEffectInfo const* effectInfo = spellInfo->GetEffect(EFFECT_0);
-                if (!effectInfo)
-                    return;
-
-                int32 damage = (float)caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.75f;
-                damage = caster->SpellDamageBonusDone(unit, spellInfo, damage, SPELL_DIRECT_DAMAGE, effectInfo);
-                damage = unit->SpellDamageBonusTaken(caster, spellInfo, damage, SPELL_DIRECT_DAMAGE, effectInfo);
-
-                caster->CastCustomSpell(SPELL_MONK_CHI_BURST_DAMAGE, SPELLVALUE_BASE_POINT0, damage, unit, TRIGGERED_FULL_MASK);
-            }
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_monk_chi_burst_damageAI(areatrigger);
+                caster->CastSpell(unit, SPELL_MONK_CHI_BURST_DAMAGE, true);
     }
 };
 
 // Chi Burst heal - 123986
-// AreaTriggerID - 1315
-class at_monk_chi_burst_heal : public AreaTriggerEntityScript
+// AreaTriggerID - 5300
+struct at_monk_chi_burst_heal : AreaTriggerAI
 {
-public:
-    at_monk_chi_burst_heal() : AreaTriggerEntityScript("at_monk_chi_burst_heal")
+    at_monk_chi_burst_heal(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
     {
-    }
-
-    struct at_monk_chi_burst_healAI : AreaTriggerAI
-    {
-        at_monk_chi_burst_healAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
-        {
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            startPos = caster->GetPosition();
-            at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
-        }*/
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (caster->IsFriendlyTo(unit))
-            {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAssistTarget(unit))
                 caster->CastSpell(unit, SPELL_MONK_CHI_BURST_HEAL, true);
-            }
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_monk_chi_burst_healAI(areatrigger);
     }
 };
 
@@ -3827,8 +3748,8 @@ void AddSC_monk_spell_scripts()
 {
     new at_monk_gift_of_the_ox_sphere();
     new at_monk_windwalking();
-    new at_monk_chi_burst_damage();
-    new at_monk_chi_burst_heal();
+    RegisterAreaTriggerAI(at_monk_chi_burst_damage);
+    RegisterAreaTriggerAI(at_monk_chi_burst_heal);
     new at_monk_song_of_chiji();
 
     //new spell_monk_black_ox_statue();
