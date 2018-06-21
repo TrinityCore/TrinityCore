@@ -1012,12 +1012,12 @@ void Channel::SetMute(ObjectGuid const& guid, bool set)
     }
 }
 
-void Channel::SendToAllInChannel(std::string senderName, std::string message)
+void Channel::SendToAllInChannel(std::string senderName, std::string message, bool showGMLogo)
 {
     auto builder = [&](LocaleConstant /*locale*/)
     {
         WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
-        packet->Initialize(CHAT_MSG_CHANNEL, LANG_UNIVERSAL, nullptr, nullptr, message, 0, GetName());
+        packet->Initialize(CHAT_MSG_CHANNEL, LANG_UNIVERSAL, nullptr, nullptr, message, 0, GetName(), DEFAULT_LOCALE, "", (showGMLogo ? CHAT_FLAG_GM : CHAT_FLAG_NONE));
         packet->SenderName = senderName;
 
         return packet;

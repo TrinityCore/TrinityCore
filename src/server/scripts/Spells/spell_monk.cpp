@@ -28,119 +28,124 @@
 
 enum MonkSpells
 {
-    SPELL_MONK_LEGACY_OF_THE_EMPEROR                    = 117667,
-    SPELL_MONK_FORTIFYING_BREW                          = 120954,
-    SPELL_MONK_PROVOKE                                  = 118635,
-    SPELL_MONK_BLACKOUT_KICK_DOT                        = 128531,
-    SPELL_MONK_BLACKOUT_KICK_HEAL                       = 128591,
-    SPELL_MONK_SHUFFLE                                  = 115307,
-    SPELL_MONK_ZEN_PILGRIMAGE                           = 126892,
-    SPELL_MONK_ZEN_PILGRIMAGE_RETURN                    = 126895,
-    SPELL_MONK_DISABLE_ROOT                             = 116706,
-    SPELL_MONK_DISABLE                                  = 116095,
-    SPELL_MONK_SOOTHING_MIST_VISUAL                     = 125955,
-    SPELL_MONK_SOOTHING_MIST_ENERGIZE                   = 116335,
-    SPELL_MONK_BREATH_OF_FIRE_DOT                       = 123725,
-    SPELL_MONK_BREATH_OF_FIRE_CONFUSED                  = 123393,
-    SPELL_MONK_ELUSIVE_BREW_STACKS                      = 128939,
-    SPELL_MONK_ELUSIVE_BREW                             = 115308,
-    SPELL_MONK_KEG_SMASH_VISUAL                         = 123662,
-    SPELL_MONK_KEG_SMASH_ENERGIZE                       = 127796,
-    SPELL_MONK_WEAKENED_BLOWS                           = 115798,
-    SPELL_MONK_DIZZYING_HAZE                            = 116330,
-    SPELL_MONK_LIGHT_STAGGER                            = 124275,
-    SPELL_MONK_MODERATE_STAGGER                         = 124274,
-    SPELL_MONK_HEAVY_STAGGER                            = 124273,
-    SPELL_MONK_ROLL                                     = 109132,
-    SPELL_MONK_ROLL_BACKWARD                            = 109131,
-    SPELL_MONK_ROLL_TRIGGER                             = 107427,
-    SPELL_MONK_ENHANCED_ROLL                            = 157361,
-    SPELL_MONK_CHI_TORPEDO_HEAL                         = 124040,
-    SPELL_MONK_CHI_TORPEDO_DAMAGE                       = 117993,
-    SPELL_MONK_FLYING_SERPENT_KICK                      = 101545,
-    SPELL_MONK_FLYING_SERPENT_KICK_NEW                  = 115057,
-    SPELL_MONK_FLYING_SERPENT_KICK_AOE                  = 123586,
-    SPELL_MONK_TIGEREYE_BREW                            = 116740,
-    SPELL_MONK_TIGEREYE_BREW_STACKS                     = 125195,
-    SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE                = 116709,
-    SPELL_MONK_ZEN_PULSE_DAMAGE                         = 124081,
-    SPELL_MONK_ZEN_PULSE_HEAL                           = 198487,
-    SPELL_MONK_HEALING_ELIXIRS_AURA                     = 122280,
-    SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH           = 122281,
-    SPELL_MONK_RENEWING_MIST_HOT                        = 119611,
-    SPELL_MONK_RENEWING_MIST_JUMP_AURA                  = 119607,
-    SPELL_MONK_GLYPH_OF_RENEWING_MIST                   = 123334,
-    SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
-    SPELL_MONK_ENVELOPING_MIST_HEAL                     = 132120,
-    SPELL_MONK_PLUS_ONE_MANA_TEA                        = 123760,
-    SPELL_MONK_MANA_TEA_STACKS                          = 115867,
-    SPELL_MONK_MANA_TEA_REGEN                           = 115294,
-    MONK_NPC_JADE_SERPENT_STATUE                        = 60849,
-    SPELL_MONK_UPLIFT_ALLOWING_CAST                     = 123757,
-    SPELL_MONK_THUNDER_FOCUS_TEA                        = 116680,
-    SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER              = 122035,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE            = 118852,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT               = 123407,
-    SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE           = 124280,
-    SPELL_MONK_JADE_LIGHTNING_ENERGIZE                  = 123333,
-    SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP                = 117962,
-    SPELL_MONK_POWER_STRIKES_TALENT                     = 121817,
-    SPELL_MONK_CREATE_CHI_SPHERE                        = 121286,
-    SPELL_MONK_GLYPH_OF_ZEN_FLIGHT                      = 125893,
-    SPELL_MONK_ZEN_FLIGHT                               = 125883,
     ITEM_MONK_T14_TANK_4P                               = 123159,
     MONK_NPC_BLACK_OX_STATUE                            = 61146,
-    SPELL_MONK_GUARD                                    = 115295,
-    SPELL_MONK_ITEM_2_S12_MISTWEAVER                    = 131561,
-    SPELL_MONK_ITEM_4_S12_MISTWEAVER                    = 124487,
-    SPELL_MONK_ZEN_FOCUS                                = 124488,
-    SPELL_MONK_EMINENCE_HEAL                            = 126890,
-    SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE               = 123231,
-    SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE              = 123232,
-    SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE              = 123234,
-    SPELL_MONK_GLYPH_OF_BLACKOUT_KICK                   = 132005,
-    SPELL_MONK_CHI_WAVE_HEAL                            = 132463,
+    MONK_NPC_JADE_SERPENT_STATUE                        = 60849,
+    SPELL_MONK_BLACKOUT_KICK_DOT                        = 128531,
+    SPELL_MONK_BLACKOUT_KICK_HEAL                       = 128591,
+    SPELL_MONK_BLACK_OX_BREW                            = 115399,
+    SPELL_MONK_BREATH_OF_FIRE_CONFUSED                  = 123393,
+    SPELL_MONK_BREATH_OF_FIRE_DOT                       = 123725,
+    SPELL_MONK_CHI_BURST_DAMAGE                         = 148135,
+    SPELL_MONK_CHI_BURST_HEAL                           = 130654,
+    SPELL_MONK_CHI_TORPEDO_DAMAGE                       = 117993,
+    SPELL_MONK_CHI_TORPEDO_HEAL                         = 124040,
     SPELL_MONK_CHI_WAVE_DAMAGE                          = 132467,
+    SPELL_MONK_CHI_WAVE_HEAL                            = 132463,
     SPELL_MONK_CHI_WAVE_HEALING_BOLT                    = 132464,
     SPELL_MONK_CHI_WAVE_TALENT_AURA                     = 115098,
-    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                    = 124489,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL         = 117952,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
-    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
+    SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP                = 117962,
+    SPELL_MONK_CREATE_CHI_SPHERE                        = 121286,
+    SPELL_MONK_DISABLE                                  = 116095,
+    SPELL_MONK_DISABLE_ROOT                             = 116706,
+    SPELL_MONK_DIZZYING_HAZE                            = 116330,
+    SPELL_MONK_ELUSIVE_BREW                             = 115308,
+    SPELL_MONK_ELUSIVE_BREW_STACKS                      = 128939,
+    SPELL_MONK_EMINENCE_HEAL                            = 126890,
+    SPELL_MONK_ENHANCED_ROLL                            = 157361,
+    SPELL_MONK_ENVELOPING_MIST                          = 124682,
+    SPELL_MONK_ENVELOPING_MIST_HEAL                     = 132120,
+    SPELL_MONK_ESSENCE_FONT_HEAL                        = 191840,
+    SPELL_MONK_FISTS_OF_FURY                            = 113656,
+    SPELL_MONK_FISTS_OF_FURY_DAMAGE                     = 117418,
+    SPELL_MONK_FLYING_SERPENT_KICK                      = 101545,
+    SPELL_MONK_FLYING_SERPENT_KICK_AOE                  = 123586,
+    SPELL_MONK_FLYING_SERPENT_KICK_NEW                  = 115057,
+    SPELL_MONK_FORTIFYING_BREW                          = 120954,
+    SPELL_MONK_GIFT_OF_THE_OX_AURA                      = 124502,
+    SPELL_MONK_GLYPH_OF_BLACKOUT_KICK                   = 132005,
+    SPELL_MONK_GLYPH_OF_RENEWING_MIST                   = 123334,
+    SPELL_MONK_GLYPH_OF_ZEN_FLIGHT                      = 125893,
+    SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE               = 123231,
+    SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE              = 123234,
+    SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE              = 123232,
+    SPELL_MONK_GUARD                                    = 115295,
+    SPELL_MONK_HEALING_ELIXIRS_AURA                     = 122280,
+    SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH           = 122281,
+    SPELL_MONK_HEAVY_STAGGER                            = 124273,
+    SPELL_MONK_ITEM_2_S12_MISTWEAVER                    = 131561,
+    SPELL_MONK_ITEM_4_S12_MISTWEAVER                    = 124487,
+    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                    = 124489,
+    SPELL_MONK_JADE_LIGHTNING_ENERGIZE                  = 123333,
+    SPELL_MONK_KEG_SMASH_AURA                           = 121253,
+    SPELL_MONK_KEG_SMASH_ENERGIZE                       = 127796,
+    SPELL_MONK_KEG_SMASH_VISUAL                         = 123662,
+    SPELL_MONK_LEGACY_OF_THE_EMPEROR                    = 117667,
+    SPELL_MONK_LIFECYCLES_ENVELOPING_MIST               = 197919,
+    SPELL_MONK_LIFECYCLES_VIVIFY                        = 197916,
+    SPELL_MONK_LIGHT_STAGGER                            = 124275,
+    SPELL_MONK_MANA_TEA_REGEN                           = 115294,
+    SPELL_MONK_MANA_TEA_STACKS                          = 115867,
+    SPELL_MONK_MODERATE_STAGGER                         = 124274,
+    SPELL_MONK_MORTAL_WOUNDS                            = 115804,
+    SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER              = 122035,
+    SPELL_MONK_PLUS_ONE_MANA_TEA                        = 123760,
+    SPELL_MONK_POWER_STRIKES_TALENT                     = 121817,
+    SPELL_MONK_PROVOKE                                  = 118635,
+    SPELL_MONK_PROVOKE_AOE                              = 118635,
+    SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
+    SPELL_MONK_PURIFYING_BREW                           = 119582,
+    SPELL_MONK_RENEWING_MIST_HOT                        = 119611,
+    SPELL_MONK_RENEWING_MIST_JUMP_AURA                  = 119607,
+    SPELL_MONK_RENEWING_MIST_PERIODIC                   = 119611,
     SPELL_MONK_RING_OF_PEACE_DISARM                     = 137461,
     SPELL_MONK_RING_OF_PEACE_SILENCE                    = 137460,
-    SPELL_MONK_STAGGER                                  = 124255,
-    SPELL_MONK_RENEWING_MIST_PERIODIC                   = 119611,
-    SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
-    SPELL_MONK_PROVOKE_AOE                              = 118635,
+    SPELL_MONK_RISING_SUN_KICK                          = 107428,
+    SPELL_MONK_RISING_THUNDER                           = 210804,
+    SPELL_MONK_ROLL                                     = 109132,
+    SPELL_MONK_ROLL_ANIMATION                           = 111396,
+    SPELL_MONK_ROLL_BACKWARD                            = 109131,
+    SPELL_MONK_ROLL_TRIGGER                             = 107427,
+    SPELL_MONK_SHUFFLE                                  = 115307,
+    SPELL_MONK_SONG_OF_CHIJI                            = 198909,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_SOOTHING_MIST_AURA                       = 193884,
-    SPELL_MONK_RISING_THUNDER                           = 210804,
+    SPELL_MONK_SOOTHING_MIST_ENERGIZE                   = 116335,
+    SPELL_MONK_SOOTHING_MIST_VISUAL                     = 125955,
+    SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE                = 116709,
+    SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE            = 118852,
+    SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT               = 123407,
+    SPELL_MONK_SPIRIT_OF_THE_CRANE_AURA                 = 210802,
+    SPELL_MONK_SPIRIT_OF_THE_CRANE_MANA                 = 210803,
+    SPELL_MONK_STAGGER                                  = 124255,
+    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
+    SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
     SPELL_MONK_TEACHINGS_OF_THE_MONASTERY               = 116645,
     SPELL_MONK_TEACHINGS_OF_THE_MONASTERY_AURA          = 202090,
-    SPELL_MONK_SPIRIT_OF_THE_CRANE_MANA                 = 210803,
-    SPELL_MONK_SPIRIT_OF_THE_CRANE_AURA                 = 210802,
-    SPELL_MONK_RISING_SUN_KICK                          = 107428,
-    SPELL_MONK_ROLL_ANIMATION                           = 111396,
-    SPELL_MONK_MORTAL_WOUNDS                            = 115804,
-    SPELL_MONK_ESSENCE_FONT_HEAL                        = 191840,
-    SPELL_MONK_FISTS_OF_FURY_DAMAGE                     = 117418,
+    SPELL_MONK_THUNDER_FOCUS_TEA                        = 116680,
+    SPELL_MONK_TIGEREYE_BREW                            = 116740,
+    SPELL_MONK_TIGEREYE_BREW_STACKS                     = 125195,
+    SPELL_MONK_TOUCH_OF_DEATH                           = 115080,
+    SPELL_MONK_TOUCH_OF_DEATH_DAMAGE                    = 229980,
+    SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE           = 124280,
+    SPELL_MONK_UPLIFT_ALLOWING_CAST                     = 123757,
+    SPELL_MONK_VIVIFY                                   = 116670,
+    SPELL_MONK_WEAKENED_BLOWS                           = 115798,
+    SPELL_MONK_WHIRLING_DRAGON_PUNCH                    = 152175,
+    SPELL_MONK_WHIRLING_DRAGON_PUNCH_CASTER_AURA        = 196742,
+    SPELL_MONK_WHIRLING_DRAGON_PUNCH_DAMAGE             = 158221,
     SPELL_MONK_WINDWALKER_AURA                          = 166646,
     SPELL_MONK_WINDWALKING                              = 157411,
-    SPELL_MONK_GIFT_OF_THE_OX_AURA                      = 124502,
-    SPELL_MONK_KEG_SMASH_AURA                           = 121253,
-    SPELL_MONK_CHI_BURST_HEAL                           = 130654,
-    SPELL_MONK_CHI_BURST_DAMAGE                         = 148135,
-    SPELL_MONK_LIFECYCLES_VIVIFY                        = 197916,
-    SPELL_MONK_LIFECYCLES_ENVELOPING_MIST               = 197919,
-    SPELL_MONK_VIVIFY                                   = 116670,
-    SPELL_MONK_ENVELOPING_MIST                          = 124682,
-    SPELL_MONK_SONG_OF_CHIJI                            = 198909,
-    SPELL_MONK_TOUCH_OF_DEATH                           = 115080,
-    SPELL_MONK_BLACK_OX_BREW                            = 115399,
-    SPELL_MONK_PURIFYING_BREW                           = 119582
+    SPELL_MONK_ZEN_FLIGHT                               = 125883,
+    SPELL_MONK_ZEN_FOCUS                                = 124488,
+    SPELL_MONK_ZEN_PILGRIMAGE                           = 126892,
+    SPELL_MONK_ZEN_PILGRIMAGE_RETURN                    = 126895,
+    SPELL_MONK_ZEN_PULSE_DAMAGE                         = 124081,
+    SPELL_MONK_ZEN_PULSE_HEAL                           = 198487,
 };
 
 enum SEFSpells
@@ -617,30 +622,19 @@ public:
 // En attente
 
 // Path of Blossom - 124336
-class spell_monk_path_of_blossom : public SpellScriptLoader
+class spell_monk_path_of_blossom : public AuraScript
 {
-public:
-    spell_monk_path_of_blossom() : SpellScriptLoader("spell_monk_path_of_blossom") { }
+    PrepareAuraScript(spell_monk_path_of_blossom);
 
-    class spell_monk_path_of_blossom_AuraScript : public AuraScript
+    void OnTick(AuraEffect const* /* aurEff */)
     {
-        PrepareAuraScript(spell_monk_path_of_blossom_AuraScript);
+        if (GetCaster())
+            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER, true);
+    }
 
-        void OnTick(AuraEffect const* /* aurEff */)
-        {
-            if (GetCaster())
-                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER, true);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_path_of_blossom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_monk_path_of_blossom_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_path_of_blossom::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1275,42 +1269,27 @@ public:
 // En attente
 
 // Touch of Death - 115080
-class spell_monk_touch_of_death : public SpellScriptLoader
+class spell_monk_touch_of_death : public AuraScript
 {
-public:
-    spell_monk_touch_of_death() : SpellScriptLoader("spell_monk_touch_of_death") { }
+    PrepareAuraScript(spell_monk_touch_of_death);
 
-    class spell_monk_touch_of_death_AuraScript : public AuraScript
+    void OnTick(AuraEffect const* aurEff)
     {
-        PrepareAuraScript(spell_monk_touch_of_death_AuraScript);
-
-        void DoDamageCalc(const AuraEffect* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        if (Unit* caster = GetCaster())
         {
+            uint32 damagePct = GetEffectInfo(EFFECT_1)->BasePoints;
 
-            if (Unit* caster = GetCaster())
-            {
-                uint32 baseDamage = caster->GetMaxHealth();
+            // Damage reduced to Players, need to check reduction value
+            if (GetTarget()->IsPlayer())
+                damagePct /= 2;
 
-                baseDamage *= 0.5;
-                if(Unit* target = GetUnitOwner())
-                    if (target->ToPlayer())
-                    {
-                        baseDamage *= 0.5; //-50% damage against players
-                    }
-
-                amount = baseDamage;
-            }
+            caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_DEATH_DAMAGE, SPELLVALUE_BASE_POINT0, CalculatePct(caster->GetMaxHealth(), damagePct), GetTarget());
         }
+    }
 
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_touch_of_death_AuraScript::DoDamageCalc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_monk_touch_of_death_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_touch_of_death::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -3096,169 +3075,147 @@ public:
 
 // Windwalking - 157411
 // AreaTriggerID - 2763
-class at_monk_windwalking : public AreaTriggerEntityScript
+struct at_monk_windwalking : AreaTriggerAI
 {
-public:
-    at_monk_windwalking() : AreaTriggerEntityScript("at_monk_windwalking") {}
+    at_monk_windwalking(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_monk_windwalkingAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_monk_windwalkingAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
 
-        void OnUnitEnter(Unit* unit) override
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA))
+            aur->SetDuration(-1);
+        else if (caster->IsFriendlyTo(unit))
+            caster->CastSpell(unit, SPELL_MONK_WINDWALKER_AURA, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
+            return;
+
+        if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
         {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA))
-                aur->SetDuration(-1);
-            else if (caster->IsFriendlyTo(unit))
-                caster->CastSpell(unit, SPELL_MONK_WINDWALKER_AURA, true);
+            aur->SetMaxDuration(10 * IN_MILLISECONDS);
+            aur->SetDuration(10 * IN_MILLISECONDS);
         }
+    }
 
-        void OnUnitExit(Unit* unit) override
+    void OnRemove() override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        for (auto guid : at->GetInsideUnits())
         {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
-                return;
-
-            if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
+            if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
             {
-                aur->SetMaxDuration(10 * IN_MILLISECONDS);
-                aur->SetDuration(10 * IN_MILLISECONDS);
-            }
-        }
+                if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
+                    continue;
 
-        void OnRemove() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            for (auto guid : at->GetInsideUnits())
-            {
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
                 {
-                    if (unit->HasAura(SPELL_MONK_WINDWALKING) && unit != caster) // Don't remove from other WW monks.
-                        continue;
-
-                    if (Aura* aur = unit->GetAura(SPELL_MONK_WINDWALKER_AURA, caster->GetGUID()))
-                    {
-                        aur->SetMaxDuration(10 * IN_MILLISECONDS);
-                        aur->SetDuration(10 * IN_MILLISECONDS);
-                    }
+                    aur->SetMaxDuration(10 * IN_MILLISECONDS);
+                    aur->SetDuration(10 * IN_MILLISECONDS);
                 }
             }
         }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_monk_windwalkingAI(areatrigger);
     }
 };
 
 //AT ID : 373
-class at_monk_gift_of_the_ox_sphere : public AreaTriggerEntityScript
+struct at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 {
-public:
-    at_monk_gift_of_the_ox_sphere() : AreaTriggerEntityScript("at_monk_gift_of_the_ox_sphere") { }
+    int32 pickupDelay;
 
-    struct at_monk_gift_of_the_ox_sphereAI : AreaTriggerAI
+    at_monk_gift_of_the_ox_sphere(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
-        int32 pickupDelay;
+        pickupDelay = 1000;
+    }
 
-        at_monk_gift_of_the_ox_sphereAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            pickupDelay = 1000;
-        }
-
-        enum SpellsUsed
-        {
-            SPELL_MONK_GIFT_OF_THE_OX_HEAL      = 178173,
-            SPELL_MONK_HEALING_SPHERE_COOLDOWN  = 224863
-        };
-
-        void OnUpdate(uint32 diff)  override
-        {
-            if(pickupDelay >= 0)
-                pickupDelay -= diff;
-
-            if(pickupDelay < 0)
-                pickupDelay = 0;
-        }
-
-        void OnCreate() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            for (ObjectGuid guid : at->GetInsideUnits())
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if(unit == caster && !pickupDelay)
-                    {
-                        caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
-                        at->Remove();
-                    }
-        }
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (unit == caster && pickupDelay == 0)
-            {
-                caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
-                at->Remove();
-            }
-        }
-
-        void OnRemove() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            //Todo : Remove cooldown
-            if(caster->HasAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN))
-                caster->RemoveAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN);
-        }
+    enum SpellsUsed
+    {
+        SPELL_MONK_GIFT_OF_THE_OX_HEAL      = 178173,
+        SPELL_MONK_HEALING_SPHERE_COOLDOWN  = 224863
     };
 
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUpdate(uint32 diff)  override
     {
-        return new at_monk_gift_of_the_ox_sphereAI(areatrigger);
+        if(pickupDelay >= 0)
+            pickupDelay -= diff;
+
+        if(pickupDelay < 0)
+            pickupDelay = 0;
+    }
+
+    void OnCreate() override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        for (ObjectGuid guid : at->GetInsideUnits())
+            if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                if(unit == caster && !pickupDelay)
+                {
+                    caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
+                    at->Remove();
+                }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if (unit == caster && pickupDelay == 0)
+        {
+            caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
+            at->Remove();
+        }
+    }
+
+    void OnRemove() override
+    {
+        Unit* caster = at->GetCaster();
+
+        if (!caster)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        //Todo : Remove cooldown
+        if(caster->HasAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN))
+            caster->RemoveAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN);
     }
 };
 
@@ -3381,109 +3338,30 @@ public:
 };
 
 // Chi Burst damage - 123986
-// AreaTriggerID - 1316
-class at_monk_chi_burst_damage : public AreaTriggerEntityScript
+// AreaTriggerID - 5302
+struct at_monk_chi_burst_damage : AreaTriggerAI
 {
-public:
-    at_monk_chi_burst_damage() : AreaTriggerEntityScript("at_monk_chi_burst_damage")
+    at_monk_chi_burst_damage(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
     {
-    }
-
-    struct at_monk_chi_burst_damageAI : AreaTriggerAI
-    {
-        at_monk_chi_burst_damageAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
-        {
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            startPos = caster->GetPosition();
-            at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
-        }*/
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
+        if (Unit* caster = at->GetCaster())
             if (caster->IsValidAttackTarget(unit))
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE);
-                if (!spellInfo)
-                    return;
-                SpellEffectInfo const* effectInfo = spellInfo->GetEffect(EFFECT_0);
-                if (!effectInfo)
-                    return;
-
-                int32 damage = (float)caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.75f;
-                damage = caster->SpellDamageBonusDone(unit, spellInfo, damage, SPELL_DIRECT_DAMAGE, effectInfo);
-                damage = unit->SpellDamageBonusTaken(caster, spellInfo, damage, SPELL_DIRECT_DAMAGE, effectInfo);
-
-                caster->CastCustomSpell(SPELL_MONK_CHI_BURST_DAMAGE, SPELLVALUE_BASE_POINT0, damage, unit, TRIGGERED_FULL_MASK);
-            }
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_monk_chi_burst_damageAI(areatrigger);
+                caster->CastSpell(unit, SPELL_MONK_CHI_BURST_DAMAGE, true);
     }
 };
 
 // Chi Burst heal - 123986
-// AreaTriggerID - 1315
-class at_monk_chi_burst_heal : public AreaTriggerEntityScript
+// AreaTriggerID - 5300
+struct at_monk_chi_burst_heal : AreaTriggerAI
 {
-public:
-    at_monk_chi_burst_heal() : AreaTriggerEntityScript("at_monk_chi_burst_heal")
+    at_monk_chi_burst_heal(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
     {
-    }
-
-    struct at_monk_chi_burst_healAI : AreaTriggerAI
-    {
-        at_monk_chi_burst_healAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
-        {
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            startPos = caster->GetPosition();
-            at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
-        }*/
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (caster->IsFriendlyTo(unit))
-            {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAssistTarget(unit))
                 caster->CastSpell(unit, SPELL_MONK_CHI_BURST_HEAL, true);
-            }
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_monk_chi_burst_healAI(areatrigger);
     }
 };
 
@@ -3567,45 +3445,34 @@ public:
 };
 
 //5484
-class at_monk_song_of_chiji : public AreaTriggerEntityScript
+struct at_monk_song_of_chiji : AreaTriggerAI
 {
-public:
-    at_monk_song_of_chiji() : AreaTriggerEntityScript("at_monk_song_of_chiji") { }
+    at_monk_song_of_chiji(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_monk_song_of_chijiAI : AreaTriggerAI
+    /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
     {
-        at_monk_song_of_chijiAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        if (!caster)
+            return;
 
-        /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
-        {
-            if (!caster)
-                return;
+        if (!caster->ToPlayer())
+            return;
 
-            if (!caster->ToPlayer())
-                return;
+        startPos = caster->GetPosition();
+        at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
+    }*/
 
-            startPos = caster->GetPosition();
-            at->SetLinearMove(caster, startPos, endPos, path, 40.0f);
-        }*/
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if(unit != caster && caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_MONK_SONG_OF_CHIJI, true);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitEnter(Unit* unit) override
     {
-        return new at_monk_song_of_chijiAI(areatrigger);
+        Unit* caster = at->GetCaster();
+
+        if (!caster || !unit)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        if(unit != caster && caster->IsValidAttackTarget(unit))
+            caster->CastSpell(unit, SPELL_MONK_SONG_OF_CHIJI, true);
     }
 };
 
@@ -3823,24 +3690,70 @@ public:
     }
 };
 
+// Whirling Dragon Punch - 152175
+class playerScript_monk_whirling_dragon_punch : public PlayerScript
+{
+public:
+    playerScript_monk_whirling_dragon_punch() : PlayerScript("playerScript_monk_whirling_dragon_punch") {}
+
+    void OnCooldownStart(Player* player, SpellInfo const* spellInfo, uint32 /*itemId*/, int32& cooldown, uint32& /*categoryId*/, int32& /*categoryCooldown*/) override
+    {
+        if (spellInfo->Id == SPELL_MONK_FISTS_OF_FURY)
+        {
+            SpellInfo const* risingSunKickInfo  = sSpellMgr->GetSpellInfo(SPELL_MONK_RISING_SUN_KICK);
+            ApplyCasterAura(player, cooldown, player->GetSpellHistory()->GetChargeRecoveryTime(risingSunKickInfo->ChargeCategoryId));
+        }
+    }
+
+    void OnChargeRecoveryTimeStart(Player* player, uint32 chargeCategoryId, int32& chargeRecoveryTime) override
+    {
+        SpellInfo const* risingSunKickInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RISING_SUN_KICK);
+        if (risingSunKickInfo->ChargeCategoryId == chargeCategoryId)
+        {
+            SpellInfo const* fistsOfFuryInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RISING_SUN_KICK);
+            ApplyCasterAura(player, chargeRecoveryTime, player->GetSpellHistory()->GetRemainingCooldown(fistsOfFuryInfo));
+        }
+    }
+
+private:
+    void ApplyCasterAura(Player* player, int32 cooldown1, int32 cooldown2)
+    {
+        if (cooldown1 > 0 && cooldown2 > 0)
+        {
+            uint32 whirlingDragonPunchAuraDuration = std::min(cooldown1, cooldown2);
+            player->CastSpell(player, SPELL_MONK_WHIRLING_DRAGON_PUNCH_CASTER_AURA, true);
+
+            if (Aura* aura = player->GetAura(SPELL_MONK_WHIRLING_DRAGON_PUNCH_CASTER_AURA))
+                aura->SetDuration(whirlingDragonPunchAuraDuration);
+        }
+    }
+};
+
+// Whirling Dragon Punch - 152175
+class spell_monk_whirling_dragon_punch : public AuraScript
+{
+    PrepareAuraScript(spell_monk_whirling_dragon_punch);
+
+    void OnTick(AuraEffect const* /*aurEff*/)
+    {
+        if (GetCaster())
+            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_WHIRLING_DRAGON_PUNCH_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_whirling_dragon_punch::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
-    new at_monk_gift_of_the_ox_sphere();
-    new at_monk_windwalking();
-    new at_monk_chi_burst_damage();
-    new at_monk_chi_burst_heal();
-    new at_monk_song_of_chiji();
+    RegisterAreaTriggerAI(at_monk_gift_of_the_ox_sphere);
+    RegisterAreaTriggerAI(at_monk_windwalking);
+    RegisterAreaTriggerAI(at_monk_chi_burst_damage);
+    RegisterAreaTriggerAI(at_monk_chi_burst_heal);
+    RegisterAreaTriggerAI(at_monk_song_of_chiji);
 
-    //new spell_monk_black_ox_statue();
-    //new spell_monk_chi_wave_bolt();
-    //new spell_monk_diffuse_magic();
-    //new spell_monk_elusive_brew();
-    //new spell_monk_glyph_of_zen_flight();
-    //new spell_monk_grapple_weapon();
-    //new spell_monk_healing_elixirs();
-    //new spell_monk_renewing_mist();
-    //new spell_monk_tigereye_brew();
-    //new spell_monk_tigers_lust();
     new spell_monk_black_ox_brew();
     new spell_monk_blackout_kick();
     new spell_monk_breath_of_fire();
@@ -3879,7 +3792,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_life_cocoon();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();
-    new spell_monk_path_of_blossom();
+    RegisterAuraScript(spell_monk_path_of_blossom);
     new spell_monk_power_strikes();
     new spell_monk_provoke();
     new spell_monk_purifying_brew();
@@ -3902,7 +3815,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_teachings_of_the_monastery();
     new spell_monk_tiger_lust();
     new spell_monk_tigereye_brew_stacks();
-    new spell_monk_touch_of_death();
+    RegisterAuraScript(spell_monk_touch_of_death);
     new spell_monk_touch_of_karma();
     RegisterSpellAndAuraScriptPair(spell_monk_transcendence, aura_monk_transcendence);
     RegisterSpellScript(spell_monk_transcendence_clone_visual);
@@ -3910,6 +3823,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_flight_check();
     new spell_monk_zen_pilgrimage();
     new spell_monk_zen_pulse();
+    new playerScript_monk_whirling_dragon_punch();
+    RegisterAuraScript(spell_monk_whirling_dragon_punch);
 
     new npc_sef_earth_spirit();
     new npc_sef_fire_spirit();

@@ -23,6 +23,7 @@
 #include "Pet.h"
 #include "PetPackets.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -398,6 +399,10 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
     GetCooldownDurations(spellInfo, itemId, &cooldown, &categoryId, &categoryCooldown);
 
+    Player* playerOwner = GetPlayerOwner();
+    if (playerOwner)
+        sScriptMgr->OnCooldownStart(playerOwner, spellInfo, itemId, cooldown, categoryId, categoryCooldown);
+
     Clock::time_point curTime = Clock::now();
     Clock::time_point catrecTime;
     Clock::time_point recTime;
@@ -442,7 +447,6 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
         {
             // Apply SPELL_AURA_MOD_COOLDOWN only to own spells
-            Player* playerOwner = GetPlayerOwner();
             if (!playerOwner || playerOwner->HasSpell(spellInfo->Id))
             {
                 needsCooldownPacket = true;
@@ -490,7 +494,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
         if (needsCooldownPacket)
         {
-            if (Player* playerOwner = GetPlayerOwner())
+            if (playerOwner)
             {
                 WorldPackets::Spells::SpellCooldown spellCooldown;
                 spellCooldown.Caster = _owner->GetGUID();
@@ -734,6 +738,9 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
             recoveryStart = Clock::now();
         else
             recoveryStart = charges.back().RechargeEnd;
+
+        if (Player* player = GetPlayerOwner())
+            sScriptMgr->OnChargeRecoveryTimeStart(player, chargeCategoryId, chargeRecovery);
 
         charges.emplace_back(recoveryStart, std::chrono::milliseconds(chargeRecovery));
         return true;

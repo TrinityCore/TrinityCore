@@ -233,7 +233,7 @@ class TC_GAME_API Channel
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
         static void CleanOldChannelsInDB();
 
-        void SendToAllInChannel(std::string senderName, std::string message);
+        void SendToAllInChannel(std::string senderName, std::string message, bool showGMLogo);
 
     private:
 

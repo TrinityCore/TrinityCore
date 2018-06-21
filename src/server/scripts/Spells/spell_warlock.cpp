@@ -160,7 +160,8 @@ enum WarlockSpells
     SPELL_WARLOCK_PYROCLASM                         = 123686,
     SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE               = 42223,
     SPELL_WARLOCK_ROARING_BLAZE                     = 205184,
-    SPELL_WARLOCK_SEED_OF_CORRUPTION_DUMMY          = 86664,
+    SPELL_WARLOCK_SEED_OF_CURRUPTION                = 27243,
+    SPELL_WARLOCK_SEED_OF_CURRUPTION_DAMAGE         = 27285,
     SPELL_WARLOCK_SHADOW_BOLT                       = 686,
     SPELL_WARLOCK_SHADOW_BOLT_SHOULSHARD            = 194192,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
@@ -813,35 +814,90 @@ class spell_warl_seed_of_corruption : public SpellScript
 {
     PrepareSpellScript(spell_warl_seed_of_corruption);
 
-    void HandleOnHitMainTarget(SpellEffIndex /*effIndex*/)
+    void HandleBeforeCast()
     {
-        _maxTargets = 1;
+        _maxAdditionalTargets = 0;
 
         if (Aura* aura = GetCaster()->GetAura(SPELL_WARLOCK_SOW_THE_SEEDS))
-            _maxTargets += aura->GetSpellEffectInfo(EFFECT_0)->BasePoints;
-
-        _maxTargets *= 2;
+            _maxAdditionalTargets += aura->GetSpellEffectInfo(EFFECT_0)->BasePoints;
     }
 
-    void HandleOnHitTarget(SpellEffIndex effIndex)
+    void CorrectTargets(std::list<WorldObject*>& targets)
     {
-        if (Unit* target = GetHitUnit())
-            if (!GetCaster()->HasAura(SPELL_WARLOCK_SOW_THE_SEEDS) || !_maxTargets)
-                if (target != GetExplTargetUnit())
-                    PreventHitDefaultEffect(effIndex);
+        std::list<WorldObject*> correctedTargets;
+        for (WorldObject* obj : targets)
+        {
+            if (obj == GetExplTargetUnit())
+            {
+                correctedTargets.push_back(obj);
+                continue;
+            }
 
-        if (_maxTargets)
-            --_maxTargets;
+            if (_maxAdditionalTargets)
+            {
+                correctedTargets.push_back(obj);
+                --_maxAdditionalTargets;
+            }
+        }
+
+        targets = correctedTargets;
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleOnHitMainTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleOnHitTarget, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption::HandleOnHitTarget, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+        BeforeCast += SpellCastFn(spell_warl_seed_of_corruption::HandleBeforeCast);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption::CorrectTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption::CorrectTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
     }
+
 private:
-    uint8 _maxTargets;
+    uint8 _maxAdditionalTargets;
+};
+
+// 27243 - Seed of Corruption
+class aura_warl_seed_of_corruption : public AuraScript
+{
+    PrepareAuraScript(aura_warl_seed_of_corruption);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CURRUPTION_DAMAGE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        aurEff->GetBase()->Remove(AURA_REMOVE_BY_EXPIRE);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget()->GetPosition(), SPELL_WARLOCK_SEED_OF_CURRUPTION_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_warl_seed_of_corruption::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 27285 - Seed of Corruption damages
+class spell_warl_seed_of_corruption_damage : public SpellScript
+{
+    PrepareSpellScript(spell_warl_seed_of_corruption_damage);
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            if (Aura* seedOfCorruption = target->GetAura(SPELL_WARLOCK_SEED_OF_CURRUPTION))
+            {
+                seedOfCorruption->Remove();
+                GetCaster()->CastSpell(target->GetPosition(), SPELL_WARLOCK_SEED_OF_CURRUPTION_DAMAGE, true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption_damage::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // -7235 - Shadow Ward
@@ -3596,7 +3652,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_life_tap();
     new spell_warl_metamorphosis_cost();
     new spell_warl_molten_core_dot();
-    RegisterSpellScript(spell_warl_seed_of_corruption);
+    RegisterSpellAndAuraScriptPair(spell_warl_seed_of_corruption, aura_warl_seed_of_corruption);
+    RegisterSpellScript(spell_warl_seed_of_corruption_damage);
     RegisterSpellScript(spell_warl_shadow_bolt);
     new spell_warl_shadow_bulwark();
     RegisterAuraScript(spell_warl_shadow_ward);

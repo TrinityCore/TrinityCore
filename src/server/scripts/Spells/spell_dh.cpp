@@ -2827,24 +2827,17 @@ class aura_dh_chaos_cleave : public AuraScript
 };
 
 // Sigil of Misery - 207684
-// AreaTriggerID - 6351
+// AreaTriggerID - 11023
 struct at_dh_sigil_of_misery : AreaTriggerAI
 {
     at_dh_sigil_of_misery(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnRemove() override
     {
-        Unit* caster = at->GetCaster();
-        if (!caster || !caster->IsPlayer())
-            return;
-
-        if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+        if (Unit* caster = at->GetCaster())
         {
-            tempSumm->setFaction(caster->getFaction());
-            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            PhasingHandler::InheritPhaseShift(tempSumm, caster);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_TRIGGER, true);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_EXPLOSION, true);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_MISERY_TRIGGER, true);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_MISERY_EXPLOSION, true);
         }
     }
 };
@@ -2866,7 +2859,7 @@ struct at_dh_sigil_of_flame : AreaTriggerAI
 };
 
 // Sigil of Chains - 202138
-// AreaTriggerID - 6031
+// AreaTriggerID - 10718
 struct at_dh_sigil_of_chains : AreaTriggerAI
 {
     at_dh_sigil_of_chains(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -2874,33 +2867,22 @@ struct at_dh_sigil_of_chains : AreaTriggerAI
     void OnRemove() override
     {
         Unit* caster = at->GetCaster();
-        if (!caster)
+        if (!caster || !caster->IsPlayer())
             return;
 
-        if (caster->GetTypeId() != TYPEID_PLAYER)
-            return;
+        caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION, true);
 
-        Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS);
-        if (!tempSumm)
-            return;
-
-        tempSumm->setFaction(caster->getFaction());
-        tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-        PhasingHandler::InheritPhaseShift(tempSumm, caster);
-        caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION, true);
-
-        GuidUnorderedSet const objects = at->GetInsideUnits();
+        GuidUnorderedSet const& objects = at->GetInsideUnits();
         for (ObjectGuid objguid : objects)
         {
-            Unit* obj = ObjectAccessor::GetUnit(*caster, objguid);
-            if (!obj)
-                continue;
-
-            if (!caster->IsValidAttackTarget(obj->ToUnit()))
-                continue;
-
-            caster->CastSpell(obj->ToUnit(), SPELL_DH_SIGIL_OF_CHAINS_SLOW, true);
-            obj->ToUnit()->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_TRIGGER, true);
+            if (Unit* unit = ObjectAccessor::GetUnit(*caster, objguid))
+            {
+                if (caster->IsValidAttackTarget(unit))
+                {
+                    caster->CastSpell(unit, SPELL_DH_SIGIL_OF_CHAINS_SLOW, true);
+                    unit->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_TRIGGER, true);
+                }
+            }
         }
     }
 };
@@ -2980,27 +2962,17 @@ struct at_dh_shattered_souls : AreaTriggerAI
 };
 
 // Sigil of Silence - 202137
-// AreaTriggerID -  6027
+// AreaTriggerID -  10714
 struct at_dh_sigil_of_silence : AreaTriggerAI
 {
     at_dh_sigil_of_silence(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnRemove() override
     {
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        if (caster->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+        if (Unit* caster = at->GetCaster())
         {
-            tempSumm->setFaction(caster->getFaction());
-            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            PhasingHandler::InheritPhaseShift(tempSumm, caster);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_TRIGGER, true);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_EXPLOSION, true);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_SILENCE_TRIGGER, true);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_SILENCE_EXPLOSION, true);
         }
     }
 };

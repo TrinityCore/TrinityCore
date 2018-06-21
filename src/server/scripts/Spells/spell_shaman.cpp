@@ -3556,7 +3556,7 @@ class spell_sha_earth_shock: public SpellScript
 
     void HandleTakePower(Powers& /*power*/, int32& powerCount)
     {
-        _takenPower = powerCount = std::max(powerCount, 100);
+        _takenPower = powerCount = std::min(powerCount, 100);
     }
 
     void HandleCalcDamage(SpellEffIndex /*effIndex*/)
