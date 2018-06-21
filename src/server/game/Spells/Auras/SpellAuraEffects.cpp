@@ -651,6 +651,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
     }
 
+    bool multiplyByStackAmount = true;
+
     // custom amount calculations go here
     switch (GetAuraType())
     {
@@ -689,12 +691,20 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 amount = caster->GetMap()->GetDifficultyID();
             m_canBeRecalculated = false;
             break;
+        // Those effects do not change with StackAmount
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED:
+            multiplyByStackAmount = false;
+            break;
         default:
             break;
     }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(this, amount, m_canBeRecalculated);
-    amount *= GetBase()->GetStackAmount();
+
+    if (multiplyByStackAmount)
+        amount *= GetBase()->GetStackAmount();
+
     return amount;
 }
 
