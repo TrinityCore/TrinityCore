@@ -90,6 +90,7 @@ enum MonkSpells
     SPELL_MONK_LIGHT_STAGGER                            = 124275,
     SPELL_MONK_MANA_TEA_REGEN                           = 115294,
     SPELL_MONK_MANA_TEA_STACKS                          = 115867,
+    SPELL_MONK_MEDITATE_VISUAL                          = 124416,
     SPELL_MONK_MODERATE_STAGGER                         = 124274,
     SPELL_MONK_MORTAL_WOUNDS                            = 115804,
     SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER              = 122035,
@@ -129,6 +130,8 @@ enum MonkSpells
     SPELL_MONK_THUNDER_FOCUS_TEA                        = 116680,
     SPELL_MONK_TIGEREYE_BREW                            = 116740,
     SPELL_MONK_TIGEREYE_BREW_STACKS                     = 125195,
+    SPELL_MONK_TRANSCENDENCE_CLONE_TARGET               = 119051,
+    SPELL_MONK_TRANSCENDENCE_VISUAL                     = 119053,
     SPELL_MONK_TOUCH_OF_DEATH                           = 115080,
     SPELL_MONK_TOUCH_OF_DEATH_DAMAGE                    = 229980,
     SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE           = 124280,
@@ -148,20 +151,21 @@ enum MonkSpells
     SPELL_MONK_ZEN_PULSE_HEAL                           = 198487,
 };
 
-enum SEFSpells
+enum StormEarthAndFireSpells
 {
-    SEF_MIRROR      = 60352,
-    SEF_CLONE       = 119051,
-    SEF_MEDIT       = 124416, //This must be removed
-    SEF_VISU        = 119053, //This must be removed
-    SEF_STORM_VISU  = 138080,
-    SEF_FIRE_VISU   = 138081,
-    SEF_EARTH_VISU  = 138083,
+    SPELL_MONK_SEF                  = 137639,
+    SPELL_MONK_SEF_STORM_VISUAL     = 138080,
+    SPELL_MONK_SEF_FIRE_VISUAL      = 138081,
+    SPELL_MONK_SEF_EARTH_VISUAL     = 138083,
+    SPELL_MONK_SEF_CHARGE           = 138104,
+    SPELL_MONK_SEF_SUMMON_EARTH     = 138121,
+    SPELL_MONK_SEF_SUMMON_FIRE      = 138123,
+    SPELL_MONK_SEF_SUMMONS_STATS    = 138130,
+    SPELL_MONK_SEF_CHARGE_TARGET    = 196860,
+    SPELL_MONK_SEF_FIXATE           = 221771,
 
-    SEF_SUMM_EARTH  = 138121,
-    SEF_SUMM_FIRE   = 138123,
-
-    SEF_STATS       = 138130  //Stats reducer for the pets
+    NPC_FIRE_SPIRIT                 = 69791,
+    NPC_EARTH_SPIRIT                = 69792,
 };
 
 #define MONK_TRANSCENDENCE_GUID "MONK_TRANSCENDENCE_GUID"
@@ -2032,7 +2036,8 @@ public:
     void HandleSummon(Creature* creature)
     {
         DespawnSpirit(GetCaster());
-        GetCaster()->CastSpell(creature, SEF_CLONE, true);
+        GetCaster()->CastSpell(creature, SPELL_MONK_TRANSCENDENCE_CLONE_TARGET, true);
+        creature->CastSpell(creature, SPELL_MONK_MEDITATE_VISUAL, true);
         GetCaster()->Variables.Set(MONK_TRANSCENDENCE_GUID, creature->GetGUID());
     }
 
@@ -2074,27 +2079,6 @@ class aura_monk_transcendence : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(aura_monk_transcendence::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 119051 - Transcendence clone visual
-class spell_monk_transcendence_clone_visual : public SpellScript
-{
-    PrepareSpellScript(spell_monk_transcendence_clone_visual);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        target->AddAura(SEF_VISU, target);
-        target->AddAura(SEF_MEDIT, target);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_clone_visual::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -3477,113 +3461,71 @@ struct at_monk_song_of_chiji : AreaTriggerAI
 };
 
 //137639
-class spell_monk_storm_earth_and_fire : public SpellScriptLoader
+class spell_monk_storm_earth_and_fire : public AuraScript
 {
-public:
-    spell_monk_storm_earth_and_fire() : SpellScriptLoader("spell_monk_storm_earth_and_fire") { }
+    PrepareAuraScript(spell_monk_storm_earth_and_fire);
 
-    class spell_monk_storm_earth_and_fire_AuraScript : public AuraScript
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_monk_storm_earth_and_fire_AuraScript);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_MONK_SEF_STORM_VISUAL, true);
+        target->CastSpell(target, SPELL_MONK_SEF_SUMMON_EARTH, true);
+        target->CastSpell(target, SPELL_MONK_SEF_SUMMON_FIRE,  true);
+    }
 
-        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->CastSpell(caster, SEF_STORM_VISU, true);
-            //caster->CastSpell(caster, SEF_SUMM_EARTH, true);
-            //caster->CastSpell(caster, SEF_SUMM_FIRE,  true);
-        }
-
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->RemoveAurasDueToSpell(SEF_STORM_VISU);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_monk_storm_earth_and_fire_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_monk_storm_earth_and_fire_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_monk_storm_earth_and_fire_AuraScript();
+        GetTarget()->RemoveAurasDueToSpell(SPELL_MONK_SEF_STORM_VISUAL);
+
+        if (Creature* fireSpirit = GetTarget()->GetSummonedCreatureByEntry(NPC_FIRE_SPIRIT))
+            fireSpirit->ToTempSummon()->DespawnOrUnsummon();
+
+        if (Creature* earthSpirit = GetTarget()->GetSummonedCreatureByEntry(NPC_EARTH_SPIRIT))
+            earthSpirit->ToTempSummon()->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectApply  +=  AuraEffectApplyFn(spell_monk_storm_earth_and_fire::HandleApply,  EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_monk_storm_earth_and_fire::HandleRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-//69792
-class npc_sef_earth_spirit : public CreatureScript
+// 69791 - 69792
+struct npc_monk_sef_spirit : public ScriptedAI
 {
-public:
-    npc_sef_earth_spirit() : CreatureScript("npc_sef_earth_spirit") {}
+    npc_monk_sef_spirit(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_sef_earth_spirit_AI : public ScriptedAI
+    void IsSummonedBy(Unit* summoner)
     {
-        npc_sef_earth_spirit_AI(Creature* creature) : ScriptedAI(creature) {}
+        summoner->CastSpell(me, SPELL_MONK_TRANSCENDENCE_CLONE_TARGET, true);
+        me->CastSpell(me, me->GetEntry() == NPC_FIRE_SPIRIT ? SPELL_MONK_SEF_FIRE_VISUAL : SPELL_MONK_SEF_EARTH_VISUAL, true);
+        me->CastSpell(me, SPELL_MONK_SEF_SUMMONS_STATS, true);
 
-        void Reset() override
-        {
-            //me->CastSpell(me->GetOwner(), SEF_MIRROR, true);
-            if (!me->GetOwner())
-                return;
-            me->GetOwner()->CastSpell(me, SEF_CLONE, true);
-            //me->RemoveAura(SEF_MEDIT);
-            //me->RemoveAura(SEF_VISU);
-            me->CastSpell(me, SEF_EARTH_VISU, true);
-            me->CastSpell(me, SEF_STATS, true);
-        }
-
-        void UpdateAI(uint32 /*uiDiff*/) override
-        {
-            //Check caster and cast the same shit somehow
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_sef_earth_spirit_AI(creature);
+        if (Unit* target = ObjectAccessor::GetUnit(*summoner, summoner->GetTarget()))
+            me->CastSpell(target, SPELL_MONK_SEF_CHARGE, true);
     }
 };
 
-//69791
-class npc_sef_fire_spirit : public CreatureScript
+class playerScript_monk_earth_fire_storm : public PlayerScript
 {
 public:
-    npc_sef_fire_spirit() : CreatureScript("npc_sef_fire_spirit") {}
+    playerScript_monk_earth_fire_storm() : PlayerScript("playerScript_monk_earth_fire_storm") {}
 
-    struct npc_sef_fire_spirit_AI : public ScriptedAI
+    void OnSuccessfulSpellCast(Player* player, Spell* spell) override
     {
-        npc_sef_fire_spirit_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        void Reset() override
+        SpellInfo const* spellInfo = spell->GetSpellInfo();
+        if (player->HasAura(SPELL_MONK_SEF) && !spellInfo->IsPositive())
         {
-            //me->CastSpell(me->GetOwner(), SEF_MIRROR, true);
-            if (!me->GetOwner())
-                return;
-            me->GetOwner()->CastSpell(me, SEF_CLONE, true);
-            //me->RemoveAura(SEF_MEDIT);
-            //me->RemoveAura(SEF_VISU);
-            me->CastSpell(me, SEF_FIRE_VISU, true);
-            me->CastSpell(me, SEF_STATS, true);
-        }
+            if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
+            {
+                if (Creature* fireSpirit = player->GetSummonedCreatureByEntry(NPC_FIRE_SPIRIT))
+                    fireSpirit->CastSpell(target, spellInfo->Id, true);
 
-        void UpdateAI(uint32 /*uiDiff*/) override
-        {
-            //Check caster and cast the same shit somehow
+                if (Creature* earthSpirit = player->GetSummonedCreatureByEntry(NPC_EARTH_SPIRIT))
+                    earthSpirit->CastSpell(target, spellInfo->Id, true);
+            }
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_sef_fire_spirit_AI(creature);
     }
 };
 
@@ -3809,7 +3751,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_stagger_damage();
     new spell_monk_stagger_visual();
     new spell_monk_stance_of_the_sturdy_ox();
-    new spell_monk_storm_earth_and_fire();
+    RegisterAuraScript(spell_monk_storm_earth_and_fire);
     new spell_monk_surging_mist();
     new spell_monk_surging_mist_glyphed();
     new spell_monk_teachings_of_the_monastery();
@@ -3818,7 +3760,6 @@ void AddSC_monk_spell_scripts()
     RegisterAuraScript(spell_monk_touch_of_death);
     new spell_monk_touch_of_karma();
     RegisterSpellAndAuraScriptPair(spell_monk_transcendence, aura_monk_transcendence);
-    RegisterSpellScript(spell_monk_transcendence_clone_visual);
     RegisterSpellScript(spell_monk_transcendence_transfer);
     new spell_monk_zen_flight_check();
     new spell_monk_zen_pilgrimage();
@@ -3826,6 +3767,5 @@ void AddSC_monk_spell_scripts()
     new playerScript_monk_whirling_dragon_punch();
     RegisterAuraScript(spell_monk_whirling_dragon_punch);
 
-    new npc_sef_earth_spirit();
-    new npc_sef_fire_spirit();
+    RegisterCreatureAI(npc_monk_sef_spirit);
 }
