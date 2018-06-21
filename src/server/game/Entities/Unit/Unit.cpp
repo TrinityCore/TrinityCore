@@ -11357,7 +11357,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             SendDurabilityLoss(plrVictim, loss);
         }
         // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+        if (IsCreature() && IsAIEnabled)
             ToCreature()->AI()->KilledUnit(victim);
 
         // last damage from non duel opponent or opponent controlled creature
@@ -11453,11 +11453,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     }
 
     // achievement stuff
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->IsPlayer())
     {
-        if (GetTypeId() == TYPEID_UNIT)
+        if (IsCreature())
             victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
-        else if (GetTypeId() == TYPEID_PLAYER && victim != this)
+        else if (IsPlayer() && victim != this)
             victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_KILLED_BY_PLAYER, 1, ToPlayer()->GetTeam());
     }
 
