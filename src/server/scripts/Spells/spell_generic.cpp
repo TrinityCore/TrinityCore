@@ -4768,6 +4768,23 @@ class spell_spatial_rift_despawn : public SpellScript
     }
 };
 
+// 256893
+class spell_light_judgement : public SpellScript
+{
+    PrepareSpellScript(spell_light_judgement);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            SetHitDamage(6.25f * caster->GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_light_judgement::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4879,4 +4896,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_mobile_bank);
     RegisterSpellScript(spell_arcane_pulse);
     RegisterSpellScript(spell_spatial_rift_despawn);
+    RegisterSpellScript(spell_light_judgement);
 }
