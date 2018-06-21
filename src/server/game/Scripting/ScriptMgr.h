@@ -737,6 +737,9 @@ class TC_GAME_API PlayerScript : public UnitScript
         // Called in Spell::Cast.
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
 
+        // Called in Spell::Cast after spell is actually casted
+        virtual void OnSuccessfulSpellCast(Player* /*player*/, Spell* /*spell*/) { }
+
         // Called when a player logs in.
         virtual void OnLogin(Player* /*player*/, bool /*firstLogin*/) { }
 
@@ -813,10 +816,10 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceId*/, uint32 /*responseId*/) { }
 
         // Called when a cooldown start for that player
-        virtual void OnCooldownStart(Player* player, SpellInfo const* spellInfo, uint32 itemId, int32& cooldown, uint32& categoryId, int32& categoryCooldown) { }
+        virtual void OnCooldownStart(Player* /*player*/, SpellInfo const* /*spellInfo*/, uint32 /*itemId*/, int32& /*cooldown*/, uint32& /*categoryId*/, int32& /*categoryCooldown*/) { }
 
         // Called when a charge recovery cooldown start for that player
-        virtual void OnChargeRecoveryTimeStart(Player* player, uint32 chargeCategoryId, int32& chargeRecoveryTime) { }
+        virtual void OnChargeRecoveryTimeStart(Player* /*player*/, uint32 /*chargeCategoryId*/, int32& /*chargeRecoveryTime*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1222,6 +1225,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerClearEmote(Player* player);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
+        void OnPlayerSuccessfulSpellCast(Player* player, Spell* spell);
         void OnPlayerLogin(Player* player, bool firstLogin);
         void OnPlayerUpdate(Player* player, uint32 diff);
         void OnPlayerLogout(Player* player);
