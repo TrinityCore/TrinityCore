@@ -7,7 +7,6 @@ DELETE FROM `creature_model_info` WHERE `DisplayID` IN (68474, 68475, 68475, 685
 INSERT INTO `creature_model_info` (`DisplayID`) VALUES
 (68474),
 (68475),
-(68475),
 (68512),
 (68547),
 (73774),
