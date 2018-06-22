@@ -1125,8 +1125,6 @@ class spell_hun_tame_beast : public SpellScriptLoader
                 if (!GetExplTargetUnit())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                PetTameFailureReason reason = PET_TAME_FAILURE_UNKNOWN;
-
                 if (player->getClass() != CLASS_HUNTER)
                     return SendTameFailResult(PET_TAME_FAILURE_CANNOT_TAME_CREATURES);
 
