@@ -195,16 +195,16 @@ struct boss_nythendra : public BossAI
 private:
     void SwitchPhase2()
     {
-        events.DelayEvents(25s);
+        events.DelayEvents(31s);
 
         me->GetScheduler()
-            .Schedule(4s, [this](TaskContext /*context*/)
+            .Schedule(10s, [this](TaskContext /*context*/)
             {
                 me->CastSpell(me, SPELL_HEART_OF_THE_SWARM, false);
                 me->SummonCreatureGroup(0);
                 events.ScheduleEvent(SPELL_BURST_OF_CORRUPTION, 2s);
             })
-            .Schedule(8s, [this](TaskContext /*context*/)
+            .Schedule(14s, [this](TaskContext /*context*/)
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFESTED);
 
@@ -213,7 +213,7 @@ private:
                 for (AreaTrigger* at : ats)
                     at->SetDestination(me->GetPosition(), 5000);
             })
-            .Schedule(25s, [this](TaskContext /*context*/)
+            .Schedule(31s, [this](TaskContext /*context*/)
             {
                 summons.DespawnEntry(NPC_CORRUPTED_VERMIN);
                 events.CancelEvent(SPELL_BURST_OF_CORRUPTION);
