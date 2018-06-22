@@ -77,6 +77,10 @@ void IpLocationStore::Load()
         std::getline(ipfile, country_code, ',');
         std::getline(ipfile, country_name, '\n');
 
+        // Remove new lines and return
+        country_name.erase(std::remove(country_name.begin(), country_name.end(), '\r'), country_name.end());
+        country_name.erase(std::remove(country_name.begin(), country_name.end(), '\n'), country_name.end());
+
         // Remove quotation marks
         ip_from.erase(std::remove(ip_from.begin(), ip_from.end(), '"'), ip_from.end());
         ip_to.erase(std::remove(ip_to.begin(), ip_to.end(), '"'), ip_to.end());
