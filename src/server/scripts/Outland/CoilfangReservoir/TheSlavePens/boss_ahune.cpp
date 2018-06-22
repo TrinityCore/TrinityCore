@@ -737,6 +737,9 @@ public:
 
         void PeriodicTick(AuraEffect const* aurEff)
         {
+            if (!GetCaster())
+                return;
+
             Creature* caster = GetCaster()->ToCreature();
             Player* player = GetTarget()->ToPlayer();
 
