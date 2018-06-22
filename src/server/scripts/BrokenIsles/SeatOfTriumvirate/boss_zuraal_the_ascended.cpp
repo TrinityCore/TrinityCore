@@ -43,8 +43,6 @@ enum Spells
 
     SPELL_RELEASE_VOID_ENERGY   = 244618,
     SPELL_VOID_TEAR             = 244621,
-
-    SPELL_PHYSICAL_REALM        = 244074,
 };
 
 enum Npcs
@@ -60,10 +58,40 @@ struct boss_zuraal_the_ascended : public BossAI
 
     void ScheduleTasks() override
     {
+        events.ScheduleEvent(SPELL_NULL_PALM,   10s);
+        events.ScheduleEvent(SPELL_DECIMATE,    10s);
+        events.ScheduleEvent(SPELL_UMBRA_SHIFT, 10s);
     }
 
-    void ExecuteEvent(uint32 /*eventId*/) override
+    void ExecuteEvent(uint32 eventId) override
     {
+        switch (eventId)
+        {
+            case SPELL_NULL_PALM:
+            {
+                me->CastSpell(nullptr, SPELL_NULL_PALM, false);
+                events.Repeat(10s);
+                break;
+            }
+            case SPELL_DECIMATE:
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(target, SPELL_DECIMATE, false);
+
+                events.Repeat(10s);
+                break;
+            }
+            case SPELL_UMBRA_SHIFT:
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    me->CastSpell(target, SPELL_UMBRA_SHIFT, false);
+
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true, -SPELL_UMBRA_SHIFT))
+                    me->CastSpell(target, SPELL_FIXATE, false);
+
+                break;
+            }
+        }
     }
 };
 
@@ -128,6 +156,11 @@ class aura_void_phased : public AuraScript
 {
     PrepareAuraScript(aura_void_phased);
 
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetHover(true);
+    }
+
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         if (!GetTarget()->HasAura(SPELL_VOID_CONTAINMENT))
@@ -143,6 +176,7 @@ class aura_void_phased : public AuraScript
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(aura_void_phased::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectPeriodic += AuraEffectPeriodicFn(aura_void_phased::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         OnEffectRemove += AuraEffectRemoveFn(aura_void_phased::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
@@ -185,6 +219,7 @@ void AddSC_boss_zuraal_the_ascended()
 {
     RegisterCreatureAI(boss_zuraal_the_ascended);
     RegisterCreatureAI(npc_shadowguard_subjugator);
+    RegisterCreatureAI(npc_coalesced_void);
 
     RegisterSpellScript(spell_null_palm);
     RegisterAuraScript(aura_void_phased);
