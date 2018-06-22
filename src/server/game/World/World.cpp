@@ -56,6 +56,7 @@
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
+#include "IPLocation.h"
 #include "Language.h"
 #include "LFGMgr.h"
 #include "LootMgr.h"
@@ -1580,6 +1581,8 @@ void World::SetInitialWorldSettings()
 
     //Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
+    // Load IP Location Database
+    sIPLocation->Load();
 
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)

@@ -435,58 +435,6 @@ LOCK TABLES `battlenet_item_favorite_appearances` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `ip2nation`
---
-
-DROP TABLE IF EXISTS `ip2nation`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip2nation` (
-  `ip` int(11) unsigned NOT NULL DEFAULT '0',
-  `country` char(2) NOT NULL DEFAULT '',
-  KEY `ip` (`ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ip2nation`
---
-
-LOCK TABLES `ip2nation` WRITE;
-/*!40000 ALTER TABLE `ip2nation` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ip2nation` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `ip2nationCountries`
---
-
-DROP TABLE IF EXISTS `ip2nationCountries`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip2nationCountries` (
-  `code` varchar(4) NOT NULL DEFAULT '',
-  `iso_code_2` varchar(2) NOT NULL DEFAULT '',
-  `iso_code_3` varchar(3) DEFAULT '',
-  `iso_country` varchar(255) NOT NULL DEFAULT '',
-  `country` varchar(255) NOT NULL DEFAULT '',
-  `lat` float NOT NULL DEFAULT '0',
-  `lon` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`code`),
-  KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ip2nationCountries`
---
-
-LOCK TABLES `ip2nationCountries` WRITE;
-/*!40000 ALTER TABLE `ip2nationCountries` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ip2nationCountries` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `ip_banned`
 --
 
@@ -2242,6 +2190,7 @@ INSERT INTO `updates` VALUES
 ('2018_05_24_00_auth.sql','B98FD71AAA13810856729E034E6B8C9F8D5D4F6B','RELEASED','2018-05-24 22:32:49',0),
 ('2018_06_14_00_auth.sql','67EAB915BF0C7F2D410BE45F885A1A39D42C8C14','RELEASED','2018-06-14 23:06:59',0),
 ('2018_06_22_00_auth.sql','9DA24F70B8A365AFDEF58A9B578255CDEDFCA47C','RELEASED','2018-06-22 17:45:45',0),
+('2018_06_23_00_auth.sql','BE35312C386A127D047E5A7CE0D14DB41D905F8E','RELEASED','2018-05-23 10:14:39',0),
 ('2018_06_29_00_auth.sql','03AAEA7E52848FA5522C3F0C6D9C38B988407480','RELEASED','2018-06-29 22:34:04',0),
 ('2018_12_09_00_auth_2017_01_06_00_auth.sql','6CCFE6A9774EC733C9863D36A0F15F3534189BBD','RELEASED','2018-11-22 22:21:26',0),
 ('2018_12_09_01_auth.sql','576C2A11BE671D8420FA3EB705E594E381ECCC56','RELEASED','2018-12-09 14:49:17',0);
