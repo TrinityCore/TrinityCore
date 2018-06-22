@@ -651,59 +651,6 @@ enum Akuno
     NPC_CABAL_SKRIMISHER    = 21661
 };
 
-class npc_akuno : public CreatureScript
-{
-    public:
-        npc_akuno() : CreatureScript("npc_akuno") { }
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_akunoAI(creature);
-        }
-
-        struct npc_akunoAI : public npc_escortAI
-        {
-            npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
-
-            void QuestAccept(Player* player, Quest const* quest) override
-            {
-                if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
-                {
-                    Start(false, false, player->GetGUID());
-
-                    if (player->GetTeamId() == TEAM_ALLIANCE)
-                        me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
-                    else
-                        me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_PASSIVE);
-                }
-            }
-
-            void WaypointReached(uint32 waypointId) override
-            {
-                Player* player = GetPlayerForEscort();
-                if (!player)
-                    return;
-
-                switch (waypointId)
-                {
-                    case 3:
-                        me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        break;
-                    case 11:
-                        if (player->GetTypeId() == TYPEID_PLAYER)
-                            player->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
-                        break;
-                }
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summon->AI()->AttackStart(me);
-            }
-        };
-};
-
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
@@ -714,5 +661,4 @@ void AddSC_terokkar_forest()
     new go_skull_pile();
     new npc_skywing();
     new npc_slim();
-    new npc_akuno();
 }
