@@ -1677,7 +1677,7 @@ class spell_steal_essence_visual : public AuraScript
         if (!pet || !owner)
             return;
 
-        pet->CastSpell(GetCaster()->GetOwner(), SPELL_CREATE_TOKEN);
+        pet->CastSpell(owner, SPELL_CREATE_TOKEN);
         pet->AI()->Talk(SAY_CREATE_TOKEN);
     }
 
