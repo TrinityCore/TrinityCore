@@ -98,6 +98,7 @@ UPDATE `creature_model_info` SET `CombatReach`= 3, `BoundingRadius`= 1.05 WHERE 
 UPDATE `creature_model_info` SET `CombatReach`= 1.33, `BoundingRadius`= 0.4655 WHERE `DisplayId`= 37155;
 
 -- Texts
+DELETE FROM `creature_text` WHERE `CreatureID`= 49176;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (49176, 0, 0, 'You gained Freeza seeds!', 42, 0, 100, 0, 0, 0, 49686, 'Brazie the Botanist to Player'),
 (49176, 1, 0, 'You gained Strangler Vine seeds!', 42, 0, 100, 0, 0, 0, 49630, 'Brazie the Botanist to Player'),
