@@ -303,6 +303,12 @@ enum SpellCategory
     SPELL_CATEGORY_DRINK            = 59
 };
 
+enum SpellVisualKit
+{
+    SPELL_VISUAL_KIT_FOOD           = 406,
+    SPELL_VISUAL_KIT_DRINK          = 438
+};
+
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
 {
     0xff9d9d9d,        //GREY
