@@ -1127,6 +1127,9 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
                 PetTameFailureReason reason = PET_TAME_FAILURE_UNKNOWN;
 
+                if (player->getClass() != CLASS_HUNTER)
+                    return SendTameFailResult(PET_TAME_FAILURE_CANNOT_TAME_CREATURES);
+
                 if (!player->GetFirstUnusedActivePetSlot())
                     return SendTameFailResult(PET_TAME_FAILURE_TOO_MANY_PETS);
 
@@ -1148,6 +1151,8 @@ class spell_hun_tame_beast : public SpellScriptLoader
                     if (player->GetCharmGUID())
                         return SendTameFailResult(PET_TAME_FAILURE_CREATURE_CONTROLLED);
                 }
+                else
+                    return SendTameFailResult(PET_TAME_FAILURE_NOT_TAMEABLE);
 
                 return SPELL_CAST_OK;
             }
