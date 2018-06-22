@@ -3481,6 +3481,9 @@ void Spell::cast(bool skipCheck)
     if (m_caster->IsCreature() && m_caster->IsAIEnabled)
         m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
+    if (m_caster->IsPlayer())
+        sScriptMgr->OnPlayerSuccessfulSpellCast(m_caster->ToPlayer(), this);
+
     if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
     {
         for (std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)

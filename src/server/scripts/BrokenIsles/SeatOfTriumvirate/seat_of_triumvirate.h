@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum EOADataTypes
+enum SOTDataTypes
 {
     DATA_ZURAAL_THE_ASCENDED    = 0,
     DATA_SAPRISH                = 1,
@@ -31,12 +31,17 @@ enum EOADataTypes
     DATA_LURA                   = 3
 };
 
-enum EOACreatureIds
+enum SOTCreatureIds
 {
     NPC_ZURAAL_THE_ASCENDED = 122313,
     NPC_SAPRISH             = 122316,
     NPC_VICEROY_NEZHAR      = 124309,
     NPC_LURA                = 122314
+};
+
+enum SOTSpells
+{
+    SPELL_PHYSICAL_REALM    = 244074,
 };
 
 #endif // DEF_SEAT_OF_TRIUMVIRATE_H
