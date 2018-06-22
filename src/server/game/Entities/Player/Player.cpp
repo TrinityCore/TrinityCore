@@ -28396,3 +28396,10 @@ void Player::RemoveSocial()
     sSocialMgr->RemovePlayerSocial(GetGUID());
     m_social = nullptr;
 }
+
+void Player::SendTamePetFailure(PetTameFailureReason reason)
+{
+    WorldPacket data(SMSG_PET_TAME_FAILURE, 1);
+    data << uint8(reason);
+    SendDirectMessage(&data);
+}

@@ -35,6 +35,11 @@ enum HunterSpells
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_AIMED_SHOT_INSTANT                 = 82928,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
+    SPELL_HUNTER_CALL_PET_1                         = 883,
+    SPELL_HUNTER_CALL_PET_2                         = 83242,
+    SPELL_HUNTER_CALL_PET_3                         = 83243,
+    SPELL_HUNTER_CALL_PET_4                         = 83244,
+    SPELL_HUNTER_CALL_PET_5                         = 83245,
     SPELL_HUNTER_CHIMERA_SHOT                       = 53209,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
@@ -1081,6 +1086,15 @@ class spell_hun_improved_steady_shot : public SpellScriptLoader
         }
 };
 
+uint32 callPetSpellIdBySlot[] =
+{
+    SPELL_HUNTER_CALL_PET_1,
+    SPELL_HUNTER_CALL_PET_2,
+    SPELL_HUNTER_CALL_PET_3,
+    SPELL_HUNTER_CALL_PET_4,
+    SPELL_HUNTER_CALL_PET_5
+};
+
 // 1515 - Tame Beast
 class spell_hun_tame_beast : public SpellScriptLoader
 {
@@ -1091,35 +1105,49 @@ class spell_hun_tame_beast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_tame_beast_SpellScript);
 
+            SpellCastResult SendTameFailResult(PetTameFailureReason reason)
+            {
+                Player* player = GetCaster()->ToPlayer();
+                if (!player)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                player->SendTamePetFailure(reason);
+
+                return SPELL_FAILED_DONT_REPORT;
+            }
+
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
+                Player* player = GetCaster()->ToPlayer();
+                if (!player)
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (!GetExplTargetUnit())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                if (!caster->ToPlayer()->GetFirstUnusedActivePetSlot())
-                    return SPELL_FAILED_DONT_REPORT;
+                PetTameFailureReason reason = PET_TAME_FAILURE_UNKNOWN;
+
+                if (!player->GetFirstUnusedActivePetSlot())
+                    return SendTameFailResult(PET_TAME_FAILURE_TOO_MANY_PETS);
+
+                if (Optional<uint8> slot = player->GetFirstUnusedActivePetSlot())
+                    if (!player->HasSpell(callPetSpellIdBySlot[*slot]))
+                        return SendTameFailResult(PET_TAME_FAILURE_SLOT_LOCKED);
 
                 if (Creature* target = GetExplTargetUnit()->ToCreature())
                 {
-                    if (target->getLevel() > caster->getLevel())
-                        return SPELL_FAILED_HIGHLEVEL;
+                    if (target->getLevel() > player->getLevel())
+                        return SendTameFailResult(PET_TAME_FAILURE_TOO_HIGH_LEVEL);
 
-                    // use SMSG_PET_TAME_FAILURE?
-                    if (!target->GetCreatureTemplate()->IsTameable(caster->ToPlayer()->CanTameExoticPets()))
-                        return SPELL_FAILED_BAD_TARGETS;
+                    if (!target->GetCreatureTemplate()->IsTameable(player->ToPlayer()->CanTameExoticPets()))
+                        return SendTameFailResult(PET_TAME_FAILURE_CANNOT_TAME_EXOTIC);
 
-                    if (caster->GetPetGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                    if (player->GetPetGUID())
+                        return SendTameFailResult(PET_TAME_FAILURE_ACTIVE_SUMMON);
 
-                    if (caster->GetCharmGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                    if (player->GetCharmGUID())
+                        return SendTameFailResult(PET_TAME_FAILURE_CREATURE_CONTROLLED);
                 }
-                else
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
                 return SPELL_CAST_OK;
             }

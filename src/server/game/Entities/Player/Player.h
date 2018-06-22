@@ -1079,6 +1079,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerSocial* GetSocial() { return m_social; }
         void RemoveSocial();
 
+        void SendTamePetFailure(PetTameFailureReason reason);
+
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
