@@ -30,6 +30,7 @@
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
 #include "GitRevision.h"
+#include "IPLocation.h"
 #include "LoginRESTService.h"
 #include "MySQLThreading.h"
 #include "ProcessPriority.h"
@@ -151,6 +152,9 @@ int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    // Load IP Location Database
+    sIPLocation->Load();
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 

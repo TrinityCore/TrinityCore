@@ -20,6 +20,7 @@
 #include "ByteConverter.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
+#include "IPLocation.h"
 #include "QueryCallback.h"
 #include "LoginRESTService.h"
 #include "ProtobufJSON.h"
@@ -92,7 +93,6 @@ void Battlenet::Session::Start()
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
-    stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
 }
@@ -107,9 +107,6 @@ void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
             Field* fields = result->Fetch();
             if (fields[0].GetUInt64() != 0)
                 banned = true;
-
-            if (!fields[1].GetString().empty())
-                _ipCountry = fields[1].GetString();
 
         } while (result->NextRow());
 
@@ -339,6 +336,9 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         }
         else
         {
+            if (IpLocationRecord* location = sIPLocation->GetData(ip_address))
+                _ipCountry = location->country_code;
+
             TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is not locked to ip", _accountInfo->Login.c_str());
             if (_accountInfo->LockCountry.empty() || _accountInfo->LockCountry == "00")
                 TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is not locked to country", _accountInfo->Login.c_str());

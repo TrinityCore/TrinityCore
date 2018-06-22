@@ -27,6 +27,7 @@
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
 #include "IpAddress.h"
+#include "IPLocation.h"
 #include "Item.h"
 #include "Language.h"
 #include "LFG.h"
@@ -1768,17 +1769,10 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(lastIp));
-                EndianConvertReverse(ip);
-
-                // If ip2nation table is populated, it displays the country
-                stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
-                stmt->setUInt32(0, ip);
-                if (PreparedQueryResult result2 = LoginDatabase.Query(stmt))
+                if (IpLocationRecord* location = sIPLocation->GetData(lastIp))
                 {
-                    Field* fields2 = result2->Fetch();
                     lastIp.append(" (");
-                    lastIp.append(fields2[0].GetString());
+                    lastIp.append(location->country_name);
                     lastIp.append(")");
                 }
             }
