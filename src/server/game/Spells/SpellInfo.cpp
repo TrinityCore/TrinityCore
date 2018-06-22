@@ -3439,6 +3439,9 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Aspect of the Viper
             if (spellInfo->Id == 34074)
                 return true;
+            // Explosive Shot
+            if (spellInfo->SpellFamilyFlags[1] == SPELLFAMILYFLAG1_HUNTER_EXPLOSIVE_SHOT)
+                return false;
             break;
         case SPELLFAMILY_DRUID:
             // Starfall
