@@ -1,3 +1,4 @@
+/*
 -- Quest "Look To The Stars"
 DELETE FROM `quest_details` WHERE `ID`=174;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -357,3 +358,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (240,4,0,0,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=5, `EmoteOnComplete`=5 WHERE `ID`=240;
 UPDATE `quest_offer_reward` SET `Emote1`=2, `Emote2`=1 WHERE `ID`=240;
+*/

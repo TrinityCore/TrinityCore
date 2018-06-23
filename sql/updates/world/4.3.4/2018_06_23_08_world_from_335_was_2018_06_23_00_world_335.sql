@@ -1,3 +1,4 @@
+/*
 -- Private Thorsen
 DELETE FROM `creature_text` WHERE `CreatureID` IN (738,775,733);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -93,3 +94,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (775,0,2,0,38,0,100,0,1,1,0,0,0,2,46,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kurzen's Agent - On Data Set - Set Faction 46"),
 (775,0,3,0,38,0,100,0,1,1,0,0,0,49,0,0,0,0,0,0,19,738,0,0,0,0,0,0,"Kurzen's Agent - On Data Set - Start Attacking"),
 (775,0,4,0,6,0,100,0,0,0,0,0,0,45,1,1,0,0,0,0,19,738,0,0,0,0,0,0,"Kurzen's Agent - On Just Died - Set Data to Private Thorsen");
+*/

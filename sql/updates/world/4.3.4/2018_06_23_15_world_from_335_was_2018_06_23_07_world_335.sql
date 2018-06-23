@@ -1,3 +1,4 @@
+/*
 -- https://www.youtube.com/watch?v=cWnT_Qndfx0
 DELETE FROM `quest_greeting_locale` WHERE `ID` IN (237,238) AND `locale`='deDE';
 INSERT INTO `quest_greeting_locale` (`ID`, `Type`, `locale`, `Greeting`, `VerifiedBuild`) VALUES (237, 0, 'deDE', 'In dieser Gegend gibt es wirklich nichts als Ärger. Ich habe versucht, den Dummkopf Saldean dazu zu bringen, sich aus dem Staub zu machen, solange das noch geht, aber er will einfach nicht hören. Aber ich bin kein Dummkopf. Verna und ich hauen ab, sobald wir diesen Wagen repariert haben.', 0);
@@ -44,3 +45,4 @@ UPDATE `quest_template_locale` SET `OfferRewardText`='Als ich Lordaeron, dieses 
 
 -- https://www.youtube.com/watch?v=8-sXhLcEFXo
 UPDATE `quest_template_locale` SET `RequestItemsText`='Ist das Schweiß auf Eurer Stirn, $Gder Herr:gnädige Frau;? Ihr habt Euch beim Laufen zu sehr verausgabt. Nehmt nächstes Mal einen Greifen!', `OfferRewardText`='Eine Kiste für Westfall, eh? Seid Ihr schon mal in Westfall gewesen? Falls ja, ist das kein Problem. Ich habe viele Greifen ausgebildet, damit sie diese Route fliegen können!' WHERE `ID`=6261 AND `locale`='deDE';
+*/

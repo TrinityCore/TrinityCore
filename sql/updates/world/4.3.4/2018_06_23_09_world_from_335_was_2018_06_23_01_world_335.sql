@@ -1,3 +1,4 @@
+/*
 -- Forlorn Spirit
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2044 AND `source_type`=0 AND `id`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=204400 AND `source_type`=9;
@@ -13,3 +14,4 @@ UPDATE `smart_scripts` SET `target_x`=-8841.93, `target_y`=985.171, `target_z`=9
 
 -- Marshal Haggard's Chest
 UPDATE `event_scripts` SET `delay`=0, `x`=-9553.53, `y`=-1432.44, `z`=62.2943, `o`=5.28835 WHERE `id`=264;
+*/
