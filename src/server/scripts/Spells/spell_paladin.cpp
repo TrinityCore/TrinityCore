@@ -483,33 +483,6 @@ class spell_pal_flash_of_light : public SpellScript
     }
 };
 
-// Holy Light - 82326
-class spell_pal_holy_light : public SpellScript
-{
-    PrepareSpellScript(spell_pal_holy_light);
-
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            uint32 sp = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-            uint32 dmg = uint32(1 + sp * 4.25f);
-
-            if (caster->HasAura(SPELL_PALADIN_INFUSION_OF_LIGHT_AURA))
-            {
-                caster->RemoveAura(SPELL_PALADIN_INFUSION_OF_LIGHT_AURA);
-            }
-
-            SetHitHeal(dmg);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_light::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
-    }
-};
-
 // Crusader Strike - 35395
 class spell_pal_crusader_strike : public SpellScript
 {
@@ -2342,7 +2315,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_avengers_shield);
     RegisterSpellScript(spell_pal_shield_of_the_righteous);
     RegisterSpellScript(spell_pal_light_of_the_protector);
-    RegisterSpellScript(spell_pal_holy_light);
     RegisterSpellScript(spell_pal_flash_of_light);
     RegisterSpellScript(spell_pal_crusader_strike);
     RegisterSpellScript(spell_pal_beacon_of_faith);
