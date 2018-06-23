@@ -51,6 +51,7 @@
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
+#include "IPLocation.h"
 #include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
@@ -1515,6 +1516,9 @@ void World::SetInitialWorldSettings()
 
     // Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
+
+    // Load IP Location Database
+    sIPLocation->Load();
 
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
