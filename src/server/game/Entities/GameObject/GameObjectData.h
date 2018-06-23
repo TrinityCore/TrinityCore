@@ -197,17 +197,17 @@ struct GameObjectTemplate
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
-            int32 stopFrame1;                               //0
-            uint32 startOpen;                               //1
-            uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
-            uint32 pause1EventID;                           //3
-            uint32 pause2EventID;                           //4
-            uint32 mapId;                                   //5
-            int32 stopFrame2;                               //6
-            uint32 unknown;
-            int32 stopFrame3;                               //8
-            uint32 unknown2;
-            int32 stopFrame4;                               //10
+            uint32 Timeto2ndfloor;                          // 0 Time to 2nd floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 startOpen;                               // 1 startOpen, enum { false, true, }; Default: false
+            uint32 autoCloseTime;                           // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Reached1stfloor;                         // 3 Reached 1st floor, References: GameEvents, NoValue = 0
+            uint32 Reached2ndfloor;                         // 4 Reached 2nd floor, References: GameEvents, NoValue = 0
+            int32 SpawnMap;                                 // 5 Spawn Map, References: Map, NoValue = -1
+            uint32 Timeto3rdfloor;                          // 6 Time to 3rd floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Reached3rdfloor;                         // 7 Reached 3rd floor, References: GameEvents, NoValue = 0
+            uint32 Timeto4thfloor;                          // 8 Time to 4th floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Reached4thfloor;                         // 9 Reached 4th floor, References: GameEvents, NoValue = 0
+            uint32 Timeto5thfloor;                          // 10 Time to 5th floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
