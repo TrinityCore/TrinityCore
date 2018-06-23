@@ -37,7 +37,7 @@ UPDATE `quest_template_locale` SET `RequestItemsText`='Habt Ihr die Probe, $N? D
 
 -- https://www.youtube.com/watch?v=7v2-3zKkkVc
 DELETE FROM `item_template_locale` WHERE `ID`=5397 AND `locale`='deDE';
-INSERT INTO `item_template_locale` (`ID`, `locale`, `Name`, `Description`, `VerifiedBuild`) VALUES (5397, 'deDE', 'Schießpulver der Defias','', 0)
+INSERT INTO `item_template_locale` (`ID`, `locale`, `Name`, `Description`, `VerifiedBuild`) VALUES (5397, 'deDE', 'Schießpulver der Defias','', 0);
 
 -- https://www.youtube.com/watch?v=9ZQ8uSDB8qM
 UPDATE `quest_template_locale` SET `OfferRewardText`='Als ich Lordaeron, dieses besudelte Land, verließ, fand ich hier, in meiner Heimat, schlimme Zustände vor. Doch es besteht noch Hoffnung für Westfall. Wie Ihr durch Euren Heldenmut im Kampfe bewiesen habt, dient Ihr ganz offensichtlich ehrenvoll unserer Sache. Mit großem Stolz berufe ich Euch in die Volksmiliz ein. Möge das Licht über Euch leuchten.' WHERE `ID`=14 AND `locale`='deDE';
