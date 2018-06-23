@@ -109,6 +109,11 @@ enum WarriorSpells
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RALLYING_CRY_TRIGGER              = 97463,
     SPELL_WARRIOR_RAMPAGE                           = 184367,
+    SPELL_WARRIOR_RAVAGER                           = 152277,
+    SPELL_WARRIOR_RAVAGER_DAMAGE                    = 156287,
+    SPELL_WARRIOR_RAVAGER_ENERGIZE                  = 248439,
+    SPELL_WARRIOR_RAVAGER_PARRY                     = 227744,
+    SPELL_WARRIOR_RAVAGER_SUMMON                    = 227876,
     SPELL_WARRIOR_REND                              = 94009,
     SPELL_WARRIOR_RENEWED_FURY                      = 202288,
     SPELL_WARRIOR_RENEWED_FURY_EFFECT               = 202289,
@@ -160,14 +165,13 @@ enum WarriorSpells
     SPELL_WARRIOR_WRECKING_BALL_EFFECT              = 215570,
     SPELL_WARRIOR_COMMANDING_SHOUT                  = 97463,
 
-    WARRIOR_NPC_MOCKING_BANNER                      = 59390,
+    NPC_WARRIOR_RAVAGER                             = 76168,
 };
 
 enum WarriorSpellIcons
 {
     WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989
 };
-
 
 enum MiscSpells
 {
@@ -2774,58 +2778,70 @@ public:
 };
 
 // Ravager - 152277
-class spell_warr_ravager : public AuraScript
+// Ravager - 228920
+class spell_warr_ravager : public SpellScript
 {
-    PrepareAuraScript(spell_warr_ravager);
+    PrepareSpellScript(spell_warr_ravager);
 
-    enum eDatas
+    void HandleOnHit(SpellEffIndex /* effIndex */)
     {
-        NPC_RAVAGER             = 76168,
-        SPELL_RAVAGER_DAMAGE    = 156287
-    };
-
-    void CalculateParryPCT(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-    {
-        if (GetCaster() == nullptr)
-            return;
-
-        if (Player* player = GetCaster()->ToPlayer())
-        {
-            if (player->GetSpecializationId() != TALENT_SPEC_WARRIOR_PROTECTION)
-                amount = 0;
-        }
-    }
-
-    void OnTick(AuraEffect const* aurEff)
-    {
-        int32 tickNumber = aurEff->GetTickNumber();
-
-        if (tickNumber > aurEff->GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints)
-            return;
-
-        Unit* caster = GetCaster();
-
-        if (caster == nullptr)
-            return;
-
-        Creature* ravager = nullptr;
-        for (auto l_Iter : caster->m_Controlled)
-        {
-            if (l_Iter->GetEntry() == NPC_RAVAGER)
-                ravager = l_Iter->ToCreature();
-        }
-
-        if (ravager == nullptr)
-            return;
-
-        caster->CastSpell(ravager, SPELL_RAVAGER_DAMAGE, true);
+        if (WorldLocation const* dest = GetExplTargetDest())
+            GetCaster()->CastSpell(dest->GetPosition(), SPELL_WARRIOR_RAVAGER_SUMMON, true);
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_ravager::CalculateParryPCT, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_ravager::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_warr_ravager::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
+};
+
+// Ravager - 152277
+// Ravager - 228920
+class aura_warr_ravager : public AuraScript
+{
+    PrepareAuraScript(aura_warr_ravager);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetTarget()->ToPlayer())
+            if (player->GetSpecializationId() == TALENT_SPEC_WARRIOR_PROTECTION)
+                player->CastSpell(player, SPELL_WARRIOR_RAVAGER_PARRY, true);
+    }
+
+    void OnTick(AuraEffect const* aurEff)
+    {
+        if (Creature* creature = GetTarget()->GetSummonedCreatureByEntry(NPC_WARRIOR_RAVAGER))
+            GetTarget()->CastSpell(creature->GetPosition(), SPELL_WARRIOR_RAVAGER_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(aura_warr_ravager::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_warr_ravager::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// Ravager Damage - 156287
+class spell_warr_ravager_damage : public SpellScript
+{
+    PrepareSpellScript(spell_warr_ravager_damage);
+
+    void HandleOnHitTarget(SpellEffIndex /* effIndex */)
+    {
+        if (!_alreadyProc)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_RAVAGER_ENERGIZE, true);
+            _alreadyProc = true;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_ravager_damage::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    bool _alreadyProc = false;
 };
 
 // 163201 - Execute
@@ -2873,10 +2889,9 @@ class spell_warr_execute : public SpellScript
 };
 
 // Ravager - 76168
-class npc_warr_ravager : public CreatureScript
+struct npc_warr_ravager : public ScriptedAI
 {
-public:
-    npc_warr_ravager() : CreatureScript("npc_warr_ravager") { }
+    npc_warr_ravager(Creature* creature) : ScriptedAI(creature) { }
 
     enum eDatas
     {
@@ -2884,47 +2899,37 @@ public:
         SPELL_RAVAGER_VISUAL    = 153709
     };
 
-    struct spell_npc_warr_ravagerAI : public ScriptedAI
+    void IsSummonedBy(Unit* summoner)
     {
-        spell_npc_warr_ravagerAI(Creature* creature) : ScriptedAI(creature) { }
+        me->SetDisplayId(RAVAGER_DISPLAYID);
+        me->CastSpell(me, SPELL_RAVAGER_VISUAL, true);
+        me->SetReactState(ReactStates::REACT_PASSIVE);
+        me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE |
+                                        UNIT_FLAG_UNK_15 |
+                                        UNIT_FLAG_PVP_ATTACKABLE);
 
-        void IsSummonedBy(Unit* summoner)
+        if (summoner == nullptr || !summoner->IsPlayer())
+            return;
+
+        if (Player* player = summoner->ToPlayer())
         {
-            me->SetDisplayId(RAVAGER_DISPLAYID);
-            me->CastSpell(me, SPELL_RAVAGER_VISUAL, true);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE |
-                                          UNIT_FLAG_UNK_15 |
-                                          UNIT_FLAG_PVP_ATTACKABLE);
-
-            if (summoner == nullptr || !summoner->IsPlayer())
-                return;
-
-            if (Player* player = summoner->ToPlayer())
+            if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
             {
-                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
-                {
-                    if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(item->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS)))
-                        me->SetVirtualItem(0, l_Proto->GetId());
-                    else
-                        me->SetVirtualItem(0, item->GetTemplate()->GetId());
-                }
+                if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(item->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS)))
+                    me->SetVirtualItem(0, l_Proto->GetId());
+                else
+                    me->SetVirtualItem(0, item->GetTemplate()->GetId());
+            }
 
-                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
-                {
-                    if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(item->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS)))
-                        me->SetVirtualItem(2, l_Proto->GetId());
-                    else
-                        me->SetVirtualItem(2, item->GetTemplate()->GetId());
-                }
+            if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
+            {
+                if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(item->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS)))
+                    me->SetVirtualItem(2, l_Proto->GetId());
+                else
+                    me->SetVirtualItem(2, item->GetTemplate()->GetId());
             }
         }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const
-    {
-        return new spell_npc_warr_ravagerAI(p_Creature);
     }
 };
 
@@ -2995,8 +3000,9 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_rallying_cry();
     new spell_warr_jump_to_skyhold();
     RegisterSpellScript(spell_warr_commanding_shout);
-    RegisterAuraScript(spell_warr_ravager);
+    RegisterSpellAndAuraScriptPair(spell_warr_ravager, aura_warr_ravager);
+    RegisterSpellScript(spell_warr_ravager_damage);
     RegisterSpellScript(spell_warr_execute);
 
-    new npc_warr_ravager();
+    RegisterCreatureAI(npc_warr_ravager);
 }
