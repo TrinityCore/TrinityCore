@@ -22227,6 +22227,8 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             target->DestroyForPlayer(this);
             m_clientGUIDs.erase(target->GetGUID());
 
+            _movementUpdate = false;
+
             #ifdef TRINITY_DEBUG
                 TC_LOG_DEBUG("maps", "Object %u (Type: %u) out of range for player %u. Distance = %f", target->GetGUID().GetCounter(), target->GetTypeId(), GetGUID().GetCounter(), GetDistance(target));
             #endif
@@ -22236,6 +22238,8 @@ void Player::UpdateVisibilityOf(WorldObject* target)
     {
         if (CanSeeOrDetect(target, false, true))
         {
+            _movementUpdate = true;
+
             target->SendUpdateToPlayer(this);
             m_clientGUIDs.insert(target->GetGUID());
 
