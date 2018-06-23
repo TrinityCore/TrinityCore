@@ -21,10 +21,14 @@
 
 struct IpLocationRecord
 {
-    uint32 ip_from;
-    uint32 ip_to;
-    std::string country_code;
-    std::string country_name;
+    IpLocationRecord() : IpFrom(0), IpTo(0) { }
+    IpLocationRecord(uint32 ipFrom, uint32 ipTo, std::string countryCode, std::string countryName)
+        : IpFrom(ipFrom), IpTo(ipTo), CountryCode(std::move(countryCode)), CountryName(std::move(countryName)) { }
+
+    uint32 IpFrom;
+    uint32 IpTo;
+    std::string CountryCode;
+    std::string CountryName;
 };
 
 class TC_COMMON_API IpLocationStore
@@ -32,13 +36,13 @@ class TC_COMMON_API IpLocationStore
     public:
         IpLocationStore();
         ~IpLocationStore();
-        static IpLocationStore* instance();
+        static IpLocationStore* Instance();
 
         void Load();
-        IpLocationRecord* GetData(std::string const& ipAddress);
+        IpLocationRecord const* GetLocationRecord(std::string const& ipAddress) const;
 
     private:
         std::vector<IpLocationRecord> _ipLocationStore;
 };
 
-#define sIPLocation IpLocationStore::instance()
+#define sIPLocation IpLocationStore::Instance()

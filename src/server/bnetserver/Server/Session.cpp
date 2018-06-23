@@ -336,8 +336,8 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         }
         else
         {
-            if (IpLocationRecord* location = sIPLocation->GetData(ip_address))
-                _ipCountry = location->country_code;
+            if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(ip_address))
+                _ipCountry = location->CountryCode;
 
             TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is not locked to ip", _accountInfo->Login.c_str());
             if (_accountInfo->LockCountry.empty() || _accountInfo->LockCountry == "00")

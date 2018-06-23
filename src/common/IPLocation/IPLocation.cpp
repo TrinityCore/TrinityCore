@@ -34,93 +34,83 @@ IpLocationStore::~IpLocationStore()
 
 void IpLocationStore::Load()
 {
-    std::string value = sConfigMgr->GetStringDefault("IPLocationFile", ".");
-    if (value.empty())
-        return;
-
     _ipLocationStore.clear();
     TC_LOG_INFO("server.loading", "Loading IP Location Database...");
 
-    // Default folder
-    if (!value.compare("."))
-        value.append("/IP2LOCATION-LITE-DB1.CSV");
-
-    // Check file name
-    if (value.find("IP2LOCATION-LITE-DB1.CSV") == std::string::npos)
-    {
-        TC_LOG_ERROR("server.loading", "IPLocation:: File name is not valid, must be IP2LOCATION-LITE-DB1.CSV");
+    std::string databaseFilePath = sConfigMgr->GetStringDefault("IPLocationFile", "");
+    if (databaseFilePath.empty())
         return;
-    }
 
     // Check if file exists
-    std::ifstream ipfile(value);
-    if (!ipfile)
+    std::ifstream databaseFile(databaseFilePath);
+    if (!databaseFile)
     {
-        TC_LOG_ERROR("server.loading", "IPLocation:: No database file exists.");
+        TC_LOG_ERROR("server.loading", "IPLocation: No ip database file exists (%s).", databaseFilePath.c_str());
         return;
     }
 
-    if (!ipfile.is_open())
+    if (!databaseFile.is_open())
     {
-        TC_LOG_ERROR("server.loading", "IPLocation:: The file can not be opened.");
+        TC_LOG_ERROR("server.loading", "IPLocation: Ip database file (%s) can not be opened.", databaseFilePath.c_str());
         return;
     }
 
-    std::string ip_from;
-    std::string ip_to;
-    std::string country_code;
-    std::string country_name;
+    std::string ipFrom;
+    std::string ipTo;
+    std::string countryCode;
+    std::string countryName;
 
-    while (ipfile.good())
+    while (databaseFile.good())
     {
         // Read lines
-        std::getline(ipfile, ip_from, ',');
-        std::getline(ipfile, ip_to, ',');
-        std::getline(ipfile, country_code, ',');
-        std::getline(ipfile, country_name, '\n');
+        if (!std::getline(databaseFile, ipFrom, ','))
+            break;
+        if (!std::getline(databaseFile, ipTo, ','))
+            break;
+        if (!std::getline(databaseFile, countryCode, ','))
+            break;
+        if (!std::getline(databaseFile, countryName, '\n'))
+            break;
 
         // Remove new lines and return
-        country_name.erase(std::remove(country_name.begin(), country_name.end(), '\r'), country_name.end());
-        country_name.erase(std::remove(country_name.begin(), country_name.end(), '\n'), country_name.end());
+        countryName.erase(std::remove(countryName.begin(), countryName.end(), '\r'), countryName.end());
+        countryName.erase(std::remove(countryName.begin(), countryName.end(), '\n'), countryName.end());
 
         // Remove quotation marks
-        ip_from.erase(std::remove(ip_from.begin(), ip_from.end(), '"'), ip_from.end());
-        ip_to.erase(std::remove(ip_to.begin(), ip_to.end(), '"'), ip_to.end());
-        country_code.erase(std::remove(country_code.begin(), country_code.end(), '"'), country_code.end());
-        country_name.erase(std::remove(country_name.begin(), country_name.end(), '"'), country_name.end());
+        ipFrom.erase(std::remove(ipFrom.begin(), ipFrom.end(), '"'), ipFrom.end());
+        ipTo.erase(std::remove(ipTo.begin(), ipTo.end(), '"'), ipTo.end());
+        countryCode.erase(std::remove(countryCode.begin(), countryCode.end(), '"'), countryCode.end());
+        countryName.erase(std::remove(countryName.begin(), countryName.end(), '"'), countryName.end());
 
         // Convert country code to lowercase
-        std::transform(country_code.begin(), country_code.end(), country_code.begin(), ::tolower);
+        std::transform(countryCode.begin(), countryCode.end(), countryCode.begin(), ::tolower);
 
-        IpLocationRecord data;
-        data.ip_from        = (uint32)atoull(ip_from.c_str());
-        data.ip_to          = (uint32)atoull(ip_to.c_str());
-        data.country_code   = country_code;
-        data.country_name   = country_name;
-
-        _ipLocationStore.push_back(data);
+        _ipLocationStore.emplace_back(uint32(atoul(ipFrom.c_str())), uint32(atoul(ipTo.c_str())), std::move(countryCode), std::move(countryName));
     }
 
-    std::sort(_ipLocationStore.begin(), _ipLocationStore.end(), [](IpLocationRecord const& a, IpLocationRecord const& b) { return a.ip_from < b.ip_from; });
+    std::sort(_ipLocationStore.begin(), _ipLocationStore.end(), [](IpLocationRecord const& a, IpLocationRecord const& b) { return a.IpFrom < b.IpFrom; });
+    ASSERT(std::is_sorted(_ipLocationStore.begin(), _ipLocationStore.end(), [](IpLocationRecord const& a, IpLocationRecord const& b) { return a.IpFrom < b.IpTo; }),
+        "Overlapping IP ranges detected in database file");
 
-    ipfile.close();
+    databaseFile.close();
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u entries.", uint32(_ipLocationStore.size()));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " ip location entries.", _ipLocationStore.size());
 }
 
-IpLocationRecord* IpLocationStore::GetData(std::string const& ipAddress)
+IpLocationRecord const* IpLocationStore::GetLocationRecord(std::string const& ipAddress) const
 {
-    if (_ipLocationStore.empty())
+    uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(ipAddress));
+    auto itr = std::upper_bound(_ipLocationStore.begin(), _ipLocationStore.end(), ip, [](uint32 ip, IpLocationRecord const& loc) { return ip < loc.IpTo; });
+    if (itr == _ipLocationStore.end())
         return nullptr;
 
-    uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(ipAddress));
-    auto itr = std::upper_bound(_ipLocationStore.begin(), _ipLocationStore.end(), ip, [](uint32 ip, IpLocationRecord const& loc) { return loc.ip_to >= ip; });
-    ASSERT(&(*itr));
+    if (ip < itr->IpFrom)
+        return nullptr;
 
     return &(*itr);
 }
 
-IpLocationStore* IpLocationStore::instance()
+IpLocationStore* IpLocationStore::Instance()
 {
     static IpLocationStore instance;
     return &instance;
