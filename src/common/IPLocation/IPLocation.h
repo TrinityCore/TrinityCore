@@ -17,6 +17,7 @@
 
 #include "Define.h"
 #include <string>
+#include <vector>
 
 struct IpLocationRecord
 {
