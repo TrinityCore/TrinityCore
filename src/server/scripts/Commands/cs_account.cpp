@@ -291,10 +291,10 @@ public:
         {
             if (param == "on")
             {
-                if (IpLocationRecord* location = sIPLocation->GetData(handler->GetSession()->GetRemoteAddress()))
+                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
                 {
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                    stmt->setString(0, location->country_code);
+                    stmt->setString(0, location->CountryCode);
                     stmt->setUInt32(1, handler->GetSession()->GetAccountId());
                     LoginDatabase.Execute(stmt);
                     handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
