@@ -80,28 +80,22 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK });
             }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                _procTarget = GetTarget()->SelectNearbyTarget(eventInfo.GetProcTarget());
-                return _procTarget && eventInfo.GetDamageInfo();
-            }
-
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, eventInfo.GetDamageInfo()->GetDamage(), _procTarget, true, nullptr, aurEff);
+                if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
+                    if (Unit* procTarget = damageInfo->GetVictim())
+                        if (Unit* target = GetTarget()->SelectNearbyTarget(procTarget, GetTarget()->GetFloatValue(UNIT_FIELD_COMBATREACH)))
+                            GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damageInfo->GetDamage(), target, true, nullptr, aurEff);
             }
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_rog_blade_flurry_AuraScript::CheckProc);
                 if (m_scriptSpellId == SPELL_ROGUE_BLADE_FLURRY)
                     OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT);
                 else
                     OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
             }
-
-            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
