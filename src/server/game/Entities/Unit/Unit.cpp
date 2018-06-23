@@ -11842,7 +11842,7 @@ void Unit::SendPlaySpellVisual(uint32 id)
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 8 + 4);
     data << uint64(GetGUID());
     data << uint32(id); // SpellVisualKit.dbc index
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Unit::SendPlaySpellImpact(ObjectGuid guid, uint32 id)

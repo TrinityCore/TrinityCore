@@ -20,6 +20,7 @@
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Random.h"
@@ -58,7 +59,6 @@ void WorldSocket::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
-    stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
 }
@@ -73,9 +73,6 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
             Field* fields = result->Fetch();
             if (fields[0].GetUInt64() != 0)
                 banned = true;
-
-            if (!fields[1].GetString().empty())
-                _ipCountry = fields[1].GetString();
 
         } while (result->NextRow());
 
@@ -525,6 +522,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         DelayedCloseSocket();
         return;
     }
+
+    if (IpLocationRecord* location = sIPLocation->GetData(address))
+        _ipCountry = location->country_code;
 
     ///- Re-check ip locking (same check as in auth).
     if (account.IsLockedToIP)
