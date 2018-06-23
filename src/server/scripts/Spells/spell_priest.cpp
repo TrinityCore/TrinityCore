@@ -108,6 +108,8 @@ enum PriestSpells
     SPELL_PRIEST_LIGHTWELL_CHARGES                  = 59907,
     SPELL_PRIEST_LINGERING_INSANITY                 = 197937,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
+    SPELL_PRIEST_MASOCHISM                          = 193063,
+    SPELL_PRIEST_MASOCHISM_HEAL                     = 193065,
     SPELL_PRIEST_MIND_BLAST                         = 8092,
     SPELL_PRIEST_MIND_BOMB                          = 205369,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
@@ -2167,121 +2169,94 @@ public:
 };
 
 // Shadow Mend heal - 186263
-class spell_pri_shadow_mend : public SpellScriptLoader
+class spell_pri_shadow_mend : public SpellScript
 {
-public:
-    spell_pri_shadow_mend() : SpellScriptLoader("spell_pri_shadow_mend") {}
+    PrepareSpellScript(spell_pri_shadow_mend);
 
-    class spell_pri_shadow_mend_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_pri_shadow_mend_SpellScript);
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_MEND_AURA,
+                                   SPELL_PRIEST_MASOCHISM,
+                                   SPELL_PRIEST_MASOCHISM_HEAL });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+    void ApplyAura(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
+            caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_AURA, true);
+
+        if (caster->HasAura(SPELL_PRIEST_MASOCHISM) && caster == target)
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_MEND_AURA) ||
-                !sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_MEND_DAMAGE))
-                return false;
-            return true;
+            caster->CastSpell(caster, SPELL_PRIEST_MASOCHISM_HEAL, true);
+            return;
         }
 
-        void ApplyAura(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
-                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_AURA, true);
-
+        if (target->IsInCombat())
             caster->CastCustomSpell(SPELL_PRIEST_SHADOW_MEND_AURA, SPELLVALUE_BASE_POINT0, GetHitHeal(), target, TRIGGERED_FULL_MASK);
-        }
+    }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_mend_SpellScript::ApplyAura, EFFECT_0, SPELL_EFFECT_HEAL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_pri_shadow_mend_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_mend::ApplyAura, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
 // Shadow Mend aura - 187464
-class spell_pri_shadow_mend_aura : public SpellScriptLoader
+class spell_pri_shadow_mend_aura : public AuraScript
 {
-public:
-    spell_pri_shadow_mend_aura() : SpellScriptLoader("spell_pri_shadow_mend_aura") {}
+    PrepareAuraScript(spell_pri_shadow_mend_aura);
 
-    class spell_pri_shadow_mend_aura_AuraScript : public AuraScript
+    int32 damageThreshold = 0;
+
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        PrepareAuraScript(spell_pri_shadow_mend_aura_AuraScript);
+        Unit* target = eventInfo.GetActionTarget();
 
-        int32 damageThreshold = 0;
+        if (!target)
+            return false;
 
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            Unit* target = eventInfo.GetActionTarget();
-            // Procs on the initial heal, weird
-            if (!target)
-                return false;
+        if (!eventInfo.GetDamageInfo())
+            return false;
 
-            if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SHADOW_MEND_HEAL)
-                return false;
+        damageThreshold -= eventInfo.GetDamageInfo()->GetDamage();
 
-            if (eventInfo.GetHealInfo() == nullptr)
-                return false;
+        if (Aura* shadowMendAura = GetAura())
+            if (damageThreshold <= 0)
+                shadowMendAura->SetDuration(1);
 
-            if (Aura* fear = GetAura())
-            {
-                damageThreshold -= eventInfo.GetHealInfo()->GetHeal();
-                if (damageThreshold <= 0)
-                    fear->SetDuration(1);
-            }
-            return true;
-        }
+        return true;
+    }
 
-        void HandlePeriodic(AuraEffect const* aurEff)
-        {
-            Unit* caster = GetCaster();
-            WorldObject* target = GetUnitOwner();
-            if (!caster || !target)
-                return;
-
-            Player* playerTarget = target->ToPlayer();
-            if (!playerTarget)
-                return;
-
-            if (!playerTarget->IsInCombat())
-            {
-                // polite and crash-free method of removing aura
-                GetAura()->SetDuration(1);
-                return;
-            }
-
-            playerTarget->CastCustomSpell(SPELL_PRIEST_SHADOW_MEND_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), playerTarget, TRIGGERED_FULL_MASK, NULL, NULL, caster->GetGUID());
-        }
-
-        void CalcDamage(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            // Remaining damage gets added.
-            damageThreshold += amount / 2;
-            amount = damageThreshold / 10;
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_shadow_mend_aura_AuraScript::CalcDamage, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            DoCheckProc += AuraCheckProcFn(spell_pri_shadow_mend_aura_AuraScript::CheckProc);
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_shadow_mend_aura_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandlePeriodic(AuraEffect const* aurEff)
     {
-        return new spell_pri_shadow_mend_aura_AuraScript();
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster || !target)
+            return;
+
+        if (!target->IsInCombat())
+            GetAura()->Remove();
+        else
+            target->CastCustomSpell(SPELL_PRIEST_SHADOW_MEND_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, TRIGGERED_FULL_MASK, NULL, NULL, caster->GetGUID());
+    }
+
+    void CalcDamage(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        // Remaining damage gets added.
+        damageThreshold += amount;
+        amount = damageThreshold / 10;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_shadow_mend_aura::CalcDamage, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        DoCheckProc += AuraCheckProcFn(spell_pri_shadow_mend_aura::CheckProc);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_shadow_mend_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -2770,8 +2745,8 @@ void AddSC_priest_spell_scripts()
     RegisterAreaTriggerAI(at_pri_halo);
     RegisterAreaTriggerAI(at_pri_divine_star);
 
-    new spell_pri_shadow_mend();
-    new spell_pri_shadow_mend_aura();
+    RegisterSpellScript(spell_pri_shadow_mend);
+    RegisterAuraScript(spell_pri_shadow_mend_aura);
     new spell_pri_plea();
     new spell_pri_power_word_radiance();
     RegisterAuraScript(spell_pri_atonement);
