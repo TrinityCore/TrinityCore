@@ -73,6 +73,9 @@ enum SpellFamilyFlag
     // Warlock
     SPELLFAMILYFLAG_WARLOCK_LIFETAP         = 0x00040000,
 
+    // Hunter
+    SPELLFAMILYFLAG1_HUNTER_EXPLOSIVE_SHOT  = 0x80000000,
+
     // Druid
     SPELLFAMILYFLAG2_DRUID_STARFALL         = 0x00000100,
 
