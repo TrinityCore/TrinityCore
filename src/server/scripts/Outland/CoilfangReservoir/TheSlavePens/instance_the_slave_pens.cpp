@@ -28,6 +28,21 @@ gets instead the deserter debuff.
 #include "Map.h"
 #include "the_slave_pens.h"
 
+ObjectData const creatureData[] =
+{
+    { NPC_AHUNE,                    DATA_AHUNE             },
+    { NPC_FROZEN_CORE,              DATA_FROZEN_CORE       },
+    { NPC_AHUNE_LOC_BUNNY,          DATA_AHUNE_BUNNY       },
+    { NPC_SHAMAN_BONFIRE_BUNNY_000, DATA_BONFIRE_BUNNY_000 },
+    { NPC_SHAMAN_BONFIRE_BUNNY_001, DATA_BONFIRE_BUNNY_001 },
+    { NPC_SHAMAN_BONFIRE_BUNNY_002, DATA_BONFIRE_BUNNY_002 },
+    { NPC_SHAMAN_BEAM_BUNNY_000,    DATA_BEAM_BUNNY_000    },
+    { NPC_SHAMAN_BEAM_BUNNY_001,    DATA_BEAM_BUNNY_001    },
+    { NPC_SHAMAN_BEAM_BUNNY_002,    DATA_BEAM_BUNNY_002    },
+    { NPC_LUMA_SKYMOTHER,           DATA_LUMA_SKYMOTHER    },
+    { 0,                            0,                     }
+};
+
 class instance_the_slave_pens : public InstanceMapScript
 {
 public:
@@ -38,66 +53,30 @@ public:
         instance_the_slave_pens_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             counter = DATA_FLAMECALLER_000;
+            LoadObjectData(creatureData, nullptr);
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
-            switch (creature->GetEntry())
-            {
-                case NPC_AHUNE:
-                    AhuneGUID = creature->GetGUID();
-                    break;
-                case NPC_FROZEN_CORE:
-                    FrozenCoreGUID = creature->GetGUID();
-                    break;
-                case NPC_AHUNE_LOC_BUNNY:
-                    AhuneBunnyGUID = creature->GetGUID();
-                    break;
-                case NPC_SHAMAN_BONFIRE_BUNNY_000:
-                    BonfireBunnyGUIDs[0] = creature->GetGUID();
-                    break;
-                case NPC_SHAMAN_BONFIRE_BUNNY_001:
-                    BonfireBunnyGUIDs[1] = creature->GetGUID();
-                    break;
-                case NPC_SHAMAN_BONFIRE_BUNNY_002:
-                    BonfireBunnyGUIDs[2] = creature->GetGUID();
-                    break;
-                case NPC_SHAMAN_BEAM_BUNNY_000:
-                    BeamBunnyGUIDs[0] = creature->GetGUID();
-                    break;
-                case NPC_SHAMAN_BEAM_BUNNY_001:
-                    BeamBunnyGUIDs[1] = creature->GetGUID();
-                    break;
-                case NPC_SHAMAN_BEAM_BUNNY_002:
-                    BeamBunnyGUIDs[2] = creature->GetGUID();
-                    break;
-                case NPC_LUMA_SKYMOTHER:
-                    LumaGUID = creature->GetGUID();
-                    break;
-                case NPC_EARTHEN_RING_FLAMECALLER:
-                    SetGuidData(counter, creature->GetGUID());
-                    ++counter;
-                    break;
-                default:
-                    break;
-            }
-        }
+            InstanceScript::OnCreatureCreate(creature);
 
-        void SetGuidData(uint32 data, ObjectGuid guid) override
-        {
-            switch (data)
+            if (creature->GetEntry() == NPC_EARTHEN_RING_FLAMECALLER)
             {
-                case DATA_FLAMECALLER_000:
-                    FlameCallerGUIDs[0] = guid;
-                    break;
-                case DATA_FLAMECALLER_001:
-                    FlameCallerGUIDs[1] = guid;
-                    break;
-                case DATA_FLAMECALLER_002:
-                    FlameCallerGUIDs[2] = guid;
-                    break;
-                default:
-                    break;
+                switch (counter)
+                {
+                    case DATA_FLAMECALLER_000:
+                        FlameCallerGUIDs[0] = creature->GetGUID();
+                        break;
+                    case DATA_FLAMECALLER_001:
+                        FlameCallerGUIDs[1] = creature->GetGUID();
+                        break;
+                    case DATA_FLAMECALLER_002:
+                        FlameCallerGUIDs[2] = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+                ++counter;
             }
         }
 
@@ -105,32 +84,12 @@ public:
         {
             switch (type)
             {
-                case DATA_AHUNE:
-                    return AhuneGUID;
-                case DATA_AHUNE_BUNNY:
-                    return AhuneBunnyGUID;
-                case DATA_FROZEN_CORE:
-                    return FrozenCoreGUID;
                 case DATA_FLAMECALLER_000:
                     return FlameCallerGUIDs[0];
                 case DATA_FLAMECALLER_001:
                     return FlameCallerGUIDs[1];
                 case DATA_FLAMECALLER_002:
                     return FlameCallerGUIDs[2];
-                case DATA_BONFIRE_BUNNY_000:
-                    return BonfireBunnyGUIDs[0];
-                case DATA_BONFIRE_BUNNY_001:
-                    return BonfireBunnyGUIDs[1];
-                case DATA_BONFIRE_BUNNY_002:
-                    return BonfireBunnyGUIDs[2];
-                case DATA_BEAM_BUNNY_000:
-                    return BeamBunnyGUIDs[0];
-                case DATA_BEAM_BUNNY_001:
-                    return BeamBunnyGUIDs[1];
-                case DATA_BEAM_BUNNY_002:
-                    return BeamBunnyGUIDs[2];
-                case DATA_LUMA_SKYMOTHER:
-                    return LumaGUID;
                 default:
                     break;
             }
@@ -138,13 +97,7 @@ public:
         }
 
     protected:
-        ObjectGuid AhuneGUID;
-        ObjectGuid AhuneBunnyGUID;
-        ObjectGuid FrozenCoreGUID;
-        ObjectGuid LumaGUID;
         ObjectGuid FlameCallerGUIDs[3];
-        ObjectGuid BonfireBunnyGUIDs[3];
-        ObjectGuid BeamBunnyGUIDs[3];
         uint8 counter;
     };
 

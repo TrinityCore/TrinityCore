@@ -164,58 +164,6 @@ LOCK TABLES `autobroadcast` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `ip2nation`
---
-
-DROP TABLE IF EXISTS `ip2nation`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip2nation` (
-  `ip` int(11) unsigned NOT NULL DEFAULT '0',
-  `country` char(2) NOT NULL DEFAULT '',
-  KEY `ip` (`ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ip2nation`
---
-
-LOCK TABLES `ip2nation` WRITE;
-/*!40000 ALTER TABLE `ip2nation` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ip2nation` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `ip2nationCountries`
---
-
-DROP TABLE IF EXISTS `ip2nationCountries`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip2nationCountries` (
-  `code` varchar(4) NOT NULL DEFAULT '',
-  `iso_code_2` varchar(2) NOT NULL DEFAULT '',
-  `iso_code_3` varchar(3) DEFAULT '',
-  `iso_country` varchar(255) NOT NULL DEFAULT '',
-  `country` varchar(255) NOT NULL DEFAULT '',
-  `lat` float NOT NULL DEFAULT '0',
-  `lon` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`code`),
-  KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ip2nationCountries`
---
-
-LOCK TABLES `ip2nationCountries` WRITE;
-/*!40000 ALTER TABLE `ip2nationCountries` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ip2nationCountries` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `ip_banned`
 --
 
@@ -1839,7 +1787,8 @@ INSERT INTO `updates` VALUES
 ('2018_01_24_00_auth.sql','167B17D8A253D62A8112F8A7EB21C6E99CAEF1E4','ARCHIVED','2018-01-24 00:00:00',73),
 ('2018_02_19_00_auth.sql','80E50F9C7F1EE7BA62789EA4C4F009170B79E6C9','RELEASED','2018-02-18 19:49:37',62),
 ('2018_03_06_00_auth.sql','2D71E93DF7419A30D0D21D8A80CF05698302575A','RELEASED','2018-03-06 00:00:00',0),
-('2018_03_08_00_auth.sql','624C58A07E0B4DDC4C1347E8BA8EFEEFD5B43DA7','RELEASED','2018-01-12 15:10:11',0);
+('2018_03_08_00_auth.sql','624C58A07E0B4DDC4C1347E8BA8EFEEFD5B43DA7','RELEASED','2018-01-12 15:10:11',0),
+('2018_06_23_00_auth.sql','BE35312C386A127D047E5A7CE0D14DB41D905F8E','RELEASED','2018-05-23 10:14:39',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
