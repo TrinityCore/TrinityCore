@@ -131,7 +131,7 @@ public:
             {
                 if (IpLocationRecord* location = sIPLocation->GetData(handler->GetSession()->GetRemoteAddress()))
                 {
-                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_COUNTRY);
                     stmt->setString(0, location->country_code);
                     stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
                     LoginDatabase.Execute(stmt);
@@ -145,7 +145,7 @@ public:
             }
             else if (param == "off")
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_COUNTRY);
                 stmt->setString(0, "00");
                 stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
                 LoginDatabase.Execute(stmt);
