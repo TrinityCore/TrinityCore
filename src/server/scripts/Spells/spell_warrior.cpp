@@ -2808,7 +2808,7 @@ class aura_warr_ravager : public AuraScript
                 player->CastSpell(player, SPELL_WARRIOR_RAVAGER_PARRY, true);
     }
 
-    void OnTick(AuraEffect const* aurEff)
+    void OnTick(AuraEffect const* /*aurEff*/)
     {
         if (Creature* creature = GetTarget()->GetSummonedCreatureByEntry(NPC_WARRIOR_RAVAGER))
             GetTarget()->CastSpell(creature->GetPosition(), SPELL_WARRIOR_RAVAGER_DAMAGE, true);

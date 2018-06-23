@@ -146,7 +146,8 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_MEND_AURA                   = 187464,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_HEAL                   = 186263,
-    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_ENERGIZE_KILL    = 190714,
     SPELL_PRIEST_SHADOW_WORD_INSANITY_ALLOWING_CAST = 130733,
     SPELL_PRIEST_SHADOW_WORD_INSANITY_DAMAGE        = 129249,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
@@ -1472,36 +1473,25 @@ class spell_pri_renew : public SpellScriptLoader
 };
 
 // 32379 - Shadow Word Death
-class spell_pri_shadow_word_death : public SpellScriptLoader
+class spell_pri_shadow_word_death : public SpellScript
 {
-    public:
-        spell_pri_shadow_word_death() : SpellScriptLoader("spell_pri_shadow_word_death") { }
+    PrepareSpellScript(spell_pri_shadow_word_death);
 
-        class spell_pri_shadow_word_death_SpellScript : public SpellScript
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
         {
-            PrepareSpellScript(spell_pri_shadow_word_death_SpellScript);
-
-            void HandleDamage()
-            {
-                int32 damage = GetHitDamage();
-
-                // Pain and Suffering reduces damage
-                if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
-                    AddPct(damage, aurEff->GetAmount());
-
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, &damage, nullptr, nullptr, true);
-            }
-
-            void Register() override
-            {
-                OnHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleDamage);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_shadow_word_death_SpellScript();
+            if (target->GetHealth() < GetHitDamage())
+                GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH_ENERGIZE_KILL, true);
+            else
+                GetCaster()->ModifyPower(POWER_INSANITY, GetSpellInfo()->GetEffect(EFFECT_2)->BasePoints);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 232698 - Shadowform
@@ -2813,7 +2803,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending_divine_insight();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_renew();
-    new spell_pri_shadow_word_death();
+    RegisterSpellScript(spell_pri_shadow_word_death);
     new spell_pri_shadowfiend();
     new spell_pri_shadowform();
     new spell_pri_spirit_shell();
