@@ -1,0 +1,3 @@
+DELETE FROM `creature` WHERE `guid`=984521 AND `id`=97389;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+('984521', '97389', '1479', '0', '0', '1', '0', '0', '0', '-1', '0', '0', '1142.71', '7223.2', '101.819', '3.11018', '300', '0', '0', '403829', '0', '0', '0', '0', '0', '0', '0', '', '0');
