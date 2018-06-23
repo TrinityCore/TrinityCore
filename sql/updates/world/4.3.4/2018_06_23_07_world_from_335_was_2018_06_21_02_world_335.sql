@@ -1,3 +1,4 @@
+/*
 -- Rift Spawn
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6492 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=649200 AND `source_type`=9;
@@ -25,3 +26,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=64
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=9082 AND `ConditionTypeOrReference`=1;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13,1,9082,0,0,1,0,9032,0,0,0,0,0,"","Create Containment Coffer can only be casted if target has aura 'Self Stun - 30 seconds'");
+*/

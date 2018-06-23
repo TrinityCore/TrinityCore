@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `quest_request_items` SET `EmoteOnComplete`=0 WHERE `ID` IN
 (118, -- Quest "The Price of Shoes"
@@ -153,3 +154,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (2358,1,1,0,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=6, `EmoteOnComplete`=6 WHERE `ID`=2358;
 UPDATE `quest_offer_reward` SET `Emote1`=21, `Emote2`=1 WHERE `ID`=2358;
+*/

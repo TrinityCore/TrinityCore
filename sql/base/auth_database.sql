@@ -325,58 +325,6 @@ INSERT INTO `battlenet_modules` VALUES
 UNLOCK TABLES;
 
 --
--- Table structure for table `ip2nation`
---
-
-DROP TABLE IF EXISTS `ip2nation`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip2nation` (
-  `ip` int(11) unsigned NOT NULL DEFAULT '0',
-  `country` char(2) NOT NULL DEFAULT '',
-  KEY `ip` (`ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ip2nation`
---
-
-LOCK TABLES `ip2nation` WRITE;
-/*!40000 ALTER TABLE `ip2nation` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ip2nation` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `ip2nationCountries`
---
-
-DROP TABLE IF EXISTS `ip2nationCountries`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip2nationCountries` (
-  `code` varchar(4) NOT NULL DEFAULT '',
-  `iso_code_2` varchar(2) NOT NULL DEFAULT '',
-  `iso_code_3` varchar(3) DEFAULT '',
-  `iso_country` varchar(255) NOT NULL DEFAULT '',
-  `country` varchar(255) NOT NULL DEFAULT '',
-  `lat` float NOT NULL DEFAULT '0',
-  `lon` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`code`),
-  KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ip2nationCountries`
---
-
-LOCK TABLES `ip2nationCountries` WRITE;
-/*!40000 ALTER TABLE `ip2nationCountries` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ip2nationCountries` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `ip_banned`
 --
 
@@ -2011,7 +1959,8 @@ INSERT INTO `updates` VALUES
 ('2018_03_28_00_auth.sql','45A7C896BDF00B1C319C9F889893D3B95E45EF0A','ARCHIVED','2018-03-28 01:40:04',0),
 ('2018_04_15_00_auth.sql','2293BAA1DA754CFD780838FE99EDB98FD7C041E0','ARCHIVED','2018-04-15 01:40:04',0),
 ('2018_05_15_00_auth.sql','9076B44013D5BE1E92A06BDE7CE4F9B6663272CC','ARCHIVED','2018-05-15 01:40:04',0),
-('2018_06_15_00_auth.sql','28E2E814F529190BC9423E2A220970F60307DD22','ARCHIVED','2018-06-15 01:40:04',0);
+('2018_06_15_00_auth.sql','28E2E814F529190BC9423E2A220970F60307DD22','ARCHIVED','2018-06-15 01:40:04',0),
+('2018_06_23_00_auth.sql','BE35312C386A127D047E5A7CE0D14DB41D905F8E','ARCHIVED','2018-06-23 01:40:04',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
