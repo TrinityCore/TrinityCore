@@ -16,7 +16,9 @@
  */
 
 #include "IPLocation.h"
+#include "Common.h"
 #include "Config.h"
+#include "Errors.h"
 #include "IpAddress.h"
 #include "Log.h"
 #include <fstream>
