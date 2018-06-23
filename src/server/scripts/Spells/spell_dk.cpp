@@ -1153,6 +1153,11 @@ class spell_dk_presence : public SpellScriptLoader
                     });
             }
 
+            void HandleRunicPowerLoss(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->SetPower(POWER_RUNIC_POWER, 0);
+            }
+
             void HandleImprovedBloodPresence(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -1231,6 +1236,7 @@ class spell_dk_presence : public SpellScriptLoader
 
             void Register() override
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleRunicPowerLoss, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleImprovedBloodPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleImprovedFrostPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleImprovedUnholyPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
