@@ -150,6 +150,9 @@ public:
         if (!player->GetQuestObjectiveData(QUEST_INVASION_BEGIN, 1))
             player->CastSpell(player, SPELL_SCENE_MARDUM_LEGION_BANNER, true);
 
+        if (!player->GetQuestObjectiveData(QUEST_INVASION_BEGIN, 1))
+            player->CastSpell(player, SPELL_PHASE_171, true);
+
         return false;
     }
 };
@@ -305,6 +308,13 @@ public:
             NPC_COLOSSAL_INFERNAL   = 96159
         };
 
+        enum Text
+        {
+            SAY_ONDEATH = 0,
+            SAY_ONCOMBAT = 1,
+            SAY_60PCT = 2,
+        };
+
         ObjectGuid colossalInfernalguid;
 
         void Reset() override
@@ -320,6 +330,8 @@ public:
 
         void EnterCombat(Unit*) override
         {
+            Talk(SAY_ONCOMBAT);
+
             me->GetScheduler().Schedule(Seconds(15), [this](TaskContext context)
             {
                 if (Unit* target = me->GetVictim())
@@ -333,6 +345,11 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     if (Creature* infernal = GetInfernal())
                         infernal->CastSpell(target, SPELL_INFERNAL_SMASH);
+                
+                if (me->GetHealthPct() <= 60)
+                {
+                    Talk(SAY_60PCT);
+                }
 
                 context.Repeat(Seconds(10));
             });
@@ -340,6 +357,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            Talk(SAY_ONDEATH);
+
             if (Creature* infernal = GetInfernal())
                 infernal->KillSelf();
 
@@ -462,6 +481,7 @@ public:
     }
 };
 
+//93221 Doom Commander Beliash
 class npc_mardum_doom_commander_beliash : public CreatureScript
 {
 public:
@@ -480,8 +500,16 @@ public:
             SPELL_LEARN_CONSUME_MAGIC   = 195439
         };
 
+        enum texts
+        {
+            SAY_ONCOMBAT_BELIASH = 0,
+            SAY_ONDEATH = 1,
+        };
+
         void EnterCombat(Unit*) override
         {
+		    Talk(SAY_ONCOMBAT_BELIASH);
+			
             me->GetScheduler().Schedule(Milliseconds(2500), [this](TaskContext context)
             {
                 me->CastSpell(me, SPELL_SHADOW_BOLT_VOLLEY, true);
@@ -503,6 +531,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+		  Talk(SAY_ONDEATH);
+		  
             std::list<Player*> players;
             me->GetPlayerListInGrid(players, 50.0f);
 
@@ -627,8 +657,25 @@ public:
         return true;
     }
 
-    bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*item*/) override
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
+        if (quest->GetQuestId() == 39495)
+        {
+            if (Creature* demonHunter1 = creature->FindNearestCreature(101790, 50.0f))
+                demonHunter1->CastSpell(demonHunter1, 194326, true);
+            if (Creature* demonHunter2 = creature->FindNearestCreature(101787, 50.0f))
+                demonHunter2->CastSpell(demonHunter2, 194326, true);
+            if (Creature* demonHunter3 = creature->FindNearestCreature(101788, 50.0f))
+                demonHunter3->CastSpell(demonHunter3, 194326, true);
+            if (Creature* demonHunter4 = creature->FindNearestCreature(101789, 50.0f))
+                demonHunter4->CastSpell(demonHunter4, 194326, true);
+
+            if (GameObject* go = creature->FindNearestGameObject(245045, 50.0f))
+                go->UseDoorOrButton();
+
+            player->KilledMonsterCredit(98755, ObjectGuid::Empty);
+        }
+
         if (GameObject* personnalCavernStone = player->SummonGameObject(GOB_CAVERN_STONES, 1237.150024f, 1642.619995f, 103.152f, 5.80559f, QuaternionData(0, 0, 20372944, 20372944), 0, true))
         {
             personnalCavernStone->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
@@ -639,7 +686,7 @@ public:
 
             personnalCavernStone->GetScheduler().Schedule(Seconds(4), [](TaskContext context)
             {
-                GetContextGameObject()->Delete();
+                //GetContextGameObject()->Delete();
             });
         }
 
