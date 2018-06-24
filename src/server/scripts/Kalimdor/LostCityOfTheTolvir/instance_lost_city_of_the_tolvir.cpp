@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "lost_city_of_the_tolvir.h"
+#include "AreaBoundary.h"
 #include "Map.h"
 #include "TemporarySummon.h"
 #include "Weather.h"
@@ -74,6 +75,14 @@ ObjectData const gameObjectData[] =
     { 0,                    0                      } // End
 };
 
+BossBoundaryData const boundaries =
+{
+    { DATA_SIAMAT,          new CircleBoundary(Position(-10948.60f, -1400.09f), 54.0f) },
+    { DATA_LOCKMAW,         new CircleBoundary(Position(-11040.49f, -1643.47f), 80.0f) },
+    { DATA_AUGH,            new CircleBoundary(Position(-11040.49f, -1643.47f), 80.0f) },
+    { DATA_GENERAL_HUSAM,   new CircleBoundary(Position(-10872.05f, -1367.73f), 80.0f) },
+};
+
 class instance_lost_city_of_the_tolvir : public InstanceMapScript
 {
     public:
@@ -86,6 +95,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadBossBoundaries(boundaries);
                 Initialize();
             }
 
