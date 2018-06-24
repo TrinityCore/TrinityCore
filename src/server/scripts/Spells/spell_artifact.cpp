@@ -621,7 +621,12 @@ class spell_arti_pri_call_of_the_void : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_CALL_OF_THE_VOID, SPELL_PRIEST_CALL_OF_THE_VOID_SUMMON });
+        return ValidateSpellInfo({ SPELL_PRIEST_MIND_FLAY, SPELL_PRIEST_CALL_OF_THE_VOID, SPELL_PRIEST_CALL_OF_THE_VOID_SUMMON });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_MIND_FLAY;
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -632,6 +637,7 @@ class spell_arti_pri_call_of_the_void : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_arti_pri_call_of_the_void::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_arti_pri_call_of_the_void::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -643,26 +649,31 @@ struct npc_arti_priest_void_tendril : public Scripted_NoMovementAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        _targetGuid = summoner->GetTarget();
-        if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGuid))
+        auto channelTargets = summoner->GetChannelObjects();
+
+        if (channelTargets.size() != 1)
+        {
+            me->DisappearAndDie();
+            return;
+        }
+
+        ObjectGuid targetGuid = *(channelTargets.begin());
+        if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
         {
             AttackStart(target);
-            me->GetScheduler().Schedule(250ms, [this](TaskContext context)
+            me->GetScheduler().Schedule(250ms, [this, targetGuid](TaskContext context)
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 if (Unit* owner = me->GetOwner())
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGuid))
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
                         me->CastCustomSpell(SPELL_PRIEST_MIND_FLAY, SPELLVALUE_BASE_POINT0, owner->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_SHADOW, false), target);
 
                 context.Repeat();
             });
         }
     }
-
-private:
-    ObjectGuid _targetGuid;
 };
 
 // 200653  - Tyr's Deliverance
