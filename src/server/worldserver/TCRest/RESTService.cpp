@@ -48,7 +48,7 @@ bool RESTService::Start()
     {
         try
         {
-            TC_LOG_DEBUG("server.rest", "[%s:%d] Handling GET request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
+            TC_LOG_DEBUG("server.rest", "[%s:%d] Handling GET request path=\"%s\"", request->remote_endpoint_address().c_str(), request->remote_endpoint_port(), request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
                 throw std::runtime_error("Bad Authorization token header");
@@ -70,7 +70,7 @@ bool RESTService::Start()
     {
         try
         {
-            TC_LOG_DEBUG("server.rest", "[%s:%d] Handling POST request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
+            TC_LOG_DEBUG("server.rest", "[%s:%d] Handling POST request path=\"%s\"", request->remote_endpoint_address().c_str(), request->remote_endpoint_port(), request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
                 throw std::runtime_error("Bad Authorization token header");
@@ -125,13 +125,13 @@ bool RESTService::checkAuthTokenHeader(std::shared_ptr<HttpServer::Request> requ
 
     if (headerAuthTokenItr == request->header.end())
     {
-        TC_LOG_WARN("server.rest", "[%s:%d] ERROR : POST request without authToken header, path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
+        TC_LOG_WARN("server.rest", "[%s:%d] ERROR : POST request without authToken header, path=\"%s\"", request->remote_endpoint_address().c_str(), request->remote_endpoint_port(), request->path.c_str());
         return false;
     }
 
     if (_authToken != headerAuthTokenItr->second)
     {
-        TC_LOG_WARN("server.rest", "[%s:%d] ERROR : POST request with bad authToken header, path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
+        TC_LOG_WARN("server.rest", "[%s:%d] ERROR : POST request with bad authToken header, path=\"%s\"", request->remote_endpoint_address().c_str(), request->remote_endpoint_port(), request->path.c_str());
         return false;
     }
 

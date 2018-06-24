@@ -1483,7 +1483,7 @@ class spell_pri_shadow_word_death : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            if (target->GetHealth() < GetHitDamage())
+            if (target->GetHealth() < uint64(GetHitDamage()))
                 GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH_ENERGIZE_KILL, true);
             else
                 GetCaster()->ModifyPower(POWER_INSANITY, GetSpellInfo()->GetEffect(EFFECT_2)->BasePoints);
@@ -1508,10 +1508,7 @@ class spell_pri_shadowform : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH, SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH });
             }
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

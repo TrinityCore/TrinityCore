@@ -218,7 +218,9 @@ enum eGatewaySpells
 {
     PortalVisual = 113900,
     GatewayInteract = 113902,
-    CooldownMarker = 113942
+    CooldownMarker = 113942,
+	TeleportVisualGreen = 236762,
+    TeleportVisualPurple = 236671
 };
 
 enum eGatewayNpc
@@ -2332,23 +2334,41 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
 {
 public:
     spell_npc_warl_demonic_gateway_purple() : CreatureScript("spell_npc_warl_demonic_gateway_purple") { }
-
+    enum eNpc
+    {
+        DELAY_TO_INTERACT = 50
+    };
     struct spell_npc_warl_demonic_gateway_purpleAI : public CreatureAI
     {
-        spell_npc_warl_demonic_gateway_purpleAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+        spell_npc_warl_demonic_gateway_purpleAI(Creature* p_Creature) : CreatureAI(p_Creature) { Init(); }
 
-        void UpdateAI(uint32 /*diff*/) override
+        EventMap m_events;
+        uint32 ready_to_jump;
+
+        void UpdateAI(uint32 diff) override
         {
+            m_events.Update(diff);
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case DELAY_TO_INTERACT:
+                {
+                    ready_to_jump = 1;
+                    me->SetFlag(UNIT_FIELD_INTERACT_SPELLID, eGatewaySpells::GatewayInteract);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                    break;
+                }
+                }
+            }
         }
-
-        void JustRespawned() override
+        void Init()
         {
             me->CastSpell(me, eGatewaySpells::PortalVisual, true);
-
-            me->SetFlag(UNIT_FIELD_INTERACT_SPELLID, eGatewaySpells::GatewayInteract);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
+            ready_to_jump = 0;
+            m_events.ScheduleEvent(DELAY_TO_INTERACT, 500);
         }
 
         void OnSpellClick(Unit* p_Clicker, bool& /*result*/) override
@@ -2400,12 +2420,13 @@ public:
                 // Init dest coordinates
                 float x, y, z;
                 itr->GetPosition(x, y, z);
-
                 float speedXY;
                 float speedZ = 5;
 
                 speedXY = p_Clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
+                p_Clicker->CastSpell(p_Clicker, eGatewaySpells::TeleportVisualPurple, true);
                 p_Clicker->GetMotionMaster()->MoveJump(x, y, z, p_Clicker->GetOrientation(), speedXY, speedZ);
+
                 break;
             }
         }
@@ -2422,24 +2443,41 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
 {
 public:
     spell_npc_warl_demonic_gateway_green() : CreatureScript("spell_npc_warl_demonic_gateway_green") { }
-
+    enum eNpc
+    {
+        DELAY_TO_INTERACT = 50
+    };
     struct spell_npc_warl_demonic_gateway_greenAI : public CreatureAI
     {
-        spell_npc_warl_demonic_gateway_greenAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+        spell_npc_warl_demonic_gateway_greenAI(Creature* p_Creature) : CreatureAI(p_Creature) { Init(); }
 
-        void UpdateAI(uint32 /*diff*/) override
+        EventMap m_events;
+        uint32 ready_to_jump;
+
+        void UpdateAI(uint32 diff) override
         {
+            m_events.Update(diff);
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case DELAY_TO_INTERACT:
+                {
+                    ready_to_jump = 1;
+                    me->SetFlag(UNIT_FIELD_INTERACT_SPELLID, eGatewaySpells::GatewayInteract);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                    break;
+                }
+                }
+            }
         }
-
-        void JustRespawned() override
+        void Init()
         {
             me->CastSpell(me, eGatewaySpells::PortalVisual, true);
-
-            me->SetFlag(UNIT_FIELD_INTERACT_SPELLID, eGatewaySpells::GatewayInteract);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
-
+            ready_to_jump = 0;
+            m_events.ScheduleEvent(DELAY_TO_INTERACT, 500);
         }
 
         void OnSpellClick(Unit* p_Clicker, bool& /*result*/) override
@@ -2490,12 +2528,13 @@ public:
                 // Init dest coordinates
                 float x, y, z;
                 itr->GetPosition(x, y, z);
-
                 float speedXY;
                 float speedZ = 5;
 
                 speedXY = p_Clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
+                p_Clicker->CastSpell(p_Clicker, eGatewaySpells::TeleportVisualGreen, true);
                 p_Clicker->GetMotionMaster()->MoveJump(x, y, z, p_Clicker->GetOrientation(), speedXY, speedZ);
+
                 break;
             }
         }
