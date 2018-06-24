@@ -76,7 +76,12 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
-    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
+    SPELL_DRUID_TREE_OF_LIFE                = 33891,
+    SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1      = 5420,
+    SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2      = 81097,
+    SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3      = 81098
+
 };
 
 enum DruidSpellIconIds
@@ -1374,18 +1379,20 @@ class spell_dru_wild_growth : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_wild_growth_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (spellInfo->Effects[EFFECT_2].IsEffect() || spellInfo->Effects[EFFECT_2].CalcValue() <= 0)
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DRUID_TREE_OF_LIFE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(RaidCheck(GetCaster()));
 
-                uint32 const maxTargets = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster()));
+                uint8 maxTargets = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                // Tree of Life bonus
+                if (GetCaster()->HasAura(SPELL_DRUID_TREE_OF_LIFE))
+                    maxTargets += 2;
 
                 if (targets.size() > maxTargets)
                 {
@@ -1625,6 +1632,60 @@ class spell_dru_rejuvenation : public SpellScriptLoader
         }
 };
 
+// 33891 - Tree of Life
+class spell_dru_tree_of_life : public SpellScriptLoader
+{
+    public:
+        spell_dru_tree_of_life() : SpellScriptLoader("spell_dru_tree_of_life") { }
+
+        class spell_dru_tree_of_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_tree_of_life_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1,
+                        SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2,
+                        SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3
+                    });
+            }
+
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1, true, nullptr, aurEff);
+                    target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2, true, nullptr, aurEff);
+                    target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3, true, nullptr, aurEff);
+
+                }
+            }
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    target->RemoveAurasDueToSpell(SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1);
+                    target->RemoveAurasDueToSpell(SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2);
+                    target->RemoveAurasDueToSpell(SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3);
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_tree_of_life_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_tree_of_life_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_tree_of_life_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1657,6 +1718,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_swift_flight_passive();
     new spell_dru_flight_form();
     new spell_dru_tiger_s_fury();
+    new spell_dru_tree_of_life();
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();
