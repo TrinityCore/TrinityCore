@@ -571,12 +571,12 @@ class npc_brazie_the_bonatist_vehicle : public CreatureScript
 
             }
 
-            bool IsSpotFree(Position const* pos)
+            bool IsSpotFree(Position pos)
             {
                 for (ObjectGuid guid : _spotGUIDs)
                 {
                     if (Creature* spot = ObjectAccessor::GetCreature(*me, guid))
-                        if (spot->GetDistance(*pos) <= 5.0f)
+                        if (spot->GetDistance(pos) <= 5.0f)
                             if (spot->IsAIEnabled)
                                 if (spot->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
                                     return true;
@@ -1232,7 +1232,7 @@ class spell_brazie_summon_plant : public SpellScriptLoader
             {
                 if (Creature* creature = GetCaster()->ToCreature())
                     if (CAST_AI(npc_brazie_the_bonatist_vehicle::npc_brazie_the_bonatist_vehicleAI,
-                        creature->AI())->IsSpotFree(&GetExplTargetDest()->GetPosition()))
+                        creature->AI())->IsSpotFree(GetExplTargetDest()->GetPosition()))
                         return SPELL_CAST_OK;
 
                 return SPELL_FAILED_BAD_TARGETS;
