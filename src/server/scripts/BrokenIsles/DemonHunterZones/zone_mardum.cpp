@@ -678,15 +678,14 @@ public:
 
         if (GameObject* personnalCavernStone = player->SummonGameObject(GOB_CAVERN_STONES, 1237.150024f, 1642.619995f, 103.152f, 5.80559f, QuaternionData(0, 0, 20372944, 20372944), 0, true))
         {
-            personnalCavernStone->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
+            personnalCavernStone->GetScheduler().
+            Schedule(2s, [](TaskContext context)
             {
                 GetContextGameObject()->SetLootState(GO_READY);
                 GetContextGameObject()->UseDoorOrButton(10000);
-            });
-
-            personnalCavernStone->GetScheduler().Schedule(Seconds(4), [](TaskContext context)
+            }).Schedule(10s, [](TaskContext context)
             {
-                //GetContextGameObject()->Delete();
+                GetContextGameObject()->Delete();
             });
         }
 

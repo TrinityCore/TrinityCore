@@ -1977,8 +1977,8 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                caster->SetFall(true);
                 caster->SetDisableGravity(false);
+                caster->SetFall(true);
                 caster->SendSetPlayHoverAnim(false);
             }
         }
