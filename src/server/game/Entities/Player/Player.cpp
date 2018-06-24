@@ -28867,6 +28867,10 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
+    #define ADD_MISSING_FLAGS(check, maskToAdd) \
+        if (check) \
+            mi->AddMovementFlag((maskToAdd));
+
     if (!GetVehicleBase() || !(GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
 
@@ -28926,6 +28930,8 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
         MOVEMENTFLAG_FALLING);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) && G3D::fuzzyEq(mi->splineElevation, 0.0f), MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    ADD_MISSING_FLAGS(IsLevitating(), MOVEMENTFLAG_DISABLE_GRAVITY);
 
     // Client first checks if spline elevation != 0, then verifies flag presence
     if (G3D::fuzzyNe(mi->splineElevation, 0.0f))

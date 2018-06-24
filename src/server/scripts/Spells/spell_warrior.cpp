@@ -2826,7 +2826,7 @@ class spell_warr_ravager_damage : public SpellScript
 {
     PrepareSpellScript(spell_warr_ravager_damage);
 
-    void HandleOnHitTarget(SpellEffIndex /* effIndex */)
+    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (!_alreadyProc)
         {
