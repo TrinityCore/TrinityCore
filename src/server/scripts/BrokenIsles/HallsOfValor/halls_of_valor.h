@@ -20,19 +20,51 @@
 
 enum DataTypes
 {
-    DATA_HYMDALL            = 0,
-    DATA_HYRJA              = 1,
-    DATA_FRENRYR            = 2,
-    DATA_GODKING_SKOVALD    = 3,
-    DATA_ODYN               = 4,
+    DATA_HYMDALL,
+    DATA_HYRJA,
+    DATA_FENRYR,
+    DATA_GODKING_SKOVALD,
+    DATA_ODYN,
 
-    DATA_MAX_ENCOUNTERS     = 5
+    // Hyrja Adds
+    DATA_OLMYR,
+    DATA_SOLSTEN,
+
+    // Odyn Adds
+    DATA_KING_RANULF,
+    DATA_KING_HALDOR,
+    DATA_KING_BJORN,
+    DATA_KING_TOR,
+
+    DATA_MAX_ENCOUNTERS
+};
+
+enum CreatureIds
+{
+    BOSS_HYMDALL                = 94960,
+    BOSS_HYRJA                  = 95833,
+    BOSS_FENRYR                 = 99868,
+    BOSS_GOD_KING_SKOVALD       = 95675,
+    BOSS_ODYN                   = 95676,
+
+    NPC_KING_RANULF             = 97083,
+    NPC_KING_HALDOR             = 95843,
+    NPC_KING_BJORN              = 97081,
+    NPC_KING_TOR                = 97084,
+
+    NPC_STORM_DRAKE             = 99891,
+    NPC_STATIC_FIELD            = 97795,
+    NPC_SOLSTEN                 = 97219,
+    NPC_SOLSTEN_GHOST           = 102558,
+    NPC_OLMYR_THE_ENLIGHTENED   = 97202,
+    NPC_OLMYR_GHOST             = 102557,
 };
 
 enum GameObjects
 {
     GOB_DOOR_HYMDALL_ENTRANCE   = 245700,
     GOB_DOOR_HYMDALL_EXIT       = 245701,
+    GOB_HYMDALLS_CACHE          = 258968,
 
     GOB_DOOR_HYRJA_ROOM         = 245702,
 
@@ -40,6 +72,13 @@ enum GameObjects
     GOB_DOOR_ODYN_BRIDGE        = 246144,
 
     GOB_DOOR_ODYN_ROOM          = 246145,
+    GO_SPOILS_OF_THE_WORTHY     = 245847,
+};
+
+enum Actions
+{
+    ACTION_EVENT_START,
+    ACTION_CAN_JOIN_COMBAT,
 };
 
 #endif

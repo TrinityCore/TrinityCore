@@ -94,7 +94,7 @@ void AddSC_boss_warlord_parjesh();
 // Halls of Valor
 void AddSC_instance_halls_of_valor();
 void AddSC_halls_of_valor();
-void AddSC_boss_odyn();
+void AddSC_boss_odyn_hov();
 void AddSC_boss_hyrja();
 void AddSC_boss_hymdall();
 void AddSC_boss_godking_skovald();
@@ -255,7 +255,7 @@ void AddBrokenIslesScripts()
     // Halls of Valor
     AddSC_instance_halls_of_valor();
     AddSC_halls_of_valor();
-    AddSC_boss_odyn();
+    AddSC_boss_odyn_hov();
     AddSC_boss_hyrja();
     AddSC_boss_hymdall();
     AddSC_boss_godking_skovald();
