@@ -22,11 +22,11 @@ enum Spells
 {
     SPELL_STATIC_NOVA                   = 193597,
     SPELL_FOCUSED_LIGHT                 = 193611,
-    
+
     SPELL_BECKON_STORM                  = 193682,
     SPELL_BECKON_STORM_SUMMON           = 193683,
     SPELL_WATERY_SPLASH                 = 193636,
-    
+
     SPELL_CURSE_OF_THE_WITCH            = 193698,
     SPELL_CURSE_OF_THE_WITCH_KNOCK_BACK = 193700,
     SPELL_CURSE_OF_THE_WITCH_KILL       = 193720,

@@ -27,7 +27,7 @@ enum Spells
 
     // Kurtalos
     SPELL_UNERRING_SHEAR            = 198635,
-    
+
     NPC_WHIRLING_BLADE              = 100861,
     SPELL_WHIRLING_BLADE            = 198641,
     SPELL_WHIRLING_BLADE_DAMAGE     = 198781,
