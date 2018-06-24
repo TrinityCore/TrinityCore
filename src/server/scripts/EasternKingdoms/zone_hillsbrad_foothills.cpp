@@ -571,7 +571,7 @@ class npc_brazie_the_bonatist_vehicle : public CreatureScript
 
             }
 
-            bool IsSpotFree(Position pos)
+            bool IsSpotFree(Position const pos)
             {
                 for (ObjectGuid guid : _spotGUIDs)
                 {
