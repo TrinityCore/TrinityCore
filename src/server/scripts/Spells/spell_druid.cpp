@@ -59,6 +59,7 @@ enum DruidSpells
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
+    SPELL_DRUID_INNERVATE_TRIGGERED         = 54833,
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
     SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS     = 70726,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
@@ -86,7 +87,9 @@ enum DruidSpells
 
 enum DruidSpellIconIds
 {
-    SPELL_ICON_ID_NATURES_BOUNTY = 197,
+    SPELL_ICON_ID_NATURES_BOUNTY        = 197,
+    SPELL_ICON_ID_DREAMSTATE            = 2255,
+    SPELL_ICON_ID_GLYPH_OF_INNERVATE    = 62,
 };
 
 // 1850 - Dash
@@ -460,46 +463,6 @@ class spell_dru_enrage : public SpellScriptLoader
         }
 };
 
-// 54832 - Glyph of Innervate
-class spell_dru_glyph_of_innervate : public SpellScriptLoader
-{
-    public:
-        spell_dru_glyph_of_innervate() : SpellScriptLoader("spell_dru_glyph_of_innervate") { }
-
-        class spell_dru_glyph_of_innervate_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_glyph_of_innervate_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_INNERVATE });
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                // Not proc from self Innervate
-                return GetTarget() != eventInfo.GetProcTarget();
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_GLYPH_OF_INNERVATE, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_dru_glyph_of_innervate_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_innervate_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dru_glyph_of_innervate_AuraScript();
-        }
-};
-
 // 54846 - Glyph of Starfire
 class spell_dru_glyph_of_starfire : public SpellScriptLoader
 {
@@ -629,10 +592,39 @@ class spell_dru_innervate : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
+                Unit* target = GetUnitOwner();
+                if (!target)
+                    return;
+
+                uint32 mana = target->GetMaxPower(POWER_MANA);
+                if (!mana)
+                    return;
+
+                uint8 ticks = aurEff->GetTotalTicks();
+
+                // Regenerate 5% of maximum mana
+                uint8 percentage = 5;
+
+                // If casted on self regenerate 15% additional mana
                 if (Unit* caster = GetCaster())
-                    amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
-                else
-                    amount = 0;
+                {
+                    if (target == caster)
+                    {
+                        percentage += 15;
+
+                        // Dreamstate increases the amount by additional 15%
+                        if (AuraEffect* dreamState = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_DREAMSTATE, EFFECT_0))
+                            percentage += dreamState->GetAmount();
+                    }
+                    else
+                    {
+                        // Glyph of Innervate
+                        if (AuraEffect* glyph = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GLYPH_OF_INNERVATE, EFFECT_0))
+                            caster->CastSpell(caster, SPELL_DRUID_INNERVATE_TRIGGERED, true);
+                    }
+                }
+
+                amount = CalculatePct(mana, percentage) / aurEff->GetTotalTicks();
             }
 
             void Register() override
@@ -1469,7 +1461,6 @@ class spell_dru_effloresence : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                printf("we procces efflorescence \n");
                 PreventDefaultAction();
                 int32 healAmount = 0;
 
@@ -1697,7 +1688,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_effloresence_aoe();
     new spell_dru_effloresence_heal();
     new spell_dru_enrage();
-    new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
     new spell_dru_glyph_of_starfire_proc();
     new spell_dru_idol_lifebloom();
