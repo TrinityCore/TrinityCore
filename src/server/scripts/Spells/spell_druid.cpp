@@ -1546,8 +1546,6 @@ class spell_dru_effloresence_heal : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->GetAuraCount(0);
-
                 if (Unit* caster = GetCaster())
                     if (Aura const* aura = caster->GetAura(SPELL_DRUID_EFFLORESCENCE_AOE, caster->GetGUID()))
                         if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
