@@ -1029,6 +1029,7 @@ bool Aura::CanBeSaved() const
         case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
+        case 96206: // Nature's Bounty
             return false;
     }
 

@@ -42,6 +42,8 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE_MARKER        = 67483, // Will make the yellow arrow on eclipse bar point to the yellow side (solar)
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
+    SPELL_DRUID_EFFLORESCENCE_AOE           = 81262,
+    SPELL_DRUID_EFFLORESCENCE_HEAL          = 81269,
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
     SPELL_DRUID_ENRAGED_DEFENSE             = 70725,
     SPELL_DRUID_EUPHORIA_RANK_1             = 81061,
@@ -64,6 +66,7 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+    SPELL_DRUID_NATURES_BOUNTY              = 96206,
     SPELL_DRUID_NATURES_GRACE               = 16880,
     SPELL_DRUID_NATURES_GRACE_TRIGGER       = 16886,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
@@ -74,6 +77,11 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+};
+
+enum DruidSpellIconIds
+{
+    SPELL_ICON_ID_NATURES_BOUNTY = 197,
 };
 
 // 1850 - Dash
@@ -1409,50 +1417,6 @@ class spell_dru_wild_growth : public SpellScriptLoader
         }
 };
 
-// -16880 - Nature's Grace
-class spell_dru_natures_grace : public SpellScriptLoader
-{
-    public:
-        spell_dru_natures_grace() : SpellScriptLoader("spell_dru_natures_grace") { }
-
-        class spell_dru_natures_grace_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_natures_grace_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_DRUID_WRATH,
-                        SPELL_DRUID_STARFIRE,
-                        SPELL_DRUID_STARSURGE
-                    });
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
-                {
-                    case SPELL_DRUID_WRATH:
-                    case SPELL_DRUID_STARFIRE:
-                    case SPELL_DRUID_STARSURGE:
-                        return true;
-                }
-                return false;
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_dru_natures_grace_AuraScript::CheckProc);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dru_natures_grace_AuraScript();
-        }
-};
-
 // 78675 - Solar Beam
 class spell_dru_solar_beam : public SpellScriptLoader
 {
@@ -1486,6 +1450,183 @@ class spell_dru_solar_beam : public SpellScriptLoader
         }
 };
 
+// -34151 - Efflorescence (Proc Aura)
+class spell_dru_effloresence : public SpellScriptLoader
+{
+    public:
+        spell_dru_effloresence() : SpellScriptLoader("spell_dru_effloresence") { }
+
+        class spell_dru_effloresence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_effloresence_AuraScript);
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                printf("we procces efflorescence \n");
+                PreventDefaultAction();
+                int32 healAmount = 0;
+
+                if (HealInfo* heal = eventInfo.GetHealInfo())
+                {
+                    healAmount = CalculatePct(heal->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    if (healAmount)
+                        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_BASE_POINT1, healAmount, heal->GetTarget(), true, nullptr, aurEff);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_effloresence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_effloresence_AuraScript();
+        }
+};
+
+// 81262 - Efflorescence (Area Effect)
+class spell_dru_effloresence_aoe : public SpellScriptLoader
+{
+    public:
+        spell_dru_effloresence_aoe() : SpellScriptLoader("spell_dru_effloresence_aoe") { }
+
+        class spell_dru_effloresence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_effloresence_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE_HEAL });
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    if (DynamicObject* dyn = caster->GetDynObject(aurEff->GetId()))
+                        caster->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_DRUID_EFFLORESCENCE_HEAL, true, nullptr, aurEff, caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_effloresence_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_effloresence_AuraScript();
+        }
+};
+
+//  81269 - Efflorescence (Heal)
+class spell_dru_effloresence_heal : public SpellScriptLoader
+{
+    public:
+        spell_dru_effloresence_heal() : SpellScriptLoader("spell_dru_effloresence_heal") { }
+
+        class spell_dru_effloresence_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_effloresence_heal_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_DRUID_EFFLORESCENCE_AOE });
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() > 3)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred(true));
+                    targets.resize(3);
+                }
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->GetAuraCount(0);
+
+                if (Unit* caster = GetCaster())
+                    if (Aura const* aura = caster->GetAura(SPELL_DRUID_EFFLORESCENCE_AOE, caster->GetGUID()))
+                        if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
+                            if (int32 heal = aurEff->GetAmount())
+                                SetHitHeal(heal);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_effloresence_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_effloresence_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dru_effloresence_heal_SpellScript();
+        }
+};
+
+// 774 - Rejuvenation
+class spell_dru_rejuvenation : public SpellScriptLoader
+{
+    public:
+        spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
+
+        class spell_dru_rejuvenation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_rejuvenation_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_DRUID_NATURES_BOUNTY });
+            }
+
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (AuraEffect* naturesBountyAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, SPELL_ICON_ID_NATURES_BOUNTY, EFFECT_0))
+                    {
+                        // a bit cheaty here but as long as we don't have a unit internal aura count...
+                        naturesBountyAurEff->SetBonusAmount(naturesBountyAurEff->GetBonusAmount() + 1);
+                        if (naturesBountyAurEff->GetBonusAmount() >= 3)
+                        {
+                            int32 bp0 = -naturesBountyAurEff->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                            caster->CastCustomSpell(caster, SPELL_DRUID_NATURES_BOUNTY, &bp0, 0, 0, true);
+                        }
+                    }
+                }
+            }
+
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (AuraEffect* naturesBountyAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, SPELL_ICON_ID_NATURES_BOUNTY, EFFECT_0))
+                    {
+                        naturesBountyAurEff->SetBonusAmount(naturesBountyAurEff->GetBonusAmount() > 0 ? naturesBountyAurEff->GetBonusAmount() - 1 : 0);
+                        if (naturesBountyAurEff->GetBonusAmount() < 3 && caster->HasAura(SPELL_DRUID_NATURES_BOUNTY))
+                            caster->RemoveAurasDueToSpell(SPELL_DRUID_NATURES_BOUNTY);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_rejuvenation_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_rejuvenation_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1493,6 +1634,9 @@ void AddSC_druid_spell_scripts()
     new spell_dru_eclipse("spell_dru_eclipse_solar");
     new spell_dru_eclipse_energize();
     new spell_dru_eclipse_mastery_driver_passive();
+    new spell_dru_effloresence();
+    new spell_dru_effloresence_aoe();
+    new spell_dru_effloresence_heal();
     new spell_dru_enrage();
     new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
@@ -1503,8 +1647,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lifebloom();
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
-    new spell_dru_natures_grace();
     new spell_dru_predatory_strikes();
+    new spell_dru_rejuvenation();
     new spell_dru_rip();
     new spell_dru_savage_defense();
     new spell_dru_savage_roar();
