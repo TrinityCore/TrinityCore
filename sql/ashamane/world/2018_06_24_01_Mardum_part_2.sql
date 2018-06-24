@@ -1,8 +1,8 @@
-    /*//////////////////////////////////////////
-   //  FunSocietyWoW - SAI DEV          //
-  //  Copyright 2018 FunSocietyWoW  //
- //  All Rights Reserved                    //
-////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////////////
+   //  FunSocietyWoW - SAI DEV                                           //
+  //  Copyright 2018 FunSocietyWoW and Ashamane Core //
+ //  All Rights Reserved                                                       //
+//////////////////////////////////////////////////////////////////////////
 
 /*#############
 # Mardum Part - 2   #
