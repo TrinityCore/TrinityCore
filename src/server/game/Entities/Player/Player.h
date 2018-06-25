@@ -21,6 +21,7 @@
 
 #include "Arena.h"
 #include "ArenaHelper.h"
+#include "ArchaeologyPlayerMgr.h"
 #include "Unit.h"
 #include "CUFProfile.h"
 #include "DatabaseEnvFwd.h"
@@ -841,6 +842,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
     PLAYER_LOGIN_QUERY_LOAD_ALL_PETS,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_DIGSITES,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_BRANCHS,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_HISTORY,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2526,6 +2530,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DeleteFromPlayerPetDataStore(uint32 petNumber);
         void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
+        ArchaeologyPlayerMgr& GetArchaeologyMgr() { return m_archaeologyPlayerMgr; }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2884,6 +2890,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_shopTimer;
 
         bool _usePvpItemLevels;
+
+        ArchaeologyPlayerMgr m_archaeologyPlayerMgr;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

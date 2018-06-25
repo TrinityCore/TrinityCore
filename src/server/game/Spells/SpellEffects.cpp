@@ -18,6 +18,8 @@
 
 #include "Spell.h"
 #include "AccountMgr.h"
+#include "ArchaeologyMgr.h"
+#include "ArchaeologyPlayerMgr.h"
 #include "AreaTrigger.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -182,7 +184,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectDismissPet,                               //102 SPELL_EFFECT_DISMISS_PET
     &Spell::EffectReputation,                               //103 SPELL_EFFECT_REPUTATION
     &Spell::EffectSummonObject,                             //104 SPELL_EFFECT_SUMMON_OBJECT_SLOT1
-    &Spell::EffectUnused,                                   //105 SPELL_EFFECT_SURVEY
+    &Spell::EffectSummonSurveyTools,                        //105 SPELL_EFFECT_SURVEY
     &Spell::EffectChangeRaidMarker,                         //106 SPELL_EFFECT_CHANGE_RAID_MARKER
     &Spell::EffectUnused,                                   //107 SPELL_EFFECT_SHOW_CORPSE_LOOT
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
@@ -4076,6 +4078,117 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     map->AddToMap(go);
 
     m_caster->m_ObjectSlot[slot] = go->GetGUID();
+}
+
+void Spell::EffectSummonSurveyTools(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (Player* player = m_caster->ToPlayer())
+    {
+        if (player->HasSkill(SKILL_ARCHAEOLOGY))
+        {
+            ObjectGuid guid = m_caster->m_ObjectSlot[1];
+            uint32 SurveyGoEntry, FindGoEntry = 0;
+            GameObject* obj = NULL;
+
+            if (m_caster)
+                obj = m_caster->GetMap()->GetGameObject(guid);
+
+            if (obj)
+            {
+                // Recast case - null spell id to make auras not be removed on object remove from world
+                if (m_spellInfo->Id == obj->GetSpellId())
+                    obj->SetSpellId(0);
+                m_caster->RemoveGameObject(obj, true);
+            }
+
+            m_caster->m_ObjectSlot[1] = ObjectGuid::Empty;
+
+            // Read digsite info
+            int memId = player->GetArchaeologyMgr().GetDigsite(player->GetPositionX(), player->GetPositionY());
+            uint32 digsiteId = 0;
+
+            std::vector<uint32> const& digsites = player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE);
+
+            for (auto const& digSite : digsites)
+                digsiteId = digSite;
+
+            if (memId < 0 || memId > 16)
+                return;
+
+            Digsite digsite = player->GetArchaeologyMgr().GetDigsitePosition(memId);
+
+            // If digsite info is empty, generate new position and read data
+            if (digsite.x == 0 && digsite.y == 0)
+                sArchaeologyMgr->GenerateRandomPosition(player, digsite.digCount);
+
+            // Set FindGoEntry for treasure
+            switch (sArchaeologyMgr->GetCurrencyId(digsiteId))
+            {
+                case 384: FindGoEntry = 204282; break; // Enano
+                case 398: FindGoEntry = 207188; break; // Draenei
+                case 393: FindGoEntry = 206836; break; // Fosil
+                case 394: FindGoEntry = 203071; break; // Elfo de la noche
+                case 400: FindGoEntry = 203078; break; // Nerubiano
+                case 397: FindGoEntry = 207187; break; // Orco
+                case 401: FindGoEntry = 207190; break; // Tol'vir
+                case 385: FindGoEntry = 202655; break; // Trol
+                default:  FindGoEntry = 207189; break; // Vrykul
+            }
+
+            // Spawn Find GameObject
+            if (player->GetDistance2d(digsite.x, digsite.y) < 15.0f) // Hack fix should be 5.0f
+            {
+                player->SummonGameObject(FindGoEntry, *player, QuaternionData(), 0);
+
+                // Count search or change digsite
+                if (digsite.digCount + 1 < 3)
+                {
+                    player->GetArchaeologyMgr().SetDigsitePosition(memId, 0, 0, digsite.digCount + 1);
+                    player->AddDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS, digsite.digCount + 1);
+                }
+                else
+                    sArchaeologyMgr->ChangeDigsite(player, memId);
+
+                uint32 SkillValue = player->GetPureSkillValue(SKILL_ARCHAEOLOGY);
+
+                if (SkillValue < 50)
+                    player->UpdateGatherSkill(SKILL_ARCHAEOLOGY, SkillValue, 0);
+
+                return;
+            }
+
+            // Set SurveyGoEntry for distance
+            if (player->GetDistance2d(digsite.x, digsite.y) < 35.0f)
+                SurveyGoEntry = 204272;
+            else if (player->GetDistance2d(digsite.x, digsite.y) < 85.0f)
+                SurveyGoEntry = 206589;
+            else
+                SurveyGoEntry = 206590;
+
+            // Spawn Survey Tools
+            Map* map = player->GetMap();
+
+            QuaternionData rot = QuaternionData::fromEulerAnglesZYX(player->GetAngle(digsite.x, digsite.y), 0.f, 0.f);
+            GameObject* go = GameObject::CreateGameObject(SurveyGoEntry, map, Position(player->GetPositionX() + 2, player->GetPositionY() + 2, player->GetPositionZ()), rot, 255, GO_STATE_READY);
+
+            if (!go)
+            {
+                delete go;
+                return;
+            }
+
+            PhasingHandler::InheritPhaseShift(go, m_caster);
+
+            go->SetRespawnTime(60);
+            go->SetSpellId(m_spellInfo->Id);
+            m_caster->AddGameObject(go);
+            map->AddToMap(go);
+            m_caster->m_ObjectSlot[1] = go->GetGUID();
+        }
+    }
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)

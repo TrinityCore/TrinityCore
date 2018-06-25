@@ -227,7 +227,7 @@ struct boss_king_tor : public BossAI
 {
     boss_king_tor(Creature* creature) : BossAI(creature, DATA_KING_TOR) { }
 
-    void sGossipHello(Player* player) override
+    void sGossipHello(Player* /*player*/) override
     {
         me->setFaction(14);
         me->SetReactState(REACT_DEFENSIVE);

@@ -21,6 +21,7 @@
 #include "AreaTriggerPackets.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "ArchaeologyMgr.h"
 #include "Bag.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -137,7 +138,7 @@ static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint64 const MAX_MONEY_AMOUNT = 99999999999ULL;
 
-Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
+Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this), m_archaeologyPlayerMgr(this)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -3429,6 +3430,11 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
                 LearnSpell(itr2->second, false, fromSkill);
         }
     }
+
+    if (spell_id == 89720)
+        sArchaeologyMgr->AddDigsitesToMap(this, 530);
+    if (spell_id == 89721)
+        sArchaeologyMgr->AddDigsitesToMap(this, 571);
 }
 
 void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
@@ -5767,6 +5773,12 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     if ((*j)->GetMiscValue() == int32(id))
                         (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
+                if (id == SKILL_ARCHAEOLOGY)
+                {
+                    sArchaeologyMgr->AddDigsitesToMap(this, 0);
+                    sArchaeologyMgr->AddDigsitesToMap(this, 1);
+                }
+
                 // Learn all spells for skill
                 LearnSkillRewardedSpells(id, newVal);
                 return;
@@ -7027,6 +7039,24 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             UpdateCriteria(CRITERIA_TYPE_CURRENCY, id, count);
 
         CurrencyChanged(id, count);
+
+        if (count <= 7)
+        {
+            switch (id)
+            {
+                case CURRENCY_TYPE_ARCHAEOLOGY_DRAENEI:
+                case CURRENCY_TYPE_ARCHAEOLOGY_DWARF:
+                case CURRENCY_TYPE_ARCHAEOLOGY_FOSSIL:
+                case CURRENCY_TYPE_ARCHAEOLOGY_NERUBIAN:
+                case CURRENCY_TYPE_ARCHAEOLOGY_NIGHT_ELF:
+                case CURRENCY_TYPE_ARCHAEOLOGY_ORC:
+                case CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR:
+                case CURRENCY_TYPE_ARCHAEOLOGY_TROLL:
+                case CURRENCY_TYPE_ARCHAEOLOGY_VRYKUL:
+                    sArchaeologyMgr->InitBranch(this, id);
+                    break;
+            }
+        }
 
         WorldPackets::Misc::SetCurrency packet;
         packet.Type = id;
@@ -18734,6 +18764,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
+    GetArchaeologyMgr().LoadArchaeologyDigSites(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_DIGSITES));
+    GetArchaeologyMgr().LoadArchaeologyBranchs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_BRANCHS));
+    GetArchaeologyMgr().LoadArchaeologyHistory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_HISTORY));
+
     std::unique_ptr<WodGarrison> wodGarrison = Trinity::make_unique<WodGarrison>(this);
     if (wodGarrison->LoadFromDB())
         _garrisons[GARRISON_TYPE_GARRISON] = std::move(wodGarrison);
@@ -20831,6 +20865,10 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
+
+    GetArchaeologyMgr().SaveArchaeologyDigSites(trans);
+    GetArchaeologyMgr().SaveArchaeologyBranchs(trans);
+    GetArchaeologyMgr().SaveArchaeologyHistory(trans);
 
     for (auto const& garrison : GetGarrisons())
         if (garrison.second)

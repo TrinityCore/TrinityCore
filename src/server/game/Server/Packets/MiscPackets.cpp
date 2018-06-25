@@ -612,6 +612,36 @@ WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::ReqResearchHistory const& resHistory)
+{
+    data << resHistory.id;
+    data << resHistory.time;
+    data << resHistory.count;
+
+    return data;
+}
+
+void WorldPackets::Misc::ResearchHistory::Read()
+{
+    _worldPacket << resHistory;
+}
+
+WorldPacket const* WorldPackets::Misc::ResearchSetupHistory::Write()
+{
+    _worldPacket << int32(ResearchHistory.size());
+
+    for (auto const& Research : ResearchHistory)
+        _worldPacket << Research;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ResearchComplete::Write()
+{
+    _worldPacket << researchHistory;
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
 {
     _worldPacket << UnitGUID;

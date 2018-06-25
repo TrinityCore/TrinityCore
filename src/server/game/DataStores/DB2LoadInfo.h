@@ -4032,6 +4032,99 @@ struct QuestXpLoadInfo
     }
 };
 
+struct QuestPOIBlobInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "MapId" },
+            { false, FT_SHORT, "WorldMapAreaId" },
+            { false, FT_BYTE, "NumPoints" },
+            { false, FT_BYTE, "Floor" },
+            { false, FT_INT, "PlayerConditionId" },
+            { false, FT_INT, "QuestId" },
+            { false, FT_INT, "ObjectiveIndex" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPOIBlobMeta::Instance(), HOTFIX_SEL_QUEST_POI_BLOB);
+        return &loadInfo;
+    }
+};
+
+struct QuestPOIPointInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "X" },
+            { false, FT_SHORT, "Y" },
+            { false, FT_INT, "QuestPoiBlobId" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPOIPointMeta::Instance(), HOTFIX_SEL_QUEST_POI_POINT);
+        return &loadInfo;
+    }
+};
+
+struct ResearchBranchInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_INT, "ItemId" },
+            { false, FT_SHORT, "CurrencyId" },
+            { false, FT_BYTE, "ResearchFieldId" },
+            { false, FT_INT, "TextureFileId" },
+            { false, FT_INT, "BigTextureFileId" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ResearchBranchMeta::Instance(), HOTFIX_SEL_RESEARCH_BRANCH);
+        return &loadInfo;
+    }
+};
+
+struct ResearchProjectInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_INT, "SpellId" },
+            { false, FT_SHORT, "ResearchBranchId" },
+            { false, FT_BYTE, "Rarity" },
+            { false, FT_BYTE, "NumSockets" },
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TextureFileId" },
+            { false, FT_INT, "RequiredWeight" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ResearchProjectMeta::Instance(), HOTFIX_SEL_RESEARCH_PROJECT);
+        return &loadInfo;
+    }
+};
+
+struct ResearchSiteInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_INT, "QuestPoiBlobId" },
+            { false, FT_SHORT, "MapId" },
+            { false, FT_INT, "AreaPOIIconEnum" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ResearchSiteMeta::Instance(), HOTFIX_SEL_RESEARCH_SITE);
+        return &loadInfo;
+    }
+};
+
 struct RandPropPointsLoadInfo
 {
     static DB2LoadInfo const* Instance()

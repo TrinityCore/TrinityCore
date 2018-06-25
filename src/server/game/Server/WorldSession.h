@@ -475,6 +475,8 @@ namespace WorldPackets
         class ReclaimCorpse;
         class RepopRequest;
         class RequestCemeteryList;
+        class ResearchHistory;
+        class ResearchSetupHistory;
         class ResurrectResponse;
         class StandStateChange;
         class UITimeRequest;
@@ -1741,6 +1743,9 @@ class TC_GAME_API WorldSession
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPackets::Misc::SaveCUFProfiles& packet);
         void SendLoadCUFProfiles();
+
+        // Archaeology
+        void HandleResearchHistory(WorldPackets::Misc::ResearchHistory& resHistory);
 
         // Garrison
         void HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& getGarrisonInfo);

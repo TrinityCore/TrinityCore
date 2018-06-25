@@ -1112,6 +1112,26 @@ void WorldSession::SendLoadCUFProfiles()
     SendPacket(loadCUFProfiles.Write());
 }
 
+void WorldSession::HandleResearchHistory(WorldPackets::Misc::ResearchHistory& /*resHistory*/)
+{
+    Player* player = GetPlayer();
+    ArchaeologyHistoryMap history = player->GetArchaeologyMgr().GetHistory();
+
+    WorldPackets::Misc::ResearchSetupHistory rHistory;
+
+    rHistory.ResearchHistory.resize(history.size());
+
+    for (auto itr : history)
+    {
+        rHistory.researchHistory.id = itr.first;
+        rHistory.researchHistory.time = itr.second.time;
+        rHistory.researchHistory.count = itr.second.count;
+        rHistory.ResearchHistory.push_back(rHistory.researchHistory);
+    }
+
+    SendPacket(rHistory.Write());
+}
+
 void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging)
 {
     _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
