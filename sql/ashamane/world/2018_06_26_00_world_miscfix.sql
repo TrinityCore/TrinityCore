@@ -500,90 +500,142 @@ UPDATE `creature_template` SET `KillCredit1` = 58246 WHERE `entry` = 58243;
 UPDATE `creature_template` SET `KillCredit1` = 58246 WHERE `entry` = 58220;
 
 
+UPDATE `creature_template` SET `gossip_menu_id` = 54914 WHERE `entry` = 54914;
 
 
 
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('54914','0','0','I found it!','0','1','1','29416');
+
+SET @ENTRY := 54914;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,62,0,100,0,54914,0,0,0,33,55057,0,0,0,0,0,7,0,0,0,0,0,0,0,"Orgus - On Gossip - Kill Credit");
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=54926);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (54926, 0, 0, 65537, 1, 0, '');
+DELETE FROM `creature_template_addon` WHERE (`entry`=55028);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (55028, 0, 0, 0, 1, 415, ''); 
+DELETE FROM `creature_template_addon` WHERE (`entry`=55029);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (55029, 0, 0, 0, 1, 415, '');
+DELETE FROM `creature_template_addon` WHERE (`entry`=55030);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (55030, 0, 0, 0, 1, 415, '');
 
 
 
+UPDATE `creature_template` SET `gossip_menu_id` = 54944 WHERE `entry` = 54944;
+-- Tian Pupil SAI
+SET @ENTRY := 54944;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,115761,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cast Chi Blast"),
+(@ENTRY,0,1,0,0,0,100,0,10000,10000,20000,20000,11,115680,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cast Dragon Punch"),
+(@ENTRY,0,2,0,2,0,100,1,0,40,0,0,11,115744,2,0,0,0,0,1,0,0,0,0,0,0,0,"Cast Drunken Brawl at 40% HP"),
+(@ENTRY,0,3,0,9,0,100,0,0,8,15000,25000,11,115754,0,0,0,0,0,1,0,0,0,0,0,0,0,"Cast Hurricane Kick on Close"),
+(@ENTRY,0,4,0,62,0,100,0,54944,0,0,0,2,22,0,0,0,0,0,1,0,0,0,0,0,0,0,"On Gossip - Change Faction"),
+(@ENTRY,0,5,6,2,0,100,1,0,20,0,0,2,35,2,0,0,0,0,1,0,0,0,0,0,0,0,'Change Faction at 20% HP'),
+(@ENTRY,0,6,0,61,0,100,0,0,0,0,0,33,54944,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Faction Change - Kill Credit");
+
+
+DELETE FROM `creature_template_addon` WHERE (`entry`=54944);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES (54944, 0, 0, 65537, 1, 0, '');
 
 
 
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('54944','0','0','Let\'s get started!','0','1','1','29416');
+
+
+-- Husshun SAI
+SET @ENTRY := 54925;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,116725,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cast Lightning Crash"),
+(@ENTRY,0,1,0,4,0,100,1,0,0,0,0,11,115153,0,0,0,0,0,1,0,0,0,0,0,0,0,"Cast Water Dance on Aggro"),
+(@ENTRY,0,3,0,62,0,100,0,54925,0,0,0,2,22,0,0,0,0,0,1,0,0,0,0,0,0,0,"On Gossip - Change Faction"),
+(@ENTRY,0,4,5,2,0,100,1,0,20,0,0,2,35,2,0,0,0,0,1,0,0,0,0,0,0,0,'Change Faction at 20% HP'),
+(@ENTRY,0,5,0,61,0,100,0,0,0,0,0,33,54925,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Faction Change - Kill Credit");
+
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('54925','0','0','Let\'s get started!','0','1','1','29416');
+
+UPDATE `creature_template` SET `gossip_menu_id` = 54925 WHERE `entry` = 54925;
+
+-- Zhi-Zhi SAI
+SET @ENTRY := 54924;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,116715,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cast Flurry"),
+(@ENTRY,0,1,0,2,0,100,0,0,40,22000,25000,11,116710,2,0,0,0,0,1,0,0,0,0,0,0,0,"Cast Nimble at 40% HP"),
+(@ENTRY,0,2,0,62,0,100,0,54924,0,0,0,2,22,0,0,0,0,0,1,0,0,0,0,0,0,0,"On Gossip - Change Faction"),
+(@ENTRY,0,3,4,2,0,100,1,0,20,0,0,2,35,2,0,0,0,0,1,0,0,0,0,0,0,0,'Change Faction at 20% HP'),
+(@ENTRY,0,4,0,61,0,100,0,0,0,0,0,33,54924,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Faction Change - Kill Credit");
+
+
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('54924','0','0','Let\'s get started!','0','1','1','29416');
+
+UPDATE `creature_template` SET `gossip_menu_id` = 54924 WHERE `entry` = 54924;
 
 
 
+REPLACE INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId` ,`OptionType`, `OptionNpcFlag`, `VerifiedBuild`) VALUES('54926','0','0','Let\'s get started!','0','1','1','29416');
+
+UPDATE `creature_template` SET `gossip_menu_id` = 54926 WHERE `entry` = 54926;
+
+UPDATE `creature_template` SET `type_flags` = 2147483648 WHERE `entry` = 54926;
+SET @ENTRY := 54926;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,12000,15000,11,117830,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Throw Brew'),
+(@ENTRY,0,1,0,0,0,100,0,10000,12000,10000,20000,11,102998,0,0,0,0,0,2,0,0,0,0,0,0,0,'Cast Throw Rice'),
+(@ENTRY,0,2,0,62,0,100,0,54926,0,0,0,2,22,0,0,0,0,0,1,0,0,0,0,0,0,0,"On Gossip - Change Faction"),
+(@ENTRY,0,3,4,2,0,100,1,0,20,0,0,2,35,2,0,0,0,0,1,0,0,0,0,0,0,0,'Change Faction at 20% HP'),
+(@ENTRY,0,4,0,61,0,100,0,0,0,0,0,33,54926,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Faction Change - Kill Credit");
+
+UPDATE `creature_template` SET `KillCredit1` = 54918, `faction` = 189, `unit_flags` = 32768 WHERE `entry` = 55139;
+
+UPDATE `creature_template` SET `KillCredit2` = 54970 WHERE `entry` = 55184;
+
+UPDATE `creature_template` SET `KillCredit1` = 55086, `KillCredit2` = 55105 WHERE `entry` = 54987;
+
+UPDATE `creature_template` SET `unit_flags` = 131072 WHERE `entry` = 55183;
+UPDATE `creature_template` SET `unit_flags` = 131072 WHERE `entry` = 55184;
+UPDATE `creature_template` SET `KillCredit1` = 55480 WHERE `entry` = 55489;
+
+UPDATE `creature_template` SET `KillCredit1` = 55289 WHERE `entry` = 55279;
+DELETE FROM `gameobject` WHERE `id`=209629;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`ScriptName`,`VerifiedBuild`) VALUES
+(51013495, 209629, 870, 0, 0, 1, 0, 0, 0, -1, 2958.44, -1650.33, 252.833, 3.18636, 0, 0, -0.99975, 0.0223835, 300, 255, 1, 0, '', 0);
+
+DELETE FROM `creature` WHERE `id`=55614;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210119079, 55614, 870, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2958.99, -1648.31, 252.832, 3.28689, 300, 0, 0, 19260, 0, 0, 0, 0, 0, 0, 0, '', 0);
+
+SET @ENTRY := 55290;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,1,8,0,100,0,104596,0,0,0,33,61290,0,0,0,0,0,7,0,0,0,0,0,0,0,"on Spell Hit - Give Credit"),
+(@ENTRY,0,1,2,61,0,100,0,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"on Spell Hit - Despawn");
+
+REPLACE INTO `gameobject_loot_template` (`Entry`, `Item`, `QuestRequired`) VALUES ('209825', '75214', '1'); 
 
 
+UPDATE `creature_template` SET `KillCredit1` = 55462 WHERE `entry` = 56198;
+
+UPDATE `creature_template` SET `KillCredit1` = 55964, `faction` = 189 WHERE `entry` = 56181;
+
+DELETE FROM `creature` WHERE `id`=56596;
+INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
+(210119082, 56596, 870, 0, 0, 1, 0, 0, 0, -1, 0, 0, 3176.74, -1512.28, 201.389, 3.52724, 300, 0, 0, 18387, 0, 0, 0, 0, 0, 0, 0, '', 0);
 
 
+DELETE FROM `creature` WHERE `id`=65794;
 
-
-
-
-
-
-
-
-
-
-
-
-
-UPDATE `creature` SET `spawndist` = 5, `MovementType` = 1 WHERE `id` IN (66282,54703,12922,54989,56070,54558,56304,54702,66290,54627,56201,57232,55195,56650);
+UPDATE `creature` SET `spawndist` = 5, `MovementType` = 1 WHERE `id` IN (66282,55238,55290,56198,55489,55279,55291,54988,54703,12922,54989,56070,54558,56304,54702,66290,54627,56201,57232,55195,56650);
 
 
 UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (11260);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
