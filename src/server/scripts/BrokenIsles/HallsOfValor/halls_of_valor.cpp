@@ -47,7 +47,7 @@ struct boss_king_ranulf : public BossAI
 
     ObjectGuid targetGuid;
 
-    void sGossipHello(Player* player) override
+    void sGossipHello(Player* /*player*/) override
     {
         me->setFaction(14);
         me->SetReactState(REACT_DEFENSIVE);
@@ -57,45 +57,25 @@ struct boss_king_ranulf : public BossAI
             instance->SetBossState(DATA_GODKING_SKOVALD, NOT_STARTED);
     }
 
-    void Reset()
-    {
-        events.Reset();
-
-        if (instance)
-            instance->SetBossState(DATA_KING_RANULF, FAIL);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
 
-        me->setActive(true);
-        DoZoneInCombat();
-
-        Talk(SAY_ENTER_COMBAT);
+        if (instance)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         events.ScheduleEvent(EVENT_SEVER, 3000);
-        if (instance)
-        {
-            instance->SetBossState(DATA_KING_RANULF, IN_PROGRESS);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->SetBossState(DATA_KING_RANULF, DONE);
-        }
-
-        Talk(SAY_JUST_DIED);
-
         _JustDied();
+
+        if (instance)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -126,7 +106,7 @@ struct boss_king_haldor : public BossAI
 
     ObjectGuid targetGuid;
 
-    void sGossipHello(Player* player) override
+    void sGossipHello(Player* /*player*/) override
     {
         me->setFaction(14);
         me->SetReactState(REACT_DEFENSIVE);
@@ -136,46 +116,25 @@ struct boss_king_haldor : public BossAI
             instance->SetBossState(DATA_KING_HALDOR, NOT_STARTED);
     }
 
-    void Reset()
-    {
-        events.Reset();
-
-        if (instance)
-            instance->SetBossState(DATA_KING_HALDOR, FAIL);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
 
-        me->setActive(true);
-        DoZoneInCombat();
-
-        Talk(SAY_ENTER_COMBAT);
-
         events.ScheduleEvent(EVENT_SEVER, 3000);
 
         if (instance)
-        {
-            instance->SetBossState(DATA_KING_HALDOR, IN_PROGRESS);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->SetBossState(DATA_KING_HALDOR, DONE);
-        }
-
-        Talk(SAY_JUST_DIED);
-
         _JustDied();
+
+        if (instance)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -186,12 +145,15 @@ struct boss_king_haldor : public BossAI
         {
             switch (eventId)
             {
-
                 case EVENT_SEVER:
+                {
                     if (Unit* target = me->GetVictim())
                         me->CastSpell(target, SPELL_SEVER, true);
 
                     events.ScheduleEvent(EVENT_SEVER, 16000);
+                    break;
+                }
+                default:
                     break;
             }
         }
@@ -207,7 +169,7 @@ struct boss_king_bjorn : public BossAI
 
     ObjectGuid targetGuid;
 
-    void sGossipHello(Player* player) override
+    void sGossipHello(Player* /*player*/) override
     {
         me->setFaction(14);
         me->SetReactState(REACT_DEFENSIVE);
@@ -217,46 +179,25 @@ struct boss_king_bjorn : public BossAI
             instance->SetBossState(DATA_KING_BJORN, NOT_STARTED);
     }
 
-    void Reset()
-    {
-        events.Reset();
-
-        if (instance)
-            instance->SetBossState(DATA_KING_BJORN, FAIL);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
 
-        me->setActive(true);
-        DoZoneInCombat();
-
-        Talk(SAY_ENTER_COMBAT);
-
         events.ScheduleEvent(EVENT_WICKED_DAGGER, 3000);
 
         if (instance)
-        {
             instance->SetBossState(DATA_KING_BJORN, IN_PROGRESS);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->SetBossState(DATA_KING_BJORN, DONE);
-        }
-
-        Talk(SAY_JUST_DIED);
-
         _JustDied();
+
+        if (instance)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -298,46 +239,25 @@ struct boss_king_tor : public BossAI
 
     ObjectGuid targetGuid;
 
-    void Reset()
-    {
-        events.Reset();
-
-        if (instance)
-            instance->SetBossState(DATA_KING_TOR, FAIL);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
 
-        me->setActive(true);
-        DoZoneInCombat();
-
-        Talk(SAY_ENTER_COMBAT);
-
         events.ScheduleEvent(EVENT_CALL_ANCESTOR, 1000);
 
         if (instance)
-        {
-            instance->SetBossState(DATA_KING_TOR, IN_PROGRESS);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->SetBossState(DATA_KING_TOR, DONE);
-        }
-
-        Talk(SAY_JUST_DIED);
-
         _JustDied();
+
+        if (instance)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -357,19 +277,22 @@ struct boss_king_tor : public BossAI
         {
             switch (eventId)
             {
-
-            case EVENT_CALL_ANCESTOR:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(target, SPELL_CALL_ANCESTOR, true);
-
-                if (Creature* creature = me->FindNearestCreature(101326, 50.0f))
+                case EVENT_CALL_ANCESTOR:
                 {
-                    creature->SetLevel(110);
-                    creature->setFaction(14);
-                    creature->GetMotionMaster()->MovePoint(0, me->GetPosition(), true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        me->CastSpell(target, SPELL_CALL_ANCESTOR, true);
+
+                    if (Creature* creature = me->FindNearestCreature(101326, 50.0f))
+                    {
+                        creature->SetLevel(110);
+                        creature->setFaction(14);
+                        creature->GetMotionMaster()->MovePoint(0, me->GetPosition(), true);
+                    }
+                    events.ScheduleEvent(EVENT_CALL_ANCESTOR, 16000);
+                    break;
                 }
-                events.ScheduleEvent(EVENT_CALL_ANCESTOR, 16000);
-                break;
+                default:
+                    break;
             }
         }
 
@@ -383,10 +306,9 @@ class npc_field_of_eternal_hunt : public CreatureScript
 public:
     npc_field_of_eternal_hunt() : CreatureScript("npc_field_of_eternal_hunt") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* /*creature*/) override
     {
         player->TeleportTo(1477, 3199.07f, 2899.65f, 640.58f, 2.13f);
-
         return true;
     }
 };
@@ -397,10 +319,9 @@ class npc_halls_of_valor : public CreatureScript
 public:
     npc_halls_of_valor() : CreatureScript("npc_halls_of_valor") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* /*creature*/) override
     {
         player->TeleportTo(1477, 3238.64f, 648.56f, 634.31f, 5.5f);
-
         return true;
     }
 };

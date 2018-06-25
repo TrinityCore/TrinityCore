@@ -258,7 +258,7 @@ struct npc_aegis_of_aggramar : public ScriptedAI
         me->DespawnOrUnsummon(0);
     }
 
-    void Reset()
+    void Reset() override
     {
         me->CastSpell(me, SPELL_AEGIS_SPAWN, true);
         me->CastSpell(me, SPELL_AEGIS_RANDOM_POINT, true);
@@ -359,7 +359,7 @@ struct npc_flame_of_woe : public ScriptedAI
 
     ObjectGuid targetGuid;
 
-    void Reset()
+    void Reset() override
     {
         me->SetLevel(110);
         me->CastSpell(me, 221093, true);
@@ -375,7 +375,7 @@ struct npc_flame_of_woe : public ScriptedAI
         events.ScheduleEvent(EVENT_FLAME_OF_WOE, 1000);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;

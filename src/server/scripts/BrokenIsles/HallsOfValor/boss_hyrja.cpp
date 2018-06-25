@@ -134,7 +134,7 @@ struct boss_hyrja : public BossAI
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void DoAction(int32 action)
+    void DoAction(int32 action) override
     {
         if (action == ACTION_CAN_JOIN_COMBAT)
             CanJoinCombat();
@@ -147,9 +147,9 @@ struct boss_hyrja : public BossAI
 
         uint8 count1 = 0;
 
-        if (Creature* olmyr = me->FindNearestCreature(NPC_OLMYR_GHOST, 1500.0f, true))
+        if (Creature* olmyr = instance->GetCreature(NPC_OLMYR_GHOST))
             count1++;
-        else if (Creature* olmyr = me->FindNearestCreature(NPC_OLMYR_THE_ENLIGHTENED, 1500.0f, false))
+        else if (Creature* olmyr = instance->GetCreature(NPC_OLMYR_THE_ENLIGHTENED))
         {
             if (Creature* olmyrghost = me->SummonCreature(NPC_OLMYR_GHOST, olmyr->GetPositionX(), olmyr->GetPositionY(), olmyr->GetPositionZ(), olmyr->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
                 olmyrghost->CastSpell(olmyrghost, SPELL_OLMYR_SPAWN_COSMETIC, true);
@@ -157,9 +157,9 @@ struct boss_hyrja : public BossAI
             count1++;
         }
 
-        if (Creature* solsten = me->FindNearestCreature(NPC_SOLSTEN_GHOST, 1500.0f, true))
+        if (Creature* solsten = instance->GetCreature(NPC_SOLSTEN_GHOST))
             count1++;
-        else if (Creature* solsten = me->FindNearestCreature(NPC_SOLSTEN, 1500.0f, false))
+        else if (Creature* solsten = instance->GetCreature(NPC_SOLSTEN))
         {
             if (Creature* solstenghost = me->SummonCreature(NPC_SOLSTEN_GHOST, solsten->GetPositionX(), solsten->GetPositionY(), solsten->GetPositionZ(), solsten->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
                 solstenghost->CastSpell(solstenghost, SPELL_SOLSTEN_SPAWN_COSMETIC, true);
@@ -259,30 +259,13 @@ struct npc_olmyr_the_enlightened : public BossAI
 {
     npc_olmyr_the_enlightened(Creature* creature) : BossAI(creature, DATA_OLMYR)
     {
-        if (instance)
-            instance->SetBossState(DATA_OLMYR, NOT_STARTED);
-
-        Initialize();
-    }
-
-    void Initialize()
-    {
         me->SetDisableGravity(false);
         me->SetCanFly(false);
     }
 
-    void Reset() override
-    {
-        events.Reset();
-
-        if (instance)
-            instance->SetData(DATA_OLMYR, FAIL);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
-        if (instance)
-            instance->SetData(DATA_OLMYR, IN_PROGRESS);
+        _EnterCombat();
 
         events.ScheduleEvent(EVENT_SANCTIFY, 3 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_SEARING_LIGHT, 8 * IN_MILLISECONDS);
@@ -290,21 +273,16 @@ struct npc_olmyr_the_enlightened : public BossAI
 
     void JustDied(Unit* killer) override
     {
-        if (Creature* creature = me->SummonCreature(NPC_OLMYR_GHOST, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
-        {
-            creature->CastSpell(creature, SPELL_OLMYR_SPAWN_COSMETIC, true);
-            if (instance)
-                instance->SetGuidData(DATA_OLMYR, creature->GetGUID());
-        }
+        _JustDied();
 
-        if (Creature* hyrja = me->FindNearestCreature(BOSS_HYRJA, 1500.0f, true))
+        if (Creature* creature = me->SummonCreature(NPC_OLMYR_GHOST, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
+            creature->CastSpell(creature, SPELL_OLMYR_SPAWN_COSMETIC, true);
+
+        if (Creature* hyrja = instance->GetCreature(BOSS_HYRJA))
         {
             hyrja->AI()->DoAction(ACTION_CAN_JOIN_COMBAT);
             hyrja->SetTarget(killer->GetGUID());
         }
-
-        if (instance)
-            instance->SetData(DATA_OLMYR, DONE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -315,16 +293,16 @@ struct npc_olmyr_the_enlightened : public BossAI
         {
             switch (eventId)
             {
-            case EVENT_SANCTIFY:
-                me->CastSpell(me, SPELL_SANCTIFY, true);
-                events.ScheduleEvent(EVENT_SANCTIFY, 12 * IN_MILLISECONDS);
-                break;
-            case EVENT_SEARING_LIGHT:
-                me->CastSpell(me, SPELL_SEARING_LIGHT, true);
-                events.ScheduleEvent(EVENT_SEARING_LIGHT, 21 * IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                case EVENT_SANCTIFY:
+                    me->CastSpell(me, SPELL_SANCTIFY, true);
+                    events.ScheduleEvent(EVENT_SANCTIFY, 12 * IN_MILLISECONDS);
+                    break;
+                case EVENT_SEARING_LIGHT:
+                    me->CastSpell(me, SPELL_SEARING_LIGHT, true);
+                    events.ScheduleEvent(EVENT_SEARING_LIGHT, 21 * IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -336,19 +314,14 @@ struct npc_olmyr_ghost : public ScriptedAI
 {
     npc_olmyr_ghost(Creature* creature) : ScriptedAI(creature)
     {
-        Initialize();
+        me->SetDisableGravity(false);
+        me->SetCanFly(false);
     }
 
     enum Events
     {
         EVENT_MYSTIC_EMPOWERMENT,
     };
-
-    void Initialize()
-    {
-        me->SetDisableGravity(false);
-        me->SetCanFly(false);
-    }
 
     void Reset() override
     {
@@ -365,11 +338,10 @@ struct npc_olmyr_ghost : public ScriptedAI
             switch (eventId)
             {
             case EVENT_MYSTIC_EMPOWERMENT:
-                if (Creature* hyrja = me->FindNearestCreature(BOSS_HYRJA, 1500.0f, true))
+                if (Creature* hyrja = instance->GetCreature(BOSS_HYRJA))
                 {
                     if (hyrja && me->GetDistance2d(hyrja->GetPositionX(), hyrja->GetPositionY()) < 5.0f)
                         me->CastSpell(hyrja, SPELL_MYSTIC_EMPOWEREMENT_HOLY, true);
-
                     else if (hyrja && me->GetDistance2d(hyrja->GetPositionX(), hyrja->GetPositionY()) < 20.0f)
                     {
                         me->CastSpell(hyrja, SPELL_MYSTIC_EMPOWEREMENT_HOLY_VISUAL, true);
@@ -392,18 +364,13 @@ struct npc_olmyr_ghost : public ScriptedAI
 
 struct npc_solsten : public BossAI
 {
-    npc_solsten(Creature* creature) : BossAI(creature, DATA_OLMYR)
-    {
-        Initialize();
-    }
-
-    uint8 count;
-
-    void Initialize()
+    npc_solsten(Creature* creature) : BossAI(creature, DATA_SOLSTEN)
     {
         me->SetDisableGravity(false);
         me->SetCanFly(false);
     }
+
+    uint8 count;
 
     void Reset() override
     {
@@ -424,13 +391,9 @@ struct npc_solsten : public BossAI
         _JustDied();
 
         if (Creature* creature = me->SummonCreature(NPC_SOLSTEN_GHOST, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
-        {
             creature->CastSpell(creature, SPELL_SOLSTEN_SPAWN_COSMETIC, true);
-            if (instance)
-                instance->SetGuidData(DATA_SOLSTEN, creature->GetGUID());
-        }
 
-        if (Creature* hyrja = me->FindNearestCreature(BOSS_HYRJA, 1500.0f, true))
+        if (Creature* hyrja = instance->GetCreature(BOSS_HYRJA))
         {
             hyrja->AI()->DoAction(ACTION_CAN_JOIN_COMBAT);
             hyrja->SetTarget(killer->GetGUID());
@@ -477,19 +440,14 @@ struct npc_solsten_ghost : public ScriptedAI
 {
     npc_solsten_ghost(Creature* creature) : ScriptedAI(creature)
     {
-        Initialize();
+        me->SetDisableGravity(false);
+        me->SetCanFly(false);
     }
 
     enum Events
     {
         EVENT_MYSTIC_EMPOWERMENT,
     };
-
-    void Initialize()
-    {
-        me->SetDisableGravity(false);
-        me->SetCanFly(false);
-    }
 
     void Reset() override
     {
@@ -506,7 +464,7 @@ struct npc_solsten_ghost : public ScriptedAI
             switch (eventId)
             {
             case EVENT_MYSTIC_EMPOWERMENT:
-                if (Creature* hyrja = me->FindNearestCreature(BOSS_HYRJA, 1500.0f, true))
+                if (Creature* hyrja = instance->GetCreature(BOSS_HYRJA))
                 {
                     if (hyrja && me->GetDistance2d(hyrja->GetPositionX(), hyrja->GetPositionY()) < 5.0f)
                         me->CastSpell(hyrja, SPELL_MYSTIC_EMPOWEREMENT_THUNDER, true);

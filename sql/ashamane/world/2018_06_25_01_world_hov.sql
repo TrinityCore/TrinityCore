@@ -55,7 +55,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 
 UPDATE `creature_template_addon` SET `auras` = '' WHERE (entry = 95676);
 
-DELETE FROM creature WHERE guid BETWEEND @CGUID+0 AND @CGUID+3;
+DELETE FROM creature WHERE guid BETWEEN @CGUID+0 AND @CGUID+3;
 insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) values
 (@CGUID+0, 95833,  1477, 0, 0, 2, 0, 0, 0, -1, 0, 1, 3113.48, 288.964, 662.4,   0.768688, 300, 0, 0, 38927456, 1, 0, 0, 0, 0, 0, 0, '', 0),
 (@CGUID+1, 97202,  1477, 0, 0, 2, 0, 0, 0, -1, 0, 1, 3138.08, 366.848, 655.18,  4.54253,  300, 0, 0, 17201968, 1, 0, 0, 0, 0, 0, 0, '', 0),

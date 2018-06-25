@@ -250,7 +250,7 @@ class spell_ravenous_leap_jump : public SpellScript
 {
     PrepareSpellScript(spell_ravenous_leap_jump);
 
-    void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (!GetCaster() || !GetHitUnit())
             return;
@@ -270,7 +270,7 @@ class spell_ravenous_leap : public SpellScript
 {
     PrepareSpellScript(spell_ravenous_leap);
 
-    void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (!GetCaster() || GetHitUnit())
             return;
