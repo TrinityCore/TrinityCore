@@ -512,6 +512,23 @@ UPDATE `creature_template` SET `KillCredit1` = 58246 WHERE `entry` = 58220;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 UPDATE `creature` SET `spawndist` = 5, `MovementType` = 1 WHERE `id` IN (66282,54703,12922,54989,56070,54558,56304,54702,66290,54627,56201,57232,55195,56650);
 
 
