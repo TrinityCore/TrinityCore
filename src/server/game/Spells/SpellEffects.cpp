@@ -4080,7 +4080,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     m_caster->m_ObjectSlot[slot] = go->GetGUID();
 }
 
-void Spell::EffectSummonSurveyTools(SpellEffIndex effIndex)
+void Spell::EffectSummonSurveyTools(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;

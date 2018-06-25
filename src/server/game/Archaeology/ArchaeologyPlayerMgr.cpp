@@ -287,8 +287,6 @@ bool ArchaeologyPlayerMgr::IsCurrentArtifactSpell(int32 spellId)
     {
         if (GetPlayer()->GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2))
         {
-            uint16 projectId = GetPlayer()->GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2);
-
             for (uint32 i = 0; i < sResearchProjectStore.GetNumRows(); ++i)
             {
                 ResearchProjectEntry const* rs = sResearchProjectStore.LookupEntry(i);
