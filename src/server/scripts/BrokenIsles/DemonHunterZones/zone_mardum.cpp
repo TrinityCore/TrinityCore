@@ -345,7 +345,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     if (Creature* infernal = GetInfernal())
                         infernal->CastSpell(target, SPELL_INFERNAL_SMASH);
-                
+
                 if (me->GetHealthPct() <= 60)
                 {
                     Talk(SAY_60PCT);
@@ -509,7 +509,7 @@ public:
         void EnterCombat(Unit*) override
         {
 		    Talk(SAY_ONCOMBAT_BELIASH);
-			
+
             me->GetScheduler().Schedule(Milliseconds(2500), [this](TaskContext context)
             {
                 me->CastSpell(me, SPELL_SHADOW_BOLT_VOLLEY, true);
@@ -532,7 +532,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
 		  Talk(SAY_ONDEATH);
-		  
+
             std::list<Player*> players;
             me->GetPlayerListInGrid(players, 50.0f);
 

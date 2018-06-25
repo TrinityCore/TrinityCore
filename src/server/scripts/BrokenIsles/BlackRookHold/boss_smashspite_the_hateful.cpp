@@ -37,7 +37,7 @@ enum Spells
 };
 
 Position felBatSumCenter = { 3294.11f, 7263.07f, 267.738312f };
- 
+
 // 98949
 struct boss_smashspite_the_hateful : public BossAI
 {

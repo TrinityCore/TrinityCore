@@ -34,7 +34,7 @@ enum Spells
     SPELL_POISON_SPIT       = 192050,
     SPELL_POISON_SPIT_AURA  = 191839,
 
-    // heal 66% and 33%, 
+    // heal 66% and 33%,
     SPELL_SUBMERGE          = 191873
 };
 

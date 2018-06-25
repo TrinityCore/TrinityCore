@@ -29,7 +29,7 @@ enum DataTypes
 
     DATA_ILLYSANNA_PREEVENT_LOWER   = 5,
     DATA_ILLYSANNA_PREEVENT_UPPER   = 6,
-   
+
     DATA_STAIRS_BOULDER_1           = 7,
     DATA_STAIRS_BOULDER_2           = 8,
 };
