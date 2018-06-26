@@ -52,7 +52,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 2, 92440, 0, 0, 31, 0, 3, 49190, 0, 0, 0, '', 'Plant Freezya - Target Empty Spot'),
 (13, 2, 92276, 0, 0, 31, 0, 3, 49176, 0, 0, 0, '', 'Spitter Highlight - Target Brazie the Botanist'),
 (13, 2, 94032, 0, 0, 31, 0, 3, 49176, 0, 0, 0, '', 'Sunflower Highlight - Target Brazie the Botanist'),
-(13, 2, 92435, 0, 0, 31, 0, 3, 49176, 0, 0, 0, '', 'Create Random Freezya Sack - Target Brazie the Botanist'),
+(13, 1, 92435, 0, 0, 31, 0, 3, 49176, 0, 0, 0, '', 'Create Random Freezya Sack - Target Brazie the Botanist'),
 (13, 1, 92084, 0, 0, 31, 0, 3, 49209, 0, 0, 0, '', 'Plague Gas - Target Zombie'),
 (13, 1, 92084, 0, 1, 31, 0, 3, 49232, 0, 0, 0, '', 'Plague Gas - Target Ghoul'),
 (13, 2, 92084, 0, 0, 31, 0, 3, 49193, 0, 0, 0, '', 'Plague Gas - Target Sunflower'),
