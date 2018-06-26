@@ -1295,7 +1295,7 @@ class spell_pri_shadow_orb : public AuraScript
 {
     PrepareAuraScript(spell_pri_shadow_orb);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
             {
