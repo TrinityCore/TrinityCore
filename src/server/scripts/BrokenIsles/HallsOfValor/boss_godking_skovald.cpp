@@ -224,7 +224,7 @@ struct boss_god_king_kovald : public BossAI
 
                 case EVENT_START_TALK:
                     Talk(SAY_EVENT_2);
-
+                    me->SetHomePosition(me->GetPosition());
                     events.ScheduleEvent(EVENT_START_COMBAT, 5 * IN_MILLISECONDS);
                     break;
 

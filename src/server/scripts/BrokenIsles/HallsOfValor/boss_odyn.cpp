@@ -255,7 +255,7 @@ struct boss_odyn_hov : public BossAI
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetWalk(false);
-                    me->GetMotionMaster()->MoveJump(2402.76f, 528.64f, 748.99f, 0.0f, 5.0f, 5.0f);
+                    me->GetMotionMaster()->MoveJump(2402.76f, 528.64f, 748.99f, 0.0f, 20.0f, 5.0f);
                     me->SetHomePosition(2402.76f, 528.64f, 748.99f, 0.0f);
                     Talk(SAY_COMBAT_START);
                     break;
