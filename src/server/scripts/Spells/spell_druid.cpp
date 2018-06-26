@@ -1313,7 +1313,7 @@ class spell_dru_harmony : public AuraScript
 {
     PrepareAuraScript(spell_dru_harmony);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_HARMONY });
     }
