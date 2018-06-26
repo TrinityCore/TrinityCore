@@ -92,6 +92,32 @@ enum DruidSpellIconIds
     SPELL_ICON_ID_GLYPH_OF_INNERVATE    = 62,
 };
 
+enum MiscSpells
+{
+    SPELL_CATEGORY_MANGLE_BEAR              = 971
+};
+
+// 50334 - Berserk
+class spell_dru_berserk : public AuraScript
+{
+    PrepareAuraScript(spell_dru_berserk);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // Remove cooldown on Mangle (bear)
+        GetTarget()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+            return spellInfo && spellInfo->GetCategory() == SPELL_CATEGORY_MANGLE_BEAR;
+        }, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_berserk::HandleEffectApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 1850 - Dash
 class spell_dru_dash : public SpellScriptLoader
 {
@@ -1679,6 +1705,7 @@ class spell_dru_tree_of_life : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    RegisterAuraScript(spell_dru_berserk);
     new spell_dru_dash();
     new spell_dru_eclipse("spell_dru_eclipse_lunar");
     new spell_dru_eclipse("spell_dru_eclipse_solar");

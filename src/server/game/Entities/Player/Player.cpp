@@ -17719,6 +17719,28 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
     SetTalentResetCost(fields[29].GetUInt32());
     SetTalentResetTime(time_t(fields[30].GetUInt32()));
 
+    SetSpecsCount(fields[58].GetUInt8());
+    SetActiveSpec(fields[59].GetUInt8());
+
+    // sanity check
+    if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
+    {
+        SetActiveSpec(0);
+        TC_LOG_ERROR("entities.player", "Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName().c_str(), GetGUID().GetCounter(), GetSpecsCount(), GetActiveSpec());
+    }
+
+    // Only load selected specializations, learning mastery spells requires this
+    Tokenizer talentTrees(fields[31].GetString(), ' ', MAX_TALENT_SPECS);
+    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+    {
+        if (i >= talentTrees.size())
+            break;
+
+        uint32 talentTree = atol(talentTrees[i]);
+        if (sTalentTabStore.LookupEntry(talentTree))
+            SetPrimaryTalentTree(i, talentTree);
+    }
+
     m_taxi.LoadTaxiMask(fields[22].GetString());                // must be before InitTaxiNodesForLevel
 
     uint32 extraflags = fields[37].GetUInt16();
@@ -17804,28 +17826,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
 
     //mails are loaded only when needed ;-) - when player in game click on mailbox.
     //_LoadMail();
-
-    SetSpecsCount(fields[58].GetUInt8());
-    SetActiveSpec(fields[59].GetUInt8());
-
-    // sanity check
-    if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
-    {
-        SetActiveSpec(0);
-        TC_LOG_ERROR("entities.player", "Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName().c_str(), GetGUID().GetCounter(), GetSpecsCount(), GetActiveSpec());
-    }
-
-    // Only load selected specializations, learning mastery spells requires this
-    Tokenizer talentTrees(fields[31].GetString(), ' ', MAX_TALENT_SPECS);
-    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
-    {
-        if (i >= talentTrees.size())
-            break;
-
-        uint32 talentTree = atol(talentTrees[i]);
-        if (sTalentTabStore.LookupEntry(talentTree))
-            SetPrimaryTalentTree(i, talentTree);
-    }
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));

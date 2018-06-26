@@ -2,8 +2,6 @@
 
 [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a0ba43980b804281bdfe468300614fd3)](https://www.codacy.com/app/TrinityCore/TrinityCore_434?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TrinityCoreLegacy/TrinityCore&amp;utm_campaign=Badge_Grade)
-
 ## Build Status
 
 
