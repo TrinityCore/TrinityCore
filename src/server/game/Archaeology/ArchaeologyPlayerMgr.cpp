@@ -316,7 +316,7 @@ void ArchaeologyPlayerMgr::CompleteArtifact(uint32 spellId)
             {
                 ResearchProjectEntry const* rs = sResearchProjectStore.LookupEntry(i);
 
-                if (!rs || rs->Id != artifactId || rs->SpellId != spellId)
+                if (!rs || rs->Id != artifactId || rs->SpellId != int32(spellId))
                     continue;
 
                 for (uint32 i = 0; i < sResearchBranchStore.GetNumRows(); ++i)
@@ -353,7 +353,7 @@ void ArchaeologyPlayerMgr::CompleteArtifact(uint32 spellId)
                     {
                         ResearchProjectEntry const* rs2 = sResearchProjectStore.LookupEntry(i);
 
-                        if (!rs2 || rs2->ResearchBranchId != ab->Id || rs2->Id == artifactId || sArchaeologyMgr->GetArtifactSkillReqLevel(rs2->SpellId) > GetPlayer()->GetBaseSkillValue(SKILL_ARCHAEOLOGY))
+                        if (!rs2 || rs2->ResearchBranchId != ab->Id || rs2->Id == artifactId || sArchaeologyMgr->GetArtifactSkillReqLevel(uint32(rs2->SpellId)) > GetPlayer()->GetBaseSkillValue(SKILL_ARCHAEOLOGY))
                             continue;
 
                         BranchProjects.push_back(rs2->Id);

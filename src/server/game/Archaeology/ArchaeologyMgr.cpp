@@ -101,7 +101,7 @@ void ArchaeologyMgr::InitBranch(Player* player, uint32 currencyId)
         {
             ResearchProjectEntry const* rs = sResearchProjectStore.LookupEntry(i);
 
-            if (!rs || rs->ResearchBranchId != ab->Id || GetArtifactSkillReqLevel(rs->SpellId) > player->GetBaseSkillValue(SKILL_ARCHAEOLOGY))
+            if (!rs || rs->ResearchBranchId != ab->Id || GetArtifactSkillReqLevel(uint32(rs->SpellId)) > player->GetBaseSkillValue(SKILL_ARCHAEOLOGY))
                 continue;
 
             BranchProjects.push_back(rs->Id);
@@ -272,7 +272,7 @@ int ArchaeologyMgr::GetCurrencyId(uint16 digsiteId)
     return uint16(itr->second.currencyId);
 }
 
-int ArchaeologyMgr::GetArtifactSkillReqLevel(uint16 spellId)
+int ArchaeologyMgr::GetArtifactSkillReqLevel(uint32 spellId)
 {
     uint8 reqSkillLevel = 1;
 

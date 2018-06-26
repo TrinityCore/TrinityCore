@@ -56,7 +56,7 @@ class ArchaeologyMgr
         bool IsActiveBranch(Player* player, uint32 currencyId);
         void GenerateRandomPosition(Player* player, uint8 count);
         int GetCurrencyId(uint16 digsiteId);
-        int GetArtifactSkillReqLevel(uint16 spellId);
+        int GetArtifactSkillReqLevel(uint32 spellId);
 
     private:
         typedef std::unordered_map<uint16, ResearchDigsitesEntry> DigsitesMap;
