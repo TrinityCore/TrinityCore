@@ -1,3 +1,4 @@
+/*
 DELETE FROM `creature` WHERE `guid` IN (73430,73431);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (73430, 25098, 593, 0, 0, 1, 1, 0, 0, 12.02558, 10.74244, 6.469477, 3.209558, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26365), 
@@ -18,3 +19,4 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (25098);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`) VALUES
 (25098, 0, 0, 3, 1);
+*/
