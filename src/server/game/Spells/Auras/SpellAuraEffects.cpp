@@ -2137,9 +2137,9 @@ void AuraEffect::HandleModUnattackable(AuraApplication const* aurApp, uint8 mode
         return;
 
     if (apply)
-        target->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        target->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
     else
-        target->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        target->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2);
 
     // call functions which may have additional effects after chainging state of unit
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
