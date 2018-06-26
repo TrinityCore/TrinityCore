@@ -745,7 +745,7 @@ class npc_brazie_fertilitize_o_tron_2000 : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-                me->m_CombatDistance = 4.0f;
+                me->m_CombatDistance = 3.0f;
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
 
                 if (Creature* vehicle = summoner->GetVehicleCreatureBase())
@@ -755,7 +755,7 @@ class npc_brazie_fertilitize_o_tron_2000 : public CreatureScript
 
              void AttackStart(Unit* who) override
             {
-                 if (me->GetPosition().GetExactDist(who->GetPosition()) > 4.0f)
+                 if (me->GetPosition().GetExactDist(who->GetPosition()) > 3.0f)
                      return;
 
                 if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
@@ -1029,7 +1029,7 @@ class npc_brazie_zombie : public CreatureScript
                 Position pos = me->GetPosition();
                 pos.SetOrientation(pos.GetAngle(GoalStalkerPositions[_pathIndex]));
 
-                if (pos.HasInLine(who, 4.7f))
+                if (pos.HasInLine(who, 4.8f))
                 {
                     if (Creature* target = who->ToCreature())
                     {
