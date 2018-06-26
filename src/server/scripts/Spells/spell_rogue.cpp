@@ -44,6 +44,7 @@ enum RogueSpells
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
+    SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
@@ -1076,6 +1077,39 @@ class spell_rog_honor_among_thieves : public SpellScriptLoader
         }
 };
 
+// 76806 - Main Gauche
+class spell_rog_main_gauche : public AuraScript
+{
+    PrepareAuraScript(spell_rog_main_gauche);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_MAIN_GAUCHE });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (DamageInfo* damage = eventInfo.GetDamageInfo())
+            if (Unit* target = GetTarget())
+                if (target->getAttackTimer(BASE_ATTACK) > target->getAttackTimer(OFF_ATTACK))
+                    if (Unit* victim = damage->GetVictim())
+                        GetTarget()->CastSpell(victim, SPELL_ROGUE_MAIN_GAUCHE, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_main_gauche::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_rog_main_gauche::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1084,6 +1118,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
+    RegisterAuraScript(spell_rog_main_gauche);
     new spell_rog_master_of_subtlety();
     new spell_rog_nerves_of_steel();
     new spell_rog_overkill();
