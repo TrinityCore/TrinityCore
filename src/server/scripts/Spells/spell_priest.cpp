@@ -1356,6 +1356,9 @@ void AddSC_priest_spell_scripts()
     new spell_pri_phantasm();
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
+    RegisterAuraScript(spell_pri_shadow_orb);
+    RegisterAuraScript(spell_pri_shadow_orbs);
+    RegisterAuraScript(spell_pri_shadow_orb_power);
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
     new spell_pri_shadowform();
