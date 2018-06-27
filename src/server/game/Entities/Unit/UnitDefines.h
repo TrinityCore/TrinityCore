@@ -136,7 +136,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_SILENCED              = 0x00002000,           // silenced, 2.1.1
     UNIT_FLAG_CANNOT_SWIM           = 0x00004000,           // 2.0.8
     UNIT_FLAG_UNK_15                = 0x00008000,
-    UNIT_FLAG_UNK_16                = 0x00010000,
+    UNIT_FLAG_NON_ATTACKABLE_2      = 0x00010000,           // removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE
     UNIT_FLAG_PACIFIED              = 0x00020000,           // 3.0.3 ok
     UNIT_FLAG_STUNNED               = 0x00040000,           // 3.0.3 ok
     UNIT_FLAG_IN_COMBAT             = 0x00080000,
