@@ -42,6 +42,7 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE_MARKER        = 67483, // Will make the yellow arrow on eclipse bar point to the yellow side (solar)
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
+    SPELL_DRUID_HARMONY                     = 100977,
     SPELL_DRUID_EFFLORESCENCE_AOE           = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL          = 81269,
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
