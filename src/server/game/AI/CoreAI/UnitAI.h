@@ -283,6 +283,9 @@ class TC_GAME_API UnitAI
         // Called when the unit leaves combat
         virtual void JustExitedCombat() { }
 
+        // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing, player logging out etc.)
+        virtual void LeavingWorld() { }
+
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
 
