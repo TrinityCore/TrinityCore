@@ -2,6 +2,8 @@
 #define SERVER_HTTP_HPP
 
 #include "utility.h"
+#include "IoContext.h"
+#include "IpAddress.h"
 #include <functional>
 #include <iostream>
 #include <limits>
@@ -10,7 +12,6 @@
 #include <sstream>
 #include <thread>
 #include <unordered_set>
-#include "IoContext.h"
 
 #ifdef USE_STANDALONE_ASIO
 #include <asio.hpp>
@@ -234,7 +235,7 @@ namespace SimpleWeb {
       std::unique_ptr<socket_type> socket; // Socket must be unique_ptr since asio::ssl::stream<asio::ip::tcp::socket> is not movable
       std::mutex socket_close_mutex;
 
-      std::unique_ptr<asio::steady_timer> timer;
+      std::unique_ptr<asio::deadline_timer> timer;
 
       std::shared_ptr<asio::ip::tcp::endpoint> remote_endpoint;
 
@@ -251,8 +252,8 @@ namespace SimpleWeb {
           return;
         }
 
-        timer = std::unique_ptr<asio::steady_timer>(new asio::steady_timer(socket->get_io_service()));
-        timer->expires_from_now(std::chrono::seconds(seconds));
+        timer = std::unique_ptr<asio::deadline_timer>(new asio::deadline_timer(Trinity::Asio::get_io_context(*socket)));
+        timer->expires_from_now(boost::posix_time::minutes(seconds));
         auto self = this->shared_from_this();
         timer->async_wait([self](const error_code &ec) {
           if(!ec)
@@ -340,7 +341,7 @@ namespace SimpleWeb {
     unsigned short bind() {
       asio::ip::tcp::endpoint endpoint;
       if(config.address.size() > 0)
-        endpoint = asio::ip::tcp::endpoint(asio::ip::address::from_string(config.address), config.port);
+        endpoint = asio::ip::tcp::endpoint(Trinity::Net::make_address(config.address), config.port);
       else
         endpoint = asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config.port);
 
@@ -369,7 +370,11 @@ namespace SimpleWeb {
 
       if(internal_io_service) {
         if(io_service->stopped())
-          io_service->reset();
+          #if BOOST_VERSION >= 106600
+            io_service->restart();
+          #else
+            io_service->reset();
+          #endif
 
         // If thread_pool_size>1, start m_io_service.run() in (thread_pool_size-1) threads for thread-pooling
         threads.clear();
