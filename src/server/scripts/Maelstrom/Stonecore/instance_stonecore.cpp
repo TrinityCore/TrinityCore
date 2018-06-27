@@ -37,13 +37,14 @@
 
 ObjectData const creatureData[] =
 {
-    { NPC_MILLHOUSE_MANASTORM,    DATA_MILLHOUSE_MANASTORM },
-    { NPC_CORBORUS,               DATA_CORBORUS },
-    { NPC_SLABHIDE,               DATA_SLABHIDE },
-    { NPC_HIGH_PRIESTESS_AZIL,    DATA_HIGH_PRIESTESS_AZIL },
-    { NPC_STONECORE_TELEPORTER,   DATA_STONECORE_TELEPORTER },
-    { NPC_STONECORE_TELEPORTER_2, DATA_STONECORE_TELEPORTER_2 },
-    { 0, 0 } // END
+    { NPC_MILLHOUSE_MANASTORM,      DATA_MILLHOUSE_MANASTORM    },
+    { BOSS_CORBORUS,                DATA_CORBORUS               },
+    { BOSS_SLABHIDE,                DATA_SLABHIDE               },
+    { BOSS_OZRUK,                   DATA_OZRUK,                 },
+    { BOSS_HIGH_PRIESTESS_AZIL,     DATA_HIGH_PRIESTESS_AZIL    },
+    { NPC_STONECORE_TELEPORTER,     DATA_STONECORE_TELEPORTER   },
+    { NPC_STONECORE_TELEPORTER_2,   DATA_STONECORE_TELEPORTER_2 },
+    { 0,                            0                           } // END
 };
 
 class instance_stonecore : public InstanceMapScript
@@ -102,6 +103,8 @@ class instance_stonecore : public InstanceMapScript
                             millhouseLastGroupGUIDs.push_back(creature->GetGUID());
                             creature->SetReactState(REACT_PASSIVE);
                             creature->SetMeleeAnimKitId(ANIM_READY2H);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -165,8 +168,8 @@ class instance_stonecore : public InstanceMapScript
                         slabhideIntro = EncounterState(data);
                         break;
                     case DATA_SLABHIDE_ROCK_WALL: // Handles rock walls
-                        for (std::vector<ObjectGuid>::iterator itr = slabhideRockWallGUIDs.begin(); itr != slabhideRockWallGUIDs.end(); ++itr)
-                            HandleGameObject((*itr), data ? true : false);
+                        for (ObjectGuid guid : slabhideRockWallGUIDs)
+                            HandleGameObject((guid), data ? true : false);
                         break;
                     default:
                         break;
@@ -179,8 +182,8 @@ class instance_stonecore : public InstanceMapScript
             {
                 if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
                     Millhouse->SetFacingTo(1.570796f);
-                for (GuidVector::const_iterator i = millhouseLastGroupGUIDs.begin(); i != millhouseLastGroupGUIDs.end(); ++i)
-                    if (Creature* creature = instance->GetCreature(*i))
+                for (ObjectGuid guid : millhouseLastGroupGUIDs)
+                    if (Creature* creature = instance->GetCreature(guid))
                         creature->SetFacingTo(1.570796f);
             }
 
@@ -189,8 +192,8 @@ class instance_stonecore : public InstanceMapScript
             {
                 if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
                     Millhouse->CastSpell(Millhouse, SPELL_RING_WYRM_KNOCKBACK, true);
-                for (GuidVector::const_iterator itr = millhouseLastGroupGUIDs.begin(); itr != millhouseLastGroupGUIDs.end(); ++itr)
-                    if (Creature* creature = instance->GetCreature(*itr))
+                for (ObjectGuid guid : millhouseLastGroupGUIDs)
+                    if (Creature* creature = instance->GetCreature(guid))
                         creature->CastSpell(creature, SPELL_RING_WYRM_KNOCKBACK, true);
             }
 
@@ -198,13 +201,13 @@ class instance_stonecore : public InstanceMapScript
             void MillhouseEvent_Despawn()
             {
                 if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
-                    Millhouse->DespawnOrUnsummon(3000);
-                for (GuidVector::const_iterator itr = millhouseTrashGUIDs.begin(); itr != millhouseTrashGUIDs.end(); ++itr)
-                    if (Creature* creature = instance->GetCreature(*itr))
-                        creature->DespawnOrUnsummon(3000);
-                for (GuidVector::const_iterator itr = millhouseLastGroupGUIDs.begin(); itr != millhouseLastGroupGUIDs.end(); ++itr)
-                    if (Creature* creature = instance->GetCreature(*itr))
-                        creature->DespawnOrUnsummon(3000);
+                    Millhouse->DespawnOrUnsummon(Seconds(3));
+                for (ObjectGuid guid : millhouseTrashGUIDs)
+                    if (Creature* creature = instance->GetCreature(guid))
+                        creature->DespawnOrUnsummon(Seconds(3));
+                for (ObjectGuid guid : millhouseLastGroupGUIDs)
+                    if (Creature* creature = instance->GetCreature(guid))
+                        creature->DespawnOrUnsummon(Seconds(3));
             }
 
             void ActivateTeleporter(Creature* teleporter)
@@ -216,11 +219,11 @@ class instance_stonecore : public InstanceMapScript
                 teleporter->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
+        protected:
             GuidVector millhouseTrashGUIDs;
             GuidVector millhouseLastGroupGUIDs;
             ObjectGuid corborusRockDoorGUID;
             GuidVector slabhideRockWallGUIDs;
-
             EncounterState slabhideIntro = NOT_STARTED;
         };
 
