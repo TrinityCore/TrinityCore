@@ -316,7 +316,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             m_goValue.Transport.AnimationInfo = sTransportMgr->GetTransportAnimInfo(goInfo->entry);
             m_goValue.Transport.PathProgress = getMSTime();
             if (m_goValue.Transport.AnimationInfo)
-                m_goValue.Transport.PathProgress -= m_goValue.Transport.PathProgress % GetTransportPeriod();    // align to period
+                if (uint32 transportPeriod = GetTransportPeriod())
+                    m_goValue.Transport.PathProgress -= m_goValue.Transport.PathProgress % transportPeriod;    // align to period
             m_goValue.Transport.CurrentSeg = 0;
             m_goValue.Transport.StateUpdateTimer = 0;
             m_goValue.Transport.StopFrames = new std::vector<uint32>();
