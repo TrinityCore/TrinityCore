@@ -262,8 +262,7 @@ namespace SimpleWeb {
 
       void cancel_timeout() noexcept {
         if(timer) {
-          error_code ec;
-          timer->cancel(ec);
+          timer->cancel();
         }
       }
     };
