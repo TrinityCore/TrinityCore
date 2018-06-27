@@ -10,6 +10,7 @@
 #include <sstream>
 #include <thread>
 #include <unordered_set>
+#include "IoContext.h"
 
 #ifdef USE_STANDALONE_ASIO
 #include <asio.hpp>
@@ -332,7 +333,7 @@ namespace SimpleWeb {
     std::function<void(std::unique_ptr<socket_type> &, std::shared_ptr<typename ServerBase<socket_type>::Request>)> on_upgrade;
 
     /// If you have your own asio::io_service, store its pointer here before running start().
-    std::shared_ptr<asio::io_service> io_service;
+    std::shared_ptr<Trinity::Asio::IoContext> io_service;
 
     /// If you know the server port in advance, use start() instead.
     /// Returns assigned port. If io_service is not set, an internal io_service is created instead.
@@ -345,7 +346,7 @@ namespace SimpleWeb {
         endpoint = asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config.port);
 
       if(!io_service) {
-        io_service = std::make_shared<asio::io_service>();
+        io_service = std::make_shared<Trinity::Asio::IoContext>();
         internal_io_service = true;
       }
 

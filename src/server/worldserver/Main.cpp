@@ -113,8 +113,8 @@ private:
 class WorldToDiscord
 {
 public:
-    WorldToDiscord(boost::asio::io_service& ioService)
-        : _timer(ioService) { }
+    WorldToDiscord(Trinity::Asio::IoContext& ioContext)
+        : _timer(ioContext) { }
 
     static void Start(std::shared_ptr<WorldToDiscord> const& worldToDiscord)
     {
