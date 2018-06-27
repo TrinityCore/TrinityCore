@@ -377,7 +377,7 @@ class npc_eye_of_acherus : public CreatureScript
             npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                me->CastSpell(me, SPELL_EYE_VISUAL, true);
+                DoCastSelf(SPELL_EYE_VISUAL);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisableGravity(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
@@ -387,7 +387,7 @@ class npc_eye_of_acherus : public CreatureScript
                 init.SetFall();
                 me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_FALL, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
-                _events.ScheduleEvent(EVENT_MOVE_START, 7000);
+                _events.ScheduleEvent(EVENT_MOVE_START, 7s);
             }
 
             void OnCharmed(bool /*apply*/) override { }
@@ -402,7 +402,7 @@ class npc_eye_of_acherus : public CreatureScript
                     {
                         case EVENT_MOVE_START:
                         {
-                            me->CastSpell(me, SPELL_EYE_FLIGHT_BOOST);
+                            DoCastSelf(SPELL_EYE_FLIGHT_BOOST);
                             me->SetControlled(false, UNIT_STATE_ROOT);
 
                             if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
@@ -435,7 +435,7 @@ class npc_eye_of_acherus : public CreatureScript
                         Talk(TALK_CONTROL, owner);
                     }
                     me->SetDisableGravity(false);
-                    me->CastSpell(me, SPELL_EYE_FLIGHT);
+                    DoCastSelf(SPELL_EYE_FLIGHT);
                 }
             }
 
