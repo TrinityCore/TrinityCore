@@ -133,6 +133,11 @@ void PetBattleMgr::EndPetBattle(uint64 petBattleId)
 
 void PetBattleMgr::DoCapture(Player* player, WildBattlePet* wildBattlePet)
 {
+    BattlePet* battlePet = wildBattlePet->GetBattlePet();
+
+    if (!battlePet || !battlePet->GetSpecies())
+        return;
+
     if (wildBattlePet->GetBattlePet()->GetSpecies()->Flags & BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE)
         return;
 
