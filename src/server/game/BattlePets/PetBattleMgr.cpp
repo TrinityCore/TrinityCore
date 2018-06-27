@@ -138,10 +138,10 @@ void PetBattleMgr::DoCapture(Player* player, WildBattlePet* wildBattlePet)
     if (!battlePet || !battlePet->GetSpecies())
         return;
 
-    if (wildBattlePet->GetBattlePet()->GetSpecies()->Flags & BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE)
+    if (battlePet->GetSpecies()->Flags & BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE)
         return;
 
-    player->GetSession()->GetBattlePetMgr()->AddPet(wildBattlePet->GetBattlePet());
+    player->GetSession()->GetBattlePetMgr()->AddPet(battlePet);
     wildBattlePet->GetCreature()->DisappearAndDie();
 }
 
