@@ -1620,8 +1620,30 @@ enum EtherealPet
     SAY_STEAL_ESSENCE           = 1,
     SAY_CREATE_TOKEN            = 2,
 
+    SPELL_ETHEREAL_PET_AURA     = 50055,
     SPELL_STEAL_ESSENCE_VISUAL  = 50101,
     SPELL_CREATE_TOKEN          = 50063
+};
+
+// 50055 - Ethereal Pet Aura Remove
+class spell_ethereal_pet_aura_remove : public SpellScript
+{
+    PrepareSpellScript(spell_ethereal_pet_aura_remove);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ETHEREAL_PET_AURA });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ETHEREAL_PET_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_ethereal_pet_aura_remove::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 class spell_ethereal_pet_aura : public AuraScript
@@ -1631,7 +1653,7 @@ class spell_ethereal_pet_aura : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         uint32 levelDiff = std::abs(GetTarget()->getLevel() - eventInfo.GetProcTarget()->getLevel());
-        if (levelDiff >= 9)
+        if (levelDiff <= 9)
             return false;
 
         return true;
@@ -1672,7 +1694,7 @@ class spell_steal_essence_visual : public AuraScript
         if (!caster)
             return;
 
-        Creature* pet = GetCaster()->ToCreature();
+        Creature* pet = caster->ToCreature();
         Unit* owner = caster->GetOwner();
         if (!pet || !owner)
             return;
@@ -4050,6 +4072,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_ds_flush_knockback);
     RegisterSpellScript(spell_gen_dungeon_credit);
     RegisterSpellScript(spell_gen_elune_candle);
+    RegisterSpellScript(spell_ethereal_pet_aura_remove);
     RegisterAuraScript(spell_ethereal_pet_aura);
     RegisterAuraScript(spell_steal_essence_visual);
     RegisterSpellScript(spell_gen_gadgetzan_transporter_backfire);
