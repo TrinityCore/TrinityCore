@@ -41,6 +41,7 @@ class PetBattle
 {
 public:
     PetBattle(uint64 battleID, Player* player1, Player* player2, ObjectGuid wildBattlePet);
+    ~PetBattle() { }
 
     void Start();
 

@@ -38,12 +38,9 @@ void PetBattleMgr::HandleWildRequest(Player* player, PetBattleRequest request)
 
     SendFinalizeLocation(player, request);
 
+    // TEMP SOLUTION - NEED REMOVAL
     if (Creature* npc = player->GetNPCIfCanInteractWith(request.opponentGUID, UNIT_NPC_FLAG_WILD_BATTLE_PET))
-        if (WildBattlePet* wildBattlePet = npc->GetWildBattlePet())
-        {
-            // TEMP SOLUTION - NEED REMOVAL
-            DoCapture(player, wildBattlePet);
-        }
+        DoCapture(player, npc->GetWildBattlePet());
 }
 
 PetBattleRequestResult PetBattleMgr::CanPlayerEnterInPetBattle(Player* player, PetBattleRequest& request)
@@ -133,6 +130,9 @@ void PetBattleMgr::EndPetBattle(uint64 petBattleId)
 
 void PetBattleMgr::DoCapture(Player* player, WildBattlePet* wildBattlePet)
 {
+    if (!wildBattlePet)
+        return;
+
     BattlePet* battlePet = wildBattlePet->GetBattlePet();
 
     if (!battlePet || !battlePet->GetSpecies())
