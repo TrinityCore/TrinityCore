@@ -47,6 +47,7 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
+    SPELL_DRUID_HARMONY                     = 100977,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
@@ -1307,6 +1308,29 @@ class spell_dru_wild_growth : public SpellScriptLoader
         }
 };
 
+// 77495 - Harmony
+class spell_dru_harmony : public AuraScript
+{
+    PrepareAuraScript(spell_dru_harmony);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_HARMONY });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        int32 amount = aurEff->GetAmount();
+        GetTarget()->CastCustomSpell(SPELL_DRUID_HARMONY, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_harmony::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1318,6 +1342,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
     new spell_dru_glyph_of_starfire_proc();
+    RegisterAuraScript(spell_dru_harmony);
     new spell_dru_idol_lifebloom();
     new spell_dru_innervate();
     new spell_dru_insect_swarm();
