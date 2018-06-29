@@ -33,7 +33,9 @@ enum MonkSpells
     MONK_NPC_JADE_SERPENT_STATUE                        = 60849,
     SPELL_MONK_BLACKOUT_KICK_DOT                        = 128531,
     SPELL_MONK_BLACKOUT_KICK_HEAL                       = 128591,
+    SPELL_MONK_BLACKOUT_STRIKE                          = 205523,
     SPELL_MONK_BLACK_OX_BREW                            = 115399,
+    SPELL_MONK_BREATH_OF_FIRE                           = 115181,
     SPELL_MONK_BREATH_OF_FIRE_CONFUSED                  = 123393,
     SPELL_MONK_BREATH_OF_FIRE_DOT                       = 123725,
     SPELL_MONK_CHI_BURST_DAMAGE                         = 148135,
@@ -53,6 +55,7 @@ enum MonkSpells
     SPELL_MONK_DISABLE                                  = 116095,
     SPELL_MONK_DISABLE_ROOT                             = 116706,
     SPELL_MONK_DIZZYING_HAZE                            = 116330,
+    SPELL_MONK_ELUSIVE_BRAWLER                          = 195630,
     SPELL_MONK_ELUSIVE_BREW                             = 115308,
     SPELL_MONK_ELUSIVE_BREW_STACKS                      = 128939,
     SPELL_MONK_EMINENCE_HEAL                            = 126890,
@@ -3233,7 +3236,7 @@ public:
         if(!victim->HasAura(SPELL_MONK_GIFT_OF_THE_OX_AURA))
             return;
 
-        uint32 spellToCast = spellsToCast[urand(0, spellsToCast.size())];
+        uint32 spellToCast = spellsToCast[urand(0, (spellsToCast.size() - 1))];
 
         if(roll_chance_i((0.75 * damage / victim->GetMaxHealth()) * (3 - 2 * (victim->GetHealthPct() / 100)) * 100))
         {
@@ -3247,35 +3250,46 @@ public:
 
 };
 
-//195630 - Elusive Brawler
-class spell_monk_elusive_brawler_stacks : public SpellScriptLoader
+// 117906 - Mastery : Elusive Brawler
+class spell_monk_elusive_brawler_mastery : public AuraScript
 {
-public:
-    spell_monk_elusive_brawler_stacks() : SpellScriptLoader("spell_monk_elusive_brawler_stacks") { }
+    PrepareAuraScript(spell_monk_elusive_brawler_mastery);
 
-    class spell_monk_elusive_brawler_stacks_AuraScript : public AuraScript
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        PrepareAuraScript(spell_monk_elusive_brawler_stacks_AuraScript);
+        if (eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK)
+            return true;
 
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            if (eventInfo.GetHitMask() & PROC_HIT_DODGE)
-            {
-                GetCaster()->RemoveAura(195630);
-                return true;
-            }
+        return eventInfo.GetProcSpell() &&
+              (eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_MONK_BLACKOUT_STRIKE ||
+               eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_MONK_BREATH_OF_FIRE);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_monk_elusive_brawler_mastery::CheckProc);
+    }
+};
+
+// 195630 - Elusive Brawler
+class spell_monk_elusive_brawler_stacks : public AuraScript
+{
+    PrepareAuraScript(spell_monk_elusive_brawler_stacks);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (!(eventInfo.GetHitMask() & PROC_HIT_DODGE))
             return false;
-        }
 
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_monk_elusive_brawler_stacks_AuraScript::CheckProc);
-        }
-    };
+        if (Aura* elusiveBrawler = GetCaster()->GetAura(SPELL_MONK_ELUSIVE_BRAWLER, GetCaster()->GetGUID()))
+            elusiveBrawler->SetDuration(0);
 
-    AuraScript* GetAuraScript() const override
+        return true;
+    }
+
+    void Register() override
     {
-        return new spell_monk_elusive_brawler_stacks_AuraScript();
+        DoCheckProc += AuraCheckProcFn(spell_monk_elusive_brawler_stacks::CheckProc);
     }
 };
 
@@ -3712,7 +3726,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_crackling_jade_lightning_knockback_proc_aura();
     new spell_monk_dampen_harm();
     new spell_monk_disable();
-    new spell_monk_elusive_brawler_stacks();
+    RegisterAuraScript(spell_monk_elusive_brawler_mastery);
+    RegisterAuraScript(spell_monk_elusive_brawler_stacks);
     new spell_monk_energizing_brew();
     new spell_monk_enveloping_mist();
     new spell_monk_essence_font_heal();
