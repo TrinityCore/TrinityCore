@@ -1735,46 +1735,36 @@ enum MaimSpells
 };
 
 // Maim - 22570
-// @Version : 7.1.0.22908
-class spell_dru_maim : public SpellScriptLoader
+class spell_dru_maim : public SpellScript
 {
-public:
-    spell_dru_maim() : SpellScriptLoader("spell_dru_maim") { }
+    PrepareSpellScript(spell_dru_maim);
 
-    class spell_dru_maim_SpellScript : public SpellScript
+    void HandleTakePower(Powers& power, int32& powerCount)
     {
-        PrepareSpellScript(spell_dru_maim_SpellScript);
-
-        void HandleOnHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetExplTargetUnit();
-            if (!caster || !target)
-                return;
-
-            caster->CastSpell(target, SPELL_DRUID_MAIM_STUN, true);
-        }
-
-        void RemoveCP()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->SetPower(POWER_COMBO_POINTS, 0);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_dru_maim_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            AfterHit += SpellHitFn(spell_dru_maim_SpellScript::RemoveCP);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dru_maim_SpellScript();
+        if (power == POWER_COMBO_POINTS)
+            _usedComboPoints = powerCount;
     }
+
+    void AfterCast()
+    {
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return;
+
+        GetCaster()->CastSpell(target, SPELL_DRUID_MAIM_STUN, true);
+
+        if (Aura* maimStun = target->GetAura(SPELL_DRUID_MAIM_STUN, GetCaster()->GetGUID()))
+            maimStun->SetDuration(_usedComboPoints * 1000);
+    }
+
+    void Register() override
+    {
+        OnTakePower += SpellOnTakePowerFn(spell_dru_maim::HandleTakePower);
+        AfterHit += SpellHitFn(spell_dru_maim::AfterCast);
+    }
+
+private:
+    int32 _usedComboPoints = 0;
 };
 
 // Rip - 1079
@@ -2421,7 +2411,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_infected_wound();
     RegisterAuraScript(spell_dru_ysera_gift);
     new spell_dru_rake();
-    new spell_dru_maim();
+    RegisterSpellScript(spell_dru_maim);
     new spell_dru_rip();
     new spell_dru_bloodtalons();
     new spell_dru_travel_form_dummy();
