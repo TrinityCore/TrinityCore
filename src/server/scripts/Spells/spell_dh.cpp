@@ -2209,84 +2209,61 @@ public:
 };
 
 // Metamorphosis temporary immunity - 201453
-class spell_dh_metamorphosis_immunity : public SpellScriptLoader
+class spell_dh_metamorphosis_immunity : public SpellScript
 {
-public:
-    spell_dh_metamorphosis_immunity() : SpellScriptLoader("spell_dh_metamorphosis_immunity") {}
+    PrepareSpellScript(spell_dh_metamorphosis_immunity);
 
-    class spell_dh_metamorphosis_immunity_AuraScript : public AuraScript
+    void PreventImmunity(SpellEffIndex effIndex)
     {
-        PrepareAuraScript(spell_dh_metamorphosis_immunity_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_METAMORPHOSIS))
-                return false;
-            return true;
-        }
-
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_HAVOC)
-                caster->CastSpell(caster, SPELL_DH_METAMORPHOSIS_STUN, true);
-            else
-            {
-                caster->CastSpell(caster, SPELL_DH_INFERNAL_STRIKE_DAMAGE, true);
-                if (caster->HasAura(SPELL_DH_FLAME_CRASH))
-                    caster->CastSpell(caster, SPELL_DH_SIGIL_OF_FLAME_NO_DEST, true);
-            }
-        }
-
-        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_VENGEANCE)
-                GetAura()->SetDuration(750);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dh_metamorphosis_immunity_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_ALLOW_ONLY_ABILITY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_dh_metamorphosis_immunity_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_ALLOW_ONLY_ABILITY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    class spell_dh_metamorphosis_immunity_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dh_metamorphosis_immunity_SpellScript);
-
-        void PreventImmunity(SpellEffIndex effIndex)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
+        if (Unit* caster = GetCaster())
             if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_VENGEANCE)
                 PreventHitEffect(effIndex);
-        }
-
-        void Register() override
-        {
-            OnEffectLaunch += SpellEffectFn(spell_dh_metamorphosis_immunity_SpellScript::PreventImmunity, EFFECT_1, SPELL_AURA_SCHOOL_IMMUNITY);
-            OnEffectHit += SpellEffectFn(spell_dh_metamorphosis_immunity_SpellScript::PreventImmunity, EFFECT_1, SPELL_AURA_SCHOOL_IMMUNITY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dh_metamorphosis_immunity_SpellScript();
     }
 
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_dh_metamorphosis_immunity_AuraScript();
+        OnEffectLaunch += SpellEffectFn(spell_dh_metamorphosis_immunity::PreventImmunity, EFFECT_1, SPELL_AURA_SCHOOL_IMMUNITY);
+        OnEffectHit    += SpellEffectFn(spell_dh_metamorphosis_immunity::PreventImmunity, EFFECT_1, SPELL_AURA_SCHOOL_IMMUNITY);
+    }
+};
+
+// Metamorphosis temporary immunity - 201453
+class aura_dh_metamorphosis_immunity : public AuraScript
+{
+    PrepareAuraScript(aura_dh_metamorphosis_immunity);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS });
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_VENGEANCE)
+                GetAura()->SetDuration(750);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_HAVOC)
+            caster->CastSpell(caster, SPELL_DH_METAMORPHOSIS_STUN, true);
+        else
+        {
+            caster->CastSpell(caster, SPELL_DH_INFERNAL_STRIKE_DAMAGE, true);
+            if (caster->HasAura(SPELL_DH_FLAME_CRASH))
+                caster->CastSpell(caster, SPELL_DH_SIGIL_OF_FLAME_NO_DEST, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(aura_dh_metamorphosis_immunity::HandleApply, EFFECT_1, SPELL_AURA_ALLOW_ONLY_ABILITY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(aura_dh_metamorphosis_immunity::HandleRemove, EFFECT_1, SPELL_AURA_ALLOW_ONLY_ABILITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2651,92 +2628,75 @@ public:
 };
 
 // Infernal Strike - 189110
-class spell_dh_infernal_strike : public SpellScriptLoader
+class spell_dh_infernal_strike : public SpellScript
 {
-public:
-    spell_dh_infernal_strike() : SpellScriptLoader("spell_dh_infernal_strike") { }
+    PrepareSpellScript(spell_dh_infernal_strike);
 
-    class spell_dh_infernal_strike_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_dh_infernal_strike_SpellScript);
+        return ValidateSpellInfo({ SPELL_DH_INFERNAL_STRIKE_JUMP, SPELL_DH_INFERNAL_STRIKE_DAMAGE });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+    SpellCastResult CheckDestination()
+    {
+        if (WorldLocation const* dest = GetExplTargetDest())
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_INFERNAL_STRIKE_JUMP))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_INFERNAL_STRIKE_DAMAGE))
-                return false;
-            return true;
-        }
+            if (GetCaster()->HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
+                return SPELL_FAILED_ROOTED;
 
-        SpellCastResult CheckDestination()
-        {
-            if (WorldLocation const* dest = GetExplTargetDest())
+            if (GetCaster()->GetMap()->Instanceable())
             {
-                if (GetCaster()->HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
-                    return SPELL_FAILED_ROOTED;
+                float range = GetSpellInfo()->GetMaxRange(true, GetCaster()) * 1.5f;
 
-                if (GetCaster()->GetMap()->Instanceable())
+                PathGenerator generatedPath(GetCaster());
+                generatedPath.SetPathLengthLimit(range);
+
+                bool result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, true);
+                if (generatedPath.GetPathType() & PATHFIND_SHORT)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+                else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
                 {
-                    float range = GetSpellInfo()->GetMaxRange(true, GetCaster()) * 1.5f;
-
-                    PathGenerator generatedPath(GetCaster());
-                    generatedPath.SetPathLengthLimit(range);
-
-                    bool result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, true);
+                    result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, false);
                     if (generatedPath.GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_OUT_OF_RANGE;
                     else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
-                    {
-                        result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, false);
-                        if (generatedPath.GetPathType() & PATHFIND_SHORT)
-                            return SPELL_FAILED_OUT_OF_RANGE;
-                        else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
-                            return SPELL_FAILED_NOPATH;
-                    }
+                        return SPELL_FAILED_NOPATH;
                 }
-                else if (dest->GetPositionZ() > GetCaster()->GetPositionZ() + 4.0f)
-                    return SPELL_FAILED_NOPATH;
-
-                return SPELL_CAST_OK;
             }
+            else if (dest->GetPositionZ() > GetCaster()->GetPositionZ() + 4.0f)
+                return SPELL_FAILED_NOPATH;
 
-            return SPELL_FAILED_NO_VALID_TARGETS;
+            return SPELL_CAST_OK;
         }
 
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            WorldLocation const* dest = GetHitDest();
-            if (!caster || !dest)
-                return;
+        return SPELL_FAILED_NO_VALID_TARGETS;
+    }
 
-            /*caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
-            caster->GetSpellHistory()->ForceSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));*/
-            caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_DH_INFERNAL_STRIKE_JUMP, true);
-            caster->CastSpell(caster, SPELL_DH_INFERNAL_STRIKE_VISUAL, true);
-        }
-
-        void HandleAfterDamage()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->CastSpell(caster, SPELL_DH_METAMORPHOSIS_IMMUNITY, true);
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_dh_infernal_strike_SpellScript::CheckDestination);
-            OnEffectHit += SpellEffectFn(spell_dh_infernal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            OnCast += SpellCastFn(spell_dh_infernal_strike_SpellScript::HandleAfterDamage);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        return new spell_dh_infernal_strike_SpellScript();
+        Unit* caster = GetCaster();
+        WorldLocation const* dest = GetHitDest();
+        if (!caster || !dest)
+            return;
+
+        caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_DH_INFERNAL_STRIKE_JUMP, true);
+        caster->CastSpell(caster, SPELL_DH_INFERNAL_STRIKE_VISUAL, true);
+    }
+
+    void HandleAfterDamage()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_DH_METAMORPHOSIS_IMMUNITY, true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dh_infernal_strike::CheckDestination);
+        OnEffectHit += SpellEffectFn(spell_dh_infernal_strike::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCast += SpellCastFn(spell_dh_infernal_strike::HandleAfterDamage);
     }
 };
 
@@ -3012,13 +2972,13 @@ void AddSC_demon_hunter_spell_scripts()
     new spell_dh_glide();
     new spell_dh_immolation_aura();
     new spell_dh_immolation_aura_damage();
-    new spell_dh_infernal_strike();
+    RegisterSpellScript(spell_dh_infernal_strike);
     new spell_dh_last_resort();
     new spell_dh_master_of_the_glaive();
     new spell_dh_metamorphosis();
     new spell_dh_metamorphosis_buffs();
     new spell_dh_metamorphosis_buffs_veng();
-    new spell_dh_metamorphosis_immunity();
+    RegisterSpellAndAuraScriptPair(spell_dh_metamorphosis_immunity, aura_dh_metamorphosis_immunity);
     new spell_dh_nemesis();
     new spell_dh_nether_bond();
     new spell_dh_nether_bond_periodic();

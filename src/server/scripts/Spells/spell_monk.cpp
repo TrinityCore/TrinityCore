@@ -3032,35 +3032,6 @@ public:
     }
 };
 
-//124502 - Gift of the Ox
-class spell_monk_gift_of_the_ox : public SpellScriptLoader
-{
-public:
-    spell_monk_gift_of_the_ox() : SpellScriptLoader("spell_monk_gift_of_the_ox") { }
-
-    class spell_monk_gift_of_the_ox_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_monk_gift_of_the_ox_AuraScript);
-
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*procInfo*/)
-        {
-            if(roll_chance_i(aurEff->GetAmount()))
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, 124503, true);
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_monk_gift_of_the_ox_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_monk_gift_of_the_ox_AuraScript();
-    }
-};
-
 // Windwalking - 157411
 // AreaTriggerID - 2763
 struct at_monk_windwalking : AreaTriggerAI
