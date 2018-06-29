@@ -2850,14 +2850,14 @@ class spell_warr_execute : public SpellScript
 {
     PrepareSpellScript(spell_warr_execute);
 
-    int32 m_maxRageTaken = 0;
+    int32 m_maxExtraRageTaken = 0;
     int32 m_ExtraSpellCost = 0;
     int32 m_powerTaken = 0;
 
     bool Load() override
     {
-        m_maxRageTaken = GetEffectInfo(EFFECT_4)->BasePoints - GetEffectInfo(EFFECT_3)->BasePoints;
-        m_ExtraSpellCost = std::max(std::min(GetCaster()->GetPower(POWER_RAGE), m_maxRageTaken * 10), 0);
+        m_maxExtraRageTaken = (GetEffectInfo(EFFECT_4)->BasePoints - GetEffectInfo(EFFECT_3)->BasePoints) * 10;
+        m_ExtraSpellCost = std::max(std::min(GetCaster()->GetPower(POWER_RAGE), m_maxExtraRageTaken), 0);
         return true;
     }
 
@@ -2869,7 +2869,7 @@ class spell_warr_execute : public SpellScript
 
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        int32 dmg = CalculatePct(GetHitDamage(), 100.f + (float(m_ExtraSpellCost) / float(m_maxRageTaken) * 300.f));
+        int32 dmg = CalculatePct(GetHitDamage(), 100.f + (float(m_ExtraSpellCost) / float(m_maxExtraRageTaken) * 300.f));
         SetHitDamage(dmg);
     }
 
