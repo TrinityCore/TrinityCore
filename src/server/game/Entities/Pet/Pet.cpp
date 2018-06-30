@@ -1770,7 +1770,7 @@ void Pet::LearnSpecializationSpells()
         {
             SpecializationSpellsEntry const* specSpell = specSpells->at(j);
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
-            if (!spellInfo || spellInfo->SpellLevel > getLevel())
+            if (!spellInfo || (spellInfo->SpellLevel && spellInfo->SpellLevel > getLevel()))
                 continue;
 
             learnedSpells.push_back(specSpell->SpellID);
