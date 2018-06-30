@@ -2549,7 +2549,7 @@ void Creature::AllLootRemovedFromCorpse()
 bool Creature::HasScalableLevels() const
 {
     CreatureTemplate const* cinfo = GetCreatureTemplate();
-    return cinfo->levelScaling.is_initialized();
+    return !IsPet() && cinfo->levelScaling.is_initialized();
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
