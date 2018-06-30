@@ -849,7 +849,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         else
             scale = cFamily->MinScale + float(getLevel() - cFamily->MinScaleLevel) / cFamily->MaxScaleLevel * (cFamily->MaxScale - cFamily->MinScale);
 
-        SetObjectScale(scale * 2);
+        SetObjectScale(scale);
     }
 
     // Resistance
