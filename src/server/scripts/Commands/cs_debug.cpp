@@ -884,9 +884,16 @@ public:
 
     static bool HandleDebugEnterVehicleCommand(ChatHandler* handler, char const* args)
     {
-        Unit* target = handler->getSelectedUnit();
-        if (!target || !target->IsVehicle())
+        Unit* unit = handler->GetSession()->GetPlayer();
+        Unit* vehicle = handler->getSelectedUnit();
+        if (!vehicle || !unit)
             return false;
+
+        if (!vehicle->IsVehicle() && !unit->IsVehicle())
+            return false;
+
+        if (!vehicle->IsVehicle() && unit->IsVehicle())
+            std::swap(vehicle, unit);
 
         if (!args)
             return false;
@@ -901,16 +908,16 @@ public:
         int8 seatId = j ? (int8)atoi(j) : -1;
 
         if (!entry)
-            handler->GetSession()->GetPlayer()->EnterVehicle(target, seatId);
+            unit->EnterVehicle(vehicle, seatId);
         else
         {
             Creature* passenger = NULL;
             Trinity::AllCreaturesOfEntryInRange check(handler->GetSession()->GetPlayer(), entry, 20.0f);
             Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetSession()->GetPlayer(), passenger, check);
             Cell::VisitAllObjects(handler->GetSession()->GetPlayer(), searcher, 30.0f);
-            if (!passenger || passenger == target)
+            if (!passenger || passenger == vehicle)
                 return false;
-            passenger->EnterVehicle(target, seatId);
+            passenger->EnterVehicle(vehicle, seatId);
         }
 
         handler->PSendSysMessage("Unit %u entered vehicle %d", entry, (int32)seatId);
