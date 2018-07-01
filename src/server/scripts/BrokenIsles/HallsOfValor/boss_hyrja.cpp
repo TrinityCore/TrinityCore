@@ -91,18 +91,12 @@ struct boss_hyrja : public BossAI
     void Reset() override
     {
         _Reset();
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
         count = 0;
     }
 
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         me->GetMotionMaster()->MoveJump(3148.366f, 325.743f, 655.16f, 0.80f, 15.0f, 15.0f);
 
@@ -115,23 +109,12 @@ struct boss_hyrja : public BossAI
     {
         _JustDied();
 
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
         if (GameObject* go = instance->GetGameObject(GOB_DOOR_ODYN_PASSAGE))
         {
             go->SetLootState(GO_READY);
             go->UseDoorOrButton(3000000, false);
             go->setActive(true);
         }
-    }
-
-    void JustReachedHome() override
-    {
-        _JustReachedHome();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void DoAction(int32 action) override

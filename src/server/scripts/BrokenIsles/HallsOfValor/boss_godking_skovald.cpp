@@ -95,7 +95,6 @@ struct boss_god_king_kovald : public BossAI
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         if (Unit* target = me->GetVictim())
             me->AddAura(SPELL_AEGIS_SHIELD_PLAYER, target);
@@ -106,22 +105,6 @@ struct boss_god_king_kovald : public BossAI
         events.ScheduleEvent(EVENT_FELBLAZE_RUSH, 10000);
         events.ScheduleEvent(EVENT_RAGNAROK, 14000);
         events.ScheduleEvent(EVENT_SAVAGE_BLADE, 22000);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    }
-
-    void JustReachedHome() override
-    {
-        _JustReachedHome();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     bool PlayerHasAegisAura()

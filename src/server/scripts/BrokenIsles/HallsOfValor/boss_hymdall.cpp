@@ -28,6 +28,8 @@ enum hymdallSpells
     SPELL_HORN_VALOR            = 191284,
     SPELL_STATIC_FIELD          = 193260,
     SPELL_STORM_BREATH_AT       = 188404,
+
+    NPC_DANCING_BLADE           = 97960,
 };
 
 enum hymdallEvents
@@ -74,14 +76,7 @@ const Position stormDrakeEnd[8] =
 // 98542
 struct boss_hymdall : public BossAI
 {
-    boss_hymdall(Creature* creature) : BossAI(creature, DATA_HYMDALL)
-    {
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-        me->SetCanFly(false);
-    }
+    boss_hymdall(Creature* creature) : BossAI(creature, DATA_HYMDALL) { }
 
     std::list<Creature*> creatureList;
     uint32 spawn;
@@ -90,25 +85,32 @@ struct boss_hymdall : public BossAI
 
     void Reset() override
     {
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        _Reset();
 
         spawn = 0;
 
         drakeGUID = ObjectGuid::Empty;
         selectedPosition = false;
-
-        _Reset();
     }
 
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         events.ScheduleEvent(EVENT_DANCING_BLADE, 16 * IN_MILLISECONDS); // 22
         events.ScheduleEvent(EVENT_BLOODLETTING_SWEEP, 24 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_HORN_VALOR, 15 * IN_MILLISECONDS);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        BossAI::JustSummoned(summon);
+
+        if (summon->GetEntry() == NPC_DANCING_BLADE)
+        {
+            summon->setFaction(me->getFaction());
+            summon->SetReactState(REACT_PASSIVE);
+        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -117,9 +119,6 @@ struct boss_hymdall : public BossAI
         {
             _JustDied();
 
-            if (instance)
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
             me->SetHealth(me->GetMaxHealth());
             me->setFaction(35);
             me->GetMotionMaster()->MoveTargetedHome();
@@ -127,14 +126,6 @@ struct boss_hymdall : public BossAI
             if (GameObject* go = instance->GetGameObject(GOB_HYMDALLS_CACHE))
                 go->GetPhaseShift().AddPhase(169, PhaseFlags::None, nullptr);
         }
-    }
-
-    void JustReachedHome() override
-    {
-        _JustReachedHome();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void UpdateAI(uint32 diff) override

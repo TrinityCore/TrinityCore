@@ -378,7 +378,7 @@ class TC_GAME_API BossAI : public ScriptedAI
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _EnterCombat(bool showFrameEngage = true);
         void _JustDied();
         void _JustReachedHome();
         void _KilledUnit(Unit* victim);

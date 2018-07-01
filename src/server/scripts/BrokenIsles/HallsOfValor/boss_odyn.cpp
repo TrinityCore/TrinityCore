@@ -100,28 +100,11 @@ struct boss_odyn_hov : public BossAI
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         me->SetWalk(true);
 
         events.ScheduleEvent(EVENT_RADIANT_TEMPEST, 60 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_SPEAR_OF_LIGHT, 8 * IN_MILLISECONDS);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    }
-
-    void JustReachedHome() override
-    {
-        _JustReachedHome();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void UpdateAI(uint32 diff) override

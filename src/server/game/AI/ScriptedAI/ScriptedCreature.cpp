@@ -451,10 +451,6 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
 {
     if (instance)
         SetBoundary(instance->GetBossBoundary(bossId));
-    /*me->GetScheduler().SetValidator([this]
-    {
-        return !me->HasUnitState(UNIT_STATE_CASTING);
-    });*/
 }
 
 void BossAI::_Reset()
@@ -477,13 +473,19 @@ void BossAI::_JustDied()
     summons.DespawnAll();
     me->GetScheduler().CancelAll();
     if (instance)
+    {
         instance->SetBossState(_bossId, DONE);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
     Talk(BOSS_TALK_JUST_DIED);
 }
 
 void BossAI::_JustReachedHome()
 {
     me->setActive(false);
+
+    if (instance)
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 }
 
 void BossAI::_KilledUnit(Unit* victim)
@@ -492,7 +494,7 @@ void BossAI::_KilledUnit(Unit* victim)
         Talk(BOSS_TALK_KILL_PLAYER);
 }
 
-void BossAI::_EnterCombat()
+void BossAI::_EnterCombat(bool showFrameEngage /*= true*/)
 {
     if (instance)
     {
@@ -503,6 +505,9 @@ void BossAI::_EnterCombat()
             return;
         }
         instance->SetBossState(_bossId, IN_PROGRESS);
+
+        if (showFrameEngage)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
     }
 
     me->SetCombatPulseDelay(5);

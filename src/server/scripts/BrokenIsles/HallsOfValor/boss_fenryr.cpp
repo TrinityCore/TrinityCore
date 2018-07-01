@@ -74,27 +74,8 @@ struct boss_fenryr : public BossAI
     {
         _EnterCombat();
 
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-
         events.ScheduleEvent(EVENT_UNNERVING_HOWL, 8 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_RAVENOUS_LEAP, 15 * IN_MILLISECONDS);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    }
-
-    void JustReachedHome() override
-    {
-        _JustReachedHome();
-
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void InSecondPhaseStart()
