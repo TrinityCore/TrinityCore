@@ -35,6 +35,7 @@ enum Spells
     SPELL_BIND_WILL_TRIGGERED   = 83432,
     SPELL_PARALYSIS             = 84030,
     SPELL_FURIOUS_ROAR          = 83710,
+    SPELL_SHADOW_WRAPPED        = 83952,
 
     // Proto Behemoth
     SPELL_DRAGONS_VENGEANCE     = 87683,
@@ -54,7 +55,7 @@ enum Spells
     SPELL_CYCLONE_WINDS         = 83612,
     SPELL_TIME_DILATION         = 83601,
     SPELL_ATROPHIC_POISON       = 83609,
-    SPELL_BIND_WILL             = 84246,
+    SPELL_BIND_WILL             = 84246
 };
 
 enum Events
@@ -78,7 +79,7 @@ enum Events
 
 enum AchievementData
 {
-    DATA_THE_ONLY_ESCAPE = 1,
+    DATA_THE_ONLY_ESCAPE = 1
 };
 
 enum Texts
@@ -104,7 +105,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
 
             void Initialize()
             {
-                _allowShadowNovaCasts = false;
                 _announcedOrphanedEmeraldWhelpBinding = false;
                 _furiousRoarEnabled = false;
                 _furiousRoarCount = 0;
@@ -127,7 +127,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
                     protoBehemoth->SetInCombatWithZone();
 
-                if (_allowShadowNovaCasts)
+                if (me->HasAura(SPELL_SHADOW_WRAPPED))
                     events.ScheduleEvent(EVENT_SHADOW_NOVA, Seconds(7));
             }
 
@@ -203,7 +203,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         me->AddAura(SPELL_FRENZIED_ASSAULT, me);
                         break;
                     case ACTION_ENABLE_SHADOW_NOVA:
-                        _allowShadowNovaCasts = true;
+                        me->AddAura(SPELL_SHADOW_WRAPPED, me);
                         break;
                     default:
                         break;
@@ -265,7 +265,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             }
 
         private:
-            bool _allowShadowNovaCasts;
             bool _announcedOrphanedEmeraldWhelpBinding;
             bool _furiousRoarEnabled;
             uint8 _theOnlyEscapeAchievementState;
