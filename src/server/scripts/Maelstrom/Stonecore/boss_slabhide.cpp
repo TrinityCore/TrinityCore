@@ -27,35 +27,26 @@
 
 enum Spells
 {
-    SPELL_FACE_RANDOM_PLAYER      = 82530,
-
-    // Stalactite Trigger - Trash, On Ground
-    SPELL_STALACTITE_SUMMON_TRIGGER = 81028,
+    SPELL_FACE_RANDOM_PLAYER        = 82530,
 
     // Slabhide
-    SPELL_LAVA_FISSURE            = 80803,
-    SPELL_SAND_BLAST              = 80807,
-    SPELL_STALACTITE_SUMMON       = 80656,
-//  SPELL_COOLDOWN_5S             = 95323, Cooldown: Creature Special 1 (5s)?
-    SPELL_CRYSTAL_STORM           = 92305,
-    SPELL_CRYSTAL_STORM_TRIGGER   = 92265,
+    SPELL_LAVA_FISSURE              = 80803,
+    SPELL_SAND_BLAST                = 80807,
+    SPELL_STALACTITE_SUMMON         = 80656,
+    SPELL_COOLDOWN_5S               = 95323,
+    SPELL_CRYSTAL_STORM_PERIODIC    = 92305,
+    SPELL_CRYSTAL_STORM             = 92265,
 
     // Lava Fissure
-    SPELL_LAVA_FISSURE_CRACK      = 80798,
-    SPELL_LAVA_FISSURE_ERUPTION   = 80800,
+    SPELL_LAVA_FISSURE_CRACK        = 80798,
+    SPELL_LAVA_FISSURE_ERUPTION     = 80800,
 
-    // Stalactite Trigger - Boss
-    SPELL_STALACTITE_SHADE        = 80654,
-    SPELL_STALACTITE_MISSLE       = 80643,
-    SPELL_STALACTITE_CREATE       = 80647,
-};
-
-enum Entries
-{
-    NPC_LAVA_FISSURE              = 43242,
-    NPC_STALACTITE_TRIGGER_GROUND = 43357,
-    NPC_STALACTITE_TRIGGER        = 43159,
-    GO_STALACTITE                 = 204337,
+    // Stalactite Trigger
+    SPELL_STALACTITE_SUMMON_TRIGGER = 81028,
+    SPELL_STALACTITE_SHADE          = 80654,
+    SPELL_STALACTITE_MISSILE        = 80643,
+    SPELL_STALACTITE_MISSILE_HC     = 92653,
+    SPELL_STALACTITE_CREATE         = 80647,
 };
 
 enum Actions
@@ -68,6 +59,7 @@ enum Events
     EVENT_NONE,
 
     // Intro events
+    EVENT_LAND_INTRO,
     EVENT_ROAR_EMOTE,
 
     // Slabhide combat
@@ -75,7 +67,6 @@ enum Events
     EVENT_LAVA_FISSURE,
     EVENT_SAND_BLAST,
     EVENT_AIR_PHASE,
-    EVENT_TAKEOFF,
     EVENT_STALACTITE,
     EVENT_LAND,
     EVENT_ATTACK,
@@ -84,7 +75,13 @@ enum Events
     EVENT_LAVA_FISSURE_ERUPTION,
 
     // Stalactite Trigger - Boss
-    EVENT_STALACTITE_MISSLE,
+    EVENT_STALACTITE_MISSLE
+};
+
+enum Phases
+{
+    PHASE_INTRO     = 0,
+    PHASE_COMBAT    = 1
 };
 
 enum MovementPoints
@@ -115,12 +112,18 @@ class boss_slabhide : public CreatureScript
         {
             boss_slabhideAI(Creature* creature) : BossAI(creature, DATA_SLABHIDE)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
                 me->setActive(true);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
+                events.SetPhase(PHASE_INTRO);
                 _isFlying = false;
             }
 
@@ -130,12 +133,9 @@ class boss_slabhide : public CreatureScript
                     return;
 
                 _Reset();
-                DespawnAll();
-
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                me->SetReactState(REACT_AGGRESSIVE);
                 _isFlying = false;
             }
 
@@ -148,18 +148,28 @@ class boss_slabhide : public CreatureScript
             void JustEngagedWith(Unit* /*victim*/) override
             {
                 _JustEngagedWith();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, 4000);
-                events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
-                events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 10000));
-                events.ScheduleEvent(EVENT_AIR_PHASE, 10000);
+                events.SetPhase(PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, Seconds(4));
+                events.ScheduleEvent(EVENT_LAVA_FISSURE, Seconds(6), Seconds(8));
+                events.ScheduleEvent(EVENT_SAND_BLAST, Seconds(8), Seconds(10));
+                events.ScheduleEvent(EVENT_AIR_PHASE, Seconds(10));
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                _EnterEvadeMode();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                DespawnAll();
+                summons.DespawnAll();
+                _DespawnAtEvade();
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-
-                // Despawn related npcs and gameobjects
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 DespawnAll();
             }
 
@@ -168,16 +178,12 @@ class boss_slabhide : public CreatureScript
                 switch (action)
                 {
                     case ACTION_SLABHIDE_INTRO:
-                    {
                         if (instance->GetData(DATA_SLABHIDE_INTRO) != NOT_STARTED)
                             return;
 
                         instance->SetData(DATA_SLABHIDE_INTRO, IN_PROGRESS);
-
-                        // Execute Slabhide intro event
-                        me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_INTRO, SlabhideIntroPos);
+                        me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_INTRO, SlabhideIntroPos, false);
                         break;
-                    }
                     default:
                         break;
                 }
@@ -192,7 +198,7 @@ class boss_slabhide : public CreatureScript
                 {
                     case POINT_SLABHIDE_INTRO:
                         me->SetFacingTo(SlabhideIntroLandPos.GetOrientation());
-                        me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_INTRO_LAND, SlabhideIntroLandPos);
+                        events.ScheduleEvent(EVENT_LAND_INTRO, Milliseconds(200));
                         break;
                     case POINT_SLABHIDE_INTRO_LAND:
                         me->SetCanFly(false);
@@ -207,15 +213,23 @@ class boss_slabhide : public CreatureScript
                         break;
                     case POINT_SLABHIDE_MIDDLE:
                         _isFlying = true;
-                        events.ScheduleEvent(EVENT_TAKEOFF, 100);
+                        me->SetCanFly(true);
+                        me->SetDisableGravity(true);
+                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->SetHover(true);
+                        me->GetMotionMaster()->MoveTakeoff(POINT_SLABHIDE_IN_AIR, SlabhideInAirPos);
                         break;
                     case POINT_SLABHIDE_IN_AIR:
-                        events.ScheduleEvent(EVENT_STALACTITE, 400);
+                        events.ScheduleEvent(EVENT_STALACTITE, Milliseconds(400));
                         break;
                     case POINT_SLABHIDE_LAND:
                         _isFlying = false;
-                        //DoCast(me, SPELL_COOLDOWN_5S); // unknown purpose
-                        events.ScheduleEvent(EVENT_ATTACK, 1200);
+                        me->SetCanFly(false);
+                        me->SetDisableGravity(false);
+                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->SetHover(false);
+                        DoCast(me, SPELL_COOLDOWN_5S);
+                        events.ScheduleEvent(EVENT_ATTACK, Seconds(1) + Milliseconds(200));
                         break;
                     default:
                         break;
@@ -224,7 +238,7 @@ class boss_slabhide : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);
@@ -236,54 +250,39 @@ class boss_slabhide : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_HANDLE_ROCK_WALLS: // Close rock walls
+                        case EVENT_LAND_INTRO:
+                            me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_INTRO_LAND, SlabhideIntroLandPos);
+                            break;
+                        case EVENT_HANDLE_ROCK_WALLS:
                             instance->SetData(DATA_SLABHIDE_ROCK_WALL, false);
                             break;
                         case EVENT_LAVA_FISSURE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_LAVA_FISSURE);
-                            events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
+                            events.Repeat(Seconds(6), Seconds(8));
                             break;
                         case EVENT_SAND_BLAST:
                             DoCast(me, SPELL_SAND_BLAST);
-                            events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 11000));
+                            events.Repeat(Seconds(8), Seconds(11));
                             break;
                         case EVENT_AIR_PHASE:
                             events.Reset();
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_MIDDLE, SlabhideMiddlePos);
-                            events.ScheduleEvent(EVENT_AIR_PHASE, 60000);
-                            break;
-                        case EVENT_TAKEOFF:
-                            me->GetMotionMaster()->MoveTakeoff(POINT_SLABHIDE_IN_AIR, SlabhideInAirPos);
+                            events.Repeat(Seconds(60));
                             break;
                         case EVENT_STALACTITE:
-                            me->SetCanFly(true);
-                            me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                            me->SetHover(true);
-
                             DoCast(me, SPELL_STALACTITE_SUMMON);
-
-                            events.ScheduleEvent(EVENT_LAND, 8000);
+                            events.ScheduleEvent(EVENT_LAND, Seconds(8));
                             break;
                         case EVENT_LAND:
-                        {
-                            Position pos(*me);
-                            me->UpdateGroundPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-                            me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, pos);
+                            me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, SlabhideMiddlePos);
                             break;
-                        }
                         case EVENT_ATTACK:
-                            me->SetCanFly(false);
-                            me->SetDisableGravity(false);
-                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                            me->SetHover(false);
-
-                            events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
-                            events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 10000));
-                            DoCast(me, SPELL_CRYSTAL_STORM);
+                            events.ScheduleEvent(EVENT_LAVA_FISSURE, Seconds(6), Seconds(8));
+                            events.ScheduleEvent(EVENT_SAND_BLAST, Seconds(8), Seconds(10));
+                            DoCast(me, SPELL_CRYSTAL_STORM_PERIODIC);
                             me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         default:
@@ -319,279 +318,180 @@ class boss_slabhide : public CreatureScript
         }
 };
 
-// 43242 - Lava Fissure
-class npc_lava_fissure : public CreatureScript
-{
-public:
-    npc_lava_fissure() : CreatureScript("npc_lava_fissure") { }
-
-    struct npc_lava_fissureAI : public ScriptedAI
-    {
-        npc_lava_fissureAI(Creature* creature) : ScriptedAI(creature)
-        {
-            DoCast(me, SPELL_LAVA_FISSURE_CRACK, true);
-            events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, 6000);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_LAVA_FISSURE_ERUPTION:
-                        me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
-                        DoCast(me, SPELL_LAVA_FISSURE_ERUPTION, true);
-                        me->DespawnOrUnsummon(14000);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStonecoreAI<npc_lava_fissureAI>(creature);
-    }
-};
-
-// 43159 - Stalactite Trigger - Boss
-class npc_stalactite_trigger : public CreatureScript
-{
-public:
-    npc_stalactite_trigger() : CreatureScript("npc_stalactite_trigger") { }
-
-    struct npc_stalactite_triggerAI : public ScriptedAI
-    {
-        npc_stalactite_triggerAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetDisableGravity(true);
-            DoCast(me, SPELL_STALACTITE_SHADE, true);
-            events.ScheduleEvent(EVENT_STALACTITE_MISSLE, 5600);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (events.Empty())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_STALACTITE_MISSLE:
-                        DoCast(me, SPELL_STALACTITE_MISSLE);
-                        me->DespawnOrUnsummon(11000);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStonecoreAI<npc_stalactite_triggerAI>(creature);
-    }
-};
-
-// 81035 - Stalactite (check if player is near to summon stalactite)
-class spell_s81035_stalactite : public SpellScriptLoader
-{
-public:
-    spell_s81035_stalactite() : SpellScriptLoader("spell_s81035_stalactite") { }
-
-    class spell_s81035_stalactite_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_s81035_stalactite_SpellScript);
-
-        void SummonStalactiteTrigger()
-        {
-            Unit* caster = GetCaster();
-            caster->CastSpell(caster, SPELL_STALACTITE_SUMMON_TRIGGER, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_s81035_stalactite_SpellScript::SummonStalactiteTrigger);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_s81035_stalactite_SpellScript();
-    }
-};
-
-// 81028 - Stalactite (summons "Stalactite Trigger - Boss", 20 yard radius)
-// 80650 - Stalactite (summons "Stalactite Trigger - Boss", 40 yard radius)
-class spell_s81028_s80650_stalactite : public SpellScriptLoader
-{
-public:
-    spell_s81028_s80650_stalactite() : SpellScriptLoader("spell_s81028_s80650_stalactite") { }
-
-    class spell_s81028_s80650_stalactite_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_s81028_s80650_stalactite_SpellScript);
-
-        void ModDestHeight(SpellDestination& dest)
-        {
-            // All stalactite triggers should have Z position 301.3837f, but no way to relocate (not relocateoffset!) height only.
-            Position offset = { 0.0f, 0.0f, 50.0f, 0.0f };
-            dest.RelocateOffset(offset);
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_s81028_s80650_stalactite_SpellScript::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_s81028_s80650_stalactite_SpellScript();
-    }
-};
-
-// 80654       - Stalactite (creates visual shade on ground)
-// 80643/92653 - Stalactite (launches missle to the ground)
-// 80647/92309 - Stalactite (creates stalactite object)
-class spell_stalactite_mod_dest_height : public SpellScriptLoader
-{
-public:
-    spell_stalactite_mod_dest_height() : SpellScriptLoader("spell_stalactite_mod_dest_height") { }
-
-    class spell_stalactite_mod_dest_height_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_stalactite_mod_dest_height_SpellScript);
-
-        void ModDestHeight(SpellDestination& dest)
-        {
-            Unit* caster = GetCaster();
-            Position pos(*caster);
-            caster->UpdateGroundPositionZ(pos.m_positionX, pos.m_positionX, pos.m_positionZ);
-            dest.Relocate(pos);
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_stalactite_mod_dest_height_SpellScript::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_stalactite_mod_dest_height_SpellScript();
-    }
-};
-
-// 92306 - Crystal storm (heroic mode check)
-class spell_s92306_crystal_storm : public SpellScriptLoader
-{
-public:
-    spell_s92306_crystal_storm() : SpellScriptLoader("spell_s92306_crystal_storm") { }
-
-    class spell_s92306_crystal_storm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_s92306_crystal_storm_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_CRYSTAL_STORM_TRIGGER });
-        }
-
-        void HandleDummyEffect(SpellEffIndex /*eff*/)
-        {
-            Unit* caster = GetCaster();
-            if (caster->GetMap()->IsHeroic())
-                caster->CastSpell(caster, SPELL_CRYSTAL_STORM_TRIGGER, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_s92306_crystal_storm_SpellScript::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_s92306_crystal_storm_SpellScript();
-    }
-};
-
-// 92300 - Crystal Storm (damage)
-class BehindObjectCheck
+class npc_slabhide_lava_fissure : public CreatureScript
 {
     public:
-        BehindObjectCheck(Unit* caster, std::list<GameObject*> objectList) : caster(caster), objectList(objectList) { }
+        npc_slabhide_lava_fissure() : CreatureScript("npc_slabhide_lava_fissure") { }
 
-        bool operator()(WorldObject* unit)
+        struct npc_slabhide_lava_fissureAI : public ScriptedAI
         {
-            for (std::list<GameObject*>::const_iterator itr = objectList.begin(); itr != objectList.end(); ++itr)
-                if (!(*itr)->IsInvisibleDueToDespawn() && (*itr)->IsInBetween(caster, unit, 1.5f))
-                    return true;
-            return false;
-        }
+            npc_slabhide_lava_fissureAI(Creature* creature) : ScriptedAI(creature) { }
 
-    private:
-        Unit* caster;
-        std::list<GameObject*> objectList;
+            void IsSummonedBy(Unit* /*summoner*/) override
+            {
+                DoCast(me, SPELL_LAVA_FISSURE_CRACK, true);
+                _events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, IsHeroic() ? Seconds(3) : Seconds(5));
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_LAVA_FISSURE_ERUPTION:
+                            me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
+                            DoCast(me, SPELL_LAVA_FISSURE_ERUPTION, true);
+                            me->DespawnOrUnsummon(IsHeroic() ? Seconds(30) : Seconds(10));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetStonecoreAI<npc_slabhide_lava_fissureAI>(creature);
+        }
 };
 
-class spell_s92300_crystal_storm : public SpellScriptLoader
+class npc_slabhide_stalactite_trigger : public CreatureScript
 {
-public:
-    spell_s92300_crystal_storm() : SpellScriptLoader("spell_s92300_crystal_storm") { }
+    public:
+        npc_slabhide_stalactite_trigger() : CreatureScript("npc_slabhide_stalactite_trigger") { }
 
-    class spell_s92300_crystal_storm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_s92300_crystal_storm_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& unitList)
+        struct npc_slabhide_stalactite_triggerAI : public ScriptedAI
         {
-            Unit* caster = GetCaster();
+            npc_slabhide_stalactite_triggerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            std::list<GameObject*> goList;
-            caster->GetGameObjectListWithEntryInGrid(goList, GO_STALACTITE, 40.0f);
-            if (goList.empty())
-                return;
+            void IsSummonedBy(Unit* /*summoner*/) override
+            {
+                DoCast(me, SPELL_STALACTITE_SHADE, true);
+                _events.ScheduleEvent(EVENT_STALACTITE_MISSLE, Seconds(1) + Milliseconds(300));
+            }
 
-            unitList.remove_if(BehindObjectCheck(caster, goList));
-        }
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
 
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_s92300_crystal_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_STALACTITE_MISSLE:
+                            DoCast(me, SPELL_STALACTITE_MISSILE);
+                            me->DespawnOrUnsummon(Seconds(11));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap _events;
     };
 
-    SpellScript* GetSpellScript() const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new spell_s92300_crystal_storm_SpellScript();
+        return GetStonecoreAI<npc_slabhide_stalactite_triggerAI>(creature);
+    }
+};
+
+class spell_slabhide_stalactite : public SpellScript
+{
+    PrepareSpellScript(spell_slabhide_stalactite);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STALACTITE_SUMMON_TRIGGER });
+    }
+
+    void SummonStalactiteTrigger()
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_STALACTITE_SUMMON_TRIGGER, true);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_slabhide_stalactite::SummonStalactiteTrigger);
+    }
+};
+
+class spell_slabhide_stalactite_summon : public SpellScript
+{
+    PrepareSpellScript(spell_slabhide_stalactite_summon);
+
+    void SetDest(SpellDestination& dest)
+    {
+        dest.RelocateOffset({ 0.0f, 0.0f, 55.0f, 0.0f });
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_slabhide_stalactite_summon::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+    }
+};
+
+class spell_slabhide_stalactite_dest_relocation : public SpellScript
+{
+    PrepareSpellScript(spell_slabhide_stalactite_dest_relocation);
+
+    void SetDest(SpellDestination& dest)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            float x = dest._position.GetPositionX();
+            float y = dest._position.GetPositionY();
+            float z = dest._position.GetPositionZ();
+            float ground = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, z - 40.0f);
+
+            dest.RelocateOffset({ 0.0f, 0.0f, ground - z, 0.0f });
+        }
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_slabhide_stalactite_dest_relocation::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+    }
+};
+
+class spell_slabhide_crystal_storm_periodic : public SpellScript
+{
+    PrepareSpellScript(spell_slabhide_crystal_storm_periodic);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CRYSTAL_STORM });
+    }
+
+    void HandleDummy(SpellEffIndex /*eff*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_CRYSTAL_STORM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_slabhide_crystal_storm_periodic::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 void AddSC_boss_slabhide()
 {
     new boss_slabhide();
-    new npc_lava_fissure();
-    new npc_stalactite_trigger();
-    new spell_s81035_stalactite();
-    new spell_s81028_s80650_stalactite();
-    new spell_stalactite_mod_dest_height();
-    new spell_s92306_crystal_storm();
-    new spell_s92300_crystal_storm();
+    new npc_slabhide_lava_fissure();
+    new npc_slabhide_stalactite_trigger();
+    RegisterSpellScript(spell_slabhide_stalactite);
+    RegisterSpellScript(spell_slabhide_stalactite_summon);
+    RegisterSpellScript(spell_slabhide_stalactite_dest_relocation);
+    RegisterSpellScript(spell_slabhide_crystal_storm_periodic);
 }

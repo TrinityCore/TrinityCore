@@ -49,23 +49,29 @@ enum SCDataTypes
 enum SCCreatureIds
 {
     // Bosses
-    BOSS_CORBORUS               = 43438,
-    BOSS_SLABHIDE               = 43214,
-    BOSS_OZRUK                  = 42188,
-    BOSS_HIGH_PRIESTESS_AZIL    = 42333,
+    BOSS_CORBORUS                   = 43438,
+    BOSS_SLABHIDE                   = 43214,
+    BOSS_OZRUK                      = 42188,
+    BOSS_HIGH_PRIESTESS_AZIL        = 42333,
 
     // Corborus
-    NPC_WORLDTRIGGER            = 22515,
-    NPC_MILLHOUSE_MANASTORM     = 43391,
-    NPC_TRASHING_CHARGE         = 43743,
-    NPC_CRYSTAL_SHARD           = 49267
+    NPC_WORLDTRIGGER                = 22515,
+    NPC_MILLHOUSE_MANASTORM         = 43391,
+    NPC_TRASHING_CHARGE             = 43743,
+    NPC_CRYSTAL_SHARD               = 49267,
+
+    // Slabhide
+    NPC_LAVA_FISSURE                = 43242,
+    NPC_STALACTITE_TRIGGER_GROUND   = 43357,
+    NPC_STALACTITE_TRIGGER          = 43159
 };
 
-enum SCGameobjects
+enum SCGameobjectIds
 {
     GAMEOBJECT_TWILIGHT_DOCUMENTS   = 207415,
     GAMEOBJECT_CORBORUS_ROCKDOOR    = 207343,
-    GAMEOBJECT_SLABHIDE_ROCK_WALL   = 204381
+    GAMEOBJECT_SLABHIDE_ROCK_WALL   = 204381,
+    GO_STALACTITE                   = 204337
 };
 
 enum SCMisc
