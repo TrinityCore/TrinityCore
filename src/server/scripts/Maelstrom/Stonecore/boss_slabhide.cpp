@@ -129,6 +129,9 @@ class boss_slabhide : public CreatureScript
 
             void Reset() override
             {
+                if (instance->GetData(DATA_SLABHIDE_INTRO) != DONE)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
                 if (instance->GetData(DATA_SLABHIDE_INTRO) == NOT_STARTED)
                     return;
 
@@ -136,6 +139,7 @@ class boss_slabhide : public CreatureScript
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+
                 _isFlying = false;
             }
 
@@ -164,6 +168,7 @@ class boss_slabhide : public CreatureScript
                 DespawnAll();
                 summons.DespawnAll();
                 _DespawnAtEvade();
+                me->SetPosition(SlabhideIntroLandPos);
             }
 
             void JustDied(Unit* /*killer*/) override

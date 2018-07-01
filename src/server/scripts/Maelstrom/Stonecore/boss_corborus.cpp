@@ -110,6 +110,9 @@ class boss_corborus : public CreatureScript
             {
                 _Reset();
                 _countTrashingCharge = 0;
+
+                if (stateIntro != DONE)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -126,6 +129,7 @@ class boss_corborus : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _EnterEvadeMode();
                 _DespawnAtEvade();
+                me->SetPosition(CorborusHomePos);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -194,7 +198,7 @@ class boss_corborus : public CreatureScript
                             // Make Corborus charge
                             DoCast(me, SPELL_RING_WYRM_CHARGE, true);
 
-                            events.ScheduleEvent(EVENT_CORBORUS_KNOCKBACK, 1000);
+                            events.ScheduleEvent(EVENT_CORBORUS_KNOCKBACK, Seconds(1));
                             break;
                         case EVENT_CORBORUS_KNOCKBACK:
                             // Spawn Twilight Documents (quest gameobject)
@@ -210,7 +214,7 @@ class boss_corborus : public CreatureScript
                             // Face Corborus to players and set new home position
                             me->SetFacingTo(3.176499f);
                             me->SetHomePosition(CorborusHomePos);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
 
                             // Despawn Millhouse and all trash
                             instance->SetData(DATA_MILLHOUSE_EVENT_DESPAWN, 0);
