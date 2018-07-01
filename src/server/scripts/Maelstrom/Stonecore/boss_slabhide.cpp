@@ -46,12 +46,12 @@ enum Spells
     SPELL_STALACTITE_SHADE          = 80654,
     SPELL_STALACTITE_MISSILE        = 80643,
     SPELL_STALACTITE_MISSILE_HC     = 92653,
-    SPELL_STALACTITE_CREATE         = 80647,
+    SPELL_STALACTITE_CREATE         = 80647
 };
 
 enum Actions
 {
-    ACTION_STALACTITE_MISSLE,
+    ACTION_STALACTITE_MISSLE
 };
 
 enum Events
@@ -93,7 +93,7 @@ enum MovementPoints
 
     POINT_SLABHIDE_MIDDLE,
     POINT_SLABHIDE_IN_AIR,
-    POINT_SLABHIDE_LAND,
+    POINT_SLABHIDE_LAND
 };
 
 Position const SlabhideIntroPos = { 1292.27f, 1226.16f, 265.573f };
