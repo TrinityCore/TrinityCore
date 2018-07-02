@@ -16,7 +16,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_stalactite_mod_dest_height',
 'spell_s92306_crystal_storm',
 'spell_slabhide_crystal_storm_periodic',
-'spell_s92300_crystal_storm');
+'spell_s92300_crystal_storm',
+'spell_slabhide_crystal_storm');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (81035, 'spell_slabhide_stalactite'),
