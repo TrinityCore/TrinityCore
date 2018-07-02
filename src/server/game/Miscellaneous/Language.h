@@ -1139,6 +1139,9 @@ enum TrinityStrings
     LANG_INVALID_POWER_NAME                       = 11021,
 
     LANG_LIST_QUESTS                              = 11022,
-    LANG_LIST_QUESTS_DETAIL                       = 11023
+    LANG_LIST_QUESTS_DETAIL                       = 11023,
+
+    LANG_DEBUG_LFG_ON                             = 11024,
+    LANG_DEBUG_LFG_OFF                            = 11025,
 };
 #endif

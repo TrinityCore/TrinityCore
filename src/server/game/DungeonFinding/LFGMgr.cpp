@@ -57,7 +57,8 @@ requiredItemLevel(0)
 }
 
 LFGMgr::LFGMgr() : m_QueueTimer(0), m_lfgProposalId(1),
-    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
+    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK)),
+    m_isTesting(false)
 {
 }
 
@@ -1018,7 +1019,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
         if (itPlayers->second.accept != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
             allAnswered = false;
 
-    if (!allAnswered)
+    if (!sLFGMgr->IsTesting() && !allAnswered)
     {
         for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
             SendLfgUpdateProposal(it->first, proposal);
@@ -2069,6 +2070,11 @@ LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
             randomDungeons.insert(dungeon.Entry());
     }
     return randomDungeons;
+}
+
+void LFGMgr::ToggleTesting()
+{
+    m_isTesting = !m_isTesting;
 }
 
 } // namespace lfg
