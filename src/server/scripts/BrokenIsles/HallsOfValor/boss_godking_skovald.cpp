@@ -79,15 +79,10 @@ struct boss_god_king_kovald : public BossAI
     }
 
     Position aegisSpawn;
-    bool startCombat;
-    bool startEvent;
 
     void Reset() override
     {
         _Reset();
-
-        startCombat = false;
-        startEvent = false;
 
         me->SetReactState(REACT_DEFENSIVE);
     }
@@ -130,13 +125,11 @@ struct boss_god_king_kovald : public BossAI
             me->SetWalk(false);
             me->GetMotionMaster()->MovePoint(0, 2402.76f, 528.64f, 748.99f, true);
             events.ScheduleEvent(EVENT_START_TALK, 25 * IN_MILLISECONDS);
-            startEvent = true;
         }
     }
 
     void UpdateAI(uint32 diff) override
     {
-
         if (!UpdateVictim() && me->IsInCombat())
             return;
 
@@ -214,8 +207,6 @@ struct boss_god_king_kovald : public BossAI
                 case EVENT_START_COMBAT:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    startCombat = true;
-
                     break;
 
                 default:
