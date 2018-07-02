@@ -25,25 +25,19 @@
 
 enum Spells
 {
-    SPELL_ELEMENTIUM_BULWARK      = 78939,
-    SPELL_GROUND_SLAM             = 78903,
-    SPELL_ELEMENTIUM_SPIKE_SHIELD = 78835,
-    SPELL_SHATTER                 = 78807,
-    SPELL_ENRAGE                  = 80467,
+    // Ozruk
+    SPELL_ELEMENTIUM_BULWARK        = 78939,
+    SPELL_GROUND_SLAM               = 78903,
+    SPELL_ELEMENTIUM_SPIKE_SHIELD   = 78835,
+    SPELL_SHATTER                   = 78807,
+    SPELL_ENRAGE                    = 80467,
+    SPELL_PARALYZE                  = 92428,
+    SPELL_PARALYZE_STUN             = 92426,
+    SPELL_PARALYZE_DAMAGE           = 94661,
 
-    // Rupture Controller and Rupture
-    SPELL_RUPTURE                 = 92393,
-//  SPELL_RUPTURE_SUMMON_CENTER?  = 95669, // summons rupture 8 yards front
-//  SPELL_RUPTURE_SUMMON_LEFT?    = 95348, // summons rupture 3 yards left?
-//  SPELL_RUPTURE_SUMMON_RIGHT?   = 92383, // summons rupture 3 yards right?
-    SPELL_RUPTURE_DAMAGE          = 92381,
-};
-
-enum NPCs
-{
-    NPC_BOUNCER_SPIKE             = 42189,
-    NPC_RUPTURE_CONTROLLER        = 49597,
-    NPC_RUPTURE                   = 49576,
+    // Rupture Controller
+    SPELL_RUPTURE                   = 92393,
+    SPELL_RUPTURE_SUMMON            = 92383
 };
 
 enum Texts
@@ -52,25 +46,18 @@ enum Texts
     SAY_ELEMENTIUM_BULWARK      = 1,
     SAY_ELEMENTIUM_SPIKE_SHIELD = 2,
     SAY_ENRAGE                  = 3,
-    SAY_DEATH                   = 4,
+    SAY_DEATH                   = 4
 };
 
 enum Events
 {
-    EVENT_NONE,
-
-    EVENT_ELEMENTIUM_BULWARK,
+    EVENT_ELEMENTIUM_BULWARK = 1,
     EVENT_GROUND_SLAM,
     EVENT_ELEMENTIUM_SPIKE_SHIELD,
     EVENT_SHATTER,
     EVENT_ENRAGE,
-
-    EVENT_START_ATTACK,
+    EVENT_START_ATTACK
 };
-
-// TO-DO:
-// - Find heroic sniffs and spawn Ruptures using spells commented above.
-// - Make Bouncer Spikes enter ozruk without jump animation.
 
 class boss_ozruk : public CreatureScript
 {
@@ -81,22 +68,31 @@ class boss_ozruk : public CreatureScript
         {
             boss_ozrukAI(Creature* creature) : BossAI(creature, DATA_OZRUK) { }
 
-            void Reset() override
-            {
-                _Reset();
-
-                me->SetReactState(REACT_AGGRESSIVE);
-
-                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5000);
-                events.ScheduleEvent(EVENT_GROUND_SLAM, 10000);
-                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13000);
-            }
-
             void JustEngagedWith(Unit* /*victim*/) override
             {
                 _JustEngagedWith();
-
                 Talk(SAY_AGGRO);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+
+                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, Seconds(5));
+                events.ScheduleEvent(EVENT_GROUND_SLAM, Seconds(10));
+                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, Seconds(13));
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                _EnterEvadeMode();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                summons.DespawnAll();
+                _DespawnAtEvade();
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                Talk(SAY_DEATH);
             }
 
             void JustSummoned(Creature* summon) override
@@ -104,10 +100,10 @@ class boss_ozruk : public CreatureScript
                 if (summon->GetEntry() == NPC_RUPTURE_CONTROLLER)
                 {
                     summon->CastSpell(summon, SPELL_RUPTURE, true);
-                    summon->DespawnOrUnsummon(10000);
+                    summon->DespawnOrUnsummon(Seconds(11));
                 }
 
-                BossAI::JustSummoned(summon);
+                summons.Summon(summon);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
@@ -117,13 +113,6 @@ class boss_ozruk : public CreatureScript
 
                 DoCast(me, SPELL_ENRAGE);
                 Talk(SAY_ENRAGE);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-
-                Talk(SAY_DEATH);
             }
 
             void UpdateAI(uint32 diff) override
@@ -148,23 +137,25 @@ class boss_ozruk : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             DoCast(me, SPELL_GROUND_SLAM);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 4600);
+                            events.ScheduleEvent(EVENT_START_ATTACK, Seconds(4) + Milliseconds(600));
                             break;
                         case EVENT_ELEMENTIUM_SPIKE_SHIELD:
-                            DoCast(me, SPELL_ELEMENTIUM_SPIKE_SHIELD);
+                            if (IsHeroic())
+                                DoCastSelf(SPELL_PARALYZE, true);
+
+                            DoCastSelf(SPELL_ELEMENTIUM_SPIKE_SHIELD);
                             Talk(SAY_ELEMENTIUM_SPIKE_SHIELD);
-                            events.ScheduleEvent(EVENT_SHATTER, 10000);
+                            events.ScheduleEvent(EVENT_SHATTER, Seconds(10));
                             break;
                         case EVENT_SHATTER:
                             summons.DespawnEntry(NPC_BOUNCER_SPIKE);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
-                            DoCast(me, SPELL_SHATTER);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 4600);
-                            // Spells are cast in same order everytime after Shatter, so we schedule them here
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, urand(3000,4000));
-                            events.ScheduleEvent(EVENT_GROUND_SLAM, urand(7000,9000));
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, urand(10000,12000));
+                            DoCastSelf(SPELL_SHATTER);
+                            events.ScheduleEvent(EVENT_START_ATTACK, Seconds(4) + Milliseconds(600));
+                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, Seconds(3), Seconds(4));
+                            events.ScheduleEvent(EVENT_GROUND_SLAM, Seconds(7), Seconds(9));
+                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, Seconds(10), Seconds(12));
                             break;
                         case EVENT_START_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -185,91 +176,108 @@ class boss_ozruk : public CreatureScript
         }
 };
 
-// 92393 - Rupture
-class spell_rupture : public SpellScriptLoader
+class spell_ozruk_rupture : public AuraScript
 {
-public:
-    spell_rupture() : SpellScriptLoader("spell_rupture") { }
+    PrepareAuraScript(spell_ozruk_rupture);
 
-    class spell_rupture_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_rupture_AuraScript);
+        return ValidateSpellInfo({ SPELL_RUPTURE_SUMMON });
+    }
 
-        void HandleEffectPeriodic(AuraEffect const* aurEff)
-        {
-            Unit* caster = GetCaster();
-
-            float dist = aurEff->GetTickNumber() * 8.0f;
-
-            // probably hack, should use spells (see Spells enum above)
-            Position pos = caster->GetNearPosition(dist, 0.0f);
-            SummonRupture(caster, pos);
-
-            pos = caster->GetNearPosition(dist, 0.2f);
-            SummonRupture(caster, pos);
-
-            pos = caster->GetNearPosition(dist, -0.2f);
-            SummonRupture(caster, pos);
-        }
-
-        void SummonRupture(Unit* caster, Position pos)
-        {
-            Creature* rupture = caster->SummonCreature(NPC_RUPTURE, pos, TEMPSUMMON_TIMED_DESPAWN, 2500);
-            if (!rupture)
-                return;
-
-            rupture->CastSpell(rupture, SPELL_RUPTURE_DAMAGE, true);
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rupture_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
-        return new spell_rupture_AuraScript();
+        Unit* caster = GetTarget();
+
+        float dist = aurEff->GetTickNumber() * 8.0f;
+
+        Position pos = caster->GetNearPosition(dist, 0.0f);
+        caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RUPTURE_SUMMON, true);
+
+        pos = caster->GetNearPosition(dist, 0.2f);
+        caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RUPTURE_SUMMON, true);
+
+        pos = caster->GetNearPosition(dist, -0.2f);
+        caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RUPTURE_SUMMON, true);
+    }
+
+    void Register()
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ozruk_rupture::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
-// 78835 - Elementium Spike Shield
-class spell_elementium_spike_shield : public SpellScriptLoader
+class spell_ozruk_elementium_spike_shield : public SpellScript
 {
-public:
-    spell_elementium_spike_shield() : SpellScriptLoader("spell_elementium_spike_shield") { }
+    PrepareSpellScript(spell_ozruk_elementium_spike_shield);
 
-    class spell_elementium_spike_shield_SpellScript : public SpellScript
+    void HandleBouncerSpikes()
     {
-        PrepareSpellScript(spell_elementium_spike_shield_SpellScript);
+        Unit* caster = GetCaster();
+        Vehicle* vehicle = caster->GetVehicleKit();
+        if (!vehicle)
+            return;
 
-        void HandleBouncerSpikes()
-        {
-            Unit* caster = GetCaster();
-            Vehicle* vehicle = caster->GetVehicleKit();
-            if (!vehicle)
-                return;
+        for (uint8 i = 0; i < vehicle->GetAvailableSeatCount(); i++)
+            if (Creature* summon = caster->SummonCreature(NPC_BOUNCER_SPIKE, caster->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                summon->EnterVehicle(caster, i);
+    }
 
-            for (uint8 i = 0; i < vehicle->GetAvailableSeatCount(); i++)
-                if (Creature* summon = caster->SummonCreature(NPC_BOUNCER_SPIKE, caster->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 10000))
-                    summon->EnterVehicle(caster, i);
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_elementium_spike_shield_SpellScript::HandleBouncerSpikes);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_elementium_spike_shield_SpellScript();
+        OnCast += SpellCastFn(spell_ozruk_elementium_spike_shield::HandleBouncerSpikes);
     }
 };
+
+class spell_ozruk_paralyze : public SpellScript
+{
+    PrepareSpellScript(spell_ozruk_paralyze);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PARALYZE_STUN });
+    }
+
+    void HandleDummy()
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_PARALYZE_STUN);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_ozruk_paralyze::HandleDummy);
+    }
+};
+
+class spell_ozruk_paralyze_stun : public AuraScript
+{
+    PrepareAuraScript(spell_ozruk_paralyze_stun);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PARALYZE_DAMAGE });
+    }
+
+    void OnAuraRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            if (Unit* target = GetUnitOwner())
+                target->CastSpell(target, SPELL_PARALYZE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_ozruk_paralyze_stun::OnAuraRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 
 void AddSC_boss_ozruk()
 {
     new boss_ozruk();
-    new spell_rupture();
-    new spell_elementium_spike_shield();
+    RegisterAuraScript(spell_ozruk_rupture);
+    RegisterSpellScript(spell_ozruk_elementium_spike_shield);
+    RegisterSpellScript(spell_ozruk_paralyze);
+    RegisterAuraScript(spell_ozruk_paralyze_stun);
 }

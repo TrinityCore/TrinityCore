@@ -63,7 +63,12 @@ enum SCCreatureIds
     // Slabhide
     NPC_LAVA_FISSURE                = 43242,
     NPC_STALACTITE_TRIGGER_GROUND   = 43357,
-    NPC_STALACTITE_TRIGGER          = 43159
+    NPC_STALACTITE_TRIGGER          = 43159,
+
+    // Ozruk
+    NPC_BOUNCER_SPIKE               = 42189,
+    NPC_RUPTURE_CONTROLLER          = 49597,
+    NPC_RUPTURE                     = 49576
 };
 
 enum SCGameobjectIds

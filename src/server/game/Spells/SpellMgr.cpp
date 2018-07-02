@@ -4153,6 +4153,14 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
+
+    // Paralyze
+    ApplySpellFix({ 92426 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->CasterAuraSpell = 0;
+        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+    });
+
     // ENDOF STONECORE SPELLS
 
     //
