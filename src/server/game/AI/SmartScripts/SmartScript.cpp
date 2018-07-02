@@ -2720,6 +2720,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT:
+        {
+            if (me)
+			    me->GetMap()->SetZoneOverrideLight(e.action.setOverrideZoneLight.zoneId, e.action.setOverrideZoneLight.lightId, e.action.setOverrideZoneLight.fadeTime);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
