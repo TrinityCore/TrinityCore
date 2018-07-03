@@ -533,8 +533,8 @@ void ObjectMgr::LoadCreatureTemplateResistances()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1            2            3            4            5            6
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, Resistance1, Resistance2, Resistance3, Resistance4, Resistance5, Resistance6 FROM creature_template_resistance");
+    //                                               0           1       2
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
 
     if (!result)
     {
@@ -549,6 +549,13 @@ void ObjectMgr::LoadCreatureTemplateResistances()
         Field* fields = result->Fetch();
 
         uint32 creatureID = fields[0].GetUInt32();
+        uint8 school      = fields[1].GetUInt8();
+
+        if (school == SPELL_SCHOOL_NORMAL || school >= MAX_SPELL_SCHOOL)
+        {
+            TC_LOG_INFO("sql.sql", "creature_template_resistance has resistance definitions for creature %u but this school %u doesn't exist", creatureID, school);
+            continue;
+        }
 
         CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
@@ -558,9 +565,7 @@ void ObjectMgr::LoadCreatureTemplateResistances()
         }
 
         CreatureTemplate& creatureTemplate = itr->second;
-
-        for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-            creatureTemplate.resistance[i] = fields[1 + i].GetInt16();
+        creatureTemplate.resistance[school] = fields[2].GetInt16();
 
         ++count;
 
@@ -573,8 +578,8 @@ void ObjectMgr::LoadCreatureTemplateSpells()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1       2       3       4       5       6       7       8
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, Spell1, Spell2, Spell3, Spell4, Spell5, Spell6, Spell7, Spell8 FROM creature_template_spell");
+    //                                               0           1       2
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, Index, Spell FROM creature_template_spell");
 
     if (!result)
     {
@@ -589,6 +594,13 @@ void ObjectMgr::LoadCreatureTemplateSpells()
         Field* fields = result->Fetch();
 
         uint32 creatureID = fields[0].GetUInt32();
+        uint8 index       = fields[1].GetUInt8();
+
+        if (index >= MAX_CREATURE_SPELLS)
+        {
+            TC_LOG_INFO("sql.sql", "creature_template_spell has spell definitions for creature %u with a incorrect index %u", creatureID, index);
+            continue;
+        }
 
         CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
@@ -598,9 +610,7 @@ void ObjectMgr::LoadCreatureTemplateSpells()
         }
 
         CreatureTemplate& creatureTemplate = itr->second;
-
-        for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-            creatureTemplate.spells[i] = fields[1 + i].GetUInt32();;
+        creatureTemplate.spells[index] = fields[2].GetUInt32();;
 
         ++count;
 
