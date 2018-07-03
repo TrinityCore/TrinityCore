@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,6 +43,13 @@ WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::W
     _worldPacket << uint32(FavoriteAppearances.size());
     for (uint32 itemModifiedAppearanceId : FavoriteAppearances)
         _worldPacket << uint32(itemModifiedAppearanceId);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Transmogrification::OpenTransmogrifier::Write()
+{
+    _worldPacket << Guid;
 
     return &_worldPacket;
 }

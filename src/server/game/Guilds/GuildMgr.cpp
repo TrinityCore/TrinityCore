@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -515,7 +515,7 @@ void GuildMgr::LoadGuildRewards()
         Field* fields = result->Fetch();
         reward.ItemID        = fields[0].GetUInt32();
         reward.MinGuildRep   = fields[1].GetUInt8();
-        reward.RaceMask      = fields[2].GetInt32();
+        reward.RaceMask      = fields[2].GetUInt64();
         reward.Cost          = fields[3].GetUInt64();
 
         if (!sObjectMgr->GetItemTemplate(reward.ItemID))

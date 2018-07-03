@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,7 +93,7 @@ public:
     void LoadAccountHeirlooms(PreparedQueryResult result);
     void SaveAccountHeirlooms(SQLTransaction& trans);
     void AddHeirloom(uint32 itemId, uint32 flags);
-    void UpgradeHeirloom(uint32 itemId, uint32 castItem);
+    void UpgradeHeirloom(uint32 itemId, int32 castItem);
     void CheckHeirloomUpgrades(Item* item);
 
     bool UpdateAccountHeirlooms(uint32 itemId, uint32 flags);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
 
         struct instance_drak_tharon_keep_InstanceScript : public InstanceScript
         {
-            instance_drak_tharon_keep_InstanceScript(Map* map) : InstanceScript(map)
+            instance_drak_tharon_keep_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

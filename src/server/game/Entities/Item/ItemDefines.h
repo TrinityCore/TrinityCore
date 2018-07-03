@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,6 +123,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_USE_ITEM                                = 98, // You can't use that item.
     EQUIP_ERR_CANT_BE_OBLITERATED                          = 99, // You can't obliterate that item
     EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 100,// You cannot store conjured items in the guild bank
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 101,// You can't do that right now.
 };
 
 enum BuyResult

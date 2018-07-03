@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -178,10 +178,10 @@ void ConversationDataStore::LoadConversationTemplates()
                 else
                     TC_LOG_ERROR("sql.sql", "Table `conversation_line_template` has missing template for line (ID: %u) in Conversation %u, skipped", currentConversationLine->ID, conversationTemplate.Id);
 
-                if (!currentConversationLine->NextLineID)
+                if (!currentConversationLine->NextConversationLineID)
                     break;
 
-                currentConversationLine = sConversationLineStore.AssertEntry(currentConversationLine->NextLineID);
+                currentConversationLine = sConversationLineStore.AssertEntry(currentConversationLine->NextConversationLineID);
             }
 
             _conversationTemplateStore[conversationTemplate.Id] = conversationTemplate;

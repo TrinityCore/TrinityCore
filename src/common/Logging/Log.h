@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,11 +31,11 @@ class Appender;
 class Logger;
 struct LogMessage;
 
-namespace boost
+namespace Trinity
 {
-    namespace asio
+    namespace Asio
     {
-        class io_service;
+        class IoContext;
     }
 }
 
@@ -62,7 +62,7 @@ class TC_COMMON_API Log
     public:
         static Log* instance();
 
-        void Initialize(boost::asio::io_service* ioService);
+        void Initialize(Trinity::Asio::IoContext* ioContext);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
@@ -122,8 +122,8 @@ class TC_COMMON_API Log
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        boost::asio::io_service* _ioService;
-        Trinity::AsioStrand* _strand;
+        Trinity::Asio::IoContext* _ioContext;
+        Trinity::Asio::Strand* _strand;
 };
 
 #define sLog Log::instance()

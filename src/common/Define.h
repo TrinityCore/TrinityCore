@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -158,7 +158,8 @@ enum DBCFormer
     FT_FLOAT = 'f',                                         // float
     FT_INT = 'i',                                           // uint32
     FT_BYTE = 'b',                                          // uint8
-    FT_SHORT = 'h'                                          // uint16
+    FT_SHORT = 'h',                                         // uint16
+    FT_LONG = 'l'                                           // uint64
 };
 
 #endif //TRINITY_DEFINE_H

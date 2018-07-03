@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,7 +109,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
-        //stats.TitleAlt = ;
+        stats.TitleAlt = creatureInfo->TitleAlt;
         stats.CursorName = creatureInfo->IconName;
 
         if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
@@ -202,9 +202,9 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
                     mapID = corpseMapEntry->CorpseMapID;
-                    x = corpseMapEntry->CorpsePos.X;
-                    y = corpseMapEntry->CorpsePos.Y;
-                    z = entranceMap->GetHeight(player->GetPhases(), x, y, MAX_HEIGHT);
+                    x = corpseMapEntry->Corpse.X;
+                    y = corpseMapEntry->Corpse.Y;
+                    z = entranceMap->GetHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }
         }
@@ -375,6 +375,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.WorldEffectID      = data->WorldEffectID;
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
+                    questPOIBlobData.AlwaysAllowMergingBlobs = data->AlwaysAllowMergingBlobs;
 
                     for (QuestPOIPoint const& point : data->points)
                     {

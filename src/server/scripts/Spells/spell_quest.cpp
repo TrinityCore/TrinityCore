@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -838,7 +838,7 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
                         target->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, 0);
                         target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
                         target->SetHealth(target->GetMaxHealth() / 2);
-                        target->SetPower(POWER_MANA, uint32(target->GetMaxPower(POWER_MANA) * 0.75f));
+                        target->SetPower(POWER_MANA, target->GetMaxPower(POWER_MANA) * 0.75f);
                     }
                 }
             }

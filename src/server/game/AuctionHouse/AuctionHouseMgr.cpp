@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,9 +65,9 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
     FactionTemplateEntry const* uEntry = sFactionTemplateStore.LookupEntry(factionTemplateId);
     if (!uEntry)
         return &mNeutralAuctions;
-    else if (uEntry->Mask & FACTION_MASK_ALLIANCE)
+    else if (uEntry->FactionGroup & FACTION_MASK_ALLIANCE)
         return &mAllianceAuctions;
-    else if (uEntry->Mask & FACTION_MASK_HORDE)
+    else if (uEntry->FactionGroup & FACTION_MASK_HORDE)
         return &mHordeAuctions;
     else
         return &mNeutralAuctions;
@@ -544,9 +544,9 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
                 FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
                 if (!u_entry)
                     houseid = 7; // goblin auction house
-                else if (u_entry->Mask & FACTION_MASK_ALLIANCE)
+                else if (u_entry->FactionGroup & FACTION_MASK_ALLIANCE)
                     houseid = 1; // human auction house
-                else if (u_entry->Mask & FACTION_MASK_HORDE)
+                else if (u_entry->FactionGroup & FACTION_MASK_HORDE)
                     houseid = 6; // orc auction house
                 else
                     houseid = 7; // goblin auction house
@@ -704,7 +704,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
         if (quality != 0xffffffff && proto->GetQuality() != quality)
             continue;
 
-        if (levelmin != 0 && (proto->GetBaseRequiredLevel() < levelmin || (levelmax != 0 && proto->GetBaseRequiredLevel() > levelmax)))
+        if (levelmin != 0 && (item->GetRequiredLevel() < levelmin || (levelmax != 0 && item->GetRequiredLevel() > levelmax)))
             continue;
 
         if (usable && player->CanUseItem(item) != EQUIP_ERR_OK)

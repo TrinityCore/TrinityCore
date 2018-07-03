@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +44,7 @@ WorldPacket const* WorldPackets::Hotfix::DBReply::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Hotfix::HotfixList::Write()
+WorldPacket const* WorldPackets::Hotfix::AvailableHotfixes::Write()
 {
     _worldPacket << int32(HotfixCacheVersion);
     _worldPacket << uint32(Hotfixes.size());
@@ -54,7 +54,7 @@ WorldPacket const* WorldPackets::Hotfix::HotfixList::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Hotfix::HotfixQuery::Read()
+void WorldPackets::Hotfix::HotfixRequest::Read()
 {
     uint32 hotfixCount = _worldPacket.read<uint32>();
     if (hotfixCount > sDB2Manager.GetHotfixData().size())
@@ -65,7 +65,7 @@ void WorldPackets::Hotfix::HotfixQuery::Read()
         _worldPacket >> hotfixId;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixQueryResponse::HotfixData const& hotfixData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixResponse::HotfixData const& hotfixData)
 {
     data << uint64(hotfixData.ID);
     data << int32(hotfixData.RecordID);
@@ -81,7 +81,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixQueryRespon
     return data;
 }
 
-WorldPacket const* WorldPackets::Hotfix::HotfixQueryResponse::Write()
+WorldPacket const* WorldPackets::Hotfix::HotfixResponse::Write()
 {
     _worldPacket << uint32(Hotfixes.size());
     for (HotfixData const& hotfix : Hotfixes)

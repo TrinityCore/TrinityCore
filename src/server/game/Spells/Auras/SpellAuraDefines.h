@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,8 @@
  */
 #ifndef TRINITY_SPELLAURADEFINES_H
 #define TRINITY_SPELLAURADEFINES_H
+
+#include "Define.h"
 
 #define MAX_AURAS 255
 
@@ -65,7 +67,7 @@ enum DAMAGE_ABSORB_TYPE
     ONLY_MAGIC_ABSORB       = -1
 };
 
-enum AuraType
+enum AuraType : uint32
 {
     SPELL_AURA_NONE                                         = 0,
     SPELL_AURA_BIND_SIGHT                                   = 1,
@@ -130,7 +132,7 @@ enum AuraType
     SPELL_AURA_MOD_PACIFY_SILENCE                           = 60,
     SPELL_AURA_MOD_SCALE                                    = 61,
     SPELL_AURA_PERIODIC_HEALTH_FUNNEL                       = 62,
-    SPELL_AURA_MOD_ADDITIONAL_POWER_COST                    = 63,   // NYI
+    SPELL_AURA_MOD_ADDITIONAL_POWER_COST                    = 63,
     SPELL_AURA_PERIODIC_MANA_LEECH                          = 64,
     SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK                  = 65,
     SPELL_AURA_FEIGN_DEATH                                  = 66,
@@ -186,7 +188,7 @@ enum AuraType
     SPELL_AURA_MOD_REGEN_DURING_COMBAT                      = 116,
     SPELL_AURA_MOD_MECHANIC_RESISTANCE                      = 117,
     SPELL_AURA_MOD_HEALING_PCT                              = 118,
-    SPELL_AURA_119                                          = 119,  // old SPELL_AURA_SHARE_PET_TRACKING
+    SPELL_AURA_PVP_TALENTS                                  = 119,
     SPELL_AURA_UNTRACKABLE                                  = 120,
     SPELL_AURA_EMPATHY                                      = 121,
     SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT                       = 122,
@@ -245,7 +247,7 @@ enum AuraType
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT            = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION                         = 176,
     SPELL_AURA_AOE_CHARM                                    = 177,
-    SPELL_AURA_MOD_MAX_POWER_PCT                            = 178,  // NYI
+    SPELL_AURA_MOD_MAX_POWER_PCT                            = 178,
     SPELL_AURA_MOD_POWER_DISPLAY                            = 179,
     SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS                 = 180,
     SPELL_AURA_181                                          = 181,  // old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS - possible flat spell crit damage versus
@@ -403,7 +405,7 @@ enum AuraType
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED          = 333,  // Spells cast with this override have no cast time or power cost
     SPELL_AURA_MOD_BLIND                                    = 334,  // NYI
     SPELL_AURA_335                                          = 335,
-    SPELL_AURA_MOD_FLYING_RESTRICTIONS                      = 336,  // NYI
+    SPELL_AURA_MOUNT_RESTRICTIONS                           = 336,
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,
     SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,
     SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE                   = 339,  // NYI
@@ -446,7 +448,7 @@ enum AuraType
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE                = 376,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING_2                         = 377,  // NYI
     SPELL_AURA_378                                          = 378,
-    SPELL_AURA_379                                          = 379,
+    SPELL_AURA_MOD_MANA_REGEN_PCT                           = 379,
     SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE                 = 380,  // Allows melee abilities to benefit from haste GCD reduction
     SPELL_AURA_381                                          = 381,
     SPELL_AURA_MOD_PET_STAT_PCT                             = 382,  // NYI
@@ -495,7 +497,7 @@ enum AuraType
     SPELL_AURA_425                                          = 425,
     SPELL_AURA_426                                          = 426,
     SPELL_AURA_SCALE_PLAYER_LEVEL                           = 427,  // NYI
-    SPELL_AURA_428                                          = 428,
+    SPELL_AURA_LINKED_SUMMON                                = 428,
     SPELL_AURA_429                                          = 429,
     SPELL_AURA_PLAY_SCENE                                   = 430,
     SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,  // NYI
@@ -538,7 +540,7 @@ enum AuraType
     SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT                  = 468,  // Triggers spell when health goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY     = 469,
     SPELL_AURA_470                                          = 470,
-    SPELL_AURA_MOD_VERSATILITY                              = 471,  // NYI
+    SPELL_AURA_MOD_VERSATILITY                              = 471,
     SPELL_AURA_472                                          = 472,
     SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473,  // Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -162,7 +162,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25,
     CONDITION_SOURCE_TYPE_PHASE                          = 26,
-    CONDITION_SOURCE_TYPE_MAX                            = 27  // MAX
+    CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
+    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
 };
 
 enum RelationType

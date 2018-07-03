@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -673,7 +673,7 @@ namespace WorldPackets
             uint32 ItemID = 0;
             uint32 Unk4 = 0;
             std::vector<uint32> AchievementsRequired;
-            uint32 RaceMask = 0;
+            uint64 RaceMask = 0;
             int32 MinGuildLevel = 0;
             int32 MinGuildRep = 0;
             uint64 Cost = 0;
@@ -943,6 +943,14 @@ namespace WorldPackets
             int32 NewsID = 0;
             ObjectGuid GuildGUID;
             bool Sticky = false;
+        };
+
+        class GuildReplaceGuildMaster final : public ClientPacket
+        {
+        public:
+            GuildReplaceGuildMaster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REPLACE_GUILD_MASTER, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         class GuildSetGuildMaster final : public ClientPacket

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +19,11 @@
 #include "Random.h"
 
 GridInfo::GridInfo() : i_timer(0), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
-    i_unloadActiveLockCount(0), i_unloadExplicitLock(false), i_unloadReferenceLock(false)
+    i_unloadActiveLockCount(0), i_unloadExplicitLock(false)
 {
 }
 
 GridInfo::GridInfo(time_t expiry, bool unload /*= true */) : i_timer(expiry), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
-    i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload), i_unloadReferenceLock(false)
+    i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload)
 {
 }

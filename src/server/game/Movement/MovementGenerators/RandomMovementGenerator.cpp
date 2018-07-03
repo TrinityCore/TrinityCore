@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,7 @@
 template<>
 void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 {
-    if (creature->HasUnitState(UNIT_STATE_CASTING) && !creature->CanMoveDuringChannel())
+    if (creature->IsMovementPreventedByCasting())
     {
         creature->CastStop();
         return;
@@ -38,7 +38,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 
     float respX, respY, respZ, respO, destX, destY, destZ, travelDistZ;
     creature->GetHomePosition(respX, respY, respZ, respO);
-    Map const* map = creature->GetBaseMap();
+    Map const* map = creature->GetMap();
 
     // For 2D/3D system selection
     //bool is_land_ok  = creature.CanWalk();                // not used?
@@ -64,7 +64,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
         // Limit height change
         const float distanceZ = float(rand_norm()) * travelDistZ/2.0f;
         destZ = respZ + distanceZ;
-        float levelZ = map->GetWaterOrGroundLevel(creature->GetPhases(), destX, destY, destZ-2.5f);
+        float levelZ = map->GetWaterOrGroundLevel(creature->GetPhaseShift(), destX, destY, destZ-2.5f);
 
         // Problem here, we must fly above the ground and water, not under. Let's try on next tick
         if (levelZ >= destZ)
@@ -78,17 +78,17 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 
         // The fastest way to get an accurate result 90% of the time.
         // Better result can be obtained like 99% accuracy with a ray light, but the cost is too high and the code is too long.
-        destZ = map->GetHeight(creature->GetPhases(), destX, destY, respZ+travelDistZ-2.0f, false);
+        destZ = map->GetHeight(creature->GetPhaseShift(), destX, destY, respZ+travelDistZ-2.0f, false);
 
         if (std::fabs(destZ - respZ) > travelDistZ)              // Map check
         {
             // Vmap Horizontal or above
-            destZ = map->GetHeight(creature->GetPhases(), destX, destY, respZ - 2.0f, true);
+            destZ = map->GetHeight(creature->GetPhaseShift(), destX, destY, respZ - 2.0f, true);
 
             if (std::fabs(destZ - respZ) > travelDistZ)
             {
                 // Vmap Higher
-                destZ = map->GetHeight(creature->GetPhases(), destX, destY, respZ+travelDistZ-2.0f, true);
+                destZ = map->GetHeight(creature->GetPhaseShift(), destX, destY, respZ+travelDistZ-2.0f, true);
 
                 // let's forget this bad coords where a z cannot be find and retry at next tick
                 if (std::fabs(destZ - respZ) > travelDistZ)

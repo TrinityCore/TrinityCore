@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "the_slave_pens.h"
 
 class instance_the_slave_pens : public InstanceMapScript
@@ -28,7 +27,7 @@ public:
 
     struct instance_the_slave_pens_InstanceMapScript : public InstanceScript
     {
-        instance_the_slave_pens_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_the_slave_pens_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             counter = DATA_FLAMECALLER_000;
         }

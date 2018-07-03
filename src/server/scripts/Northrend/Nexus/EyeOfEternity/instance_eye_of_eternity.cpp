@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,7 @@ public:
 
     struct instance_eye_of_eternity_InstanceMapScript : public InstanceScript
     {
-        instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_eye_of_eternity_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
@@ -89,13 +89,8 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            GameObject* go = new GameObject();
-            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
-            {
-                delete go;
-                return;
-            }
-            instance->AddToMap(go);
+            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+                instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go) override

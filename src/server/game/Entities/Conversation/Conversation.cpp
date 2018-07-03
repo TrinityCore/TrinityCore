@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -115,8 +116,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     Relocate(pos);
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
-    SetPhaseMask(creator->GetPhaseMask(), false);
-    CopyPhaseFrom(creator);
+    PhasingHandler::InheritPhaseShift(this, creator);
 
     SetEntry(conversationEntry);
     SetObjectScale(1.0f);

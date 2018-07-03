@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,15 +22,7 @@
 
 void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& /*battlePetRequestJournal*/)
 {
-    // TODO: Move this to BattlePetMgr::SendJournal() just to have all packets in one file
-    WorldPackets::BattlePet::BattlePetJournal battlePetJournal;
-    battlePetJournal.Trap = GetBattlePetMgr()->GetTrapLevel();
-
-    for (auto itr : GetBattlePetMgr()->GetLearnedPets())
-        battlePetJournal.Pets.push_back(itr.PacketInfo);
-
-    battlePetJournal.Slots = GetBattlePetMgr()->GetSlots();
-    SendPacket(battlePetJournal.Write());
+    GetBattlePetMgr()->SendJournal();
 }
 
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
@@ -76,5 +68,8 @@ void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& c
 
 void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon)
 {
-    GetBattlePetMgr()->SummonPet(battlePetSummon.PetGuid);
+    if (_player->GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID) != battlePetSummon.PetGuid)
+        GetBattlePetMgr()->SummonPet(battlePetSummon.PetGuid);
+    else
+        GetBattlePetMgr()->DismissPet();
 }

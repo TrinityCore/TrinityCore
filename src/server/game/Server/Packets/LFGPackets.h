@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -395,6 +395,7 @@ namespace WorldPackets
             uint32 Slot = 0;
             int8 State = 0;
             uint32 CompletedMask = 0;
+            uint32 EncounterMask = 0;
             uint8 Unused = 0;
             bool ValidCompletedMask = false;
             bool ProposalSilent = false;

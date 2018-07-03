@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
@@ -87,7 +88,7 @@ class instance_halls_of_reflection : public InstanceMapScript
 
         struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
         {
-            instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_halls_of_reflection_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -143,8 +144,10 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case NPC_FROSTSWORN_GENERAL:
                         FrostswornGeneralGUID = creature->GetGUID();
-                        if (GetBossState(DATA_MARWYN) == DONE)
-                            creature->SetPhaseMask(1, true);
+                        if (GetBossState(DATA_MARWYN) != DONE)
+                            PhasingHandler::AddPhase(creature, 170, true);
+                        else
+                            PhasingHandler::RemovePhase(creature, 170, true);
                         break;
                     case NPC_JAINA_ESCAPE:
                     case NPC_SYLVANAS_ESCAPE:
@@ -326,7 +329,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             HandleGameObject(ImpenetrableDoorGUID, true);
                             DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                             if (Creature* general = instance->GetCreature(FrostswornGeneralGUID))
-                                general->SetPhaseMask(1, true);
+                                PhasingHandler::RemovePhase(general, 170, true);
 
                             SpawnGunship();
                             SpawnEscapeEvent();

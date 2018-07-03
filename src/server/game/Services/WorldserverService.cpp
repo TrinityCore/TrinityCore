@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +17,13 @@
 
 #include "WorldserverService.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "IpAddress.h"
 #include "Log.h"
 #include "ProtobufJSON.h"
 #include "Realm.h"
 #include "RealmList.h"
 #include "RealmList.pb.h"
 #include "World.h"
-#include <boost/asio/ip/address.hpp>
 #include <zlib.h>
 
 Battlenet::GameUtilitiesService::GameUtilitiesService(WorldSession* session) : BaseService(session)
@@ -101,7 +101,7 @@ uint32 Battlenet::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_ma
 {
     auto realmAddress = params.find("Param_RealmAddress");
     if (realmAddress != params.end())
-        return sRealmList->JoinRealm(uint32(realmAddress->second->uint_value()), realm.Build, boost::asio::ip::address::from_string(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
+        return sRealmList->JoinRealm(uint32(realmAddress->second->uint_value()), realm.Build, Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
             _session->GetSessionDbcLocale(), _session->GetOS(), _session->GetAccountName(), response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;

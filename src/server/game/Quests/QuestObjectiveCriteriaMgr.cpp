@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -172,7 +172,7 @@ void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaTypes type, uint64 miscVal
     CriteriaList const& playerCriteriaList = GetCriteriaByType(type);
     for (Criteria const* playerCriteria : playerCriteriaList)
     {
-        if (playerCriteria->Entry->FailEvent != miscValue1 || (playerCriteria->Entry->FailAsset && playerCriteria->Entry->FailAsset != miscValue2))
+        if (playerCriteria->Entry->FailEvent != miscValue1 || (playerCriteria->Entry->FailAsset && playerCriteria->Entry->FailAsset != int64(miscValue2)))
             continue;
 
         std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(playerCriteria->ID);

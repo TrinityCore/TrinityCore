@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -199,6 +199,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = -1;
+            TaggedPosition<Position::XYZ> OldMapPosition;
             Optional<ShipTransferPending> Ship;
             Optional<int32> TransferSpellID;
         };

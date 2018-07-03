@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,9 +28,9 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << int32(Damage);
     *this << int32(Overkill);
     *this << uint8(SchoolMask);
-    *this << int32(ShieldBlock);
-    *this << int32(Resisted);
     *this << int32(Absorbed);
+    *this << int32(Resisted);
+    *this << int32(ShieldBlock);
     WriteBit(Periodic);
     WriteBits(Flags, 7);
     WriteBit(false); // Debug info

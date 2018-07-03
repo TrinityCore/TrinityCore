@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 #include "NPCHandler.h"
 #include <map>
 
+class Object;
 class Quest;
 class WorldSession;
 
@@ -52,6 +53,7 @@ enum Gossip_Option
     GOSSIP_OPTION_UNLEARNPETTALENTS_OLD = 17,               // deprecated
     GOSSIP_OPTION_LEARNDUALSPEC     = 18,                   //UNIT_NPC_FLAG_TRAINER             (16) (bonus option for GOSSIP_OPTION_TRAINER)
     GOSSIP_OPTION_OUTDOORPVP        = 19,                   //added by code (option for outdoor pvp creatures)
+    GOSSIP_OPTION_TRANSMOGRIFIER    = 20,                   //UNIT_NPC_FLAG_TRANSMOGRIFIER
     GOSSIP_OPTION_MAX
 };
 
@@ -167,8 +169,8 @@ class TC_GAME_API GossipMenu
         GossipMenu();
         ~GossipMenu();
 
-        uint32 AddMenuItem(int32 menuItemId, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
-        void AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action);
+        uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+        void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
 
         void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
         uint32 GetMenuId() const { return _menuId; }
@@ -243,10 +245,12 @@ class InteractionData
         {
             SourceGuid.Clear();
             TrainerId = 0;
+            PlayerChoiceId = 0;
         }
 
         ObjectGuid SourceGuid;
         uint32 TrainerId;
+        uint32 PlayerChoiceId;
 };
 
 class TC_GAME_API PlayerMenu
@@ -275,13 +279,13 @@ class TC_GAME_API PlayerMenu
         /*********************************************************/
         void SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const;
 
-        void SendQuestGiverQuestListMessage(ObjectGuid npcGUID);
+        void SendQuestGiverQuestListMessage(Object* questgiver);
 
         void SendQuestQueryResponse(Quest const* quest) const;
-        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const;
+        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const;
 
-        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const;
-        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const;
+        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
+        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const;
 
         static void AddQuestLevelToTitle(std::string &title, int32 level);
 

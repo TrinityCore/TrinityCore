@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,10 +69,10 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     _worldPacket.WriteBit(HasJournalLock);
     _worldPacket.FlushBits();
 
-    for (auto const& slot : Slots)
+    for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
 
-    for (auto const& pet : Pets)
+    for (BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

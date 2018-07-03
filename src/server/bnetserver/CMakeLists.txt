@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -25,10 +25,6 @@ endif()
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/bnetPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/bnetPCH.cpp)
-  if (MSVC)
-    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/bnetPCH.cpp)
-  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -44,6 +40,8 @@ if (NOT WIN32)
 endif()
 
 target_link_libraries(bnetserver
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     shared)
 
@@ -94,5 +92,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(bnetserver ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(bnetserver ${PRIVATE_PCH_HEADER})
 endif()

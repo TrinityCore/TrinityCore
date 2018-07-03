@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -101,7 +101,7 @@ class TC_GAME_API ChatHandler
         virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
-        virtual int GetSessionDbLocaleIndex() const;
+        virtual LocaleConstant GetSessionDbLocaleIndex() const;
 
         bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
@@ -166,7 +166,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
-        int GetSessionDbLocaleIndex() const override;
+        LocaleConstant GetSessionDbLocaleIndex() const override;
 
     private:
         void* m_callbackArg;

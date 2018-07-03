@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -106,9 +106,15 @@ public:
 
         WorldPacket data;
         if (strncmp(args, "on", 3) == 0)
+        {
             target->SetCanFly(true);
+            target->SetCanTransitionBetweenSwimAndFly(true);
+        }
         else if (strncmp(args, "off", 4) == 0)
+        {
             target->SetCanFly(false);
+            target->SetCanTransitionBetweenSwimAndFly(false);
+        }
         else
         {
             handler->SendSysMessage(LANG_USE_BOL);

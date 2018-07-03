@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -119,6 +119,17 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
             uint32 CustomAnim = 0;
             bool PlayAsDespawn = false;
+        };
+
+        class GameObjectUIAction final : public ServerPacket
+        {
+        public:
+            GameObjectUIAction() : ServerPacket(SMSG_GAME_OBJECT_UI_ACTION, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            int32 UILink = 0;
         };
     }
 }

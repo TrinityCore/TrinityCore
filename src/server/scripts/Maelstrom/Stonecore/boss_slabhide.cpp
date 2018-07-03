@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -484,7 +484,7 @@ public:
         {
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();
-            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
+            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
             dest.Relocate(pos);
         }
 

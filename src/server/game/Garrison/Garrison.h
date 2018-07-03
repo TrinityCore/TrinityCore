@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "GameObjectData.h"
 #include "GarrisonPackets.h"
 #include "Optional.h"
 #include <unordered_map>
@@ -194,6 +195,7 @@ public:
         void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
 
         WorldPackets::Garrison::GarrisonPlotInfo PacketInfo;
+        QuaternionData Rotation;
         uint32 EmptyGameObjectId = 0;
         uint32 GarrSiteLevelPlotInstId = 0;
         Building BuildingInfo;

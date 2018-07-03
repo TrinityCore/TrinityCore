@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -196,6 +196,8 @@ enum AuctionBotConfigBoolValues
 enum AuctionBotConfigFloatValues
 {
     CONFIG_AHBOT_BUYER_CHANCE_FACTOR,
+    CONFIG_AHBOT_BIDPRICE_MIN,
+    CONFIG_AHBOT_BIDPRICE_MAX,
     CONFIG_AHBOT_FLOAT_COUNT
 };
 

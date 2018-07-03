@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -884,11 +884,11 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
         {
             for (ItemEffectEntry const* itemEffect : proto->Effects)
             {
-                if (itemEffect->SpellID == spellInfo->Id)
+                if (uint32(itemEffect->SpellID) == spellInfo->Id)
                 {
-                    tmpCooldown = itemEffect->Cooldown;
-                    tmpCategoryId = itemEffect->Category;
-                    tmpCategoryCooldown = itemEffect->CategoryCooldown;
+                    tmpCooldown = itemEffect->CoolDownMSec;
+                    tmpCategoryId = itemEffect->SpellCategoryID;
+                    tmpCategoryCooldown = itemEffect->CategoryCoolDownMSec;
                     break;
                 }
             }

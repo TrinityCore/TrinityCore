@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,6 +60,16 @@ namespace WorldPackets
             bool IsFullUpdate = false;
             bool IsSetFavorite = false;
             std::vector<uint32> FavoriteAppearances;
+        };
+
+        class OpenTransmogrifier final : public ServerPacket
+        {
+        public:
+            OpenTransmogrifier(ObjectGuid const& guid) : ServerPacket(SMSG_OPEN_TRANSMOGRIFIER, 16), Guid(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
         };
     }
 }

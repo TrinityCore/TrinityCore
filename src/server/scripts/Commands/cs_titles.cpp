@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -96,7 +96,7 @@ public:
         target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->MaskID);
 
         handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id,
-            (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()],
+            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()],
             tNameLink.c_str());
         return true;
     }
@@ -139,7 +139,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         std::string titleNameStr = Trinity::StringFormat(
-            (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()],
+            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()],
             target->GetName().c_str()
         );
 
@@ -189,7 +189,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         std::string titleNameStr = Trinity::StringFormat(
-            (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()],
+            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()],
             target->GetName().c_str()
         );
 

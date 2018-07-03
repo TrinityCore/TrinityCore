@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -138,6 +138,14 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum AreaMountFlags
+{
+    AREA_MOUNT_FLAG_GROUND_ALLOWED      = 0x1,
+    AREA_MOUNT_FLAG_FLYING_ALLOWED      = 0x2,
+    AREA_MOUNT_FLAG_FLOAT_ALLOWED       = 0x4,
+    AREA_MOUNT_FLAG_UNDERWATER_ALLOWED  = 0x8
+};
+
 enum ArtifactPowerFlag : uint8
 {
     ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
@@ -147,7 +155,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2073
+#define BATTLE_PET_SPECIES_MAX_ID 2164
 
 enum ChrSpecializationFlag
 {
@@ -237,6 +245,7 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK86                         = 86, // Some external event id
     //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
+    CRITERIA_ADDITIONAL_CONDITION_EXPANSION                     = 92,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
@@ -479,10 +488,13 @@ enum CriteriaTypes : uint8
     // 202 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_WORLD_QUEST                  = 203,
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
-    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205
+    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205,
+    CRITERIA_TYPE_GAIN_PARAGON_REPUTATION               = 206,
+    CRITERIA_TYPE_EARN_HONOR_XP                         = 207,
+    CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211
 };
 
-#define CRITERIA_TYPE_TOTAL 208
+#define CRITERIA_TYPE_TOTAL 213
 
 enum CriteriaTreeFlags : uint16
 {
@@ -584,6 +596,7 @@ enum Difficulty : uint8
     DIFFICULTY_EVENT_SCENARIO_6     = 30,
     DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
     DIFFICULTY_TIMEWALKING_RAID     = 33,
+    DIFFICULTY_PVP                  = 34,
 
     MAX_DIFFICULTY
 };
@@ -636,7 +649,7 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
-#define MAX_ITEM_PROTO_FLAGS 3
+#define MAX_ITEM_PROTO_FLAGS 4
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
@@ -701,23 +714,24 @@ enum ItemExtendedCostFlags
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL                   = 1,
-    ITEM_BONUS_STAT                         = 2,
-    ITEM_BONUS_QUALITY                      = 3,
-    ITEM_BONUS_DESCRIPTION                  = 4,
-    ITEM_BONUS_SUFFIX                       = 5,
-    ITEM_BONUS_SOCKET                       = 6,
-    ITEM_BONUS_APPEARANCE                   = 7,
-    ITEM_BONUS_REQUIRED_LEVEL               = 8,
-    ITEM_BONUS_DISPLAY_TOAST_METHOD         = 9,
-    ITEM_BONUS_REPAIR_COST_MULTIPLIER       = 10,
-    ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
-    ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
-    ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
-    ITEM_BONUS_ITEM_LEVEL_CAN_INCREASE      = 14,                 // Displays a + next to item level indicating it can warforge
-    ITEM_BONUS_RANDOM_ENCHANTMENT           = 15,                 // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
-    ITEM_BONUS_BONDING                      = 16,
-    ITEM_BONUS_RELIC_TYPE                   = 17
+    ITEM_BONUS_ITEM_LEVEL                       = 1,
+    ITEM_BONUS_STAT                             = 2,
+    ITEM_BONUS_QUALITY                          = 3,
+    ITEM_BONUS_DESCRIPTION                      = 4,
+    ITEM_BONUS_SUFFIX                           = 5,
+    ITEM_BONUS_SOCKET                           = 6,
+    ITEM_BONUS_APPEARANCE                       = 7,
+    ITEM_BONUS_REQUIRED_LEVEL                   = 8,
+    ITEM_BONUS_DISPLAY_TOAST_METHOD             = 9,
+    ITEM_BONUS_REPAIR_COST_MULTIPLIER           = 10,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION        = 11,
+    ITEM_BONUS_DISENCHANT_LOOT_ID               = 12,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED  = 13,
+    ITEM_BONUS_ITEM_LEVEL_CAN_INCREASE          = 14,             // Displays a + next to item level indicating it can warforge
+    ITEM_BONUS_RANDOM_ENCHANTMENT               = 15,             // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
+    ITEM_BONUS_BONDING                          = 16,
+    ITEM_BONUS_RELIC_TYPE                       = 17,
+    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18
 };
 
 enum ItemLimitCategoryMode
@@ -784,8 +798,11 @@ enum MapDifficultyFlags : uint8
 
 enum MountCapabilityFlags
 {
-    MOUNT_CAPABILITY_FLAG_CAN_PITCH     = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING
-    MOUNT_CAPABILITY_FLAG_CAN_SWIM      = 0x8,                    // client checks MOVEMENTFLAG_SWIMMING
+    MOUNT_CAPABILITY_FLAG_GROUND                = 0x1,
+    MOUNT_CAPABILITY_FLAG_FLYING                = 0x2,
+    MOUNT_CAPABILITY_FLAG_FLOAT                 = 0x4,
+    MOUNT_CAPABILITY_FLAG_UNDERWATER            = 0x8,
+    MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
 enum MountFlags
@@ -795,6 +812,23 @@ enum MountFlags
     MOUNT_FLAG_PREFERRED_SWIMMING       = 0x10,
     MOUNT_FLAG_PREFERRED_WATER_WALKING  = 0x20,
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
+};
+
+enum PhaseEntryFlags : uint16
+{
+    PHASE_FLAG_NORMAL   = 0x08,
+    PHASE_FLAG_COSMETIC = 0x10,
+    PHASE_FLAG_PERSONAL = 0x20
+};
+
+// PhaseUseFlags fields in different db2s
+enum PhaseUseFlagsValues : uint8
+{
+    PHASE_USE_FLAGS_NONE            = 0x0,
+    PHASE_USE_FLAGS_ALWAYS_VISIBLE  = 0x1,
+    PHASE_USE_FLAGS_INVERSE         = 0x2,
+
+    PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
 };
 
 enum PrestigeLevelInfoFlags : uint8
@@ -836,6 +870,8 @@ enum SpellCategoryFlags
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
+#define MAX_SPELL_AURA_INTERRUPT_FLAGS 2
+
 enum SpellItemEnchantmentFlags
 {
     ENCHANTMENT_CAN_SOULBOUND           = 0x01,
@@ -870,7 +906,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 243
+#define TaxiMaskSize 258
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -921,7 +957,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
     SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
     SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_UNK5            = 0x00000010,          // 25 spells in 3.0.3, quest related?
+    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Personal Spawn (creature visible only by summoner)
     SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
     SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
     SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
@@ -942,6 +978,8 @@ enum SummonPropFlags
 
 #define MAX_TALENT_TIERS 7
 #define MAX_TALENT_COLUMNS 3
+#define MAX_PVP_TALENT_TIERS 6
+#define MAX_PVP_TALENT_COLUMNS 3
 
 enum TaxiNodeFlags
 {
@@ -1013,6 +1051,11 @@ enum CurrencyTypes
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
+};
+
+enum WorldMapTransformsFlags
+{
+    WORLD_MAP_TRANSFORMS_FLAG_DUNGEON   = 0x04
 };
 
 #endif

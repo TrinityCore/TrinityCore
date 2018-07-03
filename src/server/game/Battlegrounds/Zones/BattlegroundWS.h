@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,23 @@ enum BG_WS_TimerOrScore
     BG_WS_FLAG_DROP_TIME    = 10000,
     BG_WS_SPELL_FORCE_TIME  = 600000,
     BG_WS_SPELL_BRUTAL_TIME = 900000
+};
+
+enum BG_WS_BroadcastTexts
+{
+    BG_WS_TEXT_START_ONE_MINUTE         = 10015,
+    BG_WS_TEXT_START_HALF_MINUTE        = 10016,
+    BG_WS_TEXT_BATTLE_HAS_BEGUN         = 10014,
+
+    BG_WS_TEXT_CAPTURED_HORDE_FLAG      = 9801,
+    BG_WS_TEXT_CAPTURED_ALLIANCE_FLAG   = 9802,
+    BG_WS_TEXT_FLAGS_PLACED             = 9803,
+    BG_WS_TEXT_ALLIANCE_FLAG_PICKED_UP  = 9804,
+    BG_WS_TEXT_ALLIANCE_FLAG_DROPPED    = 9805,
+    BG_WS_TEXT_HORDE_FLAG_PICKED_UP     = 9807,
+    BG_WS_TEXT_HORDE_FLAG_DROPPED       = 9806,
+    BG_WS_TEXT_ALLIANCE_FLAG_RETURNED   = 9808,
+    BG_WS_TEXT_HORDE_FLAG_RETURNED      = 9809,
 };
 
 enum BG_WS_Sound

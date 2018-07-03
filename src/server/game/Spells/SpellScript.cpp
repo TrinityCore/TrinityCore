@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -668,9 +668,9 @@ SpellInfo const* SpellScript::GetTriggeringSpell() const
     return m_spell->m_triggeredByAuraSpell;
 }
 
-void SpellScript::FinishCast(SpellCastResult result)
+void SpellScript::FinishCast(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/)
 {
-    m_spell->SendCastResult(result);
+    m_spell->SendCastResult(result, param1, param2);
     m_spell->finish(result == SPELL_CAST_OK);
 }
 

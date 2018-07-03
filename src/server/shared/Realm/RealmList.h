@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,11 +38,6 @@ namespace boost
 {
     class shared_mutex;
 
-    namespace asio
-    {
-        class io_service;
-    }
-
     namespace system
     {
         class error_code;
@@ -72,6 +67,14 @@ namespace JSON
     }
 }
 
+namespace Trinity
+{
+    namespace Asio
+    {
+        class IoContext;
+    }
+}
+
 /// Storage object for the list of realms on the server
 class TC_SHARED_API RealmList
 {
@@ -82,7 +85,7 @@ public:
 
     ~RealmList();
 
-    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
+    void Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval);
     void Close();
 
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
@@ -99,7 +102,7 @@ private:
 
     void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-        boost::asio::ip::address const& address, boost::asio::ip::address const& localAddr, boost::asio::ip::address const& localSubmask,
+        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     std::unique_ptr<boost::shared_mutex> _realmsMutex;

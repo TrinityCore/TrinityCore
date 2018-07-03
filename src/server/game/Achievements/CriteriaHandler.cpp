@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -638,7 +638,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
-                        if (skillIter->second->SkillLine == criteria->Entry->Asset.SkillID)
+                        if (skillIter->second->SkillLine == int32(criteria->Entry->Asset.SkillID))
                             spellCount++;
                     }
                 }
@@ -786,6 +786,9 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
             case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
             case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
+            case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
+            case CRITERIA_TYPE_EARN_HONOR_XP:
+            case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
                 break;                                   // Not implemented yet :(
         }
 
@@ -828,7 +831,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
     CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
     for (Criteria const* criteria : criteriaList)
     {
-        if (criteria->Entry->StartAsset != entry)
+        if (criteria->Entry->StartAsset != int32(entry))
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -859,7 +862,7 @@ void CriteriaHandler::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
     CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
     for (Criteria const* criteria : criteriaList)
     {
-        if (criteria->Entry->StartAsset != entry)
+        if (criteria->Entry->StartAsset != int32(entry))
             continue;
 
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -1145,6 +1148,9 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
         case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
         case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+        case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
+        case CRITERIA_TYPE_EARN_HONOR_XP:
+        case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
             return progress->Counter >= requiredAmount;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case CRITERIA_TYPE_COMPLETE_QUEST:
@@ -1564,7 +1570,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
     if (!reqType)
         return true;
 
-    uint32 reqValue = tree->Entry->Asset[0];
+    uint32 reqValue = tree->Entry->Asset;
 
     switch (CriteriaAdditionalCondition(reqType))
     {
@@ -2138,6 +2144,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "COMPLETE_WORLD_QUEST";
         case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
             return "TRANSMOG_SET_UNLOCKED";
+        case CRITERIA_TYPE_GAIN_PARAGON_REPUTATION:
+            return "GAIN_PARAGON_REPUTATION";
+        case CRITERIA_TYPE_EARN_HONOR_XP:
+            return "EARN_HONOR_XP";
+        case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
+            return "RELIC_TALENT_UNLOCKED";
     }
     return "MISSING_TYPE";
 }
@@ -2237,8 +2249,8 @@ void CriteriaMgr::LoadCriteriaList()
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
     for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-        if (scenarioStep->CriteriaTreeID)
-            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+        if (scenarioStep->Criteriatreeid)
+            scenarioCriteriaTreeIds[scenarioStep->Criteriatreeid] = scenarioStep;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
     for (std::pair<uint32 /*questID*/, Quest const*> itr : sObjectMgr->GetQuestTemplates())

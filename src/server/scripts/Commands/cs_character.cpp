@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -276,11 +276,11 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()];
+                std::string name = (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()];
                 if (name.empty())
                     continue;
 
-                char const* activeStr = target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                char const* activeStr = target->GetInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
                 ? handler->GetTrinityString(LANG_ACTIVE)
                 : "";
 

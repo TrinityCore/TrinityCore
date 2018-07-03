@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,8 +20,8 @@
 
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
-#include "QuestDef.h"
 #include "ObjectGuid.h"
+#include "QuestDef.h"
 
 namespace WorldPackets
 {
@@ -109,6 +109,7 @@ namespace WorldPackets
             int32 QuestID                   = 0;
             int32 QuestType                 = 0; // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
             int32 QuestLevel                = 0; // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
+            int32 QuestMaxScalingLevel      = 255;
             int32 QuestPackageID            = 0;
             int32 QuestMinLevel             = 0;
             int32 QuestSortID               = 0; // zone or sort to display in quest log
@@ -135,7 +136,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
-            int32 AllowableRaces            = -1;
+            uint64 AllowableRaces           = UI64LIT(0xFFFFFFFFFFFFFFFF);
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;
@@ -462,11 +463,13 @@ namespace WorldPackets
 
         struct GossipText
         {
-            GossipText(uint32 questID, uint32 questType, int32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
-                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(questTitle) { }
+            GossipText(uint32 questID, uint32 questType, int32 questLevel, int32 questMaxScalingLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
+                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestMaxScalingLevel(questMaxScalingLevel), QuestFlags(questFlags),
+                QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(std::move(questTitle)) { }
             uint32 QuestID;
             uint32 QuestType;
             int32 QuestLevel;
+            int32 QuestMaxScalingLevel;
             uint32 QuestFlags;
             uint32 QuestFlagsEx;
             bool Repeatable;
@@ -632,6 +635,66 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
+        };
+
+        struct PlayerChoiceResponseRewardEntry
+        {
+            WorldPackets::Item::ItemInstance Item;
+            int32 Quantity = 0;
+        };
+
+        struct PlayerChoiceResponseReward
+        {
+            int32 TitleID = 0;
+            int32 PackageID = 0;
+            int32 SkillLineID = 0;
+            uint32 SkillPointCount = 0;
+            uint32 ArenaPointCount = 0;
+            uint32 HonorPointCount = 0;
+            uint64 Money = 0;
+            uint32 Xp = 0;
+            std::vector<PlayerChoiceResponseRewardEntry> Items;
+            std::vector<PlayerChoiceResponseRewardEntry> Currencies;
+            std::vector<PlayerChoiceResponseRewardEntry> Factions;
+            std::vector<PlayerChoiceResponseRewardEntry> ItemChoices;
+        };
+
+        struct PlayerChoiceResponse
+        {
+            int32 ResponseID = 0;
+            int32 ChoiceArtFileID = 0;
+            std::string Answer;
+            std::string Header;
+            std::string Description;
+            std::string Confirmation;
+            Optional<PlayerChoiceResponseReward> Reward;
+        };
+
+        class DisplayPlayerChoice final : public ServerPacket
+        {
+        public:
+            DisplayPlayerChoice() : ServerPacket(SMSG_DISPLAY_PLAYER_CHOICE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            int32 ChoiceID = 0;
+            int32 UiTextureKitID = 0;
+            std::string Question;
+            std::vector<PlayerChoiceResponse> Responses;
+            bool CloseChoiceFrame = false;
+            bool HideWarboardHeader = false;
+        };
+
+        class ChoiceResponse final : public ClientPacket
+        {
+        public:
+            ChoiceResponse(WorldPacket&& packet) : ClientPacket(CMSG_CHOICE_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ChoiceID = 0;
+            int32 ResponseID = 0;
         };
     }
 }

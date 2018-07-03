@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,24 @@
 
 #include "Creature.h"
 
+enum PetEntry
+{
+    // Warlock pets
+    PET_IMP             = 416,
+    PET_FEL_HUNTER      = 691,
+    PET_VOID_WALKER     = 1860,
+    PET_SUCCUBUS        = 1863,
+    PET_DOOMGUARD       = 18540,
+    PET_FELGUARD        = 30146,
+
+    // Death Knight pets
+    PET_GHOUL           = 26125,
+    PET_ABOMINATION     = 106848,
+
+    // Shaman pet
+    PET_SPIRIT_WOLF     = 29264
+};
+
 struct SummonPropertiesEntry;
 
 class TC_GAME_API TempSummon : public Creature
@@ -35,12 +53,15 @@ class TC_GAME_API TempSummon : public Creature
         virtual void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld() override;
         void SetTempSummonType(TempSummonType type);
-        void SaveToDB(uint32 /*mapid*/, uint32 /*spawnMask*/, uint32 /*phaseMask*/) override { }
+        void SaveToDB(uint32 /*mapid*/, uint64 /*spawnMask*/) override { }
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() const { return m_timer; }
+
+        void SetVisibleBySummonerOnly(bool visibleBySummonerOnly) { m_visibleBySummonerOnly = visibleBySummonerOnly; }
+        bool IsVisibleBySummonerOnly() const { return m_visibleBySummonerOnly; }
 
         const SummonPropertiesEntry* const m_Properties;
     private:
@@ -48,6 +69,7 @@ class TC_GAME_API TempSummon : public Creature
         uint32 m_timer;
         uint32 m_lifetime;
         ObjectGuid m_summonerGUID;
+        bool m_visibleBySummonerOnly;
 };
 
 class TC_GAME_API Minion : public TempSummon
@@ -59,8 +81,22 @@ class TC_GAME_API Minion : public TempSummon
         Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const override { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
-        bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const {return GetEntry() == 29264;} // Spirit wolf from feral spirits
+
+        // Warlock pets
+        bool IsPetImp() const { return GetEntry() == PET_IMP; }
+        bool IsPetFelhunter() const { return GetEntry() == PET_FEL_HUNTER; }
+        bool IsPetVoidwalker() const { return GetEntry() == PET_VOID_WALKER; }
+        bool IsPetSuccubus() const { return GetEntry() == PET_SUCCUBUS; }
+        bool IsPetDoomguard() const { return GetEntry() == PET_DOOMGUARD; }
+        bool IsPetFelguard() const { return GetEntry() == PET_FELGUARD; }
+
+        // Death Knight pets
+        bool IsPetGhoul() const { return GetEntry() == PET_GHOUL; } // Ghoul may be guardian or pet
+        bool IsPetAbomination() const { return GetEntry() == PET_ABOMINATION; } // Sludge Belcher dk talent
+
+        // Shaman pet
+        bool IsSpiritWolf() const { return GetEntry() == PET_SPIRIT_WOLF; } // Spirit wolf from feral spirits
+
         bool IsGuardianPet() const;
     protected:
         Unit* const m_owner;

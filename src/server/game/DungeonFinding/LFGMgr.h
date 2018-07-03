@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@
 class Group;
 class Player;
 class Quest;
-struct LfgDungeonsEntry;
+struct LFGDungeonsEntry;
 enum Difficulty : uint8;
 
 namespace WorldPackets
@@ -289,7 +289,7 @@ struct LfgPlayerBoot
 struct LFGDungeonData
 {
     LFGDungeonData();
-    LFGDungeonData(LfgDungeonsEntry const* dbc);
+    LFGDungeonData(LFGDungeonsEntry const* dbc);
 
     uint32 id;
     std::string name;

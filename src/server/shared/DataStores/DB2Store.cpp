@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,46 +18,8 @@
 #include "DB2Store.h"
 #include "ByteBuffer.h"
 #include "DB2DatabaseLoader.h"
+#include "DB2FileSystemSource.h"
 #include "DB2Meta.h"
-
-struct DB2FileSystemSource : public DB2FileSource
-{
-    DB2FileSystemSource(std::string const& fileName)
-    {
-        _fileName = fileName;
-        _file = fopen(_fileName.c_str(), "rb");
-    }
-
-    ~DB2FileSystemSource()
-    {
-        if (_file)
-            fclose(_file);
-    }
-
-    bool IsOpen() const override
-    {
-        return _file != nullptr;
-    }
-
-    bool Read(void* buffer, std::size_t numBytes) override
-    {
-        return fread(buffer, numBytes, 1, _file) == 1;
-    }
-
-    std::size_t GetPosition() const override
-    {
-        return ftell(_file);
-    }
-
-    char const* GetFileName() const override
-    {
-        return _fileName.c_str();
-    }
-
-private:
-    std::string _fileName;
-    FILE* _file;
-};
 
 DB2StorageBase::DB2StorageBase(char const* fileName, DB2LoadInfo const* loadInfo)
     : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(nullptr), _indexTableSize(0)
@@ -101,6 +63,10 @@ void DB2StorageBase::WriteRecordData(char const* entry, uint32 locale, ByteBuffe
                 buffer << *(uint16*)entry;
                 entry += 2;
                 break;
+            case FT_LONG:
+                buffer << *(uint64*)entry;
+                entry += 8;
+                break;
             case FT_STRING:
             {
                 LocalizedString* locStr = *(LocalizedString**)entry;
@@ -141,7 +107,7 @@ bool DB2StorageBase::Load(std::string const& path, uint32 locale, char**& indexT
 
     // load strings from db2 data
     if (!_stringPool.empty())
-        if (char* stringBlock = db2.AutoProduceStrings(_dataTable, locale))
+        if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
             _stringPool.push_back(stringBlock);
 
     db2.AutoProduceRecordCopies(_indexTableSize, indexTable, _dataTable);
@@ -166,7 +132,7 @@ bool DB2StorageBase::LoadStringsFrom(std::string const& path, uint32 locale, cha
 
     // load strings from another locale db2 data
     if (_loadInfo->GetStringFieldCount(true))
-        if (char* stringBlock = db2.AutoProduceStrings(_dataTable, locale))
+        if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
             _stringPool.push_back(stringBlock);
 
     return true;

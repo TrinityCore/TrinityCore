@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,15 +86,19 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
+    uint32 SandboxScalingId;
+    uint32 DisenchantLootId;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 RelicType;
+    int32 RequiredLevelOverride;
     bool HasItemLevelBonus;
+    bool HasFixedLevel;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
-    void AddBonus(uint32 type, int32 const (&values)[2]);
+    void AddBonus(uint32 type, int32 const (&values)[3]);
 
 private:
     struct
@@ -140,7 +144,7 @@ class TC_GAME_API Item : public Object
 
         ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
-        Player* GetOwner()const;
+        Player* GetOwner() const;
 
         ItemBondingType GetBonding() const { return _bonusData.Bonding; }
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
@@ -260,7 +264,9 @@ class TC_GAME_API Item : public Object
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
         uint32 GetQuality() const { return _bonusData.Quality; }
         uint32 GetItemLevel(Player const* owner) const;
-        int32 GetRequiredLevel() const { return _bonusData.RequiredLevel; }
+        static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel, uint32 upgradeId,
+            uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus);
+        int32 GetRequiredLevel() const;
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         int32 GetItemStatValue(uint32 index, Player const* owner) const;
         SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
@@ -272,6 +278,9 @@ class TC_GAME_API Item : public Object
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
         uint32 GetScalingStatDistribution() const { return _bonusData.ScalingStatDistribution; }
+        ItemDisenchantLootEntry const* GetDisenchantLoot(Player const* owner) const;
+        static ItemDisenchantLootEntry const* GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
+        void SetFixedLevel(uint8 level);
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = nullptr, bool addToCollection = true);
@@ -303,15 +312,16 @@ class TC_GAME_API Item : public Object
         bool HasStats() const;
         static bool HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus);
         static bool CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance);
-        static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
-        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
+        uint32 GetBuyPrice(Player const* owner, bool& standardPrice) const;
+        static uint32 GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel, bool& standardPrice);
+        uint32 GetSellPrice(Player const* owner) const;
+        static uint32 GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel);
 
         uint32 GetVisibleEntry(Player const* owner) const;
         uint16 GetVisibleAppearanceModId(Player const* owner) const;
         uint32 GetVisibleEnchantmentId(Player const* owner) const;
         uint16 GetVisibleItemVisual(Player const* owner) const;
 
-        static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
         uint32 GetModifier(ItemModifier modifier) const;
         void SetModifier(ItemModifier modifier, uint32 value);

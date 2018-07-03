@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -804,6 +804,28 @@ namespace Trinity
             uint64 i_hp;
     };
 
+    class FriendlyBelowHpPctEntryInRange
+    {
+        public:
+            FriendlyBelowHpPctEntryInRange(Unit const* obj, uint32 entry, float range, uint8 pct, bool excludeSelf) : i_obj(obj), i_entry(entry), i_range(range), i_pct(pct), i_excludeSelf(excludeSelf) { }
+
+            bool operator()(Unit* u)
+            {
+                if (i_excludeSelf && i_obj->GetGUID() == u->GetGUID())
+                    return false;
+                if (u->GetEntry() == i_entry && u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->HealthBelowPct(i_pct))
+                    return true;
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            uint32 i_entry;
+            float i_range;
+            uint8 i_pct;
+            bool i_excludeSelf;
+    };
+
     class FriendlyCCedInRange
     {
         public:
@@ -862,10 +884,10 @@ namespace Trinity
             float i_range;
     };
 
-    class NearestUnfriendlyNoTotemUnitInObjectRangeCheck
+    class NearestAttackableNoTotemUnitInObjectRangeCheck
     {
         public:
-            NearestUnfriendlyNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) { }
+            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) { }
 
             bool operator()(Unit* u)
             {
@@ -875,13 +897,13 @@ namespace Trinity
                 if (u->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
                     return false;
 
-                if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->IsTotem())
+                if (u->GetTypeId() == TYPEID_UNIT && u->ToCreature()->IsTotem())
                     return false;
 
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range) || i_funit->IsFriendlyTo(u))
+                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_funit->_IsValidAttackTarget(u, nullptr, i_obj))
                     return false;
 
                 i_range = i_obj->GetDistance(*u);

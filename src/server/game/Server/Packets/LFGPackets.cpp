@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -378,6 +378,7 @@ WorldPacket const* WorldPackets::LFG::LFGProposalUpdate::Write()
     _worldPacket << uint32(Slot);
     _worldPacket << int8(State);
     _worldPacket << uint32(CompletedMask);
+    _worldPacket << uint32(EncounterMask);
     _worldPacket << uint32(Players.size());
     _worldPacket << uint8(Unused);
     _worldPacket.WriteBit(ValidCompletedMask);

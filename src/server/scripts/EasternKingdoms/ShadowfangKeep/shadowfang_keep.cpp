@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,7 +54,6 @@ enum Yells
 enum Spells
 {
     SPELL_UNLOCK            = 6421,
-
     SPELL_DARK_OFFERING     = 7154
 };
 
@@ -205,6 +204,123 @@ public:
 
 };
 
+enum ArugalSpells
+{
+    SPELL_TELE_UPPER    = 7587,
+    SPELL_TELE_SPAWN    = 7586,
+    SPELL_TELE_STAIRS   = 7136,
+    NUM_TELEPORT_SPELLS =    3,
+    SPELL_ARUGAL_CURSE  = 7621,
+    SPELL_THUNDERSHOCK  = 7803,
+    SPELL_VOIDBOLT      = 7588
+};
+
+enum ArugalTexts
+{
+    SAY_AGGRO       = 1, // You, too, shall serve!
+    SAY_TRANSFORM   = 2, // Release your rage!
+    SAY_SLAY        = 3  // Another falls!
+};
+
+enum ArugalEvents
+{
+    EVENT_VOID_BOLT = 1,
+    EVENT_TELEPORT,
+    EVENT_THUNDERSHOCK,
+    EVENT_CURSE
+};
+
+class boss_archmage_arugal : public CreatureScript
+{
+    public:
+        boss_archmage_arugal() : CreatureScript("boss_archmage_arugal") { }
+
+        struct boss_archmage_arugalAI : public BossAI
+        {
+            boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) { }
+
+            uint32 teleportSpells[NUM_TELEPORT_SPELLS] =
+            {
+                SPELL_TELE_SPAWN,
+                SPELL_TELE_UPPER,
+                SPELL_TELE_STAIRS
+            };
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            {
+                if (spell->Id == SPELL_ARUGAL_CURSE)
+                    Talk(SAY_TRANSFORM);
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_CURSE, Seconds(7));
+                events.ScheduleEvent(EVENT_TELEPORT, Seconds(15));
+                events.ScheduleEvent(EVENT_VOID_BOLT, Seconds(1));
+                events.ScheduleEvent(EVENT_THUNDERSHOCK, Seconds(10));
+            }
+
+            void AttackStart(Unit* who) override
+            {
+                AttackStartCaster(who, 100.0f); // void bolt range is 100.f
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CURSE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
+                                DoCast(target, SPELL_ARUGAL_CURSE);
+                            events.Repeat(Seconds(15));
+                            break;
+                        case EVENT_TELEPORT:
+                        {
+                            // ensure we never cast the same teleport twice in a row
+                            uint8 spellIndex = urand(1, NUM_TELEPORT_SPELLS-1);
+                            std::swap(teleportSpells[0], teleportSpells[spellIndex]);
+                            DoCast(teleportSpells[0]);
+                            events.Repeat(Seconds(20));
+                            break;
+                        }
+                        case EVENT_THUNDERSHOCK:
+                            DoCastAOE(SPELL_THUNDERSHOCK);
+                            events.Repeat(Seconds(30));
+                            break;
+                        case EVENT_VOID_BOLT:
+                            DoCastVictim(SPELL_VOIDBOLT);
+                            events.Repeat(Seconds(5));
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetShadowfangKeepAI<boss_archmage_arugalAI>(creature);
+        }
+};
+
 class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 {
     public:
@@ -248,5 +364,6 @@ void AddSC_shadowfang_keep()
 {
     new npc_shadowfang_prisoner();
     new npc_arugal_voidwalker();
+    new boss_archmage_arugal();
     new spell_shadowfang_keep_haunting_spirits();
 }

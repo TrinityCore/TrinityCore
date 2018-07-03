@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,8 +48,8 @@ requiredItemLevel(0)
 {
 }
 
-LFGDungeonData::LFGDungeonData(LfgDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name->Str[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
-type(uint8(dbc->Type)), expansion(uint8(dbc->Expansion)), group(uint8(dbc->GroupID)),
+LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name->Str[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
+type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
 minlevel(uint8(dbc->MinLevel)), maxlevel(uint8(dbc->MaxLevel)), difficulty(Difficulty(dbc->DifficultyID)),
 seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
 requiredItemLevel(0)
@@ -193,13 +193,13 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     LfgDungeonStore.clear();
 
     // Initialize Dungeon map with data from dbcs
-    for (uint32 i = 0; i < sLfgDungeonsStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sLFGDungeonsStore.GetNumRows(); ++i)
     {
-        LfgDungeonsEntry const* dungeon = sLfgDungeonsStore.LookupEntry(i);
+        LFGDungeonsEntry const* dungeon = sLFGDungeonsStore.LookupEntry(i);
         if (!dungeon)
             continue;
 
-        switch (dungeon->Type)
+        switch (dungeon->TypeID)
         {
             case LFG_TYPE_DUNGEON:
             case LFG_TYPE_HEROIC:
@@ -1629,6 +1629,8 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
         else if (dungeon->expansion > expansion)
             lockStatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
+            lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
+        else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
             lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
             lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;

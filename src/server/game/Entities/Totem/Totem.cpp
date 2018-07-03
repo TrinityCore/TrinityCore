@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,17 +67,8 @@ void Totem::InitStats(uint32 duration)
         }
 
         // set display id depending on caster's race
-        if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
-        {
-            SpellEffectInfoVector effects = createdBySpell->GetEffectsForDifficulty(DIFFICULTY_NONE);
-            auto summonEffect = std::find_if(effects.begin(), effects.end(), [](SpellEffectInfo const* effect)
-            {
-                return effect && effect->IsEffect(SPELL_EFFECT_SUMMON);
-            });
-
-            if (summonEffect != effects.end())
-                SetDisplayId(owner->GetModelForTotem(PlayerTotemType((*summonEffect)->MiscValueB)));
-        }
+        if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(GetUInt32Value(UNIT_CREATED_BY_SPELL), owner->getRace()))
+            SetDisplayId(totemDisplayId);
     }
 
     Minion::InitStats(duration);
@@ -147,7 +138,7 @@ void Totem::UnSummon(uint32 msTime)
     AddObjectToRemoveList();
 }
 
-bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
+bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
 {
     /// @todo possibly all negative auras immune?
     if (GetEntry() == 5925)
@@ -168,5 +159,5 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) con
     else
         return true;
 
-    return Creature::IsImmunedToSpellEffect(spellInfo, index);
+    return Creature::IsImmunedToSpellEffect(spellInfo, index, caster);
 }

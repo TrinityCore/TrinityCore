@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -145,7 +145,7 @@ class boss_anzu : public CreatureScript
                         case EVENT_SPELL_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                if (target->getPowerType() == POWER_MANA)
+                                if (target->GetPowerType() == POWER_MANA)
                                 {
                                     DoCast(target, SPELL_SPELL_BOMB);
                                     Talk(SAY_SPELL_BOMB, target);

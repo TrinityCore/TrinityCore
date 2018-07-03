@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -229,6 +229,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TALENTS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_PVP_TALENTS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_PVP_TALENTS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ACCOUNT_DATA);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA, stmt);
@@ -301,8 +305,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     {
         do
         {
-            Field* fields = result->Fetch();
-            WorldPackets::Character::EnumCharactersResult::CharacterInfo charInfo(fields);
+            charEnum.Characters.emplace_back(result->Fetch());
+
+            WorldPackets::Character::EnumCharactersResult::CharacterInfo& charInfo = charEnum.Characters.back();
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
@@ -338,15 +343,21 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             else
                 charEnum.HasDemonHunterOnRealm = false;
 
-            if (charInfo.Level >= sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER) || canAlwaysCreateDemonHunter)
-                charEnum.HasLevel70OnRealm = true;
-
-            charEnum.Characters.emplace_back(charInfo);
+            charEnum.MaxCharacterLevel = std::max<int32>(charEnum.MaxCharacterLevel, charInfo.Level);
         }
         while (result->NextRow());
     }
 
-    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm) || canAlwaysCreateDemonHunter;
+    charEnum.IsDemonHunterCreationAllowed = GetAccountExpansion() >= EXPANSION_LEGION || canAlwaysCreateDemonHunter;
+    charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
+
+    for (std::pair<uint8 const, RaceUnlockRequirement> const& requirement : sObjectMgr->GetRaceUnlockRequirements())
+    {
+        WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
+        raceUnlock.RaceID = requirement.first;
+        raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
+        charEnum.RaceUnlockData.push_back(raceUnlock);
+    }
 
     SendPacket(charEnum.Write());
 }
@@ -458,19 +469,36 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     // prevent character creating Expansion race without Expansion account
-    uint8 raceExpansionRequirement = sObjectMgr->GetRaceExpansionRequirement(charCreate.CreateInfo->Race);
-    if (raceExpansionRequirement > GetExpansion())
+    RaceUnlockRequirement const* raceExpansionRequirement = sObjectMgr->GetRaceUnlockRequirement(charCreate.CreateInfo->Race);
+    if (!raceExpansionRequirement)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", GetExpansion(), GetAccountId(), raceExpansionRequirement, charCreate.CreateInfo->Race);
+        TC_LOG_ERROR("entities.player.cheat", "Account %u tried to create character with unavailable race %u", GetAccountId(), charCreate.CreateInfo->Race);
+        SendCharCreate(CHAR_CREATE_FAILED);
+        return;
+    }
+
+    if (raceExpansionRequirement->Expansion > GetAccountExpansion())
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)",
+            GetAccountExpansion(), GetAccountId(), raceExpansionRequirement->Expansion, charCreate.CreateInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
 
+    //if (raceExpansionRequirement->AchievementId && !)
+    //{
+    //    TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character without achievement %u race (%u)",
+    //        GetAccountExpansion(), GetAccountId(), raceExpansionRequirement->AchievementId, charCreate.CreateInfo->Race);
+    //    SendCharCreate(CHAR_CREATE_ALLIED_RACE_ACHIEVEMENT);
+    //    return;
+    //}
+
     // prevent character creating Expansion class without Expansion account
     uint8 classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Class);
-    if (classExpansionRequirement > GetExpansion())
+    if (classExpansionRequirement > GetAccountExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", GetExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)",
+            GetAccountExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -515,23 +543,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     {
         SendCharCreate(CHAR_NAME_RESERVED);
         return;
-    }
-
-    if (charCreate.CreateInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT))
-    {
-        // speedup check for death knight class disabled case
-        if (!sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM))
-        {
-            SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
-            return;
-        }
-
-        // speedup check for death knight class disabled case
-        if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT) > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        {
-            SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
-            return;
-        }
     }
 
     std::shared_ptr<WorldPackets::Character::CharacterCreateInfo> createInfo = charCreate.CreateInfo;
@@ -590,46 +601,19 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
         {
             bool haveSameRace = false;
-            uint32 deathKnightReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT);
             uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
-            bool hasDeathKnightReqLevel = (deathKnightReqLevel == 0);
             bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkDeathKnightReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT);
             bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
 
             if (result)
             {
                 uint32 team = Player::TeamForRace(createInfo->Race);
-                uint32 freeDeathKnightSlots = sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM);
                 uint32 freeDemonHunterSlots = sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM);
 
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
-
-                if (checkDeathKnightReqs)
-                {
-                    uint8 accClass = field[2].GetUInt8();
-                    if (accClass == CLASS_DEATH_KNIGHT)
-                    {
-                        if (freeDeathKnightSlots > 0)
-                            --freeDeathKnightSlots;
-
-                        if (freeDeathKnightSlots == 0)
-                        {
-                            SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
-                            return;
-                        }
-                    }
-
-                    if (!hasDeathKnightReqLevel)
-                    {
-                        uint8 accLevel = field[0].GetUInt8();
-                        if (accLevel >= deathKnightReqLevel)
-                            hasDeathKnightReqLevel = true;
-                    }
-                }
 
                 if (checkDemonHunterReqs)
                 {
@@ -671,7 +655,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                 // search same race for cinematic or same class if need
                 /// @todo check if cinematic already shown? (already logged in?; cinematic field)
-                while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEATH_KNIGHT || createInfo->Class == CLASS_DEMON_HUNTER)
+                while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEMON_HUNTER)
                 {
                     if (!result->NextRow())
                         break;
@@ -681,29 +665,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
-
-                    if (checkDeathKnightReqs)
-                    {
-                        uint8 acc_class = field[2].GetUInt8();
-                        if (acc_class == CLASS_DEATH_KNIGHT)
-                        {
-                            if (freeDeathKnightSlots > 0)
-                                --freeDeathKnightSlots;
-
-                            if (freeDeathKnightSlots == 0)
-                            {
-                                SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
-                                return;
-                            }
-                        }
-
-                        if (!hasDeathKnightReqLevel)
-                        {
-                            uint8 acc_level = field[0].GetUInt8();
-                            if (acc_level >= deathKnightReqLevel)
-                                hasDeathKnightReqLevel = true;
-                        }
-                    }
 
                     if (checkDemonHunterReqs)
                     {
@@ -730,15 +691,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 }
             }
 
-            if (checkDeathKnightReqs && !hasDeathKnightReqLevel)
-            {
-                SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
-                return;
-            }
-
             if (checkDemonHunterReqs && !hasDemonHunterReqLevel)
             {
-                SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
+                SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT_DEMON_HUNTER);
                 return;
             }
 
@@ -786,7 +741,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             newChar.CleanupsBeforeDelete();
         };
 
-        if (allowTwoSideAccounts && !skipCinematics && createInfo->Class != CLASS_DEATH_KNIGHT && createInfo->Class != CLASS_DEMON_HUNTER)
+        if (allowTwoSideAccounts && !skipCinematics && createInfo->Class != CLASS_DEMON_HUNTER)
         {
             finalizeCharacterCreation(PreparedQueryResult(nullptr));
             return;
@@ -794,7 +749,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CREATE_INFO);
         stmt->setUInt32(0, GetAccountId());
-        stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT || createInfo->Class == CLASS_DEMON_HUNTER) ? 12 : 1);
+        stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEMON_HUNTER) ? 12 : 1);
         queryCallback.WithPreparedCallback(std::move(finalizeCharacterCreation)).SetNextQuery(CharacterDatabase.AsyncQuery(stmt));
     }));
 }
@@ -1001,20 +956,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         Field* fields = resultGuild->Fetch();
         pCurrChar->SetInGuild(fields[0].GetUInt64());
-        pCurrChar->SetRank(fields[1].GetUInt8());
+        pCurrChar->SetGuildRank(fields[1].GetUInt8());
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             pCurrChar->SetGuildLevel(guild->GetLevel());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(UI64LIT(0));
-        pCurrChar->SetRank(0);
+        pCurrChar->SetGuildRank(0);
         pCurrChar->SetGuildLevel(0);
     }
-
-    //WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    //data << uint64(0);
-    //SendPacket(&data);
 
     // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
     WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
@@ -1670,16 +1621,20 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
                 saveEquipmentSet.Set.Appearances[i] = 0;
 
                 ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
+                if (!itemGuid.IsEmpty())
+                {
+                    Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-                Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+                    /// cheating check 1 (item equipped but sent empty guid)
+                    if (!item)
+                        return;
 
-                /// cheating check 1 (item equipped but sent empty guid)
-                if (!item && !itemGuid.IsEmpty())
-                    return;
-
-                /// cheating check 2 (sent guid does not match equipped item)
-                if (item && item->GetGUID() != itemGuid)
-                    return;
+                    /// cheating check 2 (sent guid does not match equipped item)
+                    if (item->GetGUID() != itemGuid)
+                        return;
+                }
+                else
+                    saveEquipmentSet.Set.IgnoreMask |= 1 << i;
             }
             else
             {
@@ -1694,6 +1649,8 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
                     if (!hasAppearance)
                         return;
                 }
+                else
+                    saveEquipmentSet.Set.IgnoreMask |= 1 << i;
             }
         }
         else
@@ -1720,7 +1677,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
             if (!illusion->ItemVisual || !(illusion->Flags & ENCHANTMENT_COLLECTABLE))
                 return false;
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->PlayerConditionID))
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogPlayerConditionID))
                 if (!sConditionMgr->IsPlayerMeetingCondition(_player, condition))
                     return false;
 
@@ -1748,7 +1705,7 @@ void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEq
 void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& useEquipmentSet)
 {
     ObjectGuid ignoredItemGuid;
-    ignoredItemGuid.SetRawValue(0, 1);
+    ignoredItemGuid.SetRawValue(0x0C00040000000000, 0xFFFFFFFFFFFFFFFF);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
@@ -2050,7 +2007,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 // this doesn't seem to be 100% blizzlike... but it can't really be helped.
                 std::ostringstream taximaskstream;
                 TaxiMask const& factionMask = newTeamId == TEAM_HORDE ? sHordeTaxiNodesMask : sAllianceTaxiNodesMask;
-                for (uint8 i = 0; i < TaxiMaskSize; ++i)
+                for (std::size_t i = 0; i < TaxiMaskSize; ++i)
                 {
                     // i = (315 - 1) / 8 = 39
                     // m = 1 << ((315 - 1) % 8) = 4
@@ -2073,7 +2030,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
 
                 if (PreparedQueryResult memberResult = CharacterDatabase.Query(stmt))
                     if (Guild* guild = sGuildMgr->GetGuildById(memberResult->Fetch()[0].GetUInt64()))
-                        guild->DeleteMember(factionChangeInfo->Guid, false, false, true);
+                        guild->DeleteMember(trans, factionChangeInfo->Guid, false, false, true);
 
                 Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
@@ -2185,8 +2142,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 for (ObjectMgr::QuestMap::const_iterator iter = questTemplates.begin(); iter != questTemplates.end(); ++iter)
                 {
                     Quest const* quest = iter->second;
-                    uint32 newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
-                    if (quest->GetAllowableRaces() != -1 && !(quest->GetAllowableRaces() & newRaceMask))
+                    uint64 newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
+                    if (quest->GetAllowableRaces() != uint64(-1) && !(quest->GetAllowableRaces() & newRaceMask))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt64(0, lowGuid);
@@ -2349,7 +2306,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale(), sWorld->GetDefaultDbcLocale());
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex);
 
     SendPacket(result.Write());
 }

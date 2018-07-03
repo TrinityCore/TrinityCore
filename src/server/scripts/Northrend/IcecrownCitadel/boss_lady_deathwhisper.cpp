@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -220,7 +220,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 Initialize();
                 _phase = PHASE_ONE;
                 DoCastSelf(SPELL_SHADOW_CHANNELING);
-                me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
+                me->SetFullPower(POWER_MANA);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,6 +60,7 @@ namespace WorldPackets
             int32 QuestID       = 0;
             int32 QuestType     = 0;
             int32 QuestLevel    = 0;
+            int32 QuestMaxScalingLevel = 0;
             bool Repeatable     = false;
             std::string QuestTitle;
             int32 QuestFlags[2] = { };

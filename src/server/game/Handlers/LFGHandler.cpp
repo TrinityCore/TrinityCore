@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +45,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::DFJoin& dfJoin)
     for (uint32 slot : dfJoin.Slots)
     {
         uint32 dungeon = slot & 0x00FFFFFF;
-        if (sLfgDungeonsStore.LookupEntry(dungeon))
+        if (sLFGDungeonsStore.LookupEntry(dungeon))
             newDungeons.insert(dungeon);
     }
 

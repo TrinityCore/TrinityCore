@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -497,6 +497,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 {
     _worldPacket << int32(MapID);
+    _worldPacket << OldMapPosition;
     _worldPacket.WriteBit(Ship.is_initialized());
     _worldPacket.WriteBit(TransferSpellID.is_initialized());
     if (Ship)
@@ -540,8 +541,8 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     _worldPacket << float(Facing);
     _worldPacket << uint8(PreloadWorld);
 
-    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.WriteBit(TransportGUID.is_initialized());
+    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.FlushBits();
 
     if (Vehicle)

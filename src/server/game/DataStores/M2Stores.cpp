@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -186,7 +186,7 @@ TC_GAME_API void LoadM2Cameras(std::string const& dataPath)
     uint32 oldMSTime = getMSTime();
     for (CinematicCameraEntry const* cameraEntry : sCinematicCameraStore)
     {
-        boost::filesystem::path filename = camerasPath / Trinity::StringFormat("FILE%08X.xxx", cameraEntry->ModelFileDataID);
+        boost::filesystem::path filename = camerasPath / Trinity::StringFormat("FILE%08X.xxx", cameraEntry->FileDataID);
 
         // Convert to native format
         filename.make_preferred();

@@ -148,9 +148,7 @@ int RootHandler_CreateSC1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile
     void * pTextFile;
     size_t nLength;
     char szOneLine[0x200];
-    char szFileName[MAX_PATH+1];
     DWORD dwFileCountMax = (DWORD)hs->pEncodingMap->TableSize;
-    int nFileNameIndex;
     int nError = ERROR_SUCCESS;
 
     // Allocate the root handler object

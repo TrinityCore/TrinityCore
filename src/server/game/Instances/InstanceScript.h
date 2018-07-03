@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,7 +34,7 @@
 class AreaBoundary;
 class Creature;
 class GameObject;
-class Map;
+class InstanceMap;
 class ModuleReference;
 class Player;
 class Unit;
@@ -154,11 +154,11 @@ typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(Map* map);
+        explicit InstanceScript(InstanceMap* map);
 
         virtual ~InstanceScript() { }
 
-        Map* instance;
+        InstanceMap* instance;
 
         // On creation, NOT load.
         // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!

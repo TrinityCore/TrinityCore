@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,11 +17,11 @@
 
 #include "PacketLog.h"
 #include "Config.h"
+#include "IpAddress.h"
 #include "Realm.h"
 #include "Timer.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include <boost/asio/ip/address.hpp>
 
 #pragma pack(push, 1)
 

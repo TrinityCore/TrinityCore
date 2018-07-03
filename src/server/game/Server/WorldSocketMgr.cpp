@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -58,11 +58,11 @@ WorldSocketMgr& WorldSocketMgr::Instance()
     return instance;
 }
 
-bool WorldSocketMgr::StartWorldNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
+bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
-    int const max_connections = boost::asio::socket_base::max_connections;
+    int const max_connections = TRINITY_MAX_LISTEN_CONNECTIONS;
     TC_LOG_DEBUG("misc", "Max allowed socket connections %d", max_connections);
 
     // -1 means use default
@@ -76,13 +76,13 @@ bool WorldSocketMgr::StartWorldNetwork(boost::asio::io_service& service, std::st
         return false;
     }
 
-    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
     AsyncAcceptor* instanceAcceptor = nullptr;
     try
     {
-        instanceAcceptor = new AsyncAcceptor(service, bindIp, instancePort);
+        instanceAcceptor = new AsyncAcceptor(ioContext, bindIp, instancePort);
     }
     catch (boost::system::system_error const& err)
     {
