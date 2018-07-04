@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef BLACKROCKCAVERNS_H_
 #define BLACKROCKCAVERNS_H_
+
+#include "CreatureAIImpl.h"
 
 #define BCScriptName "instance_blackrock_caverns"
 #define DataHeader "BRC"
@@ -43,7 +45,7 @@ enum BRCCreatureIds
     NPC_ROMOGG_BONECRUSHER              = 39665
 };
 
-template<class AI>
+template<typename AI>
 inline AI* GetBlackrockCavernsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, BCScriptName);

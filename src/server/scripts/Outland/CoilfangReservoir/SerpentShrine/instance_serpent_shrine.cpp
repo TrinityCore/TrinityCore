@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,12 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "serpent_shrine.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6
@@ -81,11 +84,11 @@ class go_bridge_console : public GameObjectScript
 class instance_serpent_shrine : public InstanceMapScript
 {
     public:
-        instance_serpent_shrine() : InstanceMapScript("instance_serpent_shrine", 548) { }
+        instance_serpent_shrine() : InstanceMapScript(SSCScriptName, 548) { }
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {
-            instance_serpentshrine_cavern_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_serpentshrine_cavern_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));

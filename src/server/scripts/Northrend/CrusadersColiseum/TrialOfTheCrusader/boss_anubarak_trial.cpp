@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,11 +22,14 @@
 // Scarab   - Kill credit isn't crediting?
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "trial_of_the_crusader.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include <limits>
+#include "TemporarySummon.h"
+#include "trial_of_the_crusader.h"
 
 enum Yells
 {
@@ -34,7 +37,7 @@ enum Yells
     SAY_AGGRO               = 1,
     EMOTE_SUBMERGE          = 2,
     EMOTE_BURROWER          = 3,
-    SAY_EMERGE              = 4,
+    EMOTE_EMERGE            = 4,
     SAY_LEECHING_SWARM      = 5,
     EMOTE_LEECHING_SWARM    = 6,
     SAY_KILL_PLAYER         = 7,
@@ -222,10 +225,10 @@ class boss_anubarak_trial : public CreatureScript
                 instance->SetBossState(BOSS_ANUBARAK, FAIL);
                 //Summon Scarab Swarms neutral at random places
                 for (int i = 0; i < 10; i++)
-                    if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
+                    if (Creature* scarab = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
                     {
-                        temp->setFaction(31);
-                        temp->GetMotionMaster()->MoveRandom(10);
+                        scarab->setFaction(31);
+                        scarab->GetMotionMaster()->MoveRandom(10);
                     }
             }
 
@@ -292,10 +295,10 @@ class boss_anubarak_trial : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
-                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -365,6 +368,7 @@ class boss_anubarak_trial : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             DoCast(me, SPELL_EMERGE_ANUBARAK);
+                            Talk(EMOTE_EMERGE);
                             events.SetPhase(PHASE_MELEE);
                             events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
                             events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
@@ -402,6 +406,8 @@ class boss_anubarak_trial : public CreatureScript
                             break;
                     }
 
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (HealthBelowPct(30) && events.IsInPhase(PHASE_MELEE) && !_reachedPhase3)
@@ -425,7 +431,7 @@ class boss_anubarak_trial : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_anubarak_trialAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_anubarak_trialAI>(creature);
         };
 };
 
@@ -503,7 +509,7 @@ class npc_swarm_scarab : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_swarm_scarabAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_swarm_scarabAI>(creature);
         };
 };
 
@@ -597,7 +603,7 @@ class npc_nerubian_burrower : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_nerubian_burrowerAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_nerubian_burrowerAI>(creature);
         };
 };
 
@@ -623,7 +629,8 @@ class npc_frost_sphere : public CreatureScript
                 if (me->GetHealth() <= damage)
                 {
                     damage = 0;
-                    float floorZ = me->GetMap()->GetHeight(me->GetPhaseMask(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                    float floorZ = me->GetPositionZ();
+                    me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), floorZ);
                     if (fabs(me->GetPositionZ() - floorZ) < 0.1f)
                     {
                         // we are close to the ground
@@ -668,7 +675,7 @@ class npc_frost_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_frost_sphereAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_frost_sphereAI>(creature);
         };
 };
 
@@ -821,7 +828,7 @@ class npc_anubarak_spike : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_anubarak_spikeAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_anubarak_spikeAI>(creature);
         };
 };
 
@@ -866,9 +873,7 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LEECHING_SWARM_DMG, SPELL_LEECHING_SWARM_HEAL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
@@ -880,9 +885,9 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
                     if (lifeLeeched < 250)
                         lifeLeeched = 250;
                     // Damage
-                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
+                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, true);
                     // Heal
-                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
+                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, true);
                 }
             }
 

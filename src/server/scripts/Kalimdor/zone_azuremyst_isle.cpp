@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,13 +33,14 @@ npc_death_ravager
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
-#include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "GridNotifiers.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_draenei_survivor
@@ -47,11 +48,16 @@ EndContentData */
 
 enum draeneiSurvivor
 {
-    SAY_HEAL            = 0,
-    SAY_HELP            = 1,
-    SPELL_IRRIDATION    = 35046,
-    SPELL_STUNNED       = 28630
+    SAY_THANK_FOR_HEAL     = 0,
+    SAY_ASK_FOR_HELP       = 1,
+    SPELL_IRRIDATION       = 35046,
+    SPELL_STUNNED          = 28630,
+    EVENT_CAN_ASK_FOR_HELP = 1,
+    EVENT_THANK_PLAYER     = 2,
+    EVENT_RUN_AWAY         = 3
 };
+
+Position const CrashSite = { -4115.25f, -13754.75f };
 
 class npc_draenei_survivor : public CreatureScript
 {
@@ -67,28 +73,18 @@ public:
 
         void Initialize()
         {
-            pCaster.Clear();
-
-            SayThanksTimer = 0;
-            RunAwayTimer = 0;
-            SayHelpTimer = 10000;
-
-            CanSayHelp = true;
+            _playerGUID.Clear();
+            _canAskForHelp = true;
+            _canUpdateEvents = false;
+            _tappedBySpell = false;
         }
-
-        ObjectGuid pCaster;
-
-        uint32 SayThanksTimer;
-        uint32 RunAwayTimer;
-        uint32 SayHelpTimer;
-
-        bool CanSayHelp;
 
         void Reset() override
         {
             Initialize();
+            _events.Reset();
 
-            DoCast(me, SPELL_IRRIDATION, true);
+            DoCastSelf(SPELL_IRRIDATION, true);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -100,72 +96,77 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (CanSayHelp && who->GetTypeId() == TYPEID_PLAYER && me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 25.0f))
+            if (_canAskForHelp && who->GetTypeId() == TYPEID_PLAYER && me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 25.0f))
             {
                 //Random switch between 4 texts
-                Talk(SAY_HELP, who);
+                Talk(SAY_ASK_FOR_HELP);
 
-                SayHelpTimer = 20000;
-                CanSayHelp = false;
+                _events.ScheduleEvent(EVENT_CAN_ASK_FOR_HELP, Seconds(16), Seconds(20));
+                _canAskForHelp = false;
+                _canUpdateEvents = true;
             }
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+        void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
-            if (Spell->SpellFamilyFlags[2] & 0x080000000)
+            if (spell->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
             {
+                _events.Reset();
+                _tappedBySpell = true;
+                _canAskForHelp = false;
+                _canUpdateEvents = true;
+
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                DoCast(me, SPELL_STUNNED, true);
+                _playerGUID = caster->GetGUID();
+                if (Player* player = caster->ToPlayer())
+                    player->KilledMonsterCredit(me->GetEntry());
 
-                pCaster = Caster->GetGUID();
-
-                SayThanksTimer = 5000;
+                me->SetFacingToObject(caster);
+                DoCastSelf(SPELL_STUNNED, true);
+                _events.ScheduleEvent(EVENT_THANK_PLAYER, Seconds(4));
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (SayThanksTimer)
+            if (!_canUpdateEvents)
+                return;
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (SayThanksTimer <= diff)
+                switch (eventId)
                 {
-                    me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
-
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, pCaster))
-                    {
-                        Talk(SAY_HEAL, player);
-
-                        player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-                    }
-
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(0, -4115.053711f, -13754.831055f, 73.508949f);
-
-                    RunAwayTimer = 10000;
-                    SayThanksTimer = 0;
-                } else SayThanksTimer -= diff;
-
-                return;
+                    case EVENT_CAN_ASK_FOR_HELP:
+                        _canAskForHelp = true;
+                        _canUpdateEvents = false;
+                        break;
+                    case EVENT_THANK_PLAYER:
+                        me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                            Talk(SAY_THANK_FOR_HEAL, player);
+                        _events.ScheduleEvent(EVENT_RUN_AWAY, Seconds(10));
+                        break;
+                    case EVENT_RUN_AWAY:
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionY() + (std::sin(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionZ() + 1.0f);
+                        me->DespawnOrUnsummon(Seconds(4));
+                        break;
+                    default:
+                        break;
+                }
             }
-
-            if (RunAwayTimer)
-            {
-                if (RunAwayTimer <= diff)
-                    me->DespawnOrUnsummon();
-                else
-                    RunAwayTimer -= diff;
-
-                return;
-            }
-
-            if (SayHelpTimer <= diff)
-            {
-                CanSayHelp = true;
-                SayHelpTimer = 20000;
-            } else SayHelpTimer -= diff;
         }
+
+    private:
+        EventMap _events;
+        bool _canUpdateEvents;
+        bool _tappedBySpell;
+        bool _canAskForHelp;
+        ObjectGuid _playerGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -231,7 +232,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             me->setFaction(FACTION_HOSTILE);
             me->Attack(player, true);
         }
@@ -330,7 +331,14 @@ enum Magwin
     SAY_END1                    = 3,
     SAY_END2                    = 4,
     EMOTE_HUG                   = 5,
-    QUEST_A_CRY_FOR_SAY_HELP    = 9528,
+    NPC_COWLEN                  = 17311,
+    SAY_COWLEN                  = 0,
+    EVENT_ACCEPT_QUEST          = 1,
+    EVENT_START_ESCORT          = 2,
+    EVENT_STAND                 = 3,
+    EVENT_TALK_END              = 4,
+    EVENT_COWLEN_TALK           = 5,
+    QUEST_A_CRY_FOR_HELP        = 9528,
     FACTION_QUEST               = 113
 };
 
@@ -343,7 +351,10 @@ public:
     {
         npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() override { }
+        void Reset() override
+        {
+            _events.Reset();
+        }
 
         void EnterCombat(Unit* who) override
         {
@@ -352,10 +363,10 @@ public:
 
         void sQuestAccept(Player* player, Quest const* quest) override
         {
-            if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
+            if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
             {
-                me->setFaction(FACTION_QUEST);
-                npc_escortAI::Start(true, false, player->GetGUID());
+                _player = player->GetGUID();
+                _events.ScheduleEvent(EVENT_ACCEPT_QUEST, Seconds(2));
             }
         }
 
@@ -365,23 +376,63 @@ public:
             {
                 switch (waypointId)
                 {
-                    case 0:
-                        Talk(SAY_START, player);
-                        break;
                     case 17:
                         Talk(SAY_PROGRESS, player);
                         break;
                     case 28:
-                        Talk(SAY_END1, player);
+                        player->GroupEventHappens(QUEST_A_CRY_FOR_HELP, me);
+                        _events.ScheduleEvent(EVENT_TALK_END, Seconds(2));
+                        SetRun(true);
                         break;
                     case 29:
-                        Talk(EMOTE_HUG, player);
+                        if (Creature* cowlen = me->FindNearestCreature(NPC_COWLEN, 50.0f, true))
+                            Talk(EMOTE_HUG, cowlen);
                         Talk(SAY_END2, player);
-                        player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
                         break;
                 }
             }
         }
+
+        void UpdateEscortAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_ACCEPT_QUEST:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(SAY_START, player);
+                        me->setFaction(FACTION_QUEST);
+                        _events.ScheduleEvent(EVENT_START_ESCORT, Seconds(1));
+                        break;
+                    case EVENT_START_ESCORT:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            npc_escortAI::Start(true, false, player->GetGUID());
+                        _events.ScheduleEvent(EVENT_STAND, Seconds(2));
+                        break;
+                    case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.
+                        me->SetByteValue(UNIT_FIELD_BYTES_1, 0, 0);
+                        break;
+                    case EVENT_TALK_END:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(SAY_END1, player);
+                        _events.ScheduleEvent(EVENT_COWLEN_TALK, Seconds(2));
+                        break;
+                    case EVENT_COWLEN_TALK:
+                        if (Creature* cowlen = me->FindNearestCreature(NPC_COWLEN, 50.0f, true))
+                            cowlen->AI()->Talk(SAY_COWLEN);
+                        break;
+                }
+            }
+
+            npc_escortAI::UpdateEscortAI(diff);
+        }
+
+    private:
+        EventMap _events;
+        ObjectGuid _player;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -523,7 +574,7 @@ public:
             std::list<Player*> players;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
             Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            me->VisitNearbyWorldObject(radius, searcher);
+            Cell::VisitWorldObjects(me, searcher, radius);
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))

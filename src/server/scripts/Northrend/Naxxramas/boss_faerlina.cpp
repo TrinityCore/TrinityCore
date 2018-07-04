@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 
@@ -176,6 +178,9 @@ class boss_faerlina : public CreatureScript
                             }
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -187,7 +192,7 @@ class boss_faerlina : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_faerlinaAI(creature);
+            return GetNaxxramasAI<boss_faerlinaAI>(creature);
         }
 };
 
@@ -241,7 +246,7 @@ class npc_faerlina_add : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_faerlina_addAI>(creature);
+            return GetNaxxramasAI<npc_faerlina_addAI>(creature);
         }
 };
 

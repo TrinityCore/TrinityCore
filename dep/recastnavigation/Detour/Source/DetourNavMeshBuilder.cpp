@@ -106,7 +106,6 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 	if (z > maxVal)
 	{
 		axis = 2;
-		maxVal = z;
 	}
 	return axis;
 }
@@ -421,15 +420,16 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	memset(data, 0, dataSize);
 	
 	unsigned char* d = data;
-	dtMeshHeader* header = (dtMeshHeader*)d; d += headerSize;
-	float* navVerts = (float*)d; d += vertsSize;
-	dtPoly* navPolys = (dtPoly*)d; d += polysSize;
-	d += linksSize;
-	dtPolyDetail* navDMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
-	float* navDVerts = (float*)d; d += detailVertsSize;
-	unsigned char* navDTris = (unsigned char*)d; d += detailTrisSize;
-	dtBVNode* navBvtree = (dtBVNode*)d; d += bvTreeSize;
-	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshConsSize;
+
+	dtMeshHeader* header = dtGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
+	float* navVerts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
+	dtPoly* navPolys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
+	d += linksSize; // Ignore links; just leave enough space for them. They'll be created on load.
+	dtPolyDetail* navDMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
+	float* navDVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
+	unsigned char* navDTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
+	dtBVNode* navBvtree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
+	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
 	
 	
 	// Store header
@@ -705,14 +705,16 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 	
 	unsigned char* d = data + headerSize;
-	float* verts = (float*)d; d += vertsSize;
-	dtPoly* polys = (dtPoly*)d; d += polysSize;
-	/*dtLink* links = (dtLink*)d;*/ d += linksSize;
-	dtPolyDetail* detailMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
-	float* detailVerts = (float*)d; d += detailVertsSize;
-	/*unsigned char* detailTris = (unsigned char*)d;*/ d += detailTrisSize;
-	dtBVNode* bvTree = (dtBVNode*)d; d += bvtreeSize;
-	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
+	float* verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
+	dtPoly* polys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
+	d += linksSize; // Ignore links; they technically should be endian-swapped but all their data is overwritten on load anyway.
+	//dtLink* links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
+	dtPolyDetail* detailMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
+	float* detailVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
+	d += detailTrisSize; // Ignore detail tris; single bytes can't be endian-swapped.
+	//unsigned char* detailTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
+	dtBVNode* bvTree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
+	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
 	
 	// Vertices
 	for (int i = 0; i < header->vertCount*3; ++i)

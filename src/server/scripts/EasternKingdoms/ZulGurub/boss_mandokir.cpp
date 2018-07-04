@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 
 enum Yells
@@ -194,7 +197,7 @@ class boss_mandokir : public CreatureScript
                         GetCreatureListWithEntryInGrid(creatures, me, NPC_CHAINED_SPIRIT, 200.0f);
                         creatures.remove_if(Trinity::AnyDeadUnitCheck());
                         creatures.remove_if(Trinity::UnitAuraCheck(true, SPELL_OHGAN_ORDERS_TRIGGER));
-                        Trinity::Containers::RandomResizeList(creatures, 1);
+                        Trinity::Containers::RandomResize(creatures, 1);
                         if (creatures.empty())
                             return;
 
@@ -280,6 +283,9 @@ class boss_mandokir : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -486,11 +492,7 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_DAMAGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOODLETTING_DAMAGE, SPELL_BLOODLETTING_HEAL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)

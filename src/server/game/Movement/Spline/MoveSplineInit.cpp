@@ -17,10 +17,11 @@
  */
 
 #include "MoveSplineInit.h"
-#include "MoveSpline.h"
-#include "Unit.h"
-#include "Transport.h"
 #include "MovementPackets.h"
+#include "MoveSpline.h"
+#include "PathGenerator.h"
+#include "Transport.h"
+#include "Unit.h"
 
 namespace Movement
 {
@@ -88,7 +89,10 @@ namespace Movement
         move_spline.onTransport = !unit->GetTransGUID().IsEmpty();
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
-        moveFlags |= MOVEMENTFLAG_FORWARD;
+        if (!args.flags.backward)
+            moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
+        else
+            moveFlags = (moveFlags & ~MOVEMENTFLAG_FORWARD) | MOVEMENTFLAG_BACKWARD;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
@@ -98,7 +102,7 @@ namespace Movement
             // If spline is initialized with SetWalk method it only means we need to select
             // walk move speed for it but not add walk flag to unit
             uint32 moveFlagsForSpeed = moveFlags;
-            if (args.flags.walkmode)
+            if (args.walk)
                 moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
             else
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
@@ -114,7 +118,7 @@ namespace Movement
 
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit->GetGUID();
-        packet.Pos = real_position;
+        packet.Pos = Position(real_position.x, real_position.y, real_position.z, real_position.orientation);
         packet.InitializeSplineData(move_spline);
         if (transport)
         {
@@ -160,7 +164,7 @@ namespace Movement
 
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit->GetGUID();
-        packet.Pos = loc;
+        packet.Pos = Position(loc.x, loc.y, loc.z, loc.orientation);
         packet.SplineData.StopDistanceTolerance = 2;
         packet.SplineData.ID = move_spline.GetId();
 
@@ -179,12 +183,26 @@ namespace Movement
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
         args.TransformForTransport = !unit->GetTransGUID().IsEmpty();
         // mix existing state into new
-        args.flags.walkmode = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit->m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.canSwim = unit->CanSwim();
+        args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        args.flags.flying = unit->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
+        args.flags.steering = unit->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_STEERING);
     }
 
-    void MoveSplineInit::SetFacing(const Unit* target)
+    MoveSplineInit::~MoveSplineInit() = default;
+
+    void MoveSplineInit::SetFacing(Vector3 const& spot)
+    {
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        Vector3 finalSpot = transform(spot);
+        args.facing.f.x = finalSpot.x;
+        args.facing.f.y = finalSpot.y;
+        args.facing.f.z = finalSpot.z;
+        args.facing.type = MONSTER_MOVE_FACING_SPOT;
+    }
+
+    void MoveSplineInit::SetFacing(Unit const* target)
     {
         args.facing.angle = unit->GetAngle(target);
         args.facing.target = target->GetGUID();
@@ -203,6 +221,18 @@ namespace Movement
 
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
         args.facing.type = MONSTER_MOVE_FACING_ANGLE;
+    }
+
+    void MoveSplineInit::MovebyPath(const PointsArray& controls, int32 path_offset)
+    {
+        args.path_Idx_offset = path_offset;
+        args.path.reserve(controls.size());
+        std::transform(controls.begin(), controls.end(), std::back_inserter(args.path), TransportPathTransform(unit, args.TransformForTransport));
+    }
+
+    void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
+    {
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
     }
 
     void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)

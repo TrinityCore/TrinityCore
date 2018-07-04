@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
-#include "the_botanica.h"
 #include "SpellScript.h"
+#include "the_botanica.h"
 
 enum Says
 {
@@ -128,6 +129,9 @@ class boss_commander_sarannis : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -139,7 +143,7 @@ class boss_commander_sarannis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_commander_sarannisAI(creature);
+            return GetBotanicaAI<boss_commander_sarannisAI>(creature);
         }
 };
 

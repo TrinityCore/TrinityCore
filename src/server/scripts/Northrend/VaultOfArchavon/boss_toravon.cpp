@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "vault_of_archavon.h"
 
@@ -106,6 +108,9 @@ class boss_toravon : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -114,7 +119,7 @@ class boss_toravon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_toravonAI(creature);
+            return GetVaultOfArchavonAI<boss_toravonAI>(creature);
         }
 };
 
@@ -169,7 +174,7 @@ class npc_frost_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_frost_warderAI(creature);
+            return GetVaultOfArchavonAI<npc_frost_warderAI>(creature);
         }
 };
 
@@ -230,7 +235,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_frozen_orbAI(creature);
+        return GetVaultOfArchavonAI<npc_frozen_orbAI>(creature);
     }
 };
 
@@ -247,7 +252,8 @@ class npc_frozen_orb_stalker : public CreatureScript
             npc_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 creature->SetVisible(false);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetControlled(true, UNIT_STATE_ROOT);
                 creature->SetReactState(REACT_PASSIVE);
 
                 instance = creature->GetInstanceScript();
@@ -283,7 +289,7 @@ class npc_frozen_orb_stalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_frozen_orb_stalkerAI>(creature);
+            return GetVaultOfArchavonAI<npc_frozen_orb_stalkerAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,13 @@
 #include "WorldSession.h"
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
 #include "ObjectMgr.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "SystemPackets.h"
+#include "World.h"
 
 void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 {
@@ -31,21 +35,19 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
     {
         response.SuccessInfo = boost::in_place();
 
-        response.SuccessInfo->AccountExpansionLevel = GetExpansion();
+        response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
-        response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
         response.SuccessInfo->Time = int32(time(nullptr));
 
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false,
-            sObjectMgr->GetRealmName(realm.Id.Realm), sObjectMgr->GetNormalizedRealmName(realm.Id.Realm));
+        response.SuccessInfo->VirtualRealms.emplace_back(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
-            for (auto& templ : sObjectMgr->GetCharacterTemplates())
-                response.SuccessInfo->Templates.emplace_back(templ.second);
+            for (auto const& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
+                response.SuccessInfo->Templates.push_back(&templ.second);
 
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
-        response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
     if (queued)

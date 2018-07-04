@@ -51,6 +51,7 @@ class GameAccountBlob;
 class GameAccountBlobList;
 class AccountReference;
 class Identity;
+class AccountInfo;
 class ProgramTag;
 class RegionTag;
 class AccountFieldTags;
@@ -76,6 +77,12 @@ class AccountStateTagged;
 class GameAccountState;
 class GameAccountStateTagged;
 class AuthorizedData;
+class BenefactorAddress;
+class ExternalBenefactorLookup;
+class AuthBenefactor;
+class ApplicationInfo;
+class DeductRecord;
+class IgrId;
 
 enum PrivacyInfo_GameInfoPrivacy {
   PrivacyInfo_GameInfoPrivacy_PRIVACY_ME = 0,
@@ -618,6 +625,18 @@ class TC_PROTO_API AccountBlob : public ::google::protobuf::Message {
   inline ::bgs::protocol::account::v1::IdentityVerificationStatus identity_check_status() const;
   inline void set_identity_check_status(::bgs::protocol::account::v1::IdentityVerificationStatus value);
 
+  // optional string cais_id = 35;
+  inline bool has_cais_id() const;
+  inline void clear_cais_id();
+  static const int kCaisIdFieldNumber = 35;
+  inline const ::std::string& cais_id() const;
+  inline void set_cais_id(const ::std::string& value);
+  inline void set_cais_id(const char* value);
+  inline void set_cais_id(const char* value, size_t size);
+  inline ::std::string* mutable_cais_id();
+  inline ::std::string* release_cais_id();
+  inline void set_allocated_cais_id(::std::string* cais_id);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountBlob)
  private:
   inline void set_has_id();
@@ -652,6 +671,8 @@ class TC_PROTO_API AccountBlob : public ::google::protobuf::Message {
   inline void clear_has_preferred_region();
   inline void set_has_identity_check_status();
   inline void clear_has_identity_check_status();
+  inline void set_has_cais_id();
+  inline void clear_has_cais_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -676,6 +697,7 @@ class TC_PROTO_API AccountBlob : public ::google::protobuf::Message {
   ::google::protobuf::uint32 legal_locale_;
   ::google::protobuf::uint32 preferred_region_;
   ::std::string* country_;
+  ::std::string* cais_id_;
   int identity_check_status_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
@@ -1522,6 +1544,142 @@ class TC_PROTO_API Identity : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static Identity* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API AccountInfo : public ::google::protobuf::Message {
+ public:
+  AccountInfo();
+  virtual ~AccountInfo();
+
+  AccountInfo(const AccountInfo& from);
+
+  inline AccountInfo& operator=(const AccountInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const AccountInfo& default_instance();
+
+  void Swap(AccountInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  AccountInfo* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const AccountInfo& from);
+  void MergeFrom(const AccountInfo& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bool account_paid = 1 [default = false];
+  inline bool has_account_paid() const;
+  inline void clear_account_paid();
+  static const int kAccountPaidFieldNumber = 1;
+  inline bool account_paid() const;
+  inline void set_account_paid(bool value);
+
+  // optional fixed32 country_id = 2 [default = 0];
+  inline bool has_country_id() const;
+  inline void clear_country_id();
+  static const int kCountryIdFieldNumber = 2;
+  inline ::google::protobuf::uint32 country_id() const;
+  inline void set_country_id(::google::protobuf::uint32 value);
+
+  // optional string battle_tag = 3;
+  inline bool has_battle_tag() const;
+  inline void clear_battle_tag();
+  static const int kBattleTagFieldNumber = 3;
+  inline const ::std::string& battle_tag() const;
+  inline void set_battle_tag(const ::std::string& value);
+  inline void set_battle_tag(const char* value);
+  inline void set_battle_tag(const char* value, size_t size);
+  inline ::std::string* mutable_battle_tag();
+  inline ::std::string* release_battle_tag();
+  inline void set_allocated_battle_tag(::std::string* battle_tag);
+
+  // optional bool manual_review = 4 [default = false];
+  inline bool has_manual_review() const;
+  inline void clear_manual_review();
+  static const int kManualReviewFieldNumber = 4;
+  inline bool manual_review() const;
+  inline void set_manual_review(bool value);
+
+  // optional .bgs.protocol.account.v1.Identity identity = 5;
+  inline bool has_identity() const;
+  inline void clear_identity();
+  static const int kIdentityFieldNumber = 5;
+  inline const ::bgs::protocol::account::v1::Identity& identity() const;
+  inline ::bgs::protocol::account::v1::Identity* mutable_identity();
+  inline ::bgs::protocol::account::v1::Identity* release_identity();
+  inline void set_allocated_identity(::bgs::protocol::account::v1::Identity* identity);
+
+  // optional bool account_muted = 6 [default = false];
+  inline bool has_account_muted() const;
+  inline void clear_account_muted();
+  static const int kAccountMutedFieldNumber = 6;
+  inline bool account_muted() const;
+  inline void set_account_muted(bool value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountInfo)
+ private:
+  inline void set_has_account_paid();
+  inline void clear_has_account_paid();
+  inline void set_has_country_id();
+  inline void clear_has_country_id();
+  inline void set_has_battle_tag();
+  inline void clear_has_battle_tag();
+  inline void set_has_manual_review();
+  inline void clear_has_manual_review();
+  inline void set_has_identity();
+  inline void clear_has_identity();
+  inline void set_has_account_muted();
+  inline void clear_has_account_muted();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* battle_tag_;
+  ::google::protobuf::uint32 country_id_;
+  bool account_paid_;
+  bool manual_review_;
+  bool account_muted_;
+  ::bgs::protocol::account::v1::Identity* identity_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static AccountInfo* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -3515,6 +3673,15 @@ class TC_PROTO_API GameSessionInfo : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 start_time_sec() const;
   inline void set_start_time_sec(::google::protobuf::uint64 value);
 
+  // optional .bgs.protocol.account.v1.IgrId igr_id = 9;
+  inline bool has_igr_id() const;
+  inline void clear_igr_id();
+  static const int kIgrIdFieldNumber = 9;
+  inline const ::bgs::protocol::account::v1::IgrId& igr_id() const;
+  inline ::bgs::protocol::account::v1::IgrId* mutable_igr_id();
+  inline ::bgs::protocol::account::v1::IgrId* release_igr_id();
+  inline void set_allocated_igr_id(::bgs::protocol::account::v1::IgrId* igr_id);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.GameSessionInfo)
  private:
   inline void set_has_start_time();
@@ -3529,6 +3696,8 @@ class TC_PROTO_API GameSessionInfo : public ::google::protobuf::Message {
   inline void clear_has_parental_controls_active();
   inline void set_has_start_time_sec();
   inline void clear_has_start_time_sec();
+  inline void set_has_igr_id();
+  inline void clear_has_igr_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -3540,6 +3709,7 @@ class TC_PROTO_API GameSessionInfo : public ::google::protobuf::Message {
   bool is_using_igr_;
   bool parental_controls_active_;
   ::google::protobuf::uint64 start_time_sec_;
+  ::bgs::protocol::account::v1::IgrId* igr_id_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -4472,6 +4642,671 @@ class TC_PROTO_API AuthorizedData : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static AuthorizedData* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API BenefactorAddress : public ::google::protobuf::Message {
+ public:
+  BenefactorAddress();
+  virtual ~BenefactorAddress();
+
+  BenefactorAddress(const BenefactorAddress& from);
+
+  inline BenefactorAddress& operator=(const BenefactorAddress& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BenefactorAddress& default_instance();
+
+  void Swap(BenefactorAddress* other);
+
+  // implements Message ----------------------------------------------
+
+  BenefactorAddress* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const BenefactorAddress& from);
+  void MergeFrom(const BenefactorAddress& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 region = 1;
+  inline bool has_region() const;
+  inline void clear_region();
+  static const int kRegionFieldNumber = 1;
+  inline ::google::protobuf::uint32 region() const;
+  inline void set_region(::google::protobuf::uint32 value);
+
+  // optional string igr_address = 2;
+  inline bool has_igr_address() const;
+  inline void clear_igr_address();
+  static const int kIgrAddressFieldNumber = 2;
+  inline const ::std::string& igr_address() const;
+  inline void set_igr_address(const ::std::string& value);
+  inline void set_igr_address(const char* value);
+  inline void set_igr_address(const char* value, size_t size);
+  inline ::std::string* mutable_igr_address();
+  inline ::std::string* release_igr_address();
+  inline void set_allocated_igr_address(::std::string* igr_address);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.BenefactorAddress)
+ private:
+  inline void set_has_region();
+  inline void clear_has_region();
+  inline void set_has_igr_address();
+  inline void clear_has_igr_address();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* igr_address_;
+  ::google::protobuf::uint32 region_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static BenefactorAddress* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API ExternalBenefactorLookup : public ::google::protobuf::Message {
+ public:
+  ExternalBenefactorLookup();
+  virtual ~ExternalBenefactorLookup();
+
+  ExternalBenefactorLookup(const ExternalBenefactorLookup& from);
+
+  inline ExternalBenefactorLookup& operator=(const ExternalBenefactorLookup& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ExternalBenefactorLookup& default_instance();
+
+  void Swap(ExternalBenefactorLookup* other);
+
+  // implements Message ----------------------------------------------
+
+  ExternalBenefactorLookup* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ExternalBenefactorLookup& from);
+  void MergeFrom(const ExternalBenefactorLookup& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional fixed32 benefactor_id = 1;
+  inline bool has_benefactor_id() const;
+  inline void clear_benefactor_id();
+  static const int kBenefactorIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 benefactor_id() const;
+  inline void set_benefactor_id(::google::protobuf::uint32 value);
+
+  // optional uint32 region = 2;
+  inline bool has_region() const;
+  inline void clear_region();
+  static const int kRegionFieldNumber = 2;
+  inline ::google::protobuf::uint32 region() const;
+  inline void set_region(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.ExternalBenefactorLookup)
+ private:
+  inline void set_has_benefactor_id();
+  inline void clear_has_benefactor_id();
+  inline void set_has_region();
+  inline void clear_has_region();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 benefactor_id_;
+  ::google::protobuf::uint32 region_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static ExternalBenefactorLookup* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API AuthBenefactor : public ::google::protobuf::Message {
+ public:
+  AuthBenefactor();
+  virtual ~AuthBenefactor();
+
+  AuthBenefactor(const AuthBenefactor& from);
+
+  inline AuthBenefactor& operator=(const AuthBenefactor& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const AuthBenefactor& default_instance();
+
+  void Swap(AuthBenefactor* other);
+
+  // implements Message ----------------------------------------------
+
+  AuthBenefactor* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const AuthBenefactor& from);
+  void MergeFrom(const AuthBenefactor& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string igr_address = 1;
+  inline bool has_igr_address() const;
+  inline void clear_igr_address();
+  static const int kIgrAddressFieldNumber = 1;
+  inline const ::std::string& igr_address() const;
+  inline void set_igr_address(const ::std::string& value);
+  inline void set_igr_address(const char* value);
+  inline void set_igr_address(const char* value, size_t size);
+  inline ::std::string* mutable_igr_address();
+  inline ::std::string* release_igr_address();
+  inline void set_allocated_igr_address(::std::string* igr_address);
+
+  // optional fixed32 benefactor_id = 2;
+  inline bool has_benefactor_id() const;
+  inline void clear_benefactor_id();
+  static const int kBenefactorIdFieldNumber = 2;
+  inline ::google::protobuf::uint32 benefactor_id() const;
+  inline void set_benefactor_id(::google::protobuf::uint32 value);
+
+  // optional bool active = 3;
+  inline bool has_active() const;
+  inline void clear_active();
+  static const int kActiveFieldNumber = 3;
+  inline bool active() const;
+  inline void set_active(bool value);
+
+  // optional uint64 last_update_time = 4;
+  inline bool has_last_update_time() const;
+  inline void clear_last_update_time();
+  static const int kLastUpdateTimeFieldNumber = 4;
+  inline ::google::protobuf::uint64 last_update_time() const;
+  inline void set_last_update_time(::google::protobuf::uint64 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AuthBenefactor)
+ private:
+  inline void set_has_igr_address();
+  inline void clear_has_igr_address();
+  inline void set_has_benefactor_id();
+  inline void clear_has_benefactor_id();
+  inline void set_has_active();
+  inline void clear_has_active();
+  inline void set_has_last_update_time();
+  inline void clear_has_last_update_time();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* igr_address_;
+  ::google::protobuf::uint32 benefactor_id_;
+  bool active_;
+  ::google::protobuf::uint64 last_update_time_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static AuthBenefactor* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API ApplicationInfo : public ::google::protobuf::Message {
+ public:
+  ApplicationInfo();
+  virtual ~ApplicationInfo();
+
+  ApplicationInfo(const ApplicationInfo& from);
+
+  inline ApplicationInfo& operator=(const ApplicationInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ApplicationInfo& default_instance();
+
+  void Swap(ApplicationInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  ApplicationInfo* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ApplicationInfo& from);
+  void MergeFrom(const ApplicationInfo& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional fixed32 platform_id = 1;
+  inline bool has_platform_id() const;
+  inline void clear_platform_id();
+  static const int kPlatformIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 platform_id() const;
+  inline void set_platform_id(::google::protobuf::uint32 value);
+
+  // optional fixed32 locale = 2;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 2;
+  inline ::google::protobuf::uint32 locale() const;
+  inline void set_locale(::google::protobuf::uint32 value);
+
+  // optional int32 application_version = 3;
+  inline bool has_application_version() const;
+  inline void clear_application_version();
+  static const int kApplicationVersionFieldNumber = 3;
+  inline ::google::protobuf::int32 application_version() const;
+  inline void set_application_version(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.ApplicationInfo)
+ private:
+  inline void set_has_platform_id();
+  inline void clear_has_platform_id();
+  inline void set_has_locale();
+  inline void clear_has_locale();
+  inline void set_has_application_version();
+  inline void clear_has_application_version();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 platform_id_;
+  ::google::protobuf::uint32 locale_;
+  ::google::protobuf::int32 application_version_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static ApplicationInfo* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API DeductRecord : public ::google::protobuf::Message {
+ public:
+  DeductRecord();
+  virtual ~DeductRecord();
+
+  DeductRecord(const DeductRecord& from);
+
+  inline DeductRecord& operator=(const DeductRecord& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DeductRecord& default_instance();
+
+  void Swap(DeductRecord* other);
+
+  // implements Message ----------------------------------------------
+
+  DeductRecord* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DeductRecord& from);
+  void MergeFrom(const DeductRecord& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+  inline bool has_game_account() const;
+  inline void clear_game_account();
+  static const int kGameAccountFieldNumber = 1;
+  inline const ::bgs::protocol::account::v1::GameAccountHandle& game_account() const;
+  inline ::bgs::protocol::account::v1::GameAccountHandle* mutable_game_account();
+  inline ::bgs::protocol::account::v1::GameAccountHandle* release_game_account();
+  inline void set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account);
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle benefactor = 2;
+  inline bool has_benefactor() const;
+  inline void clear_benefactor();
+  static const int kBenefactorFieldNumber = 2;
+  inline const ::bgs::protocol::account::v1::GameAccountHandle& benefactor() const;
+  inline ::bgs::protocol::account::v1::GameAccountHandle* mutable_benefactor();
+  inline ::bgs::protocol::account::v1::GameAccountHandle* release_benefactor();
+  inline void set_allocated_benefactor(::bgs::protocol::account::v1::GameAccountHandle* benefactor);
+
+  // optional uint64 start_time = 3;
+  inline bool has_start_time() const;
+  inline void clear_start_time();
+  static const int kStartTimeFieldNumber = 3;
+  inline ::google::protobuf::uint64 start_time() const;
+  inline void set_start_time(::google::protobuf::uint64 value);
+
+  // optional uint64 end_time = 4;
+  inline bool has_end_time() const;
+  inline void clear_end_time();
+  static const int kEndTimeFieldNumber = 4;
+  inline ::google::protobuf::uint64 end_time() const;
+  inline void set_end_time(::google::protobuf::uint64 value);
+
+  // optional string client_address = 5;
+  inline bool has_client_address() const;
+  inline void clear_client_address();
+  static const int kClientAddressFieldNumber = 5;
+  inline const ::std::string& client_address() const;
+  inline void set_client_address(const ::std::string& value);
+  inline void set_client_address(const char* value);
+  inline void set_client_address(const char* value, size_t size);
+  inline ::std::string* mutable_client_address();
+  inline ::std::string* release_client_address();
+  inline void set_allocated_client_address(::std::string* client_address);
+
+  // optional .bgs.protocol.account.v1.ApplicationInfo application_info = 6;
+  inline bool has_application_info() const;
+  inline void clear_application_info();
+  static const int kApplicationInfoFieldNumber = 6;
+  inline const ::bgs::protocol::account::v1::ApplicationInfo& application_info() const;
+  inline ::bgs::protocol::account::v1::ApplicationInfo* mutable_application_info();
+  inline ::bgs::protocol::account::v1::ApplicationInfo* release_application_info();
+  inline void set_allocated_application_info(::bgs::protocol::account::v1::ApplicationInfo* application_info);
+
+  // optional string session_owner = 7;
+  inline bool has_session_owner() const;
+  inline void clear_session_owner();
+  static const int kSessionOwnerFieldNumber = 7;
+  inline const ::std::string& session_owner() const;
+  inline void set_session_owner(const ::std::string& value);
+  inline void set_session_owner(const char* value);
+  inline void set_session_owner(const char* value, size_t size);
+  inline ::std::string* mutable_session_owner();
+  inline ::std::string* release_session_owner();
+  inline void set_allocated_session_owner(::std::string* session_owner);
+
+  // optional bool free_session = 8;
+  inline bool has_free_session() const;
+  inline void clear_free_session();
+  static const int kFreeSessionFieldNumber = 8;
+  inline bool free_session() const;
+  inline void set_free_session(bool value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.DeductRecord)
+ private:
+  inline void set_has_game_account();
+  inline void clear_has_game_account();
+  inline void set_has_benefactor();
+  inline void clear_has_benefactor();
+  inline void set_has_start_time();
+  inline void clear_has_start_time();
+  inline void set_has_end_time();
+  inline void clear_has_end_time();
+  inline void set_has_client_address();
+  inline void clear_has_client_address();
+  inline void set_has_application_info();
+  inline void clear_has_application_info();
+  inline void set_has_session_owner();
+  inline void clear_has_session_owner();
+  inline void set_has_free_session();
+  inline void clear_has_free_session();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::account::v1::GameAccountHandle* game_account_;
+  ::bgs::protocol::account::v1::GameAccountHandle* benefactor_;
+  ::google::protobuf::uint64 start_time_;
+  ::google::protobuf::uint64 end_time_;
+  ::std::string* client_address_;
+  ::bgs::protocol::account::v1::ApplicationInfo* application_info_;
+  ::std::string* session_owner_;
+  bool free_session_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static DeductRecord* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API IgrId : public ::google::protobuf::Message {
+ public:
+  IgrId();
+  virtual ~IgrId();
+
+  IgrId(const IgrId& from);
+
+  inline IgrId& operator=(const IgrId& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const IgrId& default_instance();
+
+  enum TypeCase {
+    kGameAccount = 1,
+    kExternalId = 2,
+    TYPE_NOT_SET = 0,
+  };
+
+  void Swap(IgrId* other);
+
+  // implements Message ----------------------------------------------
+
+  IgrId* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const IgrId& from);
+  void MergeFrom(const IgrId& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+  inline bool has_game_account() const;
+  inline void clear_game_account();
+  static const int kGameAccountFieldNumber = 1;
+  inline const ::bgs::protocol::account::v1::GameAccountHandle& game_account() const;
+  inline ::bgs::protocol::account::v1::GameAccountHandle* mutable_game_account();
+  inline ::bgs::protocol::account::v1::GameAccountHandle* release_game_account();
+  inline void set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account);
+
+  // optional fixed32 external_id = 2;
+  inline bool has_external_id() const;
+  inline void clear_external_id();
+  static const int kExternalIdFieldNumber = 2;
+  inline ::google::protobuf::uint32 external_id() const;
+  inline void set_external_id(::google::protobuf::uint32 value);
+
+  inline TypeCase type_case() const;
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.IgrId)
+ private:
+  inline void set_has_game_account();
+  inline void set_has_external_id();
+
+  inline bool has_type();
+  void clear_type();
+  inline void clear_has_type();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  union TypeUnion {
+    ::bgs::protocol::account::v1::GameAccountHandle* game_account_;
+    ::google::protobuf::uint32 external_id_;
+  } type_;
+  ::google::protobuf::uint32 _oneof_case_[1];
+
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static IgrId* default_instance_;
+};
 // ===================================================================
 
 
@@ -5366,6 +6201,82 @@ inline void AccountBlob::set_identity_check_status(::bgs::protocol::account::v1:
   set_has_identity_check_status();
   identity_check_status_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountBlob.identity_check_status)
+}
+
+// optional string cais_id = 35;
+inline bool AccountBlob::has_cais_id() const {
+  return (_has_bits_[0] & 0x00100000u) != 0;
+}
+inline void AccountBlob::set_has_cais_id() {
+  _has_bits_[0] |= 0x00100000u;
+}
+inline void AccountBlob::clear_has_cais_id() {
+  _has_bits_[0] &= ~0x00100000u;
+}
+inline void AccountBlob::clear_cais_id() {
+  if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cais_id_->clear();
+  }
+  clear_has_cais_id();
+}
+inline const ::std::string& AccountBlob::cais_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountBlob.cais_id)
+  return *cais_id_;
+}
+inline void AccountBlob::set_cais_id(const ::std::string& value) {
+  set_has_cais_id();
+  if (cais_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cais_id_ = new ::std::string;
+  }
+  cais_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountBlob.cais_id)
+}
+inline void AccountBlob::set_cais_id(const char* value) {
+  set_has_cais_id();
+  if (cais_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cais_id_ = new ::std::string;
+  }
+  cais_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.AccountBlob.cais_id)
+}
+inline void AccountBlob::set_cais_id(const char* value, size_t size) {
+  set_has_cais_id();
+  if (cais_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cais_id_ = new ::std::string;
+  }
+  cais_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.AccountBlob.cais_id)
+}
+inline ::std::string* AccountBlob::mutable_cais_id() {
+  set_has_cais_id();
+  if (cais_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cais_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountBlob.cais_id)
+  return cais_id_;
+}
+inline ::std::string* AccountBlob::release_cais_id() {
+  clear_has_cais_id();
+  if (cais_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = cais_id_;
+    cais_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void AccountBlob::set_allocated_cais_id(::std::string* cais_id) {
+  if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete cais_id_;
+  }
+  if (cais_id) {
+    set_has_cais_id();
+    cais_id_ = cais_id;
+  } else {
+    clear_has_cais_id();
+    cais_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountBlob.cais_id)
 }
 
 // -------------------------------------------------------------------
@@ -6518,6 +7429,223 @@ inline void Identity::set_allocated_process(::bgs::protocol::ProcessId* process)
     clear_has_process();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.Identity.process)
+}
+
+// -------------------------------------------------------------------
+
+// AccountInfo
+
+// optional bool account_paid = 1 [default = false];
+inline bool AccountInfo::has_account_paid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void AccountInfo::set_has_account_paid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void AccountInfo::clear_has_account_paid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void AccountInfo::clear_account_paid() {
+  account_paid_ = false;
+  clear_has_account_paid();
+}
+inline bool AccountInfo::account_paid() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountInfo.account_paid)
+  return account_paid_;
+}
+inline void AccountInfo::set_account_paid(bool value) {
+  set_has_account_paid();
+  account_paid_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountInfo.account_paid)
+}
+
+// optional fixed32 country_id = 2 [default = 0];
+inline bool AccountInfo::has_country_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void AccountInfo::set_has_country_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void AccountInfo::clear_has_country_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void AccountInfo::clear_country_id() {
+  country_id_ = 0u;
+  clear_has_country_id();
+}
+inline ::google::protobuf::uint32 AccountInfo::country_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountInfo.country_id)
+  return country_id_;
+}
+inline void AccountInfo::set_country_id(::google::protobuf::uint32 value) {
+  set_has_country_id();
+  country_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountInfo.country_id)
+}
+
+// optional string battle_tag = 3;
+inline bool AccountInfo::has_battle_tag() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void AccountInfo::set_has_battle_tag() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void AccountInfo::clear_has_battle_tag() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void AccountInfo::clear_battle_tag() {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_->clear();
+  }
+  clear_has_battle_tag();
+}
+inline const ::std::string& AccountInfo::battle_tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountInfo.battle_tag)
+  return *battle_tag_;
+}
+inline void AccountInfo::set_battle_tag(const ::std::string& value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountInfo.battle_tag)
+}
+inline void AccountInfo::set_battle_tag(const char* value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.AccountInfo.battle_tag)
+}
+inline void AccountInfo::set_battle_tag(const char* value, size_t size) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  battle_tag_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.AccountInfo.battle_tag)
+}
+inline ::std::string* AccountInfo::mutable_battle_tag() {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountInfo.battle_tag)
+  return battle_tag_;
+}
+inline ::std::string* AccountInfo::release_battle_tag() {
+  clear_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = battle_tag_;
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void AccountInfo::set_allocated_battle_tag(::std::string* battle_tag) {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete battle_tag_;
+  }
+  if (battle_tag) {
+    set_has_battle_tag();
+    battle_tag_ = battle_tag;
+  } else {
+    clear_has_battle_tag();
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountInfo.battle_tag)
+}
+
+// optional bool manual_review = 4 [default = false];
+inline bool AccountInfo::has_manual_review() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void AccountInfo::set_has_manual_review() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void AccountInfo::clear_has_manual_review() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void AccountInfo::clear_manual_review() {
+  manual_review_ = false;
+  clear_has_manual_review();
+}
+inline bool AccountInfo::manual_review() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountInfo.manual_review)
+  return manual_review_;
+}
+inline void AccountInfo::set_manual_review(bool value) {
+  set_has_manual_review();
+  manual_review_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountInfo.manual_review)
+}
+
+// optional .bgs.protocol.account.v1.Identity identity = 5;
+inline bool AccountInfo::has_identity() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void AccountInfo::set_has_identity() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void AccountInfo::clear_has_identity() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void AccountInfo::clear_identity() {
+  if (identity_ != NULL) identity_->::bgs::protocol::account::v1::Identity::Clear();
+  clear_has_identity();
+}
+inline const ::bgs::protocol::account::v1::Identity& AccountInfo::identity() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountInfo.identity)
+  return identity_ != NULL ? *identity_ : *default_instance_->identity_;
+}
+inline ::bgs::protocol::account::v1::Identity* AccountInfo::mutable_identity() {
+  set_has_identity();
+  if (identity_ == NULL) identity_ = new ::bgs::protocol::account::v1::Identity;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountInfo.identity)
+  return identity_;
+}
+inline ::bgs::protocol::account::v1::Identity* AccountInfo::release_identity() {
+  clear_has_identity();
+  ::bgs::protocol::account::v1::Identity* temp = identity_;
+  identity_ = NULL;
+  return temp;
+}
+inline void AccountInfo::set_allocated_identity(::bgs::protocol::account::v1::Identity* identity) {
+  delete identity_;
+  identity_ = identity;
+  if (identity) {
+    set_has_identity();
+  } else {
+    clear_has_identity();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountInfo.identity)
+}
+
+// optional bool account_muted = 6 [default = false];
+inline bool AccountInfo::has_account_muted() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void AccountInfo::set_has_account_muted() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void AccountInfo::clear_has_account_muted() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void AccountInfo::clear_account_muted() {
+  account_muted_ = false;
+  clear_has_account_muted();
+}
+inline bool AccountInfo::account_muted() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountInfo.account_muted)
+  return account_muted_;
+}
+inline void AccountInfo::set_account_muted(bool value) {
+  set_has_account_muted();
+  account_muted_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountInfo.account_muted)
 }
 
 // -------------------------------------------------------------------
@@ -9080,6 +10208,47 @@ inline void GameSessionInfo::set_start_time_sec(::google::protobuf::uint64 value
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameSessionInfo.start_time_sec)
 }
 
+// optional .bgs.protocol.account.v1.IgrId igr_id = 9;
+inline bool GameSessionInfo::has_igr_id() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void GameSessionInfo::set_has_igr_id() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void GameSessionInfo::clear_has_igr_id() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void GameSessionInfo::clear_igr_id() {
+  if (igr_id_ != NULL) igr_id_->::bgs::protocol::account::v1::IgrId::Clear();
+  clear_has_igr_id();
+}
+inline const ::bgs::protocol::account::v1::IgrId& GameSessionInfo::igr_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.GameSessionInfo.igr_id)
+  return igr_id_ != NULL ? *igr_id_ : *default_instance_->igr_id_;
+}
+inline ::bgs::protocol::account::v1::IgrId* GameSessionInfo::mutable_igr_id() {
+  set_has_igr_id();
+  if (igr_id_ == NULL) igr_id_ = new ::bgs::protocol::account::v1::IgrId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.GameSessionInfo.igr_id)
+  return igr_id_;
+}
+inline ::bgs::protocol::account::v1::IgrId* GameSessionInfo::release_igr_id() {
+  clear_has_igr_id();
+  ::bgs::protocol::account::v1::IgrId* temp = igr_id_;
+  igr_id_ = NULL;
+  return temp;
+}
+inline void GameSessionInfo::set_allocated_igr_id(::bgs::protocol::account::v1::IgrId* igr_id) {
+  delete igr_id_;
+  igr_id_ = igr_id;
+  if (igr_id) {
+    set_has_igr_id();
+  } else {
+    clear_has_igr_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.GameSessionInfo.igr_id)
+}
+
 // -------------------------------------------------------------------
 
 // GameSessionUpdateInfo
@@ -10106,6 +11275,824 @@ AuthorizedData::mutable_license() {
   return &license_;
 }
 
+// -------------------------------------------------------------------
+
+// BenefactorAddress
+
+// optional uint32 region = 1;
+inline bool BenefactorAddress::has_region() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void BenefactorAddress::set_has_region() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void BenefactorAddress::clear_has_region() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void BenefactorAddress::clear_region() {
+  region_ = 0u;
+  clear_has_region();
+}
+inline ::google::protobuf::uint32 BenefactorAddress::region() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.BenefactorAddress.region)
+  return region_;
+}
+inline void BenefactorAddress::set_region(::google::protobuf::uint32 value) {
+  set_has_region();
+  region_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.BenefactorAddress.region)
+}
+
+// optional string igr_address = 2;
+inline bool BenefactorAddress::has_igr_address() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void BenefactorAddress::set_has_igr_address() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void BenefactorAddress::clear_has_igr_address() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void BenefactorAddress::clear_igr_address() {
+  if (igr_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_->clear();
+  }
+  clear_has_igr_address();
+}
+inline const ::std::string& BenefactorAddress::igr_address() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.BenefactorAddress.igr_address)
+  return *igr_address_;
+}
+inline void BenefactorAddress::set_igr_address(const ::std::string& value) {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  igr_address_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.BenefactorAddress.igr_address)
+}
+inline void BenefactorAddress::set_igr_address(const char* value) {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  igr_address_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.BenefactorAddress.igr_address)
+}
+inline void BenefactorAddress::set_igr_address(const char* value, size_t size) {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  igr_address_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.BenefactorAddress.igr_address)
+}
+inline ::std::string* BenefactorAddress::mutable_igr_address() {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.BenefactorAddress.igr_address)
+  return igr_address_;
+}
+inline ::std::string* BenefactorAddress::release_igr_address() {
+  clear_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = igr_address_;
+    igr_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BenefactorAddress::set_allocated_igr_address(::std::string* igr_address) {
+  if (igr_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete igr_address_;
+  }
+  if (igr_address) {
+    set_has_igr_address();
+    igr_address_ = igr_address;
+  } else {
+    clear_has_igr_address();
+    igr_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.BenefactorAddress.igr_address)
+}
+
+// -------------------------------------------------------------------
+
+// ExternalBenefactorLookup
+
+// optional fixed32 benefactor_id = 1;
+inline bool ExternalBenefactorLookup::has_benefactor_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ExternalBenefactorLookup::set_has_benefactor_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ExternalBenefactorLookup::clear_has_benefactor_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ExternalBenefactorLookup::clear_benefactor_id() {
+  benefactor_id_ = 0u;
+  clear_has_benefactor_id();
+}
+inline ::google::protobuf::uint32 ExternalBenefactorLookup::benefactor_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.ExternalBenefactorLookup.benefactor_id)
+  return benefactor_id_;
+}
+inline void ExternalBenefactorLookup::set_benefactor_id(::google::protobuf::uint32 value) {
+  set_has_benefactor_id();
+  benefactor_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ExternalBenefactorLookup.benefactor_id)
+}
+
+// optional uint32 region = 2;
+inline bool ExternalBenefactorLookup::has_region() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ExternalBenefactorLookup::set_has_region() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ExternalBenefactorLookup::clear_has_region() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ExternalBenefactorLookup::clear_region() {
+  region_ = 0u;
+  clear_has_region();
+}
+inline ::google::protobuf::uint32 ExternalBenefactorLookup::region() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.ExternalBenefactorLookup.region)
+  return region_;
+}
+inline void ExternalBenefactorLookup::set_region(::google::protobuf::uint32 value) {
+  set_has_region();
+  region_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ExternalBenefactorLookup.region)
+}
+
+// -------------------------------------------------------------------
+
+// AuthBenefactor
+
+// optional string igr_address = 1;
+inline bool AuthBenefactor::has_igr_address() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void AuthBenefactor::set_has_igr_address() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void AuthBenefactor::clear_has_igr_address() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void AuthBenefactor::clear_igr_address() {
+  if (igr_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_->clear();
+  }
+  clear_has_igr_address();
+}
+inline const ::std::string& AuthBenefactor::igr_address() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AuthBenefactor.igr_address)
+  return *igr_address_;
+}
+inline void AuthBenefactor::set_igr_address(const ::std::string& value) {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  igr_address_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AuthBenefactor.igr_address)
+}
+inline void AuthBenefactor::set_igr_address(const char* value) {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  igr_address_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.AuthBenefactor.igr_address)
+}
+inline void AuthBenefactor::set_igr_address(const char* value, size_t size) {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  igr_address_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.AuthBenefactor.igr_address)
+}
+inline ::std::string* AuthBenefactor::mutable_igr_address() {
+  set_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    igr_address_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AuthBenefactor.igr_address)
+  return igr_address_;
+}
+inline ::std::string* AuthBenefactor::release_igr_address() {
+  clear_has_igr_address();
+  if (igr_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = igr_address_;
+    igr_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void AuthBenefactor::set_allocated_igr_address(::std::string* igr_address) {
+  if (igr_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete igr_address_;
+  }
+  if (igr_address) {
+    set_has_igr_address();
+    igr_address_ = igr_address;
+  } else {
+    clear_has_igr_address();
+    igr_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AuthBenefactor.igr_address)
+}
+
+// optional fixed32 benefactor_id = 2;
+inline bool AuthBenefactor::has_benefactor_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void AuthBenefactor::set_has_benefactor_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void AuthBenefactor::clear_has_benefactor_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void AuthBenefactor::clear_benefactor_id() {
+  benefactor_id_ = 0u;
+  clear_has_benefactor_id();
+}
+inline ::google::protobuf::uint32 AuthBenefactor::benefactor_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AuthBenefactor.benefactor_id)
+  return benefactor_id_;
+}
+inline void AuthBenefactor::set_benefactor_id(::google::protobuf::uint32 value) {
+  set_has_benefactor_id();
+  benefactor_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AuthBenefactor.benefactor_id)
+}
+
+// optional bool active = 3;
+inline bool AuthBenefactor::has_active() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void AuthBenefactor::set_has_active() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void AuthBenefactor::clear_has_active() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void AuthBenefactor::clear_active() {
+  active_ = false;
+  clear_has_active();
+}
+inline bool AuthBenefactor::active() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AuthBenefactor.active)
+  return active_;
+}
+inline void AuthBenefactor::set_active(bool value) {
+  set_has_active();
+  active_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AuthBenefactor.active)
+}
+
+// optional uint64 last_update_time = 4;
+inline bool AuthBenefactor::has_last_update_time() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void AuthBenefactor::set_has_last_update_time() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void AuthBenefactor::clear_has_last_update_time() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void AuthBenefactor::clear_last_update_time() {
+  last_update_time_ = GOOGLE_ULONGLONG(0);
+  clear_has_last_update_time();
+}
+inline ::google::protobuf::uint64 AuthBenefactor::last_update_time() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AuthBenefactor.last_update_time)
+  return last_update_time_;
+}
+inline void AuthBenefactor::set_last_update_time(::google::protobuf::uint64 value) {
+  set_has_last_update_time();
+  last_update_time_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AuthBenefactor.last_update_time)
+}
+
+// -------------------------------------------------------------------
+
+// ApplicationInfo
+
+// optional fixed32 platform_id = 1;
+inline bool ApplicationInfo::has_platform_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ApplicationInfo::set_has_platform_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ApplicationInfo::clear_has_platform_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ApplicationInfo::clear_platform_id() {
+  platform_id_ = 0u;
+  clear_has_platform_id();
+}
+inline ::google::protobuf::uint32 ApplicationInfo::platform_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.ApplicationInfo.platform_id)
+  return platform_id_;
+}
+inline void ApplicationInfo::set_platform_id(::google::protobuf::uint32 value) {
+  set_has_platform_id();
+  platform_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ApplicationInfo.platform_id)
+}
+
+// optional fixed32 locale = 2;
+inline bool ApplicationInfo::has_locale() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ApplicationInfo::set_has_locale() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ApplicationInfo::clear_has_locale() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ApplicationInfo::clear_locale() {
+  locale_ = 0u;
+  clear_has_locale();
+}
+inline ::google::protobuf::uint32 ApplicationInfo::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.ApplicationInfo.locale)
+  return locale_;
+}
+inline void ApplicationInfo::set_locale(::google::protobuf::uint32 value) {
+  set_has_locale();
+  locale_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ApplicationInfo.locale)
+}
+
+// optional int32 application_version = 3;
+inline bool ApplicationInfo::has_application_version() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void ApplicationInfo::set_has_application_version() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void ApplicationInfo::clear_has_application_version() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void ApplicationInfo::clear_application_version() {
+  application_version_ = 0;
+  clear_has_application_version();
+}
+inline ::google::protobuf::int32 ApplicationInfo::application_version() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.ApplicationInfo.application_version)
+  return application_version_;
+}
+inline void ApplicationInfo::set_application_version(::google::protobuf::int32 value) {
+  set_has_application_version();
+  application_version_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ApplicationInfo.application_version)
+}
+
+// -------------------------------------------------------------------
+
+// DeductRecord
+
+// optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+inline bool DeductRecord::has_game_account() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void DeductRecord::set_has_game_account() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void DeductRecord::clear_has_game_account() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void DeductRecord::clear_game_account() {
+  if (game_account_ != NULL) game_account_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+  clear_has_game_account();
+}
+inline const ::bgs::protocol::account::v1::GameAccountHandle& DeductRecord::game_account() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.game_account)
+  return game_account_ != NULL ? *game_account_ : *default_instance_->game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* DeductRecord::mutable_game_account() {
+  set_has_game_account();
+  if (game_account_ == NULL) game_account_ = new ::bgs::protocol::account::v1::GameAccountHandle;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.DeductRecord.game_account)
+  return game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* DeductRecord::release_game_account() {
+  clear_has_game_account();
+  ::bgs::protocol::account::v1::GameAccountHandle* temp = game_account_;
+  game_account_ = NULL;
+  return temp;
+}
+inline void DeductRecord::set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account) {
+  delete game_account_;
+  game_account_ = game_account;
+  if (game_account) {
+    set_has_game_account();
+  } else {
+    clear_has_game_account();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.DeductRecord.game_account)
+}
+
+// optional .bgs.protocol.account.v1.GameAccountHandle benefactor = 2;
+inline bool DeductRecord::has_benefactor() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void DeductRecord::set_has_benefactor() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void DeductRecord::clear_has_benefactor() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void DeductRecord::clear_benefactor() {
+  if (benefactor_ != NULL) benefactor_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+  clear_has_benefactor();
+}
+inline const ::bgs::protocol::account::v1::GameAccountHandle& DeductRecord::benefactor() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.benefactor)
+  return benefactor_ != NULL ? *benefactor_ : *default_instance_->benefactor_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* DeductRecord::mutable_benefactor() {
+  set_has_benefactor();
+  if (benefactor_ == NULL) benefactor_ = new ::bgs::protocol::account::v1::GameAccountHandle;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.DeductRecord.benefactor)
+  return benefactor_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* DeductRecord::release_benefactor() {
+  clear_has_benefactor();
+  ::bgs::protocol::account::v1::GameAccountHandle* temp = benefactor_;
+  benefactor_ = NULL;
+  return temp;
+}
+inline void DeductRecord::set_allocated_benefactor(::bgs::protocol::account::v1::GameAccountHandle* benefactor) {
+  delete benefactor_;
+  benefactor_ = benefactor;
+  if (benefactor) {
+    set_has_benefactor();
+  } else {
+    clear_has_benefactor();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.DeductRecord.benefactor)
+}
+
+// optional uint64 start_time = 3;
+inline bool DeductRecord::has_start_time() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void DeductRecord::set_has_start_time() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void DeductRecord::clear_has_start_time() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void DeductRecord::clear_start_time() {
+  start_time_ = GOOGLE_ULONGLONG(0);
+  clear_has_start_time();
+}
+inline ::google::protobuf::uint64 DeductRecord::start_time() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.start_time)
+  return start_time_;
+}
+inline void DeductRecord::set_start_time(::google::protobuf::uint64 value) {
+  set_has_start_time();
+  start_time_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.DeductRecord.start_time)
+}
+
+// optional uint64 end_time = 4;
+inline bool DeductRecord::has_end_time() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void DeductRecord::set_has_end_time() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void DeductRecord::clear_has_end_time() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void DeductRecord::clear_end_time() {
+  end_time_ = GOOGLE_ULONGLONG(0);
+  clear_has_end_time();
+}
+inline ::google::protobuf::uint64 DeductRecord::end_time() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.end_time)
+  return end_time_;
+}
+inline void DeductRecord::set_end_time(::google::protobuf::uint64 value) {
+  set_has_end_time();
+  end_time_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.DeductRecord.end_time)
+}
+
+// optional string client_address = 5;
+inline bool DeductRecord::has_client_address() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void DeductRecord::set_has_client_address() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void DeductRecord::clear_has_client_address() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void DeductRecord::clear_client_address() {
+  if (client_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_address_->clear();
+  }
+  clear_has_client_address();
+}
+inline const ::std::string& DeductRecord::client_address() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.client_address)
+  return *client_address_;
+}
+inline void DeductRecord::set_client_address(const ::std::string& value) {
+  set_has_client_address();
+  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_address_ = new ::std::string;
+  }
+  client_address_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.DeductRecord.client_address)
+}
+inline void DeductRecord::set_client_address(const char* value) {
+  set_has_client_address();
+  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_address_ = new ::std::string;
+  }
+  client_address_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.DeductRecord.client_address)
+}
+inline void DeductRecord::set_client_address(const char* value, size_t size) {
+  set_has_client_address();
+  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_address_ = new ::std::string;
+  }
+  client_address_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.DeductRecord.client_address)
+}
+inline ::std::string* DeductRecord::mutable_client_address() {
+  set_has_client_address();
+  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_address_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.DeductRecord.client_address)
+  return client_address_;
+}
+inline ::std::string* DeductRecord::release_client_address() {
+  clear_has_client_address();
+  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = client_address_;
+    client_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void DeductRecord::set_allocated_client_address(::std::string* client_address) {
+  if (client_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_address_;
+  }
+  if (client_address) {
+    set_has_client_address();
+    client_address_ = client_address;
+  } else {
+    clear_has_client_address();
+    client_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.DeductRecord.client_address)
+}
+
+// optional .bgs.protocol.account.v1.ApplicationInfo application_info = 6;
+inline bool DeductRecord::has_application_info() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void DeductRecord::set_has_application_info() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void DeductRecord::clear_has_application_info() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void DeductRecord::clear_application_info() {
+  if (application_info_ != NULL) application_info_->::bgs::protocol::account::v1::ApplicationInfo::Clear();
+  clear_has_application_info();
+}
+inline const ::bgs::protocol::account::v1::ApplicationInfo& DeductRecord::application_info() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.application_info)
+  return application_info_ != NULL ? *application_info_ : *default_instance_->application_info_;
+}
+inline ::bgs::protocol::account::v1::ApplicationInfo* DeductRecord::mutable_application_info() {
+  set_has_application_info();
+  if (application_info_ == NULL) application_info_ = new ::bgs::protocol::account::v1::ApplicationInfo;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.DeductRecord.application_info)
+  return application_info_;
+}
+inline ::bgs::protocol::account::v1::ApplicationInfo* DeductRecord::release_application_info() {
+  clear_has_application_info();
+  ::bgs::protocol::account::v1::ApplicationInfo* temp = application_info_;
+  application_info_ = NULL;
+  return temp;
+}
+inline void DeductRecord::set_allocated_application_info(::bgs::protocol::account::v1::ApplicationInfo* application_info) {
+  delete application_info_;
+  application_info_ = application_info;
+  if (application_info) {
+    set_has_application_info();
+  } else {
+    clear_has_application_info();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.DeductRecord.application_info)
+}
+
+// optional string session_owner = 7;
+inline bool DeductRecord::has_session_owner() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void DeductRecord::set_has_session_owner() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void DeductRecord::clear_has_session_owner() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void DeductRecord::clear_session_owner() {
+  if (session_owner_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    session_owner_->clear();
+  }
+  clear_has_session_owner();
+}
+inline const ::std::string& DeductRecord::session_owner() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.session_owner)
+  return *session_owner_;
+}
+inline void DeductRecord::set_session_owner(const ::std::string& value) {
+  set_has_session_owner();
+  if (session_owner_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    session_owner_ = new ::std::string;
+  }
+  session_owner_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.DeductRecord.session_owner)
+}
+inline void DeductRecord::set_session_owner(const char* value) {
+  set_has_session_owner();
+  if (session_owner_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    session_owner_ = new ::std::string;
+  }
+  session_owner_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.DeductRecord.session_owner)
+}
+inline void DeductRecord::set_session_owner(const char* value, size_t size) {
+  set_has_session_owner();
+  if (session_owner_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    session_owner_ = new ::std::string;
+  }
+  session_owner_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.DeductRecord.session_owner)
+}
+inline ::std::string* DeductRecord::mutable_session_owner() {
+  set_has_session_owner();
+  if (session_owner_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    session_owner_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.DeductRecord.session_owner)
+  return session_owner_;
+}
+inline ::std::string* DeductRecord::release_session_owner() {
+  clear_has_session_owner();
+  if (session_owner_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = session_owner_;
+    session_owner_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void DeductRecord::set_allocated_session_owner(::std::string* session_owner) {
+  if (session_owner_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete session_owner_;
+  }
+  if (session_owner) {
+    set_has_session_owner();
+    session_owner_ = session_owner;
+  } else {
+    clear_has_session_owner();
+    session_owner_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.DeductRecord.session_owner)
+}
+
+// optional bool free_session = 8;
+inline bool DeductRecord::has_free_session() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void DeductRecord::set_has_free_session() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void DeductRecord::clear_has_free_session() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void DeductRecord::clear_free_session() {
+  free_session_ = false;
+  clear_has_free_session();
+}
+inline bool DeductRecord::free_session() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.DeductRecord.free_session)
+  return free_session_;
+}
+inline void DeductRecord::set_free_session(bool value) {
+  set_has_free_session();
+  free_session_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.DeductRecord.free_session)
+}
+
+// -------------------------------------------------------------------
+
+// IgrId
+
+// optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+inline bool IgrId::has_game_account() const {
+  return type_case() == kGameAccount;
+}
+inline void IgrId::set_has_game_account() {
+  _oneof_case_[0] = kGameAccount;
+}
+inline void IgrId::clear_game_account() {
+  if (has_game_account()) {
+    delete type_.game_account_;
+    clear_has_type();
+  }
+}
+inline const ::bgs::protocol::account::v1::GameAccountHandle& IgrId::game_account() const {
+  return has_game_account() ? *type_.game_account_
+                      : ::bgs::protocol::account::v1::GameAccountHandle::default_instance();
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* IgrId::mutable_game_account() {
+  if (!has_game_account()) {
+    clear_type();
+    set_has_game_account();
+    type_.game_account_ = new ::bgs::protocol::account::v1::GameAccountHandle;
+  }
+  return type_.game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* IgrId::release_game_account() {
+  if (has_game_account()) {
+    clear_has_type();
+    ::bgs::protocol::account::v1::GameAccountHandle* temp = type_.game_account_;
+    type_.game_account_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void IgrId::set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account) {
+  clear_type();
+  if (game_account) {
+    set_has_game_account();
+    type_.game_account_ = game_account;
+  }
+}
+
+// optional fixed32 external_id = 2;
+inline bool IgrId::has_external_id() const {
+  return type_case() == kExternalId;
+}
+inline void IgrId::set_has_external_id() {
+  _oneof_case_[0] = kExternalId;
+}
+inline void IgrId::clear_external_id() {
+  if (has_external_id()) {
+    type_.external_id_ = 0u;
+    clear_has_type();
+  }
+}
+inline ::google::protobuf::uint32 IgrId::external_id() const {
+  if (has_external_id()) {
+    return type_.external_id_;
+  }
+  return 0u;
+}
+inline void IgrId::set_external_id(::google::protobuf::uint32 value) {
+  if (!has_external_id()) {
+    clear_type();
+    set_has_external_id();
+  }
+  type_.external_id_ = value;
+}
+
+inline bool IgrId::has_type() {
+  return type_case() != TYPE_NOT_SET;
+}
+inline void IgrId::clear_has_type() {
+  _oneof_case_[0] = TYPE_NOT_SET;
+}
+inline IgrId::TypeCase IgrId::type_case() const {
+  return IgrId::TypeCase(_oneof_case_[0]);
+}
 
 // @@protoc_insertion_point(namespace_scope)
 

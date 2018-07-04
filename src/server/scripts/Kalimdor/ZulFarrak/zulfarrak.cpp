@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,10 +29,14 @@ npc_weegli_blastfuse
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "zulfarrak.h"
-#include "Player.h"
 
 /*######
 ## npc_sergeant_bly
@@ -66,10 +70,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             ENSURE_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
             creature->AI()->DoAction(0);
         }
@@ -82,14 +86,14 @@ public:
         {
             if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(1517, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                SendGossipMenuFor(player, 1517, creature->GetGUID());
             }
             else
                 if (instance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
-                    player->SEND_GOSSIP_MENU(1515, creature->GetGUID());
+                    SendGossipMenuFor(player, 1515, creature->GetGUID());
                 else
-                    player->SEND_GOSSIP_MENU(1516, creature->GetGUID());
+                    SendGossipMenuFor(player, 1516, creature->GetGUID());
             return true;
         }
         return false;
@@ -97,7 +101,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_sergeant_blyAI>(creature);
+        return GetZulFarrakAI<npc_sergeant_blyAI>(creature);
     }
 
     struct npc_sergeant_blyAI : public ScriptedAI
@@ -141,7 +145,7 @@ public:
                     {
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
-                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetGuidData(ENTRY_WEEGLI)))
+                            if (Creature* pWeegli = ObjectAccessor::GetCreature(*me, instance->GetGuidData(ENTRY_WEEGLI)))
                                 pWeegli->AI()->DoAction(0);
                             Talk(SAY_1);
                             Text_Timer = 5000;
@@ -217,19 +221,19 @@ public:
         {
             instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
             //set bly & co to aggressive & start moving to top of stairs
-            initBlyCrewMember(instance, ENTRY_BLY, 1884.99f, 1263, 41.52f);
-            initBlyCrewMember(instance, ENTRY_RAVEN, 1882.5f, 1263, 41.52f);
-            initBlyCrewMember(instance, ENTRY_ORO, 1886.47f, 1270.68f, 41.68f);
-            initBlyCrewMember(instance, ENTRY_WEEGLI, 1890, 1263, 41.52f);
-            initBlyCrewMember(instance, ENTRY_MURTA, 1891.19f, 1272.03f, 41.60f);
+            initBlyCrewMember(instance, go, ENTRY_BLY, 1884.99f, 1263, 41.52f);
+            initBlyCrewMember(instance, go, ENTRY_RAVEN, 1882.5f, 1263, 41.52f);
+            initBlyCrewMember(instance, go, ENTRY_ORO, 1886.47f, 1270.68f, 41.68f);
+            initBlyCrewMember(instance, go, ENTRY_WEEGLI, 1890, 1263, 41.52f);
+            initBlyCrewMember(instance, go, ENTRY_MURTA, 1891.19f, 1272.03f, 41.60f);
         }
         return false;
     }
 
 private:
-    void initBlyCrewMember(InstanceScript* instance, uint32 entry, float x, float y, float z)
+    void initBlyCrewMember(InstanceScript* instance, GameObject* go, uint32 entry, float x, float y, float z)
     {
-        if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
+        if (Creature* crew = ObjectAccessor::GetCreature(*go, instance->GetGuidData(entry)))
         {
             crew->SetReactState(REACT_AGGRESSIVE);
             crew->SetWalk(true);
@@ -267,10 +271,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             //here we make him run to door, set the charge and run away off to nowhere
             creature->AI()->DoAction(0);
         }
@@ -284,14 +288,14 @@ public:
             switch (instance->GetData(EVENT_PYRAMID))
             {
                 case PYRAMID_KILLED_ALL_TROLLS:
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    player->SEND_GOSSIP_MENU(1514, creature->GetGUID());  //if event can proceed to end
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    SendGossipMenuFor(player, 1514, creature->GetGUID());  //if event can proceed to end
                     break;
                 case PYRAMID_NOT_STARTED:
-                    player->SEND_GOSSIP_MENU(1511, creature->GetGUID());  //if event not started
+                    SendGossipMenuFor(player, 1511, creature->GetGUID());  //if event not started
                     break;
                 default:
-                    player->SEND_GOSSIP_MENU(1513, creature->GetGUID());  //if event are in progress
+                    SendGossipMenuFor(player, 1513, creature->GetGUID());  //if event are in progress
             }
             return true;
         }
@@ -300,7 +304,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_weegli_blastfuseAI>(creature);
+        return GetZulFarrakAI<npc_weegli_blastfuseAI>(creature);
     }
 
     struct npc_weegli_blastfuseAI : public ScriptedAI

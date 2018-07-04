@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Containers.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "violet_hold.h"
 
 /*
@@ -155,7 +160,7 @@ enum Sinclari
     SAY_SINCLARI_PORTAL_KEEPER      = 2
 };
 
-G3D::Vector3 const FirstPortalWPs[6] =
+Position const FirstPortalWPs[] =
 {
     {1877.670288f, 842.280273f, 43.333591f},
     {1877.338867f, 834.615356f, 38.762287f},
@@ -166,7 +171,7 @@ G3D::Vector3 const FirstPortalWPs[6] =
     //{1825.736084f, 807.305847f, 44.363785f}
 };
 
-G3D::Vector3 const SecondPortalFirstWPs[9] =
+Position const SecondPortalFirstWPs[] =
 {
     {1902.561401f, 853.334656f, 47.106117f},
     {1895.486084f, 855.376404f, 44.334591f},
@@ -180,7 +185,7 @@ G3D::Vector3 const SecondPortalFirstWPs[9] =
     //{1825.736084f, 807.305847f, 44.363785f}
 };
 
-G3D::Vector3 const SecondPortalSecondWPs[8] =
+Position const SecondPortalSecondWPs[] =
 {
     {1929.392212f, 837.614990f, 47.136166f},
     {1928.290649f, 824.750427f, 45.474411f},
@@ -193,7 +198,7 @@ G3D::Vector3 const SecondPortalSecondWPs[8] =
     //{1825.736084f, 807.305847f, 44.363785f}
 };
 
-G3D::Vector3 const ThirdPortalWPs[8] =
+Position const ThirdPortalWPs[] =
 {
     {1934.049438f, 815.778503f, 52.408699f},
     {1928.290649f, 824.750427f, 45.474411f},
@@ -206,7 +211,7 @@ G3D::Vector3 const ThirdPortalWPs[8] =
     //{1825.736084f, 807.305847f, 44.363785f}
 };
 
-G3D::Vector3 const FourthPortalWPs[9] =
+Position const FourthPortalWPs[] =
 {
     {1921.658447f, 761.657043f, 50.866741f},
     {1910.559814f, 755.780457f, 47.701447f},
@@ -220,7 +225,7 @@ G3D::Vector3 const FourthPortalWPs[9] =
     //{1827.100342f, 801.605957f, 44.363358f}
 };
 
-G3D::Vector3 const FifthPortalWPs[6] =
+Position const FifthPortalWPs[] =
 {
     {1887.398804f, 763.633240f, 47.666851f},
     {1879.020386f, 775.396973f, 38.705990f},
@@ -231,7 +236,7 @@ G3D::Vector3 const FifthPortalWPs[6] =
     //{1827.100342f, 801.605957f, 44.363358f}
 };
 
-G3D::Vector3 const SixthPoralWPs[4] =
+Position const SixthPoralWPs[] =
 {
     {1888.861084f, 805.074768f, 38.375790f},
     {1869.793823f, 804.135804f, 38.647018f},
@@ -240,13 +245,12 @@ G3D::Vector3 const SixthPoralWPs[4] =
     //{1826.889648f, 803.929993f, 44.363239f}
 };
 
-G3D::Vector3 const DefaultPortalWPs[1] =
+Position const DefaultPortalWPs[] =
 {
     { 1843.567017f, 804.288208f, 44.139091f }
 };
 
-uint32 const SaboteurMoraggPathSize = 5;
-G3D::Vector3 const SaboteurMoraggPath[SaboteurMoraggPathSize] = // sniff
+Position const SaboteurMoraggPath[] = // sniff
 {
     { 1886.251f, 803.0743f, 38.42326f },
     { 1885.71f,  799.8929f, 38.37241f },
@@ -255,8 +259,7 @@ G3D::Vector3 const SaboteurMoraggPath[SaboteurMoraggPathSize] = // sniff
     { 1894.603f, 739.9231f, 47.66684f },
 };
 
-uint32 const SaboteurErekemPathSize = 5;
-G3D::Vector3 const SaboteurErekemPath[SaboteurErekemPathSize] = // sniff
+Position const SaboteurErekemPath[] = // sniff
 {
     { 1886.251f, 803.0743f, 38.42326f },
     { 1881.047f, 829.6866f, 38.64856f },
@@ -265,24 +268,21 @@ G3D::Vector3 const SaboteurErekemPath[SaboteurErekemPathSize] = // sniff
     { 1873.747f, 864.1373f, 43.33349f }
 };
 
-uint32 const SaboteurIchoronPathSize = 3;
-G3D::Vector3 const SaboteurIchoronPath[SaboteurIchoronPathSize] = // sniff
+Position const SaboteurIchoronPath[] = // sniff
 {
     { 1886.251f, 803.0743f, 38.42326f },
     { 1888.672f, 801.2348f, 38.42305f },
     { 1901.987f, 793.3254f, 38.65126f }
 };
 
-uint32 const SaboteurLavanthorPathSize = 3;
-G3D::Vector3 const SaboteurLavanthorPath[SaboteurLavanthorPathSize] = // sniff
+Position const SaboteurLavanthorPath[] = // sniff
 {
     { 1886.251f, 803.0743f, 38.42326f },
     { 1867.925f, 778.8035f, 38.64702f },
     { 1853.304f, 759.0161f, 38.65761f }
 };
 
-uint32 const SaboteurXevozzPathSize = 4;
-G3D::Vector3 const SaboteurXevozzPath[SaboteurXevozzPathSize] = // sniff
+Position const SaboteurXevozzPath[] = // sniff
 {
     { 1886.251f, 803.0743f, 38.42326f },
     { 1889.096f, 810.0487f, 38.43871f },
@@ -290,8 +290,7 @@ G3D::Vector3 const SaboteurXevozzPath[SaboteurXevozzPathSize] = // sniff
     { 1906.666f, 842.3111f, 38.63351f }
 };
 
-uint32 const SaboteurZuramatPathSize = 7;
-G3D::Vector3 const SaboteurZuramatPath[SaboteurZuramatPathSize] = // sniff
+Position const SaboteurZuramatPath[] = // sniff
 {
     { 1886.251f, 803.0743f, 38.42326f },
     { 1889.69f,  807.0032f, 38.39914f },
@@ -430,6 +429,8 @@ class npc_sinclari_vh : public CreatureScript
                                 me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
                                 for (Creature* guard : guardList)
                                 {
+                                    if (!guard->IsAlive())
+                                        continue;
                                     guard->SetReactState(REACT_PASSIVE);
                                     guard->SetWalk(false);
                                     guard->GetMotionMaster()->MovePoint(0, GuardsMovePosition);
@@ -542,41 +543,35 @@ class npc_azure_saboteur : public CreatureScript
                     _bossId = _instance->GetData(DATA_2ND_BOSS);
             }
 
+            template<size_t N>
+            void StartSmoothPath(Position const (&path)[N])
+            {
+                me->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, &path[0], N, false);
+            }
+
             void StartMovement()
             {
-                uint32 pathSize = 0;
-                G3D::Vector3 const* path = nullptr;
-
                 switch (_bossId)
                 {
                     case DATA_MORAGG:
-                        pathSize = SaboteurMoraggPathSize;
-                        path = SaboteurMoraggPath;
+                        StartSmoothPath(SaboteurMoraggPath);
                         break;
                     case DATA_EREKEM:
-                        pathSize = SaboteurErekemPathSize;
-                        path = SaboteurErekemPath;
+                        StartSmoothPath(SaboteurErekemPath);
                         break;
                     case DATA_ICHORON:
-                        pathSize = SaboteurIchoronPathSize;
-                        path = SaboteurIchoronPath;
+                        StartSmoothPath(SaboteurIchoronPath);
                         break;
                     case DATA_LAVANTHOR:
-                        pathSize = SaboteurLavanthorPathSize;
-                        path = SaboteurLavanthorPath;
+                        StartSmoothPath(SaboteurLavanthorPath);
                         break;
                     case DATA_XEVOZZ:
-                        pathSize = SaboteurXevozzPathSize;
-                        path = SaboteurXevozzPath;
+                        StartSmoothPath(SaboteurXevozzPath);
                         break;
                     case DATA_ZURAMAT:
-                        pathSize = SaboteurZuramatPathSize;
-                        path = SaboteurZuramatPath;
+                        StartSmoothPath(SaboteurZuramatPath);
                         break;
                 }
-
-                if (path)
-                    me->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, path, pathSize, false);
             }
 
             void Reset() override
@@ -848,58 +843,57 @@ struct violet_hold_trashAI : public npc_escortAI
         _scheduler.CancelAll();
     }
 
+    template<size_t N>
+    Position const* GetPathAndInitLastWaypointFrom(Position const (&path)[N])
+    {
+        _lastWaypointId = N - 1;
+        return &path[0];
+    }
+
     void SetData(uint32 type, uint32 data) override
     {
         if (type == DATA_PORTAL_LOCATION)
         {
-            G3D::Vector3 const* path = nullptr;
+            Position const* path = nullptr;
 
             switch (data)
             {
                 case 0:
-                    _lastWaypointId = 5;
-                    path = FirstPortalWPs;
+                    path = GetPathAndInitLastWaypointFrom(FirstPortalWPs);
                     break;
                 case 7:
                     switch (urand(0, 1))
                     {
                         case 0:
-                            _lastWaypointId = 8;
-                            path = SecondPortalFirstWPs;
+                            path = GetPathAndInitLastWaypointFrom(SecondPortalFirstWPs);
                             break;
                         case 1:
-                            _lastWaypointId = 7;
-                            path = SecondPortalSecondWPs;
+                            path = GetPathAndInitLastWaypointFrom(SecondPortalSecondWPs);
                             break;
                     }
                     break;
                 case 2:
-                    _lastWaypointId = 7;
-                    path = ThirdPortalWPs;
+                    path = GetPathAndInitLastWaypointFrom(ThirdPortalWPs);
                     break;
                 case 6:
-                    _lastWaypointId = 8;
-                    path = FourthPortalWPs;
+                    path = GetPathAndInitLastWaypointFrom(FourthPortalWPs);
                     break;
                 case 1:
-                    _lastWaypointId = 5;
-                    path = FifthPortalWPs;
+                    path = GetPathAndInitLastWaypointFrom(FifthPortalWPs);
                     break;
                 case 5:
-                    _lastWaypointId = 3;
-                    path = SixthPoralWPs;
+                    path = GetPathAndInitLastWaypointFrom(SixthPoralWPs);
                     break;
                 default:
-                    _lastWaypointId = 0;
-                    path = DefaultPortalWPs;
+                    path = GetPathAndInitLastWaypointFrom(DefaultPortalWPs);
                     break;
             }
 
             if (path)
             {
                 for (uint32 i = 0; i <= _lastWaypointId; i++)
-                    AddWaypoint(i, path[i].x + irand(-1, 1), path[i].y + irand(-1, 1), path[i].z, 0);
-                me->SetHomePosition(path[_lastWaypointId].x, path[_lastWaypointId].y, path[_lastWaypointId].z, float(M_PI));
+                    AddWaypoint(i, path[i].GetPositionX() + irand(-1, 1), path[i].GetPositionY() + irand(-1, 1), path[i].GetPositionZ(), 0);
+                me->SetHomePosition(path[_lastWaypointId].GetPositionX(), path[_lastWaypointId].GetPositionY(), path[_lastWaypointId].GetPositionZ(), float(M_PI));
             }
 
             Start(true, true);
@@ -1393,9 +1387,7 @@ class spell_violet_hold_teleport_player : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TELEPORT_PLAYER_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TELEPORT_PLAYER_EFFECT });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

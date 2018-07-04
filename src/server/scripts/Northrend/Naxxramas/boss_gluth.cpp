@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include <math.h>
 
 enum Texts
 {
@@ -94,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gluthAI>(creature);
+        return GetNaxxramasAI<boss_gluthAI>(creature);
     }
 
     struct boss_gluthAI : public BossAI
@@ -258,6 +260,9 @@ public:
                         break;
                     }
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -323,7 +328,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return (sSpellMgr->GetSpellInfo(SPELL_DECIMATE_DMG) != nullptr);
+            return ValidateSpellInfo({ SPELL_DECIMATE_DMG });
         }
 
         void Register() override
@@ -405,17 +410,17 @@ public:
             if (state == STATE_ZOMBIE_DECIMATED)
             {
                 timer += diff;
-                // Putting this in the UpdateAI loop fixes an issue where death gripping a decimated zombie would make the zombie stand still until the rest of the fight.
-                // Also fix the issue where if one or more zombie is rooted when decimates hits (and MovePoint() is called), the zombie teleport to the boss. pretty weird behavior.
                 if (Creature* gluth = ObjectAccessor::GetCreature(*me, GluthGUID))
                 {
-                    if (timer > 1600 && me->GetExactDist2d(gluth) > 10.0 && me->CanFreeMove()) // it takes about 1600 ms for the animation to cycle. This way, the animation looks relatively smooth.
+                    // Putting this in the UpdateAI loop fixes an issue where death gripping a decimated zombie would make the zombie stand still until the rest of the fight.
+                    // Also fix the issue where if one or more zombie is rooted when decimates hits (and MovePoint() is called), the zombie teleport to the boss. pretty weird behavior.
+                    if (timer > 1600 && me->GetExactDist2d(gluth) > 10.0f && me->CanFreeMove()) // it takes about 1600 ms for the animation to cycle. This way, the animation looks relatively smooth.
                     {
                         me->GetMotionMaster()->MovePoint(0, gluth->GetPosition()); // isn't dynamic. So, to take into account Gluth's movement, it must be called periodicly.
                         timer = 0;
                     }
 
-                    if (me->GetExactDist2d(gluth) <= 10.0)
+                    if (me->GetExactDist2d(gluth) <= 10.0f)
                         me->StopMoving();
                 }
             }
@@ -470,7 +475,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_zombie_chowAI>(creature);
+        return GetNaxxramasAI<npc_zombie_chowAI>(creature);
     }
 };
 

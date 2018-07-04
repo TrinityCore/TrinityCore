@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,16 +18,24 @@
 #ifndef CollectionMgr_h__
 #define CollectionMgr_h__
 
-#include "WorldSession.h"
-#include <boost/dynamic_bitset.hpp>
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include "ObjectGuid.h"
+#include <boost/dynamic_bitset_fwd.hpp>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
 
+class Item;
+class WorldSession;
 struct ItemModifiedAppearanceEntry;
 
 enum HeirloomPlayerFlags
 {
     HEIRLOOM_FLAG_NONE                    = 0x00,
     HEIRLOOM_FLAG_BONUS_LEVEL_90          = 0x01,
-    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02
+    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02,
+    HEIRLOOM_FLAG_BONUS_LEVEL_110         = 0x04
 };
 
 enum HeirloomItemFlags
@@ -62,6 +70,7 @@ class TC_GAME_API CollectionMgr
 {
 public:
     explicit CollectionMgr(WorldSession* owner);
+    ~CollectionMgr();
 
     static void LoadMountDefinitions();
 
@@ -84,7 +93,7 @@ public:
     void LoadAccountHeirlooms(PreparedQueryResult result);
     void SaveAccountHeirlooms(SQLTransaction& trans);
     void AddHeirloom(uint32 itemId, uint32 flags);
-    void UpgradeHeirloom(uint32 itemId, uint32 castItem);
+    void UpgradeHeirloom(uint32 itemId, int32 castItem);
     void CheckHeirloomUpgrades(Item* item);
 
     bool UpdateAccountHeirlooms(uint32 itemId, uint32 flags);
@@ -107,6 +116,8 @@ public:
     void SaveAccountItemAppearances(SQLTransaction& trans);
     void AddItemAppearance(Item* item);
     void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
+    void AddTransmogSet(uint32 transmogSetId);
+    bool IsSetCompleted(uint32 transmogSetId) const;
     void RemoveTemporaryAppearance(Item* item);
     // returns pair<hasAppearance, isTemporary>
     std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;
@@ -132,7 +143,7 @@ private:
     ToyBoxContainer _toys;
     HeirloomContainer _heirlooms;
     MountContainer _mounts;
-    boost::dynamic_bitset<uint32> _appearances;
+    std::unique_ptr<boost::dynamic_bitset<uint32>> _appearances;
     std::unordered_map<uint32, std::unordered_set<ObjectGuid>> _temporaryAppearances;
     std::unordered_map<uint32, FavoriteAppearanceState> _favoriteAppearances;
 };

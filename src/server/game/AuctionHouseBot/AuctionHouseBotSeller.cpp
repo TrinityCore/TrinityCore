@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AuctionHouseBotSeller.h"
+#include "AuctionHouseMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "AuctionHouseMgr.h"
-#include "AuctionHouseBotSeller.h"
+#include "Random.h"
+#include <sstream>
 
 AuctionBotSeller::AuctionBotSeller()
 {
@@ -33,10 +38,10 @@ AuctionBotSeller::~AuctionBotSeller()
 
 bool AuctionBotSeller::Initialize()
 {
-    std::vector<uint32> npcItems;
-    std::vector<uint32> lootItems;
-    std::vector<uint32> includeItems;
-    std::vector<uint32> excludeItems;
+    std::unordered_set<uint32> npcItems;
+    std::unordered_set<uint32> lootItems;
+    std::unordered_set<uint32> includeItems;
+    std::unordered_set<uint32> excludeItems;
 
     TC_LOG_DEBUG("ahbot", "AHBot seller filters:");
 
@@ -44,34 +49,27 @@ bool AuctionBotSeller::Initialize()
         std::stringstream includeStream(sAuctionBotConfig->GetAHBotIncludes());
         std::string temp;
         while (std::getline(includeStream, temp, ','))
-            includeItems.push_back(atoi(temp.c_str()));
+            includeItems.insert(atoi(temp.c_str()));
     }
 
     {
         std::stringstream excludeStream(sAuctionBotConfig->GetAHBotExcludes());
         std::string temp;
         while (std::getline(excludeStream, temp, ','))
-            excludeItems.push_back(atoi(temp.c_str()));
+            excludeItems.insert(atol(temp.c_str()));
     }
 
-    TC_LOG_DEBUG("ahbot", "Forced Inclusion %u items", (uint32)includeItems.size());
-    TC_LOG_DEBUG("ahbot", "Forced Exclusion %u items", (uint32)excludeItems.size());
+    TC_LOG_DEBUG("ahbot", "Forced Inclusion " SZFMTD " items", includeItems.size());
+    TC_LOG_DEBUG("ahbot", "Forced Exclusion " SZFMTD " items", excludeItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading npc vendor items for filter..");
-    const CreatureTemplateContainer* creatures = sObjectMgr->GetCreatureTemplates();
-    std::set<uint32> tempItems;
-    for (CreatureTemplateContainer::const_iterator it = creatures->begin(); it != creatures->end(); ++it)
-    {
-        if (const VendorItemData* data = sObjectMgr->GetNpcVendorItemList(it->first))
-        {
-            for (VendorItemList::const_iterator it2 = data->m_items.begin(); it2 != data->m_items.end(); ++it2)
-                tempItems.insert((*it2)->item);
-        }
-    }
-    for (std::set<uint32>::const_iterator it = tempItems.begin(); it != tempItems.end(); ++it)
-        npcItems.push_back(*it);
+    CreatureTemplateContainer const* creatures = sObjectMgr->GetCreatureTemplates();
+    for (auto it = creatures->begin(); it != creatures->end(); ++it)
+        if (VendorItemData const* data = sObjectMgr->GetNpcVendorItemList(it->first))
+            for (VendorItem const& vendorItem : data->m_items)
+                npcItems.insert(vendorItem.item);
 
-    TC_LOG_DEBUG("ahbot", "Npc vendor filter has %u items", (uint32)npcItems.size());
+    TC_LOG_DEBUG("ahbot", "Npc vendor filter has " SZFMTD " items", npcItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading loot items for filter..");
     QueryResult result = WorldDatabase.PQuery(
@@ -97,11 +95,11 @@ bool AuctionBotSeller::Initialize()
             if (!entry)
                 continue;
 
-            lootItems.push_back(entry);
+            lootItems.insert(entry);
         } while (result->NextRow());
     }
 
-    TC_LOG_DEBUG("ahbot", "Loot filter has %u items", (uint32)lootItems.size());
+    TC_LOG_DEBUG("ahbot", "Loot filter has " SZFMTD " items", lootItems.size());
     TC_LOG_DEBUG("ahbot", "Sorting and cleaning items for AHBot seller...");
 
     uint32 itemsAdded = 0;
@@ -118,21 +116,11 @@ bool AuctionBotSeller::Initialize()
             continue;
 
         // forced exclude filter
-        bool isExcludeItem = false;
-        for (size_t i = 0; i < excludeItems.size() && !isExcludeItem; ++i)
-            if (itemId == excludeItems[i])
-                isExcludeItem = true;
-
-        if (isExcludeItem)
+        if (excludeItems.find(itemId) != excludeItems.end())
             continue;
 
         // forced include filter
-        bool isForcedIncludeItem = false;
-        for (size_t i = 0; i < includeItems.size() && !isForcedIncludeItem; ++i)
-            if (itemId == includeItems[i])
-                isForcedIncludeItem = true;
-
-        if (isForcedIncludeItem)
+        if (includeItems.find(itemId) != includeItems.end())
         {
             _itemPool[prototype->GetQuality()][prototype->GetClass()].push_back(itemId);
             ++itemsAdded;
@@ -218,42 +206,19 @@ bool AuctionBotSeller::Initialize()
 
         // vendor filter
         if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_VENDOR))
-        {
-            bool isVendorItem = false;
-            for (size_t i = 0; i < npcItems.size() && !isVendorItem; ++i)
-                if (itemId == npcItems[i])
-                    isVendorItem = true;
-
-            if (isVendorItem)
+            if (npcItems.find(itemId) != npcItems.end())
                 continue;
-        }
 
         // loot filter
         if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_LOOT))
-        {
-            bool isLootItem = false;
-            for (size_t i = 0; i < lootItems.size() && !isLootItem; ++i)
-                if (itemId == lootItems[i])
-                    isLootItem = true;
-
-            if (isLootItem)
+            if (lootItems.find(itemId) != lootItems.end())
                 continue;
-        }
 
         // not vendor/loot filter
         if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ITEMS_MISC))
         {
-            bool isVendorItem = false;
-            bool isLootItem = false;
-
-            for (size_t i = 0; i < npcItems.size() && !isVendorItem; ++i)
-                if (itemId == npcItems[i])
-                    isVendorItem = true;
-
-            for (size_t i = 0; i < lootItems.size() && !isLootItem; ++i)
-                if (itemId == lootItems[i])
-                    isLootItem = true;
-
+            bool isVendorItem = npcItems.find(itemId) != npcItems.end();
+            bool isLootItem = lootItems.find(itemId) != lootItems.end();
             if (!isLootItem && !isVendorItem)
                 continue;
         }
@@ -386,12 +351,15 @@ bool AuctionBotSeller::Initialize()
 
     LoadConfig();
 
-    TC_LOG_DEBUG("ahbot", "Items loaded \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
-    for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
-        TC_LOG_DEBUG("ahbot", "\t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
-        (uint32)_itemPool[0][i].size(), (uint32)_itemPool[1][i].size(), (uint32)_itemPool[2][i].size(),
-        (uint32)_itemPool[3][i].size(), (uint32)_itemPool[4][i].size(), (uint32)_itemPool[5][i].size(),
-        (uint32)_itemPool[6][i].size());
+    if (sLog->ShouldLog("ahbot", LOG_LEVEL_DEBUG))
+    {
+        sLog->outMessage("ahbot", LOG_LEVEL_DEBUG, "Items loaded \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
+        for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
+            sLog->outMessage("ahbot", LOG_LEVEL_DEBUG, "\t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
+            (uint32)_itemPool[0][i].size(), (uint32)_itemPool[1][i].size(), (uint32)_itemPool[2][i].size(),
+                (uint32)_itemPool[3][i].size(), (uint32)_itemPool[4][i].size(), (uint32)_itemPool[5][i].size(),
+                (uint32)_itemPool[6][i].size());
+    }
 
     TC_LOG_DEBUG("ahbot", "AHBot seller configuration data loaded and initialized");
     return true;
@@ -639,7 +607,7 @@ uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
         {
             ItemTemplate const* prototype = item->GetTemplate();
             if (prototype)
-                if (!auctionEntry->owner)                         // Add only ahbot items
+                if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
                     ++itemsSaved[prototype->GetQuality()][prototype->GetClass()];
         }
     }
@@ -731,9 +699,11 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
     buyp = static_cast<uint32>(frand(basePriceFloat - range, basePriceFloat + range) + 0.5f);
     if (buyp == 0)
         buyp = 1;
-    uint32 basePrice = buyp * .5;
-    range = buyp * .4;
-    bidp = urand(static_cast<uint32>(basePrice - range + 0.5f), static_cast<uint32>(basePrice + range + 0.5f)) + 1;
+
+    float bidPercentage = frand(sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIDPRICE_MIN), sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BIDPRICE_MAX));
+    bidp = static_cast<uint32>(bidPercentage * buyp);
+    if (bidp == 0)
+        bidp = 1;
 }
 
 // Determines the stack size to use for the item
@@ -987,8 +957,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         // Update the just created item so that if it needs random properties it has them.
         // Ex:  Notched Shortsword of Stamina will only generate as a Notched Shortsword without this.
-        if (int32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemId))
-            item->SetItemRandomProperties(randomPropertyId);
+        item->SetItemRandomProperties(GenerateItemRandomPropertyId(itemId));
 
         uint32 buyoutPrice;
         uint32 bidPrice = 0;
@@ -1016,7 +985,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         AuctionEntry* auctionEntry = new AuctionEntry();
         auctionEntry->Id = sObjectMgr->GenerateAuctionID();
-        auctionEntry->owner = UI64LIT(0);
+        auctionEntry->owner = sAuctionBotConfig->GetRandChar();
         auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
         auctionEntry->itemEntry = item->GetEntry();
         auctionEntry->startbid = bidPrice;

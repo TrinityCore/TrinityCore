@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,6 +86,24 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
 
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Talent::LearnPvpTalents::Read()
+{
+    Talents.resize(_worldPacket.ReadBits(6));
+    for (uint32 i = 0; i < Talents.size(); ++i)
+        _worldPacket >> Talents[i];
+}
+
+WorldPacket const* WorldPackets::Talent::LearnPvpTalentsFailed::Write()
+{
+    _worldPacket.WriteBits(Reason, 4);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint32(Talents.size());
+    if (!Talents.empty())
+        _worldPacket.append(Talents.data(), Talents.size());
 
     return &_worldPacket;
 }

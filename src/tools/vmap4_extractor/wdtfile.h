@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,28 +19,32 @@
 #ifndef WDTFILE_H
 #define WDTFILE_H
 
-#include "mpqfile.h"
+#include "cascfile.h"
 #include "wmo.h"
+#include <memory>
 #include <string>
 #include <vector>
-#include <cstdlib>
 
 class ADTFile;
 
 class WDTFile
 {
-private:
-    MPQFile WDT;
-    std::string filename;
 public:
-    WDTFile(char* file_name, char* file_name1);
-    ~WDTFile(void);
-    bool init(char* map_id, unsigned int mapID);
+    WDTFile(char const* storagePath, std::string mapName, bool cache);
+    ~WDTFile();
+    bool init(uint32 mapId);
 
-    std::vector<std::string> gWmoInstansName;
-    int gnWMO;
-
-    ADTFile* GetMap(int x, int z);
+    ADTFile* GetMap(int32 x, int32 y);
+    void FreeADT(ADTFile* adt);
+private:
+    CASCFile _file;
+    std::string _mapName;
+    std::vector<std::string> _wmoNames;
+    struct ADTCache
+    {
+        std::unique_ptr<ADTFile> file[64][64];
+    };
+    std::unique_ptr<ADTCache> _adtCache;
 };
 
 #endif

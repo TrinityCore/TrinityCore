@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "GroupMgr.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
+#include "Log.h"
 #include "World.h"
 
 GroupMgr::GroupMgr()

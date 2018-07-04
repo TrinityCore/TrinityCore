@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,9 @@
 #define TalentPackets_h__
 
 #include "Packet.h"
+#include "DBCEnums.h"
+#include "ObjectGuid.h"
 #include "PacketUtilities.h"
-#include "Player.h"
 
 namespace WorldPackets
 {
@@ -111,6 +112,28 @@ namespace WorldPackets
 
             std::vector<GlyphBinding> Glyphs;
             bool IsFullUpdate = false;
+        };
+
+        class LearnPvpTalents final : public ClientPacket
+        {
+        public:
+            LearnPvpTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PVP_TALENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            Array<uint16, 6> Talents;
+        };
+
+        class LearnPvpTalentsFailed final : public ServerPacket
+        {
+        public:
+            LearnPvpTalentsFailed() : ServerPacket(SMSG_LEARN_PVP_TALENTS_FAILED, 1 + 4 + 4 + 2 * MAX_PVP_TALENT_TIERS) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            int32 SpellID = 0;
+            std::vector<uint16> Talents;
         };
     }
 }

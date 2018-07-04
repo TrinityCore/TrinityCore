@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@
 #define ChannelPackets_h__
 
 #include "Packet.h"
-#include "Channel.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
@@ -103,8 +102,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid AddedUserGUID;
-            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
-            uint8 UserFlags = MEMBER_FLAG_NONE;
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint8 UserFlags = 0; ///< @see enum ChannelMemberFlags
             int32 ChannelID = 0;
             std::string ChannelName;
         };
@@ -117,7 +116,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid RemovedUserGUID;
-            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
             uint32 ChannelID = 0;
             std::string ChannelName;
         };
@@ -130,51 +129,42 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UpdatedUserGUID;
-            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
-            uint8 UserFlags = MEMBER_FLAG_NONE;
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint8 UserFlags = 0; ///< @see enum ChannelMemberFlags
             int32 ChannelID = 0;
+            std::string ChannelName;
+        };
+
+        class ChannelCommand final : public ClientPacket
+        {
+        public:
+            ChannelCommand(WorldPacket&& packet);
+
+            void Read() override;
+
             std::string ChannelName;
         };
 
         class ChannelPlayerCommand final : public ClientPacket
         {
         public:
-            ChannelPlayerCommand(WorldPacket&& packet) : ClientPacket(std::move(packet))
-            {
-                switch (GetOpcode())
-                {
-                    default:
-                        ABORT();
-                    case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
-                    case CMSG_CHAT_CHANNEL_BAN:
-                    case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
-                    case CMSG_CHAT_CHANNEL_DISPLAY_LIST:
-                    case CMSG_CHAT_CHANNEL_INVITE:
-                    case CMSG_CHAT_CHANNEL_KICK:
-                    case CMSG_CHAT_CHANNEL_LIST:
-                    case CMSG_CHAT_CHANNEL_MODERATE:
-                    case CMSG_CHAT_CHANNEL_MODERATOR:
-                    case CMSG_CHAT_CHANNEL_MUTE:
-                    case CMSG_CHAT_CHANNEL_OWNER:
-                    case CMSG_CHAT_CHANNEL_PASSWORD:
-                    case CMSG_CHAT_CHANNEL_SET_OWNER:
-                    case CMSG_CHAT_CHANNEL_SILENCE_ALL:
-                    case CMSG_CHAT_CHANNEL_SILENCE_VOICE:
-                    case CMSG_CHAT_CHANNEL_UNBAN:
-                    case CMSG_CHAT_CHANNEL_UNMODERATOR:
-                    case CMSG_CHAT_CHANNEL_UNMUTE:
-                    case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
-                    case CMSG_CHAT_CHANNEL_UNSILENCE_VOICE:
-                    case CMSG_CHAT_CHANNEL_VOICE_OFF:
-                    case CMSG_CHAT_CHANNEL_VOICE_ON:
-                        break;
-                }
-            }
+            ChannelPlayerCommand(WorldPacket&& packet);
 
             void Read() override;
 
             std::string ChannelName;
             std::string Name;
+        };
+
+        class ChannelPassword final : public ClientPacket
+        {
+        public:
+            ChannelPassword(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CHANNEL_PASSWORD, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string ChannelName;
+            std::string Password;
         };
 
         class JoinChannel final : public ClientPacket

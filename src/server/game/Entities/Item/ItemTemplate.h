@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,9 +19,12 @@
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
 
+#include "Common.h"
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 #include <bitset>
+#include <unordered_map>
+#include <vector>
 
 enum ItemModType
 {
@@ -153,7 +156,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK13         = 0x00040000,
     ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
-    ITEM_FIELD_FLAG_UNK16         = 0x00200000,
+    ITEM_FIELD_FLAG_NEW_ITEM      = 0x00200000, // Item glows in inventory
     ITEM_FIELD_FLAG_UNK17         = 0x00400000,
     ITEM_FIELD_FLAG_UNK18         = 0x00800000,
     ITEM_FIELD_FLAG_UNK19         = 0x01000000,
@@ -174,7 +177,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_HEROIC_TOOLTIP                    = 0x00000008, // Makes green "Heroic" text appear on item
     ITEM_FLAG_DEPRECATED                        = 0x00000010, // Cannot equip or use
     ITEM_FLAG_NO_USER_DESTROY                   = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
-    ITEM_FLAG_PLAYERCAST                        = 0x00000040,
+    ITEM_FLAG_PLAYERCAST                        = 0x00000040, // Item's spells are castable by players
     ITEM_FLAG_NO_EQUIP_COOLDOWN                 = 0x00000080, // No default 30 seconds cooldown when equipped
     ITEM_FLAG_MULTI_LOOT_QUEST                  = 0x00000100,
     ITEM_FLAG_IS_WRAPPER                        = 0x00000200, // Item can wrap other items
@@ -182,7 +185,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_MULTI_DROP                        = 0x00000800, // Looting this item does not remove it from available loot
     ITEM_FLAG_ITEM_PURCHASE_RECORD              = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
     ITEM_FLAG_PETITION                          = 0x00002000, // Item is guild or arena charter
-    ITEM_FLAG_HAS_TEXT                          = 0x00004000,
+    ITEM_FLAG_HAS_TEXT                          = 0x00004000, // Only readable items have this (but not all)
     ITEM_FLAG_NO_DISENCHANT                     = 0x00008000,
     ITEM_FLAG_REAL_DURATION                     = 0x00010000,
     ITEM_FLAG_NO_CREATOR                        = 0x00020000,
@@ -190,7 +193,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_UNIQUE_EQUIPPABLE                 = 0x00080000, // You can only equip one of these
     ITEM_FLAG_IGNORE_FOR_AURAS                  = 0x00100000,
     ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS = 0x00200000, // Item can be used during arena match
-    ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000,
+    ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000, // Some Thrown weapons have it (and only Thrown) but not all
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED             = 0x00800000, // Item can be used in shapeshift forms
     ITEM_FLAG_HAS_QUEST_GLOW                    = 0x01000000,
     ITEM_FLAG_HIDE_UNUSABLE_RECIPE              = 0x02000000, // Profession recipes: can only be looted if you meet requirements and don't already know it
@@ -290,13 +293,6 @@ enum CurrencyCategory
     // ...
 };
 
-enum ItemVendorType
-{
-    ITEM_VENDOR_TYPE_NONE     = 0,
-    ITEM_VENDOR_TYPE_ITEM     = 1,
-    ITEM_VENDOR_TYPE_CURRENCY = 2,
-};
-
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -345,7 +341,7 @@ extern uint32 const SocketColorToGemTypeMask[19];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
-enum InventoryType
+enum InventoryType : uint8
 {
     INVTYPE_NON_EQUIP                           = 0,
     INVTYPE_HEAD                                = 1,
@@ -711,66 +707,66 @@ struct TC_GAME_API ItemTemplate
     ItemSparseEntry const* ExtendedData;
 
     uint32 GetId() const { return BasicData->ID; }
-    uint32 GetClass() const { return BasicData->Class; }
-    uint32 GetSubClass() const { return BasicData->SubClass; }
-    uint32 GetQuality() const { return ExtendedData->Quality; }
+    uint32 GetClass() const { return BasicData->ClassID; }
+    uint32 GetSubClass() const { return BasicData->SubclassID; }
+    uint32 GetQuality() const { return ExtendedData->OverallQualityID; }
     uint32 GetFlags() const { return ExtendedData->Flags[0]; }
     uint32 GetFlags2() const { return ExtendedData->Flags[1]; }
     uint32 GetFlags3() const { return ExtendedData->Flags[2]; }
-    float GetUnk1() const { return ExtendedData->Unk1; }
-    float GetUnk2() const { return ExtendedData->Unk2; }
-    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->BuyCount, 1u); }
+    uint32 GetFlags4() const { return ExtendedData->Flags[3]; }
+    float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
+    float GetPriceVariance() const { return ExtendedData->PriceVariance; }
+    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->VendorStackCount, 1u); }
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
-    int32 GetAllowableRace() const { return ExtendedData->AllowableRace; }
+    int64 GetAllowableRace() const { return ExtendedData->AllowableRace; }
     uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
     uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
-    uint32 GetRequiredSpell() const { return ExtendedData->RequiredSpell; }
-    uint32 GetRequiredReputationFaction() const { return ExtendedData->RequiredReputationFaction; }
-    uint32 GetRequiredReputationRank() const { return ExtendedData->RequiredReputationRank; }
+    uint32 GetRequiredSpell() const { return ExtendedData->RequiredAbility; }
+    uint32 GetRequiredReputationFaction() const { return ExtendedData->MinFactionID; }
+    uint32 GetRequiredReputationRank() const { return ExtendedData->MinReputation; }
     uint32 GetMaxCount() const { return ExtendedData->MaxCount; }
     uint32 GetContainerSlots() const { return ExtendedData->ContainerSlots; }
-    int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatType[index]; }
+    int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatModifierBonusStat[index]; }
     int32 GetItemStatValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatValue[index]; }
-    int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatAllocation[index]; }
-    float GetItemStatSocketCostMultiplier(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatSocketCostMultiplier[index]; }
-    uint32 GetScalingStatDistribution() const { return ExtendedData->ScalingStatDistribution; }
-    uint32 GetDamageType() const { return ExtendedData->DamageType; }
-    uint32 GetDelay() const { return ExtendedData->Delay; }
-    float GetRangedModRange() const { return ExtendedData->RangedModRange; }
+    int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentEditor[index]; }
+    float GetItemStatSocketCostMultiplier(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
+    uint32 GetScalingStatDistribution() const { return ExtendedData->ScalingStatDistributionID; }
+    uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
+    uint32 GetDelay() const { return ExtendedData->ItemDelay; }
+    float GetRangedModRange() const { return ExtendedData->ItemRange; }
     ItemBondingType GetBonding() const { return ItemBondingType(ExtendedData->Bonding); }
     char const* GetName(LocaleConstant locale) const;
-    uint32 GetPageText() const { return ExtendedData->PageText; }
-    uint32 GetStartQuest() const { return ExtendedData->StartQuest; }
+    uint32 GetPageText() const { return ExtendedData->PageID; }
+    uint32 GetStartQuest() const { return ExtendedData->StartQuestID; }
     uint32 GetLockID() const { return ExtendedData->LockID; }
-    uint32 GetRandomProperty() const { return ExtendedData->RandomProperty; }
-    uint32 GetRandomSuffix() const { return ExtendedData->RandomSuffix; }
+    uint32 GetRandomProperty() const { return ExtendedData->RandomSelect; }
+    uint32 GetRandomSuffix() const { return ExtendedData->ItemRandomSuffixGroupID; }
     uint32 GetItemSet() const { return ExtendedData->ItemSet; }
-    uint32 GetArea() const { return ExtendedData->Area; }
-    uint32 GetMap() const { return ExtendedData->Map; }
+    uint32 GetArea() const { return ExtendedData->ZoneBound; }
+    uint32 GetMap() const { return ExtendedData->InstanceBound; }
     uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
-    uint32 GetTotemCategory() const { return ExtendedData->TotemCategory; }
-    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketColor[index]); }
-    uint32 GetSocketBonus() const { return ExtendedData->SocketBonus; }
+    uint32 GetTotemCategory() const { return ExtendedData->TotemCategoryID; }
+    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketType[index]); }
+    uint32 GetSocketBonus() const { return ExtendedData->SocketMatchEnchantmentId; }
     uint32 GetGemProperties() const { return ExtendedData->GemProperties; }
-    float GetArmorDamageModifier() const { return ExtendedData->ArmorDamageModifier; }
-    uint32 GetDuration() const { return ExtendedData->Duration; }
-    uint32 GetItemLimitCategory() const { return ExtendedData->ItemLimitCategory; }
-    HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->HolidayID); }
-    float  GetStatScalingFactor() const { return ExtendedData->StatScalingFactor; }
+    float GetQualityModifier() const { return ExtendedData->QualityModifier; }
+    uint32 GetDuration() const { return ExtendedData->DurationInInventory; }
+    uint32 GetItemLimitCategory() const { return ExtendedData->LimitCategory; }
+    HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->RequiredHoliday); }
+    float  GetDmgVariance() const { return ExtendedData->DmgVariance; }
     uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
+    uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;
 
     // extra fields, not part of db2 files
     uint32 ScriptId;
-    uint32 DisenchantID;
-    uint32 RequiredDisenchantSkill;
     uint32 FoodType;
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
@@ -807,11 +803,8 @@ struct TC_GAME_API ItemTemplate
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
-    bool IsUsableByLootSpecialization(Player const* player) const;
+    bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };
-
-// Benchmarked: Faster than std::map (insert/find)
-typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 
 #endif

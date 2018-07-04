@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +23,12 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "utgarde_keep.h"
 
 enum KelsethEncounter
@@ -213,6 +216,9 @@ class boss_keleseth : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -262,7 +268,7 @@ class npc_vrykul_skeleton : public CreatureScript
                     {
                         // from sniffs
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                        me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                         events.Reset();
                         events.ScheduleEvent(EVENT_RESURRECT, urand(18, 22) * IN_MILLISECONDS);
@@ -303,13 +309,16 @@ class npc_vrykul_skeleton : public CreatureScript
                             DoCast(me, SPELL_SHADOW_FISSURE, true);
                             DoCastAOE(SPELL_BONE_ARMOR, true);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
                             break;
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))

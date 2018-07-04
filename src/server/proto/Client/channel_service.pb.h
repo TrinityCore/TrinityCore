@@ -44,14 +44,11 @@ void TC_PROTO_API protobuf_AddDesc_channel_5fservice_2eproto();
 void protobuf_AssignDesc_channel_5fservice_2eproto();
 void protobuf_ShutdownFile_channel_5fservice_2eproto();
 
-class AddMemberRequest;
 class RemoveMemberRequest;
-class UnsubscribeMemberRequest;
 class SendMessageRequest;
 class UpdateChannelStateRequest;
 class UpdateMemberStateRequest;
 class DissolveRequest;
-class SetRolesRequest;
 class JoinNotification;
 class MemberAddedNotification;
 class LeaveNotification;
@@ -61,131 +58,6 @@ class UpdateChannelStateNotification;
 class UpdateMemberStateNotification;
 
 // ===================================================================
-
-class TC_PROTO_API AddMemberRequest : public ::google::protobuf::Message {
- public:
-  AddMemberRequest();
-  virtual ~AddMemberRequest();
-
-  AddMemberRequest(const AddMemberRequest& from);
-
-  inline AddMemberRequest& operator=(const AddMemberRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const AddMemberRequest& default_instance();
-
-  void Swap(AddMemberRequest* other);
-
-  // implements Message ----------------------------------------------
-
-  AddMemberRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const AddMemberRequest& from);
-  void MergeFrom(const AddMemberRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  inline bool has_agent_id() const;
-  inline void clear_agent_id();
-  static const int kAgentIdFieldNumber = 1;
-  inline const ::bgs::protocol::EntityId& agent_id() const;
-  inline ::bgs::protocol::EntityId* mutable_agent_id();
-  inline ::bgs::protocol::EntityId* release_agent_id();
-  inline void set_allocated_agent_id(::bgs::protocol::EntityId* agent_id);
-
-  // required .bgs.protocol.Identity member_identity = 2;
-  inline bool has_member_identity() const;
-  inline void clear_member_identity();
-  static const int kMemberIdentityFieldNumber = 2;
-  inline const ::bgs::protocol::Identity& member_identity() const;
-  inline ::bgs::protocol::Identity* mutable_member_identity();
-  inline ::bgs::protocol::Identity* release_member_identity();
-  inline void set_allocated_member_identity(::bgs::protocol::Identity* member_identity);
-
-  // required .bgs.protocol.channel.v1.MemberState member_state = 3;
-  inline bool has_member_state() const;
-  inline void clear_member_state();
-  static const int kMemberStateFieldNumber = 3;
-  inline const ::bgs::protocol::channel::v1::MemberState& member_state() const;
-  inline ::bgs::protocol::channel::v1::MemberState* mutable_member_state();
-  inline ::bgs::protocol::channel::v1::MemberState* release_member_state();
-  inline void set_allocated_member_state(::bgs::protocol::channel::v1::MemberState* member_state);
-
-  // required uint64 object_id = 4;
-  inline bool has_object_id() const;
-  inline void clear_object_id();
-  static const int kObjectIdFieldNumber = 4;
-  inline ::google::protobuf::uint64 object_id() const;
-  inline void set_object_id(::google::protobuf::uint64 value);
-
-  // optional bool subscribe = 5 [default = true];
-  inline bool has_subscribe() const;
-  inline void clear_subscribe();
-  static const int kSubscribeFieldNumber = 5;
-  inline bool subscribe() const;
-  inline void set_subscribe(bool value);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.AddMemberRequest)
- private:
-  inline void set_has_agent_id();
-  inline void clear_has_agent_id();
-  inline void set_has_member_identity();
-  inline void clear_has_member_identity();
-  inline void set_has_member_state();
-  inline void clear_has_member_state();
-  inline void set_has_object_id();
-  inline void clear_has_object_id();
-  inline void set_has_subscribe();
-  inline void clear_has_subscribe();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::EntityId* agent_id_;
-  ::bgs::protocol::Identity* member_identity_;
-  ::bgs::protocol::channel::v1::MemberState* member_state_;
-  ::google::protobuf::uint64 object_id_;
-  bool subscribe_;
-  friend void TC_PROTO_API protobuf_AddDesc_channel_5fservice_2eproto();
-  friend void protobuf_AssignDesc_channel_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_channel_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static AddMemberRequest* default_instance_;
-};
-// -------------------------------------------------------------------
 
 class TC_PROTO_API RemoveMemberRequest : public ::google::protobuf::Message {
  public:
@@ -287,99 +159,6 @@ class TC_PROTO_API RemoveMemberRequest : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static RemoveMemberRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API UnsubscribeMemberRequest : public ::google::protobuf::Message {
- public:
-  UnsubscribeMemberRequest();
-  virtual ~UnsubscribeMemberRequest();
-
-  UnsubscribeMemberRequest(const UnsubscribeMemberRequest& from);
-
-  inline UnsubscribeMemberRequest& operator=(const UnsubscribeMemberRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const UnsubscribeMemberRequest& default_instance();
-
-  void Swap(UnsubscribeMemberRequest* other);
-
-  // implements Message ----------------------------------------------
-
-  UnsubscribeMemberRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const UnsubscribeMemberRequest& from);
-  void MergeFrom(const UnsubscribeMemberRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  inline bool has_agent_id() const;
-  inline void clear_agent_id();
-  static const int kAgentIdFieldNumber = 1;
-  inline const ::bgs::protocol::EntityId& agent_id() const;
-  inline ::bgs::protocol::EntityId* mutable_agent_id();
-  inline ::bgs::protocol::EntityId* release_agent_id();
-  inline void set_allocated_agent_id(::bgs::protocol::EntityId* agent_id);
-
-  // required .bgs.protocol.EntityId member_id = 2;
-  inline bool has_member_id() const;
-  inline void clear_member_id();
-  static const int kMemberIdFieldNumber = 2;
-  inline const ::bgs::protocol::EntityId& member_id() const;
-  inline ::bgs::protocol::EntityId* mutable_member_id();
-  inline ::bgs::protocol::EntityId* release_member_id();
-  inline void set_allocated_member_id(::bgs::protocol::EntityId* member_id);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
- private:
-  inline void set_has_agent_id();
-  inline void clear_has_agent_id();
-  inline void set_has_member_id();
-  inline void clear_has_member_id();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::EntityId* agent_id_;
-  ::bgs::protocol::EntityId* member_id_;
-  friend void TC_PROTO_API protobuf_AddDesc_channel_5fservice_2eproto();
-  friend void protobuf_AssignDesc_channel_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_channel_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static UnsubscribeMemberRequest* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -778,114 +557,6 @@ class TC_PROTO_API DissolveRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_PROTO_API SetRolesRequest : public ::google::protobuf::Message {
- public:
-  SetRolesRequest();
-  virtual ~SetRolesRequest();
-
-  SetRolesRequest(const SetRolesRequest& from);
-
-  inline SetRolesRequest& operator=(const SetRolesRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const SetRolesRequest& default_instance();
-
-  void Swap(SetRolesRequest* other);
-
-  // implements Message ----------------------------------------------
-
-  SetRolesRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SetRolesRequest& from);
-  void MergeFrom(const SetRolesRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  inline bool has_agent_id() const;
-  inline void clear_agent_id();
-  static const int kAgentIdFieldNumber = 1;
-  inline const ::bgs::protocol::EntityId& agent_id() const;
-  inline ::bgs::protocol::EntityId* mutable_agent_id();
-  inline ::bgs::protocol::EntityId* release_agent_id();
-  inline void set_allocated_agent_id(::bgs::protocol::EntityId* agent_id);
-
-  // repeated uint32 role = 2 [packed = true];
-  inline int role_size() const;
-  inline void clear_role();
-  static const int kRoleFieldNumber = 2;
-  inline ::google::protobuf::uint32 role(int index) const;
-  inline void set_role(int index, ::google::protobuf::uint32 value);
-  inline void add_role(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      role() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_role();
-
-  // repeated .bgs.protocol.EntityId member_id = 3;
-  inline int member_id_size() const;
-  inline void clear_member_id();
-  static const int kMemberIdFieldNumber = 3;
-  inline const ::bgs::protocol::EntityId& member_id(int index) const;
-  inline ::bgs::protocol::EntityId* mutable_member_id(int index);
-  inline ::bgs::protocol::EntityId* add_member_id();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::EntityId >&
-      member_id() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::EntityId >*
-      mutable_member_id();
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.SetRolesRequest)
- private:
-  inline void set_has_agent_id();
-  inline void clear_has_agent_id();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::EntityId* agent_id_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
-  mutable int _role_cached_byte_size_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::EntityId > member_id_;
-  friend void TC_PROTO_API protobuf_AddDesc_channel_5fservice_2eproto();
-  friend void protobuf_AssignDesc_channel_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_channel_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static SetRolesRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class TC_PROTO_API JoinNotification : public ::google::protobuf::Message {
  public:
   JoinNotification();
@@ -1183,14 +854,14 @@ class TC_PROTO_API LeaveNotification : public ::google::protobuf::Message {
   inline ::bgs::protocol::EntityId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::EntityId* agent_id);
 
-  // required .bgs.protocol.EntityId member_id = 2;
-  inline bool has_member_id() const;
-  inline void clear_member_id();
+  // required .bgs.protocol.EntityId member_id = 2 [deprecated = true];
+  inline bool has_member_id() const PROTOBUF_DEPRECATED;
+  inline void clear_member_id() PROTOBUF_DEPRECATED;
   static const int kMemberIdFieldNumber = 2;
-  inline const ::bgs::protocol::EntityId& member_id() const;
-  inline ::bgs::protocol::EntityId* mutable_member_id();
-  inline ::bgs::protocol::EntityId* release_member_id();
-  inline void set_allocated_member_id(::bgs::protocol::EntityId* member_id);
+  inline const ::bgs::protocol::EntityId& member_id() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::EntityId* mutable_member_id() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::EntityId* release_member_id() PROTOBUF_DEPRECATED;
+  inline void set_allocated_member_id(::bgs::protocol::EntityId* member_id) PROTOBUF_DEPRECATED;
 
   // optional uint32 reason = 3;
   inline bool has_reason() const;
@@ -1453,17 +1124,17 @@ class TC_PROTO_API SendMessageNotification : public ::google::protobuf::Message 
   inline ::google::protobuf::uint64 required_privileges() const;
   inline void set_required_privileges(::google::protobuf::uint64 value);
 
-  // optional string identity = 4;
-  inline bool has_identity() const;
-  inline void clear_identity();
-  static const int kIdentityFieldNumber = 4;
-  inline const ::std::string& identity() const;
-  inline void set_identity(const ::std::string& value);
-  inline void set_identity(const char* value);
-  inline void set_identity(const char* value, size_t size);
-  inline ::std::string* mutable_identity();
-  inline ::std::string* release_identity();
-  inline void set_allocated_identity(::std::string* identity);
+  // optional string battle_tag = 4;
+  inline bool has_battle_tag() const;
+  inline void clear_battle_tag();
+  static const int kBattleTagFieldNumber = 4;
+  inline const ::std::string& battle_tag() const;
+  inline void set_battle_tag(const ::std::string& value);
+  inline void set_battle_tag(const char* value);
+  inline void set_battle_tag(const char* value, size_t size);
+  inline ::std::string* mutable_battle_tag();
+  inline ::std::string* release_battle_tag();
+  inline void set_allocated_battle_tag(::std::string* battle_tag);
 
   // optional .bgs.protocol.channel.v1.ChannelId channel_id = 5;
   inline bool has_channel_id() const;
@@ -1491,8 +1162,8 @@ class TC_PROTO_API SendMessageNotification : public ::google::protobuf::Message 
   inline void clear_has_message();
   inline void set_has_required_privileges();
   inline void clear_has_required_privileges();
-  inline void set_has_identity();
-  inline void clear_has_identity();
+  inline void set_has_battle_tag();
+  inline void clear_has_battle_tag();
   inline void set_has_channel_id();
   inline void clear_has_channel_id();
   inline void set_has_subscriber();
@@ -1505,7 +1176,7 @@ class TC_PROTO_API SendMessageNotification : public ::google::protobuf::Message 
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::channel::v1::Message* message_;
   ::google::protobuf::uint64 required_privileges_;
-  ::std::string* identity_;
+  ::std::string* battle_tag_;
   ::bgs::protocol::channel::v1::ChannelId* channel_id_;
   ::bgs::protocol::account::v1::Identity* subscriber_;
   friend void TC_PROTO_API protobuf_AddDesc_channel_5fservice_2eproto();
@@ -1708,18 +1379,6 @@ class TC_PROTO_API UpdateMemberStateNotification : public ::google::protobuf::Me
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::channel::v1::Member >*
       mutable_state_change();
 
-  // repeated uint32 removed_role = 3 [packed = true];
-  inline int removed_role_size() const;
-  inline void clear_removed_role();
-  static const int kRemovedRoleFieldNumber = 3;
-  inline ::google::protobuf::uint32 removed_role(int index) const;
-  inline void set_removed_role(int index, ::google::protobuf::uint32 value);
-  inline void add_removed_role(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      removed_role() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_removed_role();
-
   // optional .bgs.protocol.channel.v1.ChannelId channel_id = 4;
   inline bool has_channel_id() const;
   inline void clear_channel_id();
@@ -1753,8 +1412,6 @@ class TC_PROTO_API UpdateMemberStateNotification : public ::google::protobuf::Me
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::channel::v1::Member > state_change_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > removed_role_;
-  mutable int _removed_role_cached_byte_size_;
   ::bgs::protocol::channel::v1::ChannelId* channel_id_;
   ::bgs::protocol::account::v1::Identity* subscriber_;
   friend void TC_PROTO_API protobuf_AddDesc_channel_5fservice_2eproto();
@@ -1780,27 +1437,21 @@ class TC_PROTO_API ChannelService : public ServiceBase
 
   // client methods --------------------------------------------------
 
-  void AddMember(::bgs::protocol::channel::v1::AddMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void RemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void SendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void UpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void UpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void Dissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void SetRoles(::bgs::protocol::channel::v1::SetRolesRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void UnsubscribeMember(::bgs::protocol::channel::v1::UnsubscribeMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   // server methods --------------------------------------------------
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleAddMember(::bgs::protocol::channel::v1::AddMemberRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleRemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleDissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSetRoles(::bgs::protocol::channel::v1::SetRolesRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUnsubscribeMember(::bgs::protocol::channel::v1::UnsubscribeMemberRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleRemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleDissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;
@@ -1854,181 +1505,6 @@ class TC_PROTO_API ChannelListener : public ServiceBase
 
 
 // ===================================================================
-
-// AddMemberRequest
-
-// optional .bgs.protocol.EntityId agent_id = 1;
-inline bool AddMemberRequest::has_agent_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void AddMemberRequest::set_has_agent_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void AddMemberRequest::clear_has_agent_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void AddMemberRequest::clear_agent_id() {
-  if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-  clear_has_agent_id();
-}
-inline const ::bgs::protocol::EntityId& AddMemberRequest::agent_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.AddMemberRequest.agent_id)
-  return agent_id_ != NULL ? *agent_id_ : *default_instance_->agent_id_;
-}
-inline ::bgs::protocol::EntityId* AddMemberRequest::mutable_agent_id() {
-  set_has_agent_id();
-  if (agent_id_ == NULL) agent_id_ = new ::bgs::protocol::EntityId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.AddMemberRequest.agent_id)
-  return agent_id_;
-}
-inline ::bgs::protocol::EntityId* AddMemberRequest::release_agent_id() {
-  clear_has_agent_id();
-  ::bgs::protocol::EntityId* temp = agent_id_;
-  agent_id_ = NULL;
-  return temp;
-}
-inline void AddMemberRequest::set_allocated_agent_id(::bgs::protocol::EntityId* agent_id) {
-  delete agent_id_;
-  agent_id_ = agent_id;
-  if (agent_id) {
-    set_has_agent_id();
-  } else {
-    clear_has_agent_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.AddMemberRequest.agent_id)
-}
-
-// required .bgs.protocol.Identity member_identity = 2;
-inline bool AddMemberRequest::has_member_identity() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void AddMemberRequest::set_has_member_identity() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void AddMemberRequest::clear_has_member_identity() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void AddMemberRequest::clear_member_identity() {
-  if (member_identity_ != NULL) member_identity_->::bgs::protocol::Identity::Clear();
-  clear_has_member_identity();
-}
-inline const ::bgs::protocol::Identity& AddMemberRequest::member_identity() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.AddMemberRequest.member_identity)
-  return member_identity_ != NULL ? *member_identity_ : *default_instance_->member_identity_;
-}
-inline ::bgs::protocol::Identity* AddMemberRequest::mutable_member_identity() {
-  set_has_member_identity();
-  if (member_identity_ == NULL) member_identity_ = new ::bgs::protocol::Identity;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.AddMemberRequest.member_identity)
-  return member_identity_;
-}
-inline ::bgs::protocol::Identity* AddMemberRequest::release_member_identity() {
-  clear_has_member_identity();
-  ::bgs::protocol::Identity* temp = member_identity_;
-  member_identity_ = NULL;
-  return temp;
-}
-inline void AddMemberRequest::set_allocated_member_identity(::bgs::protocol::Identity* member_identity) {
-  delete member_identity_;
-  member_identity_ = member_identity;
-  if (member_identity) {
-    set_has_member_identity();
-  } else {
-    clear_has_member_identity();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.AddMemberRequest.member_identity)
-}
-
-// required .bgs.protocol.channel.v1.MemberState member_state = 3;
-inline bool AddMemberRequest::has_member_state() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void AddMemberRequest::set_has_member_state() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void AddMemberRequest::clear_has_member_state() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void AddMemberRequest::clear_member_state() {
-  if (member_state_ != NULL) member_state_->::bgs::protocol::channel::v1::MemberState::Clear();
-  clear_has_member_state();
-}
-inline const ::bgs::protocol::channel::v1::MemberState& AddMemberRequest::member_state() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.AddMemberRequest.member_state)
-  return member_state_ != NULL ? *member_state_ : *default_instance_->member_state_;
-}
-inline ::bgs::protocol::channel::v1::MemberState* AddMemberRequest::mutable_member_state() {
-  set_has_member_state();
-  if (member_state_ == NULL) member_state_ = new ::bgs::protocol::channel::v1::MemberState;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.AddMemberRequest.member_state)
-  return member_state_;
-}
-inline ::bgs::protocol::channel::v1::MemberState* AddMemberRequest::release_member_state() {
-  clear_has_member_state();
-  ::bgs::protocol::channel::v1::MemberState* temp = member_state_;
-  member_state_ = NULL;
-  return temp;
-}
-inline void AddMemberRequest::set_allocated_member_state(::bgs::protocol::channel::v1::MemberState* member_state) {
-  delete member_state_;
-  member_state_ = member_state;
-  if (member_state) {
-    set_has_member_state();
-  } else {
-    clear_has_member_state();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.AddMemberRequest.member_state)
-}
-
-// required uint64 object_id = 4;
-inline bool AddMemberRequest::has_object_id() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void AddMemberRequest::set_has_object_id() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void AddMemberRequest::clear_has_object_id() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void AddMemberRequest::clear_object_id() {
-  object_id_ = GOOGLE_ULONGLONG(0);
-  clear_has_object_id();
-}
-inline ::google::protobuf::uint64 AddMemberRequest::object_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.AddMemberRequest.object_id)
-  return object_id_;
-}
-inline void AddMemberRequest::set_object_id(::google::protobuf::uint64 value) {
-  set_has_object_id();
-  object_id_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.AddMemberRequest.object_id)
-}
-
-// optional bool subscribe = 5 [default = true];
-inline bool AddMemberRequest::has_subscribe() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void AddMemberRequest::set_has_subscribe() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void AddMemberRequest::clear_has_subscribe() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void AddMemberRequest::clear_subscribe() {
-  subscribe_ = true;
-  clear_has_subscribe();
-}
-inline bool AddMemberRequest::subscribe() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.AddMemberRequest.subscribe)
-  return subscribe_;
-}
-inline void AddMemberRequest::set_subscribe(bool value) {
-  set_has_subscribe();
-  subscribe_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.AddMemberRequest.subscribe)
-}
-
-// -------------------------------------------------------------------
 
 // RemoveMemberRequest
 
@@ -2136,92 +1612,6 @@ inline void RemoveMemberRequest::set_reason(::google::protobuf::uint32 value) {
   set_has_reason();
   reason_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.RemoveMemberRequest.reason)
-}
-
-// -------------------------------------------------------------------
-
-// UnsubscribeMemberRequest
-
-// optional .bgs.protocol.EntityId agent_id = 1;
-inline bool UnsubscribeMemberRequest::has_agent_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void UnsubscribeMemberRequest::set_has_agent_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void UnsubscribeMemberRequest::clear_has_agent_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void UnsubscribeMemberRequest::clear_agent_id() {
-  if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-  clear_has_agent_id();
-}
-inline const ::bgs::protocol::EntityId& UnsubscribeMemberRequest::agent_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.UnsubscribeMemberRequest.agent_id)
-  return agent_id_ != NULL ? *agent_id_ : *default_instance_->agent_id_;
-}
-inline ::bgs::protocol::EntityId* UnsubscribeMemberRequest::mutable_agent_id() {
-  set_has_agent_id();
-  if (agent_id_ == NULL) agent_id_ = new ::bgs::protocol::EntityId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.UnsubscribeMemberRequest.agent_id)
-  return agent_id_;
-}
-inline ::bgs::protocol::EntityId* UnsubscribeMemberRequest::release_agent_id() {
-  clear_has_agent_id();
-  ::bgs::protocol::EntityId* temp = agent_id_;
-  agent_id_ = NULL;
-  return temp;
-}
-inline void UnsubscribeMemberRequest::set_allocated_agent_id(::bgs::protocol::EntityId* agent_id) {
-  delete agent_id_;
-  agent_id_ = agent_id;
-  if (agent_id) {
-    set_has_agent_id();
-  } else {
-    clear_has_agent_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.UnsubscribeMemberRequest.agent_id)
-}
-
-// required .bgs.protocol.EntityId member_id = 2;
-inline bool UnsubscribeMemberRequest::has_member_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void UnsubscribeMemberRequest::set_has_member_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void UnsubscribeMemberRequest::clear_has_member_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void UnsubscribeMemberRequest::clear_member_id() {
-  if (member_id_ != NULL) member_id_->::bgs::protocol::EntityId::Clear();
-  clear_has_member_id();
-}
-inline const ::bgs::protocol::EntityId& UnsubscribeMemberRequest::member_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.UnsubscribeMemberRequest.member_id)
-  return member_id_ != NULL ? *member_id_ : *default_instance_->member_id_;
-}
-inline ::bgs::protocol::EntityId* UnsubscribeMemberRequest::mutable_member_id() {
-  set_has_member_id();
-  if (member_id_ == NULL) member_id_ = new ::bgs::protocol::EntityId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.UnsubscribeMemberRequest.member_id)
-  return member_id_;
-}
-inline ::bgs::protocol::EntityId* UnsubscribeMemberRequest::release_member_id() {
-  clear_has_member_id();
-  ::bgs::protocol::EntityId* temp = member_id_;
-  member_id_ = NULL;
-  return temp;
-}
-inline void UnsubscribeMemberRequest::set_allocated_member_id(::bgs::protocol::EntityId* member_id) {
-  delete member_id_;
-  member_id_ = member_id;
-  if (member_id) {
-    set_has_member_id();
-  } else {
-    clear_has_member_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.UnsubscribeMemberRequest.member_id)
 }
 
 // -------------------------------------------------------------------
@@ -2596,111 +1986,6 @@ inline void DissolveRequest::set_reason(::google::protobuf::uint32 value) {
 
 // -------------------------------------------------------------------
 
-// SetRolesRequest
-
-// optional .bgs.protocol.EntityId agent_id = 1;
-inline bool SetRolesRequest::has_agent_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void SetRolesRequest::set_has_agent_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void SetRolesRequest::clear_has_agent_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void SetRolesRequest::clear_agent_id() {
-  if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-  clear_has_agent_id();
-}
-inline const ::bgs::protocol::EntityId& SetRolesRequest::agent_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SetRolesRequest.agent_id)
-  return agent_id_ != NULL ? *agent_id_ : *default_instance_->agent_id_;
-}
-inline ::bgs::protocol::EntityId* SetRolesRequest::mutable_agent_id() {
-  set_has_agent_id();
-  if (agent_id_ == NULL) agent_id_ = new ::bgs::protocol::EntityId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SetRolesRequest.agent_id)
-  return agent_id_;
-}
-inline ::bgs::protocol::EntityId* SetRolesRequest::release_agent_id() {
-  clear_has_agent_id();
-  ::bgs::protocol::EntityId* temp = agent_id_;
-  agent_id_ = NULL;
-  return temp;
-}
-inline void SetRolesRequest::set_allocated_agent_id(::bgs::protocol::EntityId* agent_id) {
-  delete agent_id_;
-  agent_id_ = agent_id;
-  if (agent_id) {
-    set_has_agent_id();
-  } else {
-    clear_has_agent_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SetRolesRequest.agent_id)
-}
-
-// repeated uint32 role = 2 [packed = true];
-inline int SetRolesRequest::role_size() const {
-  return role_.size();
-}
-inline void SetRolesRequest::clear_role() {
-  role_.Clear();
-}
-inline ::google::protobuf::uint32 SetRolesRequest::role(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SetRolesRequest.role)
-  return role_.Get(index);
-}
-inline void SetRolesRequest::set_role(int index, ::google::protobuf::uint32 value) {
-  role_.Set(index, value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.SetRolesRequest.role)
-}
-inline void SetRolesRequest::add_role(::google::protobuf::uint32 value) {
-  role_.Add(value);
-  // @@protoc_insertion_point(field_add:bgs.protocol.channel.v1.SetRolesRequest.role)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-SetRolesRequest::role() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.channel.v1.SetRolesRequest.role)
-  return role_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-SetRolesRequest::mutable_role() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.channel.v1.SetRolesRequest.role)
-  return &role_;
-}
-
-// repeated .bgs.protocol.EntityId member_id = 3;
-inline int SetRolesRequest::member_id_size() const {
-  return member_id_.size();
-}
-inline void SetRolesRequest::clear_member_id() {
-  member_id_.Clear();
-}
-inline const ::bgs::protocol::EntityId& SetRolesRequest::member_id(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SetRolesRequest.member_id)
-  return member_id_.Get(index);
-}
-inline ::bgs::protocol::EntityId* SetRolesRequest::mutable_member_id(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SetRolesRequest.member_id)
-  return member_id_.Mutable(index);
-}
-inline ::bgs::protocol::EntityId* SetRolesRequest::add_member_id() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.channel.v1.SetRolesRequest.member_id)
-  return member_id_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::EntityId >&
-SetRolesRequest::member_id() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.channel.v1.SetRolesRequest.member_id)
-  return member_id_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::EntityId >*
-SetRolesRequest::mutable_member_id() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.channel.v1.SetRolesRequest.member_id)
-  return &member_id_;
-}
-
-// -------------------------------------------------------------------
-
 // JoinNotification
 
 // optional .bgs.protocol.channel.v1.Member self = 1;
@@ -3069,7 +2354,7 @@ inline void LeaveNotification::set_allocated_agent_id(::bgs::protocol::EntityId*
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.LeaveNotification.agent_id)
 }
 
-// required .bgs.protocol.EntityId member_id = 2;
+// required .bgs.protocol.EntityId member_id = 2 [deprecated = true];
 inline bool LeaveNotification::has_member_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -3518,80 +2803,80 @@ inline void SendMessageNotification::set_required_privileges(::google::protobuf:
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.SendMessageNotification.required_privileges)
 }
 
-// optional string identity = 4;
-inline bool SendMessageNotification::has_identity() const {
+// optional string battle_tag = 4;
+inline bool SendMessageNotification::has_battle_tag() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void SendMessageNotification::set_has_identity() {
+inline void SendMessageNotification::set_has_battle_tag() {
   _has_bits_[0] |= 0x00000008u;
 }
-inline void SendMessageNotification::clear_has_identity() {
+inline void SendMessageNotification::clear_has_battle_tag() {
   _has_bits_[0] &= ~0x00000008u;
 }
-inline void SendMessageNotification::clear_identity() {
-  if (identity_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    identity_->clear();
+inline void SendMessageNotification::clear_battle_tag() {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_->clear();
   }
-  clear_has_identity();
+  clear_has_battle_tag();
 }
-inline const ::std::string& SendMessageNotification::identity() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SendMessageNotification.identity)
-  return *identity_;
+inline const ::std::string& SendMessageNotification::battle_tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SendMessageNotification.battle_tag)
+  return *battle_tag_;
 }
-inline void SendMessageNotification::set_identity(const ::std::string& value) {
-  set_has_identity();
-  if (identity_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    identity_ = new ::std::string;
+inline void SendMessageNotification::set_battle_tag(const ::std::string& value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  identity_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.SendMessageNotification.identity)
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.SendMessageNotification.battle_tag)
 }
-inline void SendMessageNotification::set_identity(const char* value) {
-  set_has_identity();
-  if (identity_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    identity_ = new ::std::string;
+inline void SendMessageNotification::set_battle_tag(const char* value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  identity_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.channel.v1.SendMessageNotification.identity)
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.channel.v1.SendMessageNotification.battle_tag)
 }
-inline void SendMessageNotification::set_identity(const char* value, size_t size) {
-  set_has_identity();
-  if (identity_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    identity_ = new ::std::string;
+inline void SendMessageNotification::set_battle_tag(const char* value, size_t size) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  identity_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.channel.v1.SendMessageNotification.identity)
+  battle_tag_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.channel.v1.SendMessageNotification.battle_tag)
 }
-inline ::std::string* SendMessageNotification::mutable_identity() {
-  set_has_identity();
-  if (identity_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    identity_ = new ::std::string;
+inline ::std::string* SendMessageNotification::mutable_battle_tag() {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SendMessageNotification.identity)
-  return identity_;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SendMessageNotification.battle_tag)
+  return battle_tag_;
 }
-inline ::std::string* SendMessageNotification::release_identity() {
-  clear_has_identity();
-  if (identity_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* SendMessageNotification::release_battle_tag() {
+  clear_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = identity_;
-    identity_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = battle_tag_;
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void SendMessageNotification::set_allocated_identity(::std::string* identity) {
-  if (identity_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete identity_;
+inline void SendMessageNotification::set_allocated_battle_tag(::std::string* battle_tag) {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete battle_tag_;
   }
-  if (identity) {
-    set_has_identity();
-    identity_ = identity;
+  if (battle_tag) {
+    set_has_battle_tag();
+    battle_tag_ = battle_tag;
   } else {
-    clear_has_identity();
-    identity_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_battle_tag();
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SendMessageNotification.identity)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SendMessageNotification.battle_tag)
 }
 
 // optional .bgs.protocol.channel.v1.ChannelId channel_id = 5;
@@ -3919,45 +3204,15 @@ UpdateMemberStateNotification::mutable_state_change() {
   return &state_change_;
 }
 
-// repeated uint32 removed_role = 3 [packed = true];
-inline int UpdateMemberStateNotification::removed_role_size() const {
-  return removed_role_.size();
-}
-inline void UpdateMemberStateNotification::clear_removed_role() {
-  removed_role_.Clear();
-}
-inline ::google::protobuf::uint32 UpdateMemberStateNotification::removed_role(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.UpdateMemberStateNotification.removed_role)
-  return removed_role_.Get(index);
-}
-inline void UpdateMemberStateNotification::set_removed_role(int index, ::google::protobuf::uint32 value) {
-  removed_role_.Set(index, value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.UpdateMemberStateNotification.removed_role)
-}
-inline void UpdateMemberStateNotification::add_removed_role(::google::protobuf::uint32 value) {
-  removed_role_.Add(value);
-  // @@protoc_insertion_point(field_add:bgs.protocol.channel.v1.UpdateMemberStateNotification.removed_role)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-UpdateMemberStateNotification::removed_role() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.channel.v1.UpdateMemberStateNotification.removed_role)
-  return removed_role_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-UpdateMemberStateNotification::mutable_removed_role() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.channel.v1.UpdateMemberStateNotification.removed_role)
-  return &removed_role_;
-}
-
 // optional .bgs.protocol.channel.v1.ChannelId channel_id = 4;
 inline bool UpdateMemberStateNotification::has_channel_id() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void UpdateMemberStateNotification::set_has_channel_id() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void UpdateMemberStateNotification::clear_has_channel_id() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void UpdateMemberStateNotification::clear_channel_id() {
   if (channel_id_ != NULL) channel_id_->::bgs::protocol::channel::v1::ChannelId::Clear();
@@ -3992,13 +3247,13 @@ inline void UpdateMemberStateNotification::set_allocated_channel_id(::bgs::proto
 
 // optional .bgs.protocol.account.v1.Identity subscriber = 5;
 inline bool UpdateMemberStateNotification::has_subscriber() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void UpdateMemberStateNotification::set_has_subscriber() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void UpdateMemberStateNotification::clear_has_subscriber() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void UpdateMemberStateNotification::clear_subscriber() {
   if (subscriber_ != NULL) subscriber_->::bgs::protocol::account::v1::Identity::Clear();

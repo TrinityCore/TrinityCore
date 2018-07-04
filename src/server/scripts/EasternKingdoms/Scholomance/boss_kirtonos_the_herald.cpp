@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "scholomance.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
-#include "GameObjectAI.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -98,9 +101,9 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);
-                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                 {
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
@@ -110,9 +113,9 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);
-                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                 {
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
@@ -160,13 +163,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 events.ScheduleEvent(INTRO_3, 1000);
                                 break;
                             case INTRO_3:
-                                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
                                 events.ScheduleEvent(INTRO_4, 3000);
                                 break;
                             case INTRO_4:
-                                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                                     brazier->SetGoState(GO_STATE_READY);
                                 me->SetWalk(true);
                                 me->SetDisableGravity(false);
@@ -245,6 +248,9 @@ class boss_kirtonos_the_herald : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -253,7 +259,7 @@ class boss_kirtonos_the_herald : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_kirtonos_the_heraldAI>(creature);
+            return GetScholomanceAI<boss_kirtonos_the_heraldAI>(creature);
         }
 };
 
@@ -289,5 +295,5 @@ class go_brazier_of_the_herald : public GameObjectScript
 void AddSC_boss_kirtonos_the_herald()
 {
     new boss_kirtonos_the_herald();
-    new go_brazier_of_the_herald;
+    new go_brazier_of_the_herald();
 }

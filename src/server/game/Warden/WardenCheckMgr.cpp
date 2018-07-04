@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,8 +23,13 @@
 #include "Database/DatabaseEnv.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
+#include "World.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
-WardenCheckMgr::WardenCheckMgr() { }
+WardenCheckMgr::WardenCheckMgr() : _checkStoreLock(new boost::shared_mutex())
+{
+}
 
 WardenCheckMgr::~WardenCheckMgr()
 {
@@ -33,6 +38,8 @@ WardenCheckMgr::~WardenCheckMgr()
 
     for (CheckResultContainer::iterator itr = CheckResultStore.begin(); itr != CheckResultStore.end(); ++itr)
         delete itr->second;
+
+    delete _checkStoreLock;
 }
 
 void WardenCheckMgr::LoadWardenChecks()
@@ -163,7 +170,7 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     uint32 count = 0;
 
-    boost::unique_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
+    boost::unique_lock<boost::shared_mutex> lock(*sWardenCheckMgr->_checkStoreLock);
 
     do
     {

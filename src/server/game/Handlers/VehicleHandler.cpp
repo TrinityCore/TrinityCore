@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "Player.h"
+#include "DB2Structure.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "Vehicle.h"
 #include "VehiclePackets.h"
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
@@ -45,7 +45,7 @@ void WorldSession::HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVe
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleRequestVehiclePrevSeat: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -62,7 +62,7 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVe
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleRequestVehicleNextSeat: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -79,7 +79,7 @@ void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChang
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleMoveChangeVehicleSeats: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -108,7 +108,7 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPackets::Vehicle::Request
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleRequestVehicleSwitchSeat: %s tried to switch seats but current seatflags %u don't permit that.",
-            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags[0]);
+            GetPlayer()->GetGUID().ToString().c_str(), seat->Flags);
         return;
     }
 
@@ -181,12 +181,12 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
                 GetPlayer()->ExitVehicle();
             else
                 TC_LOG_ERROR("network", "%s tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                    GetPlayer()->GetGUID().ToString().c_str(), vehicle->GetVehicleInfo()->SeatID[itr->first], itr->second.SeatInfo->Flags[0]);
+                    GetPlayer()->GetGUID().ToString().c_str(), vehicle->GetVehicleInfo()->SeatID[itr->first], itr->second.SeatInfo->Flags);
         }
     }
 }
 
 void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
 {
-    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.Status);
 }

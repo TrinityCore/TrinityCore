@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,9 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "Vehicle.h"
 #include "stonecore.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -180,7 +181,7 @@ class boss_ozruk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ozrukAI>(creature);
+            return GetStonecoreAI<boss_ozrukAI>(creature);
         }
 };
 

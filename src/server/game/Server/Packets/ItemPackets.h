@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,13 @@
 #define ItemPackets_h__
 
 #include "Packet.h"
-#include "Item.h"
+#include "DBCEnums.h"
+#include "ItemDefines.h"
+#include "ItemPacketsCommon.h"
 #include "PacketUtilities.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
+#include <array>
 
 struct VoidStorageItem;
 
@@ -28,47 +33,6 @@ namespace WorldPackets
 {
     namespace Item
     {
-        struct ItemBonusInstanceData
-        {
-            uint8 Context = 0;
-            std::vector<int32> BonusListIDs;
-
-            bool operator==(ItemBonusInstanceData const& r) const;
-            bool operator!=(ItemBonusInstanceData const& r) const { return !(*this == r); }
-        };
-
-        struct ItemInstance
-        {
-            void Initialize(::Item const* item);
-            void Initialize(::ItemDynamicFieldGems const* gem);
-            void Initialize(::LootItem const& lootItem);
-            void Initialize(::VoidStorageItem const* voidItem);
-
-            uint32 ItemID = 0;
-            uint32 RandomPropertiesSeed = 0;
-            uint32 RandomPropertiesID = 0;
-            Optional<ItemBonusInstanceData> ItemBonus;
-            Optional<CompactArray<int32>> Modifications;
-
-            bool operator==(ItemInstance const& r) const;
-            bool operator!=(ItemInstance const& r) const { return !(*this == r); }
-        };
-
-        struct ItemEnchantData
-        {
-            ItemEnchantData(int32 id, uint32 expiration, int32 charges, uint8 slot) : ID(id), Expiration(expiration), Charges(charges), Slot(slot) { }
-            int32 ID = 0;
-            uint32 Expiration = 0;
-            int32 Charges = 0;
-            uint8 Slot = 0;
-        };
-
-        struct ItemGemData
-        {
-            uint8 Slot;
-            ItemInstance Item;
-        };
-
         class BuyBackItem final : public ClientPacket
         {
         public:
@@ -241,17 +205,6 @@ namespace WorldPackets
             uint8 ProficiencyClass = 0;
         };
 
-        struct InvUpdate
-        {
-            struct InvItem
-            {
-                uint8 ContainerSlot = 0;
-                uint8 Slot = 0;
-            };
-
-            std::vector<InvItem> Items;
-        };
-
         class InventoryChangeFailure final : public ServerPacket
         {
         public:
@@ -394,9 +347,9 @@ namespace WorldPackets
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
             int32 DungeonEncounterID       = 0;
+            int32 BattlePetSpeciesID        = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
-            int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;
@@ -526,7 +479,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid ItemGuid;
-            ObjectGuid GemItem[MAX_GEM_SOCKETS];
+            std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem = { };
         };
 
         class SocketGemsResult final : public ServerPacket
@@ -539,16 +492,56 @@ namespace WorldPackets
             ObjectGuid Item;
         };
 
-        ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
+        class SortBags final : public ClientPacket
+        {
+        public:
+            SortBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortBankBags final : public ClientPacket
+        {
+        public:
+            SortBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortReagentBankBags final : public ClientPacket
+        {
+        public:
+            SortReagentBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_REAGENT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortBagsResult final : public ServerPacket
+        {
+        public:
+            SortBagsResult() : ServerPacket(SMSG_SORT_BAGS_RESULT, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class RemoveNewItem final : public ClientPacket
+        {
+        public:
+            RemoveNewItem(WorldPacket&& packet) : ClientPacket(CMSG_REMOVE_NEW_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+        };
+
+        class CharacterInventoryOverflowWarning final : public ServerPacket
+        {
+        public:
+            CharacterInventoryOverflowWarning() : ServerPacket(SMSG_CHARACTER_INVENTORY_OVERFLOW_WARNING, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemEnchantData const& itemEnchantData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemData const& itemGemInstanceData);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemData& itemGemInstanceData);
 
 #endif // ItemPackets_h__

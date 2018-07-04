@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "the_eye.h"
 
@@ -52,11 +53,11 @@ ObjectData const gameObjectData[] =
 class instance_the_eye : public InstanceMapScript
 {
     public:
-        instance_the_eye() : InstanceMapScript("instance_the_eye", 550) { }
+        instance_the_eye() : InstanceMapScript(TheEyeScriptName, 550) { }
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_the_eye_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -127,4 +128,3 @@ void AddSC_instance_the_eye()
 {
     new instance_the_eye;
 }
-

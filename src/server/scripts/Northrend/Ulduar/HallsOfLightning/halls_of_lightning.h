@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef HALLS_OF_LIGHTNING_H_
 #define HALLS_OF_LIGHTNING_H_
+
+#include "CreatureAIImpl.h"
 
 #define HoLScriptName "instance_halls_of_lightning"
 #define DataHeader    "HOL"
@@ -49,8 +51,8 @@ enum HOLGameObjectIds
     GO_LOKEN_THRONE         = 192654
 };
 
-template<class AI>
-AI* GetHallsOfLightningAI(Creature* creature)
+template<typename AI>
+inline AI* GetHallsOfLightningAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, HoLScriptName);
 }

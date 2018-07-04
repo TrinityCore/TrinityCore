@@ -18,17 +18,15 @@
 #include "Log.h"
 // @@protoc_insertion_point(includes)
 
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
-
 namespace Battlenet {
 namespace JSON {
 namespace Login {
 
 namespace {
 
+const ::google::protobuf::Descriptor* ErrorResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ErrorResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* FormInput_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FormInput_reflection_ = NULL;
@@ -44,6 +42,15 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* LoginResult_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LoginResult_reflection_ = NULL;
+const ::google::protobuf::Descriptor* LoginRefreshResult_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  LoginRefreshResult_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GameAccountInfo_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GameAccountInfo_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GameAccountList_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GameAccountList_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* FormType_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* AuthenticationState_descriptor_ = NULL;
 
@@ -56,7 +63,21 @@ void protobuf_AssignDesc_Login_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "Login.proto");
   GOOGLE_CHECK(file != NULL);
-  FormInput_descriptor_ = file->message_type(0);
+  ErrorResponse_descriptor_ = file->message_type(0);
+  static const int ErrorResponse_offsets_[1] = {
+  };
+  ErrorResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ErrorResponse_descriptor_,
+      ErrorResponse::default_instance_,
+      ErrorResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ErrorResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ErrorResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ErrorResponse));
+  FormInput_descriptor_ = file->message_type(1);
   static const int FormInput_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInput, input_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInput, type_),
@@ -74,7 +95,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FormInput));
-  FormInputs_descriptor_ = file->message_type(1);
+  FormInputs_descriptor_ = file->message_type(2);
   static const int FormInputs_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputs, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputs, inputs_),
@@ -90,7 +111,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FormInputs));
-  FormInputValue_descriptor_ = file->message_type(2);
+  FormInputValue_descriptor_ = file->message_type(3);
   static const int FormInputValue_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputValue, input_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FormInputValue, value_),
@@ -106,7 +127,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FormInputValue));
-  LoginForm_descriptor_ = file->message_type(3);
+  LoginForm_descriptor_ = file->message_type(4);
   static const int LoginForm_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, platform_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, program_id_),
@@ -124,7 +145,7 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LoginForm));
-  LoginResult_descriptor_ = file->message_type(4);
+  LoginResult_descriptor_ = file->message_type(5);
   static const int LoginResult_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, authentication_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginResult, error_code_),
@@ -143,6 +164,57 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LoginResult));
+  LoginRefreshResult_descriptor_ = file->message_type(6);
+  static const int LoginRefreshResult_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginRefreshResult, login_ticket_expiry_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginRefreshResult, is_expired_),
+  };
+  LoginRefreshResult_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      LoginRefreshResult_descriptor_,
+      LoginRefreshResult::default_instance_,
+      LoginRefreshResult_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginRefreshResult, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginRefreshResult, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(LoginRefreshResult));
+  GameAccountInfo_descriptor_ = file->message_type(7);
+  static const int GameAccountInfo_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, display_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, expansion_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, is_suspended_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, is_banned_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, suspension_expires_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, suspension_reason_),
+  };
+  GameAccountInfo_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GameAccountInfo_descriptor_,
+      GameAccountInfo::default_instance_,
+      GameAccountInfo_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountInfo, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GameAccountInfo));
+  GameAccountList_descriptor_ = file->message_type(8);
+  static const int GameAccountList_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountList, game_accounts_),
+  };
+  GameAccountList_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GameAccountList_descriptor_,
+      GameAccountList::default_instance_,
+      GameAccountList_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountList, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountList, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GameAccountList));
   FormType_descriptor_ = file->enum_type(0);
   AuthenticationState_descriptor_ = file->enum_type(1);
 }
@@ -158,6 +230,8 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ErrorResponse_descriptor_, &ErrorResponse::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FormInput_descriptor_, &FormInput::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FormInputs_descriptor_, &FormInputs::default_instance());
@@ -167,11 +241,19 @@ void protobuf_RegisterTypes(const ::std::string&) {
     LoginForm_descriptor_, &LoginForm::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LoginResult_descriptor_, &LoginResult::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    LoginRefreshResult_descriptor_, &LoginRefreshResult::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GameAccountInfo_descriptor_, &GameAccountInfo::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GameAccountList_descriptor_, &GameAccountList::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_Login_2eproto() {
+  delete ErrorResponse::default_instance_;
+  delete ErrorResponse_reflection_;
   delete FormInput::default_instance_;
   delete FormInput_reflection_;
   delete FormInputs::default_instance_;
@@ -182,6 +264,12 @@ void protobuf_ShutdownFile_Login_2eproto() {
   delete LoginForm_reflection_;
   delete LoginResult::default_instance_;
   delete LoginResult_reflection_;
+  delete LoginRefreshResult::default_instance_;
+  delete LoginRefreshResult_reflection_;
+  delete GameAccountInfo::default_instance_;
+  delete GameAccountInfo_reflection_;
+  delete GameAccountList::default_instance_;
+  delete GameAccountList_reflection_;
 }
 
 void protobuf_AddDesc_Login_2eproto() {
@@ -191,35 +279,51 @@ void protobuf_AddDesc_Login_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\013Login.proto\022\024Battlenet.JSON.Login\"N\n\tF"
-    "ormInput\022\020\n\010input_id\030\001 \002(\t\022\014\n\004type\030\002 \002(\t"
-    "\022\r\n\005label\030\003 \002(\t\022\022\n\nmax_length\030\004 \001(\r\"k\n\nF"
-    "ormInputs\022,\n\004type\030\001 \002(\0162\036.Battlenet.JSON"
-    ".Login.FormType\022/\n\006inputs\030\002 \003(\0132\037.Battle"
-    "net.JSON.Login.FormInput\"1\n\016FormInputVal"
-    "ue\022\020\n\010input_id\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"{\n\tL"
-    "oginForm\022\023\n\013platform_id\030\001 \002(\t\022\022\n\nprogram"
-    "_id\030\002 \002(\t\022\017\n\007version\030\003 \002(\t\0224\n\006inputs\030\004 \003"
-    "(\0132$.Battlenet.JSON.Login.FormInputValue"
-    "\"\244\001\n\013LoginResult\022G\n\024authentication_state"
-    "\030\001 \002(\0162).Battlenet.JSON.Login.Authentica"
-    "tionState\022\022\n\nerror_code\030\002 \001(\t\022\025\n\rerror_m"
-    "essage\030\003 \001(\t\022\013\n\003url\030\004 \001(\t\022\024\n\014login_ticke"
-    "t\030\005 \001(\t*\032\n\010FormType\022\016\n\nLOGIN_FORM\020\001*H\n\023A"
-    "uthenticationState\022\t\n\005LOGIN\020\001\022\t\n\005LEGAL\020\002"
-    "\022\021\n\rAUTHENTICATOR\020\003\022\010\n\004DONE\020\004B\002H\002", 673);
+    "\n\013Login.proto\022\024Battlenet.JSON.Login\"\017\n\rE"
+    "rrorResponse\"N\n\tFormInput\022\020\n\010input_id\030\001 "
+    "\002(\t\022\014\n\004type\030\002 \002(\t\022\r\n\005label\030\003 \002(\t\022\022\n\nmax_"
+    "length\030\004 \001(\r\"k\n\nFormInputs\022,\n\004type\030\001 \002(\016"
+    "2\036.Battlenet.JSON.Login.FormType\022/\n\006inpu"
+    "ts\030\002 \003(\0132\037.Battlenet.JSON.Login.FormInpu"
+    "t\"1\n\016FormInputValue\022\020\n\010input_id\030\001 \002(\t\022\r\n"
+    "\005value\030\002 \002(\t\"{\n\tLoginForm\022\023\n\013platform_id"
+    "\030\001 \002(\t\022\022\n\nprogram_id\030\002 \002(\t\022\017\n\007version\030\003 "
+    "\002(\t\0224\n\006inputs\030\004 \003(\0132$.Battlenet.JSON.Log"
+    "in.FormInputValue\"\244\001\n\013LoginResult\022G\n\024aut"
+    "hentication_state\030\001 \002(\0162).Battlenet.JSON"
+    ".Login.AuthenticationState\022\022\n\nerror_code"
+    "\030\002 \001(\t\022\025\n\rerror_message\030\003 \001(\t\022\013\n\003url\030\004 \001"
+    "(\t\022\024\n\014login_ticket\030\005 \001(\t\"E\n\022LoginRefresh"
+    "Result\022\033\n\023login_ticket_expiry\030\001 \002(\004\022\022\n\ni"
+    "s_expired\030\002 \001(\010\"\232\001\n\017GameAccountInfo\022\024\n\014d"
+    "isplay_name\030\001 \002(\t\022\021\n\texpansion\030\002 \002(\r\022\024\n\014"
+    "is_suspended\030\003 \001(\010\022\021\n\tis_banned\030\004 \001(\010\022\032\n"
+    "\022suspension_expires\030\005 \001(\004\022\031\n\021suspension_"
+    "reason\030\006 \001(\t\"O\n\017GameAccountList\022<\n\rgame_"
+    "accounts\030\001 \003(\0132%.Battlenet.JSON.Login.Ga"
+    "meAccountInfo*\032\n\010FormType\022\016\n\nLOGIN_FORM\020"
+    "\001*H\n\023AuthenticationState\022\t\n\005LOGIN\020\001\022\t\n\005L"
+    "EGAL\020\002\022\021\n\rAUTHENTICATOR\020\003\022\010\n\004DONE\020\004B\002H\002", 999);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "Login.proto", &protobuf_RegisterTypes);
+  ErrorResponse::default_instance_ = new ErrorResponse();
   FormInput::default_instance_ = new FormInput();
   FormInputs::default_instance_ = new FormInputs();
   FormInputValue::default_instance_ = new FormInputValue();
   LoginForm::default_instance_ = new LoginForm();
   LoginResult::default_instance_ = new LoginResult();
+  LoginRefreshResult::default_instance_ = new LoginRefreshResult();
+  GameAccountInfo::default_instance_ = new GameAccountInfo();
+  GameAccountList::default_instance_ = new GameAccountList();
+  ErrorResponse::default_instance_->InitAsDefaultInstance();
   FormInput::default_instance_->InitAsDefaultInstance();
   FormInputs::default_instance_->InitAsDefaultInstance();
   FormInputValue::default_instance_->InitAsDefaultInstance();
   LoginForm::default_instance_->InitAsDefaultInstance();
   LoginResult::default_instance_->InitAsDefaultInstance();
+  LoginRefreshResult::default_instance_->InitAsDefaultInstance();
+  GameAccountInfo::default_instance_->InitAsDefaultInstance();
+  GameAccountList::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_Login_2eproto);
 }
 
@@ -256,6 +360,77 @@ bool AuthenticationState_IsValid(int value) {
     default:
       return false;
   }
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+#endif  // !_MSC_VER
+
+ErrorResponse::ErrorResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.JSON.Login.ErrorResponse)
+}
+
+void ErrorResponse::InitAsDefaultInstance() {
+}
+
+ErrorResponse::ErrorResponse(const ErrorResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.JSON.Login.ErrorResponse)
+}
+
+void ErrorResponse::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ErrorResponse::~ErrorResponse() {
+  // @@protoc_insertion_point(destructor:Battlenet.JSON.Login.ErrorResponse)
+  SharedDtor();
+}
+
+void ErrorResponse::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void ErrorResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ErrorResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ErrorResponse_descriptor_;
+}
+
+const ErrorResponse& ErrorResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_Login_2eproto();
+  return *default_instance_;
+}
+
+ErrorResponse* ErrorResponse::default_instance_ = NULL;
+
+ErrorResponse* ErrorResponse::New() const {
+  return new ErrorResponse;
+}
+
+void ErrorResponse::Swap(ErrorResponse* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata ErrorResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ErrorResponse_descriptor_;
+  metadata.reflection = ErrorResponse_reflection_;
+  return metadata;
 }
 
 
@@ -682,6 +857,243 @@ void LoginResult::Swap(LoginResult* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = LoginResult_descriptor_;
   metadata.reflection = LoginResult_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int LoginRefreshResult::kLoginTicketExpiryFieldNumber;
+const int LoginRefreshResult::kIsExpiredFieldNumber;
+#endif  // !_MSC_VER
+
+LoginRefreshResult::LoginRefreshResult()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.JSON.Login.LoginRefreshResult)
+}
+
+void LoginRefreshResult::InitAsDefaultInstance() {
+}
+
+LoginRefreshResult::LoginRefreshResult(const LoginRefreshResult& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.JSON.Login.LoginRefreshResult)
+}
+
+void LoginRefreshResult::SharedCtor() {
+  _cached_size_ = 0;
+  login_ticket_expiry_ = GOOGLE_ULONGLONG(0);
+  is_expired_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+LoginRefreshResult::~LoginRefreshResult() {
+  // @@protoc_insertion_point(destructor:Battlenet.JSON.Login.LoginRefreshResult)
+  SharedDtor();
+}
+
+void LoginRefreshResult::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void LoginRefreshResult::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* LoginRefreshResult::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return LoginRefreshResult_descriptor_;
+}
+
+const LoginRefreshResult& LoginRefreshResult::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_Login_2eproto();
+  return *default_instance_;
+}
+
+LoginRefreshResult* LoginRefreshResult::default_instance_ = NULL;
+
+LoginRefreshResult* LoginRefreshResult::New() const {
+  return new LoginRefreshResult;
+}
+
+void LoginRefreshResult::Swap(LoginRefreshResult* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata LoginRefreshResult::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = LoginRefreshResult_descriptor_;
+  metadata.reflection = LoginRefreshResult_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GameAccountInfo::kDisplayNameFieldNumber;
+const int GameAccountInfo::kExpansionFieldNumber;
+const int GameAccountInfo::kIsSuspendedFieldNumber;
+const int GameAccountInfo::kIsBannedFieldNumber;
+const int GameAccountInfo::kSuspensionExpiresFieldNumber;
+const int GameAccountInfo::kSuspensionReasonFieldNumber;
+#endif  // !_MSC_VER
+
+GameAccountInfo::GameAccountInfo()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.JSON.Login.GameAccountInfo)
+}
+
+void GameAccountInfo::InitAsDefaultInstance() {
+}
+
+GameAccountInfo::GameAccountInfo(const GameAccountInfo& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.JSON.Login.GameAccountInfo)
+}
+
+void GameAccountInfo::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  display_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  expansion_ = 0u;
+  is_suspended_ = false;
+  is_banned_ = false;
+  suspension_expires_ = GOOGLE_ULONGLONG(0);
+  suspension_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GameAccountInfo::~GameAccountInfo() {
+  // @@protoc_insertion_point(destructor:Battlenet.JSON.Login.GameAccountInfo)
+  SharedDtor();
+}
+
+void GameAccountInfo::SharedDtor() {
+  if (display_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete display_name_;
+  }
+  if (suspension_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete suspension_reason_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void GameAccountInfo::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GameAccountInfo::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GameAccountInfo_descriptor_;
+}
+
+const GameAccountInfo& GameAccountInfo::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_Login_2eproto();
+  return *default_instance_;
+}
+
+GameAccountInfo* GameAccountInfo::default_instance_ = NULL;
+
+GameAccountInfo* GameAccountInfo::New() const {
+  return new GameAccountInfo;
+}
+
+void GameAccountInfo::Swap(GameAccountInfo* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GameAccountInfo::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GameAccountInfo_descriptor_;
+  metadata.reflection = GameAccountInfo_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GameAccountList::kGameAccountsFieldNumber;
+#endif  // !_MSC_VER
+
+GameAccountList::GameAccountList()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.JSON.Login.GameAccountList)
+}
+
+void GameAccountList::InitAsDefaultInstance() {
+}
+
+GameAccountList::GameAccountList(const GameAccountList& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.JSON.Login.GameAccountList)
+}
+
+void GameAccountList::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GameAccountList::~GameAccountList() {
+  // @@protoc_insertion_point(destructor:Battlenet.JSON.Login.GameAccountList)
+  SharedDtor();
+}
+
+void GameAccountList::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void GameAccountList::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GameAccountList::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GameAccountList_descriptor_;
+}
+
+const GameAccountList& GameAccountList::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_Login_2eproto();
+  return *default_instance_;
+}
+
+GameAccountList* GameAccountList::default_instance_ = NULL;
+
+GameAccountList* GameAccountList::New() const {
+  return new GameAccountList;
+}
+
+void GameAccountList::Swap(GameAccountList* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GameAccountList::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GameAccountList_descriptor_;
+  metadata.reflection = GameAccountList_reflection_;
   return metadata;
 }
 

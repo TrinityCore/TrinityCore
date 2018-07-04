@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,6 +56,12 @@ void PossessedAI::KilledUnit(Unit* victim)
     // We killed a creature, disable victim's loot
     if (victim->GetTypeId() == TYPEID_UNIT)
         victim->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+}
+
+void PossessedAI::OnCharmed(bool /*apply*/)
+{
+    me->NeedChangeAI = true;
+    me->IsAIEnabled = false;
 }
 
 void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)

@@ -1,28 +1,38 @@
-[//]: # (***************************************************************)
-[//]: # (** DON'T DELETE THIS TEMPLATE ELSE YOUR ISSUE WILL BE CLOSED **)
-[//]: # (***************************************************************)
+<!--- (**********************************)
+      (** Fill in the following fields **)
+      (**********************************) --->
 
 **Description:**
 
-**Current behaviour:** (Tell us what happens.)
+CHANGEME Description of the problem or issue here.
 
-**Expected behaviour:** (Tell us what should happen instead.)
+**Current behaviour:**
+
+CHANGEME Tell us what happens.
+If this is a crash, post the crashlog (upload to https://gist.github.com/).
+
+**Expected behaviour:**
+
+CHANGEME Tell us what should happen instead.
 
 **Steps to reproduce the problem:**
 
-1. 
-2. 
-3. 
+1. CHANGEME Step 1 include entries of affected creatures / items / quests with a link to the relevant wowhead page.  
+2. Step 2
+3. Step 3
 
-**Branch(es):** 3.3.5 / master (Tell us which branch(es) this issue affects.)
+**Branch(es):**
 
-**TC rev. hash/commit:**  
+CHANGEME 3.3.5, master or both
 
-**TDB version:**  
+**TC rev. hash/commit:** 
 
-**Operating system:**  
+CHANGEME Copy the result of server debug command (if you need to run it from client get prat addon)
+
+**Operating system:** CHANGEME OS
 
 
-[//]: # (This template is for problem reports. For other types of report, edit it accordingly.)
-[//]: # (If this is a crash report, include the crashlog with https://gist.github.com/)
-[//]: # (For fixes containing C++, create a Pull Request.)
+<!--- Notes
+- This template is for problem reports. For other types of report, edit it accordingly.
+- For fixes containing C++ changes, create a Pull Request.
+--->

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +19,8 @@
 #define BlackMarketPackets_h__
 
 #include "Packet.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
-#include "ItemPackets.h"
-
-class Player;
-class BlackMarketEntry;
 
 namespace WorldPackets
 {
@@ -31,8 +28,6 @@ namespace WorldPackets
     {
         struct BlackMarketItem
         {
-            void Initialize(BlackMarketEntry *const entry, Player* player);
-
             int32 MarketID = 0;
             int32 SellerNPC = 0;
             Item::ItemInstance Item;

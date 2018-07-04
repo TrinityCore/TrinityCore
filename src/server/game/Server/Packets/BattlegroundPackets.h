@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,11 @@
 #ifndef BattlegroundPackets_h__
 #define BattlegroundPackets_h__
 
-#include "Common.h"
-#include "ObjectGuid.h"
-#include "LFGPackets.h"
-#include "PacketUtilities.h"
 #include "Packet.h"
+#include "LFGPacketsCommon.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
+#include "Position.h"
 
 namespace WorldPackets
 {
@@ -123,7 +123,7 @@ namespace WorldPackets
                 std::vector<int32> Stats;
                 int32 PrimaryTalentTree = 0;
                 int32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
-                int32 Race;
+                int32 Race = 0;
                 uint32 Prestige = 0;
             };
 
@@ -345,7 +345,7 @@ namespace WorldPackets
         struct BattlegroundPlayerPosition
         {
             ObjectGuid Guid;
-            G3D::Vector2 Pos;
+            TaggedPosition<Position::XY> Pos;
             int8 IconID = 0;
             int8 ArenaSlot = 0;
         };

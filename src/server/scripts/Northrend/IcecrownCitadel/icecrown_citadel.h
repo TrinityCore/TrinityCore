@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,11 @@
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
 
-#include "SpellScript.h"
+#include "CreatureAIImpl.h"
+#include "ScriptMgr.h"
+
+struct Position;
+enum TriggerCastFlags : uint32;
 
 #define ICCScriptName "instance_icecrown_citadel"
 #define DataHeader    "IC"
@@ -93,9 +97,9 @@ enum ICDataTypes
     DATA_PUTRICIDE_TABLE               = 16,
     DATA_NAUSEA_ACHIEVEMENT            = 17,
     DATA_ORB_WHISPERER_ACHIEVEMENT     = 18,
-    DATA_PRINCE_KELESETH_GUID          = 19,
-    DATA_PRINCE_TALDARAM_GUID          = 20,
-    DATA_PRINCE_VALANAR_GUID           = 21,
+    DATA_PRINCE_KELESETH               = 19,
+    DATA_PRINCE_TALDARAM               = 20,
+    DATA_PRINCE_VALANAR                = 21,
     DATA_BLOOD_PRINCES_CONTROL         = 22,
     DATA_SINDRAGOSA_FROSTWYRMS         = 23,
     DATA_SPINESTALKER                  = 24,
@@ -527,49 +531,16 @@ enum ICAreaIds
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags = TRIGGERED_FULL_MASK)
-            : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
-
-        public:
-            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
-                : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(_triggerId))
-                    return false;
-                return true;
-            }
-
-            void HandleTrigger()
-            {
-                GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
-            }
-
-            uint32 _triggerId;
-            TriggerCastFlags _triggerFlags;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
-        }
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags);
+        SpellScript* GetSpellScript() const override;
 
     private:
         uint32 _triggerId;
         TriggerCastFlags _triggerFlags;
 };
 
-template<class AI, class T>
+template<typename AI, typename T>
 inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);

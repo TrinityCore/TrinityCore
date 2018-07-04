@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,16 @@
 #ifndef TRINITY_ARENA_H
 #define TRINITY_ARENA_H
 
+#include "ArenaScore.h"
 #include "Battleground.h"
+
+enum ArenaBroadcastTexts
+{
+    ARENA_TEXT_START_ONE_MINUTE             = 15740,
+    ARENA_TEXT_START_THIRTY_SECONDS         = 15741,
+    ARENA_TEXT_START_FIFTEEN_SECONDS        = 15739,
+    ARENA_TEXT_START_BATTLE_HAS_BEGUN       = 15742,
+};
 
 enum ArenaSpellIds
 {
@@ -49,10 +58,14 @@ class TC_GAME_API Arena : public Battleground
 
         void HandleKillPlayer(Player* player, Player* killer) override;
 
+        void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const override;
+
     private:
         void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
         void CheckWinConditions() override;
         void EndBattleground(uint32 winner) override;
+
+        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
 };
 
 #endif // TRINITY_ARENA_H

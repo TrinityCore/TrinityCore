@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "CreatureAIImpl.h"
+#include "GameObject.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 /*######
-## Quest 25134: Lazy Peons
+## Quest 37446: Lazy Peons
 ## npc_lazy_peon
 ######*/
 
@@ -32,7 +36,7 @@ enum LazyPeonYells
 
 enum LazyPeon
 {
-    QUEST_LAZY_PEONS    = 25134,
+    QUEST_LAZY_PEONS    = 37446,
     GO_LUMBERPILE       = 175784,
     SPELL_BUFF_SLEEP    = 17743,
     SPELL_AWAKEN_PEON   = 19938
@@ -132,12 +136,16 @@ class spell_voodoo : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HEX3) || !sSpellMgr->GetSpellInfo(SPELL_GROW) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_LAUNCH))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BREW,
+                    SPELL_GHOSTLY,
+                    SPELL_HEX1,
+                    SPELL_HEX2,
+                    SPELL_HEX3,
+                    SPELL_GROW,
+                    SPELL_LAUNCH
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

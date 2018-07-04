@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 #include "CombatPackets.h"
-#include "SpellPackets.h"
+#include "Unit.h"
 
 void WorldPackets::Combat::AttackSwing::Read()
 {
@@ -58,7 +58,7 @@ WorldPacket const* WorldPackets::Combat::ThreatUpdate::Write()
     for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
     {
         _worldPacket << threatInfo.UnitGUID;
-        _worldPacket << threatInfo.Threat;
+        _worldPacket << int64(threatInfo.Threat);
     }
 
     return &_worldPacket;
@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::Combat::HighestThreatUpdate::Write()
     for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
     {
         _worldPacket << threatInfo.UnitGUID;
-        _worldPacket << threatInfo.Threat;
+        _worldPacket << int64(threatInfo.Threat);
     }
 
     return &_worldPacket;

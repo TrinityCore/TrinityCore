@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,17 +17,23 @@
  */
 
 #include "Channel.h"
-#include "ChannelAppenders.h"
 #include "AccountMgr.h"
+#include "ChannelAppenders.h"
 #include "Chat.h"
+#include "ChatPackets.h"
+#include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "DatabaseEnv.h"
-#include "ObjectMgr.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
 #include "World.h"
+#include "WorldSession.h"
+#include <sstream>
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
     _announceEnabled(false),                                               // no join/leave announces
@@ -235,14 +241,16 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     SendToOne(builder, guid);
     */
 
-    auto builder = [&](LocaleConstant /*locale*/)
+    auto builder = [&](LocaleConstant locale)
     {
+        LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
+
         WorldPackets::Channel::ChannelNotifyJoined* notify = new WorldPackets::Channel::ChannelNotifyJoined();
         //notify->ChannelWelcomeMsg = "";
         notify->ChatChannelID = _channelId;
         //notify->InstanceID = 0;
         notify->_ChannelFlags = _channelFlags;
-        notify->_Channel = _channelName;
+        notify->_Channel = GetName(localeIdx);
         return notify;
     };
 
@@ -270,7 +278,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     }
 }
 
-void Channel::LeaveChannel(Player* player, bool send)
+void Channel::LeaveChannel(Player* player, bool send, bool suspend)
 {
     ObjectGuid const& guid = player->GetGUID();
     if (!IsOn(guid))
@@ -300,8 +308,8 @@ void Channel::LeaveChannel(Player* player, bool send)
 
             WorldPackets::Channel::ChannelNotifyLeft* notify = new WorldPackets::Channel::ChannelNotifyLeft();
             notify->Channel = GetName(localeIdx);
-            notify->ChatChannelID = 0;
-            //notify->Suspended = false;
+            notify->ChatChannelID = _channelId;
+            notify->Suspended = suspend;
             return notify;
         };
 
@@ -741,6 +749,48 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) 
     SendToAll(builder, !playerInfo.IsModerator() ? guid : ObjectGuid::Empty);
 }
 
+void Channel::AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what) const
+{
+    if (what.empty())
+        return;
+
+    if (!IsOn(guid))
+    {
+        NotMemberAppend appender;
+        ChannelNameBuilder<NotMemberAppend> builder(this, appender);
+        SendToOne(builder, guid);
+        return;
+    }
+
+    PlayerInfo const& playerInfo = _playersStore.at(guid);
+    if (playerInfo.IsMuted())
+    {
+        MutedAppend appender;
+        ChannelNameBuilder<MutedAppend> builder(this, appender);
+        SendToOne(builder, guid);
+        return;
+    }
+
+    auto builder = [&](LocaleConstant locale)
+    {
+        LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
+
+        WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
+            packet->Initialize(CHAT_MSG_CHANNEL, LANG_ADDON, player, player, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
+        else
+        {
+            packet->Initialize(CHAT_MSG_CHANNEL, LANG_ADDON, nullptr, nullptr, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
+            packet->SenderGUID = guid;
+            packet->TargetGUID = guid;
+        }
+
+        return packet;
+    };
+
+    SendToAllWithAddon(builder, prefix, !playerInfo.IsModerator() ? guid : ObjectGuid::Empty);
+}
+
 void Channel::Invite(Player const* player, std::string const& newname)
 {
     ObjectGuid const& guid = player->GetGUID();
@@ -827,9 +877,9 @@ void Channel::SetOwner(ObjectGuid const& guid, bool exclaim)
 
         if (exclaim)
         {
-            OwnerChangedAppend appender(_ownerGuid);
-            ChannelNameBuilder<OwnerChangedAppend> builder(this, appender);
-            SendToAll(builder);
+            OwnerChangedAppend ownerChangedAppender(_ownerGuid);
+            ChannelNameBuilder<OwnerChangedAppend> ownerChangedBuilder(this, ownerChangedAppender);
+            SendToAll(ownerChangedBuilder);
         }
 
         UpdateChannelInDB();
@@ -840,27 +890,11 @@ void Channel::SilenceAll(Player const* /*player*/, std::string const& /*name*/)
 {
 }
 
-void Channel::SilenceVoice(Player const* /*player*/, std::string const& /*name*/)
-{
-}
-
 void Channel::UnsilenceAll(Player const* /*player*/, std::string const& /*name*/)
 {
 }
 
-void Channel::UnsilenceVoice(Player const* /*player*/, std::string const& /*name*/)
-{
-}
-
 void Channel::DeclineInvite(Player const* /*player*/)
-{
-}
-
-void Channel::Voice(Player const* /*player*/)
-{
-}
-
-void Channel::DeVoice(Player const* /*player*/)
 {
 }
 
@@ -989,4 +1023,15 @@ void Channel::SendToOne(Builder& builder, ObjectGuid const& who) const
 
     if (Player* player = ObjectAccessor::FindConnectedPlayer(who))
         localizer(player);
+}
+
+template <class Builder>
+void Channel::SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid /*= ObjectGuid::Empty*/) const
+{
+    Trinity::LocalizedPacketDo<Builder> localizer(builder);
+
+    for (PlayerContainer::value_type const& i : _playersStore)
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(i.first))
+            if (player->GetSession()->IsAddonRegistered(addonPrefix) && (guid.IsEmpty() || !player->GetSocial()->HasIgnore(guid)))
+                localizer(player);
 }

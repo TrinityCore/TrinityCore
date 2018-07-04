@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,12 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"                                      // for normalizePlayerName
+#include "WorldSession.h"
+#include "Channel.h"
 #include "ChannelMgr.h"
 #include "ChannelPackets.h"
+#include "DB2Stores.h"
+#include "Log.h"
+#include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "Player.h"
-#include "WorldSession.h"
-
 #include <cctype>
 
 static size_t const MAX_CHANNEL_NAME_STR = 0x31;
@@ -85,17 +87,34 @@ void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packe
     }
 }
 
-template<void(Channel::*CommandFunction)(Player const*)>
-void WorldSession::HandleChannelCommand(WorldPackets::Channel::ChannelPlayerCommand& packet)
+void WorldSession::HandleChannelCommand(WorldPackets::Channel::ChannelCommand& packet)
 {
     TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s",
         GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str());
 
     if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
-        (channel->*CommandFunction)(GetPlayer());
+    {
+        switch (packet.GetOpcode())
+        {
+            case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
+                channel->Announce(GetPlayer());
+                break;
+            case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
+                channel->DeclineInvite(GetPlayer());
+                break;
+            case CMSG_CHAT_CHANNEL_DISPLAY_LIST:
+            case CMSG_CHAT_CHANNEL_LIST:
+                channel->List(GetPlayer());
+                break;
+            case CMSG_CHAT_CHANNEL_OWNER:
+                channel->SendWhoOwner(GetPlayer());
+                break;
+            default:
+                break;
+        }
+    }
 }
 
-template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
 void WorldSession::HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet)
 {
     if (packet.Name.length() >= MAX_CHANNEL_NAME_STR)
@@ -112,42 +131,60 @@ void WorldSession::HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlay
         return;
 
     if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
-        (channel->*CommandFunction)(GetPlayer(), packet.Name);
+    {
+        switch (packet.GetOpcode())
+        {
+            case CMSG_CHAT_CHANNEL_BAN:
+                channel->Ban(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_INVITE:
+                channel->Invite(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_KICK:
+                channel->Kick(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_MODERATOR:
+                channel->SetModerator(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_MUTE:
+                channel->SetMute(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_SET_OWNER:
+                channel->SetOwner(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_SILENCE_ALL:
+                channel->SilenceAll(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_UNBAN:
+                channel->UnBan(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_UNMODERATOR:
+                channel->UnsetModerator(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_UNMUTE:
+                channel->UnsetMute(GetPlayer(), packet.Name);
+                break;
+            case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
+                channel->UnsilenceAll(GetPlayer(), packet.Name);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
-template<>
-void WorldSession::HandleChannelPlayerCommand<&Channel::Password>(WorldPackets::Channel::ChannelPlayerCommand& packet)
+void WorldSession::HandleChannelPassword(WorldPackets::Channel::ChannelPassword& packet)
 {
-    if (packet.Name.length() > MAX_CHANNEL_PASS_STR)
+    if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
     {
         TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s, Password: %s, Password too long.",
-            GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Name.c_str());
+            GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Password.c_str());
         return;
     }
 
     TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s, Password: %s",
-        GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Name.c_str());
+        GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Password.c_str());
 
     if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
-        channel->Password(GetPlayer(), packet.Name);
+        channel->Password(GetPlayer(), packet.Password);
 }
-
-template void WorldSession::HandleChannelCommand<&Channel::Announce>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::Ban>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelCommand<&Channel::DeclineInvite>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::Invite>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::Kick>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelCommand<&Channel::List>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::SetModerator>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::SetMute>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelCommand<&Channel::SendWhoOwner>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::SetOwner>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::SilenceAll>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::SilenceVoice>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::UnBan>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::UnsetModerator>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::UnsetMute>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::UnsilenceAll>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelPlayerCommand<&Channel::UnsilenceVoice>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelCommand<&Channel::DeVoice>(WorldPackets::Channel::ChannelPlayerCommand&);
-template void WorldSession::HandleChannelCommand<&Channel::Voice>(WorldPackets::Channel::ChannelPlayerCommand&);

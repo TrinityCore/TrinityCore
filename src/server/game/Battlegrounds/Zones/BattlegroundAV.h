@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,6 +53,16 @@
 enum SharedActions
 {
     ACTION_BUFF_YELL    = -30001
+};
+
+enum BG_AV_BroadcastTexts
+{
+    BG_AV_TEXT_START_ONE_MINUTE     = 10638,
+    BG_AV_TEXT_START_HALF_MINUTE    = 10639,
+    BG_AV_TEXT_BATTLE_HAS_BEGUN     = 10640,
+
+    BG_AV_TEXT_ALLIANCE_NEAR_LOSE   = 23210,
+    BG_AV_TEXT_HORDE_NEAR_LOSE      = 23211
 };
 
 enum BG_AV_Sounds
@@ -1587,13 +1597,15 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
         {
-            stats.push_back(GraveyardsAssaulted);
-            stats.push_back(GraveyardsDefended);
-            stats.push_back(TowersAssaulted);
-            stats.push_back(TowersDefended);
-            stats.push_back(MinesCaptured);
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.push_back(GraveyardsAssaulted);
+            playerData.Stats.push_back(GraveyardsDefended);
+            playerData.Stats.push_back(TowersAssaulted);
+            playerData.Stats.push_back(TowersDefended);
+            playerData.Stats.push_back(MinesCaptured);
         }
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }

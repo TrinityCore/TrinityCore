@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,16 +17,20 @@
  */
 
 #include "GameEventMgr.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "PoolMgr.h"
+#include "BattlegroundMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "BattlegroundMgr.h"
-#include "UnitAI.h"
-#include "GameObjectAI.h"
+#include "PoolMgr.h"
+#include "World.h"
 #include "WorldStatePackets.h"
 
 GameEventMgr* GameEventMgr::instance()
@@ -139,6 +143,9 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
             if (data.end <= data.start)
                 data.end = data.start + data.length;
         }
+
+        // When event is started, set its worldstate to current time
+        sWorld->setWorldState(event_id, time(NULL));
         return false;
     }
     else
@@ -173,6 +180,9 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
+
+    // When event is stopped, clean up its worldstate
+    sWorld->setWorldState(event_id, 0);
 
     if (overwrite && !serverwide_evt)
     {
@@ -782,8 +792,8 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                               0           1     2     3         4         5             6
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type FROM game_event_npc_vendor ORDER BY guid, slot ASC");
+        //                                               0           1     2     3         4         5             6     7             8                  9
+        QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionId, IgnoreFiltering FROM game_event_npc_vendor ORDER BY guid, slot ASC");
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
@@ -795,6 +805,7 @@ void GameEventMgr::LoadFromDB()
                 Field* fields = result->Fetch();
 
                 uint8 event_id  = fields[0].GetUInt8();
+                ObjectGuid::LowType guid = fields[1].GetUInt64();
 
                 if (event_id >= mGameEventVendors.size())
                 {
@@ -802,14 +813,6 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
-                NPCVendorList& vendors = mGameEventVendors[event_id];
-                NPCVendorEntry newEntry;
-                ObjectGuid::LowType guid = fields[1].GetUInt64();
-                newEntry.item = fields[2].GetUInt32();
-                newEntry.maxcount = fields[3].GetUInt32();
-                newEntry.incrtime = fields[4].GetUInt32();
-                newEntry.ExtendedCost = fields[5].GetUInt32();
-                newEntry.Type = fields[6].GetUInt8();
                 // get the event npc flag for checking if the npc will be vendor during the event or not
                 uint32 event_npc_flag = 0;
                 NPCFlagList& flist = mGameEventNPCFlags[event_id];
@@ -821,17 +824,30 @@ void GameEventMgr::LoadFromDB()
                         break;
                     }
                 }
-                // get creature entry
-                newEntry.entry = 0;
 
+                uint32 entry = 0;
                 if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
-                    newEntry.entry = data->id;
+                    entry = data->id;
+
+                VendorItem vItem;
+                vItem.item              = fields[2].GetUInt32();
+                vItem.maxcount          = fields[3].GetUInt32();
+                vItem.incrtime          = fields[4].GetUInt32();
+                vItem.ExtendedCost      = fields[5].GetUInt32();
+                vItem.Type              = fields[6].GetUInt8();
+                vItem.PlayerConditionId = fields[8].GetUInt32();
+                vItem.IgnoreFiltering   = fields[9].GetBool();
+
+                Tokenizer bonusListIDsTok(fields[7].GetString(), ' ');
+                for (char const* token : bonusListIDsTok)
+                    vItem.BonusListIDs.push_back(int32(atol(token)));
 
                 // check validity with event's npcflag
-                if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.Type, NULL, NULL, event_npc_flag))
+                if (!sObjectMgr->IsVendorItemValid(entry, vItem, nullptr, nullptr, event_npc_flag))
                     continue;
 
-                vendors.push_back(newEntry);
+                NPCVendorMap& vendors = mGameEventVendors[event_id];
+                vendors[entry].emplace_back(std::move(vItem));
 
                 ++count;
             }
@@ -1034,6 +1050,8 @@ uint32 GameEventMgr::Update()                               // return the next e
         }
         else
         {
+            // If event is inactive, periodically clean up its worldstate
+            sWorld->setWorldState(itr, 0);
             //TC_LOG_DEBUG("misc", "GameEvent %u is not active", itr->first);
             if (IsActiveEvent(itr))
                 deactivate.insert(itr);
@@ -1116,8 +1134,10 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, true);
     // update bg holiday
     UpdateBattlegroundSettings();
-    // check for seasonal quest reset.
-    sWorld->ResetEventSeasonalQuests(event_id);
+    // If event's worldstate is 0, it means the event hasn't been started yet. In that case, reset seasonal quests.
+    // When event ends (if it expires or if it's stopped via commands) worldstate will be set to 0 again, ready for another seasonal quest reset.
+    if (sWorld->getWorldState(event_id) == 0)
+        sWorld->ResetEventSeasonalQuests(event_id);
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
@@ -1163,12 +1183,15 @@ void GameEventMgr::UpdateBattlegroundSettings()
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
 {
-    for (NPCVendorList::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
+    for (NPCVendorMap::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
     {
-        if (activate)
-            sObjectMgr->AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, itr->Type, false);
-        else
-            sObjectMgr->RemoveVendorItem(itr->entry, itr->item, itr->Type, false);
+        for (VendorItem const& vItem : itr->second)
+        {
+            if (activate)
+                sObjectMgr->AddVendorItem(itr->first, vItem, false);
+            else
+                sObjectMgr->RemoveVendorItem(itr->first, vItem.item, vItem.Type, false);
+        }
     }
 }
 
@@ -1194,12 +1217,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             Map* map = sMapMgr->CreateBaseMap(data->mapid);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
-            {
-                Creature* creature = new Creature();
-                //TC_LOG_DEBUG("misc", "Spawning creature %u", *itr);
-                if (!creature->LoadCreatureFromDB(*itr, map))
-                    delete creature;
-            }
+                Creature::CreateCreatureFromDB(*itr, map);
         }
     }
 
@@ -1222,15 +1240,14 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
             {
-                GameObject* pGameobject = new GameObject;
-                //TC_LOG_DEBUG("misc", "Spawning gameobject %u", *itr);
-                /// @todo find out when it is add to map
-                if (!pGameobject->LoadGameObjectFromDB(*itr, map, false))
-                    delete pGameobject;
-                else
+                if (GameObject* go = GameObject::CreateGameObjectFromDB(*itr, map, false))
                 {
-                    if (pGameobject->isSpawnedByDefault())
-                        map->AddToMap(pGameobject);
+                    /// @todo find out when it is add to map
+                    if (go->isSpawnedByDefault())
+                    {
+                        if (!map->AddToMap(go))
+                            delete go;
+                    }
                 }
             }
         }
@@ -1517,7 +1534,13 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
     }
 }
 
-GameEventMgr::GameEventMgr() : isSystemInit(false) { }
+GameEventMgr::GameEventMgr() : isSystemInit(false)
+{
+}
+
+GameEventMgr::~GameEventMgr()
+{
+}
 
 void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 {

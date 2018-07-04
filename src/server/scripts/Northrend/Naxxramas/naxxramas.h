@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
+#include "CreatureAIImpl.h"
+
+#define NaxxramasScriptName "instance_naxxramas"
 #define DataHeader "NAX"
 
 uint32 const EncounterCount     = 15;
@@ -50,12 +53,12 @@ enum NAXData
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
-    DATA_ABOMINATION_KILLED,
 
     DATA_NAXX_PORTAL_ARACHNID,
     DATA_NAXX_PORTAL_CONSTRUCT,
     DATA_NAXX_PORTAL_PLAGUE,
-    DATA_NAXX_PORTAL_MILITARY
+    DATA_NAXX_PORTAL_MILITARY,
+    DATA_KELTHUZAD_THRONE
 };
 
 enum NAXData64
@@ -107,7 +110,8 @@ enum NAXCreaturesIds
     NPC_DK_UNDERSTUDY           = 16803,
     NPC_BIGGLESWORTH            = 16998,
     NPC_LICH_KING               = 16980,
-    NPC_OLD_WORLD_TRIGGER       = 15384
+    NPC_OLD_WORLD_TRIGGER       = 15384,
+    NPC_FROGGER                 = 16027
 };
 
 enum NAXGameObjectsIds
@@ -120,6 +124,7 @@ enum NAXGameObjectsIds
     GO_KELTHUZAD_PORTAL03       = 181404,
     GO_KELTHUZAD_PORTAL04       = 181405,
     GO_KELTHUZAD_TRIGGER        = 181444,
+    GO_KELTHUZAD_THRONE         = 181640,
     GO_ROOM_ANUBREKHAN          = 181126,
     GO_PASSAGE_ANUBREKHAN       = 181195,
     GO_PASSAGE_FAERLINA         = 194022,
@@ -137,14 +142,20 @@ enum NAXGameObjectsIds
     GO_ROOM_HORSEMEN            = 181119,
     GO_PASSAGE_SAPPHIRON        = 181225,
     GO_ROOM_KELTHUZAD           = 181228,
+
+    // End of wing portals
     GO_ARAC_PORTAL              = 181575,
     GO_PLAG_PORTAL              = 181577,
     GO_MILI_PORTAL              = 181578,
     GO_CONS_PORTAL              = 181576,
+
+    // "Glow" effect on center-side portal
     GO_ARAC_EYE_RAMP            = 181212,
     GO_PLAG_EYE_RAMP            = 181211,
     GO_MILI_EYE_RAMP            = 181210,
     GO_CONS_EYE_RAMP            = 181213,
+
+    // "Glow" effect on boss-side portal
     GO_ARAC_EYE_RAMP_BOSS       = 181233,
     GO_PLAG_EYE_RAMP_BOSS       = 181231,
     GO_MILI_EYE_RAMP_BOSS       = 181230,
@@ -175,6 +186,9 @@ enum NAXInstanceEvents
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
 
+    // Periodic Frogger summon
+    EVENT_SUMMON_FROGGER_WAVE,
+
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,
     EVENT_DIALOGUE_SAPPHIRON_LICHKING,
@@ -204,17 +218,11 @@ enum NAXInstanceTexts
     SAY_DIALOGUE_SAPPHIRON_LICH_KING2 = 2
 };
 
-/*
-template<class AI>
-CreatureAI* GetNaxxramasAI(Creature* creature)
+template<typename AI, typename T>
+inline AI* GetNaxxramasAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(NaxxramasScriptName))
-                return new AI(creature);
-
-    return NULL;
+    return GetInstanceAI<AI>(obj, NaxxramasScriptName);
 }
-*/
+#define RegisterNaxxramasCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetNaxxramasAI)
 
 #endif

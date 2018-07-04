@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
 #include "Pet.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
 {
@@ -69,10 +74,10 @@ public:
         }
 
         CreatureTemplate const* creatureTemplate = creatureTarget->GetCreatureTemplate();
-        // Creatures with family 0 crashes the server
-        if (!creatureTemplate->family)
+        // Creatures with family CREATURE_FAMILY_NONE crashes the server
+        if (creatureTemplate->family == CREATURE_FAMILY_NONE)
         {
-            handler->PSendSysMessage("This creature cannot be tamed. (family id: 0).");
+            handler->PSendSysMessage("This creature cannot be tamed. Family id: 0 (CREATURE_FAMILY_NONE).");
             handler->SetSentErrorMessage(true);
             return false;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "vault_of_archavon.h"
 
@@ -29,11 +30,11 @@
 class instance_vault_of_archavon : public InstanceMapScript
 {
     public:
-        instance_vault_of_archavon() : InstanceMapScript("instance_vault_of_archavon", 624) { }
+        instance_vault_of_archavon() : InstanceMapScript(VoAScriptName, 624) { }
 
         struct instance_vault_of_archavon_InstanceMapScript : public InstanceScript
         {
-            instance_vault_of_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_vault_of_archavon_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

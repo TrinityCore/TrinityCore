@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,9 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
+#include <list>
+#include <unordered_set>
+#include <vector>
 
 struct GarrAbilityEntry;
 
@@ -62,7 +65,7 @@ namespace WorldPackets
         struct GarrisonPlotInfo
         {
             uint32 GarrPlotInstanceID = 0;
-            Position PlotPos;
+            TaggedPosition<Position::XYZO> PlotPos;
             uint32 PlotType = 0;
         };
 
@@ -151,6 +154,12 @@ namespace WorldPackets
             std::vector<int32> ArchivedMissions;
         };
 
+        struct FollowerSoftCapInfo
+        {
+            int32 GarrFollowerTypeID;
+            uint32 Count;
+        };
+
         class GetGarrisonInfoResult final : public ServerPacket
         {
         public:
@@ -160,6 +169,7 @@ namespace WorldPackets
 
             uint32 FactionIndex = 0;
             std::vector<GarrisonInfo> Garrisons;
+            std::vector<FollowerSoftCapInfo> FollowerSoftCaps;
         };
 
         struct GarrisonRemoteBuildingInfo
@@ -294,7 +304,7 @@ namespace WorldPackets
             GarrisonBuildingLandmark(uint32 buildingPlotInstId, Position const& pos) : GarrBuildingPlotInstID(buildingPlotInstId), Pos(pos) { }
 
             uint32 GarrBuildingPlotInstID;
-            Position Pos;
+            TaggedPosition<Position::XYZ> Pos;
         };
 
         class GarrisonBuildingLandmarks final : public ServerPacket

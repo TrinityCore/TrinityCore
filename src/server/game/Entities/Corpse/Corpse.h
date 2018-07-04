@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,9 +20,9 @@
 #define TRINITYCORE_CORPSE_H
 
 #include "Object.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "GridDefines.h"
-#include "LootMgr.h"
+#include "Loot.h"
 
 enum CorpseType
 {
@@ -40,10 +40,11 @@ enum CorpseFlags
     CORPSE_FLAG_NONE        = 0x00,
     CORPSE_FLAG_BONES       = 0x01,
     CORPSE_FLAG_UNK1        = 0x02,
-    CORPSE_FLAG_UNK2        = 0x04,
+    CORPSE_FLAG_PVP         = 0x04,
     CORPSE_FLAG_HIDE_HELM   = 0x08,
     CORPSE_FLAG_HIDE_CLOAK  = 0x10,
-    CORPSE_FLAG_LOOTABLE    = 0x20
+    CORPSE_FLAG_SKINNABLE   = 0x20,
+    CORPSE_FLAG_FFA_PVP     = 0x40
 };
 
 class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>

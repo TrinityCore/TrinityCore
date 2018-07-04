@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,17 +50,6 @@ namespace WorldPackets
             bool CurrentSpecOnly = false;
         };
 
-        class TransmogAppearanceSetFavorite final : public ClientPacket
-        {
-        public:
-            TransmogAppearanceSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOG_APPEARANCE_SET_FAVORITE, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 ItemModifiedAppearanceID = 0;
-            bool IsFavorite = false;
-        };
-
         class TransmogCollectionUpdate final : public ServerPacket
         {
         public:
@@ -71,6 +60,16 @@ namespace WorldPackets
             bool IsFullUpdate = false;
             bool IsSetFavorite = false;
             std::vector<uint32> FavoriteAppearances;
+        };
+
+        class OpenTransmogrifier final : public ServerPacket
+        {
+        public:
+            OpenTransmogrifier(ObjectGuid const& guid) : ServerPacket(SMSG_OPEN_TRANSMOGRIFIER, 16), Guid(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
         };
     }
 }

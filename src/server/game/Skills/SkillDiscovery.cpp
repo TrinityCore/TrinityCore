@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,8 +23,10 @@
 #include "SkillDiscovery.h"
 #include "SpellMgr.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellInfo.h"
 #include <map>
+#include <sstream>
 
 struct SkillDiscoveryEntry
 {

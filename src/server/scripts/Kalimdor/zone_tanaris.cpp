@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,23 +19,22 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 648, 10277, 10279(Special flight path).
+SDComment: Quest support: 648, 10277
 SDCategory: Tanaris
 EndScriptData */
 
 /* ContentData
 npc_custodian_of_time
-npc_steward_of_time
 npc_OOX17
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "Player.h"
-#include "WorldSession.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_aquementas
@@ -290,52 +289,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
-};
-
-/*######
-## npc_steward_of_time
-######*/
-
-#define GOSSIP_ITEM_FLIGHT  "Please take me to the master's lair."
-
-class npc_steward_of_time : public CreatureScript
-{
-public:
-    npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
-
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
-            player->CastSpell(player, 34891, true);               //(Flight through Caverns)
-
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            player->CastSpell(player, 34891, true);               //(Flight through Caverns)
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(10279) == QUEST_STATUS_INCOMPLETE || player->GetQuestRewardStatus(10279))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(9978, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(9977, creature->GetGUID());
-
-        return true;
-    }
 
 };
 
@@ -602,6 +555,5 @@ public:
 void AddSC_tanaris()
 {
     new npc_custodian_of_time();
-    new npc_steward_of_time();
     new npc_OOX17();
 }

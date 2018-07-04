@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,48 +28,49 @@ npc_wizzlecrank_shredder
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_beaten_corpse
 ######*/
 
-#define GOSSIP_CORPSE "Examine corpse in detail..."
-
 enum BeatenCorpse
 {
-    QUEST_LOST_IN_BATTLE    = 4921
+    GOSSIP_OPTION_ID_BEATEN_CORPSE  = 0,
+    GOSSIP_MENU_OPTION_INSPECT_BODY = 2871
 };
 
 class npc_beaten_corpse : public CreatureScript
 {
-public:
-    npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
+    public:
+        npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF +1)
+        struct npc_beaten_corpseAI : public ScriptedAI
         {
-            player->SEND_GOSSIP_MENU(3558, creature->GetGUID());
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+            npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            {
+                if (menuId == GOSSIP_MENU_OPTION_INSPECT_BODY && gossipListId == GOSSIP_OPTION_ID_BEATEN_CORPSE)
+                {
+                    CloseGossipMenuFor(player);
+                    player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_beaten_corpseAI(creature);
         }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(3557, creature->GetGUID());
-        return true;
-    }
-
 };
 
 /*######

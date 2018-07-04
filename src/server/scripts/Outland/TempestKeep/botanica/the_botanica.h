@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,9 @@
 #ifndef DEF_THE_BOTANICA_H
 #define DEF_THE_BOTANICA_H
 
+#include "CreatureAIImpl.h"
+
+#define BotanicaScriptName "instance_the_botanica"
 #define DataHeader "BC"
 
 uint32 const EncounterCount = 5;
@@ -40,5 +43,11 @@ enum BCCreatureIds
     NPC_LAJ                             = 17980,
     NPC_WARP_SPLINTER                   = 17977
 };
+
+template<typename AI>
+inline AI* GetBotanicaAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, BotanicaScriptName);
+}
 
 #endif

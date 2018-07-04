@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "drak_tharon_keep.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -143,6 +146,9 @@ class boss_trollgore : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (_consumptionJunction)
@@ -231,9 +237,7 @@ class spell_trollgore_consume : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CONSUME_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CONSUME_BUFF });
             }
 
             void HandleConsume(SpellEffIndex /*effIndex*/)
@@ -266,9 +270,7 @@ class spell_trollgore_corpse_explode : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CORPSE_EXPLODE_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CORPSE_EXPLODE_DAMAGE });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
@@ -309,9 +311,7 @@ class spell_trollgore_invader_taunt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
-                    return false;
-                return true;
+                return spellInfo->GetEffect(EFFECT_0) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
             }
 
             void HandleTaunt(SpellEffIndex /*effIndex*/)

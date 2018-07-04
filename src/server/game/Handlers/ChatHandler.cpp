@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,29 +16,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
-#include "Chat.h"
+#include "AccountMgr.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "Chat.h"
+#include "ChatPackets.h"
+#include "Common.h"
+#include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
-#include "ScriptMgr.h"
-#include "AccountMgr.h"
-#include "ChatPackets.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage)
 {
@@ -99,7 +100,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
     if (lang == LANG_UNIVERSAL && type != CHAT_MSG_EMOTE)
     {
-        TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
@@ -205,8 +206,6 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
     switch (type)
     {
         case CHAT_MSG_SAY:
-        case CHAT_MSG_EMOTE:
-        case CHAT_MSG_YELL:
         {
             // Prevent cheating
             if (!sender->IsAlive())
@@ -218,12 +217,37 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 return;
             }
 
-            if (type == CHAT_MSG_SAY)
-                sender->Say(msg, Language(lang));
-            else if (type == CHAT_MSG_EMOTE)
-                sender->TextEmote(msg);
-            else if (type == CHAT_MSG_YELL)
-                sender->Yell(msg, Language(lang));
+            sender->Say(msg, Language(lang));
+            break;
+        }
+        case CHAT_MSG_EMOTE:
+        {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
+            if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ))
+            {
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ));
+                return;
+            }
+
+            sender->TextEmote(msg);
+            break;
+        }
+        case CHAT_MSG_YELL:
+        {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
+            if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ))
+            {
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ));
+                return;
+            }
+
+            sender->Yell(msg, Language(lang));
             break;
         }
         case CHAT_MSG_WHISPER:
@@ -449,10 +473,13 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         }
         case CHAT_MSG_WHISPER:
         {
-            if (!normalizePlayerName(target))
+            /// @todo implement cross realm whispers (someday)
+            ExtendedPlayerName extName = ExtractExtendedPlayerName(target);
+
+            if (!normalizePlayerName(extName.Name))
                 break;
 
-            Player* receiver = ObjectAccessor::FindPlayerByName(target);
+            Player* receiver = ObjectAccessor::FindPlayerByName(extName.Name);
             if (!receiver)
                 break;
 
@@ -487,7 +514,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         case CHAT_MSG_CHANNEL:
         {
             if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
-                chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
+                chn->AddonSay(sender->GetGUID(), prefix, text.c_str());
             break;
         }
         default:
@@ -629,7 +656,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
     // Send scripted event call
     if (unit)
         if (Creature* creature = unit->ToCreature())
-            creature->AI()->ReceiveEmote(_player, packet.SoundIndex);
+            creature->AI()->ReceiveEmote(_player, packet.EmoteID);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored)

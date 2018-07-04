@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,10 @@
 #ifndef _PREPAREDSTATEMENT_H
 #define _PREPAREDSTATEMENT_H
 
-#include <future>
+#include "Define.h"
 #include "SQLOperation.h"
+#include <future>
+#include <vector>
 
 #ifdef __APPLE__
 #undef TYPE_BOOL
@@ -120,6 +122,7 @@ class TC_DATABASE_API MySQLPreparedStatement
         MySQLPreparedStatement(MYSQL_STMT* stmt);
         ~MySQLPreparedStatement();
 
+        void setNull(const uint8 index);
         void setBool(const uint8 index, const bool value);
         void setUInt8(const uint8 index, const uint8 value);
         void setUInt16(const uint8 index, const uint16 value);
@@ -132,18 +135,14 @@ class TC_DATABASE_API MySQLPreparedStatement
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
         void setBinary(const uint8 index, const std::vector<uint8>& value, bool isString);
-        void setNull(const uint8 index);
 
     protected:
         MYSQL_STMT* GetSTMT() { return m_Mstmt; }
         MYSQL_BIND* GetBind() { return m_bind; }
         PreparedStatement* m_stmt;
         void ClearParameters();
-        bool CheckValidIndex(uint8 index);
+        void CheckValidIndex(uint8 index);
         std::string getQueryString(std::string const& sqlPattern) const;
-
-    private:
-        void setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned);
 
     private:
         MYSQL_STMT* m_Mstmt;
@@ -154,9 +153,6 @@ class TC_DATABASE_API MySQLPreparedStatement
         MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
         MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;
 };
-
-typedef std::future<PreparedQueryResult> PreparedQueryResultFuture;
-typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
 //- Lower-level class, enqueuable operation
 class TC_DATABASE_API PreparedStatementTask : public SQLOperation

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,8 @@
 #ifndef AZJOL_NERUB_H_
 #define AZJOL_NERUB_H_
 
+#include "CreatureAIImpl.h"
+
 #define AzjolNerubScriptName "instance_azjol_nerub"
 #define DataHeader           "AN"
 
@@ -31,9 +33,11 @@ enum ANDataTypes
     DATA_ANUBARAK                   = 2,
 
     // Additional Data
-    DATA_WATCHER_GASHRA             = 3,
-    DATA_WATCHER_SILTHIK            = 4,
-    DATA_WATCHER_NARJIL             = 5
+    DATA_WATCHER_NARJIL,
+    DATA_WATCHER_GASHRA,
+    DATA_WATCHER_SILTHIK,
+    DATA_ANUBARAK_WALL,
+    DATA_ANUBARAK_WALL_2
 };
 
 enum ANCreatureIds
@@ -55,8 +59,14 @@ enum ANGameObjectIds
     GO_ANUBARAK_DOOR_3              = 192398
 };
 
-template<class AI>
-AI* GetAzjolNerubAI(Creature* creature)
+// These are passed as -action to AI's DoAction to differentiate between them and boss scripts' own actions
+enum ANInstanceActions
+{
+    ACTION_GATEWATCHER_GREET        = 1
+};
+
+template<typename AI>
+inline AI* GetAzjolNerubAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, AzjolNerubScriptName);
 }

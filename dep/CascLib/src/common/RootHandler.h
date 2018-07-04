@@ -37,7 +37,8 @@ typedef LPBYTE (*ROOT_SEARCH)(
     struct TRootHandler * pRootHandler,             // Pointer to an initialized root handler
     struct _TCascSearch * pSearch,                  // Pointer to the initialized search structure
     PDWORD PtrFileSize,                             // Pointer to receive file size (optional)
-    PDWORD PtrLocaleFlags                           // Pointer to receive locale flags (optional)
+    PDWORD PtrLocaleFlags,                          // Pointer to receive locale flags (optional)
+    PDWORD PtrFileDataId                            // Pointer to FileDataID (optional)
     );
 
 typedef void (*ROOT_ENDSEARCH)(
@@ -63,6 +64,11 @@ typedef void (*ROOT_CLOSE)(
     struct TRootHandler * pRootHandler              // Pointer to an initialized root handler
     );
 
+typedef DWORD(*ROOT_GETFILEID)(
+struct TRootHandler * pRootHandler,             // Pointer to an initialized root handler
+  const char * szFileName                         // Pointer to the name of a file
+  );
+
 struct TRootHandler
 {
     ROOT_INSERT    Insert;                          // Inserts an existing file name
@@ -71,6 +77,7 @@ struct TRootHandler
     ROOT_GETKEY    GetKey;                          // Retrieves encoding key for a file name
     ROOT_DUMP      Dump;
     ROOT_CLOSE     Close;                           // Closing the root file
+    ROOT_GETFILEID GetFileId;                       // Returns File Id for a given Filename
 
     DWORD dwRootFlags;                              // Root flags - see the ROOT_FLAG_XXX
 };
@@ -79,10 +86,11 @@ struct TRootHandler
 // Public functions
 
 int    RootHandler_Insert(TRootHandler * pRootHandler, const char * szFileName, LPBYTE pbEncodingKey);
-LPBYTE RootHandler_Search(TRootHandler * pRootHandler, struct _TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD PtrLocaleFlags);
+LPBYTE RootHandler_Search(TRootHandler * pRootHandler, struct _TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD PtrLocaleFlags, PDWORD PtrFileDataId);
 void   RootHandler_EndSearch(TRootHandler * pRootHandler, struct _TCascSearch * pSearch);
 LPBYTE RootHandler_GetKey(TRootHandler * pRootHandler, const char * szFileName);
 void   RootHandler_Dump(struct _TCascStorage * hs, LPBYTE pbRootHandler, DWORD cbRootHandler, const TCHAR * szNameFormat, const TCHAR * szListFile, int nDumpLevel);
 void   RootHandler_Close(TRootHandler * pRootHandler);
+DWORD  RootHandler_GetFileId(TRootHandler * pRootHandler, const char * szFileName);
 
 #endif  // __ROOT_HANDLER_H__

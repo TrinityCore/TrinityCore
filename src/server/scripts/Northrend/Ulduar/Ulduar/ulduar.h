@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,10 @@
 
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
+
+#include "CreatureAIImpl.h"
+
+struct Position;
 
 #define UlduarScriptName "instance_ulduar"
 #define DataHeader "UU"
@@ -79,6 +83,9 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    //XT002
+    NPC_XS013_SCRAPBOT                      = 33343,
 
     // Flame Leviathan
     NPC_ULDUAR_COLOSSUS                     = 33237,
@@ -438,25 +445,10 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-template<class AI, class T>
-AI* GetUlduarAI(T* obj)
+template<typename AI, typename T>
+inline AI* GetUlduarAI(T* obj)
 {
-    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
+    return GetInstanceAI<AI>(obj, UlduarScriptName);
 }
-
-class PlayerOrPetCheck
-{
-    public:
-        bool operator()(WorldObject* object) const
-        {
-            if (object->GetTypeId() == TYPEID_PLAYER)
-                return false;
-
-            if (Creature* creature = object->ToCreature())
-                return !creature->IsPet();
-
-            return true;
-        }
-};
 
 #endif

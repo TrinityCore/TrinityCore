@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "stonecore.h"
 
@@ -113,7 +118,7 @@ class boss_slabhide : public CreatureScript
                 me->setActive(true);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
                 _isFlying = false;
@@ -129,7 +134,7 @@ class boss_slabhide : public CreatureScript
 
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _isFlying = false;
             }
@@ -192,7 +197,7 @@ class boss_slabhide : public CreatureScript
                     case POINT_SLABHIDE_INTRO_LAND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetHover(false);
                         me->SetHomePosition(SlabhideIntroLandPos);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -256,7 +261,7 @@ class boss_slabhide : public CreatureScript
                         case EVENT_STALACTITE:
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetHover(true);
 
                             DoCast(me, SPELL_STALACTITE_SUMMON);
@@ -266,14 +271,14 @@ class boss_slabhide : public CreatureScript
                         case EVENT_LAND:
                         {
                             Position pos = me->GetPosition();
-                            pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                             me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, pos);
                             break;
                         }
                         case EVENT_ATTACK:
                             me->SetCanFly(false);
                             me->SetDisableGravity(false);
-                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetHover(false);
 
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
@@ -312,7 +317,7 @@ class boss_slabhide : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_slabhideAI>(creature);
+            return GetStonecoreAI<boss_slabhideAI>(creature);
         }
 };
 
@@ -355,7 +360,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_lava_fissureAI>(creature);
+        return GetStonecoreAI<npc_lava_fissureAI>(creature);
     }
 };
 
@@ -401,7 +406,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_stalactite_triggerAI>(creature);
+        return GetStonecoreAI<npc_stalactite_triggerAI>(creature);
     }
 };
 
@@ -479,7 +484,7 @@ public:
         {
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();
-            pos.m_positionZ = caster->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
+            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
             dest.Relocate(pos);
         }
 
@@ -507,9 +512,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_CRYSTAL_STORM_TRIGGER))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_CRYSTAL_STORM_TRIGGER });
         }
 
         void HandleDummyEffect(SpellEffIndex /*eff*/)

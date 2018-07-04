@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "steam_vault.h"
 
 class go_main_chambers_access_panel : public GameObjectScript
@@ -57,7 +60,7 @@ class instance_steam_vault : public InstanceMapScript
 
         struct instance_steam_vault_InstanceMapScript : public InstanceScript
         {
-            instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_steam_vault_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

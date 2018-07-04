@@ -324,8 +324,11 @@ PLISTFILE_MAP ListFile_CreateMap(const TCHAR * szListFile)
                         break;
                 }
 
-                // Finish the listfile map
-                pListMap = ListMap_Finish(pListMap);
+                if(pListMap == NULL)
+                {
+                    // Finish the listfile map
+                    pListMap = ListMap_Finish(pListMap);
+                }
 
                 // Free the listfile
                 ListFile_Free(pvListFile);

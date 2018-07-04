@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -251,25 +253,20 @@ class boss_deathbringer_saurfang : public CreatureScript
 
         struct boss_deathbringer_saurfangAI : public BossAI
         {
-            boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG)
+            boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG), _introDone(false), _frenzied(false), _dead(false)
             {
-                Initialize();
                 ASSERT(creature->GetVehicleKit()); // we dont actually use it, just check if exists
-                _introDone = false;
                 _fallenChampionCastCount = 0;
-            }
-
-            void Initialize()
-            {
-                _frenzied = false;
-                _dead = false;
             }
 
             void Reset() override
             {
+                if (_dead)
+                    return;
                 _Reset();
                 events.SetPhase(PHASE_COMBAT);
-                Initialize();
+                _frenzied = false;
+                _dead = false;
                 me->SetPower(POWER_ENERGY, 0);
                 DoCast(me, SPELL_ZERO_POWER, true);
                 DoCast(me, SPELL_BLOOD_LINK, true);
@@ -341,6 +338,8 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustReachedHome() override
             {
+                if (_dead)
+                    return;
                 _JustReachedHome();
                 Reset();
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
@@ -365,7 +364,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     Talk(SAY_FRENZY);
                 }
 
-                if (!_dead && me->GetHealth() < FightWonValue)
+                if (!_dead && me->GetHealth()-damage < FightWonValue)
                 {
                     _dead = true;
                     _JustDied();
@@ -434,7 +433,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     case 72445:
                     case 72446:
                         if (me->GetPower(POWER_ENERGY) != me->GetMaxPower(POWER_ENERGY))
-                            target->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, me, true);
+                            target->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, (Unit*)nullptr, true);
                         break;
                     default:
                         break;
@@ -529,6 +528,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -640,7 +642,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
                 {
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
             }
@@ -836,7 +838,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
                 {
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
             }
@@ -1006,11 +1008,11 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_POWER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_POWER))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BLOOD_LINK_POWER,
+                    SPELL_BLOOD_POWER
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1042,15 +1044,13 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_THE_FALLEN_CHAMPION });
             }
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
+                if (GetUnitOwner()->GetPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
                         saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
@@ -1127,16 +1127,13 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
-                    GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, GetCaster(), true);
+                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, (Unit*)nullptr, true);
             }
 
             void Register() override
@@ -1151,6 +1148,39 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
         }
 };
 
+// 72176 - Blood Beast's Blood Link
+class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
+{
+    public:
+        spell_deathbringer_blood_beast_blood_link() : SpellScriptLoader("spell_deathbringer_blood_beast_blood_link") { }
+
+        class spell_deathbringer_blood_beast_blood_link_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_deathbringer_blood_beast_blood_link_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetProcTarget()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 3, (Unit*)nullptr, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_deathbringer_blood_beast_blood_link_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_deathbringer_blood_beast_blood_link_AuraScript();
+        }
+};
+
 class spell_deathbringer_blood_nova : public SpellScriptLoader
 {
     public:
@@ -1162,16 +1192,13 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
-                    GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, GetCaster(), true);
+                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, (Unit*)nullptr, true);
             }
 
             void Register() override
@@ -1349,6 +1376,7 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_blood_link_aura();
     new spell_deathbringer_blood_power();
     new spell_deathbringer_rune_of_blood();
+    new spell_deathbringer_blood_beast_blood_link();
     new spell_deathbringer_blood_nova();
     new spell_deathbringer_blood_nova_targeting();
     new spell_deathbringer_boiling_blood();

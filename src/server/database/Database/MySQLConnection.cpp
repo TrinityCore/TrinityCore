@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,23 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "Common.h"
-
-#ifdef _WIN32
-  #include <winsock2.h>
-#endif
-#include <mysql.h>
-#include <errmsg.h>
-
 #include "MySQLConnection.h"
-#include "QueryResult.h"
-#include "SQLOperation.h"
-#include "PreparedStatement.h"
+#include "Common.h"
 #include "DatabaseWorker.h"
-#include "Timer.h"
 #include "Log.h"
-#include "ProducerConsumerQueue.h"
+#include "PreparedStatement.h"
+#include "QueryResult.h"
+#include "Timer.h"
+#include "Transaction.h"
+#include "Util.h"
+#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
+#include <winsock2.h>
+#endif
+#include <errmsg.h>
+#include <mysql.h>
+#include <mysqld_error.h>
+
+MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
+{
+    Tokenizer tokens(infoString, ';');
+
+    if (tokens.size() != 5)
+        return;
+
+    uint8 i = 0;
+
+    host.assign(tokens[i++]);
+    port_or_socket.assign(tokens[i++]);
+    user.assign(tokens[i++]);
+    password.assign(tokens[i++]);
+    database.assign(tokens[i++]);
+}
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_reconnecting(false),
@@ -360,14 +374,13 @@ void MySQLConnection::CommitTransaction()
 
 int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
 {
-    std::list<SQLElementData> const& queries = transaction->m_queries;
+    std::vector<SQLElementData> const& queries = transaction->m_queries;
     if (queries.empty())
         return -1;
 
     BeginTransaction();
 
-    std::list<SQLElementData>::const_iterator itr;
-    for (itr = queries.begin(); itr != queries.end(); ++itr)
+    for (auto itr = queries.begin(); itr != queries.end(); ++itr)
     {
         SQLElementData const& data = *itr;
         switch (itr->type)
@@ -408,6 +421,26 @@ int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
 
     CommitTransaction();
     return 0;
+}
+
+void MySQLConnection::Ping()
+{
+    mysql_ping(m_Mysql);
+}
+
+uint32 MySQLConnection::GetLastError()
+{
+    return mysql_errno(m_Mysql);
+}
+
+bool MySQLConnection::LockIfReady()
+{
+    return m_Mutex.try_lock();
+}
+
+void MySQLConnection::Unlock()
+{
+    m_Mutex.unlock();
 }
 
 MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)

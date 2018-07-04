@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "CreatureTextMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "culling_of_stratholme.h"
-#include "Player.h"
+#include "EventMap.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "TemporarySummon.h"
-#include "SpellInfo.h"
+#include "WorldStatePackets.h"
 
 /* Culling of Stratholme encounters:
 0 - Meathook
@@ -55,7 +59,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
         struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_culling_of_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

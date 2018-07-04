@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,17 +16,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Common.h"
+#include "Corpse.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Log.h"
-#include "World.h"
+#include "MapManager.h"
+#include "NPCHandler.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "NPCHandler.h"
-#include "MapManager.h"
 #include "QueryPackets.h"
+#include "Realm.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -104,15 +109,15 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
-        //stats.TitleAlt = ;
+        stats.TitleAlt = creatureInfo->TitleAlt;
         stats.CursorName = creatureInfo->IconName;
 
-        if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
+        if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
             {
                 ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
@@ -145,7 +150,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.UnkString = gameObjectInfo->unk1;
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
             if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
             {
                 ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
@@ -155,7 +160,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
         stats.Size = gameObjectInfo->size;
 
-        if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
+        if (std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
             for (int32 item : *items)
                 stats.QuestItems.push_back(item);
 
@@ -173,6 +178,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     {
         WorldPackets::Query::CorpseLocation packet;
         packet.Valid = false;                               // corpse not found
+        packet.Player = queryCorpseLocation.Player;
         SendPacket(packet.Write());
         return;
     }
@@ -196,9 +202,9 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
                     mapID = corpseMapEntry->CorpseMapID;
-                    x = corpseMapEntry->CorpsePos.X;
-                    y = corpseMapEntry->CorpsePos.Y;
-                    z = entranceMap->GetHeight(player->GetPhaseMask(), x, y, MAX_HEIGHT);
+                    x = corpseMapEntry->Corpse.X;
+                    y = corpseMapEntry->Corpse.Y;
+                    z = entranceMap->GetHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }
         }
@@ -209,7 +215,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.Player = queryCorpseLocation.Player;
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
-    packet.Position = G3D::Vector3(x, y, z);
+    packet.Position = Position(x, y, z);
     packet.Transport = ObjectGuid::Empty;
     SendPacket(packet.Write());
 }
@@ -261,7 +267,7 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
         page.Flags = pageText->Flags;
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
-        if (locale >= LOCALE_enUS)
+        if (locale != LOCALE_enUS)
             if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
                 ObjectMgr::GetLocaleString(pageTextLocale->Text, locale, page.Text);
 
@@ -283,7 +289,7 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
         Corpse* corpse = player->GetCorpse();
         if (_player->IsInSameRaidWith(player) && corpse && !corpse->GetTransGUID().IsEmpty() && corpse->GetTransGUID() == queryCorpseTransport.Transport)
         {
-            response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
+            response.Position = corpse->GetTransOffset();
             response.Facing = corpse->GetTransOffsetO();
         }
     }
@@ -369,15 +375,14 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.WorldEffectID      = data->WorldEffectID;
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
+                    questPOIBlobData.AlwaysAllowMergingBlobs = data->AlwaysAllowMergingBlobs;
 
-                    for (auto points = data->points.begin(); points != data->points.end(); ++points)
+                    for (QuestPOIPoint const& point : data->points)
                     {
                         WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
 
-                        questPOIBlobPoint.X = points->X;
-                        questPOIBlobPoint.Y = points->Y;
-
-                        TC_LOG_ERROR("misc", "Quest: %i BlobIndex: %i X/Y: %i/%i", QuestID, data->BlobIndex, points->X, points->Y);
+                        questPOIBlobPoint.X = point.X;
+                        questPOIBlobPoint.Y = point.Y;
 
                         questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
                     }
@@ -391,37 +396,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
     }
 
     SendPacket(response.Write());
-}
-
-void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
-{
-    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
-    if (!store)
-    {
-        TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: %s requested unsupported unknown hotfix type: %u", GetPlayerInfo().c_str(), packet.TableHash);
-        return;
-    }
-
-    for (WorldPackets::Query::DBQueryBulk::DBQueryRecord const& rec : packet.Queries)
-    {
-        WorldPackets::Query::DBReply response;
-        response.TableHash = packet.TableHash;
-        response.RecordID = rec.RecordID;
-
-        if (store->HasRecord(rec.RecordID))
-        {
-            response.Allow = true;
-            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
-            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
-        }
-        else
-        {
-            TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
-            response.Timestamp = time(NULL);
-        }
-
-        SendPacket(response.Write());
-    }
 }
 
 /**
@@ -441,4 +415,20 @@ void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemT
     }
 
     SendPacket(queryItemTextResponse.Write());
+}
+
+void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName)
+{
+    WorldPackets::Query::RealmQueryResponse realmQueryResponse;
+    realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
+
+    Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
+    if (sObjectMgr->GetRealmName(realmHandle.Realm, realmQueryResponse.NameInfo.RealmNameActual, realmQueryResponse.NameInfo.RealmNameNormalized))
+    {
+        realmQueryResponse.LookupState = RESPONSE_SUCCESS;
+        realmQueryResponse.NameInfo.IsInternalRealm = false;
+        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == realm.Id.GetAddress();
+    }
+    else
+        realmQueryResponse.LookupState = RESPONSE_FAILURE;
 }

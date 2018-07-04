@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,10 +24,13 @@ SDCategory: Dalaran
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "DatabaseEnv.h"
+#include "Mail.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
-#include "WorldSession.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -115,7 +118,6 @@ public:
                     }
                     break;
             }
-            me->SetOrientation(me->GetHomePosition().GetOrientation());
             return;
         }
 
@@ -166,7 +168,7 @@ class npc_minigob_manabonk : public CreatureScript
 
             Player* SelectTargetInDalaran()
             {
-                std::list<Player*> PlayerInDalaranList;
+                std::vector<Player*> PlayerInDalaranList;
                 PlayerInDalaranList.clear();
 
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();

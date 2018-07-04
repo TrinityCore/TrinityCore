@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,10 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
-#include "Player.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Texts
@@ -204,12 +205,15 @@ public:
             }
         }
 
-        void JustReachedHome() override
+        void MovementInform(uint32 type, uint32 data) override
         {
-            if (m_uiSummonPhase == 2)
+            if (type == POINT_MOTION_TYPE && data == EVENT_FORGE_CAST)
             {
-                me->SetOrientation(2.29f);
-                m_uiSummonPhase = 3;
+                if (m_uiSummonPhase == 2)
+                {
+                    me->SetOrientation(2.29f);
+                    m_uiSummonPhase = 3;
+                }
             }
         }
 
@@ -276,6 +280,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             // Health check
@@ -298,12 +305,12 @@ public:
                 case 1:
                     // 1 - Start run to Anvil
                     Talk(EMOTE_TO_ANVIL);
-                    me->GetMotionMaster()->MoveTargetedHome();
+                    me->GetMotionMaster()->MovePoint(EVENT_FORGE_CAST, me->GetHomePosition());
                     m_uiSummonPhase = 2;        // Set Next Phase
                     break;
                 case 2:
                     // 2 - Check if reached Anvil
-                    // This is handled in: void JustReachedHome() override
+                    // This is handled in: void MovementInform(uint32, uint32) override
                     break;
                 case 3:
                     // 3 - Cast Temper on the Anvil
@@ -359,9 +366,8 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_volkhanAI>(creature);
+        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
     }
-
 };
 
 /*######
@@ -375,7 +381,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_golemAI(creature);
+        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
     }
 
     struct npc_molten_golemAI : public ScriptedAI
@@ -465,6 +471,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

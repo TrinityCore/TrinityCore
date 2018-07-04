@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum FreyaYells
@@ -253,7 +257,7 @@ class npc_iron_roots : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_iron_rootsAI(creature);
+            return GetUlduarAI<npc_iron_rootsAI>(creature);
         }
 };
 
@@ -450,6 +454,9 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(25000, 28000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!me->HasAura(SPELL_TOUCH_OF_EONAR))
@@ -752,6 +759,9 @@ class boss_elder_brightleaf : public CreatureScript
                             events.ScheduleEvent(EVENT_FLUX, 7500);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -856,6 +866,9 @@ class boss_elder_stonebark : public CreatureScript
                             events.ScheduleEvent(EVENT_TREMOR, urand(10000, 20000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -947,6 +960,9 @@ class boss_elder_ironbranch : public CreatureScript
                             events.ScheduleEvent(EVENT_THORN_SWARM, urand(8000, 13000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1030,7 +1046,7 @@ class npc_detonating_lasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_detonating_lasherAI(creature);
+            return GetUlduarAI<npc_detonating_lasherAI>(creature);
         }
 };
 
@@ -1098,7 +1114,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_ancient_water_spiritAI>(creature);
+            return GetUlduarAI<npc_ancient_water_spiritAI>(creature);
         }
 };
 
@@ -1173,7 +1189,7 @@ class npc_storm_lasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_storm_lasherAI>(creature);
+            return GetUlduarAI<npc_storm_lasherAI>(creature);
         }
 };
 
@@ -1220,7 +1236,7 @@ class npc_snaplasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_snaplasherAI>(creature);
+            return GetUlduarAI<npc_snaplasherAI>(creature);
         }
 };
 
@@ -1297,7 +1313,7 @@ class npc_ancient_conservator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ancient_conservatorAI(creature);
+            return GetUlduarAI<npc_ancient_conservatorAI>(creature);
         }
 };
 
@@ -1319,7 +1335,7 @@ class npc_sun_beam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_sun_beamAI(creature);
+            return GetUlduarAI<npc_sun_beamAI>(creature);
         }
 };
 
@@ -1359,7 +1375,7 @@ class npc_healthy_spore : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_healthy_sporeAI(creature);
+            return GetUlduarAI<npc_healthy_sporeAI>(creature);
         }
 };
 
@@ -1399,7 +1415,7 @@ class npc_eonars_gift : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_eonars_giftAI(creature);
+            return GetUlduarAI<npc_eonars_giftAI>(creature);
         }
 };
 
@@ -1441,7 +1457,7 @@ class npc_nature_bomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_nature_bombAI(creature);
+            return GetUlduarAI<npc_nature_bombAI>(creature);
         }
 };
 
@@ -1490,7 +1506,7 @@ class npc_unstable_sun_beam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_unstable_sun_beamAI>(creature);
+            return GetUlduarAI<npc_unstable_sun_beamAI>(creature);
         }
 };
 

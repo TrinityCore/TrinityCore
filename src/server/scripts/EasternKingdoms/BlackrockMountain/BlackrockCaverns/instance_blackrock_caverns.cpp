@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "blackrock_caverns.h"
+#include "InstanceScript.h"
 
 ObjectData const creatureData[] =
 {
@@ -32,7 +32,7 @@ class instance_blackrock_caverns : public InstanceMapScript
 
         struct instance_blackrock_caverns_InstanceMapScript : public InstanceScript
         {
-            instance_blackrock_caverns_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_blackrock_caverns_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

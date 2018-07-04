@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,9 +17,11 @@
 
 #include "PacketLog.h"
 #include "Config.h"
-#include "WorldPacket.h"
+#include "IpAddress.h"
+#include "Realm.h"
 #include "Timer.h"
 #include "World.h"
+#include "WorldPacket.h"
 
 #pragma pack(push, 1)
 
@@ -89,19 +91,21 @@ void PacketLog::Initialize()
     {
         _file = fopen((logsDir + logname).c_str(), "wb");
 
-        LogHeader header;
-        header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
-        header.FormatVersion = 0x0301;
-        header.SnifferId = 'T';
-        header.Build = realm.Build;
-        header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
-        std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
-        header.SniffStartUnixtime = time(NULL);
-        header.SniffStartTicks = getMSTime();
-        header.OptionalDataSize = 0;
-
         if (CanLogPacket())
+        {
+            LogHeader header;
+            header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
+            header.FormatVersion = 0x0301;
+            header.SnifferId = 'T';
+            header.Build = realm.Build;
+            header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
+            std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
+            header.SniffStartUnixtime = time(NULL);
+            header.SniffStartTicks = getMSTime();
+            header.OptionalDataSize = 0;
+
             fwrite(&header, sizeof(header), 1, _file);
+        }
     }
 }
 

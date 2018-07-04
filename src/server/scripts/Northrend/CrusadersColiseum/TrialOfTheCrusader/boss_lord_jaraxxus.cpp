@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
@@ -67,10 +68,12 @@ enum BossSpells
     SPELL_SHIVAN_SLASH                  = 67098,
     SPELL_SPINNING_STRIKE               = 66283,
     SPELL_MISTRESS_KISS                 = 66336,
-    SPELL_FEL_INFERNO                   = 67047,
-    SPELL_FEL_STREAK                    = 66494,
     SPELL_LORD_HITTIN                   = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
-    SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
+    SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359,
+
+    // Felflame Infernal
+    SPELL_FEL_STREAK_VISUAL             = 66493,
+    SPELL_FEL_STREAK                    = 66494,
 };
 
 enum Events
@@ -116,7 +119,7 @@ class boss_jaraxxus : public CreatureScript
                 _JustReachedHome();
                 instance->SetBossState(BOSS_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void KilledUnit(Unit* who) override
@@ -194,6 +197,9 @@ class boss_jaraxxus : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 2*MINUTE*IN_MILLISECONDS);
                             return;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -202,7 +208,7 @@ class boss_jaraxxus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_jaraxxusAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_jaraxxusAI>(creature);
         }
 };
 
@@ -238,7 +244,7 @@ class npc_legion_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_legion_flameAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_legion_flameAI>(creature);
         }
 };
 
@@ -305,18 +311,17 @@ class npc_fel_infernal : public CreatureScript
         {
             npc_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
                 _instance = creature->GetInstanceScript();
-            }
-
-            void Initialize()
-            {
-                _felStreakTimer = 30 * IN_MILLISECONDS;
             }
 
             void Reset() override
             {
-                Initialize();
+                _scheduler.Schedule(Seconds(2), [this](TaskContext context)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        DoCast(target, SPELL_FEL_STREAK_VISUAL);
+                    context.Repeat(Seconds(15));
+                });
                 me->SetInCombatWithZone();
             }
 
@@ -328,28 +333,25 @@ class npc_fel_infernal : public CreatureScript
                     return;
                 }
 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 if (!UpdateVictim())
                     return;
 
-                if (_felStreakTimer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        DoCast(target, SPELL_FEL_STREAK);
-                    _felStreakTimer = 30*IN_MILLISECONDS;
-                }
-                else
-                    _felStreakTimer -= diff;
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
             private:
-                uint32 _felStreakTimer;
                 InstanceScript* _instance;
+                TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_fel_infernalAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_fel_infernalAI>(creature);
         }
 };
 
@@ -400,7 +402,7 @@ class npc_nether_portal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_nether_portalAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_nether_portalAI>(creature);
         }
 };
 
@@ -478,7 +480,7 @@ class npc_mistress_of_pain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_mistress_of_painAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_mistress_of_painAI>(creature);
         }
 };
 
@@ -493,10 +495,7 @@ class spell_mistress_kiss : public SpellScriptLoader
 
             bool Load() override
             {
-                if (GetCaster())
-                    if (sSpellMgr->GetSpellInfo(SPELL_MISTRESS_KISS_DAMAGE_SILENCE))
-                        return true;
-                return false;
+                return ValidateSpellInfo({ SPELL_MISTRESS_KISS_DAMAGE_SILENCE });
             }
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
@@ -532,9 +531,8 @@ class MistressKissTargetSelector
 
         bool operator()(WorldObject* unit) const
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER)
-                if (unit->ToPlayer()->getPowerType() == POWER_MANA)
-                    return false;
+            if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToUnit()->GetPowerType() == POWER_MANA)
+                return false;
 
             return true;
         }
@@ -579,6 +577,37 @@ class spell_mistress_kiss_area : public SpellScriptLoader
         }
 };
 
+class spell_fel_streak_visual : public SpellScriptLoader
+{
+public:
+    spell_fel_streak_visual() : SpellScriptLoader("spell_fel_streak_visual") { }
+
+    class spell_fel_streak_visual_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_fel_streak_visual_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_FEL_STREAK });
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_fel_streak_visual_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_fel_streak_visual_SpellScript();
+    }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -590,4 +619,5 @@ void AddSC_boss_jaraxxus()
 
     new spell_mistress_kiss();
     new spell_mistress_kiss_area();
+    new spell_fel_streak_visual();
 }

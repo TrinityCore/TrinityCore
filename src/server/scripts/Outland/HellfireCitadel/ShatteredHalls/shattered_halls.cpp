@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "InstanceScript.h"
-#include "Player.h"
-#include "SpellAuras.h"
 #include "shattered_halls.h"
+#include "TemporarySummon.h"
 
 class at_nethekurse_exit : public AreaTriggerScript
 {
@@ -171,7 +172,7 @@ class boss_shattered_executioner : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_shattered_executionerAI>(creature);
+            return GetShatteredHallsAI<boss_shattered_executionerAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef SHADOW_LABYRINTH_H_
 #define SHADOW_LABYRINTH_H_
+
+#include "CreatureAIImpl.h"
 
 #define SLScriptName "instance_shadow_labyrinth"
 #define DataHeader "SL"
@@ -54,11 +56,10 @@ enum SLMisc
     ACTION_AMBASSADOR_HELLMAW_BANISH    = 2,
 };
 
-template<class AI>
-AI* GetShadowLabyrinthAI(Creature* creature)
+template<typename AI>
+inline AI* GetShadowLabyrinthAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SLScriptName);
 }
 
 #endif // SHADOW_LABYRINTH_H_
-

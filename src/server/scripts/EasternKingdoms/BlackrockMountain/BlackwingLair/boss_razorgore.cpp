@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,10 +17,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackwing_lair.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "blackwing_lair.h"
-#include "Player.h"
 
 enum Say
 {
@@ -32,6 +34,7 @@ enum Say
 
 enum Spells
 {
+    // @todo orb uses the wrong spell, this needs sniffs
     SPELL_MINDCONTROL       = 42013,
     SPELL_CHANNEL           = 45537,
     SPELL_EGG_DESTROY       = 19873,
@@ -103,7 +106,7 @@ public:
 
             secondPhase = true;
             me->RemoveAllAuras();
-            me->SetHealth(me->GetMaxHealth());
+            me->SetFullHealth();
         }
 
         void DoAction(int32 action) override
@@ -114,6 +117,7 @@ public:
 
         void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
+            // @todo this is wrong - razorgore should still take damage, he should just nuke the whole room and respawn if he dies during P1
             if (!secondPhase)
                 damage = 0;
         }
@@ -146,12 +150,16 @@ public:
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);
+                        // @todo is this even necessary? pretty sure AI ignores targets with disorient by default
                         if (me->GetVictim() && me->EnsureVictim()->HasAura(SPELL_CONFLAGRATION))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                                 me->TauntApply(target);
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }
@@ -162,7 +170,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_razorgoreAI>(creature);
+        return GetBlackwingLairAI<boss_razorgoreAI>(creature);
     }
 };
 
@@ -175,10 +183,10 @@ public:
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razor = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+                if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                 {
-                    razor->Attack(player, true);
-                    player->CastSpell(razor, SPELL_MINDCONTROL);
+                    razorgore->Attack(player, true);
+                    player->CastSpell(razorgore, SPELL_MINDCONTROL);
                 }
         return true;
     }

@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include "DetourAlloc.h"
 
-static void *dtAllocDefault(int size, dtAllocHint)
+static void *dtAllocDefault(size_t size, dtAllocHint)
 {
 	return malloc(size);
 }
@@ -38,7 +38,7 @@ void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc)
 	sFreeFunc = freeFunc ? freeFunc : dtFreeDefault;
 }
 
-void* dtAlloc(int size, dtAllocHint hint)
+void* dtAlloc(size_t size, dtAllocHint hint)
 {
 	return sAllocFunc(size, hint);
 }

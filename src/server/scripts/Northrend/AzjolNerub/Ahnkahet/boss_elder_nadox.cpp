@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "ahnkahet.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "ahnkahet.h"
 
 enum Yells
 {
@@ -224,7 +224,7 @@ class npc_ahnkahar_nerubian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ahnkahar_nerubianAI(creature);
+            return GetAhnKahetAI<npc_ahnkahar_nerubianAI>(creature);
         }
 };
 
@@ -247,9 +247,7 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SWARM_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SWARM_BUFF });
             }
 
             void CountTargets(std::list<WorldObject*>& targets)

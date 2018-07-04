@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef FORGE_OF_SOULS_H_
 #define FORGE_OF_SOULS_H_
+
+#include "CreatureAIImpl.h"
 
 #define FoSScriptName "instance_forge_of_souls"
 #define DataHeader    "FOS"
@@ -54,5 +56,11 @@ enum FOSCreatures
     NPC_CHAMPION_2_ALLIANCE         = 37497,
     NPC_CRUCIBLE_OF_SOULS           = 37094
 };
+
+template<typename AI>
+inline AI* GetForgeOfSoulsAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, FoSScriptName);
+}
 
 #endif // FORGE_OF_SOULS_H_

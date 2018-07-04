@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "nexus.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
-#include "nexus.h"
 
 enum Spells
 {
@@ -191,6 +193,9 @@ class boss_keristrasza : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -206,7 +211,7 @@ class boss_keristrasza : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_keristraszaAI>(creature);
+            return GetNexusAI<boss_keristraszaAI>(creature);
         }
 };
 
@@ -242,9 +247,9 @@ class spell_intense_cold : public SpellScriptLoader
         {
             PrepareAuraScript(spell_intense_cold_AuraScript);
 
-            void HandlePeriodicTick(AuraEffect const* aurEff)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
-                if (aurEff->GetBase()->GetStackAmount() < 2)
+                if (GetStackAmount() < 2)
                     return;
                 Unit* caster = GetCaster();
                 /// @todo the caster should be boss but not the player
@@ -277,7 +282,7 @@ class achievement_intense_cold : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            GuidList const& _intenseColdList = ENSURE_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->_intenseColdList;
+            GuidList const& _intenseColdList = ENSURE_AI(boss_keristrasza::boss_keristraszaAI, target->GetAI())->_intenseColdList;
             if (!_intenseColdList.empty())
                 for (GuidList::const_iterator itr = _intenseColdList.begin(); itr != _intenseColdList.end(); ++itr)
                     if (player->GetGUID() == *itr)

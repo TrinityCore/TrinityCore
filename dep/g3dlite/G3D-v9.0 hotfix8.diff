@@ -1,0 +1,12 @@
+diff --git a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+index b2f8cb886d..b841e23c49 100644
+--- a/dep/g3dlite/source/System.cpp
++++ b/dep/g3dlite/source/System.cpp
+@@ -45,6 +45,7 @@
+ #   include <sys/timeb.h>
+ #   include "G3D/RegistryUtil.h"
+ #include <Ole2.h>
++#include <intrin.h>
+ 
+ #elif defined(G3D_LINUX) 
+ 

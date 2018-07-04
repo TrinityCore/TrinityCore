@@ -518,13 +518,6 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline ::std::string* release_cached_web_credentials();
   inline void set_allocated_cached_web_credentials(::std::string* cached_web_credentials);
 
-  // optional bool enable_cookie = 13 [default = true];
-  inline bool has_enable_cookie() const;
-  inline void clear_enable_cookie();
-  static const int kEnableCookieFieldNumber = 13;
-  inline bool enable_cookie() const;
-  inline void set_enable_cookie(bool value);
-
   // optional string user_agent = 14;
   inline bool has_user_agent() const;
   inline void clear_user_agent();
@@ -536,6 +529,18 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_user_agent();
   inline ::std::string* release_user_agent();
   inline void set_allocated_user_agent(::std::string* user_agent);
+
+  // optional string device_id = 15;
+  inline bool has_device_id() const;
+  inline void clear_device_id();
+  static const int kDeviceIdFieldNumber = 15;
+  inline const ::std::string& device_id() const;
+  inline void set_device_id(const ::std::string& value);
+  inline void set_device_id(const char* value);
+  inline void set_device_id(const char* value, size_t size);
+  inline ::std::string* mutable_device_id();
+  inline ::std::string* release_device_id();
+  inline void set_allocated_device_id(::std::string* device_id);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.authentication.v1.LogonRequest)
  private:
@@ -563,10 +568,10 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline void clear_has_web_client_verification();
   inline void set_has_cached_web_credentials();
   inline void clear_has_cached_web_credentials();
-  inline void set_has_enable_cookie();
-  inline void clear_has_enable_cookie();
   inline void set_has_user_agent();
   inline void clear_has_user_agent();
+  inline void set_has_device_id();
+  inline void clear_has_device_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -585,7 +590,7 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   bool web_client_verification_;
   ::std::string* cached_web_credentials_;
   ::std::string* user_agent_;
-  bool enable_cookie_;
+  ::std::string* device_id_;
   friend void TC_PROTO_API protobuf_AddDesc_authentication_5fservice_2eproto();
   friend void protobuf_AssignDesc_authentication_5fservice_2eproto();
   friend void protobuf_ShutdownFile_authentication_5fservice_2eproto();
@@ -2198,10 +2203,10 @@ class TC_PROTO_API AuthenticationListener : public ServiceBase
 
  protected:
   virtual uint32 HandleOnModuleLoad(::bgs::protocol::authentication::v1::ModuleLoadRequest const* request);
-  virtual uint32 HandleOnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleOnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleOnServerStateChange(::bgs::protocol::authentication::v1::ServerStateChangeRequest const* request);
   virtual uint32 HandleOnLogonComplete(::bgs::protocol::authentication::v1::LogonResult const* request);
-  virtual uint32 HandleOnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, ::bgs::protocol::authentication::v1::MemModuleLoadResponse* response);
+  virtual uint32 HandleOnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, ::bgs::protocol::authentication::v1::MemModuleLoadResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleOnLogonUpdate(::bgs::protocol::authentication::v1::LogonUpdateRequest const* request);
   virtual uint32 HandleOnVersionInfoUpdated(::bgs::protocol::authentication::v1::VersionInfoNotification const* request);
   virtual uint32 HandleOnLogonQueueUpdate(::bgs::protocol::authentication::v1::LogonQueueUpdateRequest const* request);
@@ -2243,14 +2248,14 @@ class TC_PROTO_API AuthenticationService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleLogon(::bgs::protocol::authentication::v1::LogonRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleGenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse* response);
-  virtual uint32 HandleSelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleVerifyWebCredentials(::bgs::protocol::authentication::v1::VerifyWebCredentialsRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleGenerateWebCredentials(::bgs::protocol::authentication::v1::GenerateWebCredentialsRequest const* request, ::bgs::protocol::authentication::v1::GenerateWebCredentialsResponse* response);
+  virtual uint32 HandleLogon(::bgs::protocol::authentication::v1::LogonRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleVerifyWebCredentials(::bgs::protocol::authentication::v1::VerifyWebCredentialsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGenerateWebCredentials(::bgs::protocol::authentication::v1::GenerateWebCredentialsRequest const* request, ::bgs::protocol::authentication::v1::GenerateWebCredentialsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;
@@ -3194,39 +3199,15 @@ inline void LogonRequest::set_allocated_cached_web_credentials(::std::string* ca
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.cached_web_credentials)
 }
 
-// optional bool enable_cookie = 13 [default = true];
-inline bool LogonRequest::has_enable_cookie() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
-}
-inline void LogonRequest::set_has_enable_cookie() {
-  _has_bits_[0] |= 0x00001000u;
-}
-inline void LogonRequest::clear_has_enable_cookie() {
-  _has_bits_[0] &= ~0x00001000u;
-}
-inline void LogonRequest::clear_enable_cookie() {
-  enable_cookie_ = true;
-  clear_has_enable_cookie();
-}
-inline bool LogonRequest::enable_cookie() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.enable_cookie)
-  return enable_cookie_;
-}
-inline void LogonRequest::set_enable_cookie(bool value) {
-  set_has_enable_cookie();
-  enable_cookie_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.enable_cookie)
-}
-
 // optional string user_agent = 14;
 inline bool LogonRequest::has_user_agent() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
+  return (_has_bits_[0] & 0x00001000u) != 0;
 }
 inline void LogonRequest::set_has_user_agent() {
-  _has_bits_[0] |= 0x00002000u;
+  _has_bits_[0] |= 0x00001000u;
 }
 inline void LogonRequest::clear_has_user_agent() {
-  _has_bits_[0] &= ~0x00002000u;
+  _has_bits_[0] &= ~0x00001000u;
 }
 inline void LogonRequest::clear_user_agent() {
   if (user_agent_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -3292,6 +3273,82 @@ inline void LogonRequest::set_allocated_user_agent(::std::string* user_agent) {
     user_agent_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.user_agent)
+}
+
+// optional string device_id = 15;
+inline bool LogonRequest::has_device_id() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void LogonRequest::set_has_device_id() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void LogonRequest::clear_has_device_id() {
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline void LogonRequest::clear_device_id() {
+  if (device_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    device_id_->clear();
+  }
+  clear_has_device_id();
+}
+inline const ::std::string& LogonRequest::device_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.device_id)
+  return *device_id_;
+}
+inline void LogonRequest::set_device_id(const ::std::string& value) {
+  set_has_device_id();
+  if (device_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    device_id_ = new ::std::string;
+  }
+  device_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.device_id)
+}
+inline void LogonRequest::set_device_id(const char* value) {
+  set_has_device_id();
+  if (device_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    device_id_ = new ::std::string;
+  }
+  device_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.authentication.v1.LogonRequest.device_id)
+}
+inline void LogonRequest::set_device_id(const char* value, size_t size) {
+  set_has_device_id();
+  if (device_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    device_id_ = new ::std::string;
+  }
+  device_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.authentication.v1.LogonRequest.device_id)
+}
+inline ::std::string* LogonRequest::mutable_device_id() {
+  set_has_device_id();
+  if (device_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    device_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.authentication.v1.LogonRequest.device_id)
+  return device_id_;
+}
+inline ::std::string* LogonRequest::release_device_id() {
+  clear_has_device_id();
+  if (device_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = device_id_;
+    device_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LogonRequest::set_allocated_device_id(::std::string* device_id) {
+  if (device_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete device_id_;
+  }
+  if (device_id) {
+    set_has_device_id();
+    device_id_ = device_id;
+  } else {
+    clear_has_device_id();
+    device_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.device_id)
 }
 
 // -------------------------------------------------------------------

@@ -17,20 +17,20 @@
  */
 
 #include "MoveSplineFlag.h"
+#include <cmath>
 
 namespace Movement
 {
-    float gravity = static_cast<float>(19.29110527038574);
     UInt32Counter splineIdGen;
 
     /// Velocity bounds that makes fall speed limited
-    float terminalVelocity = 60.148003f;
-    float terminalSafefallVelocity = 7.0f;
+    float constexpr terminalVelocity = 60.148003f;
+    float constexpr terminalSafefallVelocity = 7.0f;
 
-    const float terminal_length = float(terminalVelocity * terminalVelocity) / (2.0f * gravity);
-    const float terminal_safeFall_length = (terminalSafefallVelocity * terminalSafefallVelocity) / (2.0f * gravity);
-    const float terminal_fallTime = float(terminalVelocity / gravity); // the time that needed to reach terminalVelocity
-    const float terminal_safeFall_fallTime = float(terminalSafefallVelocity / gravity); // the time that needed to reach terminalVelocity with safefall
+    float constexpr terminal_length = float(terminalVelocity * terminalVelocity) / (2.0f * gravity);
+    float constexpr terminal_safeFall_length = (terminalSafefallVelocity * terminalSafefallVelocity) / (2.0f * gravity);
+    float constexpr terminal_fallTime = float(terminalVelocity / gravity); // the time that needed to reach terminalVelocity
+    float constexpr terminal_safeFall_fallTime = float(terminalSafefallVelocity / gravity); // the time that needed to reach terminalVelocity with safefall
 
     float computeFallTime(float path_length, bool isSafeFall)
     {
@@ -121,22 +121,29 @@ namespace Movement
 
     char const* MovementFlagExtraNames[] =
     {
-        STRINGIZE(NoStrafe             ),
-        STRINGIZE(NoJump               ),
-        STRINGIZE(FullSpeedTurning     ),
-        STRINGIZE(FullSpeedPitching    ),
-        STRINGIZE(Allow_Pitching       ),
-        STRINGIZE(Unk6                 ),
-        STRINGIZE(Unk7                 ),
-        STRINGIZE(Unk8                 ),
-        STRINGIZE(Unk9                 ),
-        STRINGIZE(Unk10                ),
-        STRINGIZE(Unk11                ),
-        STRINGIZE(Unk12                ),
-        STRINGIZE(Unk13                ),
-        STRINGIZE(Interpolated_Movement),
-        STRINGIZE(Interpolated_Turning ),
-        STRINGIZE(Interpolated_Pitching),
+        STRINGIZE(NoStrafe                           ), // 0x00000001
+        STRINGIZE(NoJump                             ), // 0x00000002
+        STRINGIZE(FullSpeedTurning                   ), // 0x00000004
+        STRINGIZE(FullSpeedPitching                  ), // 0x00000008
+        STRINGIZE(Allow_Pitching                     ), // 0x00000010
+        STRINGIZE(VehicleExitVoluntary               ), // 0x00000020
+        STRINGIZE(JumpSplineInAir                    ), // 0x00000040
+        STRINGIZE(AnimTierInTrans                    ), // 0x00000080
+        STRINGIZE(WaterwalkingFullPitch              ), // 0x00000100
+        STRINGIZE(VehiclePassengerIsTransitionAllowed), // 0x00000200
+        STRINGIZE(CanSwimToFlyTrans                  ), // 0x00000400
+        STRINGIZE(Unk11                              ), // 0x00000800
+        STRINGIZE(CanTurnWhileFalling                ), // 0x00001000
+        STRINGIZE(Unkt13                             ), // 0x00002000
+        STRINGIZE(IgnoreMovementForces               ), // 0x00004000
+        STRINGIZE(Unk15                              ), // 0x00008000
+        STRINGIZE(CanDoubleJump                      ), // 0x00010000
+        STRINGIZE(DoubleJump                         ), // 0x00020000
+        STRINGIZE(Unk18                              ), // 0x00040000
+        STRINGIZE(Unk19                              ), // 0x00080000
+        STRINGIZE(InterpolatedMovement               ), // 0x00100000
+        STRINGIZE(InterpolatedTurning                ), // 0x00200000
+        STRINGIZE(InterpolatedPitching               ), // 0x00400000
     };
 
     char const* SplineFlagNames[32] =
@@ -160,16 +167,16 @@ namespace Movement
         STRINGIZE(TransportExit      ), // 0x00010000
         STRINGIZE(Unknown2           ), // 0x00020000
         STRINGIZE(Unknown3           ), // 0x00040000
-        STRINGIZE(OrientationInversed), // 0x00080000           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
+        STRINGIZE(Backward           ), // 0x00080000           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
         STRINGIZE(SmoothGroundPath   ), // 0x00100000
-        STRINGIZE(Walkmode           ), // 0x00200000
+        STRINGIZE(CanSwim            ), // 0x00200000
         STRINGIZE(UncompressedPath   ), // 0x00400000
         STRINGIZE(Unknown4           ), // 0x00800000
         STRINGIZE(Unknown5           ), // 0x01000000
         STRINGIZE(Animation          ), // 0x02000000           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
         STRINGIZE(Parabolic          ), // 0x04000000           // Not Compartible With Fall Movement
-        STRINGIZE(Unknown6           ), // 0x08000000
-        STRINGIZE(Unknown7           ), // 0x10000000
+        STRINGIZE(FadeObject         ), // 0x08000000
+        STRINGIZE(Steering           ), // 0x10000000
         STRINGIZE(Unknown8           ), // 0x20000000
         STRINGIZE(Unknown9           ), // 0x40000000
         STRINGIZE(Unknown10          ), // 0x80000000

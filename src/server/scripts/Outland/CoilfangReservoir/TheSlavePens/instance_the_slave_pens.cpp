@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-This placeholder for the instance is needed for dungeon finding to be able
-to give credit after the boss defined in lastEncounterDungeon is killed.
-Without it, the party doing random dungeon won't get satchel of spoils and
-gets instead the deserter debuff.
-*/
-
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "the_slave_pens.h"
 
@@ -33,7 +27,7 @@ public:
 
     struct instance_the_slave_pens_InstanceMapScript : public InstanceScript
     {
-        instance_the_slave_pens_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_the_slave_pens_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             counter = DATA_FLAMECALLER_000;
         }

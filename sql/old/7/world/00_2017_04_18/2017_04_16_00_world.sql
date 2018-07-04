@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mimiron_p3wx2_laser_barrage','spell_mimiron_spinning_up','spell_monk_surging_mist','spell_monk_surging_mist_glyphed','spell_pri_mind_sear');

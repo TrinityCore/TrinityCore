@@ -605,6 +605,9 @@ static void ResolveFullFileNames(
     char szShortName[MAX_PATH+1];
     char szFullName[MAX_PATH+1];
 
+    // Keep compiler happy
+    CASCLIB_UNUSED(dwFileIndexes);
+
     // Parse the entire file table
     for(size_t i = 0; i < pRootHandler->FileTable.ItemCount; i++)
     {
@@ -946,7 +949,7 @@ static int D3Handler_Insert(TRootHandler_Diablo3 * pRootHandler, const char * sz
     return (dwFileIndex != INVALID_FILE_INDEX) ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
 }
 
-static LPBYTE D3Handler_Search(TRootHandler_Diablo3 * pRootHandler, TCascSearch * pSearch, PDWORD /* PtrFileSize */, PDWORD /* PtrLocaleFlags */)
+static LPBYTE D3Handler_Search(TRootHandler_Diablo3 * pRootHandler, TCascSearch * pSearch, PDWORD /* PtrFileSize */, PDWORD /* PtrLocaleFlags */, PDWORD /* PtrFileDataId */)
 {
     PCASC_FILE_ENTRY pFileEntry;
     const char * szSrcName = NULL;
@@ -990,6 +993,12 @@ static LPBYTE D3Handler_GetKey(TRootHandler_Diablo3 * pRootHandler, const char *
     // Find the file in the name table
     pFileEntry = (PCASC_FILE_ENTRY)Map_FindObject(pRootHandler->pRootMap, &FileNameHash, NULL);
     return (pFileEntry != NULL) ? pFileEntry->EncodingKey.Value : NULL;
+}
+
+static DWORD D3Handler_GetFileId(TRootHandler_Diablo3 * /* pRootHandler */, const char * /* szFileName */)
+{
+  // Not implemented for D3
+  return 0;
 }
 
 static void D3Handler_Close(TRootHandler_Diablo3 * pRootHandler)
@@ -1098,6 +1107,7 @@ int RootHandler_CreateDiablo3(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRoot
     pRootHandler->EndSearch   = (ROOT_ENDSEARCH)D3Handler_EndSearch;
     pRootHandler->GetKey      = (ROOT_GETKEY)D3Handler_GetKey;
     pRootHandler->Close       = (ROOT_CLOSE)D3Handler_Close;
+    pRootHandler->GetFileId   = (ROOT_GETFILEID)D3Handler_GetFileId;
 
     // Fill-in the flags
     pRootHandler->dwRootFlags |= ROOT_FLAG_HAS_NAMES;
@@ -1136,7 +1146,7 @@ int RootHandler_CreateDiablo3(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRoot
         assert(dwRootEntries < DIABLO3_MAX_SUBDIRS);
 
         // Now parse the all root items and load them
-        for(size_t i = 0; i < dwRootEntries; i++)
+        for(DWORD i = 0; i < dwRootEntries; i++)
         {
             PCASC_FILE_ENTRY pRootEntry = (PCASC_FILE_ENTRY)Array_ItemAt(&pRootHandler->FileTable, i);
 

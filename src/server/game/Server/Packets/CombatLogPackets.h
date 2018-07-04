@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,9 @@
 #ifndef CombatLogPackets_h__
 #define CombatLogPackets_h__
 
-#include "Packet.h"
+#include "CombatLogPacketsCommon.h"
+#include "Optional.h"
 #include "Spell.h"
-#include "SpellPackets.h"
 
 namespace WorldPackets
 {
@@ -37,15 +37,16 @@ namespace WorldPackets
             ObjectGuid CasterGUID;
             ObjectGuid CastID;
             int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
             int32 Damage = 0;
-            int32 Overkill = 0;
+            int32 Overkill = -1;
             uint8 SchoolMask = 0;
             int32 ShieldBlock = 0;
             int32 Resisted = 0;
             bool Periodic = false;
             int32 Absorbed = 0;
             int32 Flags = 0;
-            // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
+            // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
             Optional<Spells::SandboxScalingData> SandboxScaling;
         };
 
@@ -186,9 +187,10 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Type = 0;
             int32 Amount = 0;
+            int32 OverEnergize = 0;
         };
 
-        class SpellInstakillLog final : public ServerPacket
+        class TC_GAME_API SpellInstakillLog final : public ServerPacket
         {
         public:
             SpellInstakillLog() : ServerPacket(SMSG_SPELL_INSTAKILL_LOG, 16 + 16 + 4) { }

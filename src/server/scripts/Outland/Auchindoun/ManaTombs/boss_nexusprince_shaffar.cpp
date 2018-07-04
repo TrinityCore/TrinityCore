@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,8 +23,9 @@ SDCategory: Auchindoun, Mana Tombs
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mana_tombs.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
@@ -259,7 +260,7 @@ class npc_ethereal_beacon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ethereal_beaconAI(creature);
+            return GetManaTombsAI<npc_ethereal_beaconAI>(creature);
         }
 };
 
@@ -324,7 +325,7 @@ class npc_ethereal_apprentice : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ethereal_apprenticeAI(creature);
+            return GetManaTombsAI<npc_ethereal_apprenticeAI>(creature);
         }
 };
 
@@ -380,7 +381,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_yorAI(creature);
+        return GetManaTombsAI<npc_yorAI>(creature);
     }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,12 +22,15 @@ Comment: All arena team related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ArenaTeamMgr.h"
 #include "Chat.h"
 #include "Language.h"
-#include "ArenaTeamMgr.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
+#include "WorldSession.h"
 
 class arena_commandscript : public CommandScript
 {
@@ -118,7 +121,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 teamId = atoi((char*)args);
+        uint32 teamId = atoul(args);
         if (!teamId)
             return false;
 
@@ -225,7 +228,7 @@ public:
         if (!idStr)
             return false;
 
-        uint32 teamId = atoi(idStr);
+        uint32 teamId = atoul(idStr);
         if (!teamId)
             return false;
 
@@ -297,7 +300,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 teamId = atoi((char*)args);
+        uint32 teamId = atoul(args);
         if (!teamId)
             return false;
 

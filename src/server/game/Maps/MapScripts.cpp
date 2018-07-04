@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,15 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GossipDef.h"
 #include "Map.h"
+#include "CellImpl.h"
+#include "GossipDef.h"
+#include "GridNotifiers.h"
+#include "Item.h"
+#include "Log.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
-#include "Item.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
@@ -702,7 +704,7 @@ void Map::ScriptsProcess()
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
                         uSource = source ? source->ToUnit() : NULL;
-                        uTarget = uSource ? GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
+                        uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
                         break;
                 }
 
@@ -884,6 +886,28 @@ void Map::ScriptsProcess()
                 // Source must be Player.
                 if (Player* player = _GetScriptPlayer(source, true, step.script))
                     player->SendMovieStart(step.script->PlayMovie.MovieID);
+                break;
+
+            case SCRIPT_COMMAND_MOVEMENT:
+                // Source must be Creature.
+                if (Creature* cSource = _GetScriptCreature(source, true, step.script))
+                {
+                    if (!cSource->IsAlive())
+                        return;
+
+                    cSource->GetMotionMaster()->MovementExpired();
+                    cSource->GetMotionMaster()->MoveIdle();
+
+                    switch (step.script->Movement.MovementType)
+                    {
+                        case RANDOM_MOTION_TYPE:
+                            cSource->GetMotionMaster()->MoveRandom((float)step.script->Movement.MovementDistance);
+                            break;
+                        case WAYPOINT_MOTION_TYPE:
+                            cSource->GetMotionMaster()->MovePath(step.script->Movement.Path, false);
+                            break;
+                    }
+                }
                 break;
 
             case SCRIPT_COMMAND_PLAY_ANIMKIT:

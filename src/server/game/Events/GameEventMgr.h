@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,11 @@
 #include "SharedDefines.h"
 #include "Define.h"
 #include "ObjectGuid.h"
+#include <list>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <vector>
 
 #define max_ge_check_delay DAY  // 1 day in seconds
 
@@ -80,25 +85,16 @@ struct ModelEquip
     uint8 equipement_id_prev;
 };
 
-struct NPCVendorEntry
-{
-    uint32 entry;                                           // creature entry
-    uint32 item;                                            // item id
-    int32  maxcount;                                        // 0 for infinite
-    uint32 incrtime;                                        // time for restore items amount if maxcount != 0
-    uint32 ExtendedCost;
-    uint8 Type;                                             // 1 item, 2 currency
-};
-
-class Player;
 class Creature;
+class Player;
 class Quest;
+struct VendorItem;
 
 class TC_GAME_API GameEventMgr
 {
     private:
         GameEventMgr();
-        ~GameEventMgr() { }
+        ~GameEventMgr();
 
     public:
         static GameEventMgr* instance();
@@ -155,8 +151,8 @@ class TC_GAME_API GameEventMgr
         typedef std::pair<uint32, uint32> QuestRelation;
         typedef std::list<QuestRelation> QuestRelList;
         typedef std::vector<QuestRelList> GameEventQuestMap;
-        typedef std::list<NPCVendorEntry> NPCVendorList;
-        typedef std::vector<NPCVendorList> GameEventNPCVendorMap;
+        typedef std::unordered_map<uint32, std::vector<VendorItem>> NPCVendorMap;
+        typedef std::vector<NPCVendorMap> GameEventNPCVendorMap;
         typedef std::map<uint32 /*quest id*/, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap;
         typedef std::pair<ObjectGuid::LowType /*guid*/, uint64 /*npcflag*/> GuidNPCFlagPair;
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
@@ -187,4 +183,3 @@ TC_GAME_API bool IsHolidayActive(HolidayIds id);
 TC_GAME_API bool IsEventActive(uint16 event_id);
 
 #endif
-

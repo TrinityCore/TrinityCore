@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef SCARLET_M_
 #define SCARLET_M_
+
+#include "CreatureAIImpl.h"
 
 #define SMScriptName "instance_scarlet_monastery"
 #define DataHeader "SM"
@@ -60,7 +62,7 @@ enum SMGameObjectIds
     GO_PUMPKIN_SHRINE               = 186267
 };
 
-template<class AI>
+template<typename AI>
 inline AI* GetScarletMonasteryAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SMScriptName);

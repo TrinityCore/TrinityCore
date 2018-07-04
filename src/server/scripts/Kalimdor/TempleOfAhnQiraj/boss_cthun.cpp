@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,13 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MapReference.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 /*
  * This is a 2 phases events. Here follows an explanation of the main events and transition between phases and sub-phases.
@@ -153,7 +157,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<eye_of_cthunAI>(creature);
+        return GetAQ40AI<eye_of_cthunAI>(creature);
     }
 
     struct eye_of_cthunAI : public ScriptedAI
@@ -453,7 +457,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<cthunAI>(creature);
+        return GetAQ40AI<cthunAI>(creature);
     }
 
     struct cthunAI : public ScriptedAI
@@ -891,7 +895,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new eye_tentacleAI(creature);
+        return GetAQ40AI<eye_tentacleAI>(creature);
     }
 
     struct eye_tentacleAI : public ScriptedAI
@@ -969,7 +973,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new claw_tentacleAI(creature);
+        return GetAQ40AI<claw_tentacleAI>(creature);
     }
 
     struct claw_tentacleAI : public ScriptedAI
@@ -1083,7 +1087,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new giant_claw_tentacleAI(creature);
+        return GetAQ40AI<giant_claw_tentacleAI>(creature);
     }
 
     struct giant_claw_tentacleAI : public ScriptedAI
@@ -1207,7 +1211,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new giant_eye_tentacleAI(creature);
+        return GetAQ40AI<giant_eye_tentacleAI>(creature);
     }
 
     struct giant_eye_tentacleAI : public ScriptedAI
@@ -1273,7 +1277,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new flesh_tentacleAI(creature);
+        return GetAQ40AI<flesh_tentacleAI>(creature);
     }
 
     struct flesh_tentacleAI : public ScriptedAI

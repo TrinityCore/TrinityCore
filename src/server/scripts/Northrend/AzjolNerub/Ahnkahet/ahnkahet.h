@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef AHNKAHET_H_
 #define AHNKAHET_H_
+
+#include "CreatureAIImpl.h"
 
 #define AhnKahetScriptName "instance_ahnkahet"
 #define DataHeader         "AK"
@@ -80,8 +82,8 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI>
-AI* GetAhnKahetAI(Creature* creature)
+template<typename AI>
+inline AI* GetAhnKahetAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, AhnKahetScriptName);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,11 +24,17 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class character_commandscript : public CommandScript
 {
@@ -270,20 +276,19 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()];
+                std::string name = (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()];
                 if (name.empty())
                     continue;
 
-                char const* activeStr = target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                char const* activeStr = target->GetInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
                 ? handler->GetTrinityString(LANG_ACTIVE)
                 : "";
 
-                char titleNameStr[80];
-                snprintf(titleNameStr, 80, name.c_str(), targetName);
+                std::string titleNameStr = Trinity::StringFormat(name.c_str(), targetName);
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[loc], knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr.c_str(), localeNames[loc], knownStr, activeStr);
                 else
                     handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, name.c_str(), localeNames[loc], knownStr, activeStr);
             }
@@ -916,7 +921,7 @@ public:
 
             if (ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(guid)))
             {
-                handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
+                handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, std::to_string(guid).c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }

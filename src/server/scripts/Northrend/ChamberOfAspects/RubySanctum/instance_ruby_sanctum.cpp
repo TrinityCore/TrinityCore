@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "TemporarySummon.h"
-#include "WorldPacket.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ruby_sanctum.h"
+#include "TemporarySummon.h"
+#include "WorldStatePackets.h"
+
+Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0f };
 
 BossBoundaryData const boundaries =
 {
@@ -53,11 +57,11 @@ class instance_ruby_sanctum : public InstanceMapScript
 
             void OnPlayerEnter(Player* /*player*/) override
             {
-                if (!GetGuidData(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                if (!GetGuidData(DATA_HALION) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                 {
                     instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
-                    if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                    if (Creature* halionController = instance->GetCreature(GetGuidData(DATA_HALION_CONTROLLER)))
+                        halionController->AI()->DoAction(ACTION_INTRO_HALION_2);
                 }
             }
 
@@ -161,6 +165,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
+            void OnCreatureRemove(Creature* creature) override
+            {
+                if (creature->GetEntry() == NPC_HALION)
+                    HalionGUID = ObjectGuid::Empty;
+            }
+
             void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
@@ -170,7 +180,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 if (creature->GetEntry() == NPC_GENERAL_ZARITHRIAN && GetBossState(DATA_HALION) != DONE)
                 {
                     instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
-                    if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                    if (Creature* halionController = instance->GetCreature(GetGuidData(DATA_HALION_CONTROLLER)))
                         halionController->AI()->DoAction(ACTION_INTRO_HALION);
                 }
             }

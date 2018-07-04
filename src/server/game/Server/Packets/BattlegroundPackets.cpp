@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,7 +73,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     if (!playerData.Stats.empty())
         data.append(playerData.Stats.data(), playerData.Stats.size());
 
-    data.WriteBit(playerData.Faction);
+    data.WriteBit(playerData.Faction != 0);
     data.WriteBit(playerData.IsInWorld);
     data.WriteBit(playerData.Honor.is_initialized());
     data.WriteBit(playerData.PreMatchRating.is_initialized());
@@ -170,7 +170,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusActive::Write()
     _worldPacket << uint32(Mapid);
     _worldPacket << uint32(ShutdownTimer);
     _worldPacket << uint32(StartTimer);
-    _worldPacket.WriteBit(ArenaFaction);
+    _worldPacket.WriteBit(ArenaFaction != 0);
     _worldPacket.WriteBit(LeftEarly);
     _worldPacket.FlushBits();
     return &_worldPacket;

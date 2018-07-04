@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,11 @@
 #define ScenarioMgr_h__
 
 #include "Common.h"
+#include "Hash.h"
 #include "SharedDefines.h"
+#include <map>
+#include <unordered_map>
+#include <vector>
 
 class InstanceScenario;
 class Map;
@@ -69,9 +73,6 @@ struct ScenarioPOIPoint
 struct ScenarioPOI
 {
     int32 BlobIndex;
-    int32 ObjectiveIndex;
-    int32 QuestObjectiveID;
-    int32 QuestObjectID;
     int32 MapID;
     int32 WorldMapAreaID;
     int32 Floor;

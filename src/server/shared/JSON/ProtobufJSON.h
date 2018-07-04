@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,13 +19,20 @@
 #define ProtobufJSON_h__
 
 #include "Define.h"
-#include <google/protobuf/message.h>
 #include <string>
+
+namespace google
+{
+    namespace protobuf
+    {
+        class Message;
+    }
+}
 
 namespace JSON
 {
     TC_SHARED_API std::string Serialize(google::protobuf::Message const& message);
-    TC_SHARED_API bool Deserialize(std::string json, google::protobuf::Message* message);
+    TC_SHARED_API bool Deserialize(std::string const& json, google::protobuf::Message* message);
 }
 
 #endif // ProtobufJSON_h__

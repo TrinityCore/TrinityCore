@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
 
@@ -31,11 +32,11 @@ static DoorData const doorData[] =
 class instance_mechanar : public InstanceMapScript
 {
     public:
-        instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
+        instance_mechanar(): InstanceMapScript(MechanarScriptName, 554) { }
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
-            instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_mechanar_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

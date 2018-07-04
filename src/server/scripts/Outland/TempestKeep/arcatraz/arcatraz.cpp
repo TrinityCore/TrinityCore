@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,8 +30,10 @@ npc_zerekethvoidzone
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 /*#####
 # npc_millhouse_manastorm
@@ -537,7 +539,7 @@ class npc_zerekethvoidzone : public CreatureScript
 
             void Reset() override
             {
-                me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                 me->setFaction(16);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -549,7 +551,7 @@ class npc_zerekethvoidzone : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_zerekethvoidzoneAI(creature);
+            return GetArcatrazAI<npc_zerekethvoidzoneAI>(creature);
         }
 };
 

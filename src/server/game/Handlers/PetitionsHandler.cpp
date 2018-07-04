@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,16 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "Guild.h"
+#include "GuildMgr.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "PetitionPackets.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <sstream>
 
 #define CHARTER_DISPLAY_ID 16161
 #define GUILD_CHARTER_ITEM_ID 5863
@@ -465,7 +470,7 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     }
     else
     {
-        TC_LOG_ERROR("network", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
         return;
     }
 
@@ -531,15 +536,21 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
 
     Guild::SendCommandResult(this, GUILD_COMMAND_CREATE_GUILD, ERR_GUILD_COMMAND_SUCCESS, name);
 
-    // Add members from signatures
-    for (uint8 i = 0; i < signatures; ++i)
     {
-        Field* fields = result->Fetch();
-        guild->AddMember(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        // Checking the return value just to be double safe
-        if (!result->NextRow())
-            break;
+        // Add members from signatures
+        for (uint8 i = 0; i < signatures; ++i)
+        {
+            Field* fields = result->Fetch();
+            guild->AddMember(trans, ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
+
+            // Checking the return value just to be double safe
+            if (!result->NextRow())
+                break;
+        }
+
+        CharacterDatabase.CommitTransaction(trans);
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();

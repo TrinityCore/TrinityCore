@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "SystemPackets.h"
+#include "Errors.h"
 
 WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 {
@@ -23,12 +24,18 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 
     _worldPacket << uint32(ScrollOfResurrectionRequestsRemaining);
     _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
+
     _worldPacket << uint32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
+
     _worldPacket << uint32(TwitterPostThrottleLimit);
     _worldPacket << uint32(TwitterPostThrottleCooldown);
+
     _worldPacket << uint32(TokenPollTimeSeconds);
     _worldPacket << uint32(TokenRedeemIndex);
+    _worldPacket << int64(TokenBalanceAmount);
+
+    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
@@ -51,6 +58,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
     _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
+    _worldPacket.WriteBit(TokenBalanceEnabled);
 
     _worldPacket.FlushBits();
 
@@ -124,10 +132,16 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(CompetitiveModeEnabled);
     _worldPacket.WriteBit(false); // not accessed in handler
     _worldPacket.WriteBit(TrialBoostEnabled);
+    _worldPacket.WriteBit(TokenBalanceEnabled);
+    _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
+    _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
+    _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);
     _worldPacket << int32(TokenRedeemIndex);
+    _worldPacket << int64(TokenBalanceAmount);
+    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
 
     return &_worldPacket;
 }

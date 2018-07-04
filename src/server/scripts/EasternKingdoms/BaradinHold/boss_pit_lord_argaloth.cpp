@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "baradin_hold.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "baradin_hold.h"
 
 /* TODO:
 - Fel Firestorm need completion
@@ -60,7 +62,6 @@ class boss_pit_lord_argaloth : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                me->GetMotionMaster()->MoveTargetedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _DespawnAtEvade();
             }
@@ -132,7 +133,7 @@ class spell_argaloth_consuming_darkness : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                Trinity::Containers::RandomResizeList(targets, GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3);
+                Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3);
             }
 
             void Register() override

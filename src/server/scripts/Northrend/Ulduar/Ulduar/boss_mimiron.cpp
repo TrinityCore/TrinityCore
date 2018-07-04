@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 #include "Vehicle.h"
 
@@ -611,7 +613,7 @@ class boss_mimiron : public CreatureScript
                                 if (Creature* aerial = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)))
                                 {
                                     aerial->GetMotionMaster()->MoveLand(0, (aerial->GetPositionX(), aerial->GetPositionY(), aerial->GetPositionZMinusOffset()));
-                                    aerial->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                                    aerial->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
                                     aerial->CastSpell(vx001, SPELL_MOUNT_VX_001);
                                     aerial->CastSpell(aerial, SPELL_HALF_HEAL);
                                 }
@@ -644,10 +646,10 @@ class boss_mimiron : public CreatureScript
                             {
                                 if (Creature* computer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_COMPUTER)))
                                     computer->AI()->DoAction(DO_DEACTIVATE_COMPUTER);
-                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION_FIREFIGHTER, GO_CACHE_OF_INNOVATION_FIREFIGHTER_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, 0.f, 0.f, 0.9999619f, 0.008734641f, 604800);
+                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION_FIREFIGHTER, GO_CACHE_OF_INNOVATION_FIREFIGHTER_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, QuaternionData(0.f, 0.f, 0.9999619f, 0.008734641f), 604800);
                             }
                             else
-                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION, GO_CACHE_OF_INNOVATION_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, 0.f, 0.f, 0.9999619f, 0.008734641f, 604800);
+                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION, GO_CACHE_OF_INNOVATION_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, QuaternionData(0.f, 0.f, 0.9999619f, 0.008734641f), 604800);
                             events.ScheduleEvent(EVENT_OUTTRO_3, 11000);
                             break;
                         case EVENT_OUTTRO_3:
@@ -658,6 +660,9 @@ class boss_mimiron : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
             }
 
@@ -896,6 +901,9 @@ class boss_leviathan_mk_ii : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 DoMeleeAttackIfReady();
             }
@@ -972,10 +980,10 @@ class boss_vx_001 : public CreatureScript
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX, 6000);
                         // Missing break intended.
                     case DO_START_VX001:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE); // Remove emotestate.
-                        //me->SetUInt32Value(UNIT_FIELD_BYTES_1, 33554432); Blizzard handles hover animation like this it seems.
+                        //me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER); Blizzard handles hover animation like this it seems.
                         DoCast(me, SPELL_HEAT_WAVE_AURA);
 
                         events.SetPhase(PHASE_VX_001);
@@ -1034,7 +1042,8 @@ class boss_vx_001 : public CreatureScript
                 // Handle rotation during SPELL_SPINNING_UP, SPELL_P3WX2_LASER_BARRAGE, SPELL_RAPID_BURST, and SPELL_HAND_PULSE_LEFT/RIGHT
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                 {
-                    if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
+                    DynamicFieldStructuredView<ObjectGuid> channelObjects = me->GetChannelObjects();
+                    if (Unit* channelTarget = (channelObjects.size() == 1 ? ObjectAccessor::GetUnit(*me, *channelObjects.begin()) : nullptr))
                         me->SetFacingToObject(channelTarget);
                     return;
                 }
@@ -1079,6 +1088,9 @@ class boss_vx_001 : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
             }
 
@@ -1145,7 +1157,7 @@ class boss_aerial_command_unit : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1000, 0, PHASE_AERIAL_COMMAND_UNIT);
                         // Missing break intended.
                     case DO_START_AERIAL:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         events.SetPhase(PHASE_AERIAL_COMMAND_UNIT);
@@ -1237,6 +1249,9 @@ class boss_aerial_command_unit : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 DoSpellAttackIfReady(events.IsInPhase(PHASE_AERIAL_COMMAND_UNIT) ? SPELL_PLASMA_BALL_P1 : SPELL_PLASMA_BALL_P2);
             }
@@ -1766,9 +1781,7 @@ class spell_mimiron_fire_search : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WATER_SPRAY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WATER_SPRAY });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1857,9 +1870,7 @@ class spell_mimiron_magnetic_core : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CORE_VISUAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGNETIC_CORE_VISUAL });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1912,9 +1923,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NAPALM_SHELL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NAPALM_SHELL });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1951,33 +1960,6 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
         }
 };
 
-// 63274 - P3Wx2 Laser Barrage -- HACK! Core will currently not set UNIT_FIELD_CHANNEL_OBJECT automatially if the spell targets more than a single target.
-class spell_mimiron_p3wx2_laser_barrage : public SpellScriptLoader
-{
-    public:
-        spell_mimiron_p3wx2_laser_barrage() : SpellScriptLoader("spell_mimiron_p3wx2_laser_barrage") { }
-
-        class spell_mimiron_p3wx2_laser_barrage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mimiron_p3wx2_laser_barrage_SpellScript);
-
-            void OnHit(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->SetChannelObjectGuid(GetHitUnit()->GetGUID());
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mimiron_p3wx2_laser_barrage_SpellScript::OnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mimiron_p3wx2_laser_barrage_SpellScript();
-        }
-};
-
 // 64542 - Plasma Blast
 class spell_mimiron_plasma_blast : public SpellScriptLoader
 {
@@ -1990,9 +1972,7 @@ class spell_mimiron_plasma_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PLASMA_BLAST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PLASMA_BLAST });
             }
 
             bool Load() override
@@ -2066,9 +2046,7 @@ class spell_mimiron_proximity_mines : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PROXIMITY_MINE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_PROXIMITY_MINE });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2101,9 +2079,7 @@ class spell_mimiron_proximity_trigger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PROXIMITY_MINE_EXPLOSION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PROXIMITY_MINE_EXPLOSION });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2144,9 +2120,7 @@ class spell_mimiron_rapid_burst : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RAPID_BURST_LEFT) || !sSpellMgr->GetSpellInfo(SPELL_RAPID_BURST_RIGHT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RAPID_BURST_LEFT, SPELL_RAPID_BURST_RIGHT });
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2186,9 +2160,7 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SCRIPT_EFFECT_ROCKET_STRIKE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SCRIPT_EFFECT_ROCKET_STRIKE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2196,12 +2168,14 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                if (m_scriptSpellId == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
+                if (GetSpellInfo()->Id == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
+                {
                     if (WorldObject* target = GetCaster()->GetVehicleKit()->GetPassenger(RAND(ROCKET_SEAT_LEFT, ROCKET_SEAT_RIGHT)))
                     {
                         targets.clear();
                         targets.push_back(target);
                     }
+                }
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2234,9 +2208,7 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NOT_SO_FRIENDLY_FIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NOT_SO_FRIENDLY_FIRE });
             }
 
             void HandleAfterCast()
@@ -2284,9 +2256,7 @@ class spell_mimiron_rocket_strike_target_select : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ROCKET_STRIKE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ROCKET_STRIKE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2353,35 +2323,6 @@ class spell_mimiron_self_repair : public SpellScriptLoader
         }
 };
 
-// 63414 - Spinning Up -- HACK! Core will currently not set UNIT_FIELD_CHANNEL_OBJECT automatially if the spell targets more than a single target.
-// eff0 will hit both caster and target due to hack in spellmgr.cpp, it is necessary because caster will interrupt itself if aura is not active on caster.
-class spell_mimiron_spinning_up : public SpellScriptLoader
-{
-    public:
-        spell_mimiron_spinning_up() : SpellScriptLoader("spell_mimiron_spinning_up") { }
-
-        class spell_mimiron_spinning_up_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mimiron_spinning_up_SpellScript);
-
-            void OnHit(SpellEffIndex /*effIndex*/)
-            {
-                if (GetHitUnit() != GetCaster())
-                    GetCaster()->SetChannelObjectGuid(GetHitUnit()->GetGUID());
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mimiron_spinning_up_SpellScript::OnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mimiron_spinning_up_SpellScript();
-        }
-};
-
 // 64426 - Summon Scrap Bot
 class spell_mimiron_summon_assault_bot : public SpellScriptLoader
 {
@@ -2394,9 +2335,7 @@ class spell_mimiron_summon_assault_bot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ASSAULT_BOT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ASSAULT_BOT });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2431,9 +2370,7 @@ class spell_mimiron_summon_assault_bot_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ASSAULT_BOT_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ASSAULT_BOT_DUMMY });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2465,10 +2402,7 @@ class spell_mimiron_summon_fire_bot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FIRE_BOT))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FIRE_BOT });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2503,9 +2437,7 @@ class spell_mimiron_summon_fire_bot_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FIRE_BOT_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FIRE_BOT_DUMMY });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2574,9 +2506,7 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FLAMES_SPREAD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FLAMES_SPREAD });
             }
 
             void HandleTick(AuraEffect const* /*aurEff*/)
@@ -2611,9 +2541,7 @@ class spell_mimiron_summon_frost_bomb_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FROST_BOMB))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FROST_BOMB });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2662,9 +2590,7 @@ class spell_mimiron_summon_junk_bot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_JUNK_BOT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_JUNK_BOT });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2699,9 +2625,7 @@ class spell_mimiron_summon_junk_bot_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_JUNK_BOT_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_JUNK_BOT_DUMMY });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2820,7 +2744,6 @@ void AddSC_boss_mimiron()
     new spell_mimiron_fire_search();
     new spell_mimiron_magnetic_core();
     new spell_mimiron_napalm_shell();
-    new spell_mimiron_p3wx2_laser_barrage();
     new spell_mimiron_plasma_blast();
     new spell_mimiron_proximity_explosion();
     new spell_mimiron_proximity_mines();
@@ -2830,7 +2753,6 @@ void AddSC_boss_mimiron()
     new spell_mimiron_rocket_strike_damage();
     new spell_mimiron_rocket_strike_target_select();
     new spell_mimiron_self_repair();
-    new spell_mimiron_spinning_up();
     new spell_mimiron_summon_assault_bot();
     new spell_mimiron_summon_assault_bot_target();
     new spell_mimiron_summon_fire_bot();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,6 +92,9 @@ class boss_lorekeeper_polkelt : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -100,7 +103,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_lorekeeperpolkeltAI(creature);
+            return GetScholomanceAI<boss_lorekeeperpolkeltAI>(creature);
         }
 };
 

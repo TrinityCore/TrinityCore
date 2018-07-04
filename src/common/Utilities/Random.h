@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "Duration.h"
 #include <limits>
-#include <random>
 
 /* Return a random number in the range min..max. */
 TC_COMMON_API int32 irand(int32 min, int32 max);
@@ -46,6 +45,9 @@ TC_COMMON_API double rand_norm();
 
 /* Return a random double from 0.0 to 100.0 (exclusive). */
 TC_COMMON_API double rand_chance();
+
+/* Return a random number in the range 0..count (exclusive) with each value having a different chance of happening */
+TC_COMMON_API uint32 urandweighted(size_t count, double const* chances);
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)

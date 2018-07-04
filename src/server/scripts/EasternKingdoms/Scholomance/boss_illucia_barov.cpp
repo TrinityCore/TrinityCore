@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,10 +28,11 @@ Category: Scholomance
 
 enum Spells
 {
-    SPELL_CURSEOFAGONY          = 34794,
-    SPELL_SHADOWSHOCK           = 34799,
-    SPELL_SILENCE               = 34803,
-    SPELL_FEAR                  = 34803
+    SPELL_CURSEOFAGONY          = 18671,
+    SPELL_DOMINATE              = 7645, // UNUSED YET added for documentation
+    SPELL_FEAR                  = 12542,
+    SPELL_SHADOWSHOCK           = 17234,
+    SPELL_SILENCE               = 12528
 };
 
 enum Events
@@ -92,6 +93,9 @@ class boss_illucia_barov : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -100,7 +104,7 @@ class boss_illucia_barov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_illuciabarovAI(creature);
+            return GetScholomanceAI<boss_illuciabarovAI>(creature);
         }
 };
 

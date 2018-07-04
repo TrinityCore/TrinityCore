@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,12 +20,8 @@
 #define CONFIG_H
 
 #include "Define.h"
-
 #include <string>
-#include <list>
 #include <vector>
-#include <mutex>
-#include <boost/property_tree/ptree.hpp>
 
 class TC_COMMON_API ConfigMgr
 {
@@ -36,8 +32,7 @@ class TC_COMMON_API ConfigMgr
 
 public:
     /// Method used only for loading main configuration files (bnetserver.conf and worldserver.conf)
-    bool LoadInitial(std::string const& file, std::vector<std::string> args,
-        std::string& error);
+    bool LoadInitial(std::string const& file, std::vector<std::string> args, std::string& error);
 
     static ConfigMgr* instance();
 
@@ -49,15 +44,10 @@ public:
     float GetFloatDefault(std::string const& name, float def) const;
 
     std::string const& GetFilename();
-    std::vector<std::string> const& GetArguments() const { return _args; }
-    std::list<std::string> GetKeysByString(std::string const& name);
+    std::vector<std::string> const& GetArguments() const;
+    std::vector<std::string> GetKeysByString(std::string const& name);
 
 private:
-    std::string _filename;
-    std::vector<std::string> _args;
-    boost::property_tree::ptree _config;
-    std::mutex _configLock;
-
     template<class T>
     T GetValueDefault(std::string const& name, T def) const;
 };

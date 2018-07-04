@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -178,6 +178,8 @@ void AddSC_boss_baltharus_the_warborn();
 void AddSC_boss_saviana_ragefire();
 void AddSC_boss_general_zarithrian();
 void AddSC_boss_halion();
+void AddSC_isle_of_conquest();           // Isle of Conquest
+void AddSC_boss_ioc_horde_alliance();
 
 void AddSC_dalaran();
 void AddSC_borean_tundra();
@@ -190,7 +192,6 @@ void AddSC_storm_peaks();
 void AddSC_wintergrasp();
 void AddSC_zuldrak();
 void AddSC_crystalsong_forest();
-void AddSC_isle_of_conquest();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -358,6 +359,8 @@ void AddNorthrendScripts()
     AddSC_boss_saviana_ragefire();
     AddSC_boss_general_zarithrian();
     AddSC_boss_halion();
+    AddSC_isle_of_conquest();          // Isle of Conquest
+    AddSC_boss_ioc_horde_alliance();
 
     AddSC_dalaran();
     AddSC_borean_tundra();
@@ -370,5 +373,4 @@ void AddNorthrendScripts()
     AddSC_wintergrasp();
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
-    AddSC_isle_of_conquest();
 }

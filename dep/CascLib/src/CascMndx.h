@@ -197,7 +197,7 @@ class TMndxFindResult
 
     int SetSearchPath(const char * szNewSearchPath, size_t cchNewSearchPath);
 
-    const char * szSearchMask;          // Search mask without wioldcards
+    const char * szSearchMask;          // Search mask without wildcards
     size_t cchSearchMask;               // Length of the search mask
     DWORD field_8;
     const char * szFoundPath;           // Found path name

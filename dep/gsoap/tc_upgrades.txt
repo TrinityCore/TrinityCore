@@ -1,5 +1,5 @@
 * Generate new headers based on TrinityCore soap-services stub:
-gsoap/bin/linux386/soapcpp2 -1 -S -L -w -x -y soap.stub
+gsoap/bin/linux386/soapcpp2 -1 -S -L -w -x -y -c++11 gsoap.stub
 
 * Copy the following files from the gsoap package:
 gsoap/stdsoap2.h
@@ -7,6 +7,5 @@ gsoap/stdsoap2.cpp
 
 * Remove the following files after generation:
 ns1.nsmap
-soapObject.h
 
 * Test compile and see if SOAP works...

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "mechanar.h"
-#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -144,6 +144,9 @@ class boss_mechano_lord_capacitus : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -152,7 +155,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_mechano_lord_capacitusAI(creature);
+            return GetMechanarAI<boss_mechano_lord_capacitusAI>(creature);
         }
 };
 
@@ -167,24 +170,22 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_STACK))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_STACK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_POSITIVE_CHARGE,
+                    SPELL_POSITIVE_CHARGE_STACK,
+                    SPELL_NEGATIVE_CHARGE,
+                    SPELL_NEGATIVE_CHARGE_STACK
+                });
             }
 
             void HandleTargets(std::list<WorldObject*>& targetList)
             {
                 uint8 count = 0;
-                for (std::list<WorldObject*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
-                    if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
-                        if (Player* target = (*ihit)->ToPlayer())
-                            if (target->HasAura(GetTriggeringSpell()->Id))
+                for (WorldObject* target : targetList)
+                    if (target->GetGUID() != GetCaster()->GetGUID())
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->ToUnit()->HasAura(GetTriggeringSpell()->Id))
                                 ++count;
 
                 if (count)
@@ -235,9 +236,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_POLARITY) || !sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_POLARITY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)

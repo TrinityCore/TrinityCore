@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,4 +17,6 @@ target_include_directories(rapidjson
 target_compile_definitions(rapidjson
   INTERFACE
     -DRAPIDJSON_HAS_STDSTRING
-    -DRAPIDJSON_SSE2)
+    -DRAPIDJSON_SSE2
+    -DRAPIDJSON_48BITPOINTER_OPTIMIZATION=0
+    -DRAPIDJSON_ASSERT=WPAssert)

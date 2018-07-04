@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 #include "PacketUtilities.h"
 #include "AchievementPackets.h"
 
-#define MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE 35
+#define MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE 40
 
 struct ScenarioPOI;
 

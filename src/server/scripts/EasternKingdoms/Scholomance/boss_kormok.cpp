@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "scholomance.h"
 
 enum Spells
 {
@@ -115,6 +115,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -127,7 +130,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_kormokAI(creature);
+        return GetScholomanceAI<boss_kormokAI>(creature);
     }
 };
 
@@ -151,10 +154,7 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint32 i = 0; i < 4; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SummonMageSpells[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(SummonMageSpells);
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -188,9 +188,7 @@ class spell_kormok_summon_bone_minions : SpellScriptLoader
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_MINIONS))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SUMMON_BONE_MINIONS });
         }
 
         void HandleScript(SpellEffIndex effIndex)

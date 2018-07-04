@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -482,6 +482,15 @@ float const BG_SA_GYOrientation[BG_SA_MAX_GY] =
     6.148f, // defender last GY
 };
 
+enum BG_SA_BroadcastTexts
+{
+    BG_SA_TEXT_ALLIANCE_CAPTURED_TITAN_PORTAL   = 28944,
+    BG_SA_TEXT_HORDE_CAPTURED_TITAN_PORTAL      = 28945,
+
+    BG_SA_TEXT_ROUND_TWO_START_ONE_MINUTE       = 29448,
+    BG_SA_TEXT_ROUND_TWO_START_HALF_MINUTE      = 29449
+};
+
 struct GateInfo
 {
     uint8 GateId;
@@ -531,10 +540,12 @@ struct BattlegroundSAScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
         {
-            stats.push_back(DemolishersDestroyed);
-            stats.push_back(GatesDestroyed);
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.push_back(DemolishersDestroyed);
+            playerData.Stats.push_back(GatesDestroyed);
         }
 
         uint32 GetAttr1() const final override { return DemolishersDestroyed; }

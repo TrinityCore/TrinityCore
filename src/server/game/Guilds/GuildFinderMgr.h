@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,11 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "GuildMgr.h"
+#include "SharedDefines.h"
+#include <unordered_map>
+
+class Guild;
+class Player;
 
 enum GuildFinderOptionsInterest
 {
@@ -58,22 +62,9 @@ enum GuildFinderOptionsLevel
 struct MembershipRequest
 {
     public:
-        MembershipRequest(MembershipRequest const& settings) : _comment(settings.GetComment())
-        {
-            _availability = settings.GetAvailability();
-            _classRoles = settings.GetClassRoles();
-            _interests = settings.GetInterests();
-            _guildId = settings.GetGuildGuid();
-            _playerGUID = settings.GetPlayerGUID();
-            _time = settings.GetSubmitTime();
-        }
+        MembershipRequest();
 
-        MembershipRequest(ObjectGuid const& playerGUID, ObjectGuid const& guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string& comment, time_t submitTime) :
-            _comment(comment), _guildId(guildId), _playerGUID(playerGUID), _availability(availability),
-            _classRoles(classRoles), _interests(interests), _time(submitTime)  {}
-
-        MembershipRequest() : _availability(0), _classRoles(0),
-            _interests(0), _time(time(NULL)) {}
+        MembershipRequest(ObjectGuid const& playerGUID, ObjectGuid const& guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string comment, time_t submitTime);
 
         ObjectGuid const& GetGuildGuid() const      { return _guildId; }
         ObjectGuid const& GetPlayerGUID() const   { return _playerGUID; }

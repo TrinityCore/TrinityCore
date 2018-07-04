@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "forge_of_souls.h"
 
 enum Yells
 {
@@ -138,11 +142,10 @@ class boss_bronjahm : public CreatureScript
                 {
                     uint32 count = 0;
                     for (ObjectGuid const& guid : summons)
-                    {
                         if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
                             if (summon->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT && summon->IsAlive())
                                 ++count;
-                    }
+
                     return count;
                 }
 
@@ -200,6 +203,9 @@ class boss_bronjahm : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!events.IsInPhase(PHASE_2))
@@ -209,7 +215,7 @@ class boss_bronjahm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_bronjahmAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_bronjahmAI>(creature);
         }
 };
 
@@ -239,7 +245,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 if (instance->GetGuidData(DATA_BRONJAHM).GetCounter() != id)
                     return;
 
-                me->CastSpell((Unit*)nullptr, SPELL_CONSUME_SOUL, true);
+                me->CastSpell(nullptr, SPELL_CONSUME_SOUL, true);
                 me->DespawnOrUnsummon();
             }
 
@@ -249,7 +255,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_corrupted_soul_fragmentAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<npc_corrupted_soul_fragmentAI>(creature);
         }
 };
 
@@ -264,7 +270,7 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
 
             void RecalculateDamage()
             {
-                if (GetHitUnit()->getPowerType() != POWER_MANA)
+                if (GetHitUnit()->GetPowerType() != POWER_MANA)
                     return;
 
                 int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "SceneMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -62,7 +63,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.Location             = *position;
     playScene.TransportGUID        = GetPlayer()->GetTransGUID();
 
-    GetPlayer()->GetSession()->SendPacket(playScene.Write(), true);
+    GetPlayer()->SendDirectMessage(playScene.Write());
 
     AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
 
@@ -89,7 +90,7 @@ void SceneMgr::CancelScene(uint32 sceneInstanceID, bool removeFromMap /*= true*/
 
     WorldPackets::Scenes::CancelScene cancelScene;
     cancelScene.SceneInstanceID = sceneInstanceID;
-    GetPlayer()->GetSession()->SendPacket(cancelScene.Write(), true);
+    GetPlayer()->SendDirectMessage(cancelScene.Write());
 }
 
 void SceneMgr::OnSceneTrigger(uint32 sceneInstanceID, std::string const& triggerName)
@@ -121,6 +122,9 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
+
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+        CancelScene(sceneInstanceID, false);
 }
 
 void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
@@ -140,6 +144,9 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
+
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+        CancelScene(sceneInstanceID, false);
 }
 
 bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 0*/) const
@@ -155,6 +162,18 @@ bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 
 void SceneMgr::AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
     _scenesByInstance[sceneInstanceID] = sceneTemplate;
+}
+
+void SceneMgr::CancelSceneBySceneId(uint32 sceneId)
+{
+    std::vector<uint32> instancesIds;
+
+    for (auto const& itr : _scenesByInstance)
+        if (itr.second->SceneId == sceneId)
+            instancesIds.push_back(itr.first);
+
+    for (uint32 sceneInstanceID : instancesIds)
+        CancelScene(sceneInstanceID);
 }
 
 void SceneMgr::CancelSceneByPackageId(uint32 sceneScriptPackageId)

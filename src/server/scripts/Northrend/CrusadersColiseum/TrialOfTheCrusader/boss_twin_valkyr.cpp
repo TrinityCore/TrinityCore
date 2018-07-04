@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,14 +21,16 @@
 //    - Hardcoded bullets spawner
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
+#include "SpellScript.h"
 #include "trial_of_the_crusader.h"
 
 enum Texts
@@ -108,14 +110,6 @@ enum Stages
     MAX_STAGES
 };
 
-#define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
-#define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
-
-#define SPELL_POWERING_UP_HELPER RAID_MODE<uint32>(67590, 67602, 67603, 67604)
-
-#define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
-#define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
-
 enum Actions
 {
     ACTION_VORTEX,
@@ -135,7 +129,7 @@ class OrbsDespawner : public BasicEvent
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<OrbsDespawner> worker(_creature, *this);
-            _creature->VisitNearbyGridObject(5000.0f, worker);
+            Cell::VisitGridObjects(_creature, worker, SIZE_OF_GRIDS);
             return true;
         }
 
@@ -220,12 +214,12 @@ struct boss_twin_baseAI : public BossAI
         switch (summoned->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP);
                 break;
             case NPC_DARK_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP);
                 break;
             case NPC_BULLET_CONTROLLER:
                 me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
@@ -363,7 +357,7 @@ class boss_fjola : public CreatureScript
                 AuraState = AURA_STATE_UNKNOWN22;
                 SisterNpcId = NPC_DARKBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
-                OtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+                OtherEssenceSpellId = SPELL_DARK_ESSENCE;
                 SurgeSpellId = SPELL_LIGHT_SURGE;
                 VortexSpellId = SPELL_LIGHT_VORTEX;
                 ShieldSpellId = SPELL_LIGHT_SHIELD;
@@ -440,10 +434,8 @@ class boss_fjola : public CreatureScript
                 // Allocate an unique random stage to each position in the array.
                 for (int i = 0; i < MAX_STAGES - 1; ++i)
                 {
-                    int random = i + (rand32() % (MAX_STAGES - i));
-                    int temp = Stage[i];
-                    Stage[i] = Stage[random];
-                    Stage[random] = temp;
+                    int random = i + urand(0, MAX_STAGES - i);
+                    std::swap(Stage[i], Stage[random]);
                 }
             }
             private:
@@ -453,7 +445,7 @@ class boss_fjola : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_fjolaAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_fjolaAI>(creature);
         }
 };
 
@@ -473,7 +465,7 @@ class boss_eydis : public CreatureScript
                 AuraState = AURA_STATE_UNKNOWN19;
                 SisterNpcId = NPC_LIGHTBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
-                OtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
+                OtherEssenceSpellId = SPELL_LIGHT_ESSENCE;
                 SurgeSpellId = SPELL_DARK_SURGE;
                 VortexSpellId = SPELL_DARK_VORTEX;
                 ShieldSpellId = SPELL_DARK_SHIELD;
@@ -486,7 +478,7 @@ class boss_eydis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_eydisAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_eydisAI>(creature);
         }
 };
 
@@ -505,10 +497,10 @@ class npc_essence_of_twin : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_LIGHT_ESSENCE:
-                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_DARK_ESSENCE_HELPER : SPELL_LIGHT_ESSENCE_HELPER;
+                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_DARK_ESSENCE : SPELL_LIGHT_ESSENCE;
                         break;
                     case NPC_DARK_ESSENCE:
-                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_LIGHT_ESSENCE_HELPER : SPELL_DARK_ESSENCE_HELPER;
+                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_LIGHT_ESSENCE : SPELL_DARK_ESSENCE;
                         break;
                     default:
                         break;
@@ -520,14 +512,14 @@ class npc_essence_of_twin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_essence_of_twinAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_essence_of_twinAI>(creature);
         };
 
         bool OnGossipHello(Player* player, Creature* creature) override
         {
             player->RemoveAurasDueToSpell(creature->GetAI()->GetData(ESSENCE_REMOVE));
             player->CastSpell(player, creature->GetAI()->GetData(ESSENCE_APPLY), true);
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             return true;
         }
 };
@@ -606,7 +598,7 @@ class npc_unleashed_dark : public CreatureScript
                 {
                     if (me->SelectNearestPlayer(3.0f))
                     {
-                        DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
+                        DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
@@ -619,7 +611,7 @@ class npc_unleashed_dark : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unleashed_darkAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_unleashed_darkAI>(creature);
         }
 };
 
@@ -638,7 +630,7 @@ class npc_unleashed_light : public CreatureScript
                 {
                     if (me->SelectNearestPlayer(3.0f))
                     {
-                        DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
+                        DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
@@ -651,7 +643,7 @@ class npc_unleashed_light : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unleashed_lightAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_unleashed_lightAI>(creature);
         }
 };
 
@@ -680,7 +672,7 @@ class npc_bullet_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_bullet_controllerAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_bullet_controllerAI>(creature);
         }
 };
 
@@ -693,45 +685,26 @@ class spell_powering_up : public SpellScriptLoader
         {
             PrepareSpellScript(spell_powering_up_SpellScript);
 
-        public:
-            spell_powering_up_SpellScript()
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                spellId = 0;
-                poweringUp = 0;
-            }
-
-        private:
-            uint32 spellId;
-            uint32 poweringUp;
-
-            bool Load() override
-            {
-                spellId = SPELL_SURGE_OF_SPEED;
-                if (!sSpellMgr->GetSpellInfo(spellId))
-                    return false;
-
-                poweringUp = SPELL_POWERING_UP;
-                if (!sSpellMgr->GetSpellInfo(poweringUp))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_SURGE_OF_SPEED, SPELL_POWERING_UP });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if (Aura* pAura = target->GetAura(poweringUp))
+                    if (Aura* pAura = target->GetAura(SPELL_POWERING_UP))
                     {
                         if (pAura->GetStackAmount() >= 100)
                         {
-                            if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1))
+                            if (target->HasAura(SPELL_DARK_ESSENCE))
                                 target->CastSpell(target, SPELL_EMPOWERED_DARK, true);
 
-                            if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1))
+                            if (target->HasAura(SPELL_LIGHT_ESSENCE))
                                 target->CastSpell(target, SPELL_EMPOWERED_LIGHT, true);
 
-                            target->RemoveAurasDueToSpell(poweringUp);
+                            target->RemoveAurasDueToSpell(SPELL_POWERING_UP);
                         }
                     }
                 }
@@ -758,21 +731,17 @@ class spell_valkyr_essences : public SpellScriptLoader
         {
             PrepareAuraScript(spell_valkyr_essences_AuraScript);
 
-        public:
-            spell_valkyr_essences_AuraScript()
-            {
-                spellId = 0;
-            }
-
-        private:
-            uint32 spellId;
-
             bool Load() override
             {
-                spellId = SPELL_SURGE_OF_SPEED;
-                if (!sSpellMgr->GetSpellInfo(spellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SURGE_OF_SPEED,
+                    SPELL_LIGHT_VORTEX_DAMAGE,
+                    SPELL_DARK_VORTEX_DAMAGE,
+                    SPELL_POWERING_UP,
+                    SPELL_UNLEASHED_DARK,
+                    SPELL_UNLEASHED_LIGHT
+                });
             }
 
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & /*absorbAmount*/)
@@ -782,16 +751,14 @@ class spell_valkyr_essences : public SpellScriptLoader
                     if (dmgInfo.GetSpellInfo())
                     {
                         if (urand(0, 99) < 5)
-                            GetTarget()->CastSpell(GetTarget(), spellId, true);
+                            GetTarget()->CastSpell(GetTarget(), SPELL_SURGE_OF_SPEED, true);
 
                         // Twin Vortex part
-                        uint32 lightVortex = SPELL_LIGHT_VORTEX_DAMAGE;
-                        uint32 darkVortex = SPELL_DARK_VORTEX_DAMAGE;
                         int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue() / 1000 - 1;
 
-                        if (lightVortex && darkVortex && stacksCount)
+                        if (stacksCount)
                         {
-                            if (dmgInfo.GetSpellInfo()->Id == darkVortex || dmgInfo.GetSpellInfo()->Id == lightVortex)
+                            if (dmgInfo.GetSpellInfo()->Id == SPELL_DARK_VORTEX_DAMAGE || dmgInfo.GetSpellInfo()->Id == SPELL_LIGHT_VORTEX_DAMAGE)
                             {
                                 Aura* pAura = owner->GetAura(SPELL_POWERING_UP);
                                 if (pAura)
@@ -809,27 +776,21 @@ class spell_valkyr_essences : public SpellScriptLoader
                         }
 
                         // Picking floating balls
-                        uint32 unleashedDark = SPELL_UNLEASHED_DARK;
-                        uint32 unleashedLight = SPELL_UNLEASHED_LIGHT;
-
-                        if (unleashedDark && unleashedLight)
+                        if (dmgInfo.GetSpellInfo()->Id == SPELL_UNLEASHED_DARK || dmgInfo.GetSpellInfo()->Id == SPELL_UNLEASHED_LIGHT)
                         {
-                            if (dmgInfo.GetSpellInfo()->Id == unleashedDark || dmgInfo.GetSpellInfo()->Id == unleashedLight)
+                            // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
+                            Aura* pAura = owner->GetAura(SPELL_POWERING_UP);
+                            if (pAura)
                             {
-                                // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                                Aura* pAura = owner->GetAura(SPELL_POWERING_UP);
-                                if (pAura)
-                                {
-                                    // 2 lines together add the correct amount of buff stacks
-                                    pAura->ModStackAmount(stacksCount);
-                                    owner->CastSpell(owner, SPELL_POWERING_UP, true);
-                                }
-                                else
-                                {
-                                    owner->CastSpell(owner, SPELL_POWERING_UP, true);
-                                    if (Aura* pTemp = owner->GetAura(SPELL_POWERING_UP))
-                                        pTemp->ModStackAmount(stacksCount);
-                                }
+                                // 2 lines together add the correct amount of buff stacks
+                                pAura->ModStackAmount(stacksCount);
+                                owner->CastSpell(owner, SPELL_POWERING_UP, true);
+                            }
+                            else
+                            {
+                                owner->CastSpell(owner, SPELL_POWERING_UP, true);
+                                if (Aura* pTemp = owner->GetAura(SPELL_POWERING_UP))
+                                    pTemp->ModStackAmount(stacksCount);
                             }
                         }
                     }

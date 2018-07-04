@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
@@ -75,7 +78,7 @@ class boss_erekem : public CreatureScript
             void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
-                    me->SetFacingTo(4.921828f);
+                    me->SetFacingTo(4.921828f, true);
             }
 
             void JustReachedHome() override

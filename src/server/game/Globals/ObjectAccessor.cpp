@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,6 +37,10 @@
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
+    static_assert(std::is_same<Player, T>::value
+        || std::is_same<Transport, T>::value,
+        "Only Player and Transport can be registered in global HashMapHolder");
+
     boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
@@ -76,6 +80,32 @@ boost::shared_mutex* HashMapHolder<T>::GetLock()
 template class TC_GAME_API HashMapHolder<Player>;
 template class TC_GAME_API HashMapHolder<Transport>;
 
+namespace PlayerNameMapHolder
+{
+typedef std::unordered_map<std::string, Player*> MapType;
+static MapType PlayerNameMap;
+
+void Insert(Player* p)
+{
+    PlayerNameMap[p->GetName()] = p;
+}
+
+void Remove(Player* p)
+{
+    PlayerNameMap.erase(p->GetName());
+}
+
+Player* Find(std::string const& name)
+{
+    std::string charName(name);
+    if (!normalizePlayerName(charName))
+        return nullptr;
+
+    auto itr = PlayerNameMap.find(charName);
+    return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
+}
+} // namespace PlayerNameMapHolder
+
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
 {
     switch (guid.GetHigh())
@@ -89,6 +119,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid con
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
         case HighGuid::AreaTrigger:   return GetAreaTrigger(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
+        case HighGuid::Conversation:  return GetConversation(p, guid);
         default:                      return nullptr;
     }
 }
@@ -126,6 +157,11 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
         case HighGuid::AreaTrigger:
             if (typemask & TYPEMASK_AREATRIGGER)
                 return GetAreaTrigger(p, guid);
+            break;
+        case HighGuid::Conversation:
+            if (typemask & TYPEMASK_CONVERSATION)
+                return GetConversation(p, guid);
+            break;
         case HighGuid::Corpse:
             break;
         default:
@@ -163,6 +199,11 @@ DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid
 AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid)
 {
     return u.GetMap()->GetAreaTrigger(guid);
+}
+
+Conversation* ObjectAccessor::GetConversation(WorldObject const& u, ObjectGuid const& guid)
+{
+    return u.GetMap()->GetConversation(guid);
 }
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, ObjectGuid const& guid)
@@ -224,40 +265,16 @@ Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid const& guid)
 
 Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+    Player* player = PlayerNameMapHolder::Find(name);
+    if (!player || !player->IsInWorld())
+        return nullptr;
 
-    std::string nameStr = name;
-    std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
-    HashMapHolder<Player>::MapType const& m = GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        if (!iter->second->IsInWorld())
-            continue;
-        std::string currentName = iter->second->GetName();
-        std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
-        if (nameStr.compare(currentName) == 0)
-            return iter->second;
-    }
-
-    return NULL;
+    return player;
 }
 
 Player* ObjectAccessor::FindConnectedPlayerByName(std::string const& name)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-
-    std::string nameStr = name;
-    std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
-    HashMapHolder<Player>::MapType const& m = GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        std::string currentName = iter->second->GetName();
-        std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
-        if (nameStr.compare(currentName) == 0)
-            return iter->second;
-    }
-
-    return NULL;
+    return PlayerNameMapHolder::Find(name);
 }
 
 HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
@@ -272,4 +289,18 @@ void ObjectAccessor::SaveAllPlayers()
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
+}
+
+template<>
+void ObjectAccessor::AddObject(Player* player)
+{
+    HashMapHolder<Player>::Insert(player);
+    PlayerNameMapHolder::Insert(player);
+}
+
+template<>
+void ObjectAccessor::RemoveObject(Player* player)
+{
+    HashMapHolder<Player>::Remove(player);
+    PlayerNameMapHolder::Remove(player);
 }

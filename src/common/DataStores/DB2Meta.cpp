@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "DB2Meta.h"
+#include "Errors.h"
 
-DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes)
-    : IndexField(indexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes)
+DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes, int32 parentIndexField)
+    : IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes)
 {
 }
 
@@ -51,9 +52,14 @@ uint32 DB2Meta::GetRecordSize() const
                 case FT_INT:
                     size += 4;
                     break;
+                case FT_LONG:
+                    size += 8;
+                    break;
                 case FT_STRING:
-                case FT_STRING_NOT_LOCALIZED:
                     size += sizeof(char*);
+                    break;
+                default:
+                    ASSERT(false, "Unsupported column type specified %c", Types[i]);
                     break;
             }
         }
@@ -63,6 +69,47 @@ uint32 DB2Meta::GetRecordSize() const
         size += 4;
 
     return size;
+}
+
+int32 DB2Meta::GetParentIndexFieldOffset() const
+{
+    if (ParentIndexField == -1)
+        return -1;
+
+    uint32 offset = 0;
+    if (!HasIndexFieldInData())
+        offset += 4;
+
+    for (int32 i = 0; i < ParentIndexField; ++i)
+    {
+        for (uint8 j = 0; j < ArraySizes[i]; ++j)
+        {
+            switch (Types[i])
+            {
+                case FT_BYTE:
+                    offset += 1;
+                    break;
+                case FT_SHORT:
+                    offset += 2;
+                    break;
+                case FT_FLOAT:
+                case FT_INT:
+                    offset += 4;
+                    break;
+                case FT_LONG:
+                    offset += 8;
+                    break;
+                case FT_STRING:
+                    offset += sizeof(char*);
+                    break;
+                default:
+                    ASSERT(false, "Unsupported column type specified %c", Types[i]);
+                    break;
+            }
+        }
+    }
+
+    return offset;
 }
 
 uint32 DB2Meta::GetDbIndexField() const

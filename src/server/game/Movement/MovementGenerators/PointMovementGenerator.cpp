@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,6 +43,10 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
     if (speed > 0.0f)
         init.SetVelocity(speed);
+    if (i_faceTarget)
+        init.SetFacing(i_faceTarget);
+    if (i_spellEffectExtra)
+        init.SetSpellEffectExtraData(*i_spellEffectExtra);
     init.Launch();
 
     // Call for creature group update

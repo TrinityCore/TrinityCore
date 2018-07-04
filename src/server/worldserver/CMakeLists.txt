@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -23,13 +23,11 @@ endif()
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/worldPCH.cpp)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(worldserver
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
@@ -46,6 +44,8 @@ endif()
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
 target_link_libraries(worldserver
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     scripts
     game
@@ -74,7 +74,7 @@ if (WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
 endif()
 
 if( WIN32 )
-  if ( MSVC )
+  if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
     add_custom_command(TARGET worldserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
@@ -97,5 +97,5 @@ endif()
 
 # Generate precompiled header
 if( USE_COREPCH )
-  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER})
 endif()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef BLOOD_FURNACE_H_
 #define BLOOD_FURNACE_H_
+
+#include "CreatureAIImpl.h"
 
 #define BFScriptName "instance_blood_furnace"
 #define DataHeader   "BF"
@@ -80,11 +82,10 @@ enum BFActionIds
     ACTION_PREPARE_BROGGOK      = 3
 };
 
-template<class AI>
-AI* GetBloodFurnaceAI(Creature* creature)
+template<typename AI>
+inline AI* GetBloodFurnaceAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, BFScriptName);
 }
 
 #endif // BLOOD_FURNACE_H_
-

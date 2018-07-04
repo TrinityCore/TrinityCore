@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,7 +65,7 @@ public:
     void UpdateClientStateIndex() { ++_clientStateIndex; }
 
     uint32 GetServerStateIndex() const { return _serverStateIndex; }
-    void UpdateServerStateIndex() { _serverStateIndex = rand32(); }
+    void UpdateServerStateIndex();
 
 private:
     void Update(bool for_trader = true) const;

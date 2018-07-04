@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,12 +23,13 @@ SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "molten_core.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 enum Texts
 {
@@ -44,16 +45,20 @@ enum Texts
 
 enum Spells
 {
-    SPELL_MAGIC_REFLECTION  = 20619,
-    SPELL_DAMAGE_REFLECTION = 21075,
-    SPELL_BLAST_WAVE        = 20229,
-    SPELL_AEGIS_OF_RAGNAROS = 20620,
-    SPELL_TELEPORT          = 20618,
     SPELL_SUMMON_RAGNAROS   = 19774,
+    SPELL_BLAST_WAVE        = 20229,
+    SPELL_TELEPORT          = 20618,
+    SPELL_MAGIC_REFLECTION  = 20619,
+    SPELL_AEGIS_OF_RAGNAROS = 20620,
+    SPELL_DAMAGE_REFLECTION = 21075
 };
 
-#define GOSSIP_HELLO 4995
-#define GOSSIP_SELECT "Tell me more."
+enum Extras
+{
+    OPTION_ID_YOU_CHALLENGED_US   = 0,
+    FACTION_FRIENDLY              = 35,
+    MENU_OPTION_YOU_CHALLENGED_US = 4108
+};
 
 enum Events
 {
@@ -64,7 +69,7 @@ enum Events
 
     EVENT_OUTRO_1           = 5,
     EVENT_OUTRO_2           = 6,
-    EVENT_OUTRO_3           = 7,
+    EVENT_OUTRO_3           = 7
 };
 
 class boss_majordomo : public CreatureScript
@@ -105,8 +110,8 @@ class boss_majordomo : public CreatureScript
 
                     if (!me->FindNearestCreature(NPC_FLAMEWAKER_HEALER, 100.0f) && !me->FindNearestCreature(NPC_FLAMEWAKER_ELITE, 100.0f))
                     {
-                        instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
-                        me->setFaction(35);
+                        instance->UpdateEncounterStateForKilledCreature(me->GetEntry(), me);
+                        me->setFaction(FACTION_FRIENDLY);
                         EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
@@ -144,6 +149,9 @@ class boss_majordomo : public CreatureScript
                             default:
                                 break;
                         }
+
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                            return;
                     }
 
                     DoMeleeAttackIfReady();
@@ -184,29 +192,24 @@ class boss_majordomo : public CreatureScript
                 }
                 else if (action == ACTION_START_RAGNAROS_ALT)
                 {
-                    me->setFaction(35);
+                    me->setFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            {
+                if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
+                {
+                    CloseGossipMenuFor(player);
+                    DoAction(ACTION_START_RAGNAROS);
                 }
             }
         };
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(GOSSIP_HELLO, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->AI()->DoAction(ACTION_START_RAGNAROS);
-            return true;
-        }
-
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_majordomoAI>(creature);
+            return GetMoltenCoreAI<boss_majordomoAI>(creature);
         }
 };
 
