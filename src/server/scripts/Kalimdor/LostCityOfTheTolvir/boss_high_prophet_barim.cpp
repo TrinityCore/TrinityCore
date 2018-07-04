@@ -207,6 +207,7 @@ public:
 
                     summons.DespawnEntry(NPC_SOUL_FRAGMENT);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_SEVER);
+
                     if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
                         blaze->AI()->DoAction(ACTION_ATTACK_PLAYERS);
 
@@ -498,20 +499,15 @@ public:
             switch (action)
             {
                 case ACTION_ATTACK_PLAYERS:
-                    if (Player* victim = me->SelectNearestPlayer(100.0f))
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                    if (!_isInEgg)
                     {
-                        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                        if (!_isInEgg)
-                        {
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->AI()->AttackStart(victim);
-                            _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(1) + Milliseconds(500));
-                            _events.ScheduleEvent(EVENT_TRIGGER_BLAZE, Seconds(3));
-                            _events.ScheduleEvent(EVENT_SUMMON_BLAZE_FLAME, Seconds(4));
-                        }
-                        else
-                            _events.ScheduleEvent(EVENT_CHECK_HEALTH, Seconds(1));
+                        _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(1) + Milliseconds(500));
+                        _events.ScheduleEvent(EVENT_TRIGGER_BLAZE, Seconds(3));
+                        _events.ScheduleEvent(EVENT_SUMMON_BLAZE_FLAME, Seconds(4));
                     }
+                    else
+                        _events.ScheduleEvent(EVENT_CHECK_HEALTH, Seconds(1));
                     break;
                 case ACTION_MAKE_PASSIVE:
                     _events.Reset();
