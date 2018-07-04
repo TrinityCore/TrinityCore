@@ -115,7 +115,7 @@ class ScentOfBloodTargetSelector
 
         bool operator()(Unit* unit) const
         {
-            return (!unit->HasAura(SPELL_SCENT_OF_BLOOD) || !unit->HasAura(SPELL_SCENT_OF_BLOOD_HC));
+            return (unit->HasAura(SPELL_SCENT_OF_BLOOD) || unit->HasAura(SPELL_SCENT_OF_BLOOD_HC));
         }
 };
 
@@ -414,7 +414,7 @@ class npc_lockmaw_frenzied_crocolisk : public CreatureScript
                             {
                                 DoCastSelf(SPELL_STEALTHED);
                                 me->AI()->AttackStart(target);
-                                me->AddThreat(target, 50000000.0f);
+                                target->AddThreat(me, 50000000.0f);
                             }
                             break;
                         default:
