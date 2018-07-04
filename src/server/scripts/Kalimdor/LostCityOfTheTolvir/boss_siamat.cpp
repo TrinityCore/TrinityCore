@@ -220,7 +220,7 @@ class boss_siamat : public CreatureScript
                             events.SetPhase(PHASE_2);
                             events.ScheduleEvent(EVENT_WAILING_WINDS, 1, 0, PHASE_2);
                         }
-                        else if (_deadServants < 3)
+                        else if (_lastStaticShockSpellID != SPELL_STATIC_SHOCK_3)
                             events.RescheduleEvent(EVENT_STATIC_SHOCK, Milliseconds(1));
                         break;
                     default:
@@ -259,7 +259,10 @@ class boss_siamat : public CreatureScript
                                 events.Repeat(Seconds(45));
                             }
                             else if (_lastStaticShockSpellID == SPELL_STATIC_SHOCK_2)
+                            {
                                 DoCastAOE(SPELL_STATIC_SHOCK_3);
+                                _lastStaticShockSpellID = SPELL_STATIC_SHOCK_3;
+                            }
                             break;
                         case EVENT_DEFLECTING_WINDS:
                             DoCastSelf(SPELL_DEFLECTING_WINDS, true);
