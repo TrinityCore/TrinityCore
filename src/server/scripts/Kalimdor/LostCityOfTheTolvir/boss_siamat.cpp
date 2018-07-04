@@ -131,7 +131,7 @@ class boss_siamat : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
                 events.SetPhase(PHASE_1);
-                events.ScheduleEvent(EVENT_STATIC_SHOCK, 1, 0, PHASE_1);
+                events.ScheduleEvent(EVENT_STATIC_SHOCK, Milliseconds(1), 0, PHASE_1);
                 events.ScheduleEvent(EVENT_DEFLECTING_WINDS, Seconds(6), 0, PHASE_1);
                 events.ScheduleEvent(EVENT_STORM_BOLT, Seconds(1), 0, PHASE_1);
                 events.ScheduleEvent(EVENT_CLOUD_BURST, Seconds(13), PHASE_1);
@@ -262,7 +262,7 @@ class boss_siamat : public CreatureScript
                                 DoCastAOE(SPELL_STATIC_SHOCK_3);
                             break;
                         case EVENT_DEFLECTING_WINDS:
-                            DoCastSelf(SPELL_DEFLECTING_WINDS);
+                            DoCastSelf(SPELL_DEFLECTING_WINDS, true);
                             break;
                         case EVENT_STORM_BOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
