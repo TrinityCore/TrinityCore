@@ -1442,7 +1442,13 @@ void Spell::EffectCreateItem(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    DoCreateItem(effIndex, effectInfo->ItemType);
+    std::set<uint32> bonusListIDs = sDB2Manager.GetItemBonusTree(effectInfo->ItemType, 13); // 13 is guessed tradeskill bonus mod
+
+	std::vector<int32> bonusList;
+	for(uint32 bonus : bonusListIDs)
+		bonusList.push_back(bonus);
+
+    DoCreateItem(effIndex, effectInfo->ItemType, bonusList);
     ExecuteLogEffectCreateItem(effIndex, effectInfo->ItemType);
 }
 
