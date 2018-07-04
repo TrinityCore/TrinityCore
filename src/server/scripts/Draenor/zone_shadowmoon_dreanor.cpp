@@ -106,6 +106,7 @@ public:
         {
             playerGuid = guid;
             Start(false, true, guid);
+            SetDespawnAtFar(false);
         }
 
         void LastWaypointReached() override
