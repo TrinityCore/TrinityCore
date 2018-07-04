@@ -222,131 +222,62 @@ class aura_dru_lunar_empowerment : public AuraScript
 //7.3.2.25549 END
 
 // Efflorescence - 145205
-// @Version : 7.1.0.22908
-class spell_dru_efflorescence : public SpellScriptLoader
+class spell_dru_efflorescence : public SpellScript
 {
-public:
-    spell_dru_efflorescence() : SpellScriptLoader("spell_dru_efflorescence") {}
+    PrepareSpellScript(spell_dru_efflorescence);
 
-    class spell_dru_efflorescence_SpellScript : public SpellScript
+    enum eCreature
     {
-        PrepareSpellScript(spell_dru_efflorescence_SpellScript);
-
-        enum eCreature
-        {
-            Efflorescence = 47649
-        };
-
-        void HandleSummon()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            std::list<Creature*> efflorescenceList;
-            caster->GetCreatureListWithEntryInGrid(efflorescenceList, eCreature::Efflorescence, 500.0f);
-
-            for (auto creature : efflorescenceList)
-            {
-                if (creature->GetOwner() == caster)
-                    creature->DespawnOrUnsummon();
-            }
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_dru_efflorescence_SpellScript::HandleSummon);
-        }
+        NPC_EFFLORESCENCE = 47649
     };
 
-    SpellScript* GetSpellScript() const override
+    void HandleSummon()
     {
-        return new spell_dru_efflorescence_SpellScript();
+        if (Unit* caster = GetCaster())
+            if (Creature* efflorescence = caster->GetSummonedCreatureByEntry(NPC_EFFLORESCENCE))
+                efflorescence->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_dru_efflorescence::HandleSummon);
     }
 };
 
 // Efflorescence (Aura) - 81262
-// @Version : 7.1.0.22908
-class spell_dru_efflorescence_aura : public SpellScriptLoader
+class spell_dru_efflorescence_aura : public AuraScript
 {
-public:
-    spell_dru_efflorescence_aura() : SpellScriptLoader("spell_dru_efflorescence_aura") {}
+    PrepareAuraScript(spell_dru_efflorescence_aura);
 
-    class spell_dru_efflorescence_aura_AuraScript : public AuraScript
+    void HandleHeal(AuraEffect const* /*aurEff*/)
     {
-        PrepareAuraScript(spell_dru_efflorescence_aura_AuraScript);
-
-        void HandleHeal(AuraEffect const* /*aurEff*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
+        if (Unit* caster = GetCaster())
             if (caster->GetOwner())
-                caster->CastSpell(caster, SPELL_DRUID_EFFLORESCENCE_HEAL, true, NULL, NULL, caster->GetOwnerGUID());
-        }
+                caster->GetOwner()->CastSpell(caster->GetPosition(), SPELL_DRUID_EFFLORESCENCE_HEAL, true, NULL, NULL, caster->GetOwnerGUID());
+    }
 
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_efflorescence_aura_AuraScript::HandleHeal, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_dru_efflorescence_aura_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_efflorescence_aura::HandleHeal, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // Efflorescence (Heal) - 81269
-// @Version : 7.1.0.22908
-class spell_dru_efflorescence_heal : public SpellScriptLoader
+class spell_dru_efflorescence_heal : public SpellScript
 {
-public:
-    spell_dru_efflorescence_heal() : SpellScriptLoader("spell_dru_efflorescence_heal") {}
+    PrepareSpellScript(spell_dru_efflorescence_heal);
 
-    class spell_dru_efflorescence_heal_SpellScript : public SpellScript
+    void SortTargets(std::list<WorldObject*>& targets)
     {
-        PrepareSpellScript(spell_dru_efflorescence_heal_SpellScript);
+        targets.sort(Trinity::HealthPctOrderPred());
 
-        int32 targetCount;
+        if (targets.size() > 3)
+            targets.resize(3);
+    }
 
-        bool Load() override
-        {
-            targetCount = 0;
-            return true;
-        }
-
-        void SortTargets(std::list<WorldObject*>& targets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-        }
-
-        void HandleHeal(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            if (caster == target || targetCount > 2)
-            {
-                SetHitHeal(0);
-            }
-            else
-                targetCount++;
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_dru_efflorescence_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal_SpellScript::SortTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_dru_efflorescence_heal_SpellScript();
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal::SortTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -2348,39 +2279,27 @@ public:
 
 // Efflorescence
 // NPC Id - 47649
-// @Version : 7.1.0.22908
-class npc_dru_efflorescence : public CreatureScript
+class npc_dru_efflorescence : public ScriptedAI
 {
 public:
-    npc_dru_efflorescence() : CreatureScript("npc_dru_efflorescence") {}
+    npc_dru_efflorescence(Creature* creature) : ScriptedAI(creature) {}
 
-    class npc_dru_efflorescence_AI : public ScriptedAI
+    void Reset() override
     {
-    public:
-
-        npc_dru_efflorescence_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        void Reset() override
-        {
-            me->CastSpell(me, SPELL_DRUID_EFFLORESCENCE_DUMMY, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dru_efflorescence_AI(creature);
+        me->CastSpell(me, SPELL_DRUID_EFFLORESCENCE_DUMMY, true);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->SetReactState(REACT_PASSIVE);
     }
 };
 
 void AddSC_druid_spell_scripts()
 {
     // Spells Scripts
-    new spell_dru_efflorescence();
-    new spell_dru_efflorescence_aura();
-    new spell_dru_efflorescence_heal();
+    RegisterSpellScript(spell_dru_efflorescence);
+    RegisterAuraScript(spell_dru_efflorescence_aura);
+    RegisterSpellScript(spell_dru_efflorescence_heal);
     new spell_dru_primal_fury();
     new spell_dru_predatory_swiftness();
     new spell_dru_predatory_swiftness_aura();
@@ -2434,5 +2353,5 @@ void AddSC_druid_spell_scripts()
     new at_dru_ursols_vortex();
 
     // NPC Scripts
-    new npc_dru_efflorescence();
+    RegisterCreatureAI(npc_dru_efflorescence);
 }
