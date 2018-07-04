@@ -4633,6 +4633,13 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF GILNEAS SPELLS
 
+    // Disenchant
+    ApplySpellFix({ 13262 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->BaseLevel = 0;
+        spellInfo->SpellLevel = 0;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
