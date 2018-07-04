@@ -270,8 +270,9 @@ class boss_augh : public CreatureScript
             {
                 _JustEngagedWith();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
-                events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_FRENZY);
+                events.Reset();
+                events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_PARALYTIC_BLOW_DART, Seconds(8));
                 events.ScheduleEvent(EVENT_WHIRLWIND, Seconds(9));
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, Seconds(6));

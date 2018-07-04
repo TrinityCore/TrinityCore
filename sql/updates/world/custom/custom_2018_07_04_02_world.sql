@@ -11,7 +11,7 @@ UPDATE `creature_template` SET `DamageModifier`= 60, `BaseVariance`= 0.5 WHERE `
 -- Small Trash Groups
 UPDATE `creature_template` SET `DamageModifier`= 30, `RangeVariance`= 0.5 WHERE `entry` IN (44932, 49323, 44926, 49322);
 UPDATE `creature_template` SET `DamageModifier`= 30, `BaseVariance`= 0.5 WHERE `entry` IN (44922, 49319, 44924, 49321, 44976, 44982, 49328, 44980, 49326, 44896, 49317, 44897, 49318, 44898, 49320);
-UPDATE `creature_template` SET `DamageModifier`= 15, `BaseVariance`= 0.5 WHERE `entry` IN (44981, 49327, 44977, 49325, 44261, 49315, 45062, 49330);
+UPDATE `creature_template` SET `DamageModifier`= 15, `BaseVariance`= 0.5 WHERE `entry` IN (44981, 49327, 44977, 49325, 44261, 49315, 45062, 49330, 49331, 45063);
 -- Sharptalon Eagle
 UPDATE `creature_template` SET `difficulty_entry_1`= 49315 WHERE `entry`= 44261;
 UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 90, `speed_run`= 0.857143, `movementId`= 121 WHERE `entry`= 49315;
