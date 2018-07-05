@@ -144,6 +144,7 @@ enum DeathKnightSpells
     SPELL_DK_HOWLING_BLAST_AOE                  = 237680,
     SPELL_DK_RIME_BUFF                          = 59052,
     SPELL_DK_NORTHREND_WINDS                    = 204088,
+    SPELL_DK_KILLING_MACHINE                    = 51128,
 };
 
 // 70656 - Advantage (T10 4P Melee Bonus)
@@ -2495,6 +2496,22 @@ class spell_dk_glacial_advance : public SpellScript
     }
 };
 
+// 49020 - Obliterate
+class spell_dk_obliterate : public SpellScript
+{
+    PrepareSpellScript(spell_dk_obliterate);
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_DK_KILLING_MACHINE);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dk_obliterate::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_advantage_t10_4p();
@@ -2550,4 +2567,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
     RegisterSpellScript(spell_dk_glacial_advance);
+    RegisterSpellScript(spell_dk_obliterate);
 }
