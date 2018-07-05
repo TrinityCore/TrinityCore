@@ -154,6 +154,8 @@ enum WarriorSpells
     SPELL_WARRIOR_VICTORY_RUSH_DAMAGE               = 34428,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
+    SPELL_WARRIOR_WAR_MACHINE_TALENT_AURA           = 215556,
+    SPELL_WARRIOR_WAR_MACHINE_AURA                  = 215566,
     SPELL_WARRIOR_WARBRINGER                        = 103828,
     SPELL_WARRIOR_WARBRINGER_ROOT                   = 105771,
     SPELL_WARRIOR_WARBRINGER_SNARE                  = 137637,
@@ -2888,6 +2890,30 @@ class spell_warr_execute : public SpellScript
     }
 };
 
+// War Machine 215556
+class aura_warr_war_machine : public AuraScript
+{
+    PrepareAuraScript(aura_warr_war_machine);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_WARRIOR_WAR_MACHINE_AURA, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->RemoveAurasDueToSpell(SPELL_WARRIOR_WAR_MACHINE_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(aura_warr_war_machine::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(aura_warr_war_machine::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // Ravager - 76168
 struct npc_warr_ravager : public ScriptedAI
 {
@@ -3003,6 +3029,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_warr_ravager, aura_warr_ravager);
     RegisterSpellScript(spell_warr_ravager_damage);
     RegisterSpellScript(spell_warr_execute);
+    RegisterAuraScript(aura_warr_war_machine);
 
     RegisterCreatureAI(npc_warr_ravager);
 }
