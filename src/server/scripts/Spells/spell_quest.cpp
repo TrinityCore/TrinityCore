@@ -1960,8 +1960,6 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
 enum ThatsAbominable
 {
-    QUEST_THATS_ABOMINABLE                = 13264,
-
     NPC_ICY_GHOUL                         = 31142,
     NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
     NPC_VICIOUS_GEIST                     = 31147,
@@ -1993,14 +1991,16 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
 
             void HandleKnockBack(SpellEffIndex effIndex)
             {
-                PreventHitDefaultEffect(effIndex);
-
                 if (Creature* creature = GetHitCreature())
                     if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
                         if (Player* player = charmer->ToPlayer())
-                            if (player->GetQuestStatus(QUEST_THATS_ABOMINABLE) == QUEST_STATUS_INCOMPLETE)
-                                if (GiveCreditIfValid(player, creature))
-                                    creature->KillSelf();
+                            if (GiveCreditIfValid(player, creature))
+                            {
+                                creature->KillSelf();
+                                return;
+                            }
+                //Hit some quest-unrelated npc/player, don't knockback those.
+                PreventHitDefaultEffect(effIndex);
             }
 
             bool GiveCreditIfValid(Player* player, Creature* creature)
