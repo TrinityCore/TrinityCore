@@ -1400,7 +1400,7 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
         rankData.RankID = uint32(rankInfo->GetId());
         rankData.RankOrder = uint32(i);
         rankData.Flags = rankInfo->GetRights();
-        rankData.WithdrawGoldLimit = rankInfo->GetBankMoneyPerDay();
+        rankData.WithdrawGoldLimit = (rankInfo->GetId() == GR_GUILDMASTER ? (-1) : int32(rankInfo->GetBankMoneyPerDay() / GOLD));
         rankData.RankName = rankInfo->GetName();
 
         for (uint8 j = 0; j < GUILD_BANK_MAX_TABS; ++j)
@@ -1605,7 +1605,7 @@ void Guild::HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string c
 
         rankInfo->SetName(name);
         rankInfo->SetRights(rights);
-        _SetRankBankMoneyPerDay(rankId, moneyPerDay);
+        _SetRankBankMoneyPerDay(rankId, moneyPerDay * GOLD);
 
         for (auto itr = rightsAndSlots.begin(); itr != rightsAndSlots.end(); ++itr)
             _SetRankBankTabRightsAndSlots(rankId, *itr);
