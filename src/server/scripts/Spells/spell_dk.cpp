@@ -107,8 +107,6 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_CHARGE                       = 114851,
     SPELL_DK_BOOD_TAP                           = 45529,
     SPELL_DK_PILLAR_OF_FROST                    = 51271,
-    SPELL_DK_REMORSELESS_WINTER_STUN            = 115001,
-    SPELL_DK_REMORSELESS_WINTER                 = 115000,
     SPELL_DK_CONVERSION                         = 119975,
     SPELL_DK_WEAKENED_BLOWS                     = 115798,
     SPELL_DK_SCARLET_FEVER                      = 81132,
@@ -147,6 +145,7 @@ enum DeathKnightSpells
     SPELL_DK_RIME_BUFF                          = 59052,
     SPELL_DK_NORTHREND_WINDS                    = 204088,
     SPELL_DK_KILLING_MACHINE                    = 51128,
+    SPELL_DK_REMORSELESS_WINTER_SLOW_DOWN       = 211793,
 };
 
 // 70656 - Advantage (T10 4P Melee Bonus)
@@ -1314,34 +1313,20 @@ class spell_dk_howling_blast_aoe : public SpellScript
     }
 };
 
-// Remorseless Winter - 115000
-class spell_dk_remorseless_winter : public SpellScriptLoader
+// Remorseless Winter - 196771
+class spell_dk_remorseless_winter_damage : public SpellScript
 {
-public:
-    spell_dk_remorseless_winter() : SpellScriptLoader("spell_dk_remorseless_winter") { }
+    PrepareSpellScript(spell_dk_remorseless_winter_damage);
 
-    class spell_dk_remorseless_winter_SpellScript : public SpellScript
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_dk_remorseless_winter_SpellScript);
+        if (Unit* unit = GetHitUnit())
+            GetCaster()->CastSpell(unit, SPELL_DK_REMORSELESS_WINTER_SLOW_DOWN, true);
+    }
 
-        void HandleOnHit()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-                if (Unit* target = GetHitUnit())
-                    if (Aura* remorselessWinter = target->GetAura(SPELL_DK_REMORSELESS_WINTER))
-                        if (remorselessWinter->GetStackAmount() == 5 && !target->HasAura(SPELL_DK_REMORSELESS_WINTER_STUN))
-                            _player->CastSpell(target, SPELL_DK_REMORSELESS_WINTER_STUN, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_dk_remorseless_winter_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_dk_remorseless_winter_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_dk_remorseless_winter_damage::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -2558,7 +2543,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_purgatory();
     new spell_dk_purgatory_absorb();
     new spell_dk_raise_dead();
-    new spell_dk_remorseless_winter();
+    RegisterSpellScript(spell_dk_remorseless_winter_damage);
     new spell_dk_runic_empowerment(); //NOT WORKING - Need implementation on PlayerScript :)
     new spell_dk_soul_reaper();
     new spell_dk_unholy_blight();
