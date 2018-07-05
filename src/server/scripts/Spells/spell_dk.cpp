@@ -51,7 +51,9 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_GRIP                         = 49576,
-    SPELL_DK_DEATH_GRIP_PULL                    = 64431,
+    SPELL_DK_DEATH_GRIP_PULL                    = 49575,
+    SPELL_DK_DEATH_GRIP_VISUAL                  = 55719,
+    SPELL_DK_DEATH_GRIP_TAUNT                   = 57603,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_ENHANCED_DEATH_COIL                = 157343,
     SPELL_DK_FROST_FEVER                        = 55095,
@@ -1125,58 +1127,54 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 };
 
 // 49576 - Death Grip
-class spell_dk_death_grip_initial : public SpellScriptLoader
+class spell_dk_death_grip_initial : public SpellScript
 {
-public:
-    spell_dk_death_grip_initial() : SpellScriptLoader("spell_dk_death_grip_initial") { }
+    PrepareSpellScript(spell_dk_death_grip_initial);
 
-    class spell_dk_death_grip_initial_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellinfo*/) override
     {
-        PrepareSpellScript(spell_dk_death_grip_initial_SpellScript);
+        return ValidateSpellInfo({  SPELL_DK_DEATH_GRIP,
+                                    SPELL_DK_DEATH_GRIP_PULL,
+                                    SPELL_DK_DEATH_GRIP_VISUAL,
+                                    SPELL_DK_DEATH_GRIP_TAUNT });
+    }
 
-        bool Validate(SpellInfo const* /*spellinfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_GRIP) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_GRIP_PULL))
-                return false;
-            return true;
-        }
-
-        SpellCastResult CheckCast()
-        {
-            Unit* caster = GetCaster();
-            // Death Grip should not be castable while jumping/falling
-            if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
-                return SPELL_FAILED_MOVING;
-
-            // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
-            Unit* target = GetExplTargetUnit();
-            if (target && target->GetTypeId() == TYPEID_PLAYER)
-                if (caster->GetDistance(target) < 8.f)
-                    return SPELL_FAILED_TOO_CLOSE;
-
-            return SPELL_CAST_OK;
-        }
-
-        void HandleOnCast()
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetExplTargetUnit();
-
-            if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS))
-                target->CastSpell(caster, SPELL_DK_DEATH_GRIP_PULL, true);
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial_SpellScript::CheckCast);
-            OnCast += SpellCastFn(spell_dk_death_grip_initial_SpellScript::HandleOnCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    SpellCastResult CheckCast()
     {
-        return new spell_dk_death_grip_initial_SpellScript();
+        Unit* caster = GetCaster();
+
+        // Death Grip should not be castable while jumping/falling
+        if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+            return SPELL_FAILED_MOVING;
+
+        // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
+        Unit* target = GetExplTargetUnit();
+        if (target && target->IsPlayer())
+            if (caster->GetDistance(target) < 8.f)
+                return SPELL_FAILED_TOO_CLOSE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleOnCast()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+
+        if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS))
+        {
+            caster->CastSpell(target, SPELL_DK_DEATH_GRIP_VISUAL, true);
+            target->CastSpell(caster, SPELL_DK_DEATH_GRIP_PULL, true);
+
+            if (caster->IsPlayer() && caster->ToPlayer()->GetSpecializationId() == TALENT_SPEC_DEATHKNIGHT_BLOOD)
+                caster->CastSpell(target, SPELL_DK_DEATH_GRIP_TAUNT, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial::CheckCast);
+        OnCast += SpellCastFn(spell_dk_death_grip_initial::HandleOnCast);
     }
 };
 
@@ -2533,7 +2531,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_and_decay();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
-    new spell_dk_death_grip_initial();
+    RegisterSpellScript(spell_dk_death_grip_initial);
     new spell_dk_death_pact();
     new spell_dk_death_siphon();
     new spell_dk_death_strike();
