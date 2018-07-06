@@ -195,17 +195,7 @@ public:
             PhasingHandler::AddPhase(player, PHASE_DALARAN_KARAZHAN);
     }
 
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        CompleteScene(player);
-    }
-
-    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        CompleteScene(player);
-    }
-
-    void CompleteScene(Player* player)
+    void OnSceneEnd(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->KilledMonsterCredit(114506);
         player->TeleportTo(1220, -827.82f, 4369.25f, 738.64f, 1.893364f);

@@ -981,6 +981,9 @@ class TC_GAME_API SceneScript : public ScriptObject
 
         // Called when a scene is completed
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+        // Called when a scene is either canceled or completed
+        virtual void OnSceneEnd(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
 };
 
 class TC_GAME_API QuestScript : public ScriptObject
