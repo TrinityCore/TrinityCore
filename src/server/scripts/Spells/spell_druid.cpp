@@ -64,6 +64,8 @@ enum DruidSpells
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
     SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS     = 70726,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
+    SPELL_DRUID_LEADER_OF_THE_PACK_HEAL     = 34299,
+    SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE = 68285,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
@@ -1727,6 +1729,49 @@ class spell_dru_harmony : public AuraScript
     }
 };
 
+// 17007 - Leader of the Pack
+class spell_dru_leader_of_the_pack : public AuraScript
+{
+    PrepareAuraScript(spell_dru_leader_of_the_pack);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_LEADER_OF_THE_PACK_HEAL,
+                SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+
+        int32 heal = 0;
+        if (SpellInfo const* healSpell = sSpellMgr->GetSpellInfo(SPELL_DRUID_LEADER_OF_THE_PACK_HEAL))
+            if (int32 bp = healSpell->Effects[EFFECT_0].BasePoints)
+                heal = CalculatePct(target->GetMaxHealth(), bp);
+
+        int32 mana = 0;
+        if (SpellInfo const* energizeSpell = sSpellMgr->GetSpellInfo(SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE))
+            if (int32 bp = energizeSpell->Effects[EFFECT_0].BasePoints)
+                mana = CalculatePct(target->GetMaxPower(POWER_MANA), bp);
+
+        if (heal)
+            target->CastCustomSpell(SPELL_DRUID_LEADER_OF_THE_PACK_HEAL, SPELLVALUE_BASE_POINT0, heal, target, true, nullptr, aurEff);
+
+        if (mana)
+            target->CastCustomSpell(SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_leader_of_the_pack::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1745,6 +1790,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_idol_lifebloom();
     new spell_dru_innervate();
     new spell_dru_insect_swarm();
+    RegisterAuraScript(spell_dru_leader_of_the_pack);
     new spell_dru_lifebloom();
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
