@@ -68,7 +68,11 @@ enum SCCreatureIds
     // Ozruk
     NPC_BOUNCER_SPIKE               = 42189,
     NPC_RUPTURE_CONTROLLER          = 49597,
-    NPC_RUPTURE                     = 49576
+    NPC_RUPTURE                     = 49576,
+
+    // High Priestess Azil
+    NPC_DEVOUT_FOLLOWER             = 42428,
+    NPC_SEISMIC_SHARD               = 42355
 };
 
 enum SCGameobjectIds
