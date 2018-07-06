@@ -231,19 +231,23 @@ class aura_eoa_lightning_strikes : public AuraScript
 
     void OnPeriodic(AuraEffect const* aurEff)
     {
-        Unit* caster = GetCaster();
-
-        if (caster->GetInstanceScript()->GetData(DATA_BOSS_DIED) >= 3)
+        if (Unit* caster = GetCaster())
         {
-            Map::PlayerList const& playerList = caster->GetInstanceScript()->instance->GetPlayers();
-            std::vector<Player*> playerVec;
-            for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
-                playerVec.push_back(itr->GetSource());
-
-            if (playerVec.size() > 0)
+            if (InstanceScript* instanceScript = caster->GetInstanceScript())
             {
-                Unit* target = Trinity::Containers::SelectRandomContainerElement(playerVec);
-                caster->CastSpell(target, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, false);
+                if (instanceScript->GetData(DATA_BOSS_DIED) >= 3)
+                {
+                    Map::PlayerList const& playerList = instanceScript->instance->GetPlayers();
+                    std::vector<Player*> playerVec;
+                    for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        playerVec.push_back(itr->GetSource());
+
+                    if (playerVec.size() > 0)
+                    {
+                        Unit* target = Trinity::Containers::SelectRandomContainerElement(playerVec);
+                        caster->CastSpell(target, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, false);
+                    }
+                }
             }
         }
     }
