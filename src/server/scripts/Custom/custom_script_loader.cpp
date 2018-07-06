@@ -18,9 +18,15 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_custom_npcs();
 
+// ADM declaration begin
+// ADM declaration end
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
     AddSC_custom_npcs();
+
+    // ADM call begin
+    // ADM call end
 }
