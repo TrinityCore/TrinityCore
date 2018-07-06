@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "throne_of_the_four_winds.h"
+#include "AreaBoundary.h"
 #include "Map.h"
 #include "TemporarySummon.h"
 #include "Weather.h"
@@ -41,10 +42,20 @@ ObjectData const gameObjectData[] =
     { 0,                                0                                   } // End
 };
 
+AreaBoundary const* anshalCircle        = new CircleBoundary(Position(-47.953f, 1053.439f), MAX_HOME_POSITION_DISTANCE);
+AreaBoundary const* nezirCircle         = new CircleBoundary(Position(189.393f, 812.568f),  MAX_HOME_POSITION_DISTANCE);
+AreaBoundary const* rohashCircle        = new CircleBoundary(Position(-51.463f, 576.250f),  MAX_HOME_POSITION_DISTANCE);
+AreaBoundary const* anshalNezirBoundary = new BoundaryUnionBoundary(anshalCircle, nezirCircle);
+
+BossBoundaryData const boundaries =
+{
+    { DATA_CONCLAVE_OF_WIND,    new BoundaryUnionBoundary(anshalNezirBoundary, rohashCircle) }
+};
+
 class instance_throne_of_the_four_winds : public InstanceMapScript
 {
     public:
-        instance_throne_of_the_four_winds() : InstanceMapScript(TFWScriptName, 754) { }
+        instance_throne_of_the_four_winds() : InstanceMapScript(TotFWScriptName, 754) { }
 
         struct instance_throne_of_the_four_winds_InstanceMapScript : public InstanceScript
         {
@@ -53,6 +64,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadBossBoundaries(boundaries);
                 Initialize();
             }
 

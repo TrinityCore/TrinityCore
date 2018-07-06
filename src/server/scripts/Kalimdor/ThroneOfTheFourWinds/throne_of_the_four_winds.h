@@ -20,7 +20,7 @@
 
 #include "CreatureAIImpl.h"
 
-#define TFWScriptName "instance_throne_of_the_four_winds"
+#define TotFWScriptName "instance_throne_of_the_four_winds"
 #define DataHeader   "TOTFW"
 
 uint32 const EncounterCount = 2;
@@ -41,19 +41,20 @@ enum TFWDataTypes
 enum TFWCreatureIds
 {
     // Bosses
-    BOSS_ANSHAL         = 45870,
-    BOSS_NEZIR          = 45871,
-    BOSS_ROHASH         = 45872,
-    BOSS_ALAKIR         = 46753,
+    BOSS_ANSHAL             = 45870,
+    BOSS_NEZIR              = 45871,
+    BOSS_ROHASH             = 45872,
+    BOSS_ALAKIR             = 46753,
 
     // Creatures
-    NPC_WORLD_TRIGGER   = 21252,
-    NPC_FALL_CATCHER    = 45710
+    NPC_WORLD_TRIGGER       = 21252,
+    NPC_FALL_CATCHER        = 45710,
+    NPC_RAVENOUS_CREEPER    = 45812
 };
 
 enum TFWGameObjectIds
 {
-    GO_SKYWALL_RAID_CENTER_PLATFORM = 207737,
+    GO_SKYWALL_RAID_CENTER_PLATFORM = 207737
 };
 
 enum TFWSpells
@@ -64,10 +65,12 @@ enum TFWMisc
 {
 };
 
+#define MAX_HOME_POSITION_DISTANCE 65.0f
+
 template <class AI, class T>
 inline AI* GetThroneOfTheFourWindsAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, TFWScriptName);
+    return GetInstanceAI<AI>(obj, TotFWScriptName);
 }
 
 #endif // THRONE_OF_THE_FOUR_WINDS_H_

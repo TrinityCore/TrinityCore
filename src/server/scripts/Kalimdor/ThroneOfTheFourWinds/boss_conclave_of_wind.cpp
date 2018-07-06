@@ -47,18 +47,27 @@ enum Spells
     SPELL_PRE_FIGHT_VISUAL_EAST     = 85538,
     SPELL_DEAFENING_WINDS           = 85573,
     SPELL_DEAFENING_WINDS_DAMAGE    = 93166,
-
     SPELL_SLICING_GALE              = 86182,
 
     // World Trigger
-    SPELL_POWER_GAIN                = 89898
+    SPELL_POWER_GAIN                = 89898,
+
+    // Ravenous Creeper Trigger
+    SPELL_NURTURE_VISUAL            = 85428,
+    SPELL_NURTURE_SUMMON            = 85429
 };
 
 enum Events
 {
+    // Conclave of Wind
     EVENT_PRE_WIND_EFFECT_WARNING = 1,
-    EVENT_CHECK_VICTIM_DISTANCE,
 
+    // Anshal
+    EVENT_SOOTHING_BREEZE,
+    EVENT_NURTURE,
+
+    // Ravenous Creeper Trigger
+    EVENT_SUMMON_RAVENOUS_CREEPER,
 };
 
 enum Actions
@@ -84,8 +93,6 @@ enum Texts
     SAY_ANNOUNCE_NEAR_FULL_STRENGHTH    = 0
 };
 
-#define MAX_HOME_POSITION_DISTANCE 50.0f
-
 class boss_anshal : public CreatureScript
 {
     public:
@@ -105,29 +112,32 @@ class boss_anshal : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 _JustEngagedWith();
-                printf("anshal triggered entercombat \n");
                 me->SetReactState(REACT_AGGRESSIVE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_WEST);
                 events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(1));
+                events.ScheduleEvent(EVENT_SOOTHING_BREEZE, Seconds(15), Seconds(16));
+                events.ScheduleEvent(EVENT_NURTURE, Seconds(27), Seconds(28));
 
-                if (who->GetDistance(me->GetHomePosition()) < MAX_HOME_POSITION_DISTANCE)
+                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
                 {
                     Talk(SAY_AGGRO);
                     events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                    events.ScheduleEvent(EVENT_CHECK_VICTIM_DISTANCE, Seconds(1));
                 }
             }
 
             void AttackStart(Unit* who) override
             {
-                me->SetReactState(REACT_AGGRESSIVE);
-                if (who->GetDistance(me->GetHomePosition()) < MAX_HOME_POSITION_DISTANCE)
+                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
                 {
-
-                    me->Attack(who, true);
-                    me->GetMotionMaster()->MoveChase(who);
+                    BossAI::AttackStart(who);
+                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
                 }
+            }
+
+            bool CanAIAttack(Unit const* /*target*/) const override
+            {
+                return true;
             }
 
             void Reset()
@@ -136,6 +146,7 @@ class boss_anshal : public CreatureScript
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetPower(POWER_MANA, 0);
+                _ravenousCreeperGUIDs.clear();
             }
 
             void KilledUnit(Unit* killed) override
@@ -144,12 +155,20 @@ class boss_anshal : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                _EnterEvadeMode();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                summons.DespawnAll();
-                _DespawnAtEvade();
+                if (why != EVADE_REASON_BOUNDARY)
+                {
+                    _EnterEvadeMode();
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    summons.DespawnAll();
+                    _DespawnAtEvade();
+                }
+                else
+                {
+                    me->AttackStop();
+                    me->StopMoving();
+                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -167,6 +186,8 @@ class boss_anshal : public CreatureScript
                         {
                             Talk(SAY_OUT_OF_RANGE);
                             DoCastSelf(SPELL_WITHERING_WINDS);
+                            me->AttackStop();
+                            me->StopMoving();
                         }
                         break;
                     case ACTION_PLAYER_LEFT_PLATFORM:
@@ -180,6 +201,9 @@ class boss_anshal : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
+
+                if (summon->GetEntry() == NPC_RAVENOUS_CREEPER)
+                    _ravenousCreeperGUIDs.insert(summon->GetGUID());
             }
 
             uint32 GetData(uint32 type) const override
@@ -189,8 +213,7 @@ class boss_anshal : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
-                    return;
+                UpdateVictim();
 
                 events.Update(diff);
 
@@ -203,25 +226,27 @@ class boss_anshal : public CreatureScript
                     {
                         case EVENT_PRE_WIND_EFFECT_WARNING:
                             DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
-                            events.Repeat(Seconds(3));
+                            events.Repeat(Seconds(2) + Milliseconds(500));
                             break;
-                        case EVENT_CHECK_VICTIM_DISTANCE:
-                            if (Unit* victim = me->GetVictim())
+                        case EVENT_SOOTHING_BREEZE:
+                        {
+                            Unit* target = me;
+                            // Clean expired guids from memory
+                            for (ObjectGuid guid : _ravenousCreeperGUIDs)
                             {
-                                if (victim->GetDistance(me->GetHomePosition()) > MAX_HOME_POSITION_DISTANCE)
-                                {
-                                    // We think that the victim has gone too far away so we are gonna set his threat to 0 and select a new victim
-                                    me->getThreatManager().getCurrentVictim()->setThreat(0.0f);
-                                    if (Unit* target = me->SelectNearestTarget(40.0f))
-                                        me->AI()->AttackStart(target);
-                                    else
-                                    {
-                                        me->AttackStop();
-                                        me->SetReactState(REACT_PASSIVE);
-                                    }
-                                }
+                                if (!ObjectAccessor::GetCreature(*me, guid))
+                                    _ravenousCreeperGUIDs.erase(guid);
                             }
-                            events.Repeat(Seconds(1));
+
+                            if (ObjectGuid creeperGuid = Trinity::Containers::SelectRandomContainerElement(_ravenousCreeperGUIDs))
+                                if (Creature* creeper = ObjectAccessor::GetCreature(*me, creeperGuid))
+                                    target = creeper;
+
+                            DoCast(target, SPELL_SOOTHING_BREEZE);
+                            break;
+                        }
+                        case EVENT_NURTURE:
+                            DoCastSelf(SPELL_NURTURE);
                             break;
                         default:
                             break;
@@ -229,6 +254,9 @@ class boss_anshal : public CreatureScript
                 }
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            GuidSet _ravenousCreeperGUIDs;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -256,27 +284,30 @@ class boss_nezir : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 _JustEngagedWith();
-                printf("nezir triggered entercombat \n");
+                me->SetReactState(REACT_AGGRESSIVE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_NORTH);
                 events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(1));
 
-                if (who->GetDistance(me->GetHomePosition()) < MAX_HOME_POSITION_DISTANCE)
+                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
                 {
                     Talk(SAY_AGGRO);
                     events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                    events.ScheduleEvent(EVENT_CHECK_VICTIM_DISTANCE, Seconds(1));
                 }
             }
 
             void AttackStart(Unit* who) override
             {
-                me->SetReactState(REACT_AGGRESSIVE);
-                if (who->GetDistance(me->GetHomePosition()) < MAX_HOME_POSITION_DISTANCE)
+                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
                 {
-                    me->Attack(who, true);
-                    me->GetMotionMaster()->MoveChase(who);
+                    BossAI::AttackStart(who);
+                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
                 }
+            }
+
+            bool CanAIAttack(Unit const* /*target*/) const override
+            {
+                return true;
             }
 
             void Reset()
@@ -293,12 +324,20 @@ class boss_nezir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                _EnterEvadeMode();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                summons.DespawnAll();
-                _DespawnAtEvade();
+                if (why != EVADE_REASON_BOUNDARY)
+                {
+                    _EnterEvadeMode();
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    summons.DespawnAll();
+                    _DespawnAtEvade();
+                }
+                else
+                {
+                    me->AttackStop();
+                    me->StopMoving();
+                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -316,6 +355,8 @@ class boss_nezir : public CreatureScript
                         {
                             Talk(SAY_OUT_OF_RANGE);
                             DoCastSelf(SPELL_CHILLING_WINDS);
+                            me->AttackStop();
+                            me->StopMoving();
                         }
                         break;
                     case ACTION_PLAYER_LEFT_PLATFORM:
@@ -338,8 +379,7 @@ class boss_nezir : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
-                    return;
+                UpdateVictim();
 
                 events.Update(diff);
 
@@ -352,25 +392,7 @@ class boss_nezir : public CreatureScript
                     {
                         case EVENT_PRE_WIND_EFFECT_WARNING:
                             DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
-                            events.Repeat(Seconds(3));
-                            break;
-                        case EVENT_CHECK_VICTIM_DISTANCE:
-                            if (Unit* victim = me->GetVictim())
-                            {
-                                if (victim->GetDistance(me->GetHomePosition()) > MAX_HOME_POSITION_DISTANCE)
-                                {
-                                    // We think that the victim has gone too far away so we are gonna set his threat to 0 and select a new victim
-                                    me->getThreatManager().getCurrentVictim()->setThreat(0.0f);
-                                    if (Unit* target = me->SelectNearestTarget(40.0f))
-                                        me->AI()->AttackStart(target);
-                                    else
-                                    {
-                                        me->AttackStop();
-                                        me->SetReactState(REACT_PASSIVE);
-                                    }
-                                }
-                            }
-                            events.Repeat(Seconds(1));
+                            events.Repeat(Seconds(2) + Milliseconds(500));
                             break;
                         default:
                             break;
@@ -405,25 +427,30 @@ class boss_rohash : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 _JustEngagedWith();
-                printf("rohash triggered entercombat \n");
                 me->SetReactState(REACT_AGGRESSIVE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_EAST);
                 events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(1));
 
-                if (who->GetDistance(me->GetHomePosition()) < MAX_HOME_POSITION_DISTANCE)
+                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
                 {
                     Talk(SAY_AGGRO);
                     events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                    events.ScheduleEvent(EVENT_CHECK_VICTIM_DISTANCE, Seconds(1));
                 }
             }
 
             void AttackStart(Unit* who) override
             {
-                me->SetReactState(REACT_AGGRESSIVE);
-                if (who->GetDistance(me->GetHomePosition()) < MAX_HOME_POSITION_DISTANCE)
-                    me->Attack(who, false);
+                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
+                {
+                    BossAI::AttackStart(who);
+                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
+                }
+            }
+
+            bool CanAIAttack(Unit const* /*target*/) const override
+            {
+                return true;
             }
 
             void Reset()
@@ -440,12 +467,15 @@ class boss_rohash : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                _EnterEvadeMode();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                summons.DespawnAll();
-                _DespawnAtEvade();
+                if (why != EVADE_REASON_BOUNDARY)
+                {
+                    _EnterEvadeMode();
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    summons.DespawnAll();
+                    _DespawnAtEvade();
+                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -463,6 +493,7 @@ class boss_rohash : public CreatureScript
                         {
                             Talk(SAY_OUT_OF_RANGE);
                             DoCastSelf(SPELL_DEAFENING_WINDS);
+                            me->AttackStop();
                         }
                         break;
                     case ACTION_PLAYER_LEFT_PLATFORM:
@@ -485,8 +516,7 @@ class boss_rohash : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
-                    return;
+                UpdateVictim();
 
                 events.Update(diff);
 
@@ -499,25 +529,7 @@ class boss_rohash : public CreatureScript
                     {
                         case EVENT_PRE_WIND_EFFECT_WARNING:
                             DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
-                            events.Repeat(Seconds(3));
-                            break;
-                        case EVENT_CHECK_VICTIM_DISTANCE:
-                            if (Unit* victim = me->GetVictim())
-                            {
-                                if (victim->GetDistance(me->GetHomePosition()) > MAX_HOME_POSITION_DISTANCE)
-                                {
-                                    // We think that the victim has gone too far away so we are gonna set his threat to 0 and select a new victim
-                                    me->getThreatManager().getCurrentVictim()->setThreat(0.0f);
-                                    if (Unit* target = me->SelectNearestTarget(40.0f))
-                                        me->AI()->AttackStart(target);
-                                    else
-                                    {
-                                        me->AttackStop();
-                                        me->SetReactState(REACT_PASSIVE);
-                                    }
-                                }
-                            }
-                            events.Repeat(Seconds(1));
+                            events.Repeat(Seconds(2) + Milliseconds(500));
                             break;
                         default:
                             break;
@@ -533,34 +545,86 @@ class boss_rohash : public CreatureScript
         }
 };
 
-class spell_conclave_of_wind_winds_pre_effect_warning: public SpellScriptLoader
+class npc_conclave_of_wind_ravenous_creeper_trigger : public CreatureScript
 {
     public:
-        spell_conclave_of_wind_winds_pre_effect_warning() : SpellScriptLoader("spell_conclave_of_wind_winds_pre_effect_warning") { }
+        npc_conclave_of_wind_ravenous_creeper_trigger() : CreatureScript("npc_conclave_of_wind_ravenous_creeper_trigger") { }
 
-        class spell_conclave_of_wind_winds_pre_effect_warning_AuraScript : public AuraScript
+        struct npc_conclave_of_wind_ravenous_creeper_triggerAI : public ScriptedAI
         {
-            PrepareAuraScript(spell_conclave_of_wind_winds_pre_effect_warning_AuraScript);
+            npc_conclave_of_wind_ravenous_creeper_triggerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (Unit* caster = GetCaster())
-                        if (Creature* conclave = caster->ToCreature())
-                            if (conclave->IsAIEnabled)
-                                conclave->AI()->DoAction(ACTION_NO_NEARBY_PLAYER);
+                DoCastSelf(SPELL_NURTURE_VISUAL);
+                _events.ScheduleEvent(EVENT_SUMMON_RAVENOUS_CREEPER, Seconds(8) + Milliseconds(250));
             }
 
-            void Register() override
+            void UpdateAI(uint32 diff) override
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_conclave_of_wind_winds_pre_effect_warning_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUMMON_RAVENOUS_CREEPER:
+                            DoCastSelf(SPELL_NURTURE_SUMMON, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
+
+        private:
+            EventMap _events;
         };
 
-        AuraScript* GetAuraScript() const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new spell_conclave_of_wind_winds_pre_effect_warning_AuraScript();
+            return GetThroneOfTheFourWindsAI<npc_conclave_of_wind_ravenous_creeper_triggerAI>(creature);
         }
+};
+
+class spell_conclave_of_wind_winds_pre_effect_warning : public AuraScript
+{
+    PrepareAuraScript(spell_conclave_of_wind_winds_pre_effect_warning);
+
+    void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            if (Unit* caster = GetCaster())
+                if (Creature* conclave = caster->ToCreature())
+                    if (conclave->IsAIEnabled && conclave->IsInCombat())
+                        conclave->AI()->DoAction(ACTION_NO_NEARBY_PLAYER);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_conclave_of_wind_winds_pre_effect_warning::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_conclave_of_wind_winds_distance_checker : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_wind_winds_distance_checker);
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            caster->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_WITHERING_WINDS, caster));
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_CHILLING_WINDS, caster));
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_DEAFENING_WINDS, caster));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_conclave_of_wind_winds_distance_checker::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_conclave_of_wind()
@@ -568,6 +632,8 @@ void AddSC_boss_conclave_of_wind()
     new boss_anshal();
     new boss_nezir();
     new boss_rohash();
+    new npc_conclave_of_wind_ravenous_creeper_trigger();
 
-    new spell_conclave_of_wind_winds_pre_effect_warning();
+    RegisterAuraScript(spell_conclave_of_wind_winds_pre_effect_warning);
+    RegisterSpellScript(spell_conclave_of_wind_winds_distance_checker);
 }
