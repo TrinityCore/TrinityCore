@@ -34,6 +34,11 @@ struct instance_eye_of_azshara : public InstanceScript
     {
         InstanceScript::OnCreatureCreate(creature);
 
+        if (instance->IsHeroic())
+            creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
+        if (instance->IsMythic())
+            creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
+
         switch (creature->GetEntry())
         {
             case NPC_HATECOIL_ARCANIST:
