@@ -39,7 +39,11 @@ enum Spells
 // 91784
 struct boss_warlord_parjesh : public BossAI
 {
-    boss_warlord_parjesh(Creature* creature) : BossAI(creature, DATA_WARLORD_PARJESH) { }
+    boss_warlord_parjesh(Creature* creature) : BossAI(creature, DATA_WARLORD_PARJESH)
+    {
+        me->SetPowerType(POWER_ENERGY);
+        me->SetPower(POWER_ENERGY, 100);
+    }
 
     void ScheduleTasks() override
     {
@@ -67,8 +71,8 @@ struct boss_warlord_parjesh : public BossAI
             case SPELL_IMPALING_SPEAR_CAST:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
-                    DoCast(target, SPELL_IMPALING_SPEAR_CAST, false);
                     DoCast(target, SPELL_IMPALING_SPEAR_TARGET, true);
+                    DoCast(target, SPELL_IMPALING_SPEAR_CAST, false);
                 }
                 events.Repeat(28000, 32000);
                 break;

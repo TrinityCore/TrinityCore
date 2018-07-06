@@ -27,6 +27,7 @@ struct instance_eye_of_azshara : public InstanceScript
     {
         SetHeaders(DataHeader);
         SetBossNumber(EncounterCount);
+        SetChallengeDoorPos({ -3895.260742f, 4523.655273f, 84.528175f, 5.613298f });
     }
 
     void OnCreatureCreate(Creature* creature) override
@@ -44,8 +45,9 @@ struct instance_eye_of_azshara : public InstanceScript
             case NPC_LADY_HATECOIL:
             {
                 _ladyHatecoilGUID = creature->GetGUID();
-                if (_deadArcanistCount >= 2) // If 2 arcanists are dead, remove Lady Hatecoil's shield
+                if (creature->AI() && _deadArcanistCount >= 2) // If 2 arcanists are dead, remove Lady Hatecoil's shield
                     creature->AI()->DoAction(1);
+
                 if (creature->isDead() && ++_deadBossCount >= 4)
                     releaseWrath();
 
@@ -253,6 +255,24 @@ private:
         {
             if (Creature* weatherman = instance->GetCreature(_weathermanGUID))
                 weatherman->CastSpell(weatherman, SPELL_VIOLENT_WINDS_90S, true);
+        }
+
+        switch (_deadBossCount)
+        {
+            case 1:
+                DoCastSpellOnPlayers(SPELL_SKYBOX_RAIN);
+                break;
+            case 2:
+                DoCastSpellOnPlayers(SPELL_SKYBOX_WIND);
+                break;
+            case 3:
+                DoCastSpellOnPlayers(SPELL_SKYBOX_LIGHTNING);
+                break;
+            case 4:
+                DoCastSpellOnPlayers(SPELL_SKYBOX_HURRICANE);
+                break;
+            default:
+                break;
         }
     }
 };

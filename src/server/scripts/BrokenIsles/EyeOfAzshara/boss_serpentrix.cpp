@@ -176,41 +176,24 @@ class spell_serpentrix_poison_spit : public SpellScript
 };
 
 // Spell: 191856
-// AT: 4856
+// AT: 9574
 struct at_serpentrix_toxic_puddle : AreaTriggerAI
 {
     at_serpentrix_toxic_puddle(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnInitialize() override
     {
-        timer = 1000;
+        at->SetPeriodicProcTimer(1000);
     }
 
-    void OnUpdate(uint32 diff) override
+    void OnPeriodicProc() override
     {
-        Unit* caster = at->GetCaster();
-
-        if (!caster)
-            return;
-
-        if (timer <= diff)
-        {
+        if (Unit* caster = at->GetCaster())
             for (ObjectGuid guid : at->GetInsideUnits())
-            {
                 if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                {
-                    if (unit->ToPlayer() && caster->IsValidAttackTarget(unit))
+                    if (caster->IsValidAttackTarget(unit))
                         unit->CastSpell(unit, SPELL_TOXIC_PUDDLE, true);
-                }
-            }
-
-            timer = 1000;
-        }
-        else
-            timer -= diff;
     }
-private:
-    uint32 timer;
 };
 
 // 191873
@@ -247,13 +230,14 @@ class spell_serpentrix_submerge : public SpellScript
     }
 
 private:
-    float _coords[6][4] = {
-        { -3294.2, 4460.52, -0.633784, 3.92802 },
-        { -3304.17, 4405.53, 0.0872782, 3.24648 },
-        { -3246.71, 4479.65,0.266675, 3.28796 },
-        { -3256.36, 4370.39,0.374848, 2.7214 },
-        { -3199.4, 4384.95, 0.16131, 3.02506 },
-        { -3192.24, 4440.18, -0.648342, 3.34983 }
+    float _coords[6][4] =
+    {
+        { -3294.20f,    4460.52f,  -0.633784f, 3.92802f },
+        { -3304.17f,    4405.53f,   0.087278f, 3.24648f },
+        { -3246.71f,    4479.65f,   0.266675f, 3.28796f },
+        { -3256.36f,    4370.39f,   0.374848f, 2.72140f },
+        { -3199.40f,    4384.95f,   0.161310f, 3.02506f },
+        { -3192.24f,    4440.18f,  -0.648342f, 3.34983f }
     };
 };
 
@@ -264,8 +248,7 @@ class spell_serpentix_rampage_aura : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        Unit* target = GetHitUnit();
-        if (target->ToPlayer())
+        if (Player* target = GetHitPlayer())
         {
             if (Unit* caster = GetCaster())
                 caster->CastSpell(target, SPELL_POISON_SPIT_FAST, true);

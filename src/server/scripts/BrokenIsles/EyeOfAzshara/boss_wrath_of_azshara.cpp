@@ -87,6 +87,7 @@ struct boss_wrath_of_azshara : public BossAI
         me->GetScheduler().Schedule(1s, [](TaskContext context)
         {
             GetContextUnit()->SetHealth(GetContextUnit()->CountPctFromMaxHealth(20));
+            GetContextCreature()->LowerPlayerDamageReq(GetContextUnit()->CountPctFromMaxHealth(80));
             GetContextUnit()->ToCreature()->DisableHealthRegen();
         });
 

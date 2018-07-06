@@ -572,3 +572,17 @@ DELETE FROM `criteria_data` WHERE `criteria_id` IN (29398, 29404);
 INSERT INTO `criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (29398, 11, 0, 0, 'achievement_but_you_say_hes_just_a_friend'),
 (29404, 11, 0, 0, 'achievement_stay_salty');
+
+UPDATE creature SET SpawnDist = 0 WHERE id = 91808;
+
+DELETE FROM scenarios WHERE map IN (1456, 1501);
+INSERT INTO scenarios VALUES
+(1456, 0, 1169, 1169),
+(1501, 0, 1166, 1166);
+
+DELETE FROM spell_area WHERE spell IN (191815, 212614, 191816, 212615);
+INSERT INTO spell_area VALUES
+(191815, 8040, 0, 0, 0, -1, 0, 2, 2, 64, 11),
+(212614, 8040, 0, 0, 0, -1, 0, 2, 2, 64, 11),
+(191816, 8040, 0, 0, 0, -1, 0, 2, 2, 64, 11),
+(212615, 8040, 0, 0, 0, -1, 0, 2, 2, 64, 11);

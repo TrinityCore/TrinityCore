@@ -84,6 +84,11 @@ enum EOASpellIds
     SPELL_LIGHTNING_STRIKES         = 192796, // Cast on a player
     SPELL_LIGHTNING_STRIKES_5S      = 192737, // Triggers 192796 every 5 sec
     SPELL_LIGHTNING_STRIKES_AMBIENT = 192728, // Visual only, launched every 250ms (on what? seems to be random coordinates)
+
+    SPELL_SKYBOX_RAIN           = 191815,
+    SPELL_SKYBOX_WIND           = 212614,
+    SPELL_SKYBOX_LIGHTNING      = 191816,
+    SPELL_SKYBOX_HURRICANE      = 212615,
 };
 
 #endif // EYE_OF_AZSHARA_H_
