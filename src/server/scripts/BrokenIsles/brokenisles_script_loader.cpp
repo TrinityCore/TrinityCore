@@ -84,12 +84,12 @@ void AddSC_boss_shade_of_xavius();
 
 // Eye of Azshara
 void AddSC_instance_eye_of_azshara();
-//void AddSC_eye_of_azshara();
+void AddSC_eye_of_azshara();
 void AddSC_boss_warlord_parjesh();
-//void AddSC_boss_lady_hatecoil();
-//void AddSC_boss_serpentrix();
-//void AddSC_boss_king_deepbeard();
-//void AddSC_boss_wrath_of_azshara();
+void AddSC_boss_lady_hatecoil();
+void AddSC_boss_serpentrix();
+void AddSC_boss_king_deepbeard();
+void AddSC_boss_wrath_of_azshara();
 
 // Halls of Valor
 void AddSC_instance_halls_of_valor();
@@ -245,12 +245,12 @@ void AddBrokenIslesScripts()
 
     // Eye of Azshara
     AddSC_instance_eye_of_azshara();
-    //AddSC_eye_of_azshara();
+    AddSC_eye_of_azshara();
     AddSC_boss_warlord_parjesh();
-    //AddSC_boss_lady_hatecoil();
-    //AddSC_boss_serpentrix();
-    //AddSC_boss_king_deepbeard();
-    //AddSC_boss_wrath_of_azshara();
+    AddSC_boss_lady_hatecoil();
+    AddSC_boss_serpentrix();
+    AddSC_boss_king_deepbeard();
+    AddSC_boss_wrath_of_azshara();
 
     // Halls of Valor
     AddSC_instance_halls_of_valor();

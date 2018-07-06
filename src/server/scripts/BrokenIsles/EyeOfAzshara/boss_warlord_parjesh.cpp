@@ -49,29 +49,36 @@ struct boss_warlord_parjesh : public BossAI
         events.ScheduleEvent(SPELL_CALL_REINFORCEMENTS_SHELLBREAKER, 3000);
     }
 
+    void JustDied(Unit* killer) override
+    {
+        BossAI::JustDied(killer);
+
+        me->GetInstanceScript()->SetData(DATA_BOSS_DIED, 0);
+    }
+
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
             case SPELL_CRASHING_WAVE:
-                me->CastSpell(me, SPELL_CRASHING_WAVE, false);
+                DoCastSelf(SPELL_CRASHING_WAVE, false);
                 events.Repeat(20000, 24000);
                 break;
             case SPELL_IMPALING_SPEAR_CAST:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
-                    me->CastSpell(target, SPELL_IMPALING_SPEAR_CAST, false);
-                    me->CastSpell(target, SPELL_IMPALING_SPEAR_TARGET, true);
+                    DoCast(target, SPELL_IMPALING_SPEAR_CAST, false);
+                    DoCast(target, SPELL_IMPALING_SPEAR_TARGET, true);
                 }
                 events.Repeat(28000, 32000);
                 break;
             case SPELL_THROW_SPEAR:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    me->CastSpell(target, SPELL_THROW_SPEAR, false);
+                    DoCast(target, SPELL_THROW_SPEAR, false);
                 events.Repeat(8000, 12000);
                 break;
             case SPELL_CALL_REINFORCEMENTS_SHELLBREAKER:
-                me->CastSpell(me, RAND(SPELL_CALL_REINFORCEMENTS_SHELLBREAKER, SPELL_CALL_REINFORCEMENTS_CRESTRIDER), false);
+                DoCastSelf(RAND(SPELL_CALL_REINFORCEMENTS_SHELLBREAKER, SPELL_CALL_REINFORCEMENTS_CRESTRIDER), false);
                 events.Repeat(28000, 32000);
                 break;
         }
@@ -80,7 +87,10 @@ struct boss_warlord_parjesh : public BossAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (me->HealthWillBeBelowPctDamaged(30, damage))
-            me->CastSpell(me, SPELL_ENRAGE, false);
+        {
+            Talk(1);
+            DoCastSelf(SPELL_ENRAGE, false);
+        }
     }
 };
 
@@ -135,6 +145,7 @@ struct npc_hatecoil_shellbreaker : public ScriptedAI
         });
     }
 };
+
 // 97269
 struct npc_hatecoil_crestrider : public ScriptedAI
 {
@@ -152,6 +163,19 @@ struct npc_hatecoil_crestrider : public ScriptedAI
     }
 };
 
+// Criteria ID: 29398
+class achievement_but_you_say_hes_just_a_friend : public AchievementCriteriaScript
+{
+   public:
+       achievement_but_you_say_hes_just_a_friend() : AchievementCriteriaScript("achievement_but_you_say_hes_just_a_friend") { }
+
+       bool OnCheck(Player* /*player*/, Unit* /*target*/) override
+       {
+           // TODO
+           return false;
+       }
+};
+
 void AddSC_boss_warlord_parjesh()
 {
     RegisterCreatureAI(boss_warlord_parjesh);
@@ -160,4 +184,6 @@ void AddSC_boss_warlord_parjesh()
 
     RegisterCreatureAI(npc_hatecoil_shellbreaker);
     RegisterCreatureAI(npc_hatecoil_crestrider);
+
+    new achievement_but_you_say_hes_just_a_friend();
 }
