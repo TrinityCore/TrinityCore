@@ -149,7 +149,7 @@ private:
         std::list<AreaTrigger*> atList;
         me->GetAreaTriggerListWithSpellIDInRange(atList, 191856, 100.f);
         for (auto itr : atList)
-            itr->Remove();
+            itr->SetDuration(0);
     }
 };
 
@@ -189,10 +189,14 @@ struct at_serpentrix_toxic_puddle : AreaTriggerAI
     void OnPeriodicProc() override
     {
         if (Unit* caster = at->GetCaster())
-            for (ObjectGuid guid : at->GetInsideUnits())
+        {
+            GuidUnorderedSet const& insidUnits = at->GetInsideUnits();
+
+            for (ObjectGuid guid : insidUnits)
                 if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
                     if (caster->IsValidAttackTarget(unit))
                         unit->CastSpell(unit, SPELL_TOXIC_PUDDLE, true);
+        }
     }
 };
 
