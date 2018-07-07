@@ -513,7 +513,7 @@ public:
                     _events.Reset();
                     me->AttackStop();
                     me->StopMoving();
-                    me->RemoveAllAuras();
+                    me->RemoveAurasDueToSpell(SPELL_BLAZE_OF_THE_HEAVENS_TRIGGER);
                     me->SetReactState(REACT_PASSIVE);
                     break;
                 default:
