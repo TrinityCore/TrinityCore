@@ -179,10 +179,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Spell Procs
 DELETE FROM `spell_proc` WHERE `SpellId` IN (86622, 95639, 95640, 95641, 93053);
 INSERT INTO `spell_proc` (`SpellId`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `Cooldown`) VALUES
-(86622, 0x00055554, 3 | 2, 2, 0, 32, 0),
-(95639, 0x00055554, 3 | 2, 2, 0, 32, 0),
-(95640, 0x00055554, 3 | 2, 2, 0, 32, 0),
-(95641, 0x00055554, 3 | 2, 2, 0, 32, 0),
+(86622, 0x00055554, 1 | 2, 2, 0, 32, 0),
+(95639, 0x00055554, 1 | 2, 2, 0, 32, 0),
+(95640, 0x00055554, 1 | 2, 2, 0, 32, 0),
+(95641, 0x00055554, 1 | 2, 2, 0, 32, 0),
 (93053, 0x00000004, 0, 0, 0, 0, 20000);
 
 -- Spellclick Entries
