@@ -70,6 +70,8 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+    SPELL_DRUID_LUNAR_SHOWER                = 33603,
+    SPELL_DRUID_MOONFIRE                    = 8921,
     SPELL_DRUID_NATURES_BOUNTY              = 96206,
     SPELL_DRUID_NATURES_GRACE               = 16880,
     SPELL_DRUID_NATURES_GRACE_TRIGGERED     = 16886,
@@ -242,8 +244,11 @@ class spell_dru_eclipse_energize : public SpellScript
                 SPELL_DRUID_WRATH,
                 SPELL_DRUID_STARFIRE,
                 SPELL_DRUID_STARSURGE,
+                SPELL_DRUID_MOONFIRE,
+                SPELL_DRUID_SUNFIRE,
                 SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE,
-                SPELL_DRUID_EUPHORIA_ENERGIZE
+                SPELL_DRUID_EUPHORIA_ENERGIZE,
+                SPELL_DRUID_LUNAR_SHOWER,
             });
     }
 
@@ -289,6 +294,18 @@ class spell_dru_eclipse_energize : public SpellScript
                 amount += negativeAmount ? -bp : bp;
                 break;
             }
+            case SPELL_DRUID_SUNFIRE:
+                if (Aura* aura = caster->GetAuraOfRankedSpell(SPELL_DRUID_LUNAR_SHOWER))
+                    if (caster->HasAura(aura->GetSpellInfo()->Effects[EFFECT_0].TriggerSpell))
+                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_DRUID_LUNAR_SHOWER))
+                            amount -= spell->Effects[EFFECT_2].BasePoints;
+                break;
+            case SPELL_DRUID_MOONFIRE:
+                if (Aura* aura = caster->GetAuraOfRankedSpell(SPELL_DRUID_LUNAR_SHOWER))
+                    if (caster->HasAura(aura->GetSpellInfo()->Effects[EFFECT_0].TriggerSpell))
+                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_DRUID_LUNAR_SHOWER))
+                            amount += spell->Effects[EFFECT_2].BasePoints;
+                break;
             default:
                 break;
         }
@@ -313,9 +330,10 @@ class spell_dru_eclipse_energize : public SpellScript
 
         // Handle Euphoria talent
         if (!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE) && !caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE))
-            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_EUPHORIA, EFFECT_0))
-                if (roll_chance_i(aurEff->GetAmount()))
-                    caster->CastCustomSpell(caster, SPELL_DRUID_EUPHORIA_ENERGIZE, &amount, 0, 0, true, nullptr, aurEff);
+            if (GetSpellInfo()->Id == SPELL_DRUID_STARFIRE || GetSpellInfo()->Id == SPELL_DRUID_WRATH)
+                if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_EUPHORIA, EFFECT_0))
+                    if (roll_chance_i(aurEff->GetAmount()))
+                        caster->CastCustomSpell(caster, SPELL_DRUID_EUPHORIA_ENERGIZE, &amount, 0, 0, true, nullptr, aurEff);
 
         // Remove Eclipse states if we passed the 0 Lunar Power point
         int8 power = caster->GetPower(POWER_ECLIPSE);
@@ -327,7 +345,10 @@ class spell_dru_eclipse_energize : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        if (m_scriptSpellId == SPELL_DRUID_MOONFIRE || m_scriptSpellId == SPELL_DRUID_SUNFIRE)
+            OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize::HandleEnergize, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        else
+            OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
