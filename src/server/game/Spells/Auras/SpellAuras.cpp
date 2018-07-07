@@ -1034,7 +1034,7 @@ bool Aura::CanBeSaved() const
     }
 
     // When a druid logins, he doesnt have either eclipse power, nor the marker auras, nor the eclipse buffs. Dont save them.
-    if (GetId() == 67483 || GetId() == 67484 || GetId() == 48517 || GetId() == 48518)
+    if (GetId() == 67483 || GetId() == 67484 || GetId() == 48517 || GetId() == 48518 || GetId() == 94338)
         return false;
 
     // don't save auras removed by proc system
