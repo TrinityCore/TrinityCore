@@ -1,4 +1,4 @@
-DELETE FROM `spell_script_names` WHERE `spell_id` IN
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_dru_eclipse_lunar',
 'spell_dru_eclipse_solar',
 'spell_dru_eclipse');
