@@ -161,7 +161,7 @@ public:
         std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
         std::unique_ptr<DB2IndexData[]> parentIndexes) = 0;
     virtual char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) = 0;
-    virtual char* AutoProduceStrings(char* dataTable, uint32 locale) = 0;
+    virtual char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) = 0;
     virtual void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) = 0;
     virtual DB2Record GetRecord(uint32 recordNumber) const = 0;
     virtual DB2RecordCopy GetRecordCopy(uint32 copyNumber) const = 0;
@@ -198,7 +198,7 @@ public:
         std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
         std::unique_ptr<DB2IndexData[]> parentIndexes) override;
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) override;
-    char* AutoProduceStrings(char* dataTable, uint32 locale) override;
+    char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
     DB2Record GetRecord(uint32 recordNumber) const override;
     DB2RecordCopy GetRecordCopy(uint32 copyNumber) const override;
@@ -252,7 +252,7 @@ public:
         std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
         std::unique_ptr<DB2IndexData[]> parentIndexes) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
-    char* AutoProduceStrings(char* dataTable, uint32 locale) override;
+    char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override { }
     DB2Record GetRecord(uint32 recordNumber) const override;
     DB2RecordCopy GetRecordCopy(uint32 copyNumber) const override;
@@ -485,7 +485,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
     return dataTable;
 }
 
-char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 locale)
+char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale)
 {
     if (!(_header->Locale & (1 << locale)))
     {
@@ -507,11 +507,19 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
     char* stringPool = new char[_header->StringTableSize];
     memcpy(stringPool, _stringTable, _header->StringTableSize);
 
-    uint32 offset = 0;
-
     for (uint32 y = 0; y < _header->RecordCount; y++)
     {
         unsigned char const* rawRecord = GetRawRecordData(y);
+        if (!rawRecord)
+            continue;
+
+        uint32 indexVal = RecordGetId(rawRecord, y);
+        if (indexVal >= indexTableSize)
+            continue;
+
+        char* recordData = indexTable[indexVal];
+
+        uint32 offset = 0;
         uint32 fieldIndex = 0;
         if (!_loadInfo->Meta->HasIndexFieldInData())
         {
@@ -541,7 +549,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                     case FT_STRING:
                     {
                         // fill only not filled entries
-                        LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
+                        LocalizedString* db2str = *(LocalizedString**)(&recordData[offset]);
                         if (db2str->Str[locale] == nullStr)
                         {
                             char const* st = RecordGetString(rawRecord, x, z);
@@ -553,7 +561,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                     }
                     case FT_STRING_NOT_LOCALIZED:
                     {
-                        char** db2str = (char**)(&dataTable[offset]);
+                        char** db2str = (char**)(&recordData[offset]);
                         char const* st = RecordGetString(rawRecord, x, z);
                         *db2str = stringPool + (st - (char const*)_stringTable);
                         offset += sizeof(char*);
@@ -989,7 +997,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
     return dataTable;
 }
 
-char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale)
+char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale)
 {
     if (_loadInfo->Meta->FieldCount != _header->FieldCount)
         return nullptr;
@@ -1023,14 +1031,19 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
     memset(stringTable, 0, _header->CatalogDataOffset - _dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     char* stringPtr = stringTable;
 
-    uint32 offset = 0;
-
     for (uint32 y = 0; y < offsetCount; y++)
     {
         unsigned char const* rawRecord = GetRawRecordData(y);
         if (!rawRecord)
             continue;
 
+        uint32 indexVal = RecordGetId(rawRecord, y);
+        if (indexVal >= indexTableSize)
+            continue;
+
+        char* recordData = indexTable[indexVal];
+
+        uint32 offset = 0;
         uint32 fieldIndex = 0;
         if (!_loadInfo->Meta->HasIndexFieldInData())
         {
@@ -1061,7 +1074,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
                         break;
                     case FT_STRING:
                     {
-                        LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
+                        LocalizedString* db2str = *(LocalizedString**)(&recordData[offset]);
                         db2str->Str[locale] = stringPtr;
                         strcpy(stringPtr, RecordGetString(rawRecord, x, z));
                         stringPtr += strlen(stringPtr) + 1;
@@ -1559,9 +1572,9 @@ char* DB2FileLoader::AutoProduceData(uint32& count, char**& indexTable, std::vec
     return _impl->AutoProduceData(count, indexTable, stringPool);
 }
 
-char* DB2FileLoader::AutoProduceStrings(char* dataTable, uint32 locale)
+char* DB2FileLoader::AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale)
 {
-    return _impl->AutoProduceStrings(dataTable, locale);
+    return _impl->AutoProduceStrings(indexTable, indexTableSize, locale);
 }
 
 void DB2FileLoader::AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable)

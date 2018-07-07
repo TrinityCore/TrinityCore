@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -915,7 +916,7 @@ public:
     }
 };
 
-// 2098 - Eviscerate
+// 196819 - Eviscerate
 class spell_rog_eviscerate : public SpellScriptLoader
 {
 public:
@@ -927,16 +928,22 @@ public:
 
         void CalculateDamage(SpellEffIndex /*effIndex*/)
         {
-            int32 damagePerCombo = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.559f);
+            int32 damagePerCombo = GetHitDamage();
             if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
                 damagePerCombo += t5->GetAmount();
 
-            SetEffectValue(GetEffectValue() + damagePerCombo * GetCaster()->GetPower(POWER_COMBO_POINTS));
+            int32 finalDamage = damagePerCombo;
+            std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
+            auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
+            if (c != costs.end())
+                finalDamage *= c->Amount;
+
+            SetHitDamage(finalDamage);
         }
 
         void Register() override
         {
-            OnEffectLaunchTarget += SpellEffectFn(spell_rog_eviscerate_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
@@ -958,16 +965,22 @@ public:
 
         void CalculateDamage(SpellEffIndex /*effIndex*/)
         {
-            int32 damagePerCombo = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.417f);
+            int32 damagePerCombo = GetHitDamage();
             if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
                 damagePerCombo += t5->GetAmount();
 
-            SetEffectValue(GetEffectValue() + damagePerCombo * GetCaster()->GetPower(POWER_COMBO_POINTS));
+            int32 finalDamage = damagePerCombo;
+            std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
+            auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
+            if (c != costs.end())
+                finalDamage *= c->Amount;
+
+            SetHitDamage(finalDamage);
         }
 
         void Register() override
         {
-            OnEffectLaunchTarget += SpellEffectFn(spell_rog_envenom_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_rog_envenom_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
