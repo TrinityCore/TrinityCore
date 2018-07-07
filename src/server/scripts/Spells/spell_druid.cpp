@@ -42,6 +42,7 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE_MARKER        = 67483, // Will make the yellow arrow on eclipse bar point to the yellow side (solar)
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
+    SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE       = 94338,
     SPELL_DRUID_HARMONY                     = 100977,
     SPELL_DRUID_EFFLORESCENCE_AOE           = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL          = 81269,
@@ -79,6 +80,8 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
+    SPELL_DRUID_SUNFIRE                     = 93402,
+    SPELL_DRUID_SUNFIRE_TALENT              = 93401,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
     SPELL_DRUID_TREE_OF_LIFE                = 33891,
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1      = 5420,
@@ -166,7 +169,10 @@ class spell_dru_eclipse : public AuraScript
                 SPELL_DRUID_SOLAR_ECLIPSE_MARKER,
                 SPELL_DRUID_SOLAR_ECLIPSE,
                 SPELL_DRUID_LUNAR_ECLIPSE,
-                SPELL_DRUID_EUPHORIA_MANA_ENERGIZE
+                SPELL_DRUID_EUPHORIA_MANA_ENERGIZE,
+                SPELL_DRUID_SUNFIRE,
+                SPELL_DRUID_SUNFIRE_TALENT,
+                SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE
             });
     }
 
@@ -185,6 +191,11 @@ class spell_dru_eclipse : public AuraScript
             if (int32 amount = aurEff->GetAmount())
                 caster->CastCustomSpell(caster, SPELL_DRUID_EUPHORIA_MANA_ENERGIZE, &amount, 0, 0, true, nullptr, aurEff);
 
+        // Handle Sunfire talent
+        if (GetSpellInfo()->Id == SPELL_DRUID_SOLAR_ECLIPSE && caster->HasAura(SPELL_DRUID_SUNFIRE_TALENT))
+            if (!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE))
+                caster->CastCustomSpell(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE, SPELLVALUE_BASE_POINT0, SPELL_DRUID_SUNFIRE, caster, true);
+
         // Update Eclipse Marker
         if (GetSpellInfo()->Id == SPELL_DRUID_SOLAR_ECLIPSE && caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
         {
@@ -198,9 +209,20 @@ class spell_dru_eclipse : public AuraScript
         }
     }
 
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (GetSpellInfo()->Id == SPELL_DRUID_SOLAR_ECLIPSE && caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE))
+            caster->RemoveAurasDueToSpell(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE);
+    }
+
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_dru_eclipse::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_eclipse::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_eclipse::RemoveEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
