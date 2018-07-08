@@ -85,10 +85,14 @@ enum ShamanSpells
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437,
     SPELL_SHAMAN_UNLEASH_LIFE                   = 73685,
+    SPELL_SHAMAN_UNLEASH_WIND                   = 73681,
+    SPELL_SHAMAN_UNLEASH_FROST                  = 73682,
+    SPELL_SHAMAN_UNLEASH_FLAME                  = 73683,
+    SPELL_SHAMAN_UNLEASH_EARTH                  = 73684,
     SPELL_SHAMAN_WATER_SHIELD                   = 52127,
     SPELL_SHAMAN_WINDFURY_ATTACK_MAINHAND       = 25504,
     SPELL_SHAMAN_WINDFURY_ATTACK_OFFHAND        = 33750,
-    SPELL_SHAMAN_WINDFURY_WEAPON                = 8232,
+    SPELL_SHAMAN_WINDFURY_WEAPON                = 8232
 };
 
 enum ShamanSpellIcons
@@ -108,6 +112,15 @@ enum MiscSpells
 enum ShamanSpellCategories
 {
     SHAMAN_SPELL_CATEGORY_SHOCK_SPELLS = 19
+};
+
+enum ShamanEnchantmentIds
+{
+    SHAMAN_ENCHANTMENT_ID_FLAMETONGUE   = 5,
+    SHAMAN_ENCHANTMENT_ID_EARTHLIVING   = 3345,
+    SHAMAN_ENCHANTMENT_ID_FROSTBRAND    = 2,
+    SHAMAN_ENCHANTMENT_ID_ROCKBITER     = 3021,
+    SHAMAN_ENCHANTMENT_ID_WINDFURY      = 283
 };
 
 // -51556 - Ancestral Awakening
@@ -1862,6 +1875,82 @@ class spell_sha_windfury_weapon : public AuraScript
     }
 };
 
+class spell_sha_unleash_elements : public SpellScript
+{
+    PrepareSpellScript(spell_sha_unleash_elements);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_UNLEASH_LIFE,
+                SPELL_SHAMAN_UNLEASH_WIND,
+                SPELL_SHAMAN_UNLEASH_FROST,
+                SPELL_SHAMAN_UNLEASH_FLAME,
+                SPELL_SHAMAN_UNLEASH_EARTH,
+            });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        uint32 spellId[2] = { 0, 0 };
+        uint32 lastSpellId = 0;
+
+        for (uint8 i = 0; i < 2; i++)
+        {
+            if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND + i))
+            {
+                switch (item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
+                {
+                    case SHAMAN_ENCHANTMENT_ID_FLAMETONGUE:
+                        spellId[i] = SPELL_SHAMAN_UNLEASH_FLAME;
+                        break;
+                    case SHAMAN_ENCHANTMENT_ID_FROSTBRAND:
+                        spellId[i] = SPELL_SHAMAN_UNLEASH_FROST;
+                        break;
+                    case SHAMAN_ENCHANTMENT_ID_WINDFURY:
+                        spellId[i] = SPELL_SHAMAN_UNLEASH_WIND;
+                        break;
+                    case SHAMAN_ENCHANTMENT_ID_ROCKBITER:
+                        spellId[i] = SPELL_SHAMAN_UNLEASH_EARTH;
+                        break;
+                    case SHAMAN_ENCHANTMENT_ID_EARTHLIVING:
+                        spellId[i] = SPELL_SHAMAN_UNLEASH_LIFE;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (spellId[i] && spellId[i] != lastSpellId)
+            {
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (spellId[i] == SPELL_SHAMAN_UNLEASH_LIFE && !target->IsFriendlyTo(caster))
+                        target = caster;
+
+                    caster->CastSpell(target, spellId[i], true);
+                }
+            }
+
+            lastSpellId = spellId[i];
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_unleash_elements::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -1902,5 +1991,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
     new spell_sha_totemic_mastery();
+    RegisterSpellScript(spell_sha_unleash_elements);
     RegisterAuraScript(spell_sha_windfury_weapon);
 }
