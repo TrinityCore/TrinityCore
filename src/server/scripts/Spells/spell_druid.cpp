@@ -191,7 +191,7 @@ class spell_dru_eclipse : public AuraScript
 
         // Reset Nature's Grace proc cooldown
         if (Aura* aura = caster->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
-            aura->AddProcCooldown(std::chrono::steady_clock::now());
+            aura->ResetProcCooldown();
 
         // Handle Euphoria talent
         if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_EUPHORIA, EFFECT_2))
