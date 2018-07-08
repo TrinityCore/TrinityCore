@@ -3108,6 +3108,44 @@ class npc_mage_orb : public CreatureScript
         }
 };
 
+enum DruidTreant
+{
+    SPELL_FUNGAL_GROWTH_R1        = 78788,
+    SPELL_FUNGAL_GROWTH_R2        = 78789,
+    SPELL_FUNGAL_GROWTH_SUMMON_R1 = 81291,
+    SPELL_FUNGAL_GROWTH_SUMMON_R2 = 81283
+};
+
+class npc_druid_treant : public CreatureScript
+{
+    public:
+        npc_druid_treant() : CreatureScript("npc_druid_treant") { }
+
+        struct npc_druid_treantAI : public PetAI
+        {
+            npc_druid_treantAI(Creature* creature) : PetAI(creature) { }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                if (TempSummon* summon = me->ToTempSummon())
+                {
+                    if (Unit* summoner = summon->GetSummoner())
+                    {
+                        if (summoner->HasAura(SPELL_FUNGAL_GROWTH_R1))
+                            summoner->CastSpell(me, SPELL_FUNGAL_GROWTH_SUMMON_R1, true);
+                        else if (summoner->HasAura(SPELL_FUNGAL_GROWTH_R2))
+                            summoner->CastSpell(me, SPELL_FUNGAL_GROWTH_SUMMON_R2, true);
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_druid_treantAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -3136,4 +3174,5 @@ void AddSC_npcs_special()
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
     new npc_mage_orb();
+    new npc_druid_treant();
 }

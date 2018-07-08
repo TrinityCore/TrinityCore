@@ -53,6 +53,10 @@ enum DruidSpells
     SPELL_DRUID_EUPHORIA_ENERGIZE           = 81069,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
+    SPELL_DRUID_FUNGAL_GROWTH_R1            = 78788,
+    SPELL_DRUID_FUNGAL_GROWTH_R2            = 78789,
+    SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R1     = 81291,
+    SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2     = 81283,
     SPELL_DRUID_FURY_OF_STORMRAGE           = 81093,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
@@ -88,8 +92,11 @@ enum DruidSpells
     SPELL_DRUID_TREE_OF_LIFE                = 33891,
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1      = 5420,
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2      = 81097,
-    SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3      = 81098
-
+    SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3      = 81098,
+    SPELL_DRUID_WILD_MUSHROOM               = 88747,
+    SPELL_DRUID_WILD_MUSHROOM_DAMAGE        = 78777,
+    SPELL_DRUID_WILD_MUSHROOM_SUICIDE       = 92853,
+    SPELL_DRUID_WILD_MUSHROOM_VISUAL        = 92701
 };
 
 enum DruidSpellIconIds
@@ -1739,6 +1746,106 @@ class spell_dru_leader_of_the_pack : public AuraScript
     }
 };
 
+class spell_dru_wild_mushroom : public SpellScript
+{
+    PrepareSpellScript(spell_dru_wild_mushroom);
+
+    void HandleSummon()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        std::list<Creature*> mushrooms;
+        caster->GetAllMinionsByEntry(mushrooms, GetSpellInfo()->Effects[EFFECT_0].MiscValue);
+        if (mushrooms.empty())
+            return;
+
+        TempSummon* oldestMushroom = nullptr;
+
+        if (mushrooms.size() > uint32(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+        {
+            for (auto itr : mushrooms)
+            {
+                if (TempSummon* mushroomToCheck = itr->ToTempSummon())
+                {
+                    if (!oldestMushroom)
+                        oldestMushroom = mushroomToCheck;
+                    else
+                    {
+                        if (mushroomToCheck->GetTimer() < oldestMushroom->GetTimer())
+                            oldestMushroom = mushroomToCheck;
+                    }
+                }
+            }
+            if (oldestMushroom)
+                oldestMushroom->UnSummon();
+        }
+    }
+
+    void Register()
+    {
+        AfterCast += SpellCastFn(spell_dru_wild_mushroom::HandleSummon);
+    }
+};
+
+class spell_dru_wild_mushroom_detonate : public SpellScript
+{
+    PrepareSpellScript(spell_dru_wild_mushroom_detonate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_WILD_MUSHROOM,
+                SPELL_DRUID_WILD_MUSHROOM_DAMAGE,
+                SPELL_DRUID_WILD_MUSHROOM_SUICIDE,
+                SPELL_DRUID_WILD_MUSHROOM_VISUAL,
+                SPELL_DRUID_FUNGAL_GROWTH_R1,
+                SPELL_DRUID_FUNGAL_GROWTH_R2,
+                SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R1,
+                SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2
+            });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_DRUID_WILD_MUSHROOM);
+        if (!spell)
+            return;
+
+        std::list<Creature*> mushrooms;
+        caster->GetAllMinionsByEntry(mushrooms, spell->Effects[EFFECT_0].MiscValue);
+        if (mushrooms.empty())
+            return;
+
+        for (auto itr : mushrooms)
+        {
+            if (TempSummon* mushroom = itr->ToTempSummon())
+            {
+                if (caster->HasAura(SPELL_DRUID_FUNGAL_GROWTH_R1))
+                    caster->CastSpell(mushroom, SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R1, true);
+                else if (caster->HasAura(SPELL_DRUID_FUNGAL_GROWTH_R2))
+                    caster->CastSpell(mushroom, SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2, true);
+
+                caster->CastSpell(mushroom, SPELL_DRUID_WILD_MUSHROOM_DAMAGE, true);
+                mushroom->CastSpell(mushroom, SPELL_DRUID_WILD_MUSHROOM_VISUAL, true);
+                mushroom->CastSpell(mushroom, SPELL_DRUID_WILD_MUSHROOM_SUICIDE, true);
+                mushroom->UnSummon(1500);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_wild_mushroom_detonate::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1776,4 +1883,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();
+    RegisterSpellScript(spell_dru_wild_mushroom);
+    RegisterSpellScript(spell_dru_wild_mushroom_detonate);
 }
