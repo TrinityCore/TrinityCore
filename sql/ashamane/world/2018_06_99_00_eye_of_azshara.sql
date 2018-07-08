@@ -75,7 +75,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 193720;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 1, 193720, 0, 0, 29, 0, 98293, 0, 0, 0, 0, 0, '', 'Curse of the Witch (instakill) can implicitly hit only Saltsea Globule');
+(13, 1, 193720, 0, 0, 31, 0, 3, 98293, 0, 0, 0, 0, '', 'Curse of the Witch (instakill) can implicitly hit only Saltsea Globule');
 
 -- Lady Hatecoil - Crackling Thunder
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 197324;

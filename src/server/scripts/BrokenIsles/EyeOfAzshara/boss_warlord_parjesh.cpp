@@ -39,7 +39,7 @@ enum Spells
 // 91784
 struct boss_warlord_parjesh : public BossAI
 {
-    boss_warlord_parjesh(Creature* creature) : BossAI(creature, DATA_WARLORD_PARJESH)
+    boss_warlord_parjesh(Creature* creature) : BossAI(creature, DATA_WARLORD_PARJESH), _moveInLosTalk(false)
     {
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 100);
@@ -51,6 +51,17 @@ struct boss_warlord_parjesh : public BossAI
         events.ScheduleEvent(SPELL_IMPALING_SPEAR_CAST, 28000, 32000);
         events.ScheduleEvent(SPELL_THROW_SPEAR, 8000, 12000);
         events.ScheduleEvent(SPELL_CALL_REINFORCEMENTS_SHELLBREAKER, 3000);
+    }
+
+    void MoveInLineOfSight(Unit* mover) override
+    {
+        BossAI::MoveInLineOfSight(mover);
+
+        if (!_moveInLosTalk && mover->ToPlayer() && mover->GetDistance(me) <= 85.f)
+        {
+            Talk(0);
+            _moveInLosTalk = true;
+        }
     }
 
     void JustDied(Unit* killer) override
@@ -96,6 +107,9 @@ struct boss_warlord_parjesh : public BossAI
             DoCastSelf(SPELL_ENRAGE, false);
         }
     }
+
+private:
+    bool _moveInLosTalk;
 };
 
 //191946

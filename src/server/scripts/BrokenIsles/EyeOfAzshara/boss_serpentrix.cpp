@@ -190,12 +190,11 @@ struct at_serpentrix_toxic_puddle : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            GuidUnorderedSet const& insidUnits = at->GetInsideUnits();
+            GuidUnorderedSet const& insideUnits = at->GetInsideUnits();
 
-            for (ObjectGuid guid : insidUnits)
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if (caster->IsValidAttackTarget(unit))
-                        unit->CastSpell(unit, SPELL_TOXIC_PUDDLE, true);
+            for (ObjectGuid guid : insideUnits)
+                if (Player* player = ObjectAccessor::GetPlayer(*caster, guid))
+                    player->CastSpell(player, SPELL_TOXIC_PUDDLE, true);
         }
     }
 };
