@@ -1844,6 +1844,43 @@ class spell_dru_wild_mushroom_detonate : public SpellScript
     }
 };
 
+// 16913 - Moonfire (Passive)
+class spell_dru_moonfire : public AuraScript
+{
+    PrepareAuraScript(spell_dru_moonfire);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_LUNAR_ECLIPSE_MARKER,
+                SPELL_DRUID_SOLAR_ECLIPSE_MARKER,
+                SPELL_DRUID_SOLAR_ECLIPSE,
+                SPELL_DRUID_LUNAR_ECLIPSE,
+                SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE
+            });
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE);
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_LUNAR_ECLIPSE_MARKER);
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_SOLAR_ECLIPSE_MARKER);
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_SOLAR_ECLIPSE);
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_LUNAR_ECLIPSE);
+        caster->SetPower(POWER_ECLIPSE, 0);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_moonfire::RemoveEffect, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1865,6 +1902,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lifebloom();
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
+    RegisterAuraScript(spell_dru_moonfire);
     new spell_dru_predatory_strikes();
     new spell_dru_rejuvenation();
     new spell_dru_rip();
