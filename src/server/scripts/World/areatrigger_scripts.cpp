@@ -162,26 +162,26 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
 };
 
 /*#####
-## at_last_rites
+## at_naxxanar
 #####*/
 
-enum AtLastRites
+enum AtNaxxanar
 {
     QUEST_LAST_RITES                          = 12019,
     QUEST_BREAKING_THROUGH                    = 11898,
+    QUEST_WORDS_OF_POWER_A                    = 11942,
+    QUEST_WORDS_OF_POWER_H                    = 11640
 };
 
-class AreaTrigger_at_last_rites : public AreaTriggerScript
+class AreaTrigger_at_naxxanar : public AreaTriggerScript
 {
     public:
-        AreaTrigger_at_last_rites() : AreaTriggerScript("at_last_rites") { }
+        AreaTrigger_at_naxxanar() : AreaTriggerScript("at_naxxanar") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            if (!(player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
-                player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE ||
-                player->GetQuestStatus(QUEST_BREAKING_THROUGH) == QUEST_STATUS_INCOMPLETE ||
-                player->GetQuestStatus(QUEST_BREAKING_THROUGH) == QUEST_STATUS_COMPLETE))
+            if (!(player->GetQuestStatus(QUEST_WORDS_OF_POWER_A) == QUEST_STATUS_REWARDED ||
+                  player->GetQuestStatus(QUEST_WORDS_OF_POWER_H) == QUEST_STATUS_REWARDED ))
                 return false;
 
             WorldLocation pPosition;
@@ -190,17 +190,63 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
             {
                 case 5332:
                 case 5338:
+                case 5339:
                     pPosition = WorldLocation(571, 3733.68f, 3563.25f, 290.812f, 3.665192f);
                     break;
                 case 5334:
                     pPosition = WorldLocation(571, 3802.38f, 3585.95f, 49.5765f, 0.0f);
                     break;
                 case 5340:
-                    if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
-                        player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE)
+                    if (player->GetTeam() == ALLIANCE)
                         pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f);
                     else
-                        pPosition = WorldLocation(571, 3739.38f, 3567.09f, 341.58f);
+                        pPosition = WorldLocation(571, 3744.8f,3570.65f,341.66,0.6f);
+                    break;
+                default:
+                    return false;
+            }
+
+            player->TeleportTo(pPosition);
+
+            return false;
+        }
+};
+
+/*#####
+## at_voltarus
+#####*/
+
+enum AtVoltarus
+{
+    SPELL_SCOURGE_DISGUISE          = 51966,
+    QUEST_DISCLOSURE                = 12710
+};
+
+class AreaTrigger_at_voltarus : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_voltarus() : AreaTriggerScript("at_voltarus") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        {
+            if (!player->HasAura(SPELL_SCOURGE_DISGUISE))
+                return false;
+
+            WorldLocation pPosition;
+
+            switch (trigger->id)
+            {
+                case 5051:
+                case 5080:
+                    pPosition = WorldLocation(571, 6163.87f, -2001.10f, 408.17f, 2.163f);
+                    break;
+                case 5061:
+                    pPosition = WorldLocation(571, 6175.60f, -2008.78f, 245.25f, 1.50f);
+                    break;
+                case 5079:
+                    if (player->GetQuestStatus(QUEST_DISCLOSURE) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(QUEST_DISCLOSURE) == QUEST_STATUS_COMPLETE)
+                        pPosition = WorldLocation(571, 6252.25f, -1965.78f, 484.782f, 0.621f);
                     break;
                 default:
                     return false;
@@ -517,7 +563,8 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_legion_teleporter();
     new AreaTrigger_at_stormwright_shelf();
     new AreaTrigger_at_scent_larkorwi();
-    new AreaTrigger_at_last_rites();
+    new AreaTrigger_at_naxxanar();
+    new AreaTrigger_at_voltarus();
     new AreaTrigger_at_sholazar_waygate();
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_sentry_point();
