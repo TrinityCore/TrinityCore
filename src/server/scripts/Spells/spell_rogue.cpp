@@ -1087,8 +1087,19 @@ class spell_rog_main_gauche : public AuraScript
         return ValidateSpellInfo({ SPELL_ROGUE_MAIN_GAUCHE });
     }
 
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
+        Player* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
+
+        Item* item = player->GetWeaponForAttack(BASE_ATTACK);
+        if (!item || !item->IsEquipped())
+            return false;
+
+        if (!(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
+            return false;
+
         return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
     }
 
@@ -1096,11 +1107,11 @@ class spell_rog_main_gauche : public AuraScript
     {
         PreventDefaultAction();
 
-        if (DamageInfo* damage = eventInfo.GetDamageInfo())
-            if (Unit* target = GetTarget())
-                if (target->getAttackTimer(BASE_ATTACK) > target->getAttackTimer(OFF_ATTACK))
-                    if (Unit* victim = damage->GetVictim())
-                        GetTarget()->CastSpell(victim, SPELL_ROGUE_MAIN_GAUCHE, true, nullptr, aurEff);
+        Player* caster = eventInfo.GetActor()->ToPlayer();
+        Unit* target = eventInfo.GetProcTarget();
+        Item* item = ASSERT_NOTNULL(caster->GetWeaponForAttack(BASE_ATTACK));
+
+        caster->CastSpell(target, SPELL_ROGUE_MAIN_GAUCHE, true, item, aurEff);
     }
 
     void Register() override
