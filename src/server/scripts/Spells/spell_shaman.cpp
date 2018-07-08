@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "GridNotifiers.h"
+#include "Item.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -47,6 +48,8 @@ enum ShamanSpells
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
+    SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
+    SPELL_SHAMAN_FLAMETONGUE_WEAPON             = 8024,
     SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800,
     SPELL_SHAMAN_FULMINATION_VISUAL             = 95774,
     SPELL_SHAMAN_FULMINATION_DAMAGE             = 88767,
@@ -83,7 +86,9 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437,
     SPELL_SHAMAN_UNLEASH_LIFE                   = 73685,
     SPELL_SHAMAN_WATER_SHIELD                   = 52127,
-
+    SPELL_SHAMAN_WINDFURY_ATTACK_MAINHAND       = 25504,
+    SPELL_SHAMAN_WINDFURY_ATTACK_OFFHAND        = 33750,
+    SPELL_SHAMAN_WINDFURY_WEAPON                = 8232,
 };
 
 enum ShamanSpellIcons
@@ -1715,6 +1720,148 @@ class spell_sha_earthliving_weapon : public SpellScriptLoader
         }
 };
 
+// 10400 - Flametongue Weapon (Passive)
+class spell_sha_flametongue_weapon : public AuraScript
+{
+    PrepareAuraScript(spell_sha_flametongue_weapon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_FLAMETONGUE_ATTACK,
+                SPELL_SHAMAN_FLAMETONGUE_WEAPON
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        Player* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
+
+        Item* item = player->GetItemByGuid(GetAura()->GetCastItemGUID());
+        if (!item || !item->IsEquipped())
+            return false;
+
+        uint8 attType = Player::GetAttackBySlot(item->GetSlot());
+        if (attType != BASE_ATTACK && attType != OFF_ATTACK)
+            return false;
+
+        if (((attType == BASE_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)) ||
+            ((attType == OFF_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)))
+            return false;
+
+        return true;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Player* player = eventInfo.GetActor()->ToPlayer();
+        Unit* target = eventInfo.GetProcTarget();
+        WeaponAttackType attType = BASE_ATTACK;
+        if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
+            attType = OFF_ATTACK;
+
+        Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
+
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FLAMETONGUE_WEAPON);
+        if (!spell)
+            return;
+
+        float basePoints = spell->Effects[EFFECT_1].CalcValue(player);
+        float attackSpeed = player->GetAttackTime(attType) / 1000.f;
+        float fireDamage = basePoints / 100.0f;
+        fireDamage *= attackSpeed;
+
+        RoundToInterval(fireDamage, basePoints / 77.0f, basePoints / 25.0f);
+
+        // Calculate Spell Power scaling
+        float statBonus = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
+        statBonus += target->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, SPELL_SCHOOL_MASK_FIRE);
+
+        float const coeff = 0.03811f;
+        statBonus *= coeff * attackSpeed;
+
+        player->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, fireDamage + statBonus, target, true, item, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_flametongue_weapon::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 33757 - Windfury Weapon (Passive)
+class spell_sha_windfury_weapon : public AuraScript
+{
+    PrepareAuraScript(spell_sha_windfury_weapon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_WINDFURY_ATTACK_MAINHAND,
+                SPELL_SHAMAN_WINDFURY_ATTACK_OFFHAND,
+                SPELL_SHAMAN_WINDFURY_WEAPON
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        Player* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
+
+        Item* item = player->GetItemByGuid(GetAura()->GetCastItemGUID());
+        if (!item || !item->IsEquipped())
+            return false;
+
+        uint8 attType = Player::GetAttackBySlot(item->GetSlot());
+        if (attType != BASE_ATTACK && attType != OFF_ATTACK)
+            return false;
+
+        if (((attType == BASE_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)) ||
+            ((attType == OFF_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)))
+            return false;
+
+        return true;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Player* player = eventInfo.GetActor()->ToPlayer();
+        Unit* target = eventInfo.GetProcTarget();
+        WeaponAttackType attType = BASE_ATTACK;
+        if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
+            attType = OFF_ATTACK;
+
+        Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
+
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_WINDFURY_WEAPON);
+        if (!spell)
+            return;
+
+        int32 attackPower = spell->Effects[EFFECT_1].CalcValue(player);
+        int32 amount = static_cast<int32>(attackPower / 14.f * player->GetAttackTime(attType) / 1000.f);
+        uint32 spellId = attType == BASE_ATTACK ? SPELL_SHAMAN_WINDFURY_ATTACK_MAINHAND : SPELL_SHAMAN_WINDFURY_ATTACK_OFFHAND;
+
+        for (uint8 i = 0; i < 2; i++)
+            player->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, amount, target, true, item, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_windfury_weapon::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_windfury_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -1733,6 +1880,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
+    RegisterAuraScript(spell_sha_flametongue_weapon);
     new spell_sha_focused_insight();
     new spell_sha_glyph_of_healing_wave();
     new spell_sha_healing_rain();
@@ -1754,4 +1902,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
     new spell_sha_totemic_mastery();
+    RegisterAuraScript(spell_sha_windfury_weapon);
 }
