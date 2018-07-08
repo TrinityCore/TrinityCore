@@ -12982,12 +12982,12 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                         switch (skinColor)
                         {
                             case 1: // Brown
-                                return 33652;
+                                return 33653;
                             case 2: // Black
                             case 7:
                                 return 33651;
                             case 4: // Yellow
-                                return 33653;
+                                return 33652;
                             case 3: // White
                             case 5:
                                 return 33654;
