@@ -78,7 +78,6 @@ enum DruidSpells
     SPELL_DRUID_MOONFIRE                    = 8921,
     SPELL_DRUID_NATURES_BOUNTY              = 96206,
     SPELL_DRUID_NATURES_GRACE               = 16880,
-    SPELL_DRUID_NATURES_GRACE_TRIGGERED     = 16886,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_SHOOTING_STARS              = 93400,
@@ -173,7 +172,6 @@ class spell_dru_eclipse : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_DRUID_NATURES_GRACE,
-                SPELL_DRUID_NATURES_GRACE_TRIGGERED,
                 SPELL_DRUID_LUNAR_ECLIPSE_MARKER,
                 SPELL_DRUID_SOLAR_ECLIPSE_MARKER,
                 SPELL_DRUID_SOLAR_ECLIPSE,
@@ -192,8 +190,8 @@ class spell_dru_eclipse : public AuraScript
             return;
 
         // Reset Nature's Grace proc cooldown
-        if (caster->ToPlayer()->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
-            caster->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_DRUID_NATURES_GRACE_TRIGGERED, true);
+        if (Aura* aura = caster->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
+            aura->AddProcCooldown(std::chrono::steady_clock::now());
 
         // Handle Euphoria talent
         if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_EUPHORIA, EFFECT_2))
