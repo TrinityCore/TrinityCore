@@ -1901,7 +1901,7 @@ class spell_sha_unleash_elements : public SpellScript
         if (!player)
             return;
 
-        uint32 spellId[2] = { 0, 0 };
+        uint32 spellId = 0;
         uint32 lastSpellId = 0;
 
         for (uint8 i = 0; i < 2; i++)
@@ -1911,37 +1911,37 @@ class spell_sha_unleash_elements : public SpellScript
                 switch (item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
                 {
                     case SHAMAN_ENCHANTMENT_ID_FLAMETONGUE:
-                        spellId[i] = SPELL_SHAMAN_UNLEASH_FLAME;
+                        spellId = SPELL_SHAMAN_UNLEASH_FLAME;
                         break;
                     case SHAMAN_ENCHANTMENT_ID_FROSTBRAND:
-                        spellId[i] = SPELL_SHAMAN_UNLEASH_FROST;
+                        spellId = SPELL_SHAMAN_UNLEASH_FROST;
                         break;
                     case SHAMAN_ENCHANTMENT_ID_WINDFURY:
-                        spellId[i] = SPELL_SHAMAN_UNLEASH_WIND;
+                        spellId = SPELL_SHAMAN_UNLEASH_WIND;
                         break;
                     case SHAMAN_ENCHANTMENT_ID_ROCKBITER:
-                        spellId[i] = SPELL_SHAMAN_UNLEASH_EARTH;
+                        spellId = SPELL_SHAMAN_UNLEASH_EARTH;
                         break;
                     case SHAMAN_ENCHANTMENT_ID_EARTHLIVING:
-                        spellId[i] = SPELL_SHAMAN_UNLEASH_LIFE;
+                        spellId = SPELL_SHAMAN_UNLEASH_LIFE;
                         break;
                     default:
                         break;
                 }
             }
 
-            if (spellId[i] && spellId[i] != lastSpellId)
+            if (spellId && spellId != lastSpellId)
             {
                 if (Unit* target = GetExplTargetUnit())
                 {
-                    if (spellId[i] == SPELL_SHAMAN_UNLEASH_LIFE && !target->IsFriendlyTo(caster))
+                    if (spellId == SPELL_SHAMAN_UNLEASH_LIFE && !target->IsFriendlyTo(caster))
                         target = caster;
 
-                    caster->CastSpell(target, spellId[i], true);
+                    caster->CastSpell(target, spellId, true);
                 }
             }
 
-            lastSpellId = spellId[i];
+            lastSpellId = spellId;
         }
     }
 
