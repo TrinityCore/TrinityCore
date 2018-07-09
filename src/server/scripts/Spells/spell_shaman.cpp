@@ -51,6 +51,7 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
     SPELL_SHAMAN_FLAMETONGUE_WEAPON             = 8024,
     SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800,
+    SPELL_SHAMAN_FREEZE                         = 63685,
     SPELL_SHAMAN_FULMINATION_VISUAL             = 95774,
     SPELL_SHAMAN_FULMINATION_DAMAGE             = 88767,
     SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD          = 63279,
@@ -1983,6 +1984,40 @@ class spell_sha_static_shock : public AuraScript
     }
 };
 
+// -63373 - Frozen Power
+class spell_sha_frozen_power : public AuraScript
+{
+    PrepareAuraScript(spell_sha_frozen_power);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_FREEZE });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (!roll_chance_i(aurEff->GetAmount()))
+            return;
+
+        Unit* caster = eventInfo.GetActor();
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_FREEZE);
+        float minDistance(spellInfo->Effects[EFFECT_0].CalcValue(caster));
+
+        Unit* target = eventInfo.GetProcTarget();
+        if (caster->GetDistance(target) < minDistance)
+            return;
+
+        caster->CastSpell(target, SPELL_SHAMAN_FREEZE, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_frozen_power::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -2003,6 +2038,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flame_shock();
     RegisterAuraScript(spell_sha_flametongue_weapon);
     new spell_sha_focused_insight();
+    RegisterAuraScript(spell_sha_frozen_power);
     new spell_sha_glyph_of_healing_wave();
     new spell_sha_healing_rain();
     new spell_sha_healing_rain_triggered();
