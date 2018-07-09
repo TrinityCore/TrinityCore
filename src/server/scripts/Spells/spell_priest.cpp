@@ -1194,45 +1194,45 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
-class spell_pri_echo_of_light : public SpellScriptLoader
+class spell_pri_echo_of_light : public AuraScript
 {
-    public:
-        spell_pri_echo_of_light() : SpellScriptLoader("spell_pri_echo_of_light") { }
+    PrepareAuraScript(spell_pri_echo_of_light);
 
-        class spell_pri_echo_of_light_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_ECHO_OF_LIGHT,
+                SPELL_PRIEST_HOLY_WORD_SANCTUARY
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id != SPELL_PRIEST_HOLY_WORD_SANCTUARY);
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_pri_echo_of_light_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            if (Unit* target = eventInfo.GetProcTarget())
             {
-                return ValidateSpellInfo({ SPELL_PRIEST_ECHO_OF_LIGHT });
+                uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                uint8 tickNumber = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ECHO_OF_LIGHT)->GetMaxTicks();
+                if (healAmount && tickNumber)
+                    caster->CastCustomSpell(SPELL_PRIEST_ECHO_OF_LIGHT, SPELLVALUE_BASE_POINT0, healAmount / tickNumber, target, true, nullptr, aurEff);
             }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = eventInfo.GetProcTarget())
-                    {
-                        uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-                        uint8 tickNumber = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ECHO_OF_LIGHT)->GetMaxTicks();
-                        if (healAmount && tickNumber)
-                            caster->CastCustomSpell(SPELL_PRIEST_ECHO_OF_LIGHT, SPELLVALUE_BASE_POINT0, healAmount / tickNumber, target, true, nullptr, aurEff);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_pri_echo_of_light_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_echo_of_light_AuraScript();
         }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_echo_of_light::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_echo_of_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 95740 - Shadow Orbs (Passive)
@@ -1518,7 +1518,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
     new spell_pri_divine_hymn();
-    new spell_pri_echo_of_light();
+    RegisterAuraScript(spell_pri_echo_of_light);
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_hymn_of_hope();
     new spell_pri_improved_power_word_shield();
