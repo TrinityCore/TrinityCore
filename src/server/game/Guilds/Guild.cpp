@@ -36,6 +36,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
+#include "SpellAuraEffects.h"
 #include "World.h"
 #include "WorldSession.h"
 #include "Group.h"
@@ -3892,9 +3893,19 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
 
 void Guild::GiveReputation(uint32 rep, Player* source)
 {
+    uint32 reputation = rep;
+
+    // Apply reputation aura bonuses
+    for (auto itr : source->GetAuraEffectsByType(SPELL_AURA_MOD_REPUTATION_GAIN))
+        reputation += CalculatePct(rep, itr->GetAmount());
+
+    // Guild Champion
+    for (auto itr : source->GetAuraEffectsByType(SPELL_AURA_MOD_HONOR_GAIN_PCT))
+        reputation += CalculatePct(rep, itr->GetAmount());
+
     if (Member* member = GetMember(source->GetGUID()))
     {
-        member->AddReputation(rep, source);
+        member->AddReputation(reputation, source);
         SendGuildReputationWeeklyCap(source->GetSession(), member->GetWeekReputation());
     }
 }
