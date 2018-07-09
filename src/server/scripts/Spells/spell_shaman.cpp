@@ -1951,6 +1951,38 @@ class spell_sha_unleash_elements : public SpellScript
     }
 };
 
+// -51525 - Static Shock
+class spell_sha_static_shock : public AuraScript
+{
+    PrepareAuraScript(spell_sha_static_shock);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_SHAMAN_LIGHTNING_SHIELD);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetProcTarget();
+
+        caster->CastSpell(target, SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_static_shock::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_static_shock::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -1987,6 +2019,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_nature_guardian();
     new spell_sha_resurgence();
     new spell_sha_rolling_thunder();
+    RegisterAuraScript(spell_sha_static_shock);
     new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
