@@ -33,6 +33,10 @@ enum PriestSpells
     SPELL_PRIEST_ABSOLUTION                         = 33167,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_CHAKRA_SERENITY                    = 81208,
+    SPELL_PRIEST_CHAKRA_SANCTUARY                   = 81206,
+    SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED            = 81207,
+    SPELL_PRIEST_CHAKRA_CHASTISE                    = 81209,
     SPELL_PRIEST_CURE_DISEASE                       = 528,
     SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY              = 97690,
     SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
@@ -58,6 +62,7 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
     SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
+    SPELL_PRIEST_RENEW                              = 139,
     SPELL_PRIEST_SHADOW_ORB_MARKER                  = 93683,
     SPELL_PRIEST_SHADOW_ORB_POWER                   = 77486,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
@@ -1334,9 +1339,112 @@ class spell_pri_shadow_orb : public AuraScript
     }
 };
 
+// 14751 - Chakra
+class spell_pri_charkra : public AuraScript
+{
+    PrepareAuraScript(spell_pri_charkra);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_CHAKRA_SERENITY,
+                SPELL_PRIEST_CHAKRA_SANCTUARY,
+                SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED,
+                SPELL_PRIEST_CHAKRA_CHASTISE
+            });
+    }
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* target = GetTarget())
+        {
+            target->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_SERENITY);
+            target->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_SANCTUARY);
+            target->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_CHASTISE);
+        }
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* caster = eventInfo.GetActor();
+
+        uint32 spellId = 0;
+        if (SpellInfo const* spell = eventInfo.GetSpellInfo())
+        {
+            // Chakra: Serenity
+            if (spell->SpellFamilyFlags.HasFlag(0x00000400) || spell->SpellFamilyFlags.HasFlag(0x00001000)
+                || spell->SpellFamilyFlags.HasFlag(0x00000800) || spell->SpellFamilyFlags.HasFlag(0, 0x00000004))
+                caster->CastSpell(caster, SPELL_PRIEST_CHAKRA_SERENITY, true, nullptr, aurEff);
+
+            // Chakra: Sanctuary
+            if (spell->SpellFamilyFlags.HasFlag(0x00000200) || spell->SpellFamilyFlags.HasFlag(0, 0x00000020))
+            {
+                caster->CastSpell(caster, SPELL_PRIEST_CHAKRA_SANCTUARY, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED, true, nullptr, aurEff);
+            }
+
+            // Chakra: Chastise
+            if (spell->SpellFamilyFlags.HasFlag(0x00000080) || spell->SpellFamilyFlags.HasFlag(0, 0x00010000))
+                caster->CastSpell(caster, SPELL_PRIEST_CHAKRA_CHASTISE, true, nullptr, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_charkra::HandleEffectApply, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectProc += AuraEffectProcFn(spell_pri_charkra::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+    }
+};
+
+class spell_pri_charkra_sanctuary : public AuraScript
+{
+    PrepareAuraScript(spell_pri_charkra_sanctuary);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED });
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_charkra_sanctuary::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+class spell_pri_chakra_serenity : public SpellScript
+{
+    PrepareSpellScript(spell_pri_chakra_serenity);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Aura* aura = GetHitUnit()->GetAura(SPELL_PRIEST_RENEW))
+            aura->RefreshDuration();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_chakra_serenity::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
+    RegisterAuraScript(spell_pri_charkra);
+    RegisterAuraScript(spell_pri_charkra_sanctuary);
+    RegisterSpellScript(spell_pri_chakra_serenity);
     new spell_pri_circle_of_healing();
     new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
