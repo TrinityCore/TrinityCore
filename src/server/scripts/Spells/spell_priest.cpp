@@ -1411,6 +1411,7 @@ class spell_pri_chakra : public AuraScript
     }
 };
 
+// 81206 - Chakra: Sanctuary
 class spell_pri_chakra_sanctuary : public AuraScript
 {
     PrepareAuraScript(spell_pri_chakra_sanctuary);
@@ -1431,6 +1432,7 @@ class spell_pri_chakra_sanctuary : public AuraScript
     }
 };
 
+// 81585 - Chakra: Serenity
 class spell_pri_chakra_serenity_script : public SpellScript
 {
     PrepareSpellScript(spell_pri_chakra_serenity_script);
@@ -1452,6 +1454,7 @@ class spell_pri_chakra_serenity_script : public SpellScript
     }
 };
 
+// 88685 - Holy Word: Sanctuary
 class spell_pri_holy_word_sanctuary : public AuraScript
 {
     PrepareAuraScript(spell_pri_holy_word_sanctuary);
@@ -1464,13 +1467,45 @@ class spell_pri_holy_word_sanctuary : public AuraScript
     void HandleDummyTick(AuraEffect const* aurEff)
     {
         if (DynamicObject* dyn = GetTarget()->GetDynObject(aurEff->GetId()))
-            GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_PRIEST_HOLY_WORD_SANCTUARY, true, nullptr, aurEff);
+            GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_PRIEST_HOLY_WORD_SANCTUARY, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_DISALLOW_PROC_EVENTS), nullptr, aurEff);
     }
 
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_holy_word_sanctuary::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
+};
+
+// 88686 - Holy Word: Sanctuary
+class spell_pri_holy_word_sanctuary_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_pri_holy_word_sanctuary_triggered);
+
+    bool Load()
+    {
+        _targets = 0;
+        return true;
+    }
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitHeal() && _targets > 6)
+            SetHitHeal(GetHitHeal() / _targets);
+    }
+
+    void FilterTargets(std::list<WorldObject*>& unitList)
+    {
+        _targets = unitList.size();
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_word_sanctuary_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+
+private:
+    uint32 _targets;
 };
 
 void AddSC_priest_spell_scripts()
@@ -1490,6 +1525,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_item_greater_heal_refund();
     new spell_pri_guardian_spirit();
     RegisterAuraScript(spell_pri_holy_word_sanctuary);
+    RegisterSpellScript(spell_pri_holy_word_sanctuary_triggered);
     new spell_pri_leap_of_faith_effect_trigger();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_leech();
