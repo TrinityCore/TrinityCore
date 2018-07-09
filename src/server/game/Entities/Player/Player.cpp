@@ -6893,6 +6893,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // add honor points
     ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, int32(honor));
 
+    // Add guild XP
+    if (Guild *guild = GetGuild())
+        guild->GiveXP(uint32(float(honor) * sWorld->getRate(RATE_XP_HONOR_EARNED_GUILD_MODIFIER)), this);
+
     if (InBattleground() && honor > 0)
     {
         if (Battleground* bg = GetBattleground())
@@ -15290,8 +15294,13 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
-    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
+    if (Guild* guild = GetGuild())
+    {
+        uint32 _xp = quest->XPValue(this);
+        uint32 guildRep = std::max(uint32(1), uint32(_xp / 450));
+        guild->GiveXP(uint32(_xp * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_QUEST_GUILD_MODIFIER)), this);
+        guild->GiveReputation(guildRep, this);
+    }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     // Do not reward the default reward money for max level dungeon quests
@@ -19796,6 +19805,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
+        stmt->setUInt32(index++, GetAchievementPoints());
     }
     else
     {
@@ -19931,6 +19941,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
+        stmt->setUInt32(index++, GetAchievementPoints());
 
         stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
         // Index

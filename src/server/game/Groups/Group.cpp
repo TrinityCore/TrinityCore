@@ -1943,6 +1943,36 @@ uint32 Group::GetNeededMembersOfSameGuild(uint8 arenaType, Map const *map)
     return 0;
 }
 
+float Group::GetGuildXpRateForPlayer(Player* player)
+{
+    if (!IsMember(player->GetGUID()))
+        return 0.0f;
+
+    if (!player->GetGuildId())
+        return 0.0f;
+
+    if (!player->GetMap()->IsDungeon() &&
+        !(player->InArena() && player->GetBattleground()->isRated()))
+        return 0.0f;
+
+    if (player->GetMap()->IsNonRaidDungeon())
+    {
+        switch (GetMembersCountOfGuild(player->GetGuildId()))
+        {
+            case 3:
+                return 0.5f;
+            case 4:
+                return 1.0f;
+            case 5:
+                return 1.25f;
+            default:
+                return 0.0f;
+        }
+    }
+
+    return 1.0f;
+}
+
 void Group::UpdateGuildFor(ObjectGuid guid, uint32 guildId)
 {
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)

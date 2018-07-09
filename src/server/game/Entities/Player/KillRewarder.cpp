@@ -200,8 +200,14 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
             _groupRate * float(player->getLevel()) / _sumLevel : // Group rate depends on summary level.
             1.0f;                                                // Personal rate is 100%.
         if (_xp)
+        {
             // 4.2. Give XP.
             _RewardXP(player, rate);
+            // Give Guild XP.
+            if (player->GetGuild())
+                if (_victim->ToCreature() && _victim->ToCreature()->IsDungeonBoss())
+                    _RewardGuildXP(player);
+        }
         if (!_isBattleGround)
         {
             // If killer is in dungeon then all members receive full reward at kill.
@@ -249,6 +255,36 @@ void KillRewarder::_RewardGroup()
     }
 }
 
+inline void KillRewarder::_RewardGuildXP(Player* player)
+{
+    Guild* guild = player->GetGuild();
+    Group* group = player->GetGroup();
+    if (!guild || !group)
+        return;
+
+    if (!group->IsGuildGroupFor(player))
+        return;
+
+    float base = float(_xp) * sWorld->getRate(RATE_XP_BASEKILL_GUILD_MODIFIER);
+
+    if (player->GetMap()->IsHeroic())
+    {
+        if (player->GetMap()->IsNonRaidDungeon())
+            base *= sWorld->getRate(RATE_XP_HEROIC_DUNGEON_GUILD_MODIFIER);
+        else if (player->GetMap()->IsRaid())
+            base *= sWorld->getRate(RATE_XP_HEROIC_RAID_GUILD_MODIFIER);
+    }
+
+    base *= group->GetGuildXpRateForPlayer(player);
+    if (!base)
+        return;
+
+    guild->GiveXP(uint32(base), player);
+
+    uint32 guildRep = std::max(uint32(1), uint32(base / sWorld->getIntConfig(CONFIG_GUILD_REPUTATION_QUEST_DIVIDER)));
+    guild->GiveReputation(guildRep, player);
+}
+
 void KillRewarder::Reward()
 {
     // 3. Reward killer (and group, if necessary).
@@ -281,3 +317,4 @@ void KillRewarder::Reward()
                 guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
     }
 }
+

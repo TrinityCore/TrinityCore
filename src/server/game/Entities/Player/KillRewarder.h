@@ -41,6 +41,7 @@ private:
     void _RewardKillCredit(Player* player);
     void _RewardPlayer(Player* player, bool isDungeon);
     void _RewardGroup();
+    void _RewardGuildXP(Player* player);
 
     Player* _killer;
     Unit* _victim;

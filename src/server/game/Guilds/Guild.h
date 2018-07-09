@@ -343,7 +343,7 @@ private:
         Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
 
         void SetStats(Player* player);
-        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 reputation);
+        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 achievementPoints, uint32 reputation);
         bool CheckStats() const;
 
         void SetPublicNote(std::string const& publicNote);
@@ -351,6 +351,9 @@ private:
         void SetZoneId(uint32 id) { m_zoneId = id; }
         void SetAchievementPoints(uint32 val) { m_achievementPoints = val; }
         void SetLevel(uint8 var) { m_level = var; }
+        void AddActivity(uint64 activity);
+        void SetWeekReputation(uint32 reputation) { m_weekReputation = reputation; }
+        void AddReputation(uint32 rep, Player *player);
 
         void AddFlag(uint8 var) { m_flags |= var; }
         void RemFlag(uint8 var) { m_flags &= ~var; }
@@ -392,6 +395,7 @@ private:
         void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
         int32 GetBankWithdrawValue(uint8 tabId) const;
         void ResetValues(bool weekly = false);
+        void ResetWeekActivityAndReputation();
 
         Player* FindPlayer() const;
         Player* FindConnectedPlayer() const;
@@ -854,6 +858,7 @@ public:
     // Guild leveling
     uint8 GetLevel() const { return _level; }
     void GiveXP(uint32 xp, Player* source, bool rewardedByChallenge = false);
+    void GiveReputation(uint32 rep, Player* source);
     uint64 GetExperience() const { return _experience; }
     uint64 GetTodayExperience() const { return _todayExperience; }
 
@@ -866,6 +871,12 @@ public:
 
     bool HasAchieved(uint32 achievementId) const;
     void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
+
+    inline void SetAchievementPointsFor(ObjectGuid guid, uint32 achievementPoint)
+    {
+        if (Member* member = GetMember(guid))
+            member->SetAchievementPoints(achievementPoint);
+    }
 
 protected:
     ObjectGuid::LowType m_id;

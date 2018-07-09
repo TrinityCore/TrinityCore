@@ -3854,12 +3854,12 @@ Guild.MaxLevel = 25
 Guild.UndeletableLevel = 4
 
 #
-#    Guild.XPModifier
+#    Guild.XPQuestModifier
 #        Description: Multiplier for guild experience gained from quests
 #        Default:     0.25
 #
 
-Guild.XPModifier = 0.25
+Guild.XPQuestModifier = 0.25
 
 #
 #    Guild.DailyXPCap
@@ -3868,6 +3868,54 @@ Guild.XPModifier = 0.25
 #
 
 Guild.DailyXPCap = 7807500
+
+#
+#    Guild.XPBaseKillModifier
+#        Description: Multiplier for guild experience gained from killing dungeon bosses
+#        Default:     0.25
+#
+
+Guild.XPBaseKillModifier = 4.0
+
+#
+#    Guild.XPHeroicDungeonModifier
+#        Description: Multiplier for guild additional experience gained from killing dungeon bosses on heroic difficulty
+#        Default:     1.25
+#
+
+Guild.XPHeroicDungeonModifier = 1.25
+
+#
+#    Guild.XPHeroicRaidModifier
+#        Description: Multiplier for guild additional experience gained from killing raid bosses on heroic difficulty
+#        Default:     1.0
+#
+
+Guild.XPHeroicRaidModifier = 1.0
+
+#
+#    Guild.XPHonorEarnedModifier
+#        Description: Multiplier for guild experience gained from winning a battleground
+#        Default:     10.0
+#
+
+Guild.XPHonorEarnedModifier = 10.0
+
+#
+#    Guild.XPRewardInArena
+#        Description: Amount of guild experiences gained from winning a arena match
+#        Default:     138800
+#
+
+Guild.XPRewardInArena = 138800
+
+#
+#    Guild.ReputationQuestDivider
+#        Description: Devider for rewarded quest experience to calculate guild experience gained from rewarding quests
+#        Default:     450
+#
+
+Guild.ReputationQuestDivider = 450
 
 #
 #    Guild.WeeklyReputationCap

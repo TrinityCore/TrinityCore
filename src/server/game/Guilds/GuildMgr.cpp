@@ -212,10 +212,13 @@ void GuildMgr::LoadGuilds()
 
                                                 //           0           1         2      3      4        5       6       7       8       9       10
         QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, `rank`, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11      12      13       14      15       16       17      18         19
-                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                //    11      12      13       14      15       16       17      18         19             20
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time, gm.activity, "
+                                                //    21               22                   23          24
+                                                     "gm.weekActivity, c.achievementPoints, r.standing, gm.weekReputation "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
+                                                     "LEFT JOIN character_reputation r ON gm.guid = r.guid AND r.faction = 1168 "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
 
         if (!result)
@@ -581,6 +584,16 @@ void GuildMgr::ResetTimes(bool week)
 {
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER_WITHDRAW));
+
+    // Delete too old old guild member
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_OLD_GUILD_MEMBER);
+    stmt->setUInt32(0, uint32(time(nullptr) - time_t(30 * DAY)));
+    CharacterDatabase.Execute(stmt);
+
+    // Reset week reputation for old guild member
+    if (week)
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_RESET_OLD_GUILD_WEEK_REPUTATION));
+
 
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         if (Guild* guild = itr->second)

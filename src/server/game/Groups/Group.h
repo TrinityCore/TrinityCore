@@ -361,6 +361,7 @@ class TC_GAME_API Group
         uint32 GetMembersCountOfGuild(uint32 guildId);
         uint32 GetNeededMembersOfSameGuild(uint8 arenaType, Map const* map);
         bool MemberLevelIsInRange(uint32 levelMin, uint32 levelMax);
+        float GetGuildXpRateForPlayer(Player* player);
         void UpdateGuildFor(ObjectGuid guid, uint32 guildId);
 
     protected:

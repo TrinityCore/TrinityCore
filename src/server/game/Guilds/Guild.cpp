@@ -40,6 +40,7 @@
 #include "WorldSession.h"
 #include "Group.h"
 #include "Battleground.h"
+#include "ReputationMgr.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -682,15 +683,17 @@ void Guild::Member::SetStats(Player* player)
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();
+    m_totalReputation = player->GetReputation(PLAYER_GUILD_REPUTATION);
 }
 
-void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 reputation)
+void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 achievementPoints, uint32 reputation)
 {
     m_name      = name;
     m_level     = level;
     m_class     = _class;
     m_zoneId    = zoneId;
     m_accountId = accountId;
+    m_achievementPoints = achievementPoints;
     m_totalReputation = reputation;
 }
 
@@ -734,6 +737,18 @@ void Guild::Member::ChangeRank(SQLTransaction& trans, uint8 newRank)
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
+void Guild::Member::AddActivity(uint64 activity)
+{
+    m_totalActivity += activity;
+    m_weekActivity += activity;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_ACTIVITY);
+    stmt->setUInt64(0, m_totalActivity);
+    stmt->setUInt64(1, m_weekActivity);
+    stmt->setUInt32(2, m_guid.GetCounter());
+    CharacterDatabase.Execute(stmt);
+}
+
 void Guild::Member::SaveToDB(SQLTransaction& trans) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_MEMBER);
@@ -742,6 +757,9 @@ void Guild::Member::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (2, m_rankId);
     stmt->setString(3, m_publicNote);
     stmt->setString(4, m_officerNote);
+    stmt->setUInt64(5, m_totalActivity);
+    stmt->setUInt64(6, m_weekActivity);
+    stmt->setUInt32(7, m_weekReputation);
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
@@ -761,11 +779,12 @@ bool Guild::Member::LoadFromDB(Field* fields)
              fields[16].GetUInt8(),                         // characters.class
              fields[17].GetUInt16(),                        // characters.zone
              fields[18].GetUInt32(),                        // characters.account
-             0);
+             fields[22].GetUInt32(),                        // characters.achievementPoint
+             fields[23].GetUInt32());
     m_logoutTime = fields[19].GetUInt32();                  // characters.logout_time
-    m_totalActivity = 0;
-    m_weekActivity = 0;
-    m_weekReputation = 0;
+    m_totalActivity = fields[20].GetUInt64();
+    m_weekActivity = fields[21].GetUInt64();
+    m_weekReputation = fields[24].GetUInt32();
 
     if (!CheckStats())
         return false;
@@ -831,10 +850,40 @@ void Guild::Member::ResetValues(bool weekly /* = false*/)
         m_bankWithdraw[tabId] = 0;
 
     if (weekly)
-    {
-        m_weekActivity = 0;
-        m_weekReputation = 0;
-    }
+        ResetWeekActivityAndReputation();
+}
+
+void Guild::Member::AddReputation(uint32 rep, Player *player)
+{
+    rep = std::min(rep, sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP) - m_weekReputation);
+
+    player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(PLAYER_GUILD_REPUTATION), rep);
+
+    m_weekReputation += rep;
+    m_totalReputation = player->GetReputation(PLAYER_GUILD_REPUTATION);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_WEEK_REPUTATION);
+    stmt->setUInt32(0, m_weekReputation);
+    stmt->setUInt32(1, m_guid.GetCounter());
+    CharacterDatabase.Execute(stmt);
+}
+
+void Guild::Member::ResetWeekActivityAndReputation()
+{
+    m_weekActivity = 0;
+    m_weekReputation = 0;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_RESET_GUILD_MEMBER_WEEK_ACTIVITY);
+    stmt->setUInt32(0, m_guid.GetCounter());
+    trans->Append(stmt);
+
+    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_RESET_GUILD_MEMBER_WEEK_REPUTATION);
+    stmt2->setUInt32(0, m_guid.GetCounter());
+    trans->Append(stmt2);
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 // Get amount of money/slots left for today.
@@ -2256,6 +2305,7 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     if (Group* group = player->GetGroup())
     {
         guildParty = group->IsGuildGroupFor(player);
+        xpMultiplier = group->GetGuildXpRateForPlayer(player);
         CurrGuildPartyMembers = group->GetMembersCountOfGuild(player->GetGuildId());
         NeededGuildPartyMembers = group->GetNeededMembersOfSameGuild((player->InArena() && player->GetBattleground()->isRated()) ?
             player->GetBattleground()->GetArenaType() : 0, player->GetMap());
@@ -2869,8 +2919,27 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
 
     Member* member = new Member(m_id, guid, rankId);
     std::string name;
+
+    /* Check if player can keep his guild reputation */
+    bool keepGuildReputation = false;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_OLD_GUILD_DATA);
+    stmt->setUInt32(0, lowguid);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        Field* fields = result->Fetch();
+        if (fields[0].GetUInt32() == m_id) // old player guild was this guild
+        {
+            // Set the Week cap
+            member->SetWeekReputation(fields[1].GetUInt32());
+            keepGuildReputation = true;
+        }
+    }
+
     if (player)
     {
+        if (!keepGuildReputation || !player->GetReputation(PLAYER_GUILD_REPUTATION))
+            player->SetReputation(PLAYER_GUILD_REPUTATION, 0);
+
         m_members[lowguid] = member;
         player->SetInGuild(m_id);
         player->SetGuildIdInvited(0);
@@ -2885,9 +2954,9 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
 
         bool ok = false;
         // Player must exist
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DATA_FOR_GUILD);
-        stmt->setUInt32(0, lowguid);
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DATA_FOR_GUILD);
+        stmt2->setUInt32(0, lowguid);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt2))
         {
             Field* fields = result->Fetch();
             name = fields[0].GetString();
@@ -2897,7 +2966,8 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
                 fields[2].GetUInt8(),
                 fields[3].GetUInt16(),
                 fields[4].GetUInt32(),
-                0);
+                fields[5].GetUInt32(),
+                keepGuildReputation ? fields[6].GetUInt32() : 0);
 
             ok = member->CheckStats();
         }
@@ -2907,9 +2977,25 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
             delete member;
             return false;
         }
+
+        // Remove guild reputation
+        if (!keepGuildReputation)
+        {
+            stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
+            stmt2->setUInt16(0, uint16(PLAYER_GUILD_REPUTATION));
+            stmt2->setInt32(1, 0);
+            stmt2->setUInt16(2, uint16(PLAYER_GUILD_REPUTATION));
+            stmt2->setUInt32(3, lowguid);
+            CharacterDatabase.Execute(stmt2);
+        }
+
         m_members[lowguid] = member;
         sCharacterCache->UpdateCharacterGuildId(guid, GetId());
     }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_DATA);
+    stmt->setUInt32(0, lowguid);
+    CharacterDatabase.Execute(stmt);
 
     member->SaveToDB(trans);
 
@@ -2973,7 +3059,18 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
     sScriptMgr->OnGuildRemoveMember(this, player, isDisbanding, isKicked);
 
     if (Member* member = GetMember(guid))
+    {
+        if (!isDisbanding)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LEAVE_GUILD_DATA);
+            stmt->setUInt32(0, lowguid);
+            stmt->setUInt32(1, m_id);
+            stmt->setUInt32(2, member->GetWeekReputation());
+            stmt->setUInt64(3, uint32(::time(nullptr)));
+            CharacterDatabase.Execute(stmt);
+        }
         delete member;
+    }
     m_members.erase(lowguid);
 
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
@@ -3793,12 +3890,19 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
     CharacterDatabase.CommitTransaction(trans);
 }
 
+void Guild::GiveReputation(uint32 rep, Player* source)
+{
+    if (Member* member = GetMember(source->GetGUID()))
+    {
+        member->AddReputation(rep, source);
+        SendGuildReputationWeeklyCap(source->GetSession(), member->GetWeekReputation());
+    }
+}
+
 void Guild::GiveXP(uint32 xp, Player* source, bool rewardedByChallenge)
 {
     if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
         return;
-
-    /// @todo: Award reputation and count activity for player
 
     if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
         xp = 0; // SMSG_GUILD_XP_GAIN is always sent, even for no gains
@@ -3806,11 +3910,11 @@ void Guild::GiveXP(uint32 xp, Player* source, bool rewardedByChallenge)
     if (GetLevel() < GUILD_EXPERIENCE_UNCAPPED_LEVEL)
         xp = std::min(xp, sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP) - uint32(_todayExperience));
 
+    _experience += xp;
+
     WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
     data << uint64(xp);
     source->SendDirectMessage(&data);
-
-    _experience += xp;
 
     if (!rewardedByChallenge)
     {
@@ -3820,6 +3924,9 @@ void Guild::GiveXP(uint32 xp, Player* source, bool rewardedByChallenge)
         data << uint64(xp);
         source->GetSession()->SendPacket(&data);
     }
+
+    if (Member* member = GetMember(source->GetGUID()))
+        member->AddActivity(xp);
 
     if (!xp)
         return;
@@ -3863,13 +3970,13 @@ void Guild::GiveXP(uint32 xp, Player* source, bool rewardedByChallenge)
 
 void Guild::SendGuildXP(WorldSession* session /* = nullptr */) const
 {
-    //Member const* member = GetMember(session->GetGUID().GetCounter());
+    Member const* member = GetMember(session->GetPlayer()->GetGUID());
 
     WorldPacket data(SMSG_GUILD_XP, 40);
-    data << uint64(/*member ? member->GetTotalActivity() :*/ 0);
+    data << uint64(member ? member->GetTotalActivity() : 0);
     data << uint64(sGuildMgr->GetXPForGuildLevel(GetLevel()) - GetExperience());    // XP missing for next level
     data << uint64(GetTodayExperience());
-    data << uint64(/*member ? member->GetWeeklyActivity() :*/ 0);
+    data << uint64(member ? member->GetWeekActivity() : 0);
     data << uint64(GetExperience());
     session->SendPacket(&data);
 }
@@ -3903,7 +4010,7 @@ void Guild::ResetTimes(bool weekly)
         itr->second->ResetValues(weekly);
         if (Player* player = itr->second->FindPlayer())
         {
-            //SendGuildXP(player->GetSession());
+            SendGuildXP(player->GetSession());
             WorldPacket data(SMSG_GUILD_MEMBER_DAILY_RESET, 0);  // tells the client to request bank withdrawal limit
             player->SendDirectMessage(&data);
         }

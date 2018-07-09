@@ -1369,7 +1369,13 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GUILD_SAVE_INTERVAL] = sConfigMgr->GetIntDefault("Guild.SaveInterval", 15);
     m_int_configs[CONFIG_GUILD_MAX_LEVEL] = sConfigMgr->GetIntDefault("Guild.MaxLevel", 25);
     m_int_configs[CONFIG_GUILD_UNDELETABLE_LEVEL] = sConfigMgr->GetIntDefault("Guild.UndeletableLevel", 4);
-    rate_values[RATE_XP_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPModifier", 0.25f);
+    rate_values[RATE_XP_QUEST_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPQuestModifier", 0.25f);
+    rate_values[RATE_XP_BASEKILL_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPBaseKillModifier", 4.0f);
+    rate_values[RATE_XP_HEROIC_DUNGEON_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPHeroicDungeonModifier", 1.25f);
+    rate_values[RATE_XP_HEROIC_RAID_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPHeroicRaidModifier", 1.0f);
+    rate_values[RATE_XP_HONOR_EARNED_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPHonorEarnedModifier", 10.0f);
+    m_int_configs[CONFIG_GUILD_XP_REWARD_ARENA] = sConfigMgr->GetIntDefault("Guild.XPRewardInArena", 138800);
+    m_int_configs[CONFIG_GUILD_REPUTATION_QUEST_DIVIDER] = sConfigMgr->GetIntDefault("Guild.ReputationQuestDivider", 450);
     m_int_configs[CONFIG_GUILD_DAILY_XP_CAP] = sConfigMgr->GetIntDefault("Guild.DailyXPCap", 7807500);
     m_int_configs[CONFIG_GUILD_WEEKLY_REP_CAP] = sConfigMgr->GetIntDefault("Guild.WeeklyReputationCap", 4375);
     m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_XP] = sConfigMgr->GetIntDefault("Guild.Challenge.DungeonXP", 300000);
