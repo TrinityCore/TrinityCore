@@ -17,4 +17,4 @@ SET @FAMILYMASK2 := 0x00010000 | 0x00000000;
 DELETE FROM `spell_proc` WHERE `SpellId` IN (14751, 88627);
 INSERT INTO `spell_proc` (`SpellId`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `Cooldown`, `Charges`, `Chance`) VALUES
 (14751, 6, @FAMILYMASK0, @FAMILYMASK1, @FAMILYMASK2, 0, 2, 1, 0, 0, 0, 1, 100),
-(88627, 0, 0x0, 0x0, 0x0, 0, 0, 0, 0, 16, 0, 0, 0);
+(88627, 0, 0x0, 0x0, 0x0, 0, 0, 1, 0, 16, 0, 0, 0);
