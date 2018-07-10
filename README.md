@@ -17,6 +17,7 @@ It is fully based on *TrinityCore*, with upgrades like :
 - Legion scripts (WIP)
     - BlackRookHold
     - Darkheart Thicket
+    - Eye Of Azshara
     - Mardum (DH start zone)
     - Emerald Nightmare (1/7)
     - Tomb of Sargeras (1/9)

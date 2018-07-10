@@ -786,7 +786,7 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
     {
-        if (player->HasQuest(QUEST_ON_FELBAT_WINGS))
+        if (player->HasQuest(QUEST_ON_FELBAT_WINGS) || player->GetQuestStatus(QUEST_ON_FELBAT_WINGS) == QUEST_STATUS_REWARDED)
             player->CastSpell(player, 192136, true); // KillCredit & SendTaxi
 
         return true;

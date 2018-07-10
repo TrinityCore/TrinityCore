@@ -288,6 +288,8 @@ void AreaTrigger::Update(uint32 diff)
         }
     }
 
+    UpdateTargetList();
+
     _ai->OnUpdate(diff);
 
     if (_basePeriodicProcTimer)
@@ -300,8 +302,6 @@ void AreaTrigger::Update(uint32 diff)
         else
             _periodicProcTimer -= diff;
     }
-
-    UpdateTargetList();
 }
 
 void AreaTrigger::Remove()
