@@ -123,7 +123,7 @@ Quest::Quest(Field* questRecord, LocaleConstant localeConstantDefault)
     // int32 VerifiedBuild = questRecord[104].GetInt32();
 }
 
-void Quest::LoadQuestDetails(LocaleConstant lc, Field* fields)
+void Quest::LoadQuestDetails(LocaleConstant /* lc */, Field* fields)
 {
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
