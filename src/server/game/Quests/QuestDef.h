@@ -300,8 +300,7 @@ class TC_GAME_API Quest
         static void AddQuestLevelToTitle(std::string& title, int32 level);
 
         void InitializeQueryData(LocaleConstant lc);
-        void BuildQueryDataLocale(LocaleConstant lc) const;
-        void BuildQueryDataRaw(LocaleConstant lc) const;
+        void BuildQueryData(LocaleConstant lc) const;
         WorldPacket* GetQueryDataRef(LocaleConstant lc);
         WorldPacket GetQueryData(LocaleConstant lc);
 
