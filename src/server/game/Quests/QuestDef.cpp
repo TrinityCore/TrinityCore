@@ -410,8 +410,7 @@ void Quest::BuildQueryData(LocaleConstant lc) const
 
 void Quest::InitializeQueryData(LocaleConstant lc)
 {
-    BuildQueryDataRaw(lc);
-    BuildQueryDataLocale(lc);
+    BuildQueryData(lc);
     _response[lc]->Write();
 }
 
@@ -429,8 +428,7 @@ WorldPacket Quest::GetQueryData(LocaleConstant lc)
     if (!_response[lc])
     {
         _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
-        BuildQueryDataRaw(lc);
-        BuildQueryDataLocale(lc);
+        BuildQueryData(lc);
     }
     const WorldPacket* wp = _response[lc]->Write(lc);
     return *wp;
