@@ -315,7 +315,7 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
     return (!IsDFQuest() && !IsDaily() && (!IsRepeatable() || IsWeekly() || IsMonthly() || IsSeasonal()));
 }
 
-void Quest::BuildQueryDataLocale(LocaleConstant lc) const
+void Quest::BuildQueryData(LocaleConstant lc) const
 {
     if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(GetQuestId()))
     {
@@ -335,10 +335,6 @@ void Quest::BuildQueryDataLocale(LocaleConstant lc) const
         }   
     }
 
-}
-
-void Quest::BuildQueryDataRaw(LocaleConstant lc) const
-{
     _response[lc]->Info.QuestID = GetQuestId();
     _response[lc]->Info.QuestMethod = GetQuestMethod();
     _response[lc]->Info.QuestLevel = GetQuestLevel();
