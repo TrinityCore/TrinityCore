@@ -4266,7 +4266,7 @@ void ObjectMgr::LoadQuests()
     struct QuestLoaderHelper
     {
         typedef void(Quest::*QuestLoaderFunction)(LocaleConstant lc, Field* fields);
-        //QuestLoaderHelper(char const* queryFields, char const* tableName, char const* tableDesc, QuestLoaderFunction loaderFunction) : QueryFields(queryFields), TableName(tableName), TableDesc(tableDesc), LoaderFunction(loaderFunction) {};
+
         char const* QueryFields;
         char const* TableName;
         char const* TableDesc;
