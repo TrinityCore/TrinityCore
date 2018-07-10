@@ -43,6 +43,8 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+struct CreatureMovementData;
+
 template<typename E, typename T = char const*>
 struct EnumName
 {
