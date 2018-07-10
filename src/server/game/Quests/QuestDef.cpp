@@ -26,9 +26,8 @@
 #include "QuestPackets.h"
 #include "World.h"
 
-Quest::Quest(Field* questRecord, LocaleConstant localeConstantDefault)
+Quest::Quest(Field* questRecord, LocaleConstant lc)
 {
-    LocaleConstant lc = _localeConstantDefault = localeConstantDefault;
     _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
 
     _id = questRecord[0].GetUInt32();
