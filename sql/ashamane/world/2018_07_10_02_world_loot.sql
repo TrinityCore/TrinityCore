@@ -1,6 +1,6 @@
 -- crypt crawler drop
 DELETE FROM creature_loot_template WHERE Entry=25227;
-INSERT INTO creature_loot_template VALUES 
+INSERT INTO creature_loot_template VALUES
 (25227,33470,0,20,0,1,0,1,2,''),
 (25227,33452,0,14,0,1,0,1,1,''),
 (25227,33444,0,7,0,1,0,1,1,''),
@@ -184,7 +184,7 @@ INSERT INTO creature_loot_template VALUES
 
 -- risen crypt lord
 DELETE FROM creature_loot_template WHERE Entry=25228;
-INSERT INTO creature_loot_template VALUES 
+INSERT INTO creature_loot_template VALUES
 (25228,43851,0,3,0,1,0,1,2,''),
 (25228,22829,0,0.6,0,1,0,1,1,''),
 (25228,22832,0,0.3,0,1,0,1,1,''),
@@ -236,7 +236,7 @@ INSERT INTO creature_loot_template VALUES
 
 -- cultist necrolyte
 DELETE FROM creature_loot_template WHERE Entry=25651;
-INSERT INTO creature_loot_template VALUES 
+INSERT INTO creature_loot_template VALUES
 (25651,35122,0,40,1,1,0,1,1,''),
 (25651,33470,0,12,0,1,0,1,1,''),
 (25651,33443,0,8,0,1,0,1,1,''),
@@ -400,7 +400,7 @@ INSERT INTO creature_loot_template VALUES
 
 -- plagued scavenger
 DELETE FROM creature_loot_template WHERE Entry=25650;
-INSERT INTO creature_loot_template VALUES 
+INSERT INTO creature_loot_template VALUES
 (25650,33470,0,23,1,1,0,1,1,''),
 (25650,33452,0,16,0,1,0,1,1,''),
 (25650,33444,0,8,0,1,0,1,1,''),
@@ -786,7 +786,7 @@ INSERT INTO creature_loot_template VALUES
 (25981,4500,0,0.01,0,1,0,1,1,''),
 (25981,13444,0,0.01,0,1,0,1,1,'');
 
--- Northsea Mercenary 
+-- Northsea Mercenary
 DELETE FROM creature_loot_template WHERE Entry=25839;
 INSERT INTO creature_loot_template VALUES
 (25839,35188,0,66,1,1,0,1,2,''),
@@ -989,7 +989,7 @@ INSERT INTO creature_loot_template VALUES
 (25839,13444,0,0.01,0,1,0,1,1,''),
 (25839,35953,0,0.01,0,1,0,1,1,'');
 
---northsea Thug
+-- northsea Thug
 DELETE FROM creature_loot_template WHERE Entry=25843;
 INSERT INTO creature_loot_template VALUES
 (25843,35188,0,56,1,1,0,1,4,''),
