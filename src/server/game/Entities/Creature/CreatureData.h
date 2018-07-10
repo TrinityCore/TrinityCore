@@ -23,13 +23,13 @@
 #include "SpawnData.h"
 #include "UnitDefines.h"
 #include "WorldPacket.h"
+#include "CreatureTemplate.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <cmath>
 
 struct ItemTemplate;
-struct CreatureTemplate;
 
 enum CreatureFlagsExtra : uint32
 {
