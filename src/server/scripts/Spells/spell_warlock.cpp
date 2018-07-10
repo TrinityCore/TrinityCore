@@ -202,37 +202,31 @@ class spell_warl_banish : public SpellScriptLoader
         }
 };
 
-// 17962 - Conflagrate - Updated to 4.3.4
-class spell_warl_conflagrate : public SpellScriptLoader
+// 17962 - Conflagrate
+class spell_warl_conflagrate : public SpellScript
 {
-    public:
-        spell_warl_conflagrate() : SpellScriptLoader("spell_warl_conflagrate") { }
+    PrepareSpellScript(spell_warl_conflagrate);
 
-        class spell_warl_conflagrate_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_IMMOLATE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
         {
-            PrepareSpellScript(spell_warl_conflagrate_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_WARLOCK_IMMOLATE });
-            }
-
-            void HandleHit(SpellEffIndex /*effIndex*/)
-            {
-                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
-                    SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_conflagrate_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_conflagrate_SpellScript();
+            int32 damage = aurEff->GetAmount();
+            damage += GetCaster()->SpellDamageBonusDone(GetHitUnit(), aurEff->GetSpellInfo(), damage, DOT, EFFECT_2);
+            damage *= aurEff->GetTotalTicks();
+            SetHitDamage(CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_conflagrate::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 6201 - Create Healthstone
@@ -1649,7 +1643,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_aftermath();
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
-    new spell_warl_conflagrate();
+    RegisterSpellScript(spell_warl_conflagrate);
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
