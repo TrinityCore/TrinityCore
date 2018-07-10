@@ -22,6 +22,26 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 
+#define MAX_ITEM_PROTO_DAMAGES 2                            // changed in 3.1.0
+#define MAX_ITEM_PROTO_SOCKETS 3
+#define MAX_ITEM_PROTO_SPELLS  5
+#define MAX_ITEM_PROTO_STATS  10
+
+#define QUEST_OBJECTIVES_COUNT 4
+#define QUEST_ITEM_OBJECTIVES_COUNT 6
+#define QUEST_SOURCE_ITEM_IDS_COUNT 4
+#define QUEST_REWARD_CHOICES_COUNT 6
+#define QUEST_REWARDS_COUNT 4
+#define QUEST_DEPLINK_COUNT 10
+#define QUEST_REPUTATIONS_COUNT 5
+#define QUEST_EMOTE_COUNT 4
+#define QUEST_PVP_KILL_SLOT 0
+
+static const uint8 MAX_KILL_CREDIT = 2;
+static const uint32 MAX_CREATURE_MODELS = 4;
+static const uint32 MAX_CREATURE_QUEST_ITEMS = 6;
+static const uint32 MAX_CREATURE_SPELLS = 8;
+
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 
 enum SpellEffIndex : uint8

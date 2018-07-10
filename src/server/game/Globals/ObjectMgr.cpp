@@ -2502,8 +2502,6 @@ void ObjectMgr::LoadItemLocales()
 
         ItemLocale& data        = _itemLocaleStore[id];
         LocaleConstant locale   = GetLocaleByName(localeName);
-        if (locale == LOCALE_enUS)
-            continue;
 
         AddLocaleString(Name, locale, data.Name);
         AddLocaleString(Description, locale, data.Description);
@@ -4260,21 +4258,22 @@ void ObjectMgr::LoadQuests()
         Field* fields = result->Fetch();
 
         uint32 questId = fields[0].GetUInt32();
-        _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields));
+        _questTemplates.emplace(std::piecewise_construct, std::forward_as_tuple(questId), std::forward_as_tuple(fields, GetDBCLocaleIndex()));
     } while (result->NextRow());
 
     std::unordered_map<uint32, uint32> usedMailTemplates;
 
     struct QuestLoaderHelper
     {
-        typedef void(Quest::*QuestLoaderFunction)(Field* fields);
-
+        typedef void(Quest::*QuestLoaderFunction)(LocaleConstant lc, Field* fields);
+        //QuestLoaderHelper(char const* queryFields, char const* tableName, char const* tableDesc, QuestLoaderFunction loaderFunction) : QueryFields(queryFields), TableName(tableName), TableDesc(tableDesc), LoaderFunction(loaderFunction) {};
         char const* QueryFields;
         char const* TableName;
         char const* TableDesc;
         QuestLoaderFunction LoaderFunction;
     };
 
+    
     static std::vector<QuestLoaderHelper> const QuestLoaderHelpers =
     {
         // 0   1       2       3       4       5            6            7            8
@@ -4309,7 +4308,7 @@ void ObjectMgr::LoadQuests()
 
                 auto itr = _questTemplates.find(questId);
                 if (itr != _questTemplates.end())
-                    (itr->second.*loader.LoaderFunction)(fields);
+                    (itr->second.*loader.LoaderFunction)(sObjectMgr->GetDBCLocaleIndex(), fields);
                 else
                     TC_LOG_ERROR("server.loading", "Table `%s` has data for quest %u but such quest does not exist", loader.TableName, questId);
             } while (result->NextRow());
@@ -9753,22 +9752,22 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     // Initialize Query data for creatures
     if (mask & QUERY_DATA_CREATURES)
         for (auto& creatureTemplatePair : _creatureTemplateStore)
-            creatureTemplatePair.second.InitializeQueryData();
+            creatureTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
 
     // Initialize Query Data for gameobjects
     if (mask & QUERY_DATA_GAMEOBJECTS)
         for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
-            gameObjectTemplatePair.second.InitializeQueryData();
+            gameObjectTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
 
     // Initialize Query Data for items
     if (mask & QUERY_DATA_ITEMS)
         for (auto& itemTemplatePair : _itemTemplateStore)
-            itemTemplatePair.second.InitializeQueryData();
+            itemTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
 
     // Initialize Query Data for quests
     if (mask & QUERY_DATA_QUESTS)
         for (auto& questTemplatePair : _questTemplates)
-            questTemplatePair.second.InitializeQueryData();
+            questTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
 
     // Initialize Quest POI data
     if (mask & QUERY_DATA_POIS)

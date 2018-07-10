@@ -20,8 +20,9 @@
 #include "Opcodes.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "QueryPackets.h"
 
-#include "Packets/QueryPackets.h"
+//class QueryItemSingleResponse;
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
@@ -147,125 +148,142 @@ void ItemTemplate::_LoadTotalAP()
     _totalAP = totalAP;
 }
 
-void ItemTemplate::InitializeQueryData()
+
+void ItemTemplate::InitializeQueryData(LocaleConstant lc)
 {
-    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
+    _response[lc] = new WorldPackets::Query::QueryItemSingleResponse();
+    BuildQueryData(lc);
+    _response[lc]->Write();
 }
 
-WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
+WorldPacket* ItemTemplate::GetQueryDataRef(LocaleConstant lc)
 {
-    WorldPackets::Query::QueryItemSingleResponse response;
-
-    std::string locName = Name1;
-    std::string locDescription = Description;
-
-    if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
+    if (!_response[lc])
     {
-        ObjectMgr::GetLocaleString(il->Name, loc, locName);
-        ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
+        GetQueryData(lc);
+    }
+    return (WorldPacket*)_response[lc]->GetRawPacket();
+}
+
+WorldPacket ItemTemplate::GetQueryData(LocaleConstant lc)
+{
+    if (!_response[lc])
+    {
+        _response[lc] = new WorldPackets::Query::QueryItemSingleResponse();
+        BuildQueryData(lc);
+    }
+    const WorldPacket* wp = _response[lc]->Write();
+    return *wp;
+}
+
+void ItemTemplate::BuildQueryData(LocaleConstant lc) const
+{
+    if (lc == LOCALE_enUS)
+    {
+        _response[lc]->Stats.Name = Name1;
+        _response[lc]->Stats.Description = Description;
+    }
+    else if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
+    {
+        ObjectMgr::GetLocaleString(il->Name, lc, _response[lc]->Stats.Name);
+        ObjectMgr::GetLocaleString(il->Description, lc, _response[lc]->Stats.Description);
     }
 
-    response.ItemID = ItemId;
-    response.Allow = true;
+    _response[lc]->ItemID = ItemId;
+    _response[lc]->Allow = true;
 
-    response.Stats.Class = Class;
-    response.Stats.SubClass = SubClass;
-    response.Stats.SoundOverrideSubclass = SoundOverrideSubclass;
-    response.Stats.Name = locName;
-    response.Stats.DisplayInfoID = DisplayInfoID;
-    response.Stats.Quality = Quality;
-    response.Stats.Flags = Flags;
-    response.Stats.Flags2 = Flags2;
-    response.Stats.BuyPrice = BuyPrice;
-    response.Stats.SellPrice = SellPrice;
-    response.Stats.InventoryType = InventoryType;
-    response.Stats.AllowableClass = AllowableClass;
-    response.Stats.AllowableRace = AllowableRace;
-    response.Stats.ItemLevel = ItemLevel;
-    response.Stats.RequiredLevel = RequiredLevel;
-    response.Stats.RequiredSkill = RequiredSkill;
-    response.Stats.RequiredSkillRank = RequiredSkillRank;
-    response.Stats.RequiredSpell = RequiredSpell;
-    response.Stats.RequiredHonorRank = RequiredHonorRank;
-    response.Stats.RequiredCityRank = RequiredCityRank;
-    response.Stats.RequiredReputationFaction = RequiredReputationFaction;
-    response.Stats.RequiredReputationRank = RequiredReputationRank;
-    response.Stats.MaxCount = MaxCount;
-    response.Stats.Stackable = Stackable;
-    response.Stats.ContainerSlots = ContainerSlots;
-    response.Stats.StatsCount = StatsCount;
+    _response[lc]->Stats.Class = Class;
+    _response[lc]->Stats.SubClass = SubClass;
+    _response[lc]->Stats.SoundOverrideSubclass = SoundOverrideSubclass;
+    _response[lc]->Stats.DisplayInfoID = DisplayInfoID;
+    _response[lc]->Stats.Quality = Quality;
+    _response[lc]->Stats.Flags = Flags;
+    _response[lc]->Stats.Flags2 = Flags2;
+    _response[lc]->Stats.BuyPrice = BuyPrice;
+    _response[lc]->Stats.SellPrice = SellPrice;
+    _response[lc]->Stats.InventoryType = InventoryType;
+    _response[lc]->Stats.AllowableClass = AllowableClass;
+    _response[lc]->Stats.AllowableRace = AllowableRace;
+    _response[lc]->Stats.ItemLevel = ItemLevel;
+    _response[lc]->Stats.RequiredLevel = RequiredLevel;
+    _response[lc]->Stats.RequiredSkill = RequiredSkill;
+    _response[lc]->Stats.RequiredSkillRank = RequiredSkillRank;
+    _response[lc]->Stats.RequiredSpell = RequiredSpell;
+    _response[lc]->Stats.RequiredHonorRank = RequiredHonorRank;
+    _response[lc]->Stats.RequiredCityRank = RequiredCityRank;
+    _response[lc]->Stats.RequiredReputationFaction = RequiredReputationFaction;
+    _response[lc]->Stats.RequiredReputationRank = RequiredReputationRank;
+    _response[lc]->Stats.MaxCount = MaxCount;
+    _response[lc]->Stats.Stackable = Stackable;
+    _response[lc]->Stats.ContainerSlots = ContainerSlots;
+    _response[lc]->Stats.StatsCount = StatsCount;
     for (uint32 i = 0; i < StatsCount; ++i)
     {
-        response.Stats.ItemStat[i].ItemStatType = ItemStat[i].ItemStatType;
-        response.Stats.ItemStat[i].ItemStatValue = ItemStat[i].ItemStatValue;
+        _response[lc]->Stats.ItemStat[i].ItemStatType = ItemStat[i].ItemStatType;
+        _response[lc]->Stats.ItemStat[i].ItemStatValue = ItemStat[i].ItemStatValue;
     }
 
-    response.Stats.ScalingStatDistribution = ScalingStatDistribution;
-    response.Stats.ScalingStatValue = ScalingStatValue;
+    _response[lc]->Stats.ScalingStatDistribution = ScalingStatDistribution;
+    _response[lc]->Stats.ScalingStatValue = ScalingStatValue;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
-        response.Stats.Damage[i].DamageMin = Damage[i].DamageMin;
-        response.Stats.Damage[i].DamageMax = Damage[i].DamageMax;
-        response.Stats.Damage[i].DamageType = Damage[i].DamageType;
+        _response[lc]->Stats.Damage[i].DamageMin = Damage[i].DamageMin;
+        _response[lc]->Stats.Damage[i].DamageMax = Damage[i].DamageMax;
+        _response[lc]->Stats.Damage[i].DamageType = Damage[i].DamageType;
     }
 
-    response.Stats.Resistance[SPELL_SCHOOL_NORMAL] = Armor;
-    response.Stats.Resistance[SPELL_SCHOOL_HOLY] = HolyRes;
-    response.Stats.Resistance[SPELL_SCHOOL_FIRE] = FireRes;
-    response.Stats.Resistance[SPELL_SCHOOL_NATURE] = NatureRes;
-    response.Stats.Resistance[SPELL_SCHOOL_FROST] = FrostRes;
-    response.Stats.Resistance[SPELL_SCHOOL_SHADOW] = ShadowRes;
-    response.Stats.Resistance[SPELL_SCHOOL_ARCANE] = ArcaneRes;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_NORMAL] = Armor;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_HOLY] = HolyRes;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_FIRE] = FireRes;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_NATURE] = NatureRes;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_FROST] = FrostRes;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_SHADOW] = ShadowRes;
+    _response[lc]->Stats.Resistance[SPELL_SCHOOL_ARCANE] = ArcaneRes;
 
-    response.Stats.Delay = Delay;
-    response.Stats.AmmoType = AmmoType;
-    response.Stats.RangedModRange = RangedModRange;
+    _response[lc]->Stats.Delay = Delay;
+    _response[lc]->Stats.AmmoType = AmmoType;
+    _response[lc]->Stats.RangedModRange = RangedModRange;
 
     for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
     {
-        response.Stats.Spells[s].SpellId = Spells[s].SpellId;
-        response.Stats.Spells[s].SpellTrigger = Spells[s].SpellTrigger;
-        response.Stats.Spells[s].SpellCharges = Spells[s].SpellCharges;
-        response.Stats.Spells[s].SpellCooldown = Spells[s].SpellCooldown;
-        response.Stats.Spells[s].SpellCategory = Spells[s].SpellCategory;
-        response.Stats.Spells[s].SpellCategoryCooldown = Spells[s].SpellCategoryCooldown;
+        _response[lc]->Stats.Spells[s].SpellId = Spells[s].SpellId;
+        _response[lc]->Stats.Spells[s].SpellTrigger = Spells[s].SpellTrigger;
+        _response[lc]->Stats.Spells[s].SpellCharges = Spells[s].SpellCharges;
+        _response[lc]->Stats.Spells[s].SpellCooldown = Spells[s].SpellCooldown;
+        _response[lc]->Stats.Spells[s].SpellCategory = Spells[s].SpellCategory;
+        _response[lc]->Stats.Spells[s].SpellCategoryCooldown = Spells[s].SpellCategoryCooldown;
     }
 
-    response.Stats.Bonding = Bonding;
-    response.Stats.Description = locDescription;
-    response.Stats.PageText = PageText;
-    response.Stats.LanguageID = LanguageID;
-    response.Stats.PageMaterial = PageMaterial;
-    response.Stats.StartQuest = StartQuest;
-    response.Stats.LockID = LockID;
-    response.Stats.Material = Material;
-    response.Stats.Sheath = Sheath;
-    response.Stats.RandomProperty = RandomProperty;
-    response.Stats.RandomSuffix = RandomSuffix;
-    response.Stats.Block = Block;
-    response.Stats.ItemSet = ItemSet;
-    response.Stats.MaxDurability = MaxDurability;
-    response.Stats.Area = Area;
-    response.Stats.Map = Map;
-    response.Stats.BagFamily = BagFamily;
-    response.Stats.TotemCategory = TotemCategory;
+    _response[lc]->Stats.Bonding = Bonding;
+    _response[lc]->Stats.PageText = PageText;
+    _response[lc]->Stats.LanguageID = LanguageID;
+    _response[lc]->Stats.PageMaterial = PageMaterial;
+    _response[lc]->Stats.StartQuest = StartQuest;
+    _response[lc]->Stats.LockID = LockID;
+    _response[lc]->Stats.Material = Material;
+    _response[lc]->Stats.Sheath = Sheath;
+    _response[lc]->Stats.RandomProperty = RandomProperty;
+    _response[lc]->Stats.RandomSuffix = RandomSuffix;
+    _response[lc]->Stats.Block = Block;
+    _response[lc]->Stats.ItemSet = ItemSet;
+    _response[lc]->Stats.MaxDurability = MaxDurability;
+    _response[lc]->Stats.Area = Area;
+    _response[lc]->Stats.Map = Map;
+    _response[lc]->Stats.BagFamily = BagFamily;
+    _response[lc]->Stats.TotemCategory = TotemCategory;
 
     for (uint8 s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
     {
-        response.Stats.Socket[s].Color = Socket[s].Color;
-        response.Stats.Socket[s].Content = Socket[s].Content;
+        _response[lc]->Stats.Socket[s].Color = Socket[s].Color;
+        _response[lc]->Stats.Socket[s].Content = Socket[s].Content;
     }
 
-    response.Stats.SocketBonus = socketBonus;
-    response.Stats.GemProperties = GemProperties;
-    response.Stats.RequiredDisenchantSkill = RequiredDisenchantSkill;
-    response.Stats.ArmorDamageModifier = ArmorDamageModifier;
-    response.Stats.Duration = Duration;
-    response.Stats.ItemLimitCategory = ItemLimitCategory;
-    response.Stats.HolidayId = HolidayId;
-
-    response.Write();
-    return response.Move();
+    _response[lc]->Stats.SocketBonus = socketBonus;
+    _response[lc]->Stats.GemProperties = GemProperties;
+    _response[lc]->Stats.RequiredDisenchantSkill = RequiredDisenchantSkill;
+    _response[lc]->Stats.ArmorDamageModifier = ArmorDamageModifier;
+    _response[lc]->Stats.Duration = Duration;
+    _response[lc]->Stats.ItemLimitCategory = ItemLimitCategory;
+    _response[lc]->Stats.HolidayId = HolidayId;
 }

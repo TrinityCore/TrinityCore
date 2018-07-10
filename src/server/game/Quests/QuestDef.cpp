@@ -26,8 +26,11 @@
 #include "QuestPackets.h"
 #include "World.h"
 
-Quest::Quest(Field* questRecord)
+Quest::Quest(Field* questRecord, LocaleConstant localeConstantDefault)
 {
+    LocaleConstant lc = _localeConstantDefault = localeConstantDefault;
+    _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
+
     _id = questRecord[0].GetUInt32();
     _method = questRecord[1].GetUInt8();
     _level = questRecord[2].GetInt16();
@@ -85,17 +88,17 @@ Quest::Quest(Field* questRecord)
     _poiX = questRecord[63].GetFloat();
     _poiY = questRecord[64].GetFloat();
     _poiPriority = questRecord[65].GetUInt32();
-    _title = questRecord[66].GetString();
-    _objectives = questRecord[67].GetString();
-    _details = questRecord[68].GetString();
-    _areaDescription = questRecord[69].GetString();
-    _completedText = questRecord[70].GetString();
+    _title[lc] = questRecord[66].GetString();
+    _objectives[lc] = questRecord[67].GetString();
+    _details[lc] = questRecord[68].GetString();
+    _areaDescription[lc] = questRecord[69].GetString();
+    _completedText[lc] = questRecord[70].GetString();
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
         RequiredNpcOrGo[i] = questRecord[71+i].GetInt32();
         RequiredNpcOrGoCount[i] = questRecord[75+i].GetUInt16();
-        ObjectiveText[i] = questRecord[100+i].GetString();
+        ObjectiveText[lc][i] = questRecord[100+i].GetString();
 
         if (RequiredNpcOrGo[i])
             ++_reqCreatureOrGOcount;
@@ -120,7 +123,7 @@ Quest::Quest(Field* questRecord)
     // int32 VerifiedBuild = questRecord[104].GetInt32();
 }
 
-void Quest::LoadQuestDetails(Field* fields)
+void Quest::LoadQuestDetails(LocaleConstant lc, Field* fields)
 {
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
@@ -137,7 +140,7 @@ void Quest::LoadQuestDetails(Field* fields)
         DetailsEmoteDelay[i] = fields[5+i].GetUInt32();
 }
 
-void Quest::LoadQuestRequestItems(Field* fields)
+void Quest::LoadQuestRequestItems(LocaleConstant lc, Field* fields)
 {
     _emoteOnComplete = fields[1].GetUInt16();
     _emoteOnIncomplete = fields[2].GetUInt16();
@@ -148,10 +151,10 @@ void Quest::LoadQuestRequestItems(Field* fields)
     if (!sEmotesStore.LookupEntry(_emoteOnIncomplete))
         TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete (%u) set for quest %u.", _emoteOnIncomplete, fields[0].GetUInt32());
 
-    _requestItemsText = fields[3].GetString();
+    _requestItemsText[lc] = fields[3].GetString();
 }
 
-void Quest::LoadQuestOfferReward(Field* fields)
+void Quest::LoadQuestOfferReward(LocaleConstant lc, Field* fields)
 {
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
@@ -167,10 +170,10 @@ void Quest::LoadQuestOfferReward(Field* fields)
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmoteDelay[i] = fields[5 + i].GetUInt32();
 
-    _offerRewardText = fields[9].GetString();
+    _offerRewardText[lc] = fields[9].GetString();
 }
 
-void Quest::LoadQuestTemplateAddon(Field* fields)
+void Quest::LoadQuestTemplateAddon(LocaleConstant lc, Field* fields)
 {
     _maxLevel = fields[1].GetUInt8();
     _requiredClasses = fields[2].GetUInt32();
@@ -193,7 +196,7 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }
 
-void Quest::LoadQuestMailSender(Field* fields)
+void Quest::LoadQuestMailSender(LocaleConstant lc, Field* fields)
 {
     _rewardMailSenderEntry = fields[1].GetUInt32();
 }
@@ -312,124 +315,129 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
     return (!IsDFQuest() && !IsDaily() && (!IsRepeatable() || IsWeekly() || IsMonthly() || IsSeasonal()));
 }
 
-void Quest::InitializeQueryData()
+void Quest::BuildQueryDataLocale(LocaleConstant lc) const
 {
-    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
-}
-
-WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
-{
-    WorldPackets::Quest::QueryQuestInfoResponse response;
-
-    std::string locQuestTitle = GetTitle();
-    std::string locQuestDetails = GetDetails();
-    std::string locQuestObjectives = GetObjectives();
-    std::string locQuestAreaDescription = GetAreaDescription();
-    std::string locQuestCompletedText = GetCompletedText();
-
-    std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
-    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        locQuestObjectiveText[i] = ObjectiveText[i];
-
     if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(GetQuestId()))
     {
-        ObjectMgr::GetLocaleString(localeData->Title, loc, locQuestTitle);
-        ObjectMgr::GetLocaleString(localeData->Details, loc, locQuestDetails);
-        ObjectMgr::GetLocaleString(localeData->Objectives, loc, locQuestObjectives);
-        ObjectMgr::GetLocaleString(localeData->AreaDescription, loc, locQuestAreaDescription);
-        ObjectMgr::GetLocaleString(localeData->CompletedText, loc, locQuestCompletedText);
+        _response[lc]->Info.Title[lc] = GetTitle(lc);
+        _response[lc]->Info.Objectives[lc] = GetDetails(lc);
+        _response[lc]->Info.Details[lc] = GetObjectives(lc);
+        _response[lc]->Info.AreaDescription[lc] = GetAreaDescription(lc);
+        _response[lc]->Info.CompletedText[lc] = GetCompletedText(lc);
 
+        if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+            Quest::AddQuestLevelToTitle(_response[lc]->Info.Title[lc], GetQuestLevel());
+
+        std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-            ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], loc, locQuestObjectiveText[i]);
+        {
+            _response[lc]->Info.ObjectiveText[lc][i] = ObjectiveText[lc][i];
+        }   
     }
 
-    response.Info.QuestID = GetQuestId();
-    response.Info.QuestMethod = GetQuestMethod();
-    response.Info.QuestLevel = GetQuestLevel();
-    response.Info.QuestMinLevel = GetMinLevel();
-    response.Info.QuestSortID = GetZoneOrSort();
+}
 
-    response.Info.QuestType = GetType();
-    response.Info.SuggestedGroupNum = GetSuggestedPlayers();
+void Quest::BuildQueryDataRaw(LocaleConstant lc) const
+{
+    _response[lc]->Info.QuestID = GetQuestId();
+    _response[lc]->Info.QuestMethod = GetQuestMethod();
+    _response[lc]->Info.QuestLevel = GetQuestLevel();
+    _response[lc]->Info.QuestMinLevel = GetMinLevel();
+    _response[lc]->Info.QuestSortID = GetZoneOrSort();
 
-    response.Info.RequiredFactionId[0] = GetRepObjectiveFaction();
-    response.Info.RequiredFactionValue[0] = GetRepObjectiveValue();
+    _response[lc]->Info.QuestType = GetType();
+    _response[lc]->Info.SuggestedGroupNum = GetSuggestedPlayers();
 
-    response.Info.RequiredFactionId[1] = GetRepObjectiveFaction2();
-    response.Info.RequiredFactionValue[1] = GetRepObjectiveValue2();
+    _response[lc]->Info.RequiredFactionId[0] = GetRepObjectiveFaction();
+    _response[lc]->Info.RequiredFactionValue[0] = GetRepObjectiveValue();
 
-    response.Info.RewardNextQuest = GetNextQuestInChain();
-    response.Info.RewardXPDifficulty = GetXPId();
+    _response[lc]->Info.RequiredFactionId[1] = GetRepObjectiveFaction2();
+    _response[lc]->Info.RequiredFactionValue[1] = GetRepObjectiveValue2();
 
-    response.Info.RewardMoney = GetRewOrReqMoney();
-    response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
-    response.Info.RewardDisplaySpell = GetRewSpell();
-    response.Info.RewardSpell = GetRewSpellCast();
+    _response[lc]->Info.RewardNextQuest = GetNextQuestInChain();
+    _response[lc]->Info.RewardXPDifficulty = GetXPId();
 
-    response.Info.RewardHonor = GetRewHonorAddition();
-    response.Info.RewardKillHonor = GetRewHonorMultiplier();
+    _response[lc]->Info.RewardMoney = GetRewOrReqMoney();
+    _response[lc]->Info.RewardBonusMoney = GetRewMoneyMaxLevel();
+    _response[lc]->Info.RewardDisplaySpell = GetRewSpell();
+    _response[lc]->Info.RewardSpell = GetRewSpellCast();
 
-    response.Info.StartItem = GetSrcItemId();
-    response.Info.Flags = GetFlags();
-    response.Info.RewardTitleId = GetCharTitleId();
-    response.Info.RequiredPlayerKills = GetPlayersSlain();
-    response.Info.RewardTalents = GetBonusTalents();
-    response.Info.RewardArenaPoints = GetRewArenaPoints();
+    _response[lc]->Info.RewardHonor = GetRewHonorAddition();
+    _response[lc]->Info.RewardKillHonor = GetRewHonorMultiplier();
+
+    _response[lc]->Info.StartItem = GetSrcItemId();
+    _response[lc]->Info.Flags = GetFlags();
+    _response[lc]->Info.RewardTitleId = GetCharTitleId();
+    _response[lc]->Info.RequiredPlayerKills = GetPlayersSlain();
+    _response[lc]->Info.RewardTalents = GetBonusTalents();
+    _response[lc]->Info.RewardArenaPoints = GetRewArenaPoints();
 
     for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
     {
-        response.Info.RewardItems[i] = RewardItemId[i];
-        response.Info.RewardAmount[i] = RewardItemIdCount[i];
+        _response[lc]->Info.RewardItems[i] = RewardItemId[i];
+        _response[lc]->Info.RewardAmount[i] = RewardItemIdCount[i];
     }
 
     for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
-        response.Info.UnfilteredChoiceItems[i].ItemID = RewardChoiceItemId[i];
-        response.Info.UnfilteredChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+        _response[lc]->Info.UnfilteredChoiceItems[i].ItemID = RewardChoiceItemId[i];
+        _response[lc]->Info.UnfilteredChoiceItems[i].Quantity = RewardChoiceItemCount[i];
     }
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
-        response.Info.RewardFactionID[i] = RewardFactionId[i];
+        _response[lc]->Info.RewardFactionID[i] = RewardFactionId[i];
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
-        response.Info.RewardFactionValue[i] = RewardFactionValueId[i];
+        _response[lc]->Info.RewardFactionValue[i] = RewardFactionValueId[i];
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unk (0)
-        response.Info.RewardFactionValueOverride[i] = RewardFactionValueIdOverride[i];
+        _response[lc]->Info.RewardFactionValueOverride[i] = RewardFactionValueIdOverride[i];
 
-    response.Info.POIContinent = GetPOIContinent();
-    response.Info.POIx = GetPOIx();
-    response.Info.POIy = GetPOIy();
-    response.Info.POIPriority = GetPointOpt();
-
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
-
-    response.Info.Title = locQuestTitle;
-    response.Info.Objectives = locQuestObjectives;
-    response.Info.Details = locQuestDetails;
-    response.Info.AreaDescription = locQuestAreaDescription;
-    response.Info.CompletedText = locQuestCompletedText;
+    _response[lc]->Info.POIContinent = GetPOIContinent();
+    _response[lc]->Info.POIx = GetPOIx();
+    _response[lc]->Info.POIy = GetPOIy();
+    _response[lc]->Info.POIPriority = GetPointOpt();
 
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        response.Info.RequiredNpcOrGo[i] = RequiredNpcOrGo[i];
-        response.Info.RequiredNpcOrGoCount[i] = RequiredNpcOrGoCount[i];
-        response.Info.ItemDrop[i] = ItemDrop[i];
+        _response[lc]->Info.RequiredNpcOrGo[i] = RequiredNpcOrGo[i];
+        _response[lc]->Info.RequiredNpcOrGoCount[i] = RequiredNpcOrGoCount[i];
+        _response[lc]->Info.ItemDrop[i] = ItemDrop[i];
     }
 
     for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
-        response.Info.RequiredItemId[i] = RequiredItemId[i];
-        response.Info.RequiredItemCount[i] = RequiredItemCount[i];
+        _response[lc]->Info.RequiredItemId[i] = RequiredItemId[i];
+        _response[lc]->Info.RequiredItemCount[i] = RequiredItemCount[i];
     }
+}
 
-    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        response.Info.ObjectiveText[i] = locQuestObjectiveText[i];
+void Quest::InitializeQueryData(LocaleConstant lc)
+{
+    BuildQueryDataRaw(lc);
+    BuildQueryDataLocale(lc);
+    _response[lc]->Write();
+}
 
-    response.Write();
-    return response.Move();
+WorldPacket* Quest::GetQueryDataRef(LocaleConstant lc)
+{
+    if (!_response[lc])
+    {
+        GetQueryData(lc);
+    }
+    return (WorldPacket*) _response[lc]->GetRawPacket();
+}
+
+WorldPacket Quest::GetQueryData(LocaleConstant lc)
+{
+    if (!_response[lc])
+    {
+        _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
+        BuildQueryDataRaw(lc);
+        BuildQueryDataLocale(lc);
+    }
+    const WorldPacket* wp = _response[lc]->Write(lc);
+    return *wp;
 }
 
 void Quest::AddQuestLevelToTitle(std::string &title, int32 level)

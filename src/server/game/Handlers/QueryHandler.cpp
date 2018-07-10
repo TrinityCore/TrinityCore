@@ -92,14 +92,14 @@ void WorldSession::SendQueryTimeResponse()
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature& query)
 {
-    if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(query.CreatureID))
+    if (CreatureTemplate* ci = (CreatureTemplate*) sObjectMgr->GetCreatureTemplate(query.CreatureID))
     {
         TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), query.CreatureID);
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
-            SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+            SendPacket(ci->GetQueryDataRef(GetSessionDbLocaleIndex()));
         else
         {
-            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex());
+            WorldPacket response = ci->GetQueryData(GetSessionDbLocaleIndex());
             SendPacket(&response);
         }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
@@ -119,13 +119,13 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature&
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& query)
 {
-    if (GameObjectTemplate const* info = sObjectMgr->GetGameObjectTemplate(query.GameObjectID))
+    if (GameObjectTemplate* info = (GameObjectTemplate*) sObjectMgr->GetGameObjectTemplate(query.GameObjectID))
     {
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
-            SendPacket(&info->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+            SendPacket(info->GetQueryDataRef(GetSessionDbLocaleIndex()));
         else
         {
-            WorldPacket response = info->BuildQueryData(GetSessionDbLocaleIndex());
+            WorldPacket response = info->GetQueryData(GetSessionDbLocaleIndex());
             SendPacket(&response);
         }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
