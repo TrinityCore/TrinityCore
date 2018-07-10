@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "CreatureTemplate.h"
 #include "DatabaseEnv.h"
 #include "FollowMovementGenerator.h"
 #include "GameTime.h"
@@ -42,8 +43,6 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
-
-struct CreatureMovementData;
 
 template<typename E, typename T = char const*>
 struct EnumName
