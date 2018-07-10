@@ -173,7 +173,7 @@ void Quest::LoadQuestOfferReward(LocaleConstant lc, Field* fields)
     _offerRewardText[lc] = fields[9].GetString();
 }
 
-void Quest::LoadQuestTemplateAddon(LocaleConstant lc, Field* fields)
+void Quest::LoadQuestTemplateAddon(LocaleConstant /* lc */, Field* fields)
 {
     _maxLevel = fields[1].GetUInt8();
     _requiredClasses = fields[2].GetUInt32();
@@ -196,7 +196,7 @@ void Quest::LoadQuestTemplateAddon(LocaleConstant lc, Field* fields)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }
 
-void Quest::LoadQuestMailSender(LocaleConstant lc, Field* fields)
+void Quest::LoadQuestMailSender(LocaleConstant /* lc */, Field* fields)
 {
     _rewardMailSenderEntry = fields[1].GetUInt32();
 }
