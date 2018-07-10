@@ -358,7 +358,6 @@ class TC_GAME_API Quest
         uint32 _emoteOnComplete = 0;
 
         WorldPackets::Quest::QueryQuestInfoResponse* _response[TOTAL_LOCALES];
-        LocaleConstant _localeConstantDefault;
 
         // quest_template_addon table (custom data)
         uint32 _maxLevel              = 0;
