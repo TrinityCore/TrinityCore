@@ -20,9 +20,8 @@
 #include "Opcodes.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "QueryPackets.h"
+#include "Packets/QueryPackets.h"
 
-//class QueryItemSingleResponse;
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
