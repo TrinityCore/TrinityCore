@@ -53,21 +53,6 @@
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
 
-std::string CreatureMovementData::ToString() const
-{
-    char const* const GroundStates[] = { "None", "Run", "Hover" };
-    char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
-
-    std::ostringstream str;
-    str << std::boolalpha
-        << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
-        << ", Swim: " << Swim
-        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
-    if (Rooted)
-        str << ", Rooted";
-
-    return str.str();
-}
 
 VendorItemCount::VendorItemCount(uint32 _item, uint32 _count)
     : itemId(_item), count(_count), lastIncrementTime(GameTime::GetGameTime()) { }
