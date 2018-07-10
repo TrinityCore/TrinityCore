@@ -19,7 +19,7 @@ INSERT INTO spell_area (`spell`, `area`, `teamid`, `flags`) VALUES
 DELETE FROM creature_queststarter WHERE id=37596 AND quest=24506; -- THIS NPC IS NOT SUPPOSED TO GIVE THIS QUEST
 
 -- missing spawns --
-SET @CGUID = 210219115;
+SET @CGUID = 210219090;
 
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 37582, 632, 4809, 4809, 6, 171, 0, 0, 0, 4903.156, 2213.092, 638.8166, 0.1745329, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 37582
