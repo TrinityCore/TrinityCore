@@ -453,65 +453,50 @@ class spell_pri_item_greater_heal_refund : public SpellScriptLoader
 };
 
 // 47788 - Guardian Spirit
-class spell_pri_guardian_spirit : public SpellScriptLoader
+class spell_pri_guardian_spirit : public AuraScript
 {
-    public:
-        spell_pri_guardian_spirit() : SpellScriptLoader("spell_pri_guardian_spirit") { }
+    PrepareAuraScript(spell_pri_guardian_spirit);
 
-        class spell_pri_guardian_spirit_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL });
+    }
 
-        public:
-            spell_pri_guardian_spirit_AuraScript()
-            {
-                healPct = 0;
-            }
+    bool Load() override
+    {
+        healPct = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+        return true;
+    }
 
-        private:
-            uint32 healPct;
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        amount = -1;
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL });
-            }
+    void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        Unit* target = GetTarget();
+        if (dmgInfo.GetDamage() < target->GetHealth())
+            return;
 
-            bool Load() override
-            {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                return true;
-            }
+        int32 healAmount = target->CountPctFromMaxHealth(healPct);
+        // Negate the heal bonus. We don't want it for our following heal
+        if (AuraEffect* aurEff = GetEffect(EFFECT_0))
+            aurEff->SetAmount(0);
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
+        target->CastCustomSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, &healAmount, nullptr, nullptr, true);
+        absorbAmount = dmgInfo.GetDamage();
+        Remove();
+    }
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                Unit* target = GetTarget();
-                if (dmgInfo.GetDamage() < target->GetHealth())
-                    return;
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit::Absorb, EFFECT_1);
+    }
 
-                int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
-                // remove the aura now, we don't want 40% healing bonus
-                Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                target->CastCustomSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, &healAmount, nullptr, nullptr, true);
-                absorbAmount = dmgInfo.GetDamage();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit_AuraScript::Absorb, EFFECT_1);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_guardian_spirit_AuraScript();
-        }
+private:
+    uint32 healPct;
 };
 
 // 64904 - Hymn of Hope
@@ -1523,7 +1508,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_hymn_of_hope();
     new spell_pri_improved_power_word_shield();
     new spell_pri_item_greater_heal_refund();
-    new spell_pri_guardian_spirit();
+    RegisterAuraScript(spell_pri_guardian_spirit);
     RegisterAuraScript(spell_pri_holy_word_sanctuary);
     RegisterSpellScript(spell_pri_holy_word_sanctuary_triggered);
     new spell_pri_leap_of_faith_effect_trigger();
