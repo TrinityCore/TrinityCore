@@ -36,77 +36,77 @@ enum Spells
 
 class npc_lct_augh : public CreatureScript
 {
-public:
-    npc_lct_augh() : CreatureScript("npc_lct_augh") { }
+    public:
+        npc_lct_augh() : CreatureScript("npc_lct_augh") { }
 
-    struct npc_lct_aughAI : public ScriptedAI
-    {
-        npc_lct_aughAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_lct_aughAI : public ScriptedAI
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            _finishedPreFight = false;
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPctDamaged(50, damage) && !_finishedPreFight)
+            npc_lct_aughAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->AttackStop();
-                me->SetReactState(REACT_PASSIVE);
-                me->RemoveAllAuras();
-                DoCastSelf(SPELL_SMOKE_BOMB, true);
-                Talk(SAY_SMOKE_BOMB);
-                _events.ScheduleEvent(EVENT_SMOKE_BOMB, Milliseconds(800));
-                _finishedPreFight = true;
+                Initialize();
             }
 
-            // Do not allow Augh to die
-            if (damage > me->GetHealth())
-                damage = me->GetHealth() - 1;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() && !_finishedPreFight)
-                return;
-
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
+            void Initialize()
             {
-                switch (eventId)
+                _finishedPreFight = false;
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                Talk(SAY_AGGRO);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (me->HealthBelowPctDamaged(50, damage) && !_finishedPreFight)
                 {
-                    case EVENT_SMOKE_BOMB:
-                        DoCastSelf(SPELL_SMOKE_BOMB);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                        me->DespawnOrUnsummon(Seconds(1) + Milliseconds(200));
-                        break;
-                    default:
-                        break;
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->RemoveAllAuras();
+                    DoCastSelf(SPELL_SMOKE_BOMB, true);
+                    Talk(SAY_SMOKE_BOMB);
+                    _events.ScheduleEvent(EVENT_SMOKE_BOMB, Milliseconds(800));
+                    _finishedPreFight = true;
                 }
+
+                // Do not allow Augh to die
+                if (damage > me->GetHealth())
+                    damage = me->GetHealth() - 1;
             }
 
-            DoMeleeAttackIfReady();
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim() && !_finishedPreFight)
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SMOKE_BOMB:
+                            DoCastSelf(SPELL_SMOKE_BOMB);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                            me->DespawnOrUnsummon(Seconds(1) + Milliseconds(200));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+            bool _finishedPreFight;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetLostCityOfTheTolvirAI<npc_lct_aughAI>(creature);
         }
-
-    private:
-        EventMap _events;
-        bool _finishedPreFight;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return GetLostCityOfTheTolvirAI<npc_lct_aughAI>(creature);
-    }
 };
 
 void AddSC_lost_city_of_the_tolvir()
