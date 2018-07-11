@@ -102,6 +102,16 @@ uint32 CreatureTemplate::GetFirstVisibleModel() const
 	return 17519;
 }
 
+void CreatureTemplate::InitializeQueryData()
+{
+    for (uint8 lc = LOCALE_enUS; lc < TOTAL_LOCALES; ++lc)
+    {
+        _response[lc] = new WorldPackets::Query::QueryCreatureResponse();
+        BuildQueryData(static_cast<LocaleConstant>(lc));
+        _response[lc]->Write();
+    }
+}
+
 void CreatureTemplate::InitializeQueryData(LocaleConstant lc)
 {
 	_response[lc] = new WorldPackets::Query::QueryCreatureResponse();

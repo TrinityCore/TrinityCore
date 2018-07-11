@@ -20,6 +20,16 @@
 #include "QueryPackets.h"
 #include "ObjectMgr.h"
 
+void GameObjectTemplate::InitializeQueryData()
+{
+    for (uint8 lc = LOCALE_enUS; lc < TOTAL_LOCALES; ++lc)
+    {
+        _response[lc] = new WorldPackets::Query::QueryGameObjectResponse();
+        BuildQueryData(static_cast<LocaleConstant>(lc));
+        _response[lc]->Write();
+    }
+}
+
 void GameObjectTemplate::InitializeQueryData(LocaleConstant lc)
 {
     _response[lc] = new WorldPackets::Query::QueryGameObjectResponse();

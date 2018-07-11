@@ -576,6 +576,7 @@ struct GameObjectTemplate
 
     WorldPackets::Query::QueryGameObjectResponse* _response[TOTAL_LOCALES];
 
+    void InitializeQueryData();
     void InitializeQueryData(LocaleConstant lc);
     void BuildQueryData(LocaleConstant lc) const;
     WorldPacket* GetQueryDataRef(LocaleConstant lc);

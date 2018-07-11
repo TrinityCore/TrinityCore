@@ -9749,30 +9749,60 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     if (!sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
         return;
 
-    // Initialize Query data for creatures
-    if (mask & QUERY_DATA_CREATURES)
-        for (auto& creatureTemplatePair : _creatureTemplateStore)
-            creatureTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+    if (sWorld->getBoolConfig(CONFIG_GENERATE_LOCALE_DATA_QUERIES))
+    {
+        // Initialize Query data for creatures
+        if (mask & QUERY_DATA_CREATURES)
+            for (auto& creatureTemplatePair : _creatureTemplateStore)
+                creatureTemplatePair.second.InitializeQueryData();
 
-    // Initialize Query Data for gameobjects
-    if (mask & QUERY_DATA_GAMEOBJECTS)
-        for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
-            gameObjectTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+        // Initialize Query Data for gameobjects
+        if (mask & QUERY_DATA_GAMEOBJECTS)
+            for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
+                gameObjectTemplatePair.second.InitializeQueryData();
 
-    // Initialize Query Data for items
-    if (mask & QUERY_DATA_ITEMS)
-        for (auto& itemTemplatePair : _itemTemplateStore)
-            itemTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+        // Initialize Query Data for items
+        if (mask & QUERY_DATA_ITEMS)
+            for (auto& itemTemplatePair : _itemTemplateStore)
+                itemTemplatePair.second.InitializeQueryData();
 
-    // Initialize Query Data for quests
-    if (mask & QUERY_DATA_QUESTS)
-        for (auto& questTemplatePair : _questTemplates)
-            questTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+        // Initialize Query Data for quests
+        if (mask & QUERY_DATA_QUESTS)
+            for (auto& questTemplatePair : _questTemplates)
+                questTemplatePair.second.InitializeQueryData();
 
-    // Initialize Quest POI data
-    if (mask & QUERY_DATA_POIS)
-        for (auto& poiWrapperPair : _questPOIStore)
-            poiWrapperPair.second.InitializeQueryData();
+        // Initialize Quest POI data
+        if (mask & QUERY_DATA_POIS)
+            for (auto& poiWrapperPair : _questPOIStore)
+                poiWrapperPair.second.InitializeQueryData();
+    }
+    else
+    {
+        // Initialize Query data for creatures
+        if (mask & QUERY_DATA_CREATURES)
+            for (auto& creatureTemplatePair : _creatureTemplateStore)
+                creatureTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+
+        // Initialize Query Data for gameobjects
+        if (mask & QUERY_DATA_GAMEOBJECTS)
+            for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
+                gameObjectTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+
+        // Initialize Query Data for items
+        if (mask & QUERY_DATA_ITEMS)
+            for (auto& itemTemplatePair : _itemTemplateStore)
+                itemTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+
+        // Initialize Query Data for quests
+        if (mask & QUERY_DATA_QUESTS)
+            for (auto& questTemplatePair : _questTemplates)
+                questTemplatePair.second.InitializeQueryData(GetDBCLocaleIndex());
+
+        // Initialize Quest POI data
+        if (mask & QUERY_DATA_POIS)
+            for (auto& poiWrapperPair : _questPOIStore)
+                poiWrapperPair.second.InitializeQueryData();
+    }
 }
 
 void QuestPOIWrapper::InitializeQueryData()

@@ -147,6 +147,15 @@ void ItemTemplate::_LoadTotalAP()
     _totalAP = totalAP;
 }
 
+void ItemTemplate::InitializeQueryData()
+{
+    for (uint8 lc = LOCALE_enUS; lc < TOTAL_LOCALES; ++lc)
+    {
+        _response[lc] = new WorldPackets::Query::QueryItemSingleResponse();
+        BuildQueryData(static_cast<LocaleConstant>(lc));
+        _response[lc]->Write();
+    }
+}
 
 void ItemTemplate::InitializeQueryData(LocaleConstant lc)
 {

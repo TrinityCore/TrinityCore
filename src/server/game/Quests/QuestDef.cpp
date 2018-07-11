@@ -407,6 +407,16 @@ void Quest::BuildQueryData(LocaleConstant lc) const
     }
 }
 
+void Quest::InitializeQueryData()
+{
+    for (uint8 lc = LOCALE_enUS; lc < TOTAL_LOCALES; ++lc)
+    {
+        _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
+        BuildQueryData(static_cast<LocaleConstant>(lc));
+        _response[lc]->Write();
+    }
+}
+
 void Quest::InitializeQueryData(LocaleConstant lc)
 {
     BuildQueryData(lc);
