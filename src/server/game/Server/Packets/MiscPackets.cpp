@@ -745,3 +745,11 @@ WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::OpenAlliedRaceDetailsGiver::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << RaceId;
+
+    return &_worldPacket;
+}
