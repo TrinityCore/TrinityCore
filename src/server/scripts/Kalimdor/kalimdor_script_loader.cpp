@@ -93,7 +93,8 @@ void AddSC_boss_skum();
 void AddSC_boss_zum_rah();                   //Zul'Farrak
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
-void AddSC_instance_lost_city_of_the_tolvir(); // Lost City of the Tol'Vir
+void AddSC_lost_city_of_the_tolvir();        // Lost City of the Tol'Vir
+void AddSC_instance_lost_city_of_the_tolvir();
 void AddSC_boss_general_husam();
 void AddSC_boss_high_prophet_barim();
 void AddSC_boss_lockmaw_and_augh();
@@ -215,7 +216,8 @@ void AddKalimdorScripts()
     AddSC_boss_zum_rah();                   //Zul'Farrak
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
-    AddSC_instance_lost_city_of_the_tolvir(); // Lost City of the Tol'Vir
+    AddSC_lost_city_of_the_tolvir();        // Lost City of the Tol'Vir
+    AddSC_instance_lost_city_of_the_tolvir();
     AddSC_boss_general_husam();
     AddSC_boss_high_prophet_barim();
     AddSC_boss_lockmaw_and_augh();
