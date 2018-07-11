@@ -22,22 +22,6 @@
 #include "QueryPackets.h"
 #include "Random.h"
 
-std::string CreatureMovementData::ToString() const
-{
-    char const* const GroundStates[] = { "None", "Run", "Hover" };
-    char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
-
-    std::ostringstream str;
-    str << std::boolalpha
-        << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
-        << ", Swim: " << Swim
-        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
-    if (Rooted)
-        str << ", Rooted";
-
-    return str.str();
-}
-
 uint32 CreatureTemplate::GetRandomValidModelId() const
 {
 	uint8 c = 0;
