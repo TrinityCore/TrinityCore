@@ -2192,9 +2192,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             EventInform(m_goInfo->building.destroyedEvent, attackerOrHealer);
             AI()->Destroyed(attackerOrHealer, m_goInfo->building.destroyedEvent);
 
-            if (attackerOrHealer && attackerOrHealer->GetTypeId() == TYPEID_PLAYER)
-                if (Battleground* bg = attackerOrHealer->ToPlayer()->GetBattleground())
-                    bg->DestroyGate(attackerOrHealer->ToPlayer(), this);
+            if (Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
+                if (Battleground* bg = player->GetBattleground())
+                    bg->DestroyGate(player, this);
 
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
