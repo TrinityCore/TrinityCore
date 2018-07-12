@@ -819,13 +819,14 @@ public:
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();
                 float z = fields[4].GetFloat();
-                uint16 mapId = fields[5].GetUInt16();
+                float o = fields[5].GetFloat();
+                uint16 mapId = fields[6].GetUInt16();
 
                 CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(entry);
                 if (!creatureTemplate)
                     continue;
 
-                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), std::to_string(guid).c_str(), creatureTemplate->Name.c_str(), x, y, z, mapId);
+                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), creatureTemplate->Name.c_str(), x, y, z, o, mapId);
 
                 ++count;
             }
