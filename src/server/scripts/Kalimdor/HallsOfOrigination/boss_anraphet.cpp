@@ -592,45 +592,6 @@ public:
     }
 };
 
-// 82329 Teleport Earth, 82330 Teleport Air, 82331 Teleport Fire, 82332 Teleport Water
-// Sets orientation and updates home position after warden has been teleported.
-class spell_hoo_platform_teleport : public SpellScriptLoader
-{
-public:
-    spell_hoo_platform_teleport() : SpellScriptLoader("spell_hoo_platform_teleport") { }
-
-    class spell_hoo_platform_teleport_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hoo_platform_teleport_SpellScript);
-
-        void SetDest(SpellDestination& dest)
-        {
-            Creature* creature = GetCaster()->ToCreature();
-            if (creature)
-                return;
-            
-            // Side of the room: WEST > 366.781f (middle of the room) > EAST
-            float ori = creature->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90);
-
-            // DB dest has no orientation field (always 0.0f).
-            dest.RelocateOffset({ 0.0f, 0.0f, 0.0f, ori });
-
-            creature->SetHomePosition(dest._position.GetPosition());
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_hoo_platform_teleport_SpellScript::SetDest, EFFECT_0, TARGET_DEST_DB);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_hoo_platform_teleport_SpellScript();
-    }
-};
-
-
 // 77273 Lava Eruption
 class spell_flame_warden_lava_eruption : public SpellScriptLoader
 {
@@ -936,7 +897,6 @@ void AddSC_boss_anraphet()
     new npc_brann_bronzebeard_anraphet();
     new npc_alpha_beam();
     new npc_omega_stance();
-    new spell_hoo_platform_teleport();
     new spell_flame_warden_lava_eruption();
     new spell_whirling_winds_movement();
     new spell_anraphet_destruction_protocol();
