@@ -125,7 +125,7 @@ enum PaladinSpells
     SPELL_PALADIN_THE_FIRES_OF_JUSTICE          = 209785,
     SPELL_PALADIN_WORD_OF_GLORY                 = 210191,
     SPELL_PALADIN_WORD_OF_GLORY_HEAL            = 214894,
-    SPELL_PALDIN_BLESSED_HAMMER                 = 204019,
+    SPELL_PALADIN_BLESSED_HAMMER                = 204019,
 };
 
 enum PaladinNPCs
