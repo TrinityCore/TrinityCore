@@ -101,8 +101,6 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, VehicleId = 5547, type = 7, faction = 1733 WHERE entry = 126326;
 UPDATE creature_template SET minlevel = 98, maxlevel = 110, VehicleId = 5078, type = 7, faction = 1733 WHERE entry = 116312;
 
-SET @CGUID = 210119255;
-
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+9, 133433, 0, 1519, 5314, 1, 0, 0, 0, 0, -8209.656, 822.6614, 70.65031, 1.365126, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133433 (Area: 5314 - Difficulty: 0) @cguid+202
 (@CGUID+10, 133441, 0, 1519, 5314, 1, 0, 0, 0, 0, -8209.288, 825.3958, 70.63021, 4.271554, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133441 (Area: 5314 - Difficulty: 0) @cguid+194
