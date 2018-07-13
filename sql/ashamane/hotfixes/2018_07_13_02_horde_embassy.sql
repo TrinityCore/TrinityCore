@@ -1,4 +1,4 @@
-DELETE FROM broadcast_text WHERE ID IN (147238, 143287, 137236, 137240, 143290, 147235, 147234);
+DELETE FROM broadcast_text WHERE ID IN (147238, 143287, 147236, 147240, 143290, 147235, 147234);
 INSERT INTO `broadcast_text` (`ID`, `Text`, `Text1`, `VerifiedBuild`) VALUES
 (147238, 'Yeah, sure. Allies. I get it.\n\nBut I got a business to run, see. And a rather delicate operation in the works.\n\nSo how about you handle your end and I''ll handle mine.', '', 26972),
 (143287, 'We share much with the Highmountain tauren. It is my belief that they would make ideal allies in the time to come.', '', 26972),
