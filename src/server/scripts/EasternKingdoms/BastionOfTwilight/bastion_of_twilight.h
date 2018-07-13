@@ -42,13 +42,14 @@ enum BoTDataTypes
     DATA_TERRASTRA                      = 10,
     DATA_ARION                          = 11,
     DATA_ELEMENTIUM_MONSTROSITY         = 12,
+    DATA_ASCENDANT_COUNCIL_CONTROLLER   = 13,
 
     // GameObject Types
-    DATA_WHELP_CAGE                     = 13,
+    DATA_WHELP_CAGE                     = 14,
 
     // Areatriggers
-    DATA_AT_HALFUS_INTRO                = 14,
-    DATA_AT_THERALION_AND_VALIONA_INTRO = 15,
+    DATA_AT_HALFUS_INTRO                = 15,
+    DATA_AT_THERALION_AND_VALIONA_INTRO = 16,
 
     // Encounter Related
     /*Halfus Wyrmbreaker*/
@@ -113,6 +114,12 @@ enum BoTCreatures
     NPC_UNSTABLE_TWILIGHT               = 46304,
     NPC_TWILIGHT_SENTRY                 = 50008,
     NPC_TWILIGHT_RIFT                   = 50014,
+
+    /*Ascendant Council*/
+    NPC_ASCENDANT_COUNCIL_CONTROLLER    = 43691,
+    NPC_WATER_BOMB                      = 44201,
+    NPC_INFERNO_RUSH                    = 47501,
+    NPC_FROZEN_ORB                      = 49518,
 
     // Generic Creatures
     NPC_INVISIBLE_STALKER               = 42098

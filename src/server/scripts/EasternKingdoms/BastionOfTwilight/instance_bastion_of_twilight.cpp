@@ -28,18 +28,19 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_HALFUS_WYRMBREAKER,          DATA_HALFUS_WYRMBREAKER     },
-    { BOSS_THERALION,                   DATA_THERALION              },
-    { BOSS_VALIONA,                     DATA_VALIONA                },
-    { BOSS_IGNACIOUS,                   DATA_IGNACIOUS              },
-    { BOSS_FELUDIUS,                    DATA_FELUDIUS               },
-    { BOSS_TERRASTRA,                   DATA_TERRASTRA              },
-    { BOSS_ARION,                       DATA_ARION                  },
-    { BOSS_ELEMENTIUM_MONSTROSITY,      DATA_ELEMENTIUM_MONSTROSITY },
-    { BOSS_CHOGALL,                     DATA_CHOGALL                },
-    { BOSS_SINESTRA,                    DATA_SINESTRA               },
-    { NPC_PROTO_BEHEMOTH,               DATA_PROTO_BEHEMOTH         },
-    { 0,                                0                           } // END
+    { BOSS_HALFUS_WYRMBREAKER,          DATA_HALFUS_WYRMBREAKER             },
+    { BOSS_THERALION,                   DATA_THERALION                      },
+    { BOSS_VALIONA,                     DATA_VALIONA                        },
+    { BOSS_IGNACIOUS,                   DATA_IGNACIOUS                      },
+    { BOSS_FELUDIUS,                    DATA_FELUDIUS                       },
+    { BOSS_TERRASTRA,                   DATA_TERRASTRA                      },
+    { BOSS_ARION,                       DATA_ARION                          },
+    { BOSS_ELEMENTIUM_MONSTROSITY,      DATA_ELEMENTIUM_MONSTROSITY         },
+    { BOSS_CHOGALL,                     DATA_CHOGALL                        },
+    { BOSS_SINESTRA,                    DATA_SINESTRA                       },
+    { NPC_PROTO_BEHEMOTH,               DATA_PROTO_BEHEMOTH                 },
+    { NPC_ASCENDANT_COUNCIL_CONTROLLER, DATA_ASCENDANT_COUNCIL_CONTROLLER   },
+    { 0,                                0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -153,6 +154,13 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         break;
                     case NPC_UNSTABLE_TWILIGHT:
                         _unstableTwilightGUIDs.insert(creature->GetGUID());
+                        break;
+                    case BOSS_FELUDIUS:
+                    case BOSS_IGNACIOUS:
+                    case BOSS_ARION:
+                    case BOSS_TERRASTRA:
+                        if (creature->isDead() && GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
+                            creature->Respawn();
                         break;
                     default:
                         break;

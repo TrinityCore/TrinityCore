@@ -28,6 +28,7 @@ void AddSC_instance_baradin_hold();
 void AddSC_bastion_of_twilight();            //Bastion of Twilight
 void AddSC_boss_halfus_wyrmbreaker();
 void AddSC_boss_theralion_and_valiona();
+void AddSC_boss_ascendant_council();
 void AddSC_instance_bastion_of_twilight();
 void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
 void AddSC_boss_corla();
@@ -241,6 +242,7 @@ void AddEasternKingdomsScripts()
     AddSC_bastion_of_twilight();            //Bastion of Twilight
     AddSC_boss_halfus_wyrmbreaker();
     AddSC_boss_theralion_and_valiona();
+    AddSC_boss_ascendant_council();
     AddSC_instance_bastion_of_twilight();
     AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
     AddSC_boss_corla();
