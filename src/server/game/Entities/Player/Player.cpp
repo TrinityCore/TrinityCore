@@ -1568,6 +1568,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == MAP_EBON_HOLD_DK_START_ZONE && !IsGameMaster() && !HasSpell(50977))
             return false;
 
+        if (GetMapId() == MAP_BROKEN_ISLANDS && !IsGameMaster() && getLevel() < 98)
+            return false;
+
         // far teleport to another map
         Map* oldmap = IsInWorld() ? GetMap() : NULL;
         // check if we can enter before stopping combat / removing pet / totems / interrupting spells
@@ -7269,6 +7272,9 @@ void Player::UpdateArea(uint32 newArea)
     if (oldArea != newArea)
     {
         sScriptMgr->OnPlayerUpdateArea(this, newArea, oldArea);
+
+        if (ZoneScript* zoneScript = GetZoneScript())
+            zoneScript->OnPlayerAreaUpdate(this, newArea, oldArea);
 
         if (IsInGarrison())
         {
