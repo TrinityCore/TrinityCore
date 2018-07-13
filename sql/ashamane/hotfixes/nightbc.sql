@@ -1,0 +1,43 @@
+/* DELETE FROM `broadcast_text` WHERE `ID` IN (147207, 147209, 147205, 147208, 143595, 143591, 143593, 143594, 143596, 122398, 108945, 144677, 144678, 144676, 144674, 144383, 144384, 124862, 124863, 124865, 144621, 144396, 143276, 143293, 143292, 143288, 143277, 144397, 10889);
+INSERT INTO `broadcast_text` (`ID`, `MaleText`, `FemaleText`, `EmoteID1`, `EmoteID2`, `EmoteID3`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `UnkEmoteID`, `Language`, `Type`, `SoundID1`, `SoundID2`, `PlayerConditionID`, `VerifiedBuild`) VALUES
+(147207, 'What do I have to do to get myself out of this job?\n\nI try to leave, some orc picks me up and plops me right back down here.', '', 6, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 26972),
+(147209, 'I really hated this tophat at first. What does a guy have to do for a good tricorne?\n\nBut I must say... this fits real nicely on my skull.', '', 6, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 26972),
+(147205, 'I used to be a famous pirate!\n\nThey dig me up, hand me this tophat, then tell me I have to greet all of you newcomers with a smile on my face...', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(147208, 'Psst... Yeah, you, $r.\n\nHey, can you put in a bad word for me with the Warchief? I need to get fired. Being a jerk to everyone isn''t working!', '', 1, 6, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 26972),
+(143595, '', 'Enough of these pleasantries. You have much to prove, hero. Wherever your path takes you, know that you fight... for the Horde!', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94783, 26972),
+(143591, '', 'Ah, the young hero $p comes before me. I am told you show great promise. Let us hope these reports prove true.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94778, 26972),
+(143593, '', 'The Horde has many rivals in this world. Some call us enemies... others call us outcasts. But we find strength in unity... and in defiance of those who would challenge our freedom.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94781, 26972),
+(143594, '', 'Rest assured, I will be taking note of your progress. As warchief, I expect much of you... and I reward those who serve me well.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94782, 26972),
+(143596, '', 'The nightborne are a wise and powerful people. The ancient knowledge you possess will prove a great boon to our cause.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94780, 26972),
+(122398, '', 'Sit down and relax!', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(108945, '<The attendant is silent.>', '<The attendant is silent.>', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144677, '', 'I have a feeling our city will be called upon soon. I plan to be ready when the time comes.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144678, '', '<Arluelle has a faraway look in her eyes.>$B$BIf only my brother could see the city now...', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144676, 'It is a pity the Lightforged could not be convinced to join our side. Their martial prowess is formidable.', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144674, 'The Duskwatch will do well having Victoire in its ranks once more.', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144383, 'These portals are incredibly tedious to sustain and, more importantly, they take attention away from valuable research!$B$BI am certain that telemancy will allow us to achieve a more stable solution.', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144384, 'I hear Dalaran has an entire floor dedicated to magical transportation. $B$BImagine the possibilities!', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(124862, '', 'I never realized how much we needed the Nightwell. To be rid of its call is... freeing.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(124863, '', 'Oh, it feels so good to be my old self again.$B$B<Valtrois runs the back of her hand gently across her high cheekbone.>$B$BAs you can see, mana is wonderful for the skin!', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(124865, '', 'I must admit, I am rather curious to explore the world beyond Suramar.$B$BPrimitive cultures have always fascinated me!', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144621, '', 'Greetings, $p! New lands and allies await us across Azeroth.$B$BOculeth has portals prepared downstairs when you are ready.', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144396, '', 'The nightborne are truly free. We no longer need the Nightwell, nor its power.$B$BWe can forge our own destiny.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(143276, '', 'When our city faced its darkest hour, the heroes of Azeroth fought with us to drive out the Legion. Some did so reluctantly.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94865, 26972),
+(143293, '', 'Go to Orgrimmar. Join with our allies and forge a new future together.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94868, 26972),
+(143292, '', 'As you travel the roads of Azeroth, tell those you meet of the nightborne''s proud history... and show them that we live in seclusion no longer.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94869, 26972),
+(143288, '', 'Now it is our turn to demonstrate the strength and honor we bring to the Horde.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94867, 26972),
+(143277, '', 'But the sin''dorei--the blood elves--showed us respect and understanding. Their kinship proved there were others in Azeroth who share our values.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94866, 26972),
+(144397, '', 'The business with Elisande is over, but there is still much to be done for the city.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(10889, '', 'Ah, $n - it is good to see you again.  I trust your affairs go well.', 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 26972);
+
+*/
+
+DELETE FROM `broadcast_text` WHERE `ID` IN ( 143276, 143288, 143277, 143292, 143293);
+INSERT INTO `broadcast_text` (`ID`, `Text`, `Text1`, `ConditionID`, `VerifiedBuild`) VALUES
+(143276, '', 'When our city faced its darkest hour, the heroes of Azeroth fought with us to drive out the Legion. Some did so reluctantly.', 94865, 26972),
+(143277, '', 'But the sin''dorei--the blood elves--showed us respect and understanding. Their kinship proved there were others in Azeroth who share our values.', 94866, 26972),
+(143288, '', 'Now it is our turn to demonstrate the strength and honor we bring to the Horde.', 94867, 26972),
+(143293, '', 'Go to Orgrimmar. Join with our allies and forge a new future together.', 94868, 26972),
+(143292, '', 'As you travel the roads of Azeroth, tell those you meet of the nightborne''s proud history... and show them that we live in seclusion no longer.', 94869, 26972);
+(144396, '', 'The nightborne are truly free. We no longer need the Nightwell, nor its power.$B$BWe can forge our own destiny.', 26972),
+
