@@ -51,7 +51,8 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 (278325, 7, 15617, 'Chair', '', '', '', 0.9999999, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 26972), -- 278325
 (278324, 7, 15617, 'Chair', '', '', '', 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 26972); -- 278324
 
-SET @OGUID= 210120122;
+SET @CGUID = 11000000;
+SET @OGUID= 2000000;
 
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+1, 273855, 0, 1519, 5314, 1, 0, 0, -8154.518, 822.092, 75.52975, 3.899293, 0, 0, -0.9290905, 0.3698525, 120, 255, 1, 26972), -- 273855 (Area: 5314 - Difficulty: 0)
@@ -76,8 +77,6 @@ UPDATE creature_template SET npcflag=1 WHERE entry = 126328;
 UPDATE creature_template SET npcflag=1 WHERE entry = 126332;
 UPDATE creature_template SET npcflag=1 WHERE entry = 126324;
 UPDATE creature_template SET npcflag=1 WHERE entry = 126326;
-
-SET @CGUID = 210119255;
 
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 126323, 0, 1519, 9171, 1, 0, 0, 0, 0, -8150.293, 823.7083, 75.54014, 4.244734, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126323 (Area: 9171 - Difficulty: 0)
