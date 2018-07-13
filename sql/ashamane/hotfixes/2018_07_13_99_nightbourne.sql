@@ -32,12 +32,12 @@ INSERT INTO `broadcast_text` (`ID`, `MaleText`, `FemaleText`, `EmoteID1`, `Emote
 
 */
 
-DELETE FROM `broadcast_text` WHERE `ID` IN ( 143276, 143288, 143277, 143292, 143293);
+DELETE FROM `broadcast_text` WHERE `ID` IN ( 143276, 143288, 143277, 143292, 143293, 144396);
 INSERT INTO `broadcast_text` (`ID`, `Text`, `Text1`, `ConditionID`, `VerifiedBuild`) VALUES
 (143276, '', 'When our city faced its darkest hour, the heroes of Azeroth fought with us to drive out the Legion. Some did so reluctantly.', 94865, 26972),
 (143277, '', 'But the sin''dorei--the blood elves--showed us respect and understanding. Their kinship proved there were others in Azeroth who share our values.', 94866, 26972),
 (143288, '', 'Now it is our turn to demonstrate the strength and honor we bring to the Horde.', 94867, 26972),
 (143293, '', 'Go to Orgrimmar. Join with our allies and forge a new future together.', 94868, 26972),
-(143292, '', 'As you travel the roads of Azeroth, tell those you meet of the nightborne''s proud history... and show them that we live in seclusion no longer.', 94869, 26972);
-(144396, '', 'The nightborne are truly free. We no longer need the Nightwell, nor its power.$B$BWe can forge our own destiny.', 26972),
+(143292, '', 'As you travel the roads of Azeroth, tell those you meet of the nightborne''s proud history... and show them that we live in seclusion no longer.', 94869, 26972),
+(144396, '', 'The nightborne are truly free. We no longer need the Nightwell, nor its power.$B$BWe can forge our own destiny.', 0, 26972);
 
