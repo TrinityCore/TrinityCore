@@ -1,3 +1,4 @@
+/*
 -- 
 -- Undo giant clam meat
 DELETE FROM `creature_loot_template` WHERE `item` = 4655;
@@ -44,3 +45,4 @@ INSERT INTO `spell_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Group
 (58165, 13926,  1.7, 1, 1, 1, 1),
 (58165,  5500,  2.3, 1, 1, 1, 1),
 (58165,  5498,  1.0, 1, 1, 1, 1);
+*/

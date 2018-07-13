@@ -1,3 +1,4 @@
+/*
 -- Frostmane Novice
 DELETE FROM `smart_scripts` WHERE `entryorguid`=946 AND `source_type`=0 AND `ID`=1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -185,3 +186,4 @@ UPDATE `creature` SET `spawndist`=5, `MovementType`=1 WHERE `id` IN (1689,1127);
 -- Fix some texts
 UPDATE `creature_text` SET `BroadcastTextId`=1914 WHERE `CreatureID` IN (1115,1116,1161,1162,1163,1165,1166,1167,1197,1393) AND `GroupID`=0 AND `ID`=1;
 UPDATE `creature_text` SET `Language`=0 WHERE `BroadcastTextId` IN (1913,1915);
+*/

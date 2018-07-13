@@ -1,3 +1,4 @@
+/*
 -- Quest "Vahlarriel's Search"
 DELETE FROM `quest_details` WHERE `ID`=1437;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -128,3 +129,4 @@ UPDATE `quest_offer_reward` SET `Emote1`=6, `Emote2`=1, `Emote3`=1, `Emote4`=1, 
 -- Quest "Hemet Nesingwary Jr."
 UPDATE `quest_request_items` SET `EmoteOnComplete`=6 WHERE `ID`=5762;
 UPDATE `quest_offer_reward` SET `Emote1`=2, `Emote2`=1 WHERE `ID`=5762;
+*/

@@ -1,6 +1,6 @@
 -- Remove an already spawned Luanga that should not be there
 DELETE FROM `creature` WHERE `guid`=85531 AND `id`=18533;
-DELETE FROM   `spawn_group` WHERE `GroupID`=2 AND `SpawnId`=85531 AND `spawnType`=0;
+-- DELETE FROM   `spawn_group` WHERE `GroupID`=2 AND `SpawnId`=85531 AND `spawnType`=0;
 -- Skywing
 DELETE FROM `creature_text` WHERE `CreatureID` IN (22424,18533);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES

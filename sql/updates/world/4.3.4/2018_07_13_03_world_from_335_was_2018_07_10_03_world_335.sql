@@ -1,3 +1,4 @@
+/*
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup` IN (2831,2801);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14,2831,3523,0,0,14,0,271,0,0,0,0,0,"","SHOW gossip text 3523 if quest 'Vyrin's Revenge' is not taken"),
@@ -12,3 +13,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `gossip_menu` WHERE `MenuID`=2801 AND `TextID`=3493;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 (2801,3493,0);
+*/

@@ -1,3 +1,4 @@
+/*
 -- Stonesplinter Trogg
 UPDATE `smart_scripts` SET `event_chance`=15 WHERE `entryorguid` IN (1161,1162,1172,1202,1163,1166,1197,1167,1165,1393,1174,1175,1177,1173,1169,1178,1181) AND `source_type`=0 AND `id`=0;
 
@@ -206,3 +207,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=1210 AND `GroupID`=0 AND `ID`=3;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (1210,0,3,"Me smash you!",12,7,100,0,0,0,1930,0,"Chok'sul");
+*/
