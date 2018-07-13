@@ -1005,8 +1005,8 @@ class TC_GAME_API Unit : public WorldObject
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
-        float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
-        float GetBoundaryRadius() const { return m_floatValues[UNIT_FIELD_BOUNDINGRADIUS]; }
+        float GetCombatReach() const override { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
+        float GetBoundaryRadius() const override { return m_floatValues[UNIT_FIELD_BOUNDINGRADIUS]; }
         bool IsWithinCombatRange(Unit const* obj, float dist2compare) const;
         bool IsWithinMeleeRange(Unit const* obj) const;
         bool IsWithinBoundaryRadius(const Unit* obj) const;

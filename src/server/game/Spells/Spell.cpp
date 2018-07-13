@@ -1357,7 +1357,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         {
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
             float angle = targetType.CalcDirectionAngle();
-            float objSize = m_caster->GetObjectSize();
+            float objSize = m_caster->GetCombatReach();
 
             switch (targetType.GetTarget())
             {
@@ -1412,7 +1412,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
         default:
         {
             float angle = targetType.CalcDirectionAngle();
-            float objSize = target->GetObjectSize();
+            float objSize = target->GetCombatReach();
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
             if (dist < objSize)
                 dist = objSize;
@@ -1627,7 +1627,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex)
             }
         }
 
-        const float size = std::max((*itr)->GetObjectSize() * 0.7f, 1.0f); // 1/sqrt(3)
+        const float size = std::max((*itr)->GetCombatReach() * 0.7f, 1.0f); // 1/sqrt(3)
         /// @todo all calculation should be based on src instead of m_caster
         const float objDist2d = m_targets.GetSrcPos()->GetExactDist2d(*itr) * std::cos(m_targets.GetSrcPos()->GetRelativeAngle(*itr));
         const float dz = (*itr)->GetPositionZ() - m_targets.GetSrcPos()->m_positionZ;
@@ -1704,7 +1704,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex)
         if (itr != targets.end())
         {
             float distSq = (*itr)->GetExactDistSq(x, y, z);
-            float sizeSq = (*itr)->GetObjectSize();
+            float sizeSq = (*itr)->GetCombatReach();
             sizeSq *= sizeSq;
             DEBUG_TRAJ(TC_LOG_ERROR("spells", "Initial %f %f %f %f %f", x, y, z, distSq, sizeSq);)
             if (distSq > sizeSq)
@@ -5500,13 +5500,13 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (!target->IsWithinLOSInMap(m_caster)) //Do full LoS/Path check. Don't exclude m2
                         return SPELL_FAILED_LINE_OF_SIGHT;
 
-                    float objSize = target->GetObjectSize();
+                    float objSize = target->GetCombatReach();
                     float range = m_spellInfo->GetMaxRange(true, m_caster, this) * 1.5f + objSize; // can't be overly strict
 
                     m_preGeneratedPath = Trinity::make_unique<PathGenerator>(m_caster);
                     m_preGeneratedPath->SetPathLengthLimit(range);
                     // first try with raycast, if it fails fall back to normal path
-                    float targetObjectSize = std::min(target->GetObjectSize(), 4.0f);
+                    float targetObjectSize = std::min(target->GetCombatReach(), 4.0f);
                     bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, true);
                     if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_OUT_OF_RANGE;
@@ -7952,7 +7952,7 @@ WorldObjectSpellAreaTargetCheck::WorldObjectSpellAreaTargetCheck(float range, Po
 
 bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
 {
-    if (!target->IsWithinDist3d(_position, _range) && !(target->ToGameObject() && target->ToGameObject()->IsInRange(_position->GetPositionX(), _position->GetPositionY(), _position->GetPositionZ(), _range)))
+    if (!target->IsWithinDist3d(_position, _range, true) && !(target->ToGameObject() && target->ToGameObject()->IsInRange(_position->GetPositionX(), _position->GetPositionY(), _position->GetPositionZ(), _range)))
         return false;
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
@@ -7970,7 +7970,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_caster->HasInLine(target, _caster->GetObjectSize() + target->GetObjectSize()))
+        if (!_caster->HasInLine(target, _caster->GetCombatReach() + target->GetCombatReach()))
             return false;
     }
     else
@@ -7990,7 +7990,7 @@ WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Po
 bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 {
     // return all targets on missile trajectory (0 - size of a missile)
-    if (!_caster->HasInLine(target, target->GetObjectSize()))
+    if (!_caster->HasInLine(target, target->GetCombatReach()))
         return false;
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }

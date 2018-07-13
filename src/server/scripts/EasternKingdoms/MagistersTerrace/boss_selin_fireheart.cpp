@@ -114,7 +114,7 @@ class boss_selin_fireheart : public CreatureScript
                     CrystalGUID = crystal->GetGUID();
 
                     float x, y, z;
-                    crystal->GetClosePoint(x, y, z, me->GetObjectSize(), CONTACT_DISTANCE);
+                    crystal->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
 
                     events.SetPhase(PHASE_DRAIN);
                     me->SetWalk(false);

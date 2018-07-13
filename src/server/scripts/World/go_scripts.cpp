@@ -475,7 +475,7 @@ class go_shrine_of_the_birds : public GameObjectScript
                 uint32 BirdEntry = 0;
 
                 float fX, fY, fZ;
-                me->GetClosePoint(fX, fY, fZ, me->GetObjectSize(), INTERACTION_DISTANCE);
+                me->GetClosePoint(fX, fY, fZ, me->GetCombatReach(), INTERACTION_DISTANCE);
 
                 switch (me->GetEntry())
                 {

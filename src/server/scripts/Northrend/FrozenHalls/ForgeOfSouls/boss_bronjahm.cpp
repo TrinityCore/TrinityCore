@@ -131,7 +131,7 @@ class boss_bronjahm : public CreatureScript
                 {
                     summons.Summon(summon);
                     summon->SetReactState(REACT_PASSIVE);
-                    summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
+                    summon->GetMotionMaster()->MoveFollow(me, me->GetCombatReach(), 0.0f);
                     summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
                 }
             }

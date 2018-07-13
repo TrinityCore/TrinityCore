@@ -101,7 +101,7 @@ public:
                         FlyBackTimer = 500;
                         break;
                     case 1:
-                        player->GetClosePoint(x, y, z, me->GetObjectSize());
+                        player->GetClosePoint(x, y, z, me->GetCombatReach());
                         z += 2.5f;
                         x -= 2.0f;
                         y -= 1.5f;
