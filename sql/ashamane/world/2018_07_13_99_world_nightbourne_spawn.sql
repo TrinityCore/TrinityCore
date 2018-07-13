@@ -322,6 +322,15 @@ INSERT INTO `quest_template` (`ID`, `QuestType`, `QuestLevel`, `MaxScalingLevel`
 (46735, 0, -1, 255, 0, 110, 0, 143, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 100728840, 33554432, 0, 0, 0, 0, 152654, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2045, 0, 0, 0, 0, 4, 0, 0, 0, 0, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 18446744073709551615, 0, 0, 'Contribute to Command Center', '', '', '', '', 1226, 0, 0, 0, 75, 0, 0, 0, '', '', '', '', 0, 0, 26972), -- 46735
 (46277, 0, -1, 255, 0, 110, 0, 143, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 100729096, 33554432, 0, 0, 0, 0, 152654, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2045, 0, 0, 0, 0, 4, 0, 0, 0, 0, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 18446744073709551615, 0, 6, 'Contribute to Mage Tower', '', '', '', '', 1226, 0, 0, 0, 75, 0, 0, 0, '', '', '', '', 0, 0, 26972); -- 46277
 
+DELETE FROM creature_queststarter WHERE (id = 131326 AND quest = 49933) OR (id = 133407 AND quest = 50303);
+ INSERT INTO creature_queststarter (`id`, `quest`)VALUES
+(131326,49933), -- for the horde
+(133407,50303); --  Stranger in a Strange Land
+
+DELETE FROM creature_questender WHERE (id = 133407 AND quest = 49933) OR (id = 131328 AND quest = 50303);
+INSERT INTO creature_questender (`id`, `quest`)VALUES
+(133407, 49933), -- for the horde
+(131328, 50303); -- stranger in a strange land
  
  DELETE FROM `creature_questitem` WHERE (`CreatureEntry`=42859 AND `Idx`=0) OR (`CreatureEntry`=39049 AND `Idx`=0) OR (`CreatureEntry`=8524 AND `Idx`=0) OR (`CreatureEntry`=112336 AND `Idx`=0) OR (`CreatureEntry`=112910 AND `Idx`=4) OR (`CreatureEntry`=112910 AND `Idx`=3) OR (`CreatureEntry`=112910 AND `Idx`=2) OR (`CreatureEntry`=112910 AND `Idx`=1) OR (`CreatureEntry`=112910 AND `Idx`=0);
 INSERT INTO `creature_questitem` (`CreatureEntry`, `Idx`, `ItemId`, `VerifiedBuild`) VALUES
