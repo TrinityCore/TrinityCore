@@ -826,29 +826,7 @@ class spell_pal_divine_storm : public SpellScript
     void HandleOnCast()
     {
         Unit* caster = GetCaster();
-        bool noHpCost = false;
-        uint8 hp = caster->GetPower(POWER_HOLY_POWER);
-        uint8 hpCost = 3;
-
         caster->SendPlaySpellVisualKit(PALADIN_VISUAL_KIT_DIVINE_STORM, 0, 0);
-        
-        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA))
-        {
-            caster->RemoveAurasDueToSpell(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA);
-            noHpCost = true;
-        }
-
-        if (caster->HasAura(SPELL_PALADIN_THE_FIRES_OF_JUSTICE) && !noHpCost)
-        {
-            caster->RemoveAurasDueToSpell(SPELL_PALADIN_THE_FIRES_OF_JUSTICE);
-            hpCost -= 1;
-        }
-
-        if (!noHpCost)
-        {
-            hp -= hpCost;
-            caster->SetPower(POWER_HOLY_POWER, hp);
-        }
 
         if (caster->HasAura(SPELL_PALADIN_FIST_OF_JUSTICE_RETRI))
         {
@@ -859,12 +837,9 @@ class spell_pal_divine_storm : public SpellScript
 
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        caster->CastSpell(target, SPELL_PALADIN_DIVINE_STORM_DAMAGE, true);
+        if (Unit* caster = GetCaster())
+            if (Unit* target = GetHitUnit())
+                caster->CastSpell(target, SPELL_PALADIN_DIVINE_STORM_DAMAGE, true);
     }
 
     void Register() override
@@ -887,30 +862,9 @@ class spell_pal_templar_s_verdict : public SpellScript
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetExplTargetUnit();
-        bool noHpCost = false;
-        uint8 hp = caster->GetPower(POWER_HOLY_POWER);
-        uint8 hpCost = 3;
 
-        caster->CastSpell(target, SPELL_PALADIN_TEMPLARS_VERDICT_DAMAGE, true);
-
-        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA))
-        {
-            caster->RemoveAurasDueToSpell(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA);
-            noHpCost = true;
-        }
-
-        if (caster->HasAura(SPELL_PALADIN_THE_FIRES_OF_JUSTICE) && !noHpCost)
-        {
-            caster->RemoveAurasDueToSpell(SPELL_PALADIN_THE_FIRES_OF_JUSTICE);
-            hpCost -= 1;
-        }
-
-        if (!noHpCost)
-        {
-            hp -= hpCost;
-            caster->SetPower(POWER_HOLY_POWER, hp);
-        }
+        if (Unit* target = GetExplTargetUnit())
+            caster->CastSpell(target, SPELL_PALADIN_TEMPLARS_VERDICT_DAMAGE, true);
 
         if (caster->HasAura(SPELL_PALADIN_FIST_OF_JUSTICE_RETRI))
         {
