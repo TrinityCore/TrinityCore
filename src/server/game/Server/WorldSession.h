@@ -502,6 +502,7 @@ namespace WorldPackets
         class AdventureJournalStartQuest;
         class StartTimer;
         class StartElapsedTimer;
+        class OpenAlliedRaceDetailsGiver;
     }
 
     namespace Movement

@@ -1015,6 +1015,17 @@ namespace WorldPackets
             uint32 TimerID;
             uint32 CurrentDuration;
         };
+
+        class TC_GAME_API OpenAlliedRaceDetailsGiver final : public ServerPacket
+        {
+        public:
+            OpenAlliedRaceDetailsGiver() : ServerPacket(SMSG_OPEN_ALLIED_RACE_DETAILS_GIVER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint32 RaceId;
+        };
     }
 }
 
