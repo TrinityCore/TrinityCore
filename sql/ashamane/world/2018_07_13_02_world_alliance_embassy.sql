@@ -105,7 +105,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+19, 133326, 0, 1519, 9171, 1, 0, 0, 0, 0, -8149.823, 879.6702, 76.36163, 4.023931, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133326 (Area: 9171 - Difficulty: 0)
 (@CGUID+20, 133332, 0, 1519, 9171, 1, 0, 0, 0, 0, -8152.452, 877.7292, 76.61544, 0.3395786, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 133332 (Area: 9171 - Difficulty: 0)
 
-
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+1 AND @CGUID+20;
 INSERT INTO creature_addon (`guid`, `bytes1`, `bytes2`, `emote`)VALUES
 (@CGUID+5, 6, 0, 426),
 (@CGUID+1, 4, 0, 0); 
