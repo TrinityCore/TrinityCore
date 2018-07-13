@@ -285,7 +285,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetContactPoint(WorldObject const* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const;
 
         virtual float GetCombatReach() const { return 0.0f; } // overridden (only) in Unit
-        virtual float GetBoundaryRadius() const { return 0.0f; } // overridden (only) in Unit
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
@@ -330,10 +329,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool IsSelfOrInSameMap(WorldObject const* obj) const;
         bool IsInMap(WorldObject const* obj) const;
-        bool IsWithinDist3d(float x, float y, float z, float dist, bool isInBoundaryRadius = false) const;
-        bool IsWithinDist3d(Position const* pos, float dist, bool isInBoundaryRadius = false) const;
-        bool IsWithinDist2d(float x, float y, float dist, bool isInBoundaryRadius = false) const;
-        bool IsWithinDist2d(Position const* pos, float dist, bool isInBoundaryRadius = false) const;
+        bool IsWithinDist3d(float x, float y, float z, float dist) const;
+        bool IsWithinDist3d(Position const* pos, float dist) const;
+        bool IsWithinDist2d(float x, float y, float dist) const;
+        bool IsWithinDist2d(Position const* pos, float dist) const;
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const;

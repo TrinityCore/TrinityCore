@@ -1409,24 +1409,24 @@ bool WorldObject::IsInMap(const WorldObject* obj) const
     return false;
 }
 
-bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist, bool isInBoundaryRadius /*= false*/) const
+bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist) const
 {
-    return IsInDist(x, y, z, dist + isInBoundaryRadius ? GetBoundaryRadius() :  GetCombatReach());
+    return IsInDist(x, y, z, dist);
 }
 
-bool WorldObject::IsWithinDist3d(const Position* pos, float dist, bool isInBoundaryRadius /*= false*/) const
+bool WorldObject::IsWithinDist3d(const Position* pos, float dist) const
 {
-    return IsInDist(pos, dist + isInBoundaryRadius ? GetBoundaryRadius() : GetCombatReach());
+    return IsInDist(pos, dist);
 }
 
-bool WorldObject::IsWithinDist2d(float x, float y, float dist, bool isInBoundaryRadius /*= false*/) const
+bool WorldObject::IsWithinDist2d(float x, float y, float dist) const
 {
-    return IsInDist2d(x, y, dist + isInBoundaryRadius ? GetBoundaryRadius() : GetCombatReach());
+    return IsInDist2d(x, y, dist);
 }
 
-bool WorldObject::IsWithinDist2d(const Position* pos, float dist, bool isInBoundaryRadius /*= false*/) const
+bool WorldObject::IsWithinDist2d(const Position* pos, float dist) const
 {
-    return IsInDist2d(pos, dist + isInBoundaryRadius ? GetBoundaryRadius() : GetCombatReach());
+    return IsInDist2d(pos, dist);
 }
 
 bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
