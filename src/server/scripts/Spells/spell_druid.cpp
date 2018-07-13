@@ -2116,54 +2116,28 @@ enum StarfallSpells
 };
 
 // Starfall - 191034
-// AreaTriggerID - 4756
-// @Version : 7.1.0.22908
-class at_dru_starfall : public AreaTriggerEntityScript
+// AreaTriggerID - 9482
+struct at_dru_starfall : AreaTriggerAI
 {
-public:
-    at_dru_starfall() : AreaTriggerEntityScript("at_dru_starfall") {}
+    int32 timeInterval;
 
-    struct at_dru_starfallAI : AreaTriggerAI
+    at_dru_starfall(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
-        int32 timeInterval;
+        // How often should the action be executed
+        areatrigger->SetPeriodicProcTimer(850);
+    }
 
-        at_dru_starfallAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            // How often should the action be executed
-            timeInterval = 850;
-        }
-
-        void OnUpdate(uint32 p_Time) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            // Check if we can handle actions
-            timeInterval += p_Time;
-            if (timeInterval < 850)
-                return;
-
-            GuidUnorderedSet const objects = at->GetInsideUnits();
-            for (ObjectGuid objguid : objects)
-            {
-                Unit* unit = ObjectAccessor::GetUnit(*caster, objguid);
-                if (!unit)
-                    continue;
-
-                if (!caster->IsValidAttackTarget(unit))
-                    continue;
-
-                caster->CastSpell(unit, SPELL_DRUID_STARFALL_DAMAGE, true);
-                caster->CastSpell(unit, SPELL_DRUID_STELLAR_EMPOWERMENT, true);
-            }
-
-            timeInterval -= 850;
-        }
-    };
+    void OnPeriodicProc() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (ObjectGuid objguid : at->GetInsideUnits())
+                if (Unit* unit = ObjectAccessor::GetUnit(*caster, objguid))
+                    if (caster->IsValidAttackTarget(unit))
+                    {
+                        caster->CastSpell(unit, SPELL_DRUID_STARFALL_DAMAGE, true);
+                        caster->CastSpell(unit, SPELL_DRUID_STELLAR_EMPOWERMENT, true);
+                    }
+    }
 };
 
 enum SolarBeamSpells
@@ -2349,7 +2323,7 @@ void AddSC_druid_spell_scripts()
 
     // AreaTrigger Scripts
     new at_dru_solar_beam();
-    new at_dru_starfall();
+    RegisterAreaTriggerAI(at_dru_starfall);
     new at_dru_ursols_vortex();
 
     // NPC Scripts
