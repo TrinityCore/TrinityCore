@@ -54,6 +54,7 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 SET @CGUID = 11000000;
 SET @OGUID= 2000000;
 
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+1 AND @OGUID+15;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+1, 273855, 0, 1519, 5314, 1, 0, 0, -8154.518, 822.092, 75.52975, 3.899293, 0, 0, -0.9290905, 0.3698525, 120, 255, 1, 26972), -- 273855 (Area: 5314 - Difficulty: 0)
 (@OGUID+2, 273853, 0, 1519, 9171, 1, 0, 0, -8148.156, 815.2274, 75.41902, 3.899293, 0, 0, -0.9290905, 0.3698525, 120, 255, 1, 26972), -- 273853 (Area: 9171 - Difficulty: 0)
@@ -66,7 +67,10 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@OGUID+9, 278333, 0, 1519, 5314, 1, 0, 0, -8161.157, 817.7294, 75.71727, 5.393069, 0, 0, -0.4305105, 0.9025856, 120, 255, 1, 26972), -- 278333 (Area: 5314 - Difficulty: 0)
 (@OGUID+10, 278332, 0, 1519, 5314, 1, 0, 0, -8158.248, 814.6324, 75.71727, 2.330013, 0, 0, 0.9187908, 0.3947448, 120, 255, 1, 26972), -- 278332 (Area: 5314 - Difficulty: 0)
 (@OGUID+11, 278324, 0, 1519, 5314, 1, 0, 0, -8166.54, 818.2576, 75.89896, 3.926996, 0, 0, -0.9238787, 0.3826855, 120, 255, 1, 26972), -- 278324 (Area: 5314 - Difficulty: 0)
-(@OGUID+12, 278325, 0, 1519, 5314, 1, 0, 0, -8166.933, 815.5296, 75.89896, 2.591811, 0, 0, 0.9624548, 0.271442, 120, 255, 1, 26972); -- 278325 (Area: 5314 - Difficulty: 0)
+(@OGUID+12, 278325, 0, 1519, 5314, 1, 0, 0, -8166.933, 815.5296, 75.89896, 2.591811, 0, 0, 0.9624548, 0.271442, 120, 255, 1, 26972), -- 278325 (Area: 5314 - Difficulty: 0)
+(@OGUID+13, 278311, 0, 1519, 5314, 1, 0, 0, -8205.127, 824.0174, 70.47892, 5.576327, 0, 0, -0.346117, 0.9381914, 120, 255, 1, 26972), -- 278311 (Area: 5314 - Difficulty: 0)
+(@OGUID+14, 281205, 0, 1519, 5314, 1, 0, 0, -8195.908, 845.1146, 70.04467, 0, 0, 0, 0, 1, 120, 255, 1, 26972), -- 281205 (Area: 5314 - Difficulty: 0)
+(@OGUID+15, 281204, 0, 1519, 5314, 1, 0, 0, -8200.955, 838.6163, 70.04467, 5.068156, 0, 0, -0.5708284, 0.8210694, 120, 255, 1, 26972); -- 281204 (Area: 5314 - Difficulty: 0)
 
 -- forgot to make him have gossip --
 UPDATE creature_template SET npcflag=1 WHERE entry = 126323;
@@ -78,6 +82,7 @@ UPDATE creature_template SET npcflag=1 WHERE entry = 126332;
 UPDATE creature_template SET npcflag=1 WHERE entry = 126324;
 UPDATE creature_template SET npcflag=1 WHERE entry = 126326;
 
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+1 AND @CGUID+20;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 126323, 0, 1519, 9171, 1, 0, 0, 0, 0, -8150.293, 823.7083, 75.54014, 4.244734, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126323 (Area: 9171 - Difficulty: 0)
 (@CGUID+2, 126319, 0, 1519, 9171, 1, 0, 0, 0, 0, -8154.516, 817.3472, 75.8006, 0.3642006, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126319 (Area: 9171 - Difficulty: 0)
@@ -86,22 +91,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+5, 126328, 0, 1519, 9171, 1, 0, 0, 0, 0, -8154.658, 812.3073, 75.68986, 0.9916472, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126328 (Area: 9171 - Difficulty: 0)
 (@CGUID+6, 126332, 0, 1519, 9171, 1, 0, 0, 0, 0, -8153.974, 807.1337, 76.08612, 1.374631, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126332 (Area: 9171 - Difficulty: 0)
 (@CGUID+7, 126324, 0, 1519, 9171, 1, 0, 0, 0, 0, -8159.022, 819.6614, 76.08612, 6.089644, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126324 (Area: 9171 - Difficulty: 0)
-(@CGUID+8, 126326, 0, 1519, 9171, 1, 0, 0, 0, 0, -8162.304, 813.2205, 76.08612, 0.480675, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 126326 (Area: 9171 - Difficulty: 0) (Auras: )
-
-INSERT INTO creature_addon (`guid`, `bytes1`, `bytes2`, `emote`)VALUES
-(@CGUID+5, 6, 0, 426),
-(@CGUID+1, 4, 0, 0); 
-
- -- Vehicle fix -- 
-
-DELETE FROM vehicle_template_accessory WHERE entry = 126326;
-INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
-(126326, 116312, 0, 0, 'gelbin in his suit', 6, 30000);
-
-UPDATE creature_template SET minlevel = 110, maxlevel = 110, VehicleId = 5547, type = 7, faction = 1733 WHERE entry = 126326;
-UPDATE creature_template SET minlevel = 98, maxlevel = 110, VehicleId = 5078, type = 7, faction = 1733 WHERE entry = 116312;
-
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+(@CGUID+8, 126326, 0, 1519, 9171, 1, 0, 0, 0, 0, -8162.304, 813.2205, 76.08612, 0.480675, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 126326 (Area: 9171 - Difficulty: 0) (Auras: )
 (@CGUID+9, 133433, 0, 1519, 5314, 1, 0, 0, 0, 0, -8209.656, 822.6614, 70.65031, 1.365126, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133433 (Area: 5314 - Difficulty: 0) @cguid+202
 (@CGUID+10, 133441, 0, 1519, 5314, 1, 0, 0, 0, 0, -8209.288, 825.3958, 70.63021, 4.271554, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133441 (Area: 5314 - Difficulty: 0) @cguid+194
 (@CGUID+11, 133396, 0, 1519, 5314, 1, 0, 0, 0, 0, -8221.839, 815.5121, 70.12801, 1.3472, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133396 (Area: 5314 - Difficulty: 0)
@@ -116,6 +106,18 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+20, 133332, 0, 1519, 9171, 1, 0, 0, 0, 0, -8152.452, 877.7292, 76.61544, 0.3395786, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 133332 (Area: 9171 - Difficulty: 0)
 
 
+INSERT INTO creature_addon (`guid`, `bytes1`, `bytes2`, `emote`)VALUES
+(@CGUID+5, 6, 0, 426),
+(@CGUID+1, 4, 0, 0); 
+
+ -- Vehicle fix -- 
+
+DELETE FROM vehicle_template_accessory WHERE entry = 126326;
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
+(126326, 116312, 0, 0, 'gelbin in his suit', 6, 30000);
+
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, VehicleId = 5547, type = 7, faction = 1733 WHERE entry = 126326;
+UPDATE creature_template SET minlevel = 98, maxlevel = 110, VehicleId = 5078, type = 7, faction = 1733 WHERE entry = 116312;
 DELETE FROM creature_template WHERE entry IN (133433, 133441, 133509, 133672, 133396, 133363, 133431, 133411, 112698, 129679, 133332, 133326);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (133433, 0, 0, 83231, 83232, 82918, 82919, 'Ghostblade Scout', NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 133433  ONE
@@ -243,18 +245,9 @@ UPDATE gossip_menu_option SET OptionType = 8, OptionNpcFlag = 65537 WHERE MenuId
 UPDATE creature_template SET gossip_menu_id = 22173 WHERE entry = 133326;
 UPDATE gossip_menu_option SET OptionType = 5, OptionNpcFlag = 81 WHERE MenuId = 22173 AND OptionIndex = 0;
 
-
-
 -- GAME OBJECT_TEMPLATE
+DELETE FROM `gameobject_template` WHERE entry IN (278311, 281204, 281205);
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `Data8`, `Data9`, `Data10`, `Data11`, `Data12`, `Data13`, `Data14`, `Data15`, `Data16`, `Data17`, `Data18`, `Data19`, `Data20`, `Data21`, `Data22`, `Data23`, `Data24`, `Data25`, `Data26`, `Data27`, `Data28`, `Data29`, `Data30`, `Data31`, `Data32`, `RequiredLevel`, `VerifiedBuild`) VALUES
 (278311, 8, 23396, 'Bonfire', '', '', '', 1, 4, 10, 215916, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
 (281204, 5, 14839, 'Cooking Table', '', '', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 281204
 (281205, 5, 7409, 'Simmering Stew', '', '', '', 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 281205
-
-SET @OGUID= 210120122;
-
-
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
-(@OGUID+7, 278311, 0, 1519, 5314, 1, 0, 0, -8205.127, 824.0174, 70.47892, 5.576327, 0, 0, -0.346117, 0.9381914, 120, 255, 1, 26972), -- 278311 (Area: 5314 - Difficulty: 0)
-(@OGUID+259, 281205, 0, 1519, 5314, 1, 0, 0, -8195.908, 845.1146, 70.04467, 0, 0, 0, 0, 1, 120, 255, 1, 26972), -- 281205 (Area: 5314 - Difficulty: 0)
-(@OGUID+258, 281204, 0, 1519, 5314, 1, 0, 0, -8200.955, 838.6163, 70.04467, 5.068156, 0, 0, -0.5708284, 0.8210694, 120, 255, 1, 26972); -- 281204 (Area: 5314 - Difficulty: 0)
