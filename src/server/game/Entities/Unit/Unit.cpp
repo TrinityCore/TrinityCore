@@ -8901,6 +8901,20 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
         castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
     else if (IsPartOfSkillLine(SKILL_COOKING, spellInfo->Id) && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
+
+    // Give us another option to change spell speeds
+    switch (spellInfo->Id)
+    {
+        case 99172:
+        case 99235:
+        case 99236:
+            if (Map* map = GetMap())
+                if (map->IsHeroic())
+                    castTime = spellInfo->CalcCastTime() - 500;
+            break;
+        default:
+            break;
+    }
 }
 
 void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32 & duration, Spell* spell)

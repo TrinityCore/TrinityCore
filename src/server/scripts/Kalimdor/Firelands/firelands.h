@@ -18,6 +18,11 @@
 #ifndef FIRELANDS_H_
 #define FIRELANDS_H_
 
+#include "Map.h"
+#include "CreatureTextMgr.h"
+#include "CreatureAI.h"
+#include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "CreatureAIImpl.h"
 #include "EventProcessor.h"
 #include "ScriptedCreature.h"
@@ -31,13 +36,22 @@ uint32 const EncounterCount = 7;
 
 enum FLDataTypes
 {
-    DATA_BETH_TILAC         = 0,
-    DATA_LORD_RHYOLITH      = 1,
-    DATA_SHANNOX            = 2,
-    DATA_ALYSRAZOR          = 3,
-    DATA_BALEROC            = 4,
-    DATA_MAJORDOMO_STAGHELM = 5,
-    DATA_RAGNAROS           = 6,
+    DATA_BETH_TILAC             = 0,
+    DATA_LORD_RHYOLITH          = 1,
+    DATA_SHANNOX                = 2,
+    DATA_ALYSRAZOR              = 3,
+    DATA_BALEROC                = 4,
+    DATA_MAJORDOMO_STAGHELM     = 5,
+    DATA_RAGNAROS               = 6,
+
+    DATA_SULFURAS               = 7,
+    DATA_CENARIUS               = 8,
+    DATA_HAMUUL_RUNETOTEM       = 9,
+    DATA_MALFURION_STORMRAGE    = 10,
+    DATA_DREADFLAME             = 11,
+    DATA_RAGNAROS_PLATFORM      = 12,
+    DATA_RAGNAROS_EMERGE        = 13,
+    DATA_RAGNAROS_FIRST_EMERGE  = 14,
 };
 
 enum FLCreatureIds
@@ -61,12 +75,57 @@ enum FLCreatureIds
 
     // Baleroc
     NPC_MAGMA_CONDUIT               = 54145,
-    NPC_MAGMAKIN                    = 54144
+    NPC_MAGMAKIN                    = 54144,
+
+    // Ragnaros
+    NPC_LAVA_WIELDER                = 53575,
+    NPC_LAVA_WIELDER_LAVA           = 53585,
+    NPC_MOLTEN_ERUPTER              = 53617,
+    NPC_MOLTEN_SPEWER               = 53545,
+    NPC_RAGNAROS_MAGMA              = 53729,
+    NPC_MAGMA_TRAP                  = 53086,
+    NPC_ENGULFING_FLAMES            = 53485,
+    NPC_SPLITTING_BLOW              = 53393,
+    NPC_SULFURAS_SMASH              = 53268,
+    NPC_SULFURAS_SMASH_TRIGGER      = 53266,
+    NPC_LAVA_WAVE                   = 53363,
+    NPC_SULFURAS                    = 53420,
+    NPC_SON_OF_FLAME                = 53140,
+    NPC_MOLTEN_ELEMENTAL            = 53189,
+    NPC_LAVA_SCION                  = 53231,
+    NPC_RAGNAROS_LIVING_METEOR      = 53500,
+    NPC_RAGNAROS_LIVING_METEOR_25N  = 53813,
+    NPC_RAGNAROS_LIVING_METEOR_10H  = 53814,
+    NPC_RAGNAROS_LIVING_METEOR_25H  = 53815,
+    NPC_MOLTEN_SEED_CASTER          = 53186,
+    NPC_BLAZING_HEAT                = 53473,
+
+    NPC_CENARIUS                    = 53872,
+    NPC_MALFURION_STORMRAGE         = 53875,
+    NPC_HAMUUL_RUNETOTEM            = 53876,
+
+    NPC_PLATFORM_STALKER            = 53952,
+    NPC_CLOUDBURST                  = 54147,
+    NPC_BREADTH_OF_FROST            = 53953,
+    NPC_ENTRAPPING_ROOTS            = 54074,
+    NPC_DREADFLAME                  = 54127,
+    NPC_DREADFLAME_SPAWN            = 54203,
+    NPC_HEART_OF_RAGNAROS           = 54293,
+
+    // Other
+    NPC_MAGMA_ORB                   = 54299,
+    NPC_FIRELANDS_BRIDGE_STALKER    = 42098,
+    NPC_TELEPORT_TO_MAJORDOMO       = 54348,
+    NPC_TELEPORT_TO_FLAMEBREACH     = 54367,
+    NPC_SMOULDERING_ESSENCE_CREDIT  = 54198,
 };
 
 enum GameobjectIds
 {
-    GO_BALEROC_FIREWALL             = 209066
+    GO_BALEROC_FIREWALL             = 209066,
+    GO_RAGNAROS_DOOR                = 209073,
+    GO_RAGNAROS_PLATFORM            = 208835,
+    GO_LAVA_WIELDER_DOOR            = 208873,
 };
 
 enum FirelandsSpells
@@ -80,6 +139,18 @@ enum FirelandsQuests
     QUEST_HEART_OF_FLAME_A          = 29307,
     QUEST_HEART_OF_FLAME_H          = 29308
 };
+
+enum FirelandsItems
+{
+    ITEM_HEART_OF_FLAME             = 69848,
+};
+
+enum DungeonPhases
+{
+    PHASE_DUNGEON_ALTERNATE         = 170,
+};
+
+Position const RagnarosPosition = { 1075.201f, -57.84896f, 55.42427f, 3.159046f };
 
 class DelayedAttackStartEvent : public BasicEvent
 {

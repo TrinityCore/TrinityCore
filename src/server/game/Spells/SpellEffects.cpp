@@ -4300,8 +4300,24 @@ void Spell::EffectLeapBack(SpellEffIndex /*effIndex*/)
 
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
+
     // Disengage
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
+    bool forward = true;
+    if (m_spellInfo->IconFileDataId == 132572)
+        forward = false;
+    else
+    {
+        switch (m_spellInfo->Id)
+        {
+            // (Firelands) Ragnaros - Lava Wave
+            case 98928:
+                forward = false;
+                break;
+            default:
+                break;
+        }
+    }
+    unitTarget->JumpTo(speedxy, speedz, forward);
 }
 
 void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)

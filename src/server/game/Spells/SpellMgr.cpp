@@ -3349,22 +3349,37 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
     // FIRELANDS SPELLS
     //
+    ApplySpellFix({
+        99256,  // Torment Damage
+        100941, // Dreadflame
+        99399,  // Entrapping Roots
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+    });
+
     // Torment Searcher
     ApplySpellFix({ 99253 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
     });
 
-    // Torment Damage
-    ApplySpellFix({ 99256 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
-    });
-
     // Blaze of Glory
     ApplySpellFix({ 99252 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
+    });
+
+    // Burning Wound
+    ApplySpellFix({ 99399 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TriggerSpell = 99400;
+    });
+
+    // Molten Power (Molten Elemental)
+    ApplySpellFix({ 100158 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
     });
     // ENDOF FIRELANDS SPELLS
 

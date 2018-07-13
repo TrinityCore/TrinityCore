@@ -16,11 +16,40 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "firelands.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+
+BossBoundaryData const bounderies =
+{
+    { DATA_RAGNAROS, new CircleBoundary(Position(1040.0f, -57.0f), 80) },
+};
+
+DoorData const doorData[] =
+{
+    { GO_RAGNAROS_DOOR,         DATA_RAGNAROS,              DOOR_TYPE_ROOM },
+    { 0,                        0,                          DOOR_TYPE_ROOM } //END
+};
+
+ObjectData const creatureData[] =
+{
+    { NPC_RAGNAROS,             DATA_RAGNAROS },
+    { NPC_SULFURAS,             DATA_SULFURAS },
+    { NPC_CENARIUS,             DATA_CENARIUS },
+    { NPC_HAMUUL_RUNETOTEM,     DATA_HAMUUL_RUNETOTEM },
+    { NPC_MALFURION_STORMRAGE,  DATA_MALFURION_STORMRAGE },
+    { NPC_DREADFLAME,           DATA_DREADFLAME },
+    { 0, 0 } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_RAGNAROS_PLATFORM, DATA_RAGNAROS_PLATFORM },
+    { 0, 0 } // END
+};
 
 class instance_firelands : public InstanceMapScript
 {
@@ -33,6 +62,11 @@ class instance_firelands : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadBossBoundaries(bounderies);
+                LoadDoorData(doorData);
+                LoadObjectData(creatureData, gameObjectData);
+
+                _ragnarosFirstEmerge = true;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -46,19 +80,94 @@ class instance_firelands : public InstanceMapScript
                     case NPC_BALEROC:
                         BalerocGUID = creature->GetGUID();
                         break;
+                    case NPC_SULFURAS_SMASH_TRIGGER:
+                    case NPC_SULFURAS:
+                    case NPC_MOLTEN_ELEMENTAL:
+                    case NPC_BLAZING_HEAT:
+                        if (Creature* ragnaros = GetCreature(DATA_RAGNAROS))
+                            if (ragnaros->IsAIEnabled)
+                                ragnaros->AI()->JustSummoned(creature);
+                        break;
+                    // Ragnaros trash manual linked respawn
+                    case NPC_LAVA_WIELDER:
+                    case NPC_MOLTEN_SPEWER:
+                    case NPC_MOLTEN_ERUPTER:
+                        if (GetBossState(DATA_RAGNAROS) != DONE)
+                            break;
+
+                        creature->SetRespawnTime(WEEK);
+                        creature->DisappearAndDie();
                     default:
                         break;
                 }
+
+                InstanceScript::OnCreatureCreate(creature);
             }
 
             void OnGameObjectCreate(GameObject* go) override
             {
-                switch (go->GetEntry())
+                switch(go->GetEntry())
                 {
                     case GO_BALEROC_FIREWALL:
                         BalerocDoorGUID = go->GetGUID();
                         if (GetBossState(DATA_SHANNOX) == DONE || GetBossState(DATA_BALEROC) == DONE)
                             go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_RAGNAROS_DOOR:
+                        AddDoor(go, true);
+                        break;
+                    default:
+                        break;
+                }
+
+                InstanceScript::OnGameObjectCreate(go);
+            }
+
+            void OnGameObjectRemove(GameObject* go) override
+            {
+                switch (go->GetEntry())
+                {
+                case GO_RAGNAROS_DOOR:
+                    AddDoor(go, false);
+                    break;
+                default:
+                    break;
+                }
+
+                InstanceScript::OnGameObjectRemove(go);
+            }
+
+            uint32 GetData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_RAGNAROS_FIRST_EMERGE:
+                        return _ragnarosFirstEmerge ? 1 : 0;
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 data, uint32 value) override
+            {
+                switch (data)
+                {
+                    case DATA_RAGNAROS_EMERGE:
+                    {
+                        if (GetCreature(DATA_RAGNAROS))
+                            break;
+
+                        EncounterState state = GetBossState(DATA_RAGNAROS);
+                        if (state != NOT_STARTED && state != TO_BE_DECIDED)
+                            break;
+
+                        instance->SummonCreature(NPC_RAGNAROS, RagnarosPosition);
+                        break;
+                    }
+                    case DATA_RAGNAROS_FIRST_EMERGE:
+                        _ragnarosFirstEmerge = value == 1;
                         break;
                     default:
                         break;
@@ -69,6 +178,22 @@ class instance_firelands : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
+
+                switch (type)
+                {
+                    case DATA_RAGNAROS:
+                        if (state == FAIL)
+                            _scheduler.Schedule(Seconds(31), [this](TaskContext)
+                            {
+                                if (!GetCreature(DATA_RAGNAROS))
+                                    instance->SummonCreature(NPC_RAGNAROS, RagnarosPosition);
+                            });
+                        else if (state == DONE)
+                            SendBossKillCredit(1203);
+                        break;
+                    default:
+                        break;
+                }
 
                 if ((type == DATA_SHANNOX && state == DONE) || (type == DATA_BALEROC && state != IN_PROGRESS))
                 {
@@ -81,6 +206,16 @@ class instance_firelands : public InstanceMapScript
 
                 return true;
             }
+
+            void Update(uint32 diff) override
+            {
+                _scheduler.Update(diff);
+                InstanceScript::Update(diff);
+            }
+
+        private:
+            bool _ragnarosFirstEmerge;
+            TaskScheduler _scheduler;
 
             ObjectGuid GetGuidData(uint32 type) const override
             {
