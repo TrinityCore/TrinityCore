@@ -175,7 +175,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (mInstance)
     {
         // check if this instance has a reset time and send it to player if so
-        Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
+        Difficulty diff = newMap->GetDifficultyID();
         if (MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mEntry->ID, diff))
         {
             if (mapDiff->GetRaidDuration())
