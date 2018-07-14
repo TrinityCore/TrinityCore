@@ -5,12 +5,17 @@
 
 
 */
-283.257 3357.2 145.473 2.32275 1220
+
  -- TELE LOCATION --
 DELETE FROM game_tele WHERE id = 1797;
 INSERT INTO game_tele (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`)VALUES
 (1797, 283.257, 3357.2, 145.473, 2.32275, 1220, 'NightbourneSpawn');
 
+
+ -- UPDATE SPAWN LOCATION IN PLAYERCREATEINFO --
+ 
+UPDATE playercreateinfo SET map = 1220, zone = 7637, position_x = 283.257, position_y = 3349.2, position_z = 145.473, orientation = 2.32275 WHERE race = 27;
+ 
  -- MISC --
  
  DELETE FROM `areatrigger_template` WHERE `Id` IN (12515, 16575, 5302, 10660, 11513);
@@ -48,7 +53,7 @@ INSERT INTO `conversation_line_template` (`Id`, `StartTime`, `UiCameraID`, `Acto
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (15512);
 INSERT INTO `conversation_line_template` (`Id`, `StartTime`, `UiCameraID`, `ActorIdx`, `Unk`, `VerifiedBuild`) VALUES
-(15512, 0, 606, 0, 0, 26972); -- GUESSED!
+(15512, 0, 606,  0, 0, 26972); -- GUESSED!
 
 
 
