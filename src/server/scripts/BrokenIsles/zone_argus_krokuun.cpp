@@ -86,7 +86,7 @@ struct npc_imp_mother_laglath : public ScriptedAI
             return !me->HasUnitState(UNIT_STATE_CASTING);
         });
 
-        me->GetScheduler().Schedule(20s, [this](TaskContext context)
+        me->GetScheduler().Schedule(20s, [](TaskContext context)
         {
             GetContextUnit()->CastSpell(nullptr, SPELL_MATRON_RAGE, false);
             context.Repeat();

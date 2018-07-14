@@ -1082,47 +1082,34 @@ class spell_dk_unholy_blight : public SpellScriptLoader
         }
 };
 
-// 81164 - Will of the Necropolis
-/// 6.x
-class spell_dk_will_of_the_necropolis : public SpellScriptLoader
+// 206967 - Will of the Necropolis
+class spell_dk_will_of_the_necropolis : public AuraScript
 {
-    public:
-        spell_dk_will_of_the_necropolis() : SpellScriptLoader("spell_dk_will_of_the_necropolis") { }
+    PrepareAuraScript(spell_dk_will_of_the_necropolis);
 
-        class spell_dk_will_of_the_necropolis_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffect(EFFECT_0) && spellInfo->GetEffect(EFFECT_1) && spellInfo->GetEffect(EFFECT_2);
+    }
 
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_WILL_OF_THE_NECROPOLIS))
-                    return false;
-                if (!spellInfo->GetEffect(EFFECT_0))
-                    return false;
-                return true;
-            }
+    void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+    {
+        p_Amount = -1;
+    }
 
-            void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
-            {
-                p_Amount = -1;
-            }
+    void Absorb(AuraEffect* /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        absorbAmount = 0;
 
-            void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& /*p_DmgInfo*/, uint32& p_AbsorbAmount)
-            {
-                p_AbsorbAmount = 0; //This is set at 0 because we don't want to absorb
-            }
+        if (GetTarget()->GetHealthPct() < GetEffect(EFFECT_2)->GetBaseAmount())
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), GetEffect(EFFECT_1)->GetBaseAmount());
+    }
 
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_will_of_the_necropolis_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_will_of_the_necropolis_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dk_will_of_the_necropolis_AuraScript();
-        }
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_will_of_the_necropolis::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_will_of_the_necropolis::Absorb, EFFECT_0);
+    }
 };
 
 // 49576 - Death Grip
@@ -2548,7 +2535,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_soul_reaper();
     new spell_dk_unholy_blight();
     new spell_dk_vampiric_blood();
-    new spell_dk_will_of_the_necropolis();
+    RegisterAuraScript(spell_dk_will_of_the_necropolis);
     RegisterSpellScript(spell_dk_glacial_advance);
     RegisterSpellScript(spell_dk_obliterate);
 }
