@@ -28,6 +28,7 @@
 #include "SpellScript.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "Spell.h"
 
 enum PaladinSpells
 {
@@ -68,6 +69,7 @@ enum PaladinSpells
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_PASSIVE = 31878,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE         = 31930,
     SPELL_PALADIN_JUDGEEMENT_OF_TRUTH            = 31804,
+    SPELL_PALADIN_LONG_ARM_OF_THE_LAW            = 87173,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
@@ -77,6 +79,7 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE   = 25742,
     SPELL_PALADIN_SEAL_OF_TRUTH                  = 31801,
     SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE           = 42463,
+    SPELL_PALADIN_SEAL_OF_JUSTICE                = 20164,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
     SPELL_PALADIN_TEMPLARS_VERDICT               = 85256
 };
@@ -84,7 +87,8 @@ enum PaladinSpells
 enum MiscSpells
 {
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
-    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411,
+    SPELL_GENERIC_REPLENISHMENT                  = 57669
 };
 
 enum PaladinSpellIcons
@@ -486,7 +490,7 @@ class spell_pal_divine_storm : public SpellScriptLoader
             void TriggerHeal()
             {
                 Unit* caster = GetCaster();
-                caster->CastCustomSpell(SPELL_PALADIN_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, (GetHitDamage() * healPct) / 100, caster, true);
+                caster->CastCustomSpell(SPELL_PALADIN_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, CalculatePct(GetHitDamage(), healPct), caster, true);
             }
 
             void Register() override
@@ -523,7 +527,7 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (!_targetCount || ! GetHitUnit())
+                if (!_targetCount || !GetHitUnit() || !GetEffectValue())
                     return;
 
                 int32 heal = GetEffectValue() / _targetCount;
@@ -1125,40 +1129,6 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         }
 };
 
-// 85285 - Sacred Shield
-class spell_pal_sacred_shield : public SpellScriptLoader
-{
-    public:
-        spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
-
-        class spell_pal_sacred_shield_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_sacred_shield_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (!caster->HealthBelowPct(30))
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_sacred_shield_SpellScript();
-        }
-};
-
 // 53600 - Shield of the Righteous
 /// Updated 4.3.4
 class spell_pal_shield_of_the_righteous : public SpellScriptLoader
@@ -1547,6 +1517,88 @@ class spell_pal_seal_of_truth : public AuraScript
     }
 };
 
+class spell_pal_long_arm_of_the_law : public AuraScript
+{
+    PrepareAuraScript(spell_pal_long_arm_of_the_law);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_LONG_ARM_OF_THE_LAW });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
+            if (Spell const* spell = eventInfo.GetProcSpell())
+                if (Unit* target = spell->m_targets.GetUnitTarget())
+                    return (eventInfo.GetActor()->GetDistance2d(target) > 15.0f);
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_LONG_ARM_OF_THE_LAW, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_long_arm_of_the_law::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_long_arm_of_the_law::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+class spell_pal_communion : public AuraScript
+{
+    PrepareAuraScript(spell_pal_communion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GENERIC_REPLENISHMENT });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_GENERIC_REPLENISHMENT, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_communion::HandleProc, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER);
+    }
+};
+
+class spell_pal_sacred_shield : public AuraScript
+{
+    PrepareAuraScript(spell_pal_sacred_shield);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (DamageInfo* damage = eventInfo.GetDamageInfo())
+            return (GetTarget()->HealthBelowPctDamaged(30, damage->GetDamage()));
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+        SpellInfo const* spell = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+        int32 absorb = (spell->Effects[EFFECT_0].CalcValue() * 2) + target->GetTotalAttackPowerValue(BASE_ATTACK) * 2.8f;
+        target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, absorb, target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_sacred_shield::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_sacred_shield::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1554,6 +1606,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
+    RegisterAuraScript(spell_pal_communion);
     new spell_pal_consecration();
     new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
@@ -1575,10 +1628,11 @@ void AddSC_paladin_spell_scripts()
     RegisterAuraScript(spell_pal_judgements);
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();
+    RegisterAuraScript(spell_pal_long_arm_of_the_law);
     new spell_pal_righteous_defense();
-    new spell_pal_sacred_shield();
-    new spell_pal_shield_of_the_righteous();
-    new spell_pal_templar_s_verdict();
+    RegisterAuraScript(spell_pal_sacred_shield);
     new spell_pal_seal_of_righteousness();
     RegisterAuraScript(spell_pal_seal_of_truth);
+    new spell_pal_shield_of_the_righteous();
+    new spell_pal_templar_s_verdict();
 }
