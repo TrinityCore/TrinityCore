@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
+#include "Conversation.h"
 #include "DB2Stores.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -2724,6 +2725,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (me)
 			    me->GetMap()->SetZoneOverrideLight(e.action.setOverrideZoneLight.zoneId, e.action.setOverrideZoneLight.lightId, e.action.setOverrideZoneLight.fadeTime);
+            break;
+        }
+        case SMART_ACTION_START_CONVERSATION:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (WorldObject* target : *targets)
+                if (Player* playerTarget = target->ToPlayer())
+                    Conversation::CreateConversation(e.action.startConversation.conversationId, playerTarget, *playerTarget, { playerTarget->GetGUID() });
+
+            delete targets;
             break;
         }
         default:
