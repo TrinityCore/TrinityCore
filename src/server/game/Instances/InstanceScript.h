@@ -310,7 +310,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SetTemporaryEntranceLocation(uint32 worldSafeLocationId) { _temporaryEntranceId = worldSafeLocationId; }
 
         // Get's the current entrance id
-        uint32 GetEntranceLocation() const { return _temporaryEntranceId ? _temporaryEntranceId : _entranceId; }
+        uint32 GetEntranceLocation() const { uint32 locationId = _temporaryEntranceId ? _temporaryEntranceId : _entranceId; OnGetEntranceLocation(locationId); return locationId; }
+
+        virtual void OnGetEntranceLocation(uint32& /*worldSafeLocationId*/) const { }
 
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time

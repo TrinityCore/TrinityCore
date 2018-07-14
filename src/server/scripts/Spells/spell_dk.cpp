@@ -144,7 +144,7 @@ enum DeathKnightSpells
     SPELL_DK_HOWLING_BLAST_AOE                  = 237680,
     SPELL_DK_RIME_BUFF                          = 59052,
     SPELL_DK_NORTHREND_WINDS                    = 204088,
-    SPELL_DK_KILLING_MACHINE                    = 51128,
+    SPELL_DK_KILLING_MACHINE                    = 51124,
     SPELL_DK_REMORSELESS_WINTER_SLOW_DOWN       = 211793,
 };
 
@@ -1326,7 +1326,7 @@ class spell_dk_remorseless_winter_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_dk_remorseless_winter_damage::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_dk_remorseless_winter_damage::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 

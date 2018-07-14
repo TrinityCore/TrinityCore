@@ -575,6 +575,7 @@ enum SMART_ACTION
     SMART_ACTION_CANCEL_VISUAL                      = 203,    // VisualType, VisualId.
     SMART_ACTION_CIRCLE_PATH                        = 204,    // Radius, Clockwise, StepCount
     SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT            = 205,    // zone Id, light Id, timer in milliseconds.
+    SMART_ACTION_START_CONVERSATION                 = 206,    // conversation Id
     
     SMART_ACTION_END                                = 206
 };
@@ -1151,7 +1152,11 @@ struct SmartAction
             uint32 lightId;
 			uint32 fadeTime;
         } setOverrideZoneLight;
-        
+
+        struct {
+            uint32 conversationId;
+        } startConversation;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 

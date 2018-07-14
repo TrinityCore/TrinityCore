@@ -18,6 +18,7 @@
 #include "SmartScriptMgr.h"
 #include "DB2Stores.h"
 #include "CreatureTextMgr.h"
+#include "ConversationDataStore.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
@@ -1399,6 +1400,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!sObjectMgr->GetSceneTemplate(e.action.scene.sceneId))
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId %u but scene don't exist, skipped", e.action.scene.sceneId);
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_START_CONVERSATION:
+        {
+            if (!sConversationDataStore->GetConversationTemplate(e.action.startConversation.conversationId))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_START_CONVERSATION uses conversationId %u but conversation don't exist, skipped", e.action.startConversation.conversationId);
                 return false;
             }
 

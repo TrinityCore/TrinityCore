@@ -99,6 +99,7 @@ enum MonkSpells
     SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER              = 122035,
     SPELL_MONK_PLUS_ONE_MANA_TEA                        = 123760,
     SPELL_MONK_POWER_STRIKES_TALENT                     = 121817,
+    SPELL_MONK_POWER_STRIKES_AURA                       = 129914,
     SPELL_MONK_PROVOKE                                  = 118635,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
@@ -3675,6 +3676,26 @@ class spell_monk_whirling_dragon_punch : public AuraScript
     }
 };
 
+// 100780
+class spell_monk_tiger_palm : public SpellScript
+{
+    PrepareSpellScript(spell_monk_tiger_palm);
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Aura* powerStrikes = GetCaster()->GetAura(SPELL_MONK_POWER_STRIKES_AURA))
+        {
+            SetEffectValue(GetEffectValue() + powerStrikes->GetEffect(EFFECT_0)->GetBaseAmount());
+            powerStrikes->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_monk_tiger_palm::HandleHit, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     RegisterAreaTriggerAI(at_monk_gift_of_the_ox_sphere);
@@ -3754,6 +3775,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_pulse();
     new playerScript_monk_whirling_dragon_punch();
     RegisterAuraScript(spell_monk_whirling_dragon_punch);
+    RegisterSpellScript(spell_monk_tiger_palm);
 
     RegisterCreatureAI(npc_monk_sef_spirit);
 }

@@ -540,7 +540,7 @@ struct npc_hogger : public ScriptedAI
         me->SetWalk(false);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (_endingSceneActive)
         {
@@ -870,10 +870,9 @@ struct npc_hogger_minion : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_AGGRESSIVE);
+
         if (Creature* hogger = me->FindNearestCreature(NPC_HOGGER, 35.0f, true))
-        {
             me->CastSpell(hogger, SPELL_ADVENTURERS_RUSH, true);
-        }
     }
 };
 
