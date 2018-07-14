@@ -489,6 +489,33 @@ public:
     {
         return new spell_rog_roll_the_bones_AuraScript();
     }
+
+    class spell_rog_roll_the_bones_duration_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_roll_the_bones_duration_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_ROGUE_ROLL_THE_BONES });
+        }
+
+        void HandleAfterHit()
+        {
+            if (Aura* rtbAura = GetCaster()->GetAura(GetSpellInfo()->Id))
+                if (SpellPowerCost const* powerCost = GetSpell()->GetPowerCost(POWER_COMBO_POINTS))
+                    rtbAura->SetDuration((powerCost->Amount + 1) * 6 * IN_MILLISECONDS);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_rog_roll_the_bones_duration_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_roll_the_bones_duration_SpellScript();
+    }
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
