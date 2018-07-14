@@ -201,7 +201,7 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
 
 
  -- Spawns --
-SET @CGUID=210219115;
+SET @CGUID=1100002;
 
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 131326, 1220, 7637, 9502, 3, 0, 0, 0, 0, 279.3646, 3364.045, 145.5591, 5.467539, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131326 (Area: 9502 - Difficulty: 0)
@@ -377,19 +377,24 @@ INSERT INTO `quest_objectives` (`ID`, `QuestID`, `Type`, `Order`, `StorageIndex`
 # Objects #
  
   -- Templates --
-DELETE FROM gameobject_template WHERE entry IN (279579, 279671, 279670); 
+DELETE FROM gameobject_template WHERE entry IN (279579, 279671, 279670, 279295, 281316); 
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `Data8`, `Data9`, `Data10`, `Data11`, `Data12`, `Data13`, `Data14`, `Data15`, `Data16`, `Data17`, `Data18`, `Data19`, `Data20`, `Data21`, `Data22`, `Data23`, `Data24`, `Data25`, `Data26`, `Data27`, `Data28`, `Data29`, `Data30`, `Data31`, `Data32`, `RequiredLevel`, `VerifiedBuild`) VALUES
- (279579, 22, 12807, 'Portal to Orgrimmar', '', '', '', 1, 259106, -1, 0, 0, 1, 55254, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279579
- (279671, 22, 36654, 'Portal to Shal''Aran', '', '', '', 1, 263029, -1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279671
- (279670, 22, 8111, 'Portal to Dalaran', '', '', '', 1, 239570, -1, 0, 0, 1, 29029, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 279670
- 
-  -- Spawns --
-SET @OGUID=210120135;
+(279579, 22, 12807, 'Portal to Orgrimmar', '', '', '', 1, 259106, -1, 0, 0, 1, 55254, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279579
+(279671, 22, 36654, 'Portal to Shal''Aran', '', '', '', 1, 263029, -1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279671
+(279670, 22, 8111, 'Portal to Dalaran', '', '', '', 1, 239570, -1, 0, 0, 1, 29029, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279670
+(279295, 22, 47619, 'Portal to The Nighthold', '', '', '', 0.75, 259125, 0, 0, 0, 0, 55254, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279295
+(281316, 22, 47619, 'Portal to The Nighthold', '', '', '', 1, 259125, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 281316
 
+  -- Spawns --
+SET @OGUID=20000016;
+
+DELETE FROM gameobject WHERE guid BETWEEN @OGUID+1 AND @OGUID+5;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+1, 279579, 1220, 7637, 9502, 3, 0, 0, 212.9983, 3427.951, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279579 (Area: 9502 - Difficulty: 0)
 (@OGUID+2, 279671, 1220, 7637, 9502, 3, 0, 0, 239.7587, 3438.77, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279671 (Area: 9502 - Difficulty: 0)
-(@OGUID+10, 279670, 1220, 7637, 9502, 3, 0, 0, 201.7847, 3400.765, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972); -- 279670 (Area: 9502 - Difficulty: 0)
+(@OGUID+3, 279670, 1220, 7637, 9502, 3, 0, 0, 201.7847, 3400.765, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279670 (Area: 9502 - Difficulty: 0)
+(@OGUID+4, 279295, 1, 1637, 5332, 1, 0, 0, 1595.684, -4203.519, 53.86691, 0, 0, 0, 0, 1, 120, 255, 1, 26972), -- 279295 (Area: 5332 - Difficulty: 0)
+(@OGUID+5, 281316, 1220, 7637, 7928, 3, 0, 0, 1778.347, 4616.864, 124.741, 0.337644, 0, 0, 0.1680212, 0.9857834, 7200, 255, 1, 26972); -- 281316 (Area: 7928 - Difficulty: 0)
 
 
 DELETE FROM spell_target_position WHERE ID IN (259106, 263029);
