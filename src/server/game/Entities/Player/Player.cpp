@@ -1568,7 +1568,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == MAP_EBON_HOLD_DK_START_ZONE && !IsGameMaster() && !HasSpell(50977))
             return false;
 
-        if (GetMapId() == MAP_BROKEN_ISLANDS && !IsGameMaster() && getLevel() < 98)
+        if (mapid == MAP_BROKEN_ISLANDS && !IsGameMaster() && getLevel() < 98)
             return false;
 
         // far teleport to another map
