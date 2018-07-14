@@ -7,7 +7,7 @@
 */
 
  -- TELE LOCATION --
- 
+DELETE FROM game_tele WHERE id = 1797;
 INSERT INTO game_tele (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`)VALUES
 (1797, 283.257, 3357.2, 145.473, 2.32275, 1220, 'NightbourneSpawn');
 
@@ -121,7 +121,7 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 (131326, 1, 132171, 0, 0, 0, 0, 0, 0, 0, 0), -- 131326
 (131420, 1, 133177, 0, 0, 137253, 0, 0, 0, 0, 0); -- 131420
 
-DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032);
+DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (132026, 0, 0, 73853, 0, 0, 0, 'Chief Telemancer Oculeth', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132026
 (132027, 0, 0, 73854, 0, 0, 0, 'Arcanist Valtrois', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132027
@@ -141,7 +141,7 @@ UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799 WHER
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npcflag = 66177, gossip_menu_id = 22234 WHERE entry = 133695;
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npcflag = 1, gossip_menu_id = 21994 WHERE entry = 132032;
 UPDATE `creature_template` SET `AIName`="SmartAI", npcflag = 3, gossip_menu_id = 21993 WHERE `entry`=131326;
-UPDATE creature_template SET npc_flag = 3, faction = 2875, gossip_menu_id = 22182 WHERE entry = 133407;
+UPDATE creature_template SET npcflag = 3, faction = 2875, gossip_menu_id = 22182 WHERE entry = 133407;
 
 DELETE FROM `npc_vendor` WHERE (`entry`=113515 AND `item`=10290 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4342 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2325 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=6261 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4340 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2605 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=6260 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2604 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2324 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=38426 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=14341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=8343 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4291 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2321 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2320 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=141208 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140299 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140631 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140301 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140286 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=138292 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=128853 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=138295 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=138294 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128833 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128834 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128841 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128842 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=138292 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128853 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=141215 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=140298 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=10290 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4342 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2325 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=6261 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4340 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2605 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=6260 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2604 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2324 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=38426 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=14341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=8343 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4291 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2321 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2320 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=141208 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140299 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140631 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140301 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140286 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=138292 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=128853 AND `ExtendedCost`=0 AND `type`=1);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
@@ -206,6 +206,7 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
  -- Spawns --
 SET @CGUID=1100002;
 
+DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+28;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 131326, 1220, 7637, 9502, 3, 0, 0, 0, 0, 279.3646, 3364.045, 145.5591, 5.467539, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131326 (Area: 9502 - Difficulty: 0)
 (@CGUID+2, 132032, 1220, 7637, 9502, 3, 0, 0, 0, 0, 282.5434, 3364.898, 145.5591, 4.695381, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132032 (Area: 9502 - Difficulty: 0)
@@ -263,8 +264,9 @@ INSERT INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `Option
 UPDATE gossip_menu_option SET OptionType=8, OptionNpcFlag=66177 WHERE MenuId=22234 AND OptionIndex = 0;
 UPDATE gossip_menu_option SET OptionType=3, OptionNpcFlag=66177 WHERE MenuId=22234 AND OptionIndex = 1;
 
-INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
+/*INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (131328, @GROUP_ID+0, @ID+, 'Stars guide you, $p. I have heard intriguing talk of the Hillsbrad Foothills. I will likely journey there.', 12, 0, 100, 1, 0, 0, UNKNOWN, 'Melitier Vahlouran to Player');
+*/
 
 -- First Arcanist Thalyssra SAI THANKS ÐϴVΞΓϺΛΠ - 930®#4327
 SET @FIRST_ARCANIST_THALYSSRA := 131326;
