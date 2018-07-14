@@ -833,6 +833,9 @@ class spell_pal_divine_storm : public SpellScript
             if (caster->GetSpellHistory()->HasCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE))
                 caster->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, -7.5 * IN_MILLISECONDS);
         }
+
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA))
+            caster->RemoveAurasDueToSpell(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA);
     }
 
     void HandleDummy(SpellEffIndex /* effIndex */)
@@ -871,6 +874,9 @@ class spell_pal_templar_s_verdict : public SpellScript
             if (caster->GetSpellHistory()->HasCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE))
                 caster->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, -7.5 * IN_MILLISECONDS);
         }
+
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA))
+            caster->RemoveAurasDueToSpell(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA);
     }
 
     void Register() override
