@@ -11,6 +11,47 @@ DELETE FROM game_tele WHERE id = 1797;
 INSERT INTO game_tele (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`)VALUES
 (1797, 283.257, 3357.2, 145.473, 2.32275, 1220, 'NightbourneSpawn');
 
+ -- MISC --
+ 
+ DELETE FROM `areatrigger_template` WHERE `Id` IN (12515, 16575, 5302, 10660, 11513);
+INSERT INTO `areatrigger_template` (`Id`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `VerifiedBuild`) VALUES
+(12515, 0, 2, 0.5, 2, 0, 0, 0, 0, 26972),
+(16575, 3, 4, 0, 0, 0, 0, 0, 0, 26972),
+(5302, 0, 8, 5, 5, 0, 0, 0, 0, 26972),
+(10660, 0, 4, 18, 18, 0, 0, 0, 0, 26972),
+(11513, 0, 0, 1, 1, 0, 0, 0, 0, 26972);
+
+
+DELETE FROM `conversation_actors` WHERE (`ConversationId`=6531 AND `Idx`=0) OR (`ConversationId`=6800 AND `ConversationActorId`=60124 AND `Idx`=0);
+INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `Idx`, `VerifiedBuild`) VALUES
+(6531, 0, 0, 26972), -- Full: 0x20197C9880803F800012DD0000465FD7 Creature/0 R1631/S4829 Map: 1220 Entry: 131326 Low: 4612055
+(6800, 60124, 0, 26972);
+
+
+DELETE FROM `conversation_actor_template` WHERE `Id`=60124;
+INSERT INTO `conversation_actor_template` (`Id`, `CreatureId`, `CreatureModelId`, `VerifiedBuild`) VALUES
+(60124, 126076, 81857, 26972);
+
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (14832, 14831, 14830, 14829, 14828, 15516, 15515, 15514, 15513, 15511);
+INSERT INTO `conversation_line_template` (`Id`, `StartTime`, `UiCameraID`, `ActorIdx`, `Unk`, `VerifiedBuild`) VALUES
+(14832, 38895, 2245536360, 0, 0, 26972),
+(14831, 32475, 2245536360, 0, 0, 26972),
+(14830, 25441, 2245536360, 0, 0, 26972),
+(14829, 13279, 2245536360, 0, 8217, 26972),
+(14828, 0, 2245536360, 0, 0, 26972),
+(15516, 47630, 606, 0, 0, 26972),
+(15515, 35678, 606, 0, 0, 26972),
+(15514, 20366, 606, 0, 0, 26972),
+(15513, 10427, 606, 0, 0, 26972),
+(15511, 0, 606, 0, 0, 26972);
+
+
+DELETE FROM `conversation_template` WHERE `Id` IN (6800, 6531);
+INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `LastLineEndTime`, `VerifiedBuild`) VALUES
+(6800, 15511, 58688, 26972),
+(6531, 14828, 52053, 26972);
+
 # Creatures #
  
  -- Templates --
