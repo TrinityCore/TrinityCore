@@ -390,3 +390,9 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@OGUID+1, 279579, 1220, 7637, 9502, 3, 0, 0, 212.9983, 3427.951, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279579 (Area: 9502 - Difficulty: 0)
 (@OGUID+2, 279671, 1220, 7637, 9502, 3, 0, 0, 239.7587, 3438.77, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279671 (Area: 9502 - Difficulty: 0)
 (@OGUID+10, 279670, 1220, 7637, 9502, 3, 0, 0, 201.7847, 3400.765, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972); -- 279670 (Area: 9502 - Difficulty: 0)
+
+
+DELETE FROM spell_target_position WHERE ID IN (259106, 263029);
+INSERT INTO spell_target_position (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`)VALUES
+(259106, 0, 1, 1590.86, -4199.37, 53.6, 26972), -- Portal to orgrimmar
+(263029, 0, 1220, 1772.3, 4615.48, 124.81, 26972); -- Portal to Shal'aran
