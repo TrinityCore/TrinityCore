@@ -2855,11 +2855,8 @@ class spell_gen_replenishment : public SpellScriptLoader
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_REPLENISHMENT:
-                        amount = GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.001f;
-                        break;
                     case SPELL_INFINITE_REPLENISHMENT:
-                        amount = GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
-                        break;
+                        amount = CalculatePct(GetUnitOwner()->GetMaxPower(POWER_MANA), 1);
                     default:
                         break;
                 }
