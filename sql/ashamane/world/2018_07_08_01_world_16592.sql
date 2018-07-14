@@ -6,14 +6,14 @@ UPDATE creature SET MovementType=0, spawndist=0 WHERE id=16592;
 UPDATE creature SET zoneId=3483, areaId=3483, position_x=41.2448, position_y=2587.440, position_z=68.420 WHERE id=16592 AND guid=353517;
  
 -- NPC delete + insert: 16592 Midsummer Bonfire: 195445 Uldum
+SET @CGUID=375109;
 DELETE FROM creature WHERE guid=@CGUID;
 INSERT INTO creature (guid, id, map, modelid, position_x, position_y, position_z, orientation) VALUES 
 (@CGUID, 16592, 1, 11686, -9345.370, -868.2670, 127.5280, -2.7227);
 DELETE FROM game_event_creature WHERE guid=@CGUID;
 INSERT INTO game_event_creature VALUES (1, @CGUID); 
 SET @CGUID=@CGUID+1;
- 
- 
+  
 -- double spawned creature 
 DELETE FROM creature WHERE id=16592 AND guid IN 
 (370225, 370027, 370003, 370051, 369988, 370001, 369995, 369703, 370019, 370271, 

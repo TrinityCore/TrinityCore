@@ -27,6 +27,7 @@ UPDATE creature SET position_x = -3068.479492, position_y = 2390.841309, positio
 UPDATE creature SET position_x = 2915.812988, position_y = 3688.631104, position_z = 144.152512, orientation = 3.200477 WHERE guid = 353607;
 
 -- Bilgewater Harbor
+SET @CGUID=375150;
 DELETE FROM creature WHERE guid=@CGUID;
 INSERT INTO creature 
 (guid, id, map, zoneId, areaId, spawnMask, phaseUseFlags, PhaseId, PhaseGroup, terrainSwapMap, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, unit_flags, unit_flags2, unit_flags3, dynamicflags, ScriptName, VerifiedBuild)

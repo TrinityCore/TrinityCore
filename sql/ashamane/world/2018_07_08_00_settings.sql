@@ -1,6 +1,0 @@
-
--- ashamane 
-
-SET @CGUID=375109;
-SET @GGUID=216780;
-

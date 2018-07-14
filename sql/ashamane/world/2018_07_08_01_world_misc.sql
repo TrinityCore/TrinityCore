@@ -179,10 +179,3 @@ DELETE FROM creature WHERE id=9163 AND guid = 282153;
 UPDATE creature SET position_x = -3312.682617, position_y = -2200.256104, position_z = 92.184845, orientation = 5.684101 WHERE guid = 270411;
 -- Delete NPC: 37208 Thunderhead
 DELETE FROM creature WHERE id=37208 AND guid = 270408;
-
-
-
-
-
-
-
