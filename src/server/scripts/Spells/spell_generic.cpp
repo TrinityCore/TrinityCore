@@ -4620,8 +4620,12 @@ class spell_gen_vengeance : public SpellScriptLoader
                 if (!caster)
                     return;
 
+                DamageInfo* dInfo = eventInfo.GetDamageInfo();
+                if (!dInfo)
+                    return;
+
                 PreventDefaultAction();
-                uint32 damage = eventInfo.GetDamageInfo()->GetDamage();
+                uint32 damage = dInfo->GetDamage();
                 uint32 casterHealth = CalculatePct(caster->GetHealth(), 10);
                 if (damage > casterHealth)
                     damage = casterHealth;
@@ -4629,7 +4633,7 @@ class spell_gen_vengeance : public SpellScriptLoader
                 int32 bp = CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
                 if (bp) // make sure that we wont cast Vengeance when the damage bonus is 0
-                    caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, NULL, true);
+                    caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, nullptr, true);
                 else if (caster->HasAura(SPELL_VENGEANCE_TRIGGERED))
                     caster->RemoveAurasDueToSpell(SPELL_VENGEANCE_TRIGGERED);
             }
