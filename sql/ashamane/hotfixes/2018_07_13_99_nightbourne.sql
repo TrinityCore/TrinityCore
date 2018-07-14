@@ -1,3 +1,4 @@
+DELETE FROM `broadcast_text` WHERE `ID` IN (147207, 147209, 147205, 147208, 143595, 143591, 143593, 143594, 143596, 122398, 108945, 144677, 144678, 144676, 144674, 144383, 144384, 124862, 124863, 124865, 144621, 144396, 143276, 143293, 143292, 143288, 143277, 144397, 10889);
 INSERT INTO broadcast_text (ID, Text, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmotesID, LanguageID, Flags, ConditionID, SoundEntriesID1, SoundEntriesID2, VerifiedBuild) VALUES
 (147207, 'What do I have to do to get myself out of this job?\n\nI try to leave, some orc picks me up and plops me right back down here.', '', 6, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 26972),
 (147209, 'I really hated this tophat at first. What does a guy have to do for a good tricorne?\n\nBut I must say... this fits real nicely on my skull.', '', 6, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 26972),
