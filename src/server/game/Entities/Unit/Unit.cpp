@@ -7352,9 +7352,9 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             case 3736: // Hateful Totem of the Third Wind / Increased Lesser Healing Wave / LK Arena (4/5/6) Totem of the Third Wind / Savage Totem of the Third Wind
                 DoneTotal += (*i)->GetAmount();
                 break;
-            case   21: // Test of Faith
-            case 6935:
-            case 6918:
+            case 47558: // Test of Faith
+            case 47559:
+            case 47560:
                 if (victim->HealthBelowPct(50))
                     AddPct(DoneTotal, (*i)->GetAmount());
                 break;
