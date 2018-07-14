@@ -397,7 +397,9 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@OGUID+5, 281316, 1220, 7637, 7928, 3, 0, 0, 1778.347, 4616.864, 124.741, 0.337644, 0, 0, 0.1680212, 0.9857834, 7200, 255, 1, 26972); -- 281316 (Area: 7928 - Difficulty: 0)
 
 
-DELETE FROM spell_target_position WHERE ID IN (259106, 263029);
+DELETE FROM spell_target_position WHERE ID IN (259106, 263029, 259125);
 INSERT INTO spell_target_position (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`)VALUES
 (259106, 0, 1, 1590.86, -4199.37, 53.6, 26972), -- Portal to orgrimmar
+(259125, 0, 1220, 288.38, 3352.23, 145.44, 26972), -- Return Portal to Nighthold
 (263029, 0, 1220, 1772.3, 4615.48, 124.81, 26972); -- Portal to Shal'aran
+
