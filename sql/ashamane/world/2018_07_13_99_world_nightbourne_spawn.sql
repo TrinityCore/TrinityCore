@@ -5,7 +5,7 @@
 
 
 */
-
+283.257 3357.2 145.473 2.32275 1220
  -- TELE LOCATION --
 DELETE FROM game_tele WHERE id = 1797;
 INSERT INTO game_tele (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`)VALUES
@@ -45,6 +45,11 @@ INSERT INTO `conversation_line_template` (`Id`, `StartTime`, `UiCameraID`, `Acto
 (15514, 20366, 606, 0, 0, 26972),
 (15513, 10427, 606, 0, 0, 26972),
 (15511, 0, 606, 0, 0, 26972);
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (15512);
+INSERT INTO `conversation_line_template` (`Id`, `StartTime`, `UiCameraID`, `ActorIdx`, `Unk`, `VerifiedBuild`) VALUES
+(15512, 0, 606, 0, 0, 26972); -- GUESSED!
+
 
 
 DELETE FROM `conversation_template` WHERE `Id` IN (6800, 6531);
@@ -357,6 +362,15 @@ UPDATE gossip_menu_option SET OptionType=3, OptionNpcFlag=66177 WHERE MenuId=222
 /*INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (131328, @GROUP_ID+0, @ID+, 'Stars guide you, $p. I have heard intriguing talk of the Hillsbrad Foothills. I will likely journey there.', 12, 0, 100, 1, 0, 0, UNKNOWN, 'Melitier Vahlouran to Player');
 */
+
+-- Ambassador Blackguard SAI
+SET @AMBASSADOR_BLACKGUARD := 133407;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@AMBASSADOR_BLACKGUARD;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@AMBASSADOR_BLACKGUARD AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@AMBASSADOR_BLACKGUARD,0,0,0,20,0,100,0,49933,0,0,0,206,6800,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ambassador Blackguard - On Quest 'For the Horde' Return - conversation");
+
+
 
 -- First Arcanist Thalyssra SAI THANKS ÐϴVΞΓϺΛΠ - 930®#4327
 SET @FIRST_ARCANIST_THALYSSRA := 131326;
