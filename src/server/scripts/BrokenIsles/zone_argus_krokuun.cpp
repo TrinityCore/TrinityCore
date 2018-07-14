@@ -67,8 +67,50 @@ class spell_garothi_obliterator_fiery_mortars : public SpellScript
     }
 };
 
+// 125820
+struct npc_imp_mother_laglath : public ScriptedAI
+{
+    npc_imp_mother_laglath(Creature* creature) : ScriptedAI(creature) {}
+
+    enum SpellData
+    {
+        SPELL_ELDER_WRATH   = 251683,
+        SPELL_MATRON_RAGE   = 251689,
+        SPELL_WRATH_BOLT    = 251703
+    };
+
+    void Reset() override
+    {
+        me->GetScheduler().SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+
+        me->GetScheduler().Schedule(20s, [this](TaskContext context)
+        {
+            GetContextUnit()->CastSpell(nullptr, SPELL_MATRON_RAGE, false);
+            context.Repeat();
+        })
+        .Schedule(3s, [this](TaskContext context)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                GetContextUnit()->CastSpell(target, SPELL_WRATH_BOLT, false);
+            context.Repeat();
+        })
+        .Schedule(1s, [this](TaskContext context)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                if (me->IsWithinCombatRange(target, 5.f))
+                    GetContextUnit()->CastSpell(target, SPELL_ELDER_WRATH, false);
+
+            context.Repeat();
+        });
+    }
+};
+
 void AddSC_zone_argus_krokuun()
 {
     new zone_argus_krokuun();
     RegisterSpellScript(spell_garothi_obliterator_fiery_mortars);
+    RegisterCreatureAI(npc_imp_mother_laglath);
 }
