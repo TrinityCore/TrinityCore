@@ -1141,7 +1141,6 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
 
                 return true;
             }
-
             void ChangeDamage(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetHitDamage();
@@ -1152,7 +1151,7 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
                 int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
 
                 // Holy Power Scaling: 3 times damage at 2 HP, 6 times at 3 HP
-                damage *= 0.5*hp*hp + 1.5*hp + 1;
+                damage *= 0.5 * hp * hp + 1.5 * hp + 1;
 
                 SetHitDamage(damage);
             }
@@ -1610,6 +1609,11 @@ class spell_pal_word_of_glory: public SpellScript
         return true;
     }
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+    }
+
     void ChangeHeal(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -1617,7 +1621,11 @@ class spell_pal_word_of_glory: public SpellScript
             return;
 
         int32 heal = GetHitHeal();
-        heal += heal * caster->GetPower(POWER_HOLY_POWER);
+
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+            heal += heal * 2;
+        else
+            heal += heal * caster->GetPower(POWER_HOLY_POWER);
 
         if (caster != GetHitUnit())
             if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
@@ -1636,13 +1644,21 @@ class spell_pal_word_of_glory_AuraScript : public AuraScript
 {
     PrepareAuraScript(spell_pal_word_of_glory_AuraScript);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+    }
+
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        amount += amount * caster->GetPower(POWER_HOLY_POWER);
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+            amount += amount * 2;
+        else
+            amount += amount * caster->GetPower(POWER_HOLY_POWER);
 
         if (caster != GetUnitOwner())
             if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
@@ -1684,6 +1700,37 @@ class spell_pal_selfless_healer : public AuraScript
     }
 };
 
+// -85117 - Divine Purpose
+class spell_pal_divine_purpose : public AuraScript
+{
+    PrepareAuraScript(spell_pal_divine_purpose);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (AuraEffect* aurEff = GetEffect(EFFECT_0))
+            return roll_chance_i(aurEff->GetAmount());
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_DIVINE_PURPOSE_PROC, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_divine_purpose::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_divine_purpose::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1693,6 +1740,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_blessing_of_faith();
     RegisterAuraScript(spell_pal_communion);
     new spell_pal_consecration();
+    RegisterAuraScript(spell_pal_divine_purpose);
     new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
