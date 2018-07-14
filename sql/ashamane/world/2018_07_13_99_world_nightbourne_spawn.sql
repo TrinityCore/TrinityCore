@@ -121,6 +121,10 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 (131326, 1, 132171, 0, 0, 0, 0, 0, 0, 0, 0), -- 131326
 (131420, 1, 133177, 0, 0, 137253, 0, 0, 0, 0, 0); -- 131420
 
+DELETE FROM creature_template_addon WHERE entry IN (133407);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(133407, 0, 0, 0, 1, 0, 0, 0, 0, '262273');
+
 DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (132026, 0, 0, 73853, 0, 0, 0, 'Chief Telemancer Oculeth', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132026
@@ -131,6 +135,51 @@ INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid
 (133695, 0, 0, 72841, 0, 0, 0, 'Maribeth', NULL, 'Innkeeper', NULL, NULL, 6, 6, 0, 0, 0, 7, 134217728, 0, 1, 1, 0, 0, 26972), -- 133695
 (132032, 0, 0, 70210, 0, 0, 0, 'Ly''leth Lunastre', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132032
 (133407, 0, 0, 82896, 0, 0, 0, 'Ambassador Blackguard', NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0, 7, 0, 32768, 5, 1, 0, 0, 26972); -- 133407
+
+DELETE FROM `creature_template_scaling` WHERE `Entry` IN (44868, 131328, 133452, 133153, 133228, 133522, 133276, 126066, 133519, 126062, 133521, 125285, 133271, 133523, 133209, 133407, 133218, 112336, 116715, 112910, 116716, 132081, 132033, 128242, 131413, 133185, 132026, 132024, 132029, 132149, 131415, 132148, 131421, 131425, 131424, 131416, 131414, 133186, 132032, 132027, 131326, 131420);
+INSERT INTO `creature_template_scaling` (`Entry`, `LevelScalingMin`, `LevelScalingMax`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `VerifiedBuild`) VALUES
+(44868, 1, 110, 0, 0, 26972),
+(131328, 110, 110, 0, 0, 26972),
+(133452, 110, 110, 0, 0, 26972),
+(133153, 98, 110, 0, 0, 26972),
+(133228, 110, 110, 0, 0, 26972),
+(133522, 110, 110, 0, 0, 26972),
+(133276, 98, 110, 0, 0, 26972),
+(126066, 110, 110, 0, 0, 26972),
+(133519, 110, 110, 0, 0, 26972),
+(126062, 110, 110, 0, 0, 26972),
+(133521, 110, 110, 0, 0, 26972),
+(125285, 110, 110, 0, 0, 26972),
+(133271, 110, 110, 0, 0, 26972),
+(133523, 110, 110, 0, 0, 26972),
+(133209, 110, 110, 0, 0, 26972),
+(133407, 110, 110, 0, 0, 26972),
+(133218, 110, 110, 0, 0, 26972),
+(112336, 110, 110, 0, 0, 26972),
+(116715, 110, 110, 0, 0, 26972),
+(112910, 110, 110, 0, 0, 26972),
+(116716, 110, 110, 0, 0, 26972),
+(132081, 110, 110, 0, 0, 26972),
+(132033, 110, 110, 0, 0, 26972),
+(128242, 110, 110, 0, 0, 26972),
+(131413, 110, 110, 0, 0, 26972),
+(133185, 110, 110, 0, 0, 26972),
+(132026, 110, 110, 0, 0, 26972),
+(132024, 110, 110, 0, 0, 26972),
+(132029, 110, 110, 0, 0, 26972),
+(132149, 110, 110, 0, 0, 26972),
+(131415, 110, 110, 0, 0, 26972),
+(132148, 110, 110, 0, 0, 26972),
+(131421, 110, 110, 0, 0, 26972),
+(131425, 110, 110, 0, 0, 26972),
+(131424, 110, 110, 0, 0, 26972),
+(131416, 110, 110, 0, 0, 26972),
+(131414, 110, 110, 0, 0, 26972),
+(133186, 110, 110, 0, 0, 26972),
+(132032, 110, 110, 0, 0, 26972),
+(132027, 110, 110, 0, 0, 26972),
+(131326, 110, 110, 0, 0, 26972),
+(131420, 110, 110, 0, 0, 26972);
 
 
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npcflag = 1, gossip_menu_id = 21991 WHERE entry = 132026;
