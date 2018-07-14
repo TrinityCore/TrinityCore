@@ -93,7 +93,8 @@ enum MiscSpells
 
 enum PaladinSpellIcons
 {
-    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
+    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
+    PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
 };
 
 enum PaladinCreatures
@@ -1466,6 +1467,7 @@ class spell_pal_exorcism : public SpellScriptLoader
         }
 };
 
+// 31801 - Seal of Truth
 class spell_pal_seal_of_truth : public AuraScript
 {
     PrepareAuraScript(spell_pal_seal_of_truth);
@@ -1507,6 +1509,7 @@ class spell_pal_seal_of_truth : public AuraScript
     }
 };
 
+// -87168 - Long Arm of the Law
 class spell_pal_long_arm_of_the_law : public AuraScript
 {
     PrepareAuraScript(spell_pal_long_arm_of_the_law);
@@ -1539,6 +1542,7 @@ class spell_pal_long_arm_of_the_law : public AuraScript
     }
 };
 
+// 31876 - Communion
 class spell_pal_communion : public AuraScript
 {
     PrepareAuraScript(spell_pal_communion);
@@ -1560,6 +1564,7 @@ class spell_pal_communion : public AuraScript
     }
 };
 
+// 85285  - Sacred Shield
 class spell_pal_sacred_shield : public AuraScript
 {
     PrepareAuraScript(spell_pal_sacred_shield);
@@ -1586,6 +1591,96 @@ class spell_pal_sacred_shield : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_pal_sacred_shield::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_sacred_shield::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 85673 - Word of Glory
+class spell_pal_word_of_glory: public SpellScript
+{
+    PrepareSpellScript(spell_pal_word_of_glory);
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+            return false;
+
+        return true;
+    }
+
+    void ChangeHeal(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 heal = GetHitHeal();
+        heal += heal * caster->GetPower(POWER_HOLY_POWER);
+
+        if (caster != GetHitUnit())
+            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
+                heal += CalculatePct(heal, aurEff->GetAmount());
+
+        SetHitHeal(heal);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_word_of_glory::ChangeHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+class spell_pal_word_of_glory_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_pal_word_of_glory_AuraScript);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        amount += amount * caster->GetPower(POWER_HOLY_POWER);
+
+        if (caster != GetUnitOwner())
+            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
+                amount += CalculatePct(amount, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_word_of_glory_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
+// -85803 - Selfless Healer
+class spell_pal_selfless_healer : public AuraScript
+{
+    PrepareAuraScript(spell_pal_selfless_healer);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (HealInfo* heal = eventInfo.GetHealInfo())
+            return (heal->GetTarget() != GetTarget());
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+        SpellInfo const* spell = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+        target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_selfless_healer::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_selfless_healer::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1624,5 +1719,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_seal_of_righteousness();
     RegisterAuraScript(spell_pal_seal_of_truth);
     new spell_pal_shield_of_the_righteous();
+    RegisterAuraScript(spell_pal_selfless_healer);
     new spell_pal_templar_s_verdict();
+    RegisterSpellAndAuraScriptPair(spell_pal_word_of_glory, spell_pal_word_of_glory_AuraScript);
 }
