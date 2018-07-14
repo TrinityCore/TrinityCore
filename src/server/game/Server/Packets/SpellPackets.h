@@ -960,7 +960,7 @@ namespace WorldPackets
             std::vector<int32> FailedSpells;
         };
 
-        class CustomLoadScreen final : public ServerPacket
+        class TC_GAME_API CustomLoadScreen final : public ServerPacket
         {
         public:
             CustomLoadScreen(uint32 teleportSpellId, uint32 loadingScreenId) : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN), TeleportSpellID(teleportSpellId), LoadingScreenID(loadingScreenId) { }
