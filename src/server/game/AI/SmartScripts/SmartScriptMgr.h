@@ -576,8 +576,8 @@ enum SMART_ACTION
     SMART_ACTION_CIRCLE_PATH                        = 204,    // Radius, Clockwise, StepCount
     SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT            = 205,    // zone Id, light Id, timer in milliseconds.
     SMART_ACTION_START_CONVERSATION                 = 206,    // conversation Id
-    
-    SMART_ACTION_END                                = 206
+
+    SMART_ACTION_END
 };
 
 struct SmartAction
