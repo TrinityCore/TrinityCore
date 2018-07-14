@@ -3560,9 +3560,6 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             // Arcane Missiles
             if (SpellFamilyFlags[0] == 0x00000800)
                 return false;
-            // Arcane Missiles
-            if (SpellFamilyFlags[0] == 0x00000800)
-                return false;
             break;
         case SPELLFAMILY_PRIEST:
             switch (Id)
@@ -3587,6 +3584,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 default:
                     break;
             }
+            break;
+        case SPELLFAMILY_PALADIN:
             break;
         default:
             break;
