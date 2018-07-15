@@ -49,6 +49,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STORM                   = 53385,
     SPELL_PALADIN_DIVINE_STORM_DUMMY             = 54171,
     SPELL_PALADIN_DIVINE_STORM_HEAL              = 54172,
+    SPELL_PALADIN_ETERNAL_GLORY_PROC             = 88676,
     SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
@@ -95,6 +96,7 @@ enum PaladinSpellIcons
 {
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
     PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
+    PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
 };
 
 enum PaladinCreatures
@@ -1614,7 +1616,7 @@ class spell_pal_word_of_glory: public SpellScript
         return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
     }
 
-    void ChangeHeal(SpellEffIndex /*effIndex*/)
+    void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -1634,9 +1636,25 @@ class spell_pal_word_of_glory: public SpellScript
         SetHitHeal(heal);
     }
 
+    void HandleEternalGlory()
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_ETERNAL_GLORY, EFFECT_0))
+            {
+                if (roll_chance_i(aurEff->GetAmount()))
+                {
+                    uint8 powerCost = 1 + GetSpell()->GetPowerCost();
+                    caster->CastCustomSpell(SPELL_PALADIN_ETERNAL_GLORY_PROC, SPELLVALUE_BASE_POINT0, powerCost, caster, true, nullptr, aurEff);
+                }
+            }
+        }
+    }
+
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pal_word_of_glory::ChangeHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_word_of_glory::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        AfterCast += SpellCastFn(spell_pal_word_of_glory::HandleEternalGlory);
     }
 };
 
