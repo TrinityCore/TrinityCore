@@ -19789,7 +19789,7 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
         return true;
 
     // raid instances require the player to be in a raid group to be valid
-    if (map->IsRaid() && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
+    if (map->IsRaid() && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID) && (map->GetEntry()->Expansion() >= sWorld->getIntConfig(CONFIG_EXPANSION)))
         if (!GetGroup() || !GetGroup()->isRaidGroup())
             return false;
 
