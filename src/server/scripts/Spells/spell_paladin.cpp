@@ -1613,7 +1613,11 @@ class spell_pal_word_of_glory: public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_DIVINE_PURPOSE_PROC,
+                SPELL_PALADIN_ETERNAL_GLORY_PROC
+            });
     }
 
     void HandleHeal(SpellEffIndex /*effIndex*/)
