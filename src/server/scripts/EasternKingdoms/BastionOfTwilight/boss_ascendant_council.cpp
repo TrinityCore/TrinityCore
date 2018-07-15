@@ -273,10 +273,7 @@ enum Actions
     ACTION_CAST_INFERNO_RUSH,
 
     // Arion
-    ACTION_CAST_LIGHTNING_BLAST,
-
-    // Elementium Monstrosity
-    ACTION_FAIL_ACHIEVEMENT,
+    ACTION_CAST_LIGHTNING_BLAST
 };
 
 enum MovePoints
@@ -286,7 +283,7 @@ enum MovePoints
 
 enum AchievementData
 {
-    DATA_ELEMENTARY = 0
+    DATA_ELEMENTARY = 1
 };
 
 enum SummonProperties
@@ -1286,6 +1283,7 @@ class npc_elementium_monstrosity : public CreatureScript
             {
                 _mergedHealth = 0;
                 _mergedTargets = 0;
+                _liquidIceCount = 0;
                 _achievementEnligible = true;
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -1329,6 +1327,13 @@ class npc_elementium_monstrosity : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 _summons.Summon(summon);
+
+                if (summon->GetEntry() == NPC_LIQUID_ICE)
+                {
+                    _liquidIceCount++;
+                    if (_liquidIceCount == 2)
+                        _achievementEnligible = false;
+                }
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -1347,12 +1352,6 @@ class npc_elementium_monstrosity : public CreatureScript
                         _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
                     }
                 }
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_FAIL_ACHIEVEMENT)
-                    _achievementEnligible = false;
             }
 
             uint32 GetData(uint32 type) const override
@@ -1406,6 +1405,7 @@ class npc_elementium_monstrosity : public CreatureScript
             SummonList _summons;
             uint32 _mergedHealth;
             uint8 _mergedTargets;
+            uint8 _liquidIceCount;
             bool _achievementEnligible;
         };
 
@@ -1817,9 +1817,6 @@ class npc_ascendant_council_flame_strike : public CreatureScript
                     me->DespawnOrUnsummon(Seconds(2) + Milliseconds(300));
                 }
             }
-
-        private:
-            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -2634,13 +2631,7 @@ class spell_elementium_monstrosity_cryogenic_aura : public AuraScript
                     target->CastSpell(caster, SPELL_LIQUID_ICE_MOD_SCALE, true);
             }
             else
-            {
                 target->CastSpell(target, SPELL_LIQUID_ICE_SUMMON, true);
-
-                if (Creature* creature = target->ToCreature())
-                    if (creature->IsAIEnabled)
-                        creature->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
-            }
         }
     }
 
