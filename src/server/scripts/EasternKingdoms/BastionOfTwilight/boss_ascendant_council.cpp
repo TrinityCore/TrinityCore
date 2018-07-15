@@ -418,6 +418,7 @@ class boss_ascendant_council_controller : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON_ELEMENTIUM_MONSTROSITY, Seconds(14) + Milliseconds(500));
                             events.SetPhase(PHASE_ELEMENTIUM_MONSTROSITY);
                         }
+                        break;
                     case ACTION_FINISH_ENCOUNTER:
                         if (Creature* elementiumMonstrosity = instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, elementiumMonstrosity);
