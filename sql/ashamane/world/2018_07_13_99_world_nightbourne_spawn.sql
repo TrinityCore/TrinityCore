@@ -9,12 +9,12 @@
  -- TELE LOCATION --
 DELETE FROM game_tele WHERE id = 1797;
 INSERT INTO game_tele (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`)VALUES
-(1797, 283.257, 3357.2, 145.473, 2.32275, 1220, 'NightbourneSpawn');
+(1797, 288.381, 3352.23, 145.444, 2.351534, 1220, 'NightbourneSpawn');
 
 
  -- UPDATE SPAWN LOCATION IN PLAYERCREATEINFO --
  
-UPDATE playercreateinfo SET map = 1220, zone = 7637, position_x = 283.257, position_y = 3349.2, position_z = 145.473, orientation = 2.32275 WHERE race = 27;
+UPDATE playercreateinfo SET map = 1220, zone = 7637, position_x = 288.381, position_y = 3352.23, position_z = 145.444, orientation = 2.351534 WHERE race = 27;
  
  -- MISC --
  
