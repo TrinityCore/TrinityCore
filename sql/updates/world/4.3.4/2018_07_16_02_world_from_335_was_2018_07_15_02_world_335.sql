@@ -1,3 +1,4 @@
+/*
 -- Quest "Rat Catching"
 DELETE FROM `quest_details` WHERE `ID`=416;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -322,3 +323,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (704,1,1,25,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=6, `EmoteOnComplete`=6 WHERE `ID`=704;
 UPDATE `quest_offer_reward` SET `Emote1`=21, `Emote2`=1, `Emote3`=2 WHERE `ID`=704;
+*/
