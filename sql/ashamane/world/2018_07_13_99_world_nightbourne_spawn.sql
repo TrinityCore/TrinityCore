@@ -543,3 +543,13 @@ INSERT INTO spell_target_position (`ID`, `EffectIndex`, `MapID`, `PositionX`, `P
 (259125, 0, 1220, 288.38, 3352.23, 145.44, 26972), -- Return Portal to Nighthold
 (263029, 0, 1220, 1772.3, 4615.48, 124.81, 26972); -- Portal to Shal'aran
 
+SET @PHASE_169  = 172329; -- default phase?
+SET @PHASE_170  = 59073; -- alliance
+SET @PHASE_171  = 59074; -- horde?
+
+UPDATE gameobject SET PhaseId = 171 WHERE guid = @OGUID+4;
+UPDATE creature SET PhaseId = 171 WHERE guid = @CGUID+28;
+
+INSERT INTO spell_area (`spell`, `area`, `teamid`, `racemask`, `flags`) VALUES 
+(@PHASE_171, 5332, 1, 67108864, 3),
+(@PHASE_169, 5332, 1, 67108864, 3);
