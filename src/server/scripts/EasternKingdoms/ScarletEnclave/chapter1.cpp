@@ -373,7 +373,7 @@ class npc_eye_of_acherus : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
                 {
-                    me->GetCharmInfo()->InitPossessCreateSpells();
+                    me->InitCharmInfo()->InitPossessCreateSpells();
                     owner->SendAutoRepeatCancel(me);
                 }
 
