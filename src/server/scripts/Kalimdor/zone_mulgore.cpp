@@ -82,8 +82,77 @@ class spell_mulgore_funeral_offering : public SpellScript
     }
 };
 
+enum eAgitatedEarthSpirit
+{
+    SPELL_SOOTHE_EARTH_SPIRIT       = 69453,
+    SPELL_ROCK_BARRAGE              = 81305,
+
+    NPC_EARTH_SPIRIT_CREDIT_BUNNY   = 36872
+};
+
+// 36845 - Agitated Earth Spirit
+struct npc_agitated_earth_spirit : public ScriptedAI
+{
+    npc_agitated_earth_spirit(Creature* creature) : ScriptedAI(creature) { }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SOOTHE_EARTH_SPIRIT)
+        {
+            Position pos;
+            caster->GetNearPoint(caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, MIN_MELEE_REACH, caster->GetAngle(me));
+            me->GetMotionMaster()->MovePoint(1, pos);
+            _playerGUID = caster->GetGUID();
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE && pointId == 1)
+        {
+            switch (urand(0, 1))
+            {
+                case 0:
+                {
+                    me->setFaction(35);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        player->KilledMonsterCredit(NPC_EARTH_SPIRIT_CREDIT_BUNNY);
+
+                    me->GetScheduler().Schedule(1s, [](TaskContext context)
+                    {
+                        GetContextCreature()->DisappearAndDie();
+                    });
+
+                    break;
+                }
+                case 1:
+                    me->setFaction(14);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        AttackStart(player);
+                    break;
+            }
+        }
+    }
+
+    void EnterCombat(Unit* /*victim*/) override
+    {
+        me->GetScheduler().Schedule(4s, 5s, [this](TaskContext context)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+            {
+                GetContextUnit()->CastSpell(target, SPELL_ROCK_BARRAGE, false);
+                context.Repeat(18s, 21s);
+            }
+        });
+    }
+
+private:
+    ObjectGuid _playerGUID;
+};
+
 void AddSC_mulgore()
 {
     RegisterCreatureAI(npc_eagle_spirit);
     RegisterSpellScript(spell_mulgore_funeral_offering);
+    RegisterCreatureAI(npc_agitated_earth_spirit);
 }
