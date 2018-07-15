@@ -146,7 +146,7 @@ enum Actions
 enum Phases
 {
     PHASE_INTRO     = 0,
-    PHASE_GROUND     = 1,
+    PHASE_GROUND    = 1,
     PHASE_AIR       = 2
 };
 
