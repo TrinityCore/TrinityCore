@@ -22,6 +22,14 @@
 #include "InstanceScript.h"
 #include "Map.h"
 
+ObjectData const creatureData[] =
+{
+    { BOSS_ARGALOTH,    DATA_ARGALOTH },
+    { BOSS_OCCUTHAR,    DATA_OCCUTHAR },
+    { BOSS_ALIZABAL,    DATA_ALIZABAL },
+    { 0,                0             }  // END
+};
+
 DoorData const doorData[] =
 {
     { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM },
@@ -41,70 +49,24 @@ class instance_baradin_hold: public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
-                    case BOSS_ARGALOTH:
-                        ArgalothGUID = creature->GetGUID();
+                    case NPC_FEL_FLAMES:
+                        if (Creature* argaloth = GetCreature(DATA_ARGALOTH))
+                            argaloth->AI()->JustSummoned(creature);
                         break;
-                    case BOSS_OCCUTHAR:
-                        OccutharGUID = creature->GetGUID();
-                        break;
-                    case BOSS_ALIZABAL:
-                        AlizabalGUID = creature->GetGUID();
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch(go->GetEntry())
-                {
-                    case GO_ARGALOTH_DOOR:
-                    case GO_OCCUTHAR_DOOR:
-                    case GO_ALIZABAL_DOOR:
-                        AddDoor(go, true);
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 data) const override
-            {
-                switch (data)
-                {
-                    case DATA_ARGALOTH:
-                        return ArgalothGUID;
-                    case DATA_OCCUTHAR:
-                        return OccutharGUID;
-                    case DATA_ALIZABAL:
-                        return AlizabalGUID;
                     default:
                         break;
                 }
-
-                return ObjectGuid::Empty;
             }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch(go->GetEntry())
-                {
-                    case GO_ARGALOTH_DOOR:
-                    case GO_OCCUTHAR_DOOR:
-                    case GO_ALIZABAL_DOOR:
-                        AddDoor(go, false);
-                        break;
-                }
-            }
-
-        protected:
-            ObjectGuid ArgalothGUID;
-            ObjectGuid OccutharGUID;
-            ObjectGuid AlizabalGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

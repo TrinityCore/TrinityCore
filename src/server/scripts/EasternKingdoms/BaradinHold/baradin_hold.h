@@ -34,10 +34,16 @@ enum BHDataTypes
 
 enum BHCreatureIds
 {
+    // Bosses
     BOSS_ARGALOTH           = 47120,
     BOSS_OCCUTHAR           = 52363,
     BOSS_ALIZABAL           = 55869,
 
+    // Encounter Related
+    /*Argaloth*/
+    NPC_FEL_FLAMES          = 47829,
+
+    /*Occu'thar*/
     NPC_EYE_OF_OCCUTHAR     = 52389,
     NPC_FOCUS_FIRE_DUMMY    = 52369,
     NPC_OCCUTHAR_EYE        = 52368
