@@ -175,8 +175,12 @@ class boss_pit_lord_argaloth : public CreatureScript
                                 me->AI()->AttackStart(victim);
 
                             for (ObjectGuid guid : _felFlamesGUIDs)
+                            {
                                 if (Creature* felFlame = ObjectAccessor::GetCreature(*me, guid))
                                     felFlame->RemoveAllAuras();
+
+                                _felFlamesGUIDs.erase(guid);
+                            }
 
                             events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 6s);
                             events.ScheduleEvent(EVENT_METEOR_SLASH, 9s);
