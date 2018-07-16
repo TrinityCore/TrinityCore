@@ -1,4 +1,4 @@
-DELETE FROM `broadcast_text` WHERE `ID` IN (147207, 147209, 147206, 147205, 147208, 143595, 143591, 143593, 143594, 143596, 122398, 108945, 144677, 144678, 144676, 144674, 144383, 144384, 124862, 124863, 124865, 144621, 144396, 143276, 143293, 143292, 143288, 143277, 144397, 10889);
+DELETE FROM `broadcast_text` WHERE `ID` IN (144386, 147207, 147209, 147206, 147205, 147208, 143595, 143591, 143593, 143594, 143596, 122398, 108945, 144677, 144678, 144676, 144674, 144383, 144384, 124862, 124863, 124865, 144621, 144396, 143276, 143293, 143292, 143288, 143277, 144397, 10889);
 INSERT INTO broadcast_text (ID, Text, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmotesID, LanguageID, Flags, ConditionID, SoundEntriesID1, SoundEntriesID2, VerifiedBuild) VALUES
 (147207, 'What do I have to do to get myself out of this job?\n\nI try to leave, some orc picks me up and plops me right back down here.', '', 6, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 26972),
 (147206, 'Do you have any idea how much it hurts to try to crack a smile?\n\nThis is ridiculous!', '', 6, 5, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 26972),
@@ -29,4 +29,5 @@ INSERT INTO broadcast_text (ID, Text, Text1, EmoteID1, EmoteID2, EmoteID3, Emote
 (143288, '', 'Now it is our turn to demonstrate the strength and honor we bring to the Horde.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94867, 26972),
 (143277, '', 'But the sin''dorei--the blood elves--showed us respect and understanding. Their kinship proved there were others in Azeroth who share our values.', 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 94866, 26972),
 (144397, '', 'The business with Elisande is over, but there is still much to be done for the city.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
+(144386, 'You can use the Orgrimmar portal to meet our Horde allies in their capital city on Kalimdor.', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972),
 (10889, '', 'Ah, $n - it is good to see you again.  I trust your affairs go well.', 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 26972);
