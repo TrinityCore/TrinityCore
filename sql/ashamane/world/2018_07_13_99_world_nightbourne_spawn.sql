@@ -163,7 +163,7 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 (107126, 1, 28650, 0, 0, 0, 0, 0, 0, 0, 0), -- 107126
 (131413, 1, 133177, 0, 0, 0, 0, 0, 0, 0, 0), -- 131413
 (133185, 1, 10616, 0, 0, 0, 0, 0, 0, 0, 0), -- 133185
-(132029, 1, 132170, 0, 0, 0, 0, 0, 0, 0, 0), -- 132029
+(132029, 1, 132170, 0, 0, 0, 0, 0, 0, 0, 0), -- 132029 
 (116658, 1, 140089, 0, 0, 0, 0, 0, 0, 0, 0), -- 116658
 (131421, 1, 132170, 0, 0, 0, 0, 0, 0, 0, 0), -- 131421
 (131425, 1, 133176, 0, 0, 0, 0, 0, 0, 0, 0), -- 131425
@@ -176,7 +176,7 @@ DELETE FROM creature_template_addon WHERE entry IN (133407);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (133407, 0, 0, 0, 1, 0, 0, 0, 0, '262273');
 
-DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407);
+DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (132026, 0, 0, 73853, 0, 0, 0, 'Chief Telemancer Oculeth', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132026
 (132027, 0, 0, 73854, 0, 0, 0, 'Arcanist Valtrois', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132027
@@ -185,7 +185,12 @@ INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid
 (131420, 0, 0, 83032, 83010, 0, 0, 'Duskwatch Sentinel', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 17.4, 1, 0, 90, 26972), -- 131420
 (133695, 0, 0, 72841, 0, 0, 0, 'Maribeth', NULL, 'Innkeeper', NULL, NULL, 6, 6, 0, 0, 0, 7, 134217728, 0, 1, 1, 0, 0, 26972), -- 133695
 (132032, 0, 0, 70210, 0, 0, 0, 'Ly''leth Lunastre', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132032
-(133407, 0, 0, 82896, 0, 0, 0, 'Ambassador Blackguard', NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0, 7, 0, 32768, 5, 1, 0, 0, 26972); -- 133407
+(133407, 0, 0, 82896, 0, 0, 0, 'Ambassador Blackguard', NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0, 7, 0, 32768, 5, 1, 0, 0, 26972), -- 133407
+(131413, 0, 0, 83042, 83049, 0, 0, 'Promenade Guard', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 10, 1, 0, 159, 26972), -- 131413
+(131424, 0, 0, 62387, 0, 0, 0, 'Trained Shadescale', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 35, 1, 2359368, 0, 9, 1, 0, 0, 26972), -- 131424
+(131415, 0, 0, 72211, 0, 0, 0, 'Nighthold Protector', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 9, 2097224, 0, 35, 1, 0, 144, 26972), -- 131415
+(132024, 0, 0, 73864, 0, 0, 0, 'Arluelle', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 2, 1, 0, 0, 26972), -- 132024
+(132029, 0, 0, 68890, 0, 0, 0, 'Silgryn', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 0, 0, 10, 1, 0, 0, 26972); -- 132029
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` IN (44868, 131328, 133452, 133153, 133228, 133522, 133276, 126066, 133519, 126062, 133521, 125285, 133271, 133523, 133209, 133407, 133218, 112336, 116715, 112910, 116716, 132081, 132033, 128242, 131413, 133185, 132026, 132024, 132029, 132149, 131415, 132148, 131421, 131425, 131424, 131416, 131414, 133186, 132032, 132027, 131326, 131420);
 INSERT INTO `creature_template_scaling` (`Entry`, `LevelScalingMin`, `LevelScalingMax`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `VerifiedBuild`) VALUES
@@ -242,7 +247,7 @@ UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npc
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npcflag = 1, gossip_menu_id = 21994 WHERE entry = 132032;
 UPDATE `creature_template` SET `AIName`="SmartAI", npcflag = 3, gossip_menu_id = 21993 WHERE `entry`=131326;
 UPDATE creature_template SET npcflag = 3, faction = 2875, gossip_menu_id = 22182 WHERE entry = 133407;
-UPDATE creature_template SET npcflag = 2, faction = 2799 WHERE entry = 131328;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, npcflag = 2, faction = 2799 WHERE entry = 131328;
 
 DELETE FROM `npc_vendor` WHERE (`entry`=113515 AND `item`=10290 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4342 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2325 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=6261 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4340 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2605 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=6260 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2604 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2324 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=38426 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=14341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=8343 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=4291 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2321 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=2320 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=141208 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140299 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140631 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140301 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=140286 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=138292 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=113515 AND `item`=128853 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=138295 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=138294 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128833 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128834 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128841 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128842 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=138292 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=128853 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=141215 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=111903 AND `item`=140298 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=10290 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4342 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2325 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=6261 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4340 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2605 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=6260 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2604 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2324 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=38426 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=14341 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=8343 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=4291 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2321 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=2320 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=141208 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140299 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140631 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140301 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=140286 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=138292 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=133695 AND `item`=128853 AND `ExtendedCost`=0 AND `type`=1);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
@@ -305,9 +310,10 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
 
 
  -- Spawns --
+ -- BETWEEN 1100002 AND 1100225  some free for missing spawns later --
 SET @CGUID=1100002;
 
-DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+28;
+DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+83;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 131326, 1220, 7637, 9502, 3, 0, 0, 0, 0, 279.3646, 3364.045, 145.5591, 5.467539, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131326 (Area: 9502 - Difficulty: 0)
 (@CGUID+2, 132032, 1220, 7637, 9502, 3, 0, 0, 0, 0, 282.5434, 3364.898, 145.5591, 4.695381, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132032 (Area: 9502 - Difficulty: 0)
@@ -336,9 +342,63 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+25, 133186, 1, 1637, 5332, 1, 0, 0, 0, 0, 1536.91, -4202.177, 53.62775, 2.940794, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133186 (Area: 5332 - Difficulty: 0)
 (@CGUID+26, 133186, 1, 1637, 5332, 1, 0, 0, 0, 0, 1573.602, -4130.915, 51.81333, 3.643319, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133186 (Area: 5332 - Difficulty: 0)
 (@CGUID+27, 133186, 1, 1637, 5332, 1, 0, 0, 0, 0, 1647.948, -4127.083, 48.2991, 0.6892244, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133186 (Area: 5332 - Difficulty: 0)
-(@CGUID+28, 133407, 1, 1637, 5332, 1, 0, 0, 0, 0, 1564.146, -4191.577, 53.76267, 5.407156, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 133407 (Area: 5332 - Difficulty: 0) (Auras: 262273 - 262273)
+(@CGUID+28, 133407, 1, 1637, 5332, 1, 0, 0, 0, 0, 1564.146, -4191.577, 53.76267, 5.407156, 120, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 133407 (Area: 5332 - Difficulty: 0) (Auras: 262273 - 262273)
+(@CGUID+29, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 440.533, 3305.931, 142.2045, 5.782425, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+30, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 442.2934, 3309.09, 142.2031, 5.645847, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+31, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 444.0156, 3310.191, 142.2029, 5.782425, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+32, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 444.401, 3312.323, 142.2023, 5.503112, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+33, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 442.132, 3306.995, 142.2042, 5.782425, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+34, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 454.5486, 3295.684, 142.2039, 2.615341, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+35, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 446.4531, 3315.526, 142.2021, 5.370388, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+36, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 448.599, 3318.806, 142.2018, 5.245067, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+37, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 448.3021, 3316.512, 142.2025, 5.782425, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+38, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 450.5695, 3319.453, 142.2024, 5.782425, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+39, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 446.2917, 3313.286, 142.2027, 5.782425, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+40, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 453.408, 3293.58, 142.2041, 2.091494, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+41, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 457.9774, 3297.464, 142.2027, 2.615341, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+42, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 456.7882, 3295.569, 142.2026, 2.237276, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+43, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 460.0504, 3297.526, 142.202, 2.373759, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+44, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 461.2066, 3299.378, 142.2024, 2.615341, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+45, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 463.3698, 3299.487, 142.2017, 2.502283, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+46, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 464.3316, 3301.406, 142.2021, 2.615341, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+47, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 466.3507, 3301.539, 142.2015, 2.615341, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+48, 131413, 1220, 7637, 9502, 3, 0, 0, 0, 0, 467.4288, 3303.355, 142.2019, 2.615341, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131413 (Area: 9502 - Difficulty: 0)
+(@CGUID+49, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 346.9618, 3379.838, 142.9874, 3.879231, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+50, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 343.5243, 3379.018, 142.9874, 5.936898, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+51, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 374.4722, 3328.452, 142.0995, 1.821707, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+52, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 345.5208, 3376.309, 142.9874, 1.65934, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+53, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 372.0625, 3330.804, 142.0951, 6.099264, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+54, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 375.3229, 3332.168, 142.0951, 4.041597, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+55, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 365.5399, 3416.333, 109.4496, 6.121222, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+56, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 364.1892, 3420.478, 109.4497, 5.342509, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+57, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 367.9496, 3413.983, 109.4496, 2.329644, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+58, 131416, 1220, 7637, 9502, 3, 0, 0, 0, 0, 179.5903, 3310.451, 144.1104, 4.192834, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131416 (Area: 9502 - Difficulty: 0)
+(@CGUID+59, 131415, 1220, 7637, 9502, 3, 0, 0, 0, 0, 259.3589, 3258.035, 142.1368, 1.073551, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131415 (Area: 9502 - Difficulty: 0)
+(@CGUID+60, 131415, 1220, 7637, 9502, 3, 0, 0, 0, 0, 383.7017, 3380.063, 143.0096, 2.995802, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131415 (Area: 9502 - Difficulty: 0) 
+(@CGUID+61, 131415, 1220, 7637, 9502, 3, 0, 0, 0, 0, 413.9783, 3414.08, 109.4096, 3.168369, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131415 (Area: 9502 - Difficulty: 0) 
+(@CGUID+62, 131415, 1220, 7637, 9502, 3, 0, 0, 0, 0, 480.8976, 3333.7, 142.4211, 0.7873353, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131415 (Area: 9502 - Difficulty: 0)
+(@CGUID+63, 131415, 1220, 7637, 9502, 3, 0, 0, 0, 0, 463.276, 3242.101, 142.1367, 3.654949, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131415 (Area: 9502 - Difficulty: 0) 
+(@CGUID+64, 131415, 1220, 7637, 9502, 3, 0, 0, 0, 0, 566.4792, 3306.864, 109.4501, 4.6782, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131415 (Area: 9502 - Difficulty: 0)
+(@CGUID+65, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 378.125, 3351.041, 142.1368, 5.553438, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+66, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 274.2552, 3287.345, 142.5959, 4.053353, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+67, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 262.6424, 3283.788, 142.9549, 6.142751, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+68, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 375.283, 3391.1, 142.9874, 5.809658, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+69, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 387.4219, 3390.662, 142.9874, 3.72026, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+70, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 451.7309, 3260.323, 142.708, 0.9902378, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+71, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 474.6609, 3262.367, 142.6617, 0.8574132, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+72, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 461.4904, 3211.6, 142.3736, 4.529336, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+73, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 537.0712, 3385.556, 114.1025, 5.905883, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+74, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 531.8924, 3390.382, 114.0629, 3.753448, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+75, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 572.2552, 3302.675, 109.4501, 4.6782, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+76, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 559.5712, 3364.205, 109.4504, 4.6782, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+77, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 567.9045, 3364.992, 109.4504, 4.6782, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+78, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 406.4683, 3150.156, 142.3846, 3.006921, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+79, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 403.256, 3151.379, 142.3868, 3.551518, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+80, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 427.9514, 3128.203, 142.6535, 3.815975, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+81, 131424, 1220, 7637, 9502, 3, 0, 0, 0, 0, 424.1545, 3107.625, 142.5075, 1.100995, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131424 (Area: 9502 - Difficulty: 0)
+(@CGUID+82, 132029, 1220, 7637, 9502, 3, 0, 0, 0, 0, 347.0646, 3272.493, 142.1368, 0.9467555, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972), -- 132029 (Area: 9502 - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+83, 132024, 1220, 7637, 9502, 3, 0, 0, 0, 0, 351.2276, 3274.588, 142.1368, 0.8688813, 7200, 10, 0, 0, 0, 1, 0, 0, 0, 26972); -- 132024 (Area: 9502 - Difficulty: 0) (possible waypoints or random movement)
 
- 
  -- Gossip --
  DELETE FROM `gossip_menu` WHERE (`MenuId`=22182 AND `TextId`=33984) OR (`MenuId`=20389 AND `TextId`=30489) OR (`MenuId`=20376 AND `TextId`=28901) OR (`MenuId`=21991 AND `TextId`=33680) OR (`MenuId`=22001 AND `TextId`=33695) OR (`MenuId`=22000 AND `TextId`=33694) OR (`MenuId`=21995 AND `TextId`=30966) OR (`MenuId`=21993 AND `TextId`=33683) OR (`MenuId`=21994 AND `TextId`=33684) OR (`MenuId`=22234 AND `TextId`=7821);
 INSERT INTO `gossip_menu` (`MenuId`, `TextId`) VALUES
