@@ -1642,14 +1642,13 @@ class spell_ethereal_pet_aura : public AuraScript
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        for (Unit* controlled : GetUnitOwner()->m_Controlled)
-            if (controlled->GetEntry() == NPC_ETHEREAL_SOUL_TRADER)
-                if (Creature* soulTrader = controlled->ToCreature())
-                {
-                    soulTrader->AI()->Talk(SAY_STEAL_ESSENCE);
-                    soulTrader->CastSpell(eventInfo.GetProcTarget(), SPELL_STEAL_ESSENCE_VISUAL);
-                    return;
-                }
+
+        std::list<Creature*> MinionList;
+        GetUnitOwner()->GetAllMinionsByEntry(MinionList, NPC_ETHEREAL_SOUL_TRADER);
+
+        Creature* soulTrader = MinionList.front()->ToCreature();
+        soulTrader->AI()->Talk(SAY_STEAL_ESSENCE);
+        soulTrader->CastSpell(eventInfo.GetProcTarget(), SPELL_STEAL_ESSENCE_VISUAL);
     }
 
     void Register() override
