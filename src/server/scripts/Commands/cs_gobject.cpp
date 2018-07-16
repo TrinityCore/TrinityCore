@@ -458,11 +458,12 @@ public:
         char* toY = strtok(NULL, " ");
         char* toZ = strtok(NULL, " ");
 
-        float x, y, z;
+        float x, y, z, o;
         if (!toX)
         {
             Player* player = handler->GetSession()->GetPlayer();
             player->GetPosition(x, y, z);
+            o = player->GetOrientation();
         }
         else
         {
@@ -472,6 +473,7 @@ public:
             x = (float)atof(toX);
             y = (float)atof(toY);
             z = (float)atof(toZ);
+            o = 0;
 
             if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
             {
@@ -486,6 +488,8 @@ public:
         object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
 
         object->SaveToDB();
+
+        TC_LOG_DEBUG("sql.dev", "UPDATE gameobject SET position_x = %f, position_y = %f, position_z = %f, orientation = %f WHERE guid = %s;", x, y, z, o, std::to_string(guidLow).c_str());
 
         handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, std::to_string(object->GetSpawnId()).c_str(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str());
 
@@ -554,14 +558,15 @@ public:
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();
                 float z = fields[4].GetFloat();
-                uint16 mapId = fields[5].GetUInt16();
+                float o = fields[5].GetFloat();
+                uint16 mapId = fields[6].GetUInt16();
 
                 GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 
                 if (!gameObjectInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), gameObjectInfo->name.c_str(), x, y, z, mapId);
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), gameObjectInfo->name.c_str(), x, y, z, o, mapId);
 
                 ++count;
             } while (result->NextRow());
