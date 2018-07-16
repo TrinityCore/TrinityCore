@@ -685,7 +685,7 @@ INSERT INTO `quest_objectives` (`ID`, `QuestID`, `Type`, `Order`, `StorageIndex`
 # Objects #
  
   -- Templates --
-DELETE FROM gameobject_template WHERE entry IN (279579, 279671, 279670, 279295, 281316); 
+DELETE FROM gameobject_template WHERE entry IN (279579, 279671, 279670, 279295, 281316, 266919, 254148, 254147, 154145, 254149, 254239, 251844, 254238, 254276, 265470, 259929, 265469); 
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `Data8`, `Data9`, `Data10`, `Data11`, `Data12`, `Data13`, `Data14`, `Data15`, `Data16`, `Data17`, `Data18`, `Data19`, `Data20`, `Data21`, `Data22`, `Data23`, `Data24`, `Data25`, `Data26`, `Data27`, `Data28`, `Data29`, `Data30`, `Data31`, `Data32`, `RequiredLevel`, `VerifiedBuild`) VALUES
 (279579, 22, 12807, 'Portal to Orgrimmar', '', '', '', 1, 259106, -1, 0, 0, 1, 55254, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279579
 (279671, 22, 36654, 'Portal to Shal''Aran', '', '', '', 1, 263029, -1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279671
@@ -751,11 +751,6 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@OGUID+12, 254276, 1220, 7637, 9502, 3, 0, 0, 684.0871, 3851.781, 0.1015638, 4.412364, 0, 0, -0.8048429, 0.5934879, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
 (@OGUID+13, 254828, 1220, 7637, 9502, 3, 0, 0, 187.9913, 3301.943, 142.0069, 1.221729, 0, 0, 0.573576, 0.8191524, 7200, 255, 1, 26972), -- 254828 (Area: 9502 - Difficulty: 0)
 (@OGUID+14, 266919, 1220, 7637, 9502, 3, 0, 0, 1235.946, 4205.98, -65.18047, 2.617989, 0, 0, 0.9659252, 0.2588213, 7200, 255, 1, 26972); -- 266919 (Area: 9502 - Difficulty: 0)
-
-
-
-
-
 
 
 DELETE FROM spell_target_position WHERE ID IN (259106, 263029, 259125);
