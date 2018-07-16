@@ -336,7 +336,7 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
  -- BETWEEN 1100002 AND 1100225  some free for missing spawns later --
 SET @CGUID=1100002;
 
-DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+183;
+DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+225;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 131326, 1220, 7637, 9502, 3, 0, 0, 0, 0, 279.3646, 3364.045, 145.5591, 5.467539, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131326 (Area: 9502 - Difficulty: 0)
 (@CGUID+2, 132032, 1220, 7637, 9502, 3, 0, 0, 0, 0, 282.5434, 3364.898, 145.5591, 4.695381, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132032 (Area: 9502 - Difficulty: 0)
@@ -556,7 +556,7 @@ UPDATE gossip_menu_option SET OptionType=8, OptionNpcFlag=66177 WHERE MenuId=222
 UPDATE gossip_menu_option SET OptionType=3, OptionNpcFlag=66177 WHERE MenuId=22234 AND OptionIndex = 1;
 
 /*
-########### NOT FIXED DONT UNCOMMENT #########
+ NOT FIXED DONT UNCOMMENT 
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (131328, @GROUP_ID+0, @ID+, 'Stars guide you, $p. I have heard intriguing talk of the Hillsbrad Foothills. I will likely journey there.', 12, 0, 100, 1, 0, 0, UNKNOWN, 'Melitier Vahlouran to Player');
 */
@@ -685,7 +685,7 @@ INSERT INTO `quest_objectives` (`ID`, `QuestID`, `Type`, `Order`, `StorageIndex`
 # Objects #
  
   -- Templates --
-DELETE FROM gameobject_template WHERE entry IN (279579, 279671, 279670, 279295, 281316, 266919, 254148, 254147, 154145, 254149, 254239, 251844, 254238, 254276, 265470, 259929, 265469); 
+DELETE FROM gameobject_template WHERE entry IN (279579, 279671, 279670, 279295, 281316, 266919, 254148, 254147, 254145, 254149, 254239, 251844, 254238, 254276, 265470, 259929, 265469); 
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `Data8`, `Data9`, `Data10`, `Data11`, `Data12`, `Data13`, `Data14`, `Data15`, `Data16`, `Data17`, `Data18`, `Data19`, `Data20`, `Data21`, `Data22`, `Data23`, `Data24`, `Data25`, `Data26`, `Data27`, `Data28`, `Data29`, `Data30`, `Data31`, `Data32`, `RequiredLevel`, `VerifiedBuild`) VALUES
 (279579, 22, 12807, 'Portal to Orgrimmar', '', '', '', 1, 259106, -1, 0, 0, 1, 55254, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279579
 (279671, 22, 36654, 'Portal to Shal''Aran', '', '', '', 1, 263029, -1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279671
@@ -769,4 +769,4 @@ UPDATE creature SET PhaseId = 171 WHERE guid = @CGUID+28;
 DELETE FROM spell_area WHERE (spell = @PHASE_171 AND racemask = 67108864) OR (spell = @PHASE_169 AND racemask = 67108864);
 INSERT INTO spell_area (`spell`, `area`, `teamid`, `racemask`, `flags`) VALUES 
 (@PHASE_171, 5332, 1, 67108864, 3),
-(@PHASE_169, 5332, 1, 67108864, 3);
+(@PHASE_169, 5332, 1, 67108864, 3);
