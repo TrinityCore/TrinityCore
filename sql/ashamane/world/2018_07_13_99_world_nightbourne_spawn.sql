@@ -176,7 +176,7 @@ DELETE FROM creature_template_addon WHERE entry IN (133407);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (133407, 0, 0, 0, 1, 0, 0, 0, 0, '262273');
 
-DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029, 131416, 133185, 131425, 132148, 132145);
+DELETE FROM creature_template WHERE entry IN (132144, 132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029, 131416, 133185, 131425, 132148, 132145, 131414, 131421);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (132026, 0, 0, 73853, 0, 0, 0, 'Chief Telemancer Oculeth', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132026
 (132027, 0, 0, 73854, 0, 0, 0, 'Arcanist Valtrois', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132027
@@ -197,7 +197,8 @@ INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid
 (132148, 0, 0, 82257, 82258, 0, 0, 'Nightborne Trainee', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 2, 1, 0, 0, 26972), -- 132148
 (132145, 0, 0, 82253, 0, 0, 0, 'Young Su', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132145
 (131414, 0, 0, 83031, 83025, 0, 0, 'Nobleborn Warpcaster', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 20.3, 1, 0, 985, 26972), -- 131414
-(131421, 0, 0, 83017, 83019, 0, 0, 'Duskwatch Battle-Magus', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 17.5, 1, 0, 0, 26972); -- 131421
+(131421, 0, 0, 83017, 83019, 0, 0, 'Duskwatch Battle-Magus', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 17.5, 1, 0, 0, 26972), -- 131421
+(132144, 0, 0, 52955, 0, 0, 0, 'Ji-Sun', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972); -- 132144
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` IN (44868, 131328, 133452, 133153, 133228, 133522, 133276, 126066, 133519, 126062, 133521, 125285, 133271, 133523, 133209, 133407, 133218, 112336, 116715, 112910, 116716, 132081, 132033, 128242, 131413, 133185, 132026, 132024, 132029, 132149, 131415, 132148, 131421, 131425, 131424, 131416, 131414, 133186, 132032, 132027, 131326, 131420);
 INSERT INTO `creature_template_scaling` (`Entry`, `LevelScalingMin`, `LevelScalingMax`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `VerifiedBuild`) VALUES
@@ -245,6 +246,19 @@ INSERT INTO `creature_template_scaling` (`Entry`, `LevelScalingMin`, `LevelScali
 (131420, 110, 110, 0, 0, 26972);
 
 
+UPDATE creature_template SET minlevel = 1, maxlevel = 1, faction = 35, unit_class = 1, unit_flags = 33555200, unit_flags2 = 67110912 WHERE entry = 106873;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 1, unit_flags = 32768, unit_flags2 = 33556480 WHERE entry = 131420;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 1, unit_flags = 32768, unit_flags2 = 2048 WHERE entry = 131424;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 35, unit_class = 1, unit_flags = 0, unit_flags2 = 2048 WHERE entry = 132145;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 35, unit_class = 1, unit_flags = 0, unit_flags2 = 2048 WHERE entry = 132144;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 7, unit_class = 1, unit_flags = 131072, unit_flags2 = 2048 WHERE entry = 87760;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 2, unit_flags = 32768, unit_flags2 = 2048 WHERE entry = 131415;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, unit_class = 1, unit_flags = 33536, unit_flags2 = 2048 WHERE entry = 132149;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 2, unit_flags = 32768, unit_flags2 = 2048 WHERE entry = 131421;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 8, unit_flags = 33024, unit_flags2 = 2048 WHERE entry = 131416;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 8, unit_flags = 32768, unit_flags2 = 33556480 WHERE entry = 131414;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 8, unit_flags = 32768, unit_flags2 = 33556480 WHERE entry = 131425;
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, unit_class = 1, unit_flags = 33536, unit_flags2 = 2048 WHERE entry = 132148;
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npcflag = 1, gossip_menu_id = 21991 WHERE entry = 132026;
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, npcflag = 1, gossip_menu_id = 21995 WHERE entry = 132027;
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799 WHERE entry = 133186;
@@ -320,7 +334,7 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
  -- BETWEEN 1100002 AND 1100225  some free for missing spawns later --
 SET @CGUID=1100002;
 
-DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+142;
+DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+183;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 131326, 1220, 7637, 9502, 3, 0, 0, 0, 0, 279.3646, 3364.045, 145.5591, 5.467539, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131326 (Area: 9502 - Difficulty: 0)
 (@CGUID+2, 132032, 1220, 7637, 9502, 3, 0, 0, 0, 0, 282.5434, 3364.898, 145.5591, 4.695381, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132032 (Area: 9502 - Difficulty: 0)
@@ -489,7 +503,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+165, 131421, 1220, 7637, 9502, 3, 0, 0, 0, 0, 427.4792, 3117.799, 142.6042, 1.519746, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131421 (Area: 9502 - Difficulty: 0)
 (@CGUID+166, 131421, 1220, 7637, 9502, 3, 0, 0, 0, 0, 343.1371, 3185.757, 145.3147, 0.8322693, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131421 (Area: 9502 - Difficulty: 0)	 
 (@CGUID+167, 131421, 1220, 7637, 9502, 3, 0, 0, 0, 0, 431.8281, 3119.441, 142.8125, 2.360651, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131421 (Area: 9502 - Difficulty: 0)
-(@CGUID+168, 131421, 1220, 7637, 9502, 3, 0, 0, 0, 0, 418.1632, 3096.18, 142.0955, 2.332203, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 131421 (Area: 9502 - Difficulty: 0)
+(@CGUID+168, 131421, 1220, 7637, 9502, 3, 0, 0, 0, 0, 418.1632, 3096.18, 142.0955, 2.332203, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131421 (Area: 9502 - Difficulty: 0)
 (@CGUID+169, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 273.5833, 3281.233, 142.5833, 2.360651, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
 (@CGUID+170, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 242.7639, 3272.128, 142.0951, 5.556626, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
 (@CGUID+171, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 382.4097, 3389.641, 142.9874, 4.73911, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
@@ -503,8 +517,9 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+179, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 521.8507, 3440.141, 110.937, 5.680704, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
 (@CGUID+180, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 440.5035, 3192.01, 142.0951, 2.29012, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
 (@CGUID+181, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 405.7083, 3172.409, 142.0965, 1.246601, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
-(@CGUID+182, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 428.1007, 3122.948, 142.6823, 5.072204, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
-	
+(@CGUID+182, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 428.1007, 3122.948, 142.6823, 5.072204, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
+(@CGUID+183, 132144, 1220, 7637, 9502, 3, 0, 0, 0, 0, 197.7014, 3259.487, 143.9947, 0.9183772, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 132144 (Area: 9502 - Difficulty: 0)
+
 
 	-- Gossip --
 	
