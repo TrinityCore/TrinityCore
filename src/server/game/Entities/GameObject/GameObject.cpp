@@ -360,6 +360,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             SetByteValue(GAMEOBJECT_FLAGS, 1, m_goInfo->phaseableMO.AreaNameSet & 0xF);
             break;
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:
+            SetUInt32Value(GAMEOBJECT_SPELL_VISUAL_ID, m_goInfo->capturePoint.SpellVisual1);
+            break;
         default:
             SetGoAnimProgress(animProgress);
             break;
