@@ -1715,6 +1715,13 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             if (referencePlayer->GetRBGPersonalRating() < reqValue)
                 return false;
             break;
+        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 68
+        {
+            DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(referencePlayer->GetMap()->GetDifficultyID());
+            if (!difficulty || difficulty->ID != reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
             if (miscValue1 != reqValue)
                 return false;
