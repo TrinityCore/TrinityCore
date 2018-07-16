@@ -176,7 +176,7 @@ DELETE FROM creature_template_addon WHERE entry IN (133407);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (133407, 0, 0, 0, 1, 0, 0, 0, 0, '262273');
 
-DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029, 131416, 133185);
+DELETE FROM creature_template WHERE entry IN (132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029, 131416, 133185, 131425, 132148, 132145);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (132026, 0, 0, 73853, 0, 0, 0, 'Chief Telemancer Oculeth', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132026
 (132027, 0, 0, 73854, 0, 0, 0, 'Arcanist Valtrois', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132027
@@ -194,6 +194,8 @@ INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid
 (131416, 0, 0, 83089, 83091, 83097, 83101, 'Nighthold Citizen', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 64, 0, 1, 1, 0, 159, 26972), -- 131416
 (133185, 0, 0, 82764, 82767, 82765, 82768, 'Wildswalker Nightborne', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 64, 0, 1, 1, 0, 123, 26972), -- 133185
 (131425, 0, 0, 83039, 83040, 0, 0, 'Terrace Grove-Tender', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 2097224, 0, 1, 1, 0, 159, 26972), -- 131425
+(132148, 0, 0, 82257, 82258, 0, 0, 'Nightborne Trainee', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 2, 1, 0, 0, 26972), -- 132148
+(132145, 0, 0, 82253, 0, 0, 0, 'Young Su', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972); -- 132145
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` IN (44868, 131328, 133452, 133153, 133228, 133522, 133276, 126066, 133519, 126062, 133521, 125285, 133271, 133523, 133209, 133407, 133218, 112336, 116715, 112910, 116716, 132081, 132033, 128242, 131413, 133185, 132026, 132024, 132029, 132149, 131415, 132148, 131421, 131425, 131424, 131416, 131414, 133186, 132032, 132027, 131326, 131420);
 INSERT INTO `creature_template_scaling` (`Entry`, `LevelScalingMin`, `LevelScalingMax`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `VerifiedBuild`) VALUES
@@ -316,7 +318,7 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
  -- BETWEEN 1100002 AND 1100225  some free for missing spawns later --
 SET @CGUID=1100002;
 
-DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+83;
+DELETE FROM creature WHERE guid BETWEEN @CGUID+1 AND @CGUID+142;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+1, 131326, 1220, 7637, 9502, 3, 0, 0, 0, 0, 279.3646, 3364.045, 145.5591, 5.467539, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131326 (Area: 9502 - Difficulty: 0)
 (@CGUID+2, 132032, 1220, 7637, 9502, 3, 0, 0, 0, 0, 282.5434, 3364.898, 145.5591, 4.695381, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132032 (Area: 9502 - Difficulty: 0)
@@ -459,7 +461,12 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+139, 131425, 1220, 7637, 9502, 3, 0, 0, 0, 0, 478.3438, 3210.608, 142.2878, 6.13833, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131425 (Area: 9502 - Difficulty: 0)
 (@CGUID+140, 131425, 1220, 7637, 9502, 3, 0, 0, 0, 0, 433.5504, 3167.04, 142.3391, 4.623832, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131425 (Area: 9502 - Difficulty: 0)
 (@CGUID+141, 131425, 1220, 7637, 9502, 3, 0, 0, 0, 0, 420.5382, 3173.779, 142.0951, 5.077163, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131425 (Area: 9502 - Difficulty: 0)
-(@CGUID+142, 131425, 1220, 7637, 9502, 3, 0, 0, 0, 0, 378.0052, 3163.944, 142.1543, 4.743952, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 131425 (Area: 9502 - Difficulty: 0)
+(@CGUID+142, 131425, 1220, 7637, 9502, 3, 0, 0, 0, 0, 378.0052, 3163.944, 142.1543, 4.743952, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131425 (Area: 9502 - Difficulty: 0)
+(@CGUID+143, 132145, 1220, 7637, 9502, 3, 0, 0, 0, 0, 216.1146, 3290.799, 143.9986, 5.36801, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132145 (Area: 9502 - Difficulty: 0)
+(@CGUID+144, 132148, 1220, 7637, 9502, 3, 0, 0, 0, 0, 225.8125, 3284.874, 143.9954, 2.551637, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132148 (Area: 9502 - Difficulty: 0)
+(@CGUID+145, 132148, 1220, 7637, 9502, 3, 0, 0, 0, 0, 218.3733, 3283.816, 143.9957, 1.749735, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132148 (Area: 9502 - Difficulty: 0)
+(@CGUID+146, 132148, 1220, 7637, 9502, 3, 0, 0, 0, 0, 222.6354, 3284.115, 143.9947, 2.292071, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 132148 (Area: 9502 - Difficulty: 0)
+
 
 	
 
