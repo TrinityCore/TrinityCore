@@ -176,7 +176,7 @@ DELETE FROM creature_template_addon WHERE entry IN (133407);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (133407, 0, 0, 0, 1, 0, 0, 0, 0, '262273');
 
-DELETE FROM creature_template WHERE entry IN (132144, 132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029, 131416, 133185, 131425, 132148, 132145, 131414, 131421);
+DELETE FROM creature_template WHERE entry IN (132149, 132144, 132026, 131326, 132027, 133186, 131420, 133695, 132032, 133407, 131413, 131424, 131415, 132024, 132029, 131416, 133185, 131425, 132148, 132145, 131414, 131421);
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `rank`, `family`, `type`, `type_flags`, `type_flags2`, `HealthModifier`, `ManaModifier`, `RacialLeader`, `movementId`, `VerifiedBuild`) VALUES
 (132026, 0, 0, 73853, 0, 0, 0, 'Chief Telemancer Oculeth', NULL, NULL, NULL, NULL, 6, 6, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132026
 (132027, 0, 0, 73854, 0, 0, 0, 'Arcanist Valtrois', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132027
@@ -198,6 +198,7 @@ INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid
 (132145, 0, 0, 82253, 0, 0, 0, 'Young Su', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972), -- 132145
 (131414, 0, 0, 83031, 83025, 0, 0, 'Nobleborn Warpcaster', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 20.3, 1, 0, 985, 26972), -- 131414
 (131421, 0, 0, 83017, 83019, 0, 0, 'Duskwatch Battle-Magus', NULL, NULL, NULL, NULL, 6, 0, 0, 1, 0, 7, 2097224, 0, 17.5, 1, 0, 0, 26972), -- 131421
+(132149, 0, 0, 82259, 83123, 0, 0, 'Nightborne Trainee', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 2, 1, 0, 0, 26972), -- 132149
 (132144, 0, 0, 52955, 0, 0, 0, 'Ji-Sun', NULL, NULL, NULL, NULL, 6, 0, 0, 0, 0, 7, 0, 0, 1, 1, 0, 0, 26972); -- 132144
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` IN (44868, 131328, 133452, 133153, 133228, 133522, 133276, 126066, 133519, 126062, 133521, 125285, 133271, 133523, 133209, 133407, 133218, 112336, 116715, 112910, 116716, 132081, 132033, 128242, 131413, 133185, 132026, 132024, 132029, 132149, 131415, 132148, 131421, 131425, 131424, 131416, 131414, 133186, 132032, 132027, 131326, 131420);
@@ -246,6 +247,7 @@ INSERT INTO `creature_template_scaling` (`Entry`, `LevelScalingMin`, `LevelScali
 (131420, 110, 110, 0, 0, 26972);
 
 
+UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2799, unit_class = 1, unit_flags = 33536, unit_flags2 = 2048 WHERE entry = 132149;
 UPDATE creature_template SET minlevel = 1, maxlevel = 1, faction = 35, unit_class = 1, unit_flags = 33555200, unit_flags2 = 67110912 WHERE entry = 106873;
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 1, unit_flags = 32768, unit_flags2 = 33556480 WHERE entry = 131420;
 UPDATE creature_template SET minlevel = 110, maxlevel = 110, faction = 2801, unit_class = 1, unit_flags = 32768, unit_flags2 = 2048 WHERE entry = 131424;
@@ -518,7 +520,12 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+180, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 440.5035, 3192.01, 142.0951, 2.29012, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
 (@CGUID+181, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 405.7083, 3172.409, 142.0965, 1.246601, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
 (@CGUID+182, 131414, 1220, 7637, 9502, 3, 0, 0, 0, 0, 428.1007, 3122.948, 142.6823, 5.072204, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 131414 (Area: 9502 - Difficulty: 0) (Auras: 203761 - 203761, 67236 - 67236)
-(@CGUID+183, 132144, 1220, 7637, 9502, 3, 0, 0, 0, 0, 197.7014, 3259.487, 143.9947, 0.9183772, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 132144 (Area: 9502 - Difficulty: 0)
+(@CGUID+183, 132144, 1220, 7637, 9502, 3, 0, 0, 0, 0, 197.7014, 3259.487, 143.9947, 0.9183772, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132144 (Area: 9502 - Difficulty: 0)
+(@CGUID+184, 132149, 1220, 7637, 9502, 3, 0, 0, 0, 0, 223.4271, 3280.097, 143.9961, 2.118889, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132149 (Area: 9502 - Difficulty: 0)
+(@CGUID+185, 132149, 1220, 7637, 9502, 3, 0, 0, 0, 0, 222.7656, 3288.3, 143.9957, 2.797261, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132149 (Area: 9502 - Difficulty: 0)
+(@CGUID+186, 132149, 1220, 7637, 9502, 3, 0, 0, 0, 0, 204.9583, 3266.373, 143.9948, 3.853179, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 132149 (Area: 9502 - Difficulty: 0)
+(@CGUID+187, 132149, 1220, 7637, 9502, 3, 0, 0, 0, 0, 199.8733, 3267.311, 143.9964, 4.361809, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 132149 (Area: 9502 - Difficulty: 0)
+	
 
 
 	-- Gossip --
@@ -548,7 +555,9 @@ INSERT INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `Option
 UPDATE gossip_menu_option SET OptionType=8, OptionNpcFlag=66177 WHERE MenuId=22234 AND OptionIndex = 0;
 UPDATE gossip_menu_option SET OptionType=3, OptionNpcFlag=66177 WHERE MenuId=22234 AND OptionIndex = 1;
 
-/*INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
+/*
+########### NOT FIXED DONT UNCOMMENT #########
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (131328, @GROUP_ID+0, @ID+, 'Stars guide you, $p. I have heard intriguing talk of the Hillsbrad Foothills. I will likely journey there.', 12, 0, 100, 1, 0, 0, UNKNOWN, 'Melitier Vahlouran to Player');
 */
 
@@ -682,7 +691,20 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 (279671, 22, 36654, 'Portal to Shal''Aran', '', '', '', 1, 263029, -1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279671
 (279670, 22, 8111, 'Portal to Dalaran', '', '', '', 1, 239570, -1, 0, 0, 1, 29029, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279670
 (279295, 22, 47619, 'Portal to The Nighthold', '', '', '', 0.75, 259125, -1, 0, 0, 0, 55254, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 279295
-(281316, 22, 47619, 'Portal to The Nighthold', '', '', '', 1, 259125, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 281316
+(281316, 22, 47619, 'Portal to The Nighthold', '', '', '', 1, 259125, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 281316
+(266919, 0, 34945, 'The Nighthold Portcullis', '', '', '', 1, 0, 0, 3000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 266919
+(254148, 11, 30558, 'Gondola', '', '', '', 0.9999999, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254148
+(254147, 11, 30558, 'Gondola', '', '', '', 0.9999997, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254147
+(254145, 11, 30558, 'Gondola', '', '', '', 0.9999997, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254145
+(254149, 11, 30558, 'Gondola', '', '', '', 0.9999998, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254149
+(254239, 11, 30558, 'Gondola', '', '', '', 0.9999998, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254239
+(251844, 0, 35528, 'Door', '', '', '', 0.7524738, 0, 0, 3000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 251844
+(254238, 11, 30558, 'Gondola', '', '', '', 1.000001, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254238
+(254276, 11, 30558, 'Gondola', '', '', '', 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 254276
+(265470, 11, 30558, 'Doodad_7NB_NIGHTBORN_GONDOLA_LARGE_LongPath004', '', '', '', 0.9999998, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 265470
+(259929, 11, 30558, 'Doodad_7NB_NIGHTBORN_GONDOLA_LARGE_ShortSouth01', '', '', '', 0.9999998, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972), -- 259929
+(265469, 11, 30558, 'Doodad_7NB_NIGHTBORN_GONDOLA_LARGE_LongPath003', '', '', '', 0.9999997, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972); -- 265469
+
 
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (235794 /*235794*/, 252303 /*252303*/, 206110 /*206110*/, 223739 /*223739*/, 223814 /*223814*/, 259114 /*259114*/, 206735 /*206735*/, 203977 /*203977*/, 203969 /*203969*/, 203979 /*203979*/, 280650 /*280650*/, 251844 /*251844*/, 266919 /*266919*/, 279579 /*279579*/, 279671 /*279671*/, 279670 /*279670*/);
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`) VALUES
@@ -703,6 +725,7 @@ INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`) VALUES
 (279671, 0, 32), -- 279671
 (279670, 0, 32); -- 279670
 
+
 DELETE FROM `gameobject_questitem` WHERE (`GameObjectEntry`=203977 AND `Idx`=0) OR (`GameObjectEntry`=203969 AND `Idx`=0) OR (`GameObjectEntry`=203979 AND `Idx`=0);
 INSERT INTO `gameobject_questitem` (`GameObjectEntry`, `Idx`, `ItemId`, `VerifiedBuild`) VALUES
 (203977, 0, 57877, 26972), -- 203977
@@ -712,13 +735,27 @@ INSERT INTO `gameobject_questitem` (`GameObjectEntry`, `Idx`, `ItemId`, `Verifie
   -- Spawns --
 SET @OGUID=20000016;
 
-DELETE FROM gameobject WHERE guid BETWEEN @OGUID+1 AND @OGUID+5;
+DELETE FROM gameobject WHERE guid BETWEEN @OGUID+1 AND @OGUID+14;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+1, 279579, 1220, 7637, 9502, 3, 0, 0, 212.9983, 3427.951, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279579 (Area: 9502 - Difficulty: 0)
 (@OGUID+2, 279671, 1220, 7637, 9502, 3, 0, 0, 239.7587, 3438.77, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279671 (Area: 9502 - Difficulty: 0)
 (@OGUID+3, 279670, 1220, 7637, 9502, 3, 0, 0, 201.7847, 3400.765, 126.7257, 0, 0, 0, 0, 1, 7200, 255, 1, 26972), -- 279670 (Area: 9502 - Difficulty: 0)
 (@OGUID+4, 279295, 1, 1637, 5332, 1, 0, 0, 1595.684, -4203.519, 53.86691, 0, 0, 0, 0, 1, 120, 255, 1, 26972), -- 279295 (Area: 5332 - Difficulty: 0)
-(@OGUID+5, 281316, 1220, 7637, 7928, 3, 0, 0, 1778.347, 4616.864, 124.741, 0.337644, 0, 0, 0.1680212, 0.9857834, 7200, 255, 1, 26972); -- 281316 (Area: 7928 - Difficulty: 0)
+(@OGUID+5, 281316, 1220, 7637, 7928, 3, 0, 0, 1778.347, 4616.864, 124.741, 0.337644, 0, 0, 0.1680212, 0.9857834, 7200, 255, 1, 26972), -- 281316 (Area: 7928 - Difficulty: 0)
+(@OGUID+6, 254148, 1220, 7637, 9502, 3, 0, 0, 869.861, 4216.877, 0.1015637, 2.453083, 0, 0, 0.9413271, 0.3374956, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+(@OGUID+7, 254147, 1220, 7637, 9502, 3, 0, 0, 1234.817, 3738.016, 0.1514663, 2.598866, 0.0006079674, -0.000957489, 0.9634056, 0.2680454, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+(@OGUID+8, 254145, 1220, 7637, 9502, 3, 0, 0, 441.9613, 3749.586, 0.1015638, 3.108445, 0, 0, 0.9998627, 0.01657281, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+(@OGUID+9, 254149, 1220, 7637, 9502, 3, 0, 0, 1007.973, 3777.788, 0.1015171, 2.947497, 0, 0, 0.9952946, 0.09689554, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+((@OGUID+10, 254239, 1220, 7637, 9502, 3, 0, 0, 492.3362, 4064.585, 0.1015638, 5.660151, 0, 0, -0.3065033, 0.9518696, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+(@OGUID+11, 254238, 1220, 7637, 9502, 3, 0, 0, 324.9208, 3909.51, 0.1015638, 2.175544, 0, 0, 0.8855944, 0.4644595, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+(@OGUID+12, 254276, 1220, 7637, 9502, 3, 0, 0, 684.0871, 3851.781, 0.1015638, 4.412364, 0, 0, -0.8048429, 0.5934879, 7200, 255, 24, 26972), -- 0 (Area: 9502 - Difficulty: 0)
+(@OGUID+13, 254828, 1220, 7637, 9502, 3, 0, 0, 187.9913, 3301.943, 142.0069, 1.221729, 0, 0, 0.573576, 0.8191524, 7200, 255, 1, 26972), -- 254828 (Area: 9502 - Difficulty: 0)
+(@OGUID+14, 266919, 1220, 7637, 9502, 3, 0, 0, 1235.946, 4205.98, -65.18047, 2.617989, 0, 0, 0.9659252, 0.2588213, 7200, 255, 1, 26972); -- 266919 (Area: 9502 - Difficulty: 0)
+
+
+
+
+
 
 
 DELETE FROM spell_target_position WHERE ID IN (259106, 263029, 259125);
