@@ -324,7 +324,8 @@ enum SoulTrader
 {
     SAY_SOUL_TRADER_INTRO           = 0,
 
-    SPELL_PROC_TRIGGER_ON_KILL_AURA = 50051
+    SPELL_ETHEREAL_ONSUMMON         = 50052,
+    SPELL_ETHEREAL_PET_REMOVE_AURA  = 50055
 };
 
 struct npc_pet_gen_soul_trader : public ScriptedAI
@@ -333,14 +334,15 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
 
     void LeavingWorld() override
     {
-        DoCastSelf(SPELL_ETHEREAL_PET_REMOVE_AURA, true);
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_ETHEREAL_PET_REMOVE_AURA);
     }
 
     void JustAppeared() override
     {
         Talk(SAY_SOUL_TRADER_INTRO);
         if (Unit* owner = me->GetOwner())
-            owner->CastSpell(owner, SPELL_PROC_TRIGGER_ON_KILL_AURA, true);
+            DoCast(owner, SPELL_ETHEREAL_ONSUMMON);
     }
 };
 
