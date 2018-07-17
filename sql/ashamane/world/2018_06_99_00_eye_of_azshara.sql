@@ -1,7 +1,7 @@
 SET @GUID = 210118260;
 
 -- Missing creatures
-DELETE FROM `creature` WHERE `id` IN(91784, 91789, 91797, 100248, 97063, 97713);
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+5;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseUseFlags`,`PhaseId`,`PhaseGroup`,`terrainSwapMap`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`unit_flags2`,`unit_flags3`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (@GUID, 91784, 1456, 8040, 8081, 8388870, 0, 0, 0, -1, 0, 0, -3682.653, 4417.024, 32.44474, 8.969724, 604800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 22810),
 (@GUID + 1, 91789, 1456, 8040, 8081, 8388870, 0, 0, 0, -1, 0, 0, -3436.209961, 4573.152832, -0.437313, 1.887289, 604800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 22810),
