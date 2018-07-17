@@ -1624,8 +1624,8 @@ enum EtherealPet
 
     SPELL_PROC_TRIGGER_ON_KILL_AURA = 50051,
     SPELL_ETHEREAL_PET_AURA         = 50055,
-    SPELL_STEAL_ESSENCE_VISUAL      = 50101,
-    SPELL_CREATE_TOKEN              = 50063
+    SPELL_CREATE_TOKEN              = 50063,
+    SPELL_STEAL_ESSENCE_VISUAL      = 50101
 };
 
 // 50051 - Ethereal Pet Aura
@@ -1643,12 +1643,14 @@ class spell_ethereal_pet_aura : public AuraScript
     {
         PreventDefaultAction();
 
-        std::list<Creature*> MinionList;
-        GetUnitOwner()->GetAllMinionsByEntry(MinionList, NPC_ETHEREAL_SOUL_TRADER);
-
-        Creature* soulTrader = MinionList.front()->ToCreature();
-        soulTrader->AI()->Talk(SAY_STEAL_ESSENCE);
-        soulTrader->CastSpell(eventInfo.GetProcTarget(), SPELL_STEAL_ESSENCE_VISUAL);
+        std::list<Creature*> minionList;
+        GetUnitOwner()->GetAllMinionsByEntry(minionList, NPC_ETHEREAL_SOUL_TRADER);
+        for (Creature* minion : minionList)
+        {
+            if (minion->IsAIEnabled)
+                minion->AI()->Talk(SAY_STEAL_ESSENCE);
+                minion->CastSpell(eventInfo.GetProcTarget(), SPELL_STEAL_ESSENCE_VISUAL);
+        }
     }
 
     void Register() override
@@ -1671,7 +1673,7 @@ class spell_ethereal_pet_onsummon : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->AddAura(SPELL_PROC_TRIGGER_ON_KILL_AURA, target);
+        GetHitUnit()->AddAura(SPELL_PROC_TRIGGER_ON_KILL_AURA, target);
     }
 
     void Register() override
@@ -1708,17 +1710,12 @@ class spell_steal_essence_visual : public AuraScript
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        Creature* pet = caster->ToCreature();
-        Unit* owner = caster->GetOwner();
-        if (!pet || !owner)
-            return;
-
-        pet->CastSpell(owner, SPELL_CREATE_TOKEN);
-        pet->AI()->Talk(SAY_CREATE_TOKEN);
+        if (Unit* caster = GetCaster())
+        {
+            caster->CastSpell(caster, SPELL_CREATE_TOKEN, true);
+            if (Creature* soulTrader = caster->ToCreature())
+                soulTrader->AI()->Talk(SAY_CREATE_TOKEN);
+        }
     }
 
     void Register() override
