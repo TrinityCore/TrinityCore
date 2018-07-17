@@ -963,6 +963,6 @@ UPDATE gameobject SET PhaseId = 171 WHERE guid = @OGUID+46;
 UPDATE creature SET PhaseId = 171 WHERE guid = @CGUID+72;
 
 INSERT INTO spell_area (`spell`, `area`, `teamid`, `racemask`, `flags`) VALUES 
-(@PHASE_171, 9171, 1, 268435456, 3),
-(@PHASE_169, 9171, 1, 268435456, 3);
+(@PHASE_171, 9171, 0, 268435456, 3),
+(@PHASE_169, 9171, 0, 268435456, 3);
 
