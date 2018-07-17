@@ -321,6 +321,7 @@ class TC_GAME_API AuraEffect
         void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleOverrideZonePvpType(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleProfilCamera(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, bool apply) const;

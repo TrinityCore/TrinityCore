@@ -497,7 +497,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleLinkedSummon,                              //428 SPELL_AURA_LINKED_SUMMON
     &AuraEffect::HandleNULL,                                      //429
     &AuraEffect::HandlePlayScene,                                 //430 SPELL_AURA_PLAY_SCENE
-    &AuraEffect::HandleNULL,                                      //431
+    &AuraEffect::HandleOverrideZonePvpType,                       //431 SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE
     &AuraEffect::HandleNULL,                                      //432
     &AuraEffect::HandleNULL,                                      //433
     &AuraEffect::HandleAuraLeech,                                 //434 SPELL_AURA_MOD_LEECH
@@ -6326,6 +6326,48 @@ void AuraEffect::HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool
     {
         if (SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId))
             player->GetSceneMgr().CancelSceneByPackageId(sceneTemplate->ScenePackageId);
+    }
+}
+
+void AuraEffect::HandleOverrideZonePvpType(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* player = aurApp->GetTarget()->ToPlayer();
+    if (!player)
+        return;
+
+    if (apply)
+    {
+        player->pvpInfo.IsInNoPvPArea   = false;
+        player->pvpInfo.IsInFFAPvPArea  = false;
+        player->pvpInfo.IsInHostileArea = false;
+        player->pvpInfo.IsHostile       = false;
+
+        switch (GetMiscValue())
+        {
+            case 1: // Sanctuary
+                player->pvpInfo.IsInNoPvPArea   = true;
+                break;
+            case 2: // FFA
+                player->pvpInfo.IsInFFAPvPArea  = true;
+                player->pvpInfo.IsHostile       = true;
+                break;
+            case 3: // PVP
+                player->pvpInfo.IsInHostileArea = true;
+                player->pvpInfo.IsHostile       = true;
+                break;
+            default:
+                break;
+        }
+
+        player->UpdatePvPState(false);
+    }
+    else
+    {
+        // restore FFA PvP area state
+        player->UpdateArea(player->GetAreaId());
     }
 }
 
