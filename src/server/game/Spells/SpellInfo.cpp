@@ -4306,6 +4306,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case SPELL_AURA_MOD_HEALING_PCT:
                 case SPELL_AURA_MOD_HEALING_DONE:
                 case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
+                case SPELL_AURA_MOD_DAMAGE_DONE_BY_PETS_PCT:
                     if (effect->CalcValue() < 0)
                         return false;
                     break;
