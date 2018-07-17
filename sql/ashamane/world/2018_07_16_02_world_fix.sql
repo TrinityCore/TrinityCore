@@ -10,9 +10,6 @@ UPDATE creature_template SET scriptname = "boss_viceroy_nezhar" WHERE entry = 12
 UPDATE creature_template SET scriptname = "boss_viceroy_nezhar" WHERE entry = 124309;
 UPDATE creature_template SET scriptname = "boss_viceroy_nezhar" WHERE entry = 124309;
 UPDATE creature_template SET scriptname = "boss_viceroy_nezhar" WHERE entry = 124309;
-replace into `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) values
-(10066,11,0,0,'achievement_iron_dwarf_medium_rare'),
-(10067,11,0,0,'achievement_iron_dwarf_medium_rare');
 replace INTO areatrigger_scripts (entry,ScriptName) VALUES 
 (7625,'at_calamir_wrathful_flames'),
 (7630,'at_calamir_icy_comet'),
