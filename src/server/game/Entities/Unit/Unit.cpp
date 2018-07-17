@@ -5182,7 +5182,7 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
     auto areatriggers = m_areaTriggers;
     for (auto itr : areatriggers)
         if (itr.second == spellId)
-            if (AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*this, i->first))
+            if (AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*this, itr.first))
                 areaTrigger->Remove();
 }
 
