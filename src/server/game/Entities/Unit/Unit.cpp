@@ -5216,13 +5216,9 @@ void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
 
 void Unit::RemoveAllAreaTriggers()
 {
-    for (auto i = m_areaTriggers.begin(); i != m_areaTriggers.end();)
-    {
+    while (auto i = m_areaTriggers.begin())
         if (AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*this, i->first))
             at->Remove();
-
-        i = m_areaTriggers.erase(i);
-    }
 }
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
