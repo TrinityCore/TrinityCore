@@ -746,6 +746,7 @@ class npc_brazie_fertilitize_o_tron_2000 : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 me->m_CombatDistance = 3.0f;
+                me->SetNoCallAssistance(true);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
 
                 if (Creature* vehicle = summoner->GetVehicleCreatureBase())
@@ -833,6 +834,7 @@ class npc_brazie_spot : public CreatureScript
 
             void Initialize()
             {
+                me->SetNoCallAssistance(true);
                 _currentEntry = me->GetEntry();
             }
 
