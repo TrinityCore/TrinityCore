@@ -5179,21 +5179,11 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
     if (m_areaTriggers.empty())
         return;
 
-    for (auto i = m_areaTriggers.begin(); i != m_areaTriggers.end();)
-    {
-        if (i->second == spellId)
-        {
+    auto areatriggers = m_areaTriggers;
+    for (auto itr : areatriggers)
+        if (itr.second == spellId)
             if (AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*this, i->first))
-            {
                 areaTrigger->Remove();
-                i = m_areaTriggers.erase(i);
-            }
-            else
-                ++i;
-        }
-        else
-            ++i;
-    }
 }
 
 void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
