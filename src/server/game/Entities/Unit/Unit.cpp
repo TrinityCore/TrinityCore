@@ -5216,8 +5216,8 @@ void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
 
 void Unit::RemoveAllAreaTriggers()
 {
-    while (auto i = m_areaTriggers.begin())
-        if (AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*this, i->first))
+    while (!m_areaTriggers.empty())
+        if (AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*this, m_areaTriggers.begin()->first))
             at->Remove();
 }
 
