@@ -33,6 +33,7 @@ public:
         instance_deadmines_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_BOSSES);
+            IsVisionOfThePastRunning = false;
         };
 
         void OnCreatureCreate(Creature* creature) override
@@ -85,6 +86,42 @@ public:
                 case NPC_GLUBTOK:
                     GlubtokGUID = creature->GetGUID();
                     break;
+                case NPC_EDWIN_VANCLEEF:
+                    EdwinVanCleefGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+                case NPC_VANESSA_VANCLEEF_2:
+                    VanessaVanCleefGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+                case NPC_ALLIANCE_WARRIOR:
+                    AllianceWarriorGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+                case NPC_ALLIANCE_HUNTER:
+                    AllianceHunterGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+                case NPC_ALLIANCE_MAGE:
+                    AllianceMageGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+                case NPC_ALLIANCE_PRIEST:
+                    AlliancePriestGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+                case NPC_ALLIANCE_ROGUE:
+                    AllianceRogueGUID = creature->GetGUID();
+                    if (creature->isDead())
+                        creature->Respawn(true);
+                    break;
+
             }
         }
 
@@ -126,6 +163,67 @@ public:
                         if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
                             go->SetGoState(GO_STATE_ACTIVE);
                     break;
+                case EVENT_VISION_OF_THE_PAST:
+                    if (value == IN_PROGRESS)
+                        StartVisionOfThePastEvent();
+                    else if (value == SPECIAL)
+                        ResetVisionOfThePastEvent();
+                    else if (value == DONE)
+                        IsVisionOfThePastRunning = false;
+                    break;
+            }
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
+            case EVENT_VISION_OF_THE_PAST:
+                return IsVisionOfThePastRunning ? IN_PROGRESS : NOT_STARTED;
+            }
+
+            return 0;
+        }
+
+        void ResetVisionOfThePastEvent()
+        {
+            if (Creature* actor = instance->GetCreature(AllianceWarriorGUID))
+                actor->Respawn(true);
+            if (Creature* actor = instance->GetCreature(AlliancePriestGUID))
+                actor->Respawn(true);
+            if (Creature* actor = instance->GetCreature(AllianceRogueGUID))
+                actor->Respawn(true);
+            if (Creature* actor = instance->GetCreature(AllianceMageGUID))
+                actor->Respawn(true);
+            if (Creature* actor = instance->GetCreature(AllianceHunterGUID))
+                actor->Respawn(true);
+            if (Creature* actor = instance->GetCreature(EdwinVanCleefGUID))
+                actor->Respawn(true);
+        }
+
+        void StartVisionOfThePastEvent()
+        {
+            if (!IsVisionOfThePastRunning)
+            {
+                if (Creature* actor = instance->GetCreature(AllianceWarriorGUID))
+                    actor->AI()->DoAction(1);
+
+                if (Creature* actor = instance->GetCreature(AllianceRogueGUID))
+                    actor->AI()->DoAction(1);
+
+                if (Creature* actor = instance->GetCreature(AlliancePriestGUID))
+                    actor->AI()->DoAction(1);
+
+                if (Creature* actor = instance->GetCreature(AllianceHunterGUID))
+                    actor->AI()->DoAction(1);
+
+                if (Creature* actor = instance->GetCreature(AllianceMageGUID))
+                    actor->AI()->DoAction(1);
+
+                if (Creature* actor = instance->GetCreature(EdwinVanCleefGUID))
+                    actor->AI()->DoAction(1);
+
+                IsVisionOfThePastRunning = true;
             }
         }
 
@@ -215,6 +313,27 @@ public:
                 case DATA_GLUBTOK:
                     return GlubtokGUID;
                     break;
+                case DATA_ALLIANCE_HUNTER:
+                    return AllianceHunterGUID;
+                    break;
+                case DATA_ALLIANCE_MAGE:
+                    return AllianceMageGUID;
+                    break;
+                case DATA_ALLIANCE_PRIEST:
+                    return AlliancePriestGUID;
+                    break;
+                case DATA_ALLIANCE_WARRIOR:
+                    return AllianceWarriorGUID;
+                    break;
+                case DATA_ALLIANCE_ROGUE:
+                    return AllianceRogueGUID;
+                    break;
+                case DATA_VANESSA_VANCLEEF:
+                    return VanessaVanCleefGUID;
+                    break;
+                case DATA_EDWIN_VANCLEEF:
+                    return EdwinVanCleefGUID;
+                    break;
             }
 
             return ObjectGuid::Empty;
@@ -230,7 +349,16 @@ public:
         ObjectGuid uiVanessaBoss;
         ObjectGuid GlubtokGUID;
 
+        ObjectGuid AllianceWarriorGUID;
+        ObjectGuid AlliancePriestGUID;
+        ObjectGuid AllianceRogueGUID;
+        ObjectGuid AllianceHunterGUID;
+        ObjectGuid AllianceMageGUID;
+        ObjectGuid EdwinVanCleefGUID;
+        ObjectGuid VanessaVanCleefGUID;
+
         uint32 TeamInInstance;
+        bool IsVisionOfThePastRunning;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
