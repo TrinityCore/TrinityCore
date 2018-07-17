@@ -155,8 +155,6 @@ void ArchaeologyMgr::ChangeDigsite(Player* player, uint8 memId)
 
     digsites.swap(tempContainer);
 
-    TC_LOG_INFO("server.loading", "offset = %d", offset);
-
     player->ClearDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE);
 
     for (uint32 i = 0; i < tempContainer.size(); ++i)

@@ -1363,6 +1363,10 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, uint8 context /*= 0*/, s
         return;
     }
 
+    // Archaeology research project
+    if (player->GetArchaeologyMgr().IsCurrentArtifactSpell(m_spellInfo->Id))
+        player->GetArchaeologyMgr().CompleteArtifact(m_spellInfo->Id);
+
     // bg reward have some special in code work
     uint32 bgType = 0;
     switch (m_spellInfo->Id)
@@ -4122,26 +4126,49 @@ void Spell::EffectSummonSurveyTools(SpellEffIndex /*effIndex*/)
 
             // If digsite info is empty, generate new position and read data
             if (digsite.x == 0 && digsite.y == 0)
-                sArchaeologyMgr->GenerateRandomPosition(player, digsite.digCount);
-
-            // Set FindGoEntry for treasure
-            switch (sArchaeologyMgr->GetCurrencyId(digsiteId))
             {
-                case 384: FindGoEntry = 204282; break; // Enano
-                case 398: FindGoEntry = 207188; break; // Draenei
-                case 393: FindGoEntry = 206836; break; // Fosil
-                case 394: FindGoEntry = 203071; break; // Elfo de la noche
-                case 400: FindGoEntry = 203078; break; // Nerubiano
-                case 397: FindGoEntry = 207187; break; // Orco
-                case 401: FindGoEntry = 207190; break; // Tol'vir
-                case 385: FindGoEntry = 202655; break; // Trol
-                default:  FindGoEntry = 207189; break; // Vrykul
+                sArchaeologyMgr->GenerateRandomPosition(player, digsite.digCount);
+                digsite = player->GetArchaeologyMgr().GetDigsitePosition(memId); // Refresh the digsite now that we have coordinates
             }
 
             // Spawn Find GameObject
             if (player->GetDistance2d(digsite.x, digsite.y) < 15.0f) // Hack fix should be 5.0f
             {
+                // Set FindGoEntry for treasure
+                auto currencyId = sArchaeologyMgr->GetCurrencyId(digsiteId);
+                switch (currencyId)
+                {
+                    case 384: FindGoEntry = 204282; break; // Dwarf
+                    case 398: FindGoEntry = 207188; break; // Draenei
+                    case 393: FindGoEntry = 206836; break; // Fossil
+                    case 394: FindGoEntry = 203071; break; // Night Elf
+                    case 400: FindGoEntry = 203078; break; // Nerubian
+                    case 397: FindGoEntry = 207187; break; // Orc
+                    case 401: FindGoEntry = 207190; break; // Tol'vir
+                    case 385: FindGoEntry = 202655; break; // Troll
+                    case 399: FindGoEntry = 207189; break; // Vrykul
+                    case 754: FindGoEntry = 218950; break; // Mantid
+                    case 676: FindGoEntry = 211163; break; // Pandaren
+                    case 677: FindGoEntry = 211174; break; // Mogu
+                    case 829: FindGoEntry = 234105; break; // Arakkoa
+                    case 821: FindGoEntry = 226521; break; // Draenor Clans
+                    case 828: FindGoEntry = 234106; break; // Ogre
+                    case 1172: FindGoEntry = 268440; break; // Highborne
+                    case 1173: FindGoEntry = 246804; break; // Highmountain Tauren
+                    case 1174: FindGoEntry = 268451; break; // Demonic
+                    default:
+                        TC_LOG_ERROR("spells", "EffectSummonSurveyTools: unknown currency ID %u for digsite %u, defaulting to Night Elf", currencyId, digsiteId);
+                        currencyId = 394;
+                        FindGoEntry = 203071;
+                        break;
+                }
+
                 player->SummonGameObject(FindGoEntry, *player, QuaternionData(), 0);
+
+                if (player->getRace() == RACE_DWARF)
+                    player->ModifyCurrency(currencyId, urand(6, 10));
+                else
+                    player->ModifyCurrency(currencyId, urand(5, 9));
 
                 // Count search or change digsite
                 if (digsite.digCount + 1 < 3)

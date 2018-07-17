@@ -153,6 +153,34 @@ SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCast
     SetPitch(spellCastRequest.MissileTrajectory.Pitch);
     SetSpeed(spellCastRequest.MissileTrajectory.Speed);
 
+    if (spellCastRequest.SendCastFlags == 8)   // Archaeology
+    {
+        uint32 kEntry, kCount, fEntry, fCount;
+        uint8 type;
+
+        for (auto const& weight : spellCastRequest.Weight)
+        {
+            type = weight.Type;
+            switch (type)
+            {
+                case 1: // Fragments
+                    fEntry = weight.ID;        // Currency id
+                    fCount = weight.Quantity;        // Currency count
+                    break;
+                case 2: // Keystones
+                    kEntry = weight.ID;        // Item id
+                    kCount = weight.Quantity;        // Item count
+                    break;
+            }
+        }
+
+        if (kCount > 0 && caster->GetTypeId() == TYPEID_PLAYER)
+            caster->ToPlayer()->DestroyItemCount(kEntry, -(int32(kCount)), true, false);
+
+        if (fCount > 0 && caster->GetTypeId() == TYPEID_PLAYER)
+            caster->ToPlayer()->ModifyCurrency(fEntry, -(int32(fCount)), false);
+    }
+
     Update(caster);
 }
 
