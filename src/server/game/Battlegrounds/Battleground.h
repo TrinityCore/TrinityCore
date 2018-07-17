@@ -111,10 +111,10 @@ enum BattlegroundMarks
     ITEM_SA_MARK_OF_HONOR           = 42425
 };
 
-enum BattlegroundMarksCount
+enum BattlegroundChests
 {
-    ITEM_WINNER_COUNT               = 3,
-    ITEM_LOSER_COUNT                = 1
+    ITEM_BG_ALLIANCE_CHEST  = 151557,
+    ITEM_BG_HORDE_CHEST     = 151558,
 };
 
 enum BattlegroundCreatures
@@ -398,6 +398,7 @@ class TC_GAME_API Battleground
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
+        void RewardChestToTeam(uint32 TeamID);
         void UpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
         virtual void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
