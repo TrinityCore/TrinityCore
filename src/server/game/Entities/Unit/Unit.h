@@ -1997,7 +1997,7 @@ class TC_GAME_API Unit : public WorldObject
         GameObjectList m_gameObj;
 
         typedef std::vector<AreaTrigger*> AreaTriggerList;
-        AreaTriggerList m_areaTrigger;
+        std::unordered_map<ObjectGuid, uint32/*spellId*/> m_areaTriggers;
 
         uint32 m_transform;
 

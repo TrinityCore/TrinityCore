@@ -144,6 +144,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 _periodicProcTimer;
         uint32 _basePeriodicProcTimer;
         float _previousCheckOrientation;
+        bool _isBeingRemoved;
         bool _isRemoved;
 
         std::vector<Position> _polygonVertices;

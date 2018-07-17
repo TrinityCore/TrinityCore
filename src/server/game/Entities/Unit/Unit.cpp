@@ -5145,15 +5145,15 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::_RegisterAreaTrigger(AreaTrigger* areaTrigger)
 {
-    m_areaTrigger.push_back(areaTrigger);
-    if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+    m_areaTriggers[areaTrigger->GetGUID()] = areaTrigger->GetSpellId();
+    if (IsCreature() && IsAIEnabled)
         ToCreature()->AI()->JustRegisteredAreaTrigger(areaTrigger);
 }
 
 void Unit::_UnregisterAreaTrigger(AreaTrigger* areaTrigger)
 {
-    m_areaTrigger.erase(std::remove(m_areaTrigger.begin(), m_areaTrigger.end(), areaTrigger));
-    if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+    m_areaTriggers.erase(areaTrigger->GetGUID());
+    if (IsCreature() && IsAIEnabled)
         ToCreature()->AI()->JustUnregisteredAreaTrigger(areaTrigger);
 }
 
@@ -5166,24 +5166,30 @@ AreaTrigger* Unit::GetAreaTrigger(uint32 spellId) const
 std::vector<AreaTrigger*> Unit::GetAreaTriggers(uint32 spellId) const
 {
     std::vector<AreaTrigger*> areaTriggers;
-    for (AreaTriggerList::const_iterator i = m_areaTrigger.begin(); i != m_areaTrigger.end(); ++i)
-        if ((*i)->GetSpellId() == spellId)
-            areaTriggers.push_back(*i);
+    for (auto itr : m_areaTriggers)
+        if (itr.second == spellId)
+            if (AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*this, itr.first))
+                areaTriggers.push_back(at);
 
     return areaTriggers;
 }
 
 void Unit::RemoveAreaTrigger(uint32 spellId)
 {
-    if (m_areaTrigger.empty())
+    if (m_areaTriggers.empty())
         return;
-    for (AreaTriggerList::iterator i = m_areaTrigger.begin(); i != m_areaTrigger.end();)
+
+    for (auto i = m_areaTriggers.begin(); i != m_areaTriggers.end();)
     {
-        AreaTrigger* areaTrigger = *i;
-        if (areaTrigger->GetSpellId() == spellId)
+        if (i->second == spellId)
         {
-            areaTrigger->Remove();
-            i = m_areaTrigger.begin();
+            if (AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*this, i->first))
+            {
+                areaTrigger->Remove();
+                i = m_areaTriggers.erase(i);
+            }
+            else
+                ++i;
         }
         else
             ++i;
@@ -5192,22 +5198,31 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
 
 void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
 {
-    if (m_areaTrigger.empty())
+    if (m_areaTriggers.empty())
         return;
-    for (AreaTrigger* areaTrigger : m_areaTrigger)
+
+    for (auto i = m_areaTriggers.begin(); i != m_areaTriggers.end();)
     {
-        if (areaTrigger->GetAuraEffect() == aurEff)
+        if (AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*this, i->first))
         {
-            areaTrigger->Remove();
-            break; // There can only be one AreaTrigger per AuraEffect
+            if (areaTrigger->GetAuraEffect() == aurEff)
+            {
+                areaTrigger->Remove();
+                break; // There can only be one AreaTrigger per AuraEffect
+            }
         }
     }
 }
 
 void Unit::RemoveAllAreaTriggers()
 {
-    while (!m_areaTrigger.empty())
-        m_areaTrigger.front()->Remove();
+    for (auto i = m_areaTriggers.begin(); i != m_areaTriggers.end();)
+    {
+        if (AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*this, i->first))
+            at->Remove();
+
+        i = m_areaTriggers.erase(i);
+    }
 }
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)

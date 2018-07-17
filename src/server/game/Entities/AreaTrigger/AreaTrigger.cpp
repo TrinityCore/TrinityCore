@@ -44,7 +44,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _periodicProcTimer(0), _basePeriodicProcTimer(0),
     _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-    _isRemoved(false), _reachedDestination(false), _lastSplineIndex(0), _movementTime(0),
+    _isBeingRemoved(false), _isRemoved(false), _reachedDestination(false), _lastSplineIndex(0), _movementTime(0),
     _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _spawnId(0), _guidScriptId(0), _ai()
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
@@ -262,6 +262,9 @@ bool AreaTrigger::CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guid
 
 void AreaTrigger::Update(uint32 diff)
 {
+    if (_isBeingRemoved)
+        return;
+
     WorldObject::Update(diff);
     _timeSinceCreated += diff;
 
@@ -308,6 +311,7 @@ void AreaTrigger::Remove()
 {
     if (IsInWorld())
     {
+        _isBeingRemoved = true;
         AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 }
