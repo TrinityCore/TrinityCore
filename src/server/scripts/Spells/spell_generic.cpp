@@ -1673,7 +1673,7 @@ class spell_ethereal_pet_onsummon : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        GetHitUnit()->AddAura(SPELL_PROC_TRIGGER_ON_KILL_AURA, target);
+        target->CastSpell(target, SPELL_PROC_TRIGGER_ON_KILL_AURA, true);
     }
 
     void Register() override
