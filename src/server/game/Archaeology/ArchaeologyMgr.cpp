@@ -118,8 +118,6 @@ void ArchaeologyMgr::ChangeDigsite(Player* player, uint8 memId)
     std::vector<uint16> SitesInMap;
     std::vector<uint32> digsites = player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE);
 
-    uint8 offset = std::find(digsites.begin(), digsites.end(), digsites[memId]) - digsites.begin();
-
     for(DigsitesMap::iterator itr = mResearchDigsitesMap.begin(); itr != mResearchDigsitesMap.end(); ++itr)
     {
         bool isActiveDigsite = false;
