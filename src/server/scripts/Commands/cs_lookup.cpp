@@ -691,7 +691,7 @@ public:
             }
 
             LocaleConstant lc = handler->GetSession()->GetSessionDbLocaleIndex();
-            std::string const& title = questTemplatePair.second.GetResponse(lc)->Info.Title;
+            std::string const& title = questTemplatePair.second.GetTitle(lc);
             if (title.empty())
                 continue;
 
