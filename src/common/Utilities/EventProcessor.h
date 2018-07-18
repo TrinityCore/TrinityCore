@@ -78,7 +78,7 @@ class TC_COMMON_API EventProcessor
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
         void AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime = true);
-        void AddEventAtOffset(BasicEvent* event, Milliseconds const& offset) { AddEvent(event, CalculateTime(offset.count())); }
+        void AddEventAtOffset(BasicEvent* event, Milliseconds offset) { AddEvent(event, CalculateTime(offset.count())); }
         void ModifyEventTime(BasicEvent* event, uint64 newTime);
         uint64 CalculateTime(uint64 t_offset) const { return m_time + t_offset; }
 
