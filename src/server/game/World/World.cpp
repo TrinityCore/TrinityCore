@@ -1475,9 +1475,6 @@ void World::LoadConfigSettings(bool reload)
     // Allow to cache data queries
     m_bool_configs[CONFIG_CACHE_DATA_QUERIES] = sConfigMgr->GetBoolDefault("CacheDataQueries", true);
 
-    // Allow generate locale data queries
-    m_bool_configs[CONFIG_GENERATE_LOCALE_DATA_QUERIES] = sConfigMgr->GetBoolDefault("GenerateLocaleDataQueries", true);
-
     // Whether to use LoS from game objects
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
 

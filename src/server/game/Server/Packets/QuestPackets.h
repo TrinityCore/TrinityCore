@@ -82,11 +82,13 @@ namespace WorldPackets
             float  POIy                     = 0.0f;
             uint32 POIPriority              = 0;
 
-            std::string Title[TOTAL_LOCALES];
-            std::string Objectives[TOTAL_LOCALES];
-            std::string Details[TOTAL_LOCALES];
-            std::string AreaDescription[TOTAL_LOCALES];
-            std::string CompletedText[TOTAL_LOCALES];              // display in quest objectives window once all objectives are completed
+            std::string Title;
+            std::string Objectives;
+            std::string Details;
+            std::string AreaDescription;
+            std::string CompletedText;              // display in quest objectives window once all objectives are completed
+            std::string OfferRewardText;
+            std::string RequestItemsText;
 
             int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT] = { };   // >0 Creature <0 Gameobject
             uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT] = { };
@@ -97,7 +99,7 @@ namespace WorldPackets
             uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT] = { };
             uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT] = { };
 
-            std::string ObjectiveText[TOTAL_LOCALES][QUEST_OBJECTIVES_COUNT];
+            std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
         };
 
         class QueryQuestInfoResponse final : public ServerPacket
