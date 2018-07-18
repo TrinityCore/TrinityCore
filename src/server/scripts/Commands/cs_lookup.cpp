@@ -639,7 +639,7 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        ObjectMgr::QuestContainer & questTemplates = (ObjectMgr::QuestContainer) sObjectMgr->GetQuestTemplates();
+        ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
         for (auto & questTemplatePair : questTemplates)
         {
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();

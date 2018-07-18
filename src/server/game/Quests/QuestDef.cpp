@@ -439,7 +439,7 @@ WorldPacket Quest::GetQueryData(LocaleConstant lc)
         _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
         BuildQueryData(lc);
     }
-    const WorldPacket* wp = _response[lc]->Write(lc);
+    const WorldPacket* wp = _response[lc]->Write();
     return *wp;
 }
 
