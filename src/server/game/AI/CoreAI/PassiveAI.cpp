@@ -36,7 +36,7 @@ int32 NullCreatureAI::Permissible(Creature const* creature)
 
 void PassiveAI::UpdateAI(uint32)
 {
-    if (me->IsInCombat() && me->getAttackers().empty())
+    if (me->IsEngaged() && !me->IsInCombat())
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 }
 
