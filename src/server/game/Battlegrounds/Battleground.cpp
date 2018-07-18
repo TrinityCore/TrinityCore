@@ -761,6 +761,8 @@ void Battleground::EndBattleground(uint32 winner)
 
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
 
+    RewardChestToTeam(winner);
+
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         uint32 team = itr->second.Team;
@@ -842,8 +844,6 @@ void Battleground::EndBattleground(uint32 winner)
                         guild->UpdateCriteria(CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
                 }
             }
-
-            RewardChestToTeam(winner);
         }
         else
         {
