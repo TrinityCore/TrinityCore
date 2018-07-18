@@ -172,7 +172,7 @@ class boss_pit_lord_argaloth : public CreatureScript
                         case EVENT_END_FEL_FLAME_PHASE:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* victim = me->GetVictim())
-                                me->AI()->AttackStart(victim);
+                                AttackStart(victim);
 
                             for (ObjectGuid guid : _felFlamesGUIDs)
                             {
