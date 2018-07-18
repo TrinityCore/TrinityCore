@@ -585,7 +585,7 @@ class npc_azure_saboteur : public CreatureScript
             {
                 if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
                 {
-                    _scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                    _scheduler.Schedule(0s, [this](TaskContext task)
                     {
                         me->CastSpell(me, SPELL_SHIELD_DISRUPTION, false);
 
