@@ -431,7 +431,7 @@ class boss_theralion : public CreatureScript
                         case EVENT_ATTACK_PLAYERS:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->GetVictim())
-                                me->AI()->AttackStart(target);
+                                AttackStart(target);
 
                             events.ScheduleEvent(EVENT_FABULOUS_FLAMES, Seconds(3) + Milliseconds(600));
                             events.ScheduleEvent(EVENT_ENGULFING_MAGIC, Seconds(12));
@@ -787,7 +787,7 @@ class boss_valiona : public CreatureScript
                         case EVENT_ATTACK_PLAYERS:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->GetVictim())
-                                me->AI()->AttackStart(target);
+                                AttackStart(target);
 
                             events.ScheduleEvent(EVENT_BLACKOUT, Seconds(8) + Milliseconds(500));
                             events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(23));

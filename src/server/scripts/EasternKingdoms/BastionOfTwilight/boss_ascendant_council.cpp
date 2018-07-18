@@ -318,13 +318,22 @@ class boss_ascendant_council_controller : public CreatureScript
                 switch (action)
                 {
                     case ACTION_START_ENCOUNTER:
+                        if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) == IN_PROGRESS)
+                            break;
+
                         instance->SetBossState(DATA_ASCENDANT_COUNCIL, IN_PROGRESS);
 
                         if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
+                        {
+                            feludius->AI()->DoZoneInCombat();
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, feludius, 3);
+                        }
 
                         if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
+                        {
+                            ignacious->AI()->DoZoneInCombat();
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, ignacious, 4);
+                        }
 
                         if (IsHeroic())
                         {
@@ -500,9 +509,6 @@ class npc_feludius : public CreatureScript
                 if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
                     controller->AI()->DoAction(ACTION_START_ENCOUNTER);
 
-                if (Creature* ignacious = _instance->GetCreature(DATA_IGNACIOUS))
-                    ignacious->AI()->AttackStart(who);
-
                 Talk(SAY_ENGAGE);
                 _events.ScheduleEvent(EVENT_GLACIATE, Seconds(31) + Milliseconds(500));
                 _events.ScheduleEvent(EVENT_HEART_OF_ICE, Seconds(15) + Milliseconds(500));
@@ -565,6 +571,7 @@ class npc_feludius : public CreatureScript
                         _events.Reset();
                         me->SetWalk(true);
                         me->CastStop();
+                        _summons.DespawnAll();
                         _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
@@ -697,8 +704,8 @@ class npc_ignacious : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                if (Creature* feludius = _instance->GetCreature(DATA_FELUDIUS))
-                    feludius->AI()->AttackStart(who);
+                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                    controller->AI()->DoAction(ACTION_START_ENCOUNTER);
 
                 _events.ScheduleEvent(EVENT_TALK_ENGAGE, Seconds(5));
                 _events.ScheduleEvent(EVENT_FLAME_TORRENT, Seconds(8) + Milliseconds(300));
@@ -801,6 +808,7 @@ class npc_ignacious : public CreatureScript
                         _events.Reset();
                         me->SetWalk(true);
                         me->CastStop();
+                        _summons.DespawnAll();
                         _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
@@ -975,6 +983,7 @@ class npc_arion : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         me->CastStop();
                         me->SetWalk(true);
+                        _summons.DespawnAll();
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
                         break;
@@ -1062,7 +1071,7 @@ class npc_arion : public CreatureScript
                         case EVENT_LIGHTNING_BLAST:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* victim = me->GetVictim())
-                                me->AI()->AttackStart(victim);
+                                AttackStart(victim);
 
                             me->MakeInterruptable(true);
                             DoCastAOE(SPELL_LIGHTNING_BLAST);
@@ -1163,6 +1172,7 @@ class npc_terrastra : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         me->CastStop();
                         me->SetWalk(true);
+                        _summons.DespawnAll();
                         DoCastAOE(SPELL_ELEMENTAL_STASIS);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
@@ -1816,6 +1826,10 @@ class npc_ascendant_council_flame_strike : public CreatureScript
                     me->RemoveAllAuras();
                     me->DespawnOrUnsummon(Seconds(2) + Milliseconds(300));
                 }
+            }
+
+            void UpdateAI(uint32 /*diff*/) override
+            {
             }
         };
 
