@@ -4275,6 +4275,7 @@ void ObjectMgr::LoadQuests()
         QuestLoaderFunction LoaderFunction;
     };
 
+    
     static std::vector<QuestLoaderHelper> const QuestLoaderHelpers =
     {
         // 0   1       2       3       4       5            6            7            8
@@ -9750,25 +9751,27 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     if (!sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
         return;
 
+    LocaleConstant lc = GetDBCLocaleIndex();
+
     // Initialize Query data for creatures
     if (mask & QUERY_DATA_CREATURES)
         for (auto& creatureTemplatePair : _creatureTemplateStore)
-            creatureTemplatePair.second.InitializeQueryData();
+            creatureTemplatePair.second.InitializeQueryData(lc);
 
     // Initialize Query Data for gameobjects
     if (mask & QUERY_DATA_GAMEOBJECTS)
         for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
-            gameObjectTemplatePair.second.InitializeQueryData();
+            gameObjectTemplatePair.second.InitializeQueryData(lc);
 
     // Initialize Query Data for items
     if (mask & QUERY_DATA_ITEMS)
         for (auto& itemTemplatePair : _itemTemplateStore)
-            itemTemplatePair.second.InitializeQueryData();
+            itemTemplatePair.second.InitializeQueryData(lc);
 
     // Initialize Query Data for quests
     if (mask & QUERY_DATA_QUESTS)
         for (auto& questTemplatePair : _questTemplates)
-            questTemplatePair.second.InitializeQueryData();
+            questTemplatePair.second.InitializeQueryData(lc);
 
     // Initialize Quest POI data
     if (mask & QUERY_DATA_POIS)

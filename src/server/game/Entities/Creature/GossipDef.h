@@ -281,7 +281,7 @@ class TC_GAME_API PlayerMenu
 
         void SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid npcGUID);
 
-        void SendQuestQueryResponse(Quest const* quest) const;
+        void SendQuestQueryResponse(Quest* quest) const;
         void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const;
 
         void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const;

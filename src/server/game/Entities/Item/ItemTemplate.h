@@ -21,10 +21,16 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "WorldPacket.h"
 #include <vector>
 
 class ObjectMgr;
+class WorldPacket;
+
+namespace WorldPackets {
+    namespace Query {
+        class QueryItemSingleResponse;
+    }
+}
 
 enum ItemModType
 {
@@ -687,7 +693,6 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
-    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool CanChangeEquipStateInCombat() const;
@@ -713,8 +718,13 @@ struct ItemTemplate
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
 
+    WorldPackets::Query::QueryItemSingleResponse* _response[TOTAL_LOCALES];
+
     void InitializeQueryData();
-    WorldPacket BuildQueryData(LocaleConstant loc) const;
+    void InitializeQueryData(LocaleConstant lc);
+    void BuildQueryData(LocaleConstant lc) const;
+    WorldPacket* GetQueryDataRef(LocaleConstant lc);
+    WorldPacket GetQueryData(LocaleConstant lc);
 
 private:
     // Cached info

@@ -228,12 +228,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             data << int32(quest->GetQuestLevel());
             data << uint32(quest->GetFlags());              // 3.3.3 quest flags
             data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-            std::string title = quest->GetTitle();
-
-            LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-            if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(localeData->Title, localeConstant, title);
+            std::string title = quest->GetTitle(GetGossipMenu().GetLocale());
 
             if (questLevelInTitle)
                 Quest::AddQuestLevelToTitle(title, quest->GetQuestLevel());
@@ -264,7 +259,7 @@ void PlayerMenu::SendPointOfInterest(uint32 id) const
     }
 
     std::string name = poi->Name;
-    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
+    LocaleConstant localeConstant = _gossipMenu.GetLocale();
     if (localeConstant != LOCALE_enUS)
         if (PointOfInterestLocale const* localeData = sObjectMgr->GetPointOfInterestLocale(id))
             ObjectMgr::GetLocaleString(localeData->Name, localeConstant, name);
@@ -332,7 +327,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
     {
         std::string strGreeting = questGreeting->greeting;
 
-        LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
+        LocaleConstant localeConstant = _gossipMenu.GetLocale();
         if (localeConstant != LOCALE_enUS)
             if (QuestGreetingLocale const* questGreetingLocale = sObjectMgr->GetQuestGreetingLocale(MAKE_PAIR32(guid.GetEntry(), guid.GetTypeId())))
                 ObjectMgr::GetLocaleString(questGreetingLocale->greeting, localeConstant, strGreeting);
@@ -364,12 +359,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
             ++count;
-            std::string title = quest->GetTitle();
-
-            LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-            if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* questTemplateLocaleData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(questTemplateLocaleData->Title, localeConstant, title);
+            std::string title = quest->GetTitle(_gossipMenu.GetLocale());
 
             if (questLevelInTitle)
                 Quest::AddQuestLevelToTitle(title, quest->GetQuestLevel());
@@ -401,22 +391,11 @@ void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, ObjectGuid npcGUID) con
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const
 {
-    std::string questTitle            = quest->GetTitle();
-    std::string questDetails          = quest->GetDetails();
-    std::string questObjectives       = quest->GetObjectives();
-    std::string questAreaDescription  = quest->GetAreaDescription();
-
-    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-    if (localeConstant != LOCALE_enUS)
-    {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title,           localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->Details,         localeConstant, questDetails);
-            ObjectMgr::GetLocaleString(localeData->Objectives,      localeConstant, questObjectives);
-            ObjectMgr::GetLocaleString(localeData->AreaDescription, localeConstant, questAreaDescription);
-        }
-    }
+    LocaleConstant localeConstant = _gossipMenu.GetLocale();
+    std::string questTitle            = quest->GetTitle(localeConstant);
+    std::string questDetails          = quest->GetDetails(localeConstant);
+    std::string questObjectives       = quest->GetObjectives(localeConstant);
+    std::string questAreaDescription  = quest->GetAreaDescription(localeConstant);
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         Quest::AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
@@ -507,13 +486,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
+void PlayerMenu::SendQuestQueryResponse(Quest* quest) const
 {
     if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
-        _session->SendPacket(&quest->QueryData[static_cast<uint32>(_session->GetSessionDbLocaleIndex())]);
+        _session->SendPacket(quest->GetQueryDataRef(_gossipMenu.GetLocale()));
     else
     {
-        WorldPacket queryPacket = quest->BuildQueryData(_session->GetSessionDbLocaleIndex());
+        WorldPacket queryPacket = quest->GetQueryData(_gossipMenu.GetLocale());
         _session->SendPacket(&queryPacket);
     }
 
@@ -522,18 +501,9 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
 {
-    std::string questTitle = quest->GetTitle();
-    std::string questOfferRewardText = quest->GetOfferRewardText();
-
-    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-    if (localeConstant != LOCALE_enUS)
-    {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title,           localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->OfferRewardText, localeConstant, questOfferRewardText);
-        }
-    }
+    LocaleConstant localeConstant = _gossipMenu.GetLocale();
+    std::string questTitle = quest->GetTitle(localeConstant);
+    std::string questOfferRewardText = quest->GetOfferRewardText(localeConstant);
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         Quest::AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
@@ -619,18 +589,9 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward
 
-    std::string questTitle = quest->GetTitle();
-    std::string requestItemsText = quest->GetRequestItemsText();
-
-    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-    if (localeConstant != LOCALE_enUS)
-    {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title,            localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->RequestItemsText, localeConstant, requestItemsText);
-        }
-    }
+    LocaleConstant localeConstant = _gossipMenu.GetLocale();
+    std::string questTitle = quest->GetTitle(localeConstant);
+    std::string requestItemsText = quest->GetRequestItemsText(localeConstant);
 
     if (!quest->GetReqItemsCount() && canComplete)
     {

@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "CreatureTemplate.h"
 #include "DatabaseEnv.h"
 #include "FollowMovementGenerator.h"
 #include "GameTime.h"
