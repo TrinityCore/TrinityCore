@@ -802,7 +802,7 @@ void AuctionHouseMgr::Update()
                 ++itr;
         }
 
-        _playerThrottleObjectsCleanupTime = now + Hours(1);
+        _playerThrottleObjectsCleanupTime = now + 1h;
     }
 }
 
