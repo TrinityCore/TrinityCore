@@ -24,7 +24,8 @@ void WorldPackets::Quest::QueryQuestInfo::Read()
 
 WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
 {
-    return Write(LOCALE_enUS);
+    // NOT USED.
+    return NULL;
 }
 
 WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write(LocaleConstant lc)
@@ -101,11 +102,11 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write(LocaleCons
     _worldPacket << float(Info.POIy);
     _worldPacket << uint32(Info.POIPriority);
 
-    _worldPacket << Info.Title[lc];
-    _worldPacket << Info.Objectives[lc];
-    _worldPacket << Info.Details[lc];
-    _worldPacket << Info.AreaDescription[lc];
-    _worldPacket << Info.CompletedText[lc];
+    _worldPacket << Info.Title;
+    _worldPacket << Info.Objectives;
+    _worldPacket << Info.Details;
+    _worldPacket << Info.AreaDescription;
+    _worldPacket << Info.CompletedText;
 
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
@@ -127,7 +128,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write(LocaleCons
     }
 
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        _worldPacket << Info.ObjectiveText[lc][i];
+        _worldPacket << Info.ObjectiveText[i];
 
     return &_worldPacket;
 }
