@@ -181,12 +181,12 @@ class TC_GAME_API Quest
 {
     friend class ObjectMgr;
     public:
-        Quest(Field* questRecord);
-        void LoadQuestDetails(Field* fields);
-        void LoadQuestRequestItems(Field* fields);
-        void LoadQuestOfferReward(Field* fields);
-        void LoadQuestTemplateAddon(Field* fields);
-        void LoadQuestMailSender(Field* fields);
+        Quest(Field* questRecord, LocaleConstant lc);
+        void LoadQuestDetails(LocaleConstant lc, Field* fields);
+        void LoadQuestRequestItems(LocaleConstant lc, Field* fields);
+        void LoadQuestOfferReward(LocaleConstant lc, Field* fields);
+        void LoadQuestTemplateAddon(LocaleConstant lc, Field* fields);
+        void LoadQuestMailSender(LocaleConstant lc, Field* fields);
 
         uint32 XPValue(Player* player) const;
 
@@ -230,13 +230,13 @@ class TC_GAME_API Quest
         uint32 GetSrcItemId() const { return _startItem; }
         uint32 GetSrcItemCount() const { return _startItemCount; }
         uint32 GetSrcSpell() const { return _sourceSpellid; }
-        std::string const& GetTitle(LocaleConstant lc) const { return _response[lc]->Info.Title; }
-        std::string const& GetDetails(LocaleConstant lc) const { return _response[lc]->Info.Details;  }
-        std::string const& GetObjectives(LocaleConstant lc) const { return _response[lc]->Info.Objectives; }
-        std::string const& GetOfferRewardText(LocaleConstant lc) const { return _response[lc]->Info.OfferRewardText; }
-        std::string const& GetRequestItemsText(LocaleConstant lc) const { return _response[lc]->Info.RequestItemsText; }
-        std::string const& GetAreaDescription(LocaleConstant lc) const { return _response[lc]->Info.AreaDescription; }
-        std::string const& GetCompletedText(LocaleConstant lc) const { return _response[lc]->Info.CompletedText; }
+        std::string const& GetTitle(LocaleConstant lc) const { return _title[lc]; }
+        std::string const& GetDetails(LocaleConstant lc) const { return _details[lc]; }
+        std::string const& GetObjectives(LocaleConstant lc) const { return _objectives[lc]; }
+        std::string const& GetOfferRewardText(LocaleConstant lc) const { return _offerRewardText[lc]; }
+        std::string const& GetRequestItemsText(LocaleConstant lc) const { return _requestItemsText[lc]; }
+        std::string const& GetAreaDescription(LocaleConstant lc) const { return _areaDescription[lc]; }
+        std::string const& GetCompletedText(LocaleConstant lc) const { return _completedText[lc]; }
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return _rewardHonor; }
         float GetRewHonorMultiplier() const { return _rewardKillHonor; }
@@ -269,7 +269,7 @@ class TC_GAME_API Quest
 
         // multiple values
 
-        std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
+        std::string ObjectiveText[TOTAL_LOCALES][QUEST_OBJECTIVES_COUNT];
         
         uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT] = { };
         uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT] = { };
@@ -305,8 +305,6 @@ class TC_GAME_API Quest
         WorldPacket* GetQueryDataRef(LocaleConstant lc);
         WorldPacket GetQueryData(LocaleConstant lc);
 
-        WorldPackets::Quest::QueryQuestInfoResponse* GetResponse(LocaleConstant lc) { return _response[lc]; }
-
         std::vector<uint32> DependentPreviousQuests;
 
         // cached data
@@ -339,13 +337,13 @@ class TC_GAME_API Quest
         uint32 _rewardNextQuest = 0;
         uint32 _rewardXPDifficulty = 0;
         uint32 _startItem = 0;
-        std::string _title;
-        std::string _details;
-        std::string _objectives;
-        std::string _offerRewardText;
-        std::string _requestItemsText;
-        std::string _areaDescription;
-        std::string _completedText;
+        std::string _title[TOTAL_LOCALES];
+        std::string _details[TOTAL_LOCALES];
+        std::string _objectives[TOTAL_LOCALES];
+        std::string _offerRewardText[TOTAL_LOCALES];
+        std::string _requestItemsText[TOTAL_LOCALES];
+        std::string _areaDescription[TOTAL_LOCALES];
+        std::string _completedText[TOTAL_LOCALES];
         uint32 _rewardHonor = 0;
         float _rewardKillHonor = 0.f;
         int32  _rewardMoney = 0;
