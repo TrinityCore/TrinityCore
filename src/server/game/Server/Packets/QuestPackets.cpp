@@ -24,12 +24,6 @@ void WorldPackets::Quest::QueryQuestInfo::Read()
 
 WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
 {
-    // NOT USED.
-    return NULL;
-}
-
-WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write(LocaleConstant lc)
-{
     _worldPacket << uint32(Info.QuestID);
     _worldPacket << uint32(Info.QuestMethod);
     _worldPacket << uint32(Info.QuestLevel);
