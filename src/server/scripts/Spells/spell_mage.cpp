@@ -2251,40 +2251,29 @@ public:
 };
 
 // Freeze (Water Elemental's) - 33395
-class spell_mage_pet_freeze : public SpellScriptLoader
+class spell_mage_pet_freeze : public AuraScript
 {
-public:
-    spell_mage_pet_freeze() : SpellScriptLoader("spell_mage_pet_freeze") { }
+    PrepareAuraScript(spell_mage_pet_freeze);
 
-    class spell_mage_pet_freeze_AuraScript : public AuraScript
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_mage_pet_freeze_AuraScript);
-
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        if (Unit* caster = GetCaster())
         {
-            if (Unit* caster = GetCaster())
+            if (caster->GetOwner())
             {
-                if (caster->GetOwner())
+                if (Player* player = caster->GetOwner()->ToPlayer())
                 {
-                    if (Player* player = caster->GetOwner()->ToPlayer())
-                    {
-                        if (player->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
-                            player->CastSpell(player, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
-                        player->CastSpell(player, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
-                    }
+                    if (player->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
+                        player->CastSpell(player, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
+                    player->CastSpell(player, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
                 }
             }
         }
+    }
 
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_mage_pet_freeze_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_mage_pet_freeze_AuraScript();
+        OnEffectApply += AuraEffectApplyFn(spell_mage_pet_freeze::OnApply, EFFECT_0, SPELL_AURA_MOD_ROOT_2, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2924,7 +2913,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_cinderstorm);
     
     // Spell Pet scripts
-    new spell_mage_pet_freeze();
+    RegisterAuraScript(spell_mage_pet_freeze);
 
     // AreaTrigger scripts
     new at_mage_meteor_timer();
