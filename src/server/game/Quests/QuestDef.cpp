@@ -314,23 +314,42 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 
 void Quest::BuildQueryData(LocaleConstant lc) const
 {
-    if (QuestLocale* localeData = (QuestLocale*) sObjectMgr->GetQuestLocale(GetQuestId()))
+    if (lc == LOCALE_enUS)
     {
-        _response[lc]->Info.Title = localeData->Title[lc];
-        _response[lc]->Info.Objectives = localeData->Objectives[lc];
-        _response[lc]->Info.Details = localeData->Details[lc];
-        _response[lc]->Info.AreaDescription = localeData->AreaDescription[lc];
-        _response[lc]->Info.CompletedText = localeData->CompletedText[lc];
-        _response[lc]->Info.OfferRewardText = localeData->OfferRewardText[lc];
-        _response[lc]->Info.RequestItemsText = localeData->RequestItemsText[lc];
-        
+        _response[lc]->Info.Title = _title;
+        _response[lc]->Info.Objectives = _objectives;
+        _response[lc]->Info.Details = _details;
+        _response[lc]->Info.AreaDescription = _areaDescription;
+        _response[lc]->Info.CompletedText = _completedText;
+        _response[lc]->Info.OfferRewardText = _offerRewardText;
+        _response[lc]->Info.RequestItemsText = _requestItemsText;
+
         if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
             Quest::AddQuestLevelToTitle(_response[lc]->Info.Title, GetQuestLevel());
 
         std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         {
-            _response[lc]->Info.ObjectiveText[i] = localeData->ObjectiveText[lc][i];
+            _response[lc]->Info.ObjectiveText[i] = ObjectiveText[i];
+        }
+    }
+    else if (QuestLocale* localeData = (QuestLocale*) sObjectMgr->GetQuestLocale(GetQuestId()))
+    {
+        ObjectMgr::GetLocaleString(localeData->Title, lc, _response[lc]->Info.Title);
+        ObjectMgr::GetLocaleString(localeData->Objectives, lc, _response[lc]->Info.Objectives);
+        ObjectMgr::GetLocaleString(localeData->Details, lc, _response[lc]->Info.Details);
+        ObjectMgr::GetLocaleString(localeData->AreaDescription, lc, _response[lc]->Info.AreaDescription);
+        ObjectMgr::GetLocaleString(localeData->CompletedText, lc, _response[lc]->Info.CompletedText);
+        ObjectMgr::GetLocaleString(localeData->OfferRewardText, lc, _response[lc]->Info.OfferRewardText);
+        ObjectMgr::GetLocaleString(localeData->RequestItemsText, lc, _response[lc]->Info.RequestItemsText);
+        
+        if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+            Quest::AddQuestLevelToTitle(_response[lc]->Info.Title, GetQuestLevel());
+
+        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        {
+            if (localeData->ObjectiveText[lc][i].size() > size_t(lc) && !localeData->ObjectiveText[lc][i].empty())
+                _response[lc]->Info.ObjectiveText[i] = localeData->ObjectiveText[lc][i];
         }   
     }
 
@@ -419,6 +438,7 @@ void Quest::InitializeQueryData()
 
 void Quest::InitializeQueryData(LocaleConstant lc)
 {
+    _response[lc] = new WorldPackets::Quest::QueryQuestInfoResponse();
     BuildQueryData(lc);
     _response[lc]->Write();
 }

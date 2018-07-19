@@ -65,7 +65,21 @@ public:
     bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
     bool IsRooted() const { return Rooted; }
 
-    std::string ToString() const;
+    std::string ToString() const
+    {
+        char const* const GroundStates[] = { "None", "Run", "Hover" };
+        char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
+
+        std::ostringstream str;
+        str << std::boolalpha
+            << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
+            << ", Swim: " << Swim
+            << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
+        if (Rooted)
+            str << ", Rooted";
+
+        return str.str();
+    }
 };
 
 #pragma pack(pop)
