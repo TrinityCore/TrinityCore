@@ -1206,7 +1206,7 @@ void InstanceScript::CompleteChallengeMode()
 
     Map::PlayerList const &players = instance->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), _challengeModeLevel + mythicIncrement);
+        itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), std::max(_challengeModeLevel + mythicIncrement, 1));
 
     WorldPackets::ChallengeMode::Complete complete;
     complete.Duration = totalDuration;
