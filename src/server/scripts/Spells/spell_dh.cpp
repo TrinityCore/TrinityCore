@@ -2747,7 +2747,7 @@ public:
 
             if (Aura* fear = GetAura())
             {
-                uint32 dmg = fear->Variables.GetValue<uint32>("damage");
+                uint32 dmg = fear->Variables.GetValue<uint32>("damage", 0);
                 uint32 newdamage = eventInfo.GetDamageInfo()->GetDamage() + dmg;
                 if (newdamage > target->CountPctFromMaxHealth(10))
                     fear->SetDuration(0);
