@@ -577,7 +577,7 @@ class spell_mage_comet_storm : public SpellScript
 
         for (uint8 i = 0; i < 7; ++i)
         {
-            caster->GetScheduler().Schedule(Milliseconds(500 * i), [targetPos](TaskContext context)
+            caster->GetScheduler().Schedule(Milliseconds(300 * i), [targetPos](TaskContext context)
             {
                 GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_VISUAL, true);
 
