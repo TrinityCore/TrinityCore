@@ -576,6 +576,9 @@ enum SMART_ACTION
     SMART_ACTION_CIRCLE_PATH                        = 204,    // Radius, Clockwise, StepCount
     SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT            = 205,    // zone Id, light Id, timer in milliseconds.
     SMART_ACTION_START_CONVERSATION                 = 206,    // conversation Id
+    SMART_ACTION_MODIFY_THREAT                      = 207,    // increase, decrease
+    SMART_ACTION_SET_SPEED                          = 208,    // speedType, speed
+    SMART_ACTION_IGNORE_PATHFINDING                 = 209,    // 0/1 (1 = ignored, 0 = enabled)
 
     SMART_ACTION_END
 };
@@ -1158,6 +1161,20 @@ struct SmartAction
             uint32 conversationId;
         } startConversation;
 
+        struct {
+            uint32 increase;
+            uint32 decrease;
+        } modifyThreat;
+
+        struct {
+            uint32 type;
+            uint32 speed;
+        } setSpeed;
+
+        struct {
+            uint32 ignore;
+        } ignorePathfinding;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1217,7 +1234,10 @@ enum SMARTAI_TARGETS
     SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
     SMART_TARGET_VEHICLE_ACCESSORY              = 29,   // seat number (vehicle can target it's own accessory)
 
-    SMART_TARGET_END                            = 30
+    // Ashamane' specific targets
+    SMART_TARGET_INVOKER_SUMMON                 = 100,  // entry
+
+    SMART_TARGET_END
 };
 
 struct SmartTarget
@@ -1326,6 +1346,11 @@ struct SmartTarget
         {
             uint32 seat;
         } vehicle;
+
+        struct
+        {
+            uint32 entry;
+        } invokerSummon;
     };
 };
 

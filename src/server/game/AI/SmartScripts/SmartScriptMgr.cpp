@@ -395,6 +395,15 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             }
             break;
         }
+        case SMART_TARGET_INVOKER_SUMMON:
+        {
+            if (!sObjectMgr->GetCreatureTemplate(e.target.invokerSummon.entry))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent Creature entry %u as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.invokerSummon.entry);
+                return false;
+            }
+            break;
+        }
         case SMART_TARGET_PLAYER_RANGE:
         case SMART_TARGET_SELF:
         case SMART_TARGET_VICTIM:
@@ -1415,6 +1424,31 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
+        case SMART_ACTION_MODIFY_THREAT:
+        {
+            if (e.action.modifyThreat.increase == 0 && e.action.modifyThreat.decrease == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_MODIFY_THREAT have neither increase or decrease param set for creature " SI64FMTD ", skipped", e.entryOrGuid);
+                return false;
+            }
+
+            if (e.action.modifyThreat.increase != 0 && e.action.modifyThreat.decrease != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_MODIFY_THREAT have both increase and decrease param set for creature " SI64FMTD ", decrease skipped", e.entryOrGuid);
+            }
+
+            break;
+        }
+        case SMART_ACTION_SET_SPEED:
+        {
+            if (e.action.setSpeed.type >= MAX_MOVE_TYPE)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_SPEED have wrong speed type %u for creature " SI64FMTD ", skipped", e.action.setSpeed.type, e.entryOrGuid);
+                return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -1490,6 +1524,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_CANCEL_VISUAL:
         case SMART_ACTION_CIRCLE_PATH:
         case SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT:
+        case SMART_ACTION_IGNORE_PATHFINDING:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
