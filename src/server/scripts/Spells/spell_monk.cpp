@@ -70,6 +70,8 @@ enum MonkSpells
     SPELL_MONK_FLYING_SERPENT_KICK_NEW                  = 115057,
     SPELL_MONK_FORTIFYING_BREW                          = 120954,
     SPELL_MONK_GIFT_OF_THE_OX_AURA                      = 124502,
+    SPELL_MONK_GIFT_OF_THE_OX_AT_RIGHT                  = 124503,
+    SPELL_MONK_GIFT_OF_THE_OX_AT_LEFT                   = 124506,
     SPELL_MONK_GLYPH_OF_BLACKOUT_KICK                   = 132005,
     SPELL_MONK_GLYPH_OF_RENEWING_MIST                   = 123334,
     SPELL_MONK_GLYPH_OF_ZEN_FLIGHT                      = 125893,
@@ -3082,7 +3084,8 @@ struct at_monk_windwalking : AreaTriggerAI
     }
 };
 
-//AT ID : 373
+// Spell 124503
+// AT ID : 3282
 struct at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 {
     int32 pickupDelay;
@@ -3100,62 +3103,30 @@ struct at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 
     void OnUpdate(uint32 diff)  override
     {
-        if(pickupDelay >= 0)
+        if (pickupDelay >= diff)
             pickupDelay -= diff;
-
-        if(pickupDelay < 0)
+        else
             pickupDelay = 0;
-    }
-
-    void OnCreate() override
-    {
-        Unit* caster = at->GetCaster();
-
-        if (!caster)
-            return;
-
-        if (!caster->ToPlayer())
-            return;
-
-        for (ObjectGuid guid : at->GetInsideUnits())
-            if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                if(unit == caster && !pickupDelay)
-                {
-                    caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
-                    at->Remove();
-                }
     }
 
     void OnUnitEnter(Unit* unit) override
     {
-        Unit* caster = at->GetCaster();
-
-        if (!caster || !unit)
-            return;
-
-        if (!caster->ToPlayer())
-            return;
-
-        if (unit == caster && pickupDelay == 0)
+        if (Unit* caster = at->GetCaster())
         {
-            caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
-            at->Remove();
+            if (unit == caster && !pickupDelay)
+            {
+                caster->CastSpell(caster, SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
+                at->Remove();
+            }
         }
     }
 
     void OnRemove() override
     {
-        Unit* caster = at->GetCaster();
-
-        if (!caster)
-            return;
-
-        if (!caster->ToPlayer())
-            return;
-
         //Todo : Remove cooldown
-        if(caster->HasAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN))
-            caster->RemoveAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN);
+        if (Unit* caster = at->GetCaster())
+            if(caster->HasAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN))
+                caster->RemoveAura(SPELL_MONK_HEALING_SPHERE_COOLDOWN);
     }
 };
 
@@ -3167,17 +3138,13 @@ public:
 
     enum UsedSpells
     {
-        SPELL_MONK_HEALING_SPHERE_1         = 128822,
-        SPELL_MONK_HEALING_SPHERE_2         = 128825,
-        SPELL_MONK_HEALING_SPHERE_3         = 128826,
         SPELL_MONK_HEALING_SPHERE_COOLDOWN  = 224863
     };
 
     std::vector<uint32> spellsToCast
     {
-        SPELL_MONK_HEALING_SPHERE_1,
-        SPELL_MONK_HEALING_SPHERE_2,
-        SPELL_MONK_HEALING_SPHERE_3
+        SPELL_MONK_GIFT_OF_THE_OX_AT_RIGHT,
+        SPELL_MONK_GIFT_OF_THE_OX_AT_LEFT,
     };
 
     void OnTakeDamage(Player* victim, uint32 damage, SpellSchoolMask /*school*/) override
