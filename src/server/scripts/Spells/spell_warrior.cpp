@@ -300,33 +300,27 @@ public:
 };
 
 // Whirlwind - 190411
-class spell_warr_whirlwind : public SpellScriptLoader
+class spell_warr_whirlwind : public SpellScript
 {
-public:
-    spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") {}
+    PrepareSpellScript(spell_warr_whirlwind);
 
-    class spell_warr_whirlwind_SpellScript : public SpellScript
+    void HandleProc()
     {
-        PrepareSpellScript(spell_warr_whirlwind_SpellScript);
-
-        void HandleProc()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
+        if (Unit* caster = GetCaster())
             caster->CastSpell(caster, SPELL_WARRIOR_MEAT_CLEAVER_PROC, true);
-        }
+    }
 
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_warr_whirlwind_SpellScript::HandleProc);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleAfterCast()
     {
-        return new spell_warr_whirlwind_SpellScript();
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_WARRIOR_WRECKING_BALL_EFFECT))
+                caster->RemoveAura(SPELL_WARRIOR_WRECKING_BALL_EFFECT);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_warr_whirlwind::HandleProc);
+        AfterCast += SpellCastFn(spell_warr_whirlwind::HandleAfterCast);
     }
 };
 
@@ -2353,7 +2347,7 @@ public:
     }
 };
 
-//215570 - Wrecking Ball
+// 215570 - Wrecking Ball
 class spell_warr_wrecking_ball_effect : public SpellScriptLoader
 {
 public:
@@ -2374,7 +2368,7 @@ public:
 
         void Register() override
         {
-                OnEffectProc += AuraEffectProcFn(spell_warr_wrecking_ball_effect_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            OnEffectProc += AuraEffectProcFn(spell_warr_wrecking_ball_effect_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
         }
     };
 
@@ -3021,7 +3015,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
-    new spell_warr_whirlwind();
+    RegisterSpellScript(spell_warr_whirlwind);
     new spell_warr_wrecking_ball_effect();
     new spell_warr_rallying_cry();
     new spell_warr_jump_to_skyhold();
