@@ -4284,6 +4284,31 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
     });
 
+    // Cho'Gall
+    // Darkened Creations
+    ApplySpellFix({
+        82414,
+        93161
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 4;
+    });
+
+    // Darkened Creations
+    ApplySpellFix({
+        93160,
+        93162
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 10;
+    });
+
+    // Summon Spiked Tentacle Trigger
+    ApplySpellFix({ 93315 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF BASTION OF TWILIGHT
 
     //

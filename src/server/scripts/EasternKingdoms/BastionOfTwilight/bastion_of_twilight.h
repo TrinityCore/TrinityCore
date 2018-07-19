@@ -43,13 +43,19 @@ enum BoTDataTypes
     DATA_ARION                          = 11,
     DATA_ELEMENTIUM_MONSTROSITY         = 12,
     DATA_ASCENDANT_COUNCIL_CONTROLLER   = 13,
+    DATA_CORRUPTION                     = 14,
 
     // GameObject Types
-    DATA_WHELP_CAGE                     = 14,
+    DATA_WHELP_CAGE                     = 15,
+    DATA_GRIM_BATOL_RAID_TRAP_DOOR      = 16,
 
     // Areatriggers
-    DATA_AT_HALFUS_INTRO                = 15,
-    DATA_AT_THERALION_AND_VALIONA_INTRO = 16,
+    DATA_AT_HALFUS_INTRO                = 17,
+    DATA_AT_THERALION_AND_VALIONA_INTRO = 18,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_1   = 19,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_2   = 20,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_3   = 21,
+    DATA_AT_CHOGALL_INTRO               = 22,
 
     // Encounter Related
     /*Halfus Wyrmbreaker*/
@@ -61,7 +67,10 @@ enum BoTDataTypes
     /*Theralion and Valiona*/
     DATA_RANDOM_VALIONA_DUMMY,
     DATA_COLLAPSING_TWILIGHT_PORTAL_COUNT,
-    DATA_VALIONA_AURA_DUMMY
+    DATA_VALIONA_AURA_DUMMY,
+
+    /*Cho'Gall*/
+    DATA_FULL_HEROIC_ID
 };
 
 enum BoTDataStates
@@ -72,8 +81,12 @@ enum BoTDataStates
 
 enum BoTAreatriggerIndex
 {
-    AT_INDEX_HALFUS_WYRMBREAKER_INTRO    = 1,
-    AT_INDEX_THERALION_AND_VALIONA_INTRO = 2
+    AT_INDEX_HALFUS_WYRMBREAKER_INTRO       = 1,
+    AT_INDEX_THERALION_AND_VALIONA_INTRO    = 2,
+    AT_INDEX_ASCENDANT_COUNCIL_INTRO_1      = 3,
+    AT_INDEX_ASCENDANT_COUNCIL_INTRO_2      = 4,
+    AT_INDEX_ASCENDANT_COUNCIL_INTRO_3      = 5,
+    AT_INDEX_CHOGALL_INTRO                  = 6,
 };
 
 enum BoTCreatures
@@ -120,6 +133,14 @@ enum BoTCreatures
     NPC_WATER_BOMB                      = 44201,
     NPC_INFERNO_RUSH                    = 47501,
     NPC_FROZEN_ORB                      = 49518,
+    NPC_LIQUID_ICE                      = 45452,
+
+    /*Cho'Gall*/
+    NPC_FIRE_PORTAL                     = 43393,
+    NPC_FIRE_ELEMENTAL                  = 43406,
+    NPC_CORRUPTION                      = 43999,
+    NPC_MALFORMATION                    = 43888,
+    NPC_SPIKED_TENTACLE_TRIGGER         = 50265,
 
     // Generic Creatures
     NPC_INVISIBLE_STALKER               = 42098
@@ -134,7 +155,8 @@ enum BoTGameObjects
     GO_ASCENDANT_COUNCIL_ENTRANCE       = 205226,
     GO_ASCENDANT_COUNCIL_EXIT           = 205227,
     GO_CHOGALL_ENTRANCE                 = 205228,
-    GO_WHELP_CAGE                       = 205087
+    GO_WHELP_CAGE                       = 205087,
+    GO_GRIM_BATOL_RAID_TRAP_DOOR        = 205898
 };
 
 enum BoTActions
@@ -155,12 +177,18 @@ enum BoTActions
     ACTION_TALK_INTRO_HALFUS_WYRMBREAKER    = 1,
 
     // Cho'Gall (Boss)
-    ACTION_TALK_INTRO_THERALION_AND_VALIONA = 1
+    ACTION_TALK_THERALION_AND_VALIONA_INTRO = 1,
+    ACTION_TALK_THERALION_AND_VALIONA_DEAD  = 2,
+    ACTION_TALK_ASCENDANT_COUNCIL_INTRO_1   = 3,
+    ACTION_TALK_ASCENDANT_COUNCIL_INTRO_2   = 4,
+    ACTION_TALK_ASCENDANT_COUNCIL_INTRO_3   = 5,
+    ACTION_TALK_CHOGALL_INTRO               = 6,
 };
 
 enum BoTEvents
 {
-    EVENT_CAST_DANCING_FLAMES = 1
+    EVENT_CAST_DANCING_FLAMES = 1,
+    EVENT_CHOGALL_TALK_THERALION_AND_VALIONA_DEAD,
 };
 
 enum BoTSpells
@@ -173,6 +201,8 @@ AI* GetBastionOfTwilightAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, BoTScriptName);
 }
+
+#define RegisterBastionOfTwilightCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBastionOfTwilightAI)
 
 template<class AI>
 AI* GetBastionOfTwilightAI(GameObject* go)

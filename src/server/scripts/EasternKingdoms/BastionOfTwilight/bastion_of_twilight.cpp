@@ -38,7 +38,63 @@ class at_theralion_and_valiona_intro : public AreaTriggerScript
         }
 };
 
+class at_ascendant_council_intro_1 : public AreaTriggerScript
+{
+    public:
+        at_ascendant_council_intro_1() : AreaTriggerScript("at_ascendant_council_intro_1") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                instance->SetData(DATA_AT_ASCENDANT_COUNCIL_INTRO_1, IN_PROGRESS);
+            return true;
+        }
+};
+
+class at_ascendant_council_intro_2 : public AreaTriggerScript
+{
+    public:
+        at_ascendant_council_intro_2() : AreaTriggerScript("at_ascendant_council_intro_2") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                instance->SetData(DATA_AT_ASCENDANT_COUNCIL_INTRO_2, IN_PROGRESS);
+            return true;
+        }
+};
+
+class at_ascendant_council_intro_3 : public AreaTriggerScript
+{
+    public:
+        at_ascendant_council_intro_3() : AreaTriggerScript("at_ascendant_council_intro_3") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                instance->SetData(DATA_AT_ASCENDANT_COUNCIL_INTRO_3, IN_PROGRESS);
+            return true;
+        }
+};
+
+class at_chogall_intro : public AreaTriggerScript
+{
+    public:
+        at_chogall_intro() : AreaTriggerScript("at_chogall_intro") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                instance->SetData(DATA_AT_CHOGALL_INTRO, IN_PROGRESS);
+            return true;
+        }
+};
+
 void AddSC_bastion_of_twilight()
 {
     new at_theralion_and_valiona_intro();
+    new at_ascendant_council_intro_1();
+    new at_ascendant_council_intro_2();
+    new at_ascendant_council_intro_3();
+    new at_chogall_intro();
 }
