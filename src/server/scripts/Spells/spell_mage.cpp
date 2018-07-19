@@ -2566,52 +2566,15 @@ struct at_mage_frozen_orb : AreaTriggerAI
 
 // Arcane Orb - 153626
 // AreaTriggerID - 1612
-class at_mage_arcane_orb : public AreaTriggerEntityScript
+struct at_mage_arcane_orb : AreaTriggerAI
 {
-public:
+    at_mage_arcane_orb(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    at_mage_arcane_orb() : AreaTriggerEntityScript("at_mage_arcane_orb") { }
-
-    struct at_mage_arcane_orbAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_mage_arcane_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        uint32 damageInterval = 500;
-
-        void OnInitialize() override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            Position pos = caster->GetPosition();
-            at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
-            at->SetDestination(pos, 4000);
-        }
-
-        void OnUpdate(uint32 diff) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster || !caster->IsPlayer())
-                return;
-
-            if (damageInterval <= diff)
-            {
-                for (ObjectGuid guid : at->GetInsideUnits())
-                    if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                        if (caster->IsValidAttackTarget(unit))
-                            caster->CastSpell(unit, SPELL_MAGE_ARCANE_ORB_DAMAGE, true);
-
-                damageInterval = 500;
-            }
-            else
-                damageInterval -= 500;
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_mage_arcane_orbAI(areatrigger);
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_MAGE_ARCANE_ORB_DAMAGE, true);
     }
 };
 
@@ -2623,12 +2586,12 @@ public:
 
     enum eSpells
     {
-        SPELL_MAGE_FROSTBOLT = 59638,
-        SPELL_MAGE_FIREBALL = 133,
-        SPELL_MAGE_ARCANE_BLAST = 30451,
-        SPELL_MAGE_GLYPH = 63093,
-        SPELL_INITIALIZE_IMAGES = 102284,
-        SPELL_CLONE_CASTER = 60352,
+        SPELL_MAGE_FROSTBOLT        = 59638,
+        SPELL_MAGE_FIREBALL         = 133,
+        SPELL_MAGE_ARCANE_BLAST     = 30451,
+        SPELL_MAGE_GLYPH            = 63093,
+        SPELL_INITIALIZE_IMAGES     = 102284,
+        SPELL_CLONE_CASTER          = 60352,
         SPELL_INHERIT_MASTER_THREAT = 58838
     };
 
@@ -2963,7 +2926,7 @@ void AddSC_mage_spell_scripts()
     new at_mage_blizzard();
     RegisterAreaTriggerAI(at_mage_rune_of_power);
     RegisterAreaTriggerAI(at_mage_frozen_orb);
-    new at_mage_arcane_orb();
+    RegisterAreaTriggerAI(at_mage_arcane_orb);
     RegisterAreaTriggerAI(at_mage_flame_patch);
     RegisterAreaTriggerAI(at_mage_cinderstorm);
 
