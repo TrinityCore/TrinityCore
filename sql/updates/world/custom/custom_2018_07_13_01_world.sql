@@ -3,19 +3,19 @@
 UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128, `ScriptName`= 'boss_ascendant_council_controller' WHERE `entry`= 43691;
 -- Feludius
 UPDATE `creature_template` SET `difficulty_entry_1`= 49612, `difficulty_entry_2`= 49613, `difficulty_entry_3`= 49614, `ScriptName`= 'npc_feludius' WHERE `entry`= 43687;
-UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 35, `BaseVariance`= 5, `mechanic_immune_mask`= 80297855, `unit_flags`= 64 WHERE `entry` IN (43687, 49612, 49613, 49614);
+UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 60, `BaseVariance`= 0.5, `mechanic_immune_mask`= 80297855, `unit_flags`= 64 WHERE `entry` IN (43687, 49612, 49613, 49614);
 -- Ignacious
 UPDATE `creature_template` SET `difficulty_entry_1`= 49615, `difficulty_entry_2`= 49616, `difficulty_entry_3`= 49617, `ScriptName`= 'npc_ignacious' WHERE `entry`= 43686;
-UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 35, `BaseVariance`= 5, `mechanic_immune_mask`= 80297855 WHERE `entry` IN (43686, 49615, 49616, 49617);
+UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 60, `BaseVariance`= 0.5, `mechanic_immune_mask`= 80297855 WHERE `entry` IN (43686, 49615, 49616, 49617);
 -- Arion
 UPDATE `creature_template` SET `difficulty_entry_1`= 49606, `difficulty_entry_2`= 49607, `difficulty_entry_3`= 49608, `ScriptName`= 'npc_arion' WHERE `entry`= 43688;
-UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 35, `BaseVariance`= 5, `mechanic_immune_mask`= 80297855 WHERE `entry` IN (43688, 49606, 49607, 49608);
+UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 60, `BaseVariance`= 0.5, `mechanic_immune_mask`= 80297855 WHERE `entry` IN (43688, 49606, 49607, 49608);
 -- Terrastra
 UPDATE `creature_template` SET `difficulty_entry_1`= 49609, `difficulty_entry_2`= 49610, `difficulty_entry_3`= 49611, `ScriptName`= 'npc_terrastra' WHERE `entry`= 43689;
-UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 35, `BaseVariance`= 5, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (43689, 49609, 49610, 49611);
+UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 60, `BaseVariance`= 0.5, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (43689, 49609, 49610, 49611);
 -- Elementium Monstrosity
 UPDATE `creature_template` SET `difficulty_entry_1`= 49619, `difficulty_entry_2`= 49620, `difficulty_entry_3`= 49621, `ScriptName`= 'npc_elementium_monstrosity' WHERE `entry`= 43735;
-UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 35, `BaseVariance`= 5, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (43735, 49619, 49620, 49621);
+UPDATE `creature_template` SET `flags_extra`= 0, `movementId`= 187, `BaseAttackTime`= 1500, `speed_walk`= 3.2, `speed_run`= 2, `unit_class`= 2, `minlevel`= 88, `maxlevel`= 88, `exp`= 3,`faction`= 16, `DamageModifier`= 60, `BaseVariance`= 0.5, `mechanic_immune_mask`= 617299839 WHERE `entry` IN (43735, 49619, 49620, 49621);
 -- Ascendant Council Target Stalker
 UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry`= 44553;
 -- Water Bomb
