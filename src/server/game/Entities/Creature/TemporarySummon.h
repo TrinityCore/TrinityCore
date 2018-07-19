@@ -135,6 +135,7 @@ class TC_GAME_API Minion : public TempSummon
 
         bool IsGuardianPet() const;
         bool IsWarlockMinion() const;
+        bool HasSameSpellPowerAsOwner() const;
     protected:
         Unit* const m_owner;
         float m_followAngle;

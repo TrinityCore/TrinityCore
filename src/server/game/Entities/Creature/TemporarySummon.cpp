@@ -365,6 +365,13 @@ bool Minion::IsWarlockMinion() const
     }
 }
 
+// WL & mage pets/minions get 100% of owners SP
+// need some more proofs which are affected and which arent
+bool Minion::HasSameSpellPowerAsOwner() const
+{
+    return IsWarlockMinion() || GetEntry() == ENTRY_WATER_ELEMENTAL;
+}
+
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
 , m_bonusSpellDamage(0)
 {
