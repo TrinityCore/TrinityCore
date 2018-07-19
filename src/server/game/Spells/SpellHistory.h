@@ -89,7 +89,7 @@ public:
     // Cooldowns
     static Clock::duration const InfinityCooldownDelay;  // used for set "infinity cooldowns" for spells and check
 
-    void StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool onHold = false);
+    void StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool onHold = false, bool forceSendPacket = false);
     void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = nullptr, bool startCooldown = true);
 
     template<class Type, class Period>

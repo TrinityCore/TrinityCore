@@ -1136,31 +1136,54 @@ class spell_mage_ray_of_frost : public AuraScript
 {
     PrepareAuraScript(spell_mage_ray_of_frost);
 
+    void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (!caster->HasAura(SPELL_MAGE_RAY_OF_FROST_BUFF))
+                caster->CastSpell(caster, SPELL_MAGE_RAY_OF_FROST_BUFF, true);
+    }
+
     void OnTick(AuraEffect const* /*auraEff*/)
     {
         if (Unit* caster = GetCaster())
         {
+            if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_1))
+                aurEff->SetDamage(caster->SpellDamageBonusDone(GetTarget(), GetSpellInfo(), 0, DOT, aurEff->GetSpellEffectInfo(), GetStackAmount()) * aurEff->GetDonePct());
+
             caster->CastSpell(caster, SPELL_MAGE_RAY_OF_FROST_DAMAGE_INCREASE, true);
-
-            if (Aura* rayOfFrostDamgeStacks = caster->GetAura(SPELL_MAGE_RAY_OF_FROST_DAMAGE_INCREASE))
-            {
-                int32 stackamount = rayOfFrostDamgeStacks->GetEffect(EFFECT_0)->GetAmount();
-
-                if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_1))
-                {
-                    int32 sp = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                    int32 dmg = (sp * 2.691f);
-                    AddPct(dmg, stackamount);
-
-                    aurEff->SetDamage(dmg);
-                }
-            }
         }
     }
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(spell_mage_ray_of_frost::HandleApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_ray_of_frost::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 208166
+class spell_mage_ray_of_frost_buff : public AuraScript
+{
+    PrepareAuraScript(spell_mage_ray_of_frost_buff);
+
+    void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_MAGE_RAY_OF_FROST, true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (SpellInfo const* rayOfFrostInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_RAY_OF_FROST))
+            GetTarget()->GetSpellHistory()->StartCooldown(rayOfFrostInfo, 0, nullptr, false, true);
+
+        if (GetTarget()->GetChannelSpellId() == SPELL_MAGE_RAY_OF_FROST)
+            GetTarget()->FinishSpell(CURRENT_CHANNELED_SPELL);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_mage_ray_of_frost_buff::HandleApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_mage_ray_of_frost_buff::HandleRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2909,6 +2932,7 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_ice_block);
     RegisterAuraScript(spell_mage_chilled);
     RegisterAuraScript(spell_mage_ray_of_frost);
+    RegisterAuraScript(spell_mage_ray_of_frost_buff);
     //7.3.2.25549 END
 
     RegisterAuraScript(spell_mage_blazing_soul);

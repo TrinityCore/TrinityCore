@@ -390,7 +390,7 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
     }
 }
 
-void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell /*= nullptr*/, bool onHold /*= false*/)
+void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell /*= nullptr*/, bool onHold /*= false*/, bool forceSendPacket /*= false*/)
 {
     // init cooldown values
     uint32 categoryId = 0;
@@ -492,7 +492,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     {
         AddCooldown(spellInfo->Id, itemId, recTime, categoryId, catrecTime, onHold);
 
-        if (needsCooldownPacket)
+        if (needsCooldownPacket || forceSendPacket)
         {
             if (playerOwner)
             {
