@@ -3398,6 +3398,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
         case SPELLFAMILY_GENERIC:
             switch (spellInfo->Id)
             {
+                case 40268: // Spiritual Vengeance, Teron Gorefiend, Black Temple
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
                 case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
@@ -3413,6 +3414,11 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 default:
                     break;
             }
+            break;
+        case SPELLFAMILY_ROGUE:
+            // Shadow of Death, Teron Gorefiend, Black Temple
+            if (spellInfo->Id == 40251)
+                return false;
             break;
         case SPELLFAMILY_MAGE:
             // Amplify Magic, Dampen Magic
