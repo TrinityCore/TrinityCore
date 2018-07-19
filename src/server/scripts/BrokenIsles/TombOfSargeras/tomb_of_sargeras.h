@@ -59,6 +59,13 @@ enum Creatures
     NPC_KILJAEDEN                   = 117269,
 };
 
+enum CosmeticSpells
+{
+    SPELL_COSMETIC_TELEPORT         = 240923,   // Used by Kil'jaeden after Fallen Avatar activation
+    SPELL_AWAKEN                    = 240897,   // Kil'jaeden activate Fallen Avatar spell.
+    SPELL_FEL_INFUSION              = 236682,   // Used by Maiden of Valor.
+};
+
 enum Gameobjects
 {
     GO_MOON_CHAMBER_WINDOW          = 269842,
