@@ -664,6 +664,7 @@ struct SmartAction
             uint32 type;
             uint32 duration;
             uint32 attackInvoker;
+            uint32 isPersonnal;
         } summonCreature;
 
         struct
