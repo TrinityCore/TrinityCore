@@ -1011,34 +1011,28 @@ class spell_mage_firestarter : public SpellScript
     }
 };
 
-//235219 - Cold Snap @TODO FIND OUT WHY FROST NOVA ISNT RESET
+//235219 - Cold Snap
 class spell_mage_cold_snap : public SpellScript
 {
     PrepareSpellScript(spell_mage_cold_snap);
 
-    std::initializer_list<uint32> spells;
-
-    bool Load() override
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
-        spells =
+        std::initializer_list<uint32> spells =
         {
             SPELL_MAGE_FROST_NOVA,
             SPELL_MAGE_CONE_OF_COLD,
             SPELL_MAGE_ICE_BARRIER,
             SPELL_MAGE_ICE_BLOCK
         };
-        return true;
-    }
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(spells);
-    }
+        for (uint32 spellId : spells)
+        {
+            GetCaster()->GetSpellHistory()->ResetCooldown(spellId, true);
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
-    {
-        for (uint32 spell : spells)
-            GetCaster()->GetSpellHistory()->ResetCooldown(spell, true);
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+                GetCaster()->GetSpellHistory()->ResetCharges(spellInfo->ChargeCategoryId);
+        }
     }
 
     void Register() override
@@ -2505,76 +2499,68 @@ struct at_mage_rune_of_power : AreaTriggerAI
 
 // Frozen Orb - 84714
 // AreaTriggerID - 8661
-class at_mage_frozen_orb : public AreaTriggerEntityScript
+struct at_mage_frozen_orb : AreaTriggerAI
 {
-public:
-    at_mage_frozen_orb() : AreaTriggerEntityScript("at_mage_frozen_orb")  { }
-
-    struct at_mage_frozen_orbAI : AreaTriggerAI
+    at_mage_frozen_orb(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
-        at_mage_frozen_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
+        damageInterval = 500;
+    }
+
+    uint32 damageInterval;
+    bool procDone = false;
+
+    void OnInitialize() override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        Position pos = caster->GetPosition();
+
+        at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+        at->SetDestination(pos, 4000);
+    }
+
+    void OnCreate() override
+    {
+        if (Unit* caster = at->GetCaster())
+            at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 40291);
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
+
+        if (damageInterval <= diff)
         {
+            if (!procDone)
+            {
+                for (ObjectGuid guid : at->GetInsideUnits())
+                {
+                    if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                    {
+                        if (caster->IsValidAttackTarget(unit))
+                        {
+                            if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
+                                caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
+
+                            caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
+
+                            at->UpdateTimeToTarget(8000);
+                            procDone = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            caster->CastSpell(at->GetPosition(), SPELL_MAGE_FROZEN_ORB_DAMAGE, true);
             damageInterval = 500;
         }
-
-        uint32 damageInterval;
-        bool procDone = false;
-
-        void OnInitialize() override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            Position pos = caster->GetPosition();
-
-            at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
-            at->SetDestination(pos, 4000);     
-        }
-
-        void OnCreate() override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 40291);
-        }
-
-        void OnUpdate(uint32 diff) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster || !caster->IsPlayer())
-                return;
-
-            if (damageInterval <= diff)
-            {
-                if (!procDone)
-                    for (ObjectGuid guid : at->GetInsideUnits())
-                        if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                            if (caster->IsValidAttackTarget(unit))
-                            {
-                                if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
-                                    caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
-
-                                caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
-
-                                at->UpdateTimeToTarget(8000);
-                                
-                                procDone = true;
-                            }
-
-                caster->CastSpell(at->GetPosition(), SPELL_MAGE_FROZEN_ORB_DAMAGE, true);
-                damageInterval = 500;
-            }
-            else
-                damageInterval -= diff;
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_mage_frozen_orbAI(areatrigger);
+        else
+            damageInterval -= diff;
     }
 };
 
@@ -2976,7 +2962,7 @@ void AddSC_mage_spell_scripts()
     new at_mage_meteor_burn();
     new at_mage_blizzard();
     RegisterAreaTriggerAI(at_mage_rune_of_power);
-    new at_mage_frozen_orb();
+    RegisterAreaTriggerAI(at_mage_frozen_orb);
     new at_mage_arcane_orb();
     RegisterAreaTriggerAI(at_mage_flame_patch);
     RegisterAreaTriggerAI(at_mage_cinderstorm);
