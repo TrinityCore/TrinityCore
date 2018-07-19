@@ -7448,10 +7448,10 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
                     // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
                     skillValue = 0;
-                    if (!m_CastItem && m_caster->GetTypeId() == TYPEID_PLAYER)
-                        skillValue = m_caster->ToPlayer()->GetSkillValue(skillId);
-                    else if (lockInfo->Index[j] == LOCKTYPE_PICKLOCK)
+                    if (lockInfo->Index[j] == LOCKTYPE_PICKLOCK)
                         skillValue = m_caster->getLevel() * 5;
+                    else if (!m_CastItem && m_caster->IsPlayer())
+                        skillValue = m_caster->ToPlayer()->GetSkillValue(skillId);
 
                     // skill bonus provided by casting spell (mostly item spells)
                     // add the effect base points modifier from the spell cast (cheat lock / skeleton key etc.)
