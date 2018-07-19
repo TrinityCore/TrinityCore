@@ -2153,7 +2153,6 @@ public:
     }
 };
 
-
 // Ring of Frost - 136511
 class spell_mage_ring_of_frost : public AuraScript
 {
@@ -2167,23 +2166,8 @@ class spell_mage_ring_of_frost : public AuraScript
     void OnTick(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
-        {
-            std::list<Creature*> frozenRingList;
-
-            // Get all of the Frozen Rings in Area
-            caster->GetCreatureListWithEntryInGrid(frozenRingList, 44199, caster->GetVisibilityRange());
-
-            // Remove other players Frozen Rings
-            frozenRingList.remove_if([caster](Unit* unit) -> bool
-            {
-                return !unit->GetOwner() || unit->GetOwner() != caster || !unit->IsSummon();
-            });
-
-            for (Creature* frozenRing : frozenRingList)
-            {
-                caster->CastSpell(frozenRing->GetPositionX(), frozenRing->GetPositionY(), frozenRing->GetPositionZ(), SPELL_MAGE_RING_OF_FROST_FREEZE, true);
-            }
-        }
+            if (Unit* frozenRing = caster->GetSummonedCreatureByEntry(44199))
+                caster->CastSpell(frozenRing->GetPosition(), SPELL_MAGE_RING_OF_FROST_FREEZE, true);
     }
 
     void Register() override
