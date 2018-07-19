@@ -2551,6 +2551,7 @@ void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= NULL
 
 void WorldObject::SetZoneScript()
 {
+    m_zoneScript = nullptr;
     if (Map* map = FindMap())
     {
         if (map->IsDungeon())
