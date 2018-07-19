@@ -226,7 +226,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Achievement
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`= 15673;
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(15673, 11, 0, 0, 'achievement_the_anyss_will_gaze_into_you');
+(15673, 11, 0, 0, 'achievement_the_abyss_will_gaze_into_you');
 
 -- Areatriggers
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (6625, 6626, 6627, 6444);

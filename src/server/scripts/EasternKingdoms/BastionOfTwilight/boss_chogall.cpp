@@ -1476,10 +1476,10 @@ class spell_chogall_debilitating_beam : public AuraScript
     }
 };
 
-class achievement_the_anyss_will_gaze_into_you : public AchievementCriteriaScript
+class achievement_the_abyss_will_gaze_into_you : public AchievementCriteriaScript
 {
     public:
-        achievement_the_anyss_will_gaze_into_you() : AchievementCriteriaScript("achievement_the_anyss_will_gaze_into_you") { }
+        achievement_the_abyss_will_gaze_into_you() : AchievementCriteriaScript("achievement_the_abyss_will_gaze_into_you") { }
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
@@ -1524,5 +1524,5 @@ void AddSC_boss_chogall()
     RegisterAuraScript(spell_chogall_corruption_malformation);
     RegisterSpellScript(spell_chogall_shadow_bolt);
     RegisterAuraScript(spell_chogall_debilitating_beam);
-    new achievement_the_anyss_will_gaze_into_you();
+    new achievement_the_abyss_will_gaze_into_you();
 }
