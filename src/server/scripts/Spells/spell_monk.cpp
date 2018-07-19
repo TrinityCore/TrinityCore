@@ -3088,7 +3088,7 @@ struct at_monk_windwalking : AreaTriggerAI
 // AT ID : 3282
 struct at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 {
-    int32 pickupDelay;
+    uint32 pickupDelay;
 
     at_monk_gift_of_the_ox_sphere(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
