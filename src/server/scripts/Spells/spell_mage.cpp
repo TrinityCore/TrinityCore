@@ -1985,41 +1985,23 @@ public:
 };
 
 // Ice Floes - 108839
-class spell_mage_ice_floes : public SpellScriptLoader
+class spell_mage_ice_floes : public AuraScript
 {
-public:
-    spell_mage_ice_floes() : SpellScriptLoader("spell_mage_ice_floes") { }
+    PrepareAuraScript(spell_mage_ice_floes);
 
-    class spell_mage_ice_floes_AuraScript : public AuraScript
+    void HandleAfterProc(ProcEventInfo& eventInfo)
     {
-        PrepareAuraScript(spell_mage_ice_floes_AuraScript);
-
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return false;
-
-            if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->CalcCastTime() && eventInfo.GetSpellInfo()->Id != 2948) // Exclude Scorch
-            {
+        if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->CalcCastTime() && eventInfo.GetSpellInfo()->Id != 2948) // Exclude Scorch
+            if (Unit* caster = GetCaster())
                 if (Aura* iceFloes = caster->GetAura(SPELL_MAGE_ICE_FLOES))
                     iceFloes->ModStackAmount(-1);
-            }
-            return true;
-        }
+    }
 
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_mage_ice_floes_AuraScript::CheckProc);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_mage_ice_floes_AuraScript();
+        AfterProc += AuraProcFn(spell_mage_ice_floes::HandleAfterProc);
     }
 };
-
 
 // Flame On - 205029
 class spell_mage_fire_on : public SpellScriptLoader
@@ -2885,7 +2867,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mirror_image_summon();
     new spell_mage_cauterize();
     new spell_mage_conjure_refreshment();
-    new spell_mage_ice_floes();
+    RegisterAuraScript(spell_mage_ice_floes);
 
     //7.3.2.25549
     RegisterSpellScript(spell_mage_unstable_magic);
