@@ -1107,11 +1107,11 @@ void WorldSession::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyQueries();
 
-    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(0s) == std::future_status::ready)
         InitializeSessionCallback(_realmAccountLoginCallback.get());
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(0s) == std::future_status::ready)
         HandlePlayerLogin(reinterpret_cast<LoginQueryHolder*>(_charLoginCallback.get()));
 }
 

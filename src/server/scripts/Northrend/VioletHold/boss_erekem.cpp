@@ -223,7 +223,7 @@ class boss_erekem : public CreatureScript
                     task.Repeat(Seconds(8), Seconds(13));
                 });
 
-                scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                scheduler.Schedule(0s, [this](TaskContext task)
                 {
                     for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                     {
