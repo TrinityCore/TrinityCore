@@ -120,7 +120,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
+    void ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group = 0, uint8 phase = 0)
     {
         ScheduleEvent(eventId, uint32(time.count()), group, phase);
     }
@@ -134,7 +134,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint32 phase = 0);
+    void ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group = 0, uint32 phase = 0);
 
     /**
     * @name ScheduleEvent
@@ -154,7 +154,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
+    void RescheduleEvent(uint32 eventId, Milliseconds time, uint32 group = 0, uint8 phase = 0)
     {
         RescheduleEvent(eventId, uint32(time.count()), group, phase);
     }
@@ -168,7 +168,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint32 phase = 0);
+    void RescheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group = 0, uint32 phase = 0);
 
     /**
     * @name RescheduleEvent
@@ -189,7 +189,7 @@ public:
     * @brief Repeats the mostly recently executed event.
     * @param time Time until in milliseconds as std::chrono::duration the event occurs.
     */
-    void Repeat(Milliseconds const& time)
+    void Repeat(Milliseconds time)
     {
         Repeat(uint32(time.count()));
     }
@@ -210,7 +210,7 @@ public:
     * @param minTime Minimum time as std::chrono::duration until the event occurs.
     * @param maxTime Maximum time as std::chrono::duration until the event occurs.
     */
-    void Repeat(Milliseconds const& minTime, Milliseconds const& maxTime)
+    void Repeat(Milliseconds minTime, Milliseconds maxTime)
     {
         Repeat(uint32(minTime.count()), uint32(maxTime.count()));
     }
@@ -235,7 +235,7 @@ public:
     * @brief Delays all events in the map. If delay is greater than or equal internal timer, delay will be 0.
     * @param delay Amount of delay in ms as std::chrono::duration.
     */
-    void DelayEvents(Milliseconds const& delay)
+    void DelayEvents(Milliseconds delay)
     {
         DelayEvents(uint32(delay.count()));
     }
@@ -256,7 +256,7 @@ public:
     * @param delay Amount of delay in ms as std::chrono::duration.
     * @param group Group of the events.
     */
-    void DelayEvents(Milliseconds const& delay, uint32 group)
+    void DelayEvents(Milliseconds delay, uint32 group)
     {
         DelayEvents(uint32(delay.count()), group);
     }
