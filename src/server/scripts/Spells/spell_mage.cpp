@@ -63,7 +63,7 @@ enum MageSpells
     SPELL_MAGE_FLURRY                            = 44614,
     SPELL_MAGE_FLURRY_DAMAGE                     = 228672,
     SPELL_MAGE_FLURRY_CHILL_PROC                 = 228358,
-    SPELL_MAGE_FLURRY_VISUAL                     = 228671,
+    SPELL_MAGE_FLURRY_VISUAL                     = 228596,
     SPELL_MAGE_SHIELD_OF_ALODI                   = 195354,
     SPELL_MAGE_BRAIN_FREEZE                      = 190447,
     SPELL_MAGE_BRAIN_FREEZE_AURA                 = 190446,
@@ -1292,18 +1292,20 @@ class spell_mage_flurry : public SpellScript
         }
 
         ObjectGuid targetGuid = target->GetGUID();
-        for (uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 1; i < GetEffectInfo(EFFECT_0)->BasePoints; ++i)
         {
             caster->GetScheduler().Schedule(Milliseconds(i * 250), [targetGuid, isImproved](TaskContext context)
             {
-                if (Unit* caster = context.GetUnit())
+                if (Unit* caster = GetContextUnit())
+                {
                     if (Unit* target = ObjectAccessor::GetUnit(*caster, targetGuid))
                     {
-                        GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_VISUAL, false);
+                        caster->CastSpell(target, SPELL_MAGE_FLURRY_VISUAL, false);
 
                         if (isImproved)
-                            GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_CHILL_PROC, false);
+                            caster->CastSpell(target, SPELL_MAGE_FLURRY_CHILL_PROC, false);
                     }
+                }
             });
         }
     }
