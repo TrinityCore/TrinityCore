@@ -68,7 +68,8 @@ namespace Trinity
                 // this element has chance (elementsToKeep / elementsToProcess) of being kept
                 if (urand(1, elementsToProcess) <= elementsToKeep)
                 {
-                    *keepIt = std::move(*curIt);
+                    if (keepIt != curIt)
+                        *keepIt = std::move(*curIt);
                     ++keepIt;
                     --elementsToKeep;
                 }
