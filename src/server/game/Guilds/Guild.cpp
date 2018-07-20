@@ -3357,8 +3357,9 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             itemInfo.Slot = int32(*itr);
             itemInfo.Item.ItemID = int32(tabItem ? tabItem->GetEntry() : 0);
             itemInfo.Count = int32(tabItem ? tabItem->GetCount() : 0);
+            itemInfo.EnchantmentID = int32(tabItem ? tabItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT) : 0);
             itemInfo.Charges = int32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);
-            itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
+            itemInfo.OnUseEnchantmentID = int32(tabItem ? tabItem->GetEnchantmentId(USE_ENCHANTMENT_SLOT) : 0);
             itemInfo.Flags = 0;
             itemInfo.Locked = false;
 
