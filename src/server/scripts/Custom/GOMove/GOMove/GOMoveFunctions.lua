@@ -12,6 +12,7 @@ function GOMove:CreateFrame(name, width, height, DataTable, both)
     local Frame = CreateFrame("Frame", name, UIParent)
     Frame:SetMovable(true)
     Frame:EnableMouse(true)
+    Frame:SetClampedToScreen(true);
     Frame:RegisterForDrag("LeftButton")
     Frame:SetScript("OnDragStart", Frame.StartMoving)
     Frame:SetScript("OnDragStop", Frame.StopMovingOrSizing)
