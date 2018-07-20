@@ -23,6 +23,7 @@
 #include "SpawnData.h"
 #include "UnitDefines.h"
 #include "WorldPacket.h"
+#include "CreatureTemplate.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -73,150 +74,11 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
 };
 
-enum class CreatureGroundMovementType : uint8
-{
-    None,
-    Run,
-    Hover,
-
-    Max
-};
-
-enum class CreatureFlightMovementType : uint8
-{
-    None,
-    DisableGravity,
-    CanFly,
-
-    Max
-};
-
-struct TC_GAME_API CreatureMovementData
-{
-    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false) { }
-
-    CreatureGroundMovementType Ground;
-    CreatureFlightMovementType Flight;
-    bool Swim;
-    bool Rooted;
-
-    bool IsGroundAllowed() const { return Ground != CreatureGroundMovementType::None; }
-    bool IsSwimAllowed() const { return Swim; }
-    bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
-    bool IsRooted() const { return Rooted; }
-
-    std::string ToString() const;
-};
-
 static const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
 static const uint32 PET_FOCUS_REGEN_INTERVAL = 4 * IN_MILLISECONDS;
 static const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
-static const uint8 MAX_KILL_CREDIT = 2;
-static const uint32 MAX_CREATURE_MODELS = 4;
-static const uint32 MAX_CREATURE_QUEST_ITEMS = 6;
-static const uint32 MAX_CREATURE_SPELLS = 8;
-
 // from `creature_template` table
-struct TC_GAME_API CreatureTemplate
-{
-    uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
-    uint32  KillCredit[MAX_KILL_CREDIT];
-    uint32  Modelid1;
-    uint32  Modelid2;
-    uint32  Modelid3;
-    uint32  Modelid4;
-    std::string  Name;
-    std::string  Title;
-    std::string  IconName;
-    uint32  GossipMenuId;
-    uint8   minlevel;
-    uint8   maxlevel;
-    uint32  expansion;
-    uint32  faction;
-    uint32  npcflag;
-    float   speed_walk;
-    float   speed_run;
-    float   scale;
-    uint32  rank;
-    uint32  dmgschool;
-    uint32  BaseAttackTime;
-    uint32  RangeAttackTime;
-    float   BaseVariance;
-    float   RangeVariance;
-    uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
-    uint32  unit_flags;                                     // enum UnitFlags mask values
-    uint32  unit_flags2;                                    // enum UnitFlags2 mask values
-    uint32  dynamicflags;
-    CreatureFamily  family;                                 // enum CreatureFamily values (optional)
-    uint32  trainer_type;
-    uint32  trainer_spell;
-    uint32  trainer_class;
-    uint32  trainer_race;
-    uint32  type;                                           // enum CreatureType values
-    uint32  type_flags;                                     // enum CreatureTypeFlags mask values
-    uint32  lootid;
-    uint32  pickpocketLootId;
-    uint32  SkinLootId;
-    int32   resistance[MAX_SPELL_SCHOOL];
-    uint32  spells[MAX_CREATURE_SPELLS];
-    uint32  PetSpellDataId;
-    uint32  VehicleId;
-    uint32  mingold;
-    uint32  maxgold;
-    std::string AIName;
-    uint32  MovementType;
-    CreatureMovementData Movement;
-    float   HoverHeight;
-    float   ModHealth;
-    float   ModMana;
-    float   ModArmor;
-    float   ModDamage;
-    float   ModExperience;
-    bool    RacialLeader;
-    uint32  movementId;
-    bool    RegenHealth;
-    uint32  MechanicImmuneMask;
-    uint32  SpellSchoolImmuneMask;
-    uint32  flags_extra;
-    uint32  ScriptID;
-    WorldPacket QueryData[TOTAL_LOCALES];
-    uint32  GetRandomValidModelId() const;
-    uint32  GetFirstValidModelId() const;
-    uint32  GetFirstInvisibleModel() const;
-    uint32  GetFirstVisibleModel() const;
-
-    // helpers
-    SkillType GetRequiredLootSkill() const
-    {
-        if (type_flags & CREATURE_TYPE_FLAG_HERB_SKINNING_SKILL)
-            return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPE_FLAG_MINING_SKINNING_SKILL)
-            return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL)
-            return SKILL_ENGINEERING;
-        else
-            return SKILL_SKINNING;                          // normal case
-    }
-
-    bool IsExotic() const
-    {
-        return (type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) != 0;
-    }
-
-    bool IsTameable(bool canTameExotic) const
-    {
-        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_PET) == 0)
-            return false;
-
-        // if can tame exotic then can tame any tameable
-        return canTameExotic || !IsExotic();
-    }
-
-    void InitializeQueryData();
-    WorldPacket BuildQueryData(LocaleConstant loc) const;
-};
 
 #pragma pack(push, 1)
 

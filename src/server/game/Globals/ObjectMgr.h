@@ -26,6 +26,7 @@
 #include "Errors.h"
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
+#include "CreatureTemplate.h"
 #include "IteratorPair.h"
 #include "NPCHandler.h"
 #include "ObjectDefines.h"
@@ -41,6 +42,7 @@ class Item;
 class Unit;
 class Vehicle;
 class Map;
+struct CreatureMovementData;
 struct AccessRequirement;
 struct DeclinedName;
 struct DungeonEncounterEntry;

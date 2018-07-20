@@ -1292,6 +1292,18 @@ BirthdayTime = 1222964635
 CacheDataQueries = 1
 
 #
+#   GenerateLocaleDataQueries
+#        Description: Server caches all data locale queries at startup. 
+#                     Can be disabled if not enough memory is available.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+#
+
+GenerateLocaleDataQueries = 0
+
+
+#
 ###################################################################################################
 
 ###################################################################################################

@@ -24,7 +24,6 @@
 #include "SharedDefines.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "ItemTemplate.h"
 #include "QuestDef.h"
 
 namespace WorldPackets
@@ -220,6 +219,7 @@ namespace WorldPackets
                 WorldPacket const* Write() override;
 
                 uint32 ItemID = 0;
+
                 bool Allow = false;
                 ItemStats Stats;
         };

@@ -81,11 +81,14 @@ namespace WorldPackets
             float  POIx                     = 0.0f;
             float  POIy                     = 0.0f;
             uint32 POIPriority              = 0;
+
             std::string Title;
             std::string Objectives;
             std::string Details;
             std::string AreaDescription;
             std::string CompletedText;              // display in quest objectives window once all objectives are completed
+            std::string OfferRewardText;
+            std::string RequestItemsText;
 
             int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT] = { };   // >0 Creature <0 Gameobject
             uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT] = { };
@@ -105,6 +108,7 @@ namespace WorldPackets
                 QueryQuestInfoResponse() : ServerPacket(SMSG_QUEST_QUERY_RESPONSE, 2000) { }
 
                 WorldPacket const* Write() override;
+                WorldPacket const* Write(LocaleConstant lc);
 
                 QuestInfo Info;
         };

@@ -24,21 +24,12 @@
 #include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
+#include "QuestPackets.h"
 #include <vector>
 
 class Player;
 
 #define MAX_QUEST_LOG_SIZE 25
-
-#define QUEST_OBJECTIVES_COUNT 4
-#define QUEST_ITEM_OBJECTIVES_COUNT 6
-#define QUEST_SOURCE_ITEM_IDS_COUNT 4
-#define QUEST_REWARD_CHOICES_COUNT 6
-#define QUEST_REWARDS_COUNT 4
-#define QUEST_DEPLINK_COUNT 10
-#define QUEST_REPUTATIONS_COUNT 5
-#define QUEST_EMOTE_COUNT 4
-#define QUEST_PVP_KILL_SLOT 0
 
 enum QuestFailedReason
 {
@@ -239,13 +230,13 @@ class TC_GAME_API Quest
         uint32 GetSrcItemId() const { return _startItem; }
         uint32 GetSrcItemCount() const { return _startItemCount; }
         uint32 GetSrcSpell() const { return _sourceSpellid; }
-        std::string const& GetTitle() const { return _title; }
-        std::string const& GetDetails() const { return _details; }
-        std::string const& GetObjectives() const { return _objectives; }
-        std::string const& GetOfferRewardText() const { return _offerRewardText; }
-        std::string const& GetRequestItemsText() const { return _requestItemsText; }
-        std::string const& GetAreaDescription() const { return _areaDescription; }
-        std::string const& GetCompletedText() const { return _completedText; }
+        std::string const& GetTitle(LocaleConstant lc) const { return _response[lc]->Info.Title; }
+        std::string const& GetDetails(LocaleConstant lc) const { return _response[lc]->Info.Details;  }
+        std::string const& GetObjectives(LocaleConstant lc) const { return _response[lc]->Info.Objectives; }
+        std::string const& GetOfferRewardText(LocaleConstant lc) const { return _response[lc]->Info.OfferRewardText; }
+        std::string const& GetRequestItemsText(LocaleConstant lc) const { return _response[lc]->Info.RequestItemsText; }
+        std::string const& GetAreaDescription(LocaleConstant lc) const { return _response[lc]->Info.AreaDescription; }
+        std::string const& GetCompletedText(LocaleConstant lc) const { return _response[lc]->Info.CompletedText; }
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return _rewardHonor; }
         float GetRewHonorMultiplier() const { return _rewardKillHonor; }
@@ -279,7 +270,7 @@ class TC_GAME_API Quest
         // multiple values
 
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
-
+        
         uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT] = { };
         uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT] = { };
         uint32 ItemDrop[QUEST_SOURCE_ITEM_IDS_COUNT] = { };
@@ -307,11 +298,16 @@ class TC_GAME_API Quest
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
 
         static void AddQuestLevelToTitle(std::string& title, int32 level);
+
         void InitializeQueryData();
-        WorldPacket BuildQueryData(LocaleConstant loc) const;
+        void InitializeQueryData(LocaleConstant lc);
+        void BuildQueryData(LocaleConstant lc) const;
+        WorldPacket* GetQueryDataRef(LocaleConstant lc);
+        WorldPacket GetQueryData(LocaleConstant lc);
+
+        WorldPackets::Quest::QueryQuestInfoResponse* GetResponse(LocaleConstant lc) { return _response[lc]; }
 
         std::vector<uint32> DependentPreviousQuests;
-        WorldPacket QueryData[TOTAL_LOCALES];
 
         // cached data
     private:
@@ -362,6 +358,8 @@ class TC_GAME_API Quest
         uint32 _poiPriority = 0;
         uint32 _emoteOnIncomplete = 0;
         uint32 _emoteOnComplete = 0;
+
+        WorldPackets::Quest::QueryQuestInfoResponse* _response[TOTAL_LOCALES];
 
         // quest_template_addon table (custom data)
         uint32 _maxLevel              = 0;

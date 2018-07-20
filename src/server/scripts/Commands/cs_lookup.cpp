@@ -640,7 +640,7 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
-        for (auto const& questTemplatePair : questTemplates)
+        for (auto & questTemplatePair : questTemplates)
         {
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplatePair.first))
@@ -690,7 +690,8 @@ public:
                 }
             }
 
-            std::string const& title = questTemplatePair.second.GetTitle();
+            LocaleConstant lc = handler->GetSession()->GetSessionDbLocaleIndex();
+            std::string const& title = questTemplatePair.second.GetTitle(lc);
             if (title.empty())
                 continue;
 

@@ -21,6 +21,7 @@
 
 #include "Unit.h"
 #include "Common.h"
+#include "CreatureTemplate.h"
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"

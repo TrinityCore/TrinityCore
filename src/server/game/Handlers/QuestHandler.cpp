@@ -260,7 +260,7 @@ void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& q
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUEST_QUERY quest = %u", query.QuestID);
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(query.QuestID))
+    if (Quest* quest = (Quest*) sObjectMgr->GetQuestTemplate(query.QuestID))
         _player->PlayerTalkClass->SendQuestQueryResponse(quest);
 }
 
