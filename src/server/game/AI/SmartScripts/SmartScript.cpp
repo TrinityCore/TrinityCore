@@ -2752,7 +2752,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (Unit* unitTarget = target->ToUnit())
                     {
-                        float threat = e.action.modifyThreat.increase ? e.action.modifyThreat.increase: -e.action.modifyThreat.decrease;
+                        float threat = e.action.modifyThreat.increase ? e.action.modifyThreat.increase: -int32(e.action.modifyThreat.decrease);
                         me->getThreatManager().addThreat(unitTarget, threat);
                     }
                 }

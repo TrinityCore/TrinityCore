@@ -240,7 +240,7 @@ void Vehicle::RemoveAllPassengers()
         {
             VehicleJoinEvent* e = _pendingJoinEvents.front();
             e->ScheduleAbort();
-            e->Target = eventVehicle;
+            e->VehicleTargetBase = eventVehicle ? eventVehicle->GetBase(): nullptr;
             _pendingJoinEvents.pop_front();
         }
     }
@@ -426,7 +426,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     // exits the vehicle will dismiss. That's why the actual adding the passenger to the vehicle is scheduled
     // asynchronously, so it can be cancelled easily in case the vehicle is uninstalled meanwhile.
     SeatMap::iterator seat;
-    VehicleJoinEvent* e = new VehicleJoinEvent(this, unit);
+    VehicleJoinEvent* e = new VehicleJoinEvent(this->GetBase(), unit);
     unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
 
     if (seatId < 0) // no specific seat requirement
@@ -764,8 +764,10 @@ void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
 bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
-    ASSERT(Target && Target->GetBase()->IsInWorld());
-    ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
+    ASSERT(VehicleTargetBase && VehicleTargetBase->IsInWorld());
+    Vehicle* Target = VehicleTargetBase->GetVehicleKit();
+    ASSERT(Target);
+    ASSERT(VehicleTargetBase->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
 
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);
@@ -858,8 +860,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 void VehicleJoinEvent::Abort(uint64)
 {
     /// Check if the Vehicle was already uninstalled, in which case all auras were removed already
-    if (Target)
+    if (VehicleTargetBase && VehicleTargetBase->GetVehicleKit())
     {
+        Vehicle* Target = VehicleTargetBase->GetVehicleKit();
         TC_LOG_DEBUG("entities.vehicle", "Passenger %s, Entry: %u, board on vehicle %s, Entry: %u SeatId: %d cancelled",
             Passenger->GetGUID().ToString().c_str(), Passenger->GetEntry(), Target->GetBase()->GetGUID().ToString().c_str(), Target->GetBase()->GetEntry(), (int32)Seat->first);
 
