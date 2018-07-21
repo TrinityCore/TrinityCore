@@ -362,6 +362,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static void InitStateMachine();
         static void DeleteStateMachine();
 
+        Map const* GetParent() const { return m_parentMap; }
         void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); map->m_parentTerrainMap = this; }
         void UnlinkAllChildTerrainMaps() { m_childTerrainMaps->clear(); }
 
@@ -369,16 +370,33 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
 
-        void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType = MAP_ALL_LIQUIDS) const;
         ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr) const;
 
         bool GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId) const;
-        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, bool *isOutdoors = nullptr) const;
-        uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos) const { return GetAreaId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+
+
+        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, bool *isOutdoors) const;
+        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) const
+        {
+            return GetAreaId(phaseShift, x, y, z, nullptr);
+        }
+
+        uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos) const
+        {
+            return GetAreaId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        }
+
         uint32 GetZoneId(PhaseShift const& phaseShift, float x, float y, float z) const;
-        uint32 GetZoneId(PhaseShift const& phaseShift, Position const& pos) const { return GetZoneId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        uint32 GetZoneId(PhaseShift const& phaseShift, Position const& pos) const
+        {
+            return GetZoneId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        }
+
         void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, float x, float y, float z) const;
-        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, Position const& pos) const { GetZoneAndAreaId(phaseShift, zoneid, areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, Position const& pos) const
+        {
+            GetZoneAndAreaId(phaseShift, zoneid, areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        }
 
         bool IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z) const;
 

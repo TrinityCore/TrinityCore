@@ -1298,17 +1298,17 @@ void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32
 
 uint32 WorldObject::GetZoneId() const
 {
-    return GetMap()->GetZoneId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+    return GetBaseMap()->GetZoneId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
 }
 
 uint32 WorldObject::GetAreaId() const
 {
-    return GetMap()->GetAreaId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+    return GetBaseMap()->GetAreaId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
 }
 
 void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
 {
-    GetMap()->GetZoneAndAreaId(GetPhaseShift(), zoneid, areaid, m_positionX, m_positionY, m_positionZ);
+    GetBaseMap()->GetZoneAndAreaId(GetPhaseShift(), zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
 
 void WorldObject::RemoveFromWorld()
@@ -2022,6 +2022,12 @@ void WorldObject::ResetMap()
     //m_InstanceId = 0;
 }
 
+Map const* WorldObject::GetBaseMap() const
+{
+    ASSERT(m_currMap);
+    return m_currMap->GetParent();
+}
+
 void WorldObject::AddObjectToRemoveList()
 {
     ASSERT(m_uint32Values);
@@ -2191,7 +2197,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
 TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, bool visibleBySummonerOnly /*= false*/)
 {
     if (!x && !y && !z)
-        GetClosePoint(x, y, z, GetObjectSize());
+        GetClosePoint(x, y, z, GetCombatReach());
     if (!o)
         o = GetOrientation();
     return SummonCreature(id, { x, y, z, o }, despawnType, despawnTime, 0, visibleBySummonerOnly);

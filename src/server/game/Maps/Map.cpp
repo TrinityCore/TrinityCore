@@ -2353,8 +2353,9 @@ GridMap* Map::GetGrid(uint32 mapId, float x, float y)
     EnsureGridCreated(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy));
 
     GridMap* grid = GridMaps[gx][gy];
+
     auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) { return childTerrainMap->GetId() == mapId; });
-    if (childMapItr != m_childTerrainMaps->end() && (*childMapItr)->GridMaps[gx][gy]->fileExists())
+    if (childMapItr != m_childTerrainMaps->end() && (*childMapItr)->GridMaps[gx][gy] && (*childMapItr)->GridMaps[gx][gy]->fileExists())
         grid = (*childMapItr)->GridMaps[gx][gy];
 
     return grid;
@@ -2511,7 +2512,6 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
         }
     }
 
-
     if (!areaId)
     {
         if (GridMap* gmap = m_parentTerrainMap->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
@@ -2530,11 +2530,6 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
             *isOutdoors = true;
     }
     return areaId;
-}
-
-uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) const
-{
-    return GetAreaId(phaseShift, x, y, z, nullptr);
 }
 
 uint32 Map::GetZoneId(PhaseShift const& phaseShift, float x, float y, float z) const
@@ -2680,11 +2675,6 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
     ry = resultPos.y;
     rz = resultPos.z;
     return result;
-}
-
-float Map::GetHeight(PhaseShift const& phaseShift, float x, float y, float z, bool vmap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
-{
-    return std::max<float>(GetStaticHeight(phaseShift, x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phaseShift));
 }
 
 bool Map::IsInWater(PhaseShift const& phaseShift, float x, float y, float pZ, LiquidData* data) const
