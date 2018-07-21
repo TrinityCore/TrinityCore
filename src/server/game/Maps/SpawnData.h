@@ -69,7 +69,7 @@ struct SpawnData
     uint8 phaseUseFlags = 0;
     uint32 phaseId = 0;
     uint32 phaseGroup = 0;
-    int32 terrainSwapMap = 0;
+    int32 terrainSwapMap = -1;
     uint32 scriptId = 0;
     bool dbData = true;
 
