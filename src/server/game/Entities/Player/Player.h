@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "Unit.h"
+#include "CreatureTemplate.h"
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "EquipmentSet.h"
@@ -40,7 +41,6 @@ struct BarberShopStyleEntry;
 struct CharacterCustomizeInfo;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
-struct CreatureTemplate;
 struct FactionEntry;
 struct ItemSetEffect;
 struct ItemTemplate;

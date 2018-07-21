@@ -24,7 +24,6 @@
 #include "SharedDefines.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "ItemTemplate.h"
 #include "QuestDef.h"
 
 namespace WorldPackets

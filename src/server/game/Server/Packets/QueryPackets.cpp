@@ -16,6 +16,7 @@
  */
 
 #include "QueryPackets.h"
+#include "WorldSession.h"
 
 void WorldPackets::Query::QueryCreature::Read()
 {
