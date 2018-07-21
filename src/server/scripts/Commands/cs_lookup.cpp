@@ -690,7 +690,7 @@ public:
                 }
             }
 
-            std::string const& title = questTemplatePair.second.GetTitle(localeIndex);
+            std::string const& title = questTemplatePair.second.GetTitle((LocaleConstant) localeIndex);
             if (title.empty())
                 continue;
 
