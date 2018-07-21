@@ -754,11 +754,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853, // not on 3.3.5a or 4.3.4
     RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854, // not on 3.3.5a or 4.3.4
     RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC                       = 855,
-    RBAC_PERM_COMMAND_NPC_SPAWNGROUP                         = 856, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_NPC_DESPAWNGROUP                       = 857, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860, // reserved for dynamic_spawning
+    RBAC_PERM_COMMAND_NPC_SPAWNGROUP                         = 856,
+    RBAC_PERM_COMMAND_NPC_DESPAWNGROUP                       = 857,
+    RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858,
+    RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859,
+    RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860,
     RBAC_PERM_COMMAND_GROUP_SET                              = 861,
     RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862,
     RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863,

@@ -91,11 +91,11 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, bool dynamic = false, ObjectGuid::LowType spawnid = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
-        GameObjectData const* GetGOData() const { return m_goData; }
+        GameObjectData const* GetGameObjectData() const { return m_goData; }
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
 
         bool IsTransport() const;
@@ -115,8 +115,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
-        bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool = true); // arg4 is unused, only present to match the signature on Creature
         void DeleteFromDB();
 
         void SetOwnerGUID(ObjectGuid owner)
@@ -140,20 +139,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetSpellId() const { return m_spellId;}
 
         time_t GetRespawnTime() const { return m_respawnTime; }
-        time_t GetRespawnTimeEx() const
-        {
-            time_t now = time(nullptr);
-            if (m_respawnTime > now)
-                return m_respawnTime;
-            else
-                return now;
-        }
+        time_t GetRespawnTimeEx() const;
 
-        void SetRespawnTime(int32 respawn)
-        {
-            m_respawnTime = respawn > 0 ? time(nullptr) + respawn : 0;
-            m_respawnDelayTime = respawn > 0 ? respawn : 0;
-        }
+        void SetRespawnTime(int32 respawn);
         void Respawn();
         bool isSpawned() const
         {
@@ -165,6 +153,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetSpawnedByDefault(bool b) { m_spawnedByDefault = b; }
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
+        void DespawnOrUnsummon(Milliseconds const& delay = 0ms, Seconds const& forceRespawnTime = 0s);
         void Delete();
         void SendGameObjectDespawn();
         void getFishLoot(Loot* loot, Player* loot_owner);
@@ -215,7 +204,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetUseCount() const { return m_usetimes; }
         uint32 GetUniqueUseCount() const { return m_unique_users.size(); }
 
-        void SaveRespawnTime() override;
+        void SaveRespawnTime(uint32 forceDelay = 0, bool savetodb = true) override;
 
         Loot        loot;
 
@@ -267,6 +256,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EventInform(uint32 eventId, WorldObject* invoker = nullptr);
 
+        // There's many places not ready for dynamic spawns. This allows them to live on for now.
+        void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
+        bool GetRespawnCompatibilityMode() { return m_respawnCompatibilityMode; }
+
         virtual uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
@@ -302,6 +295,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
         uint32      m_respawnDelayTime;                     // (secs) if 0 then current GO state no dependent from timer
+        uint32      m_despawnDelay;
+        Seconds     m_despawnRespawnTime;                   // override respawn time after delayed despawn
         LootState   m_lootState;
         ObjectGuid  m_lootStateUnitGUID;                    // GUID of the unit passed with SetLootState(LootState, Unit*)
         bool        m_spawnedByDefault;
@@ -348,5 +343,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
 
         GameObjectAI* m_AI;
+        bool m_respawnCompatibilityMode;
 };
 #endif

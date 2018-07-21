@@ -157,15 +157,9 @@ class boss_krik_thir : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void InitializeAI() override
+            void JustAppeared() override
             {
-                BossAI::InitializeAI();
-                SummonAdds();
-            }
-
-            void JustRespawned() override
-            {
-                BossAI::JustRespawned();
+                BossAI::JustAppeared();
                 SummonAdds();
             }
 

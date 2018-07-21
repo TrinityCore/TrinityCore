@@ -278,29 +278,22 @@ public:
             _anubar.push_back(guid);
         }
 
-        void Initialize()
+        void InitializeAI() override
         {
+            BossAI::InitializeAI();
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
             _enteredCombat = false;
             _doorsWebbed = false;
             _lastPlayerCombatState = false;
             SetStep(0);
+        }
+
+        void JustAppeared() override
+        {
+            BossAI::JustAppeared();
             SetCombatMovement(true);
             SummonCrusherPack(SUMMON_GROUP_CRUSHER_1);
-        }
-
-        void InitializeAI() override
-        {
-            BossAI::InitializeAI();
-            if (me->IsAlive())
-                Initialize();
-        }
-
-        void JustRespawned() override
-        {
-            BossAI::JustRespawned();
-            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

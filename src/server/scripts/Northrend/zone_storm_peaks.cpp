@@ -210,7 +210,7 @@ public:
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Reset();
         }

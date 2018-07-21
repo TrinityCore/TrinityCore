@@ -570,7 +570,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     return false;
 }
 
-void SmartAI::JustRespawned()
+void SmartAI::JustAppeared()
 {
     mDespawnTime = 0;
     mDespawnState = 0;

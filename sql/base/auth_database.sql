@@ -1819,6 +1819,7 @@ INSERT INTO `rbac_permissions` VALUES
 (863,'Command: group set maintank'),
 (864,'Command: group set mainassist'),
 (865,'Command: npc showloot'),
+(866,'Command: list spawnpoints'),
 (867,'Command: reload quest_greeting_locale'),
 (872,'Command: server debug');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;

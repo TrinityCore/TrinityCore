@@ -139,8 +139,6 @@ public:
         float o = fields[3].GetFloat();
         uint32 mapId = fields[4].GetUInt16();
 
-        Transport* transport = nullptr;
-
         if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
@@ -158,11 +156,8 @@ public:
         else
             player->SaveRecallPosition();
 
-        if (player->TeleportTo(mapId, x, y, z, o))
-        {
-            if (transport)
-                transport->AddPassenger(player);
-        }
+        player->TeleportTo(mapId, x, y, z, o);
+
         return true;
     }
 
@@ -250,7 +245,7 @@ public:
             player->SaveRecallPosition();
 
         Map const* map = sMapMgr->CreateBaseMap(mapId);
-        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+        float z = std::max(map->GetHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, player->GetOrientation());
         return true;
@@ -273,28 +268,18 @@ public:
         if (!guidLow)
             return false;
 
-        float x, y, z, o;
-        uint32 mapId;
-
         // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
-        {
-            x = goData->posX;
-            y = goData->posY;
-            z = goData->posZ;
-            o = goData->orientation;
-            mapId = goData->mapid;
-        }
-        else
+        GameObjectData const* goData = sObjectMgr->GetGameObjectData(guidLow);
+        if (!goData)
         {
             handler->SendSysMessage(LANG_COMMAND_GOOBJNOTFOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
+        if (!MapManager::IsValidMapCoord(goData->spawnPoint) || sObjectMgr->IsTransportMap(goData->spawnPoint.GetMapId()))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, goData->spawnPoint.GetPositionX(), goData->spawnPoint.GetPositionY(), goData->spawnPoint.GetMapId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -309,7 +294,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(mapId, x, y, z, o);
+        player->TeleportTo(goData->spawnPoint);
         return true;
     }
 
@@ -470,7 +455,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+        float z = std::max(map->GetHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(zoneEntry->mapid, x, y, z, player->GetOrientation());
         return true;
@@ -518,7 +503,7 @@ public:
                 return false;
             }
             Map const* map = sMapMgr->CreateBaseMap(mapId);
-            z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+            z = std::max(map->GetHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
         }
 
         // stop flight if need
