@@ -341,7 +341,7 @@ void MapManager::InitInstanceIds()
         uint32 maxId = (*result)[0].GetUInt32();
 
         // Resize to multiples of 32 (vector<bool> allocates memory the same way)
-        _instanceIds.resize((maxId / 32) * 32 + (maxId % 32 > 0 ? 32 : 0));
+        _instanceIds.resize((maxId / 32) * 32 + 32);
     }
 }
 
