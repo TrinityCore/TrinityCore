@@ -318,6 +318,7 @@ class TC_GAME_API ObjectGuidGeneratorBase
 
     protected:
         static void HandleCounterOverflow(HighGuid high);
+        static void CheckGuidTrigger(ObjectGuid::LowType guid);
         ObjectGuid::LowType _nextGuid;
 };
 
@@ -331,6 +332,10 @@ class ObjectGuidGenerator : public ObjectGuidGeneratorBase
         {
             if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
                 HandleCounterOverflow(high);
+
+            if (high == HighGuid::Unit || high == HighGuid::GameObject)
+                CheckGuidTrigger(_nextGuid);
+
             return _nextGuid++;
         }
 };

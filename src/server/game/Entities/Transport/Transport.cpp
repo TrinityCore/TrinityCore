@@ -299,16 +299,14 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
     Map* map = GetMap();
     Creature* creature = new Creature();
 
-    if (!creature->LoadCreatureFromDB(guid, map, false))
+    if (!creature->LoadFromDB(guid, map, false, true))
     {
         delete creature;
         return nullptr;
     }
 
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float o = data->orientation;
+    float x, y, z, o;
+    data->spawnPoint.GetPosition(x, y, z, o);
 
     creature->SetTransport(this);
     creature->m_movementInfo.transport.guid = GetGUID();
@@ -348,7 +346,7 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     Map* map = GetMap();
     GameObject* go = new GameObject();
 
-    if (!go->LoadGameObjectFromDB(guid, map, false))
+    if (!go->LoadFromDB(guid, map, false))
     {
         delete go;
         return nullptr;
@@ -356,10 +354,8 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
 
     ASSERT(data);
 
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float o = data->orientation;
+    float x, y, z, o;
+    data->spawnPoint.GetPosition(x, y, z, o);
 
     go->SetTransport(this);
     go->m_movementInfo.transport.guid = GetGUID();
@@ -466,7 +462,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, 0, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, 0, entry, { x, y, z, o }, nullptr, vehId))
     {
         delete summon;
         return nullptr;
@@ -545,7 +541,7 @@ void Transport::LoadStaticPassengers()
             // GameObjects on transport
             guidEnd = cellItr->second.gameobjects.end();
             for (CellGuidSet::const_iterator guidItr = cellItr->second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
-                CreateGOPassenger(*guidItr, sObjectMgr->GetGOData(*guidItr));
+                CreateGOPassenger(*guidItr, sObjectMgr->GetGameObjectData(*guidItr));
         }
     }
 }

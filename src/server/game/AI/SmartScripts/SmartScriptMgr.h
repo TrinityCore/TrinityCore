@@ -532,7 +532,7 @@ enum SMART_ACTION
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
     SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding, ContactDistance
-    SMART_ACTION_RESPAWN_TARGET                     = 70,     //
+    SMART_ACTION_ENABLE_TEMP_GOBJ                   = 70,     // despawnTimer (sec)
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
     SMART_ACTION_TRIGGER_TIMED_EVENT                = 73,     // id(>1)
@@ -591,8 +591,14 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
     SMART_ACTION_STOP_MOTION                        = 127,      // stopMoving, movementExpired
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
+    SMART_ACTION_SCENE_PLAY                         = 129,    // don't use on 3.3.5a
+    SMART_ACTION_SCENE_CANCEL                       = 130,    // don't use on 3.3.5a
+    SMART_ACTION_SPAWN_SPAWNGROUP                   = 131,    // Group ID, min secs, max secs, spawnflags
+    SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
+    SMART_ACTION_RESPAWN_BY_SPAWNID                 = 133,    // spawnType, spawnId
 
-    SMART_ACTION_END                                = 129
+
+    SMART_ACTION_END                                = 134
 };
 
 struct SmartAction
@@ -1015,8 +1021,8 @@ struct SmartAction
 
         struct
         {
-            uint32 goRespawnTime;
-        } RespawnTarget;
+            uint32 duration;
+        } enableTempGO;
 
         struct
         {
@@ -1114,6 +1120,14 @@ struct SmartAction
 
         struct
         {
+            uint32 groupId;
+            uint32 minDelay;
+            uint32 maxDelay;
+            uint32 spawnflags;
+        } groupSpawn;
+
+        struct
+        {
             uint32 animKit;
             uint32 type;
         } animKit;
@@ -1146,6 +1160,12 @@ struct SmartAction
             uint32 movementExpired;
         } stopMotion;
 
+        struct
+        {
+            uint32 spawnType;
+            uint32 spawnId;
+        } respawnData;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1159,6 +1179,14 @@ struct SmartAction
             uint32 param6;
         } raw;
     };
+};
+
+enum SMARTAI_SPAWN_FLAGS
+{
+    SMARTAI_SPAWN_FLAG_NONE                 = 0x00,
+    SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN       = 0x01,
+    SMARTAI_SPAWN_FLAG_FORCE_SPAWN          = 0x02,
+    SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN       = 0x04,
 };
 
 enum SMARTAI_TEMPLATE

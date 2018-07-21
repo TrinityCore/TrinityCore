@@ -228,7 +228,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                 }
                 case SMART_SCRIPT_TYPE_GAMEOBJECT:
                 {
-                    GameObjectData const* gameObject = sObjectMgr->GetGOData(uint32(std::abs(temp.entryOrGuid)));
+                    GameObjectData const* gameObject = sObjectMgr->GetGameObjectData(uint32(std::abs(temp.entryOrGuid)));
                     if (!gameObject)
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject guid (%u) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
@@ -998,7 +998,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
 
-                if (e.event.distance.guid != 0 && !sObjectMgr->GetGOData(e.event.distance.guid))
+                if (e.event.distance.guid != 0 && !sObjectMgr->GetGameObjectData(e.event.distance.guid))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid %u, skipped.", e.event.distance.guid);
                     return false;
@@ -1532,6 +1532,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_RESPAWN_BY_SPAWNID:
+            if (!sObjectMgr->GetSpawnData(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId))
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u specifies invalid spawn data (%u,%u)", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.respawnData.spawnType, e.action.respawnData.spawnId);
+                return false;
+            }
+            break;
+        case SMART_ACTION_ENABLE_TEMP_GOBJ:
+            if (!e.action.enableTempGO.duration)
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u does not specify duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
@@ -1565,7 +1578,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_PLAYMOVIE:
         case SMART_ACTION_MOVE_TO_POS:
-        case SMART_ACTION_RESPAWN_TARGET:
         case SMART_ACTION_CLOSE_GOSSIP:
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
         case SMART_ACTION_REMOVE_TIMED_EVENT:
@@ -1609,6 +1621,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT:
         case SMART_ACTION_SET_COUNTER:
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
+        case SMART_ACTION_SPAWN_SPAWNGROUP:
+        case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        case SMART_ACTION_STOP_MOTION:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

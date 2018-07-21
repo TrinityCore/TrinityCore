@@ -1066,7 +1066,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         creatureTarget->DespawnOrUnsummon(respawnDelay);
                 }
                 else if (GameObject* goTarget = target->ToGameObject())
-                    goTarget->SetRespawnTime(respawnDelay);
+                    goTarget->DespawnOrUnsummon(Milliseconds(respawnDelay));
             }
             break;
         }
@@ -1469,19 +1469,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-        case SMART_ACTION_RESPAWN_TARGET:
+        case SMART_ACTION_ENABLE_TEMP_GOBJ:
         {
             for (WorldObject* target : targets)
             {
                 if (IsCreature(target))
-                    target->ToCreature()->Respawn();
+                    TC_LOG_WARN("sql.sql", "Invalid creature target '%s' (entry %u, spawnId %u) specified for SMART_ACTION_ENABLE_TEMP_GOBJ", target->GetName().c_str(), target->GetEntry(), target->ToCreature()->GetSpawnId());
                 else if (IsGameObject(target))
                 {
-                    // do not modify respawndelay of already spawned gameobjects
                     if (target->ToGameObject()->isSpawnedByDefault())
-                        target->ToGameObject()->Respawn();
+                        TC_LOG_WARN("sql.sql", "Invalid gameobject target '%s' (entry %u, spawnId %u) for SMART_ACTION_ENABLE_TEMP_GOBJ - the object is spawned by default", target->GetName().c_str(), target->GetEntry(), target->ToGameObject()->GetSpawnId());
                     else
-                        target->ToGameObject()->SetRespawnTime(e.action.RespawnTarget.goRespawnTime);
+                        target->ToGameObject()->SetRespawnTime(e.action.enableTempGO.duration);
                 }
             }
             break;
@@ -2132,6 +2131,91 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_SPAWN_SPAWNGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                bool const ignoreRespawn = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN) != 0);
+                bool const force = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_FORCE_SPAWN) != 0);
+
+                // Instant spawn
+                GetBaseObject()->GetMap()->SpawnGroupSpawn(e.action.groupSpawn.groupId, ignoreRespawn, force);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_SPAWN_SPAWNGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
+            break;
+        }
+        case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                bool const deleteRespawnTimes = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN) != 0);
+
+                // Instant spawn
+                GetBaseObject()->GetMap()->SpawnGroupSpawn(e.action.groupSpawn.groupId, deleteRespawnTimes);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_DESPAWN_SPAWNGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
+            break;
+        }
         case SMART_ACTION_DISABLE_EVADE:
         {
             if (!IsSmart())
@@ -2232,6 +2316,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         target->ToUnit()->GetMotionMaster()->MovementExpired();
                 }
             }
+            break;
+        }
+        case SMART_ACTION_RESPAWN_BY_SPAWNID:
+        {
+            Map* map = nullptr;
+            if (WorldObject* obj = GetBaseObject())
+                map = obj->GetMap();
+            else if (!targets.empty())
+                map = targets.front()->GetMap();
+
+            if (map)
+                map->RemoveRespawnTime(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId, true);
+            else
+                TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u - tries to respawn by spawnId but does not provide a map", e.entryOrGuid, e.GetScriptType(), e.event_id);
             break;
         }
         default:

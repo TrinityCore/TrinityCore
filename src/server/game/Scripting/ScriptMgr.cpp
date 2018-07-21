@@ -1566,20 +1566,6 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
-bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map)
-{
-    ASSERT(actTemplate);
-
-    CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
-    if (!baseTemplate)
-        baseTemplate = actTemplate;
-    uint32 scriptId = baseTemplate->ScriptID;
-    if (cData && cData->ScriptId)
-        scriptId = cData->ScriptId;
-    GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
-    return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
-}
-
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
