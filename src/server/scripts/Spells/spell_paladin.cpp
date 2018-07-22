@@ -31,6 +31,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptHelper.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -92,6 +93,8 @@ enum PaladinSpells
     SPELL_PALADIN_GRAND_CRUSADER_PROC           = 85416,
     SPELL_PALADIN_GREATER_BLESSING_OF_KINGS     = 203538,
     SPELL_PALADIN_HAMMER_OF_JUSTICE             = 853,
+    SPELL_HAMMER_OF_RIGHTEOUS                   = 53595,
+    SPELL_HAMMER_OF_RIGHTEOUS_LIGHT_WAVE        = 88263,
     SPELL_PALADIN_HAND_OF_SACRIFICE             = 6940,
     SPELL_PALADIN_HAND_OF_THE_PROTECTOR         = 213652,
     SPELL_PALADIN_HOLY_LIGHT                    = 82326,
@@ -633,6 +636,11 @@ class spell_pal_grand_crusader : public SpellScript
         Unit* caster = GetCaster();
         if (!caster)
             return;
+
+        //if caster is standing in his consecration create a "wave of light"
+        if (GetSpellInfo()->Id == SPELL_HAMMER_OF_RIGHTEOUS)
+            if (caster->FindNearestCreature(43499, 8) && caster->HasAura(SPELL_PALADIN_CONSECRATION))
+                player->CastSpell(player, SPELL_HAMMER_OF_RIGHTEOUS_LIGHT_WAVE, true);
 
         int32 grandCrusaderProcChance = 15;
 
