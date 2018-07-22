@@ -1661,6 +1661,11 @@ class spell_dru_leader_of_the_pack : public AuraScript
             });
     }
 
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return (GetTarget()->GetShapeshiftForm() == FORM_CAT || GetTarget()->GetShapeshiftForm() == FORM_BEAR);
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
@@ -1686,6 +1691,7 @@ class spell_dru_leader_of_the_pack : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_dru_leader_of_the_pack::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_dru_leader_of_the_pack::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
