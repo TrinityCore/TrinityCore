@@ -1950,7 +1950,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseId        = fields[23].GetUInt32();
         data.phaseGroup     = fields[24].GetUInt32();
         data.terrainSwapMap = fields[25].GetInt32();
-        data.scriptId = GetScriptId(fields[22].GetString());
+        data.scriptId = GetScriptId(fields[26].GetString());
         data.spawnGroupData = &_spawnGroupDataStore[0];
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.spawnPoint.GetMapId());
