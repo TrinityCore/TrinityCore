@@ -90,9 +90,6 @@ enum Events
 
 enum Spells
 {
-    // Flame Warden
-    SPELL_LAVA_ERUPTION_VISUAL          = 97317,
-
     // Anraphet
     SPELL_DESTRUCTION_PROTOCOL          = 77437,
     SPELL_ALPHA_BEAMS                   = 76184,
@@ -103,7 +100,10 @@ enum Spells
     // Omega Stance
     SPELL_OMEGA_STANCE_SUMMON           = 77106,
     SPELL_OMEGA_STANCE                  = 75622,
-    SPELL_OMEGA_STANCE_SPIDER_TRIGGER   = 77121
+    SPELL_OMEGA_STANCE_SPIDER_TRIGGER   = 77121,
+
+    // Flame Warden
+    SPELL_LAVA_ERUPTION_VISUAL          = 97317
 };
 
 enum Actions
@@ -592,39 +592,6 @@ public:
     }
 };
 
-// 77273 Lava Eruption
-class spell_flame_warden_lava_eruption : public SpellScriptLoader
-{
-public:
-    spell_flame_warden_lava_eruption() : SpellScriptLoader("spell_flame_warden_lava_eruption") { }
-
-    class spell_flame_warden_lava_eruption_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_flame_warden_lava_eruption_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            GetHitUnit()->RemoveAurasDueToSpell(GetEffectValue());
-        }
-
-        void OnTargetSelect(WorldObject*& target)
-        {
-            if (Unit* unit = target->ToUnit())
-                unit->CastSpell(nullptr, SPELL_LAVA_ERUPTION_VISUAL);
-        }
-
-        void Register() override
-        {
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_flame_warden_lava_eruption_SpellScript::OnTargetSelect, EFFECT_0, TARGET_DEST_TARGET_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_flame_warden_lava_eruption_SpellScript();
-    }
-};
-
 // 77333 Whirling Winds: This script handles Whirling Wind's movement.
 class spell_whirling_winds_movement : public SpellScriptLoader
 {
@@ -897,7 +864,6 @@ void AddSC_boss_anraphet()
     new npc_brann_bronzebeard_anraphet();
     new npc_alpha_beam();
     new npc_omega_stance();
-    new spell_flame_warden_lava_eruption();
     new spell_whirling_winds_movement();
     new spell_anraphet_destruction_protocol();
     new spell_anraphet_alpha_beams();
