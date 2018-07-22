@@ -815,35 +815,6 @@ class spell_dru_living_seed_proc : public SpellScriptLoader
         }
 };
 
-// -16972 - Predatory Strikes
-class spell_dru_predatory_strikes : public SpellScriptLoader
-{
-    public:
-        spell_dru_predatory_strikes() : SpellScriptLoader("spell_dru_predatory_strikes") { }
-
-        class spell_dru_predatory_strikes_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_predatory_strikes_AuraScript);
-
-            void UpdateAmount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* target = GetTarget()->ToPlayer())
-                    target->UpdateAttackPowerAndDamage();
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_predatory_strikes_AuraScript::UpdateAmount, EFFECT_ALL, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_predatory_strikes_AuraScript::UpdateAmount, EFFECT_ALL, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dru_predatory_strikes_AuraScript();
-        }
-};
-
 // 1079 - Rip
 class spell_dru_rip : public SpellScriptLoader
 {
@@ -1878,7 +1849,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
     RegisterAuraScript(spell_dru_moonfire);
-    new spell_dru_predatory_strikes();
     new spell_dru_rejuvenation();
     new spell_dru_rip();
     RegisterAuraScript(spell_dru_savage_defense);

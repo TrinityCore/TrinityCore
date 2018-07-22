@@ -7140,24 +7140,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 if (AuraEffect const* aurEff = GetAuraEffect(56369, EFFECT_0))
                                     crit_chance += aurEff->GetAmount();
                         break;
-                    case SPELLFAMILY_DRUID:
-                        // Improved Faerie Fire
-                        if (victim->HasAuraState(AURA_STATE_FAERIE_FIRE))
-                            if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 109, 0))
-                                crit_chance += aurEff->GetAmount();
-
-                        // cumulative effect - don't break
-
-                        // Starfire
-                        if (spellProto->SpellFamilyFlags[0] & 0x4 && spellProto->SpellIconID == 1485)
-                        {
-                            // Improved Insect Swarm
-                            if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1771, 0))
-                                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002, 0, 0))
-                                    crit_chance += aurEff->GetAmount();
-                           break;
-                        }
-                        break;
                     case SPELLFAMILY_ROGUE:
                         // Shiv-applied poisons can't crit
                         if (FindCurrentSpellBySpellId(5938))
@@ -7210,6 +7192,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 crit_chance += rendAndTear->GetAmount();
                             break;
                         }
+
+                        // Predatory Strikes
+                        if (spellProto->SpellFamilyFlags[0] & 0x00010000)
+                            if (AuraEffect const* critAuraEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1563, EFFECT_0))
+                                if (AuraEffect const* healthAuraEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1563, EFFECT_1))
+                                    if (victim->GetHealthPct() >= healthAuraEff->GetAmount())
+                                        crit_chance += critAuraEff->GetAmount();
                         break;
                 }
             }
