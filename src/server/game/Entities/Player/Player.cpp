@@ -22776,13 +22776,12 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     if (npc)
     {
         // not let cheating with start flight mounted
-        if (IsMounted())
-        {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERALREADYMOUNTED);
-            return false;
-        }
+        RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-        if (IsInDisallowedMountForm())
+        if (GetDisplayId() != GetNativeDisplayId())
+            RestoreDisplayId(true);
+
+        if (IsDisallowedMountForm(getTransForm(), FORM_NONE, GetDisplayId()))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERSHAPESHIFTED);
             return false;
@@ -22800,8 +22799,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     {
         RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-        if (IsInDisallowedMountForm())
-            RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+        if (GetDisplayId() != GetNativeDisplayId())
+            RestoreDisplayId(true);
 
         if (Spell* spell = GetCurrentSpell(CURRENT_GENERIC_SPELL))
             if (spell->m_spellInfo->Id != spellid)
