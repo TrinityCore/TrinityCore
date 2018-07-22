@@ -2794,6 +2794,86 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_SET_OVERRIDE_ZONE_MUSIC:
+        {
+            if (me)
+			    me->GetMap()->SetZoneMusic(e.action.setOverrideZoneMusic.zoneId, e.action.setOverrideZoneMusic.musicId);
+            break;
+        }
+		case SMART_ACTION_SET_POWER_TYPE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SetPowerType(Powers(e.action.powerType.powerType));
+
+            delete targets;
+            break;
+        }
+		case SMART_ACTION_SET_MAX_POWER:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SetMaxPower(Powers(e.action.power.powerType), e.action.power.newPower);
+
+            delete targets;
+            break;
+        }
+		case SMART_ACTION_ADD_FLYING_MOVEMENT_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                    {
+                        switch (e.action.SetMovementFlags.variationMovementFlags)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+                                break;
+                            case 1:
+                                (*itr)->ToUnit()->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+                                break;
+                            case 2:
+                                (*itr)->ToUnit()->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+                                break;
+                        }
+                }
+
+            delete targets;
+            break;
+        }
+		case SMART_ACTION_REMOVE_FLYING_MOVEMENT_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                    {
+                        switch (e.action.SetMovementFlags.variationMovementFlags)
+                        {
+                            case 0:
+                                (*itr)->ToUnit()->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+                                break;
+                            case 1:
+                                (*itr)->ToUnit()->RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+                                break;
+                            case 2:
+                                (*itr)->ToUnit()->RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+                                break;
+                        }
+                }
+
+            delete targets;
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
