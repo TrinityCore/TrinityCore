@@ -2555,6 +2555,7 @@ struct MapEntry
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsFlexLocking() const { return (Flags[0] & MAP_FLAG_FLEX_LOCKING) != 0; }
     bool IsGarrison() const { return (Flags[0] & MAP_FLAG_GARRISON) != 0; }
     bool IsSplitByFaction() const { return ID == 609 || ID == 2175; }
 };
@@ -2584,11 +2585,15 @@ struct MapDifficultyEntry
     int32 ContentTuningID;
     uint32 MapID;
 
+    bool HasResetSchedule() const { return ResetInterval != MAP_DIFFICULTY_RESET_ANYTIME; }
+    bool IsUsingEncounterLocks() const { return (Flags & MAP_DIFFICULTY_FLAG_LOCK_TO_ENCOUNTER) != 0; }
+    bool IsExtendable() const { return (Flags & MAP_DIFFICULTY_FLAG_CANNOT_EXTEND) == 0; }
+
     uint32 GetRaidDuration() const
     {
-        if (ResetInterval == 1)
+        if (ResetInterval == MAP_DIFFICULTY_RESET_DAILY)
             return 86400;
-        if (ResetInterval == 2)
+        if (ResetInterval == MAP_DIFFICULTY_RESET_WEEKLY)
             return 604800;
         return 0;
     }

@@ -49,6 +49,7 @@ class BattlegroundMap;
 class CreatureGroup;
 class GameObjectModel;
 class Group;
+class InstanceLock;
 class InstanceMap;
 class InstanceSave;
 class InstanceScript;
@@ -63,6 +64,8 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
+struct DungeonEncounterEntry;
+struct UpdateSaveDataEvent;
 struct MapDifficultyEntry;
 struct MapEntry;
 struct Position;
@@ -268,6 +271,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             CANNOT_ENTER_NOT_IN_RAID, // Target instance is a raid instance and the player is not in a raid group
             CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE, // Player is dead and their corpse is not in target instance
             CANNOT_ENTER_INSTANCE_BIND_MISMATCH, // Player's permanent instance save is not compatible with their group's current instance bind
+            CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER, // Player is locked to encounter that wasn't defeated in the instance yet
             CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
             CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
             CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
@@ -796,12 +800,12 @@ enum InstanceResetMethod
 class TC_GAME_API InstanceMap : public Map
 {
     public:
-        InstanceMap(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam);
+        InstanceMap(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock);
         ~InstanceMap();
         bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
         void RemovePlayerFromMap(Player*, bool) override;
         void Update(uint32) override;
-        void CreateInstanceData(bool load);
+        void CreateInstanceData();
         bool Reset(uint8 method);
         uint32 GetScriptId() const { return i_script_id; }
         std::string const& GetScriptName() const;
@@ -810,7 +814,9 @@ class TC_GAME_API InstanceMap : public Map
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
         InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
         void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
-        void PermBindAllPlayers();
+        InstanceLock const* GetInstanceLock() const { return i_instanceLock; }
+        void UpdateInstanceLock(DungeonEncounterEntry const* dungeonEncounter, UpdateSaveDataEvent const& updateSaveDataEvent);
+        void CreateInstanceLockForPlayer(Player* player);
         void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
@@ -833,6 +839,7 @@ class TC_GAME_API InstanceMap : public Map
         InstanceScript* i_data;
         uint32 i_script_id;
         InstanceScenario* i_scenario;
+        InstanceLock* i_instanceLock;
 };
 
 class TC_GAME_API BattlegroundMap : public Map

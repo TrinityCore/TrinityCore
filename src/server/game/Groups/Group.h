@@ -345,7 +345,25 @@ class TC_GAME_API Group
         void LinkMember(GroupReference* pRef);
         void DelinkMember(ObjectGuid guid);
 
+        uint32 GetInstanceId(MapEntry const* mapEntry) const { return 0; }
         InstanceGroupBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
+        ObjectGuid GetRecentInstanceOwner(uint32 mapId) const
+        {
+            auto itr = m_recentInstances.find(mapId);
+            return itr != m_recentInstances.end() ? itr->second.first : m_leaderGuid;
+        }
+
+        uint32 GetRecentInstanceId(uint32 mapId) const
+        {
+            auto itr = m_recentInstances.find(mapId);
+            return itr != m_recentInstances.end() ? itr->second.second : 0;
+        }
+
+        void SetRecentInstance(uint32 mapId, ObjectGuid instanceOwner, uint32 instanceId)
+        {
+            m_recentInstances[mapId] = { instanceOwner, instanceId };
+        }
+
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);
@@ -391,6 +409,7 @@ class TC_GAME_API Group
         ObjectGuid          m_looterGuid;
         ObjectGuid          m_masterLooterGuid;
         BoundInstancesMap   m_boundInstances;
+        std::unordered_map<uint32 /*mapId*/, std::pair<ObjectGuid /*instanceOwner*/, uint32 /*instanceId*/>> m_recentInstances;
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)

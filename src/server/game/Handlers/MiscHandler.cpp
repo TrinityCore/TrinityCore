@@ -599,14 +599,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", player->GetName().c_str(), at->target_mapId);
                     break;
                 case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
-                    {
-                        char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
-                        TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map '%s' because their permanent bind is incompatible with their group's", player->GetName().c_str(), mapName);
-                        // is there a special opcode for this?
-                        // @todo figure out how to get player localized difficulty string (e.g. "10 player", "Heroic" etc)
-                        ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_BIND_MISMATCH), mapName);
-                    }
+                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE);
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because their permanent bind is incompatible with their group's", player->GetName().c_str(), at->target_mapId);
+                    reviveAtTrigger = true;
+                    break;
+                case Map::CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER:
+                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER);
+                    TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because their permanent bind is incompatible with their group's", player->GetName().c_str(), at->target_mapId);
                     reviveAtTrigger = true;
                     break;
                 case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
@@ -1071,7 +1070,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLo
     }
 
     if (packet.AcceptLock)
-        _player->BindToInstance();
+        _player->ConfirmPendingBind();
     else
         _player->RepopAtGraveyard();
 
