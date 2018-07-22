@@ -640,7 +640,7 @@ class spell_pal_grand_crusader : public SpellScript
         //if caster is standing in his consecration create a "wave of light"
         if (GetSpellInfo()->Id == SPELL_HAMMER_OF_RIGHTEOUS)
             if (caster->FindNearestCreature(43499, 8) && caster->HasAura(SPELL_PALADIN_CONSECRATION))
-                player->CastSpell(player, SPELL_HAMMER_OF_RIGHTEOUS_LIGHT_WAVE, true);
+                caster->CastSpell(caster, SPELL_HAMMER_OF_RIGHTEOUS_LIGHT_WAVE, true);
 
         int32 grandCrusaderProcChance = 15;
 
