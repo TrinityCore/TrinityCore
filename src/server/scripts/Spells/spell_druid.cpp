@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "Map.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
