@@ -21,6 +21,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameEventSender.h"
 #include "GameObject.h"
 #include "Group.h"
@@ -49,6 +50,16 @@ BossBoundaryData::~BossBoundaryData()
 {
     for (const_iterator it = begin(); it != end(); ++it)
         delete it->Boundary;
+}
+
+DungeonEncounterEntry const* BossInfo::GetDungeonEncounterForDifficulty(Difficulty difficulty) const
+{
+    auto itr = std::find_if(DungeonEncounters.begin(), DungeonEncounters.end(), [difficulty](DungeonEncounterEntry const* dungeonEncounter)
+    {
+        return dungeonEncounter && (dungeonEncounter->DifficultyID == 0 || Difficulty(dungeonEncounter->DifficultyID) == difficulty);
+    });
+
+    return itr != DungeonEncounters.end() ? *itr : nullptr;
 }
 
 InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
@@ -215,6 +226,13 @@ void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objec
         objectInfo[data->entry] = data->type;
         ++data;
     }
+}
+
+void InstanceScript::LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds)
+{
+    if (bossId < bosses.size())
+        for (std::size_t i = 0; i < MAX_DUNGEON_ENCOUNTERS_PER_BOSS; ++i)
+            bosses[bossId].DungeonEncounters[i] = sDungeonEncounterStore.LookupEntry(dungeonEncounterIds[i]);
 }
 
 void InstanceScript::UpdateDoorState(GameObject* door)
@@ -397,6 +415,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                         if (minion->isWorldBoss() && minion->IsAlive())
                             return false;
 
+            DungeonEncounterEntry const* dungeonEncounter = nullptr;
             switch (state)
             {
                 case IN_PROGRESS:
@@ -413,9 +432,18 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     break;
                 }
                 case FAIL:
+                    ResetCombatResurrections();
+                    SendEncounterEnd();
+                    break;
                 case DONE:
                     ResetCombatResurrections();
                     SendEncounterEnd();
+                    dungeonEncounter = bossInfo->GetDungeonEncounterForDifficulty(instance->GetDifficultyID());
+                    if (dungeonEncounter)
+                    {
+                        DoUpdateCriteria(CriteriaType::DefeatDungeonEncounter, dungeonEncounter->ID);
+                        SendBossKillCredit(dungeonEncounter->ID);
+                    }
                     break;
                 default:
                     break;
@@ -423,6 +451,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             bossInfo->state = state;
             SaveToDB();
+            if (state == DONE)
+                instance->UpdateInstanceLock(dungeonEncounter, { id, state });
         }
 
         for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
@@ -493,7 +523,7 @@ bool InstanceScript::ReadSaveDataHeaders(std::istringstream& data)
 void InstanceScript::ReadSaveDataBossStates(std::istringstream& data)
 {
     uint32 bossId = 0;
-    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i, ++bossId)
+    for (; bossId < bosses.size(); ++bossId)
     {
         uint32 buff;
         data >> buff;
@@ -519,6 +549,31 @@ std::string InstanceScript::GetSaveData()
     OUT_SAVE_INST_DATA_COMPLETE;
 
     return saveStream.str();
+}
+
+std::string InstanceScript::UpdateSaveData(std::string const& oldData, UpdateSaveDataEvent const& event)
+{
+    if (!instance->GetMapDifficulty()->IsUsingEncounterLocks())
+        return GetSaveData();
+
+    std::size_t position = (headers.size() + event.BossId) * 2;
+    std::string newData = oldData;
+    if (position >= oldData.length())
+    {
+        // Initialize blank data
+        std::ostringstream saveStream;
+        WriteSaveDataHeaders(saveStream);
+        for (std::size_t i = 0; i < bosses.size(); ++i)
+            saveStream << uint32(NOT_STARTED) << ' ';
+
+        WriteSaveDataMore(saveStream);
+
+        newData = saveStream.str();
+    }
+
+    newData[position] = uint32(event.NewState) + '0';
+
+    return newData;
 }
 
 void InstanceScript::WriteSaveDataHeaders(std::ostringstream& data)

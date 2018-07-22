@@ -31,6 +31,7 @@
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
 #include "Group.h"
+#include "InstanceLockMgr.h"
 #include "InstancePackets.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScenario.h"
@@ -1754,7 +1755,7 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
     return result;
 }
 
-Map::EnterState Map::PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck)
+Map::EnterState Map::PlayerCannotEnter(uint32 mapid, Player* player, bool /*loginCheck*/)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
     if (!entry)
@@ -1809,26 +1810,19 @@ Map::EnterState Map::PlayerCannotEnter(uint32 mapid, Player* player, bool loginC
             TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName().c_str());
     }
 
-    //Get instance where player's group is bound & its map
-    if (!loginCheck && group)
+    if (entry->Instanceable())
     {
-        InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
-        if (boundInstance && boundInstance->save)
-            if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
+        //Get instance where player's group is bound & its map
+        if (uint32 instanceIdToCheck = sMapMgr->FindInstanceIdForPlayer(mapid, player))
+        {
+            if (Map* boundMap = sMapMgr->FindMap(mapid, instanceIdToCheck))
                 if (EnterState denyReason = boundMap->CannotEnter(player))
                     return denyReason;
-    }
 
-    // players are only allowed to enter 5 instances per hour
-    if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
-    {
-        uint32 instanceIdToCheck = 0;
-        if (InstanceSave* save = player->GetInstanceSave(mapid))
-            instanceIdToCheck = save->GetInstanceId();
-
-        // instanceId can never be 0 - will not be found
-        if (!player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
-            return CANNOT_ENTER_TOO_MANY_INSTANCES;
+            // players are only allowed to enter 10 instances per hour
+            if (entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+                return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
+        }
     }
 
     return CAN_ENTER;
@@ -2773,10 +2767,10 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
-InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam)
+InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock)
   : Map(id, expiry, InstanceId, SpawnMode),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(nullptr), i_script_id(0), i_scenario(nullptr)
+    i_data(nullptr), i_script_id(0), i_scenario(nullptr), i_instanceLock(instanceLock)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -2830,11 +2824,16 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
     if (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
         return CANNOT_ENTER_ZONE_IN_COMBAT;
 
-    // cannot enter if player is permanent saved to a different instance id
-    if (InstancePlayerBind* playerBind = player->GetBoundInstance(GetId(), GetDifficultyID()))
-        if (playerBind->perm && playerBind->save)
-            if (playerBind->save->GetInstanceId() != GetInstanceId())
-                return CANNOT_ENTER_INSTANCE_BIND_MISMATCH;
+    if (i_instanceLock)
+    {
+        // cannot enter if player is permanent saved to a different instance id
+        TransferAbortReason lockError = sInstanceLockMgr.CanJoinInstanceLock(player->GetGUID(), { GetEntry(), GetMapDifficulty() }, i_instanceLock);
+        if (lockError == TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE)
+            return CANNOT_ENTER_INSTANCE_BIND_MISMATCH;
+
+        if (lockError == TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER)
+            return CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER;
+    }
 
     return Map::CannotEnter(player);
 }
@@ -2844,85 +2843,27 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
 */
 bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
-    Group* group = player->GetGroup();
-
     // increase current instances (hourly limit)
-    if (!group || !group->isLFGGroup())
-        player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
+    player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
 
-    // get or create an instance save for the map
-    InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
-    if (!mapSave)
+    MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
+    if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && i_instanceLock->GetData()->CompletedEncountersMask)
     {
-        TC_LOG_DEBUG("maps", "InstanceMap::Add: creating instance save for map %d spawnmode %d with instance id %d", GetId(), GetDifficultyID(), GetInstanceId());
-        mapSave = sInstanceSaveMgr->AddInstanceSave(GetId(), GetInstanceId(), GetDifficultyID(), 0, 0, true);
-    }
-
-    ASSERT(mapSave);
-
-    // check for existing instance binds
-    InstancePlayerBind* playerBind = player->GetBoundInstance(GetId(), GetDifficultyID());
-    if (playerBind && playerBind->perm)
-    {
-        // cannot enter other instances if bound permanently
-        if (playerBind->save != mapSave)
+        if (!entries.MapDifficulty->IsUsingEncounterLocks())
         {
-            TC_LOG_ERROR("maps", "InstanceMap::Add: player %s %s is permanently bound to instance %s %d, %d, %d, %d, %d, %d but he is being put into instance %s %d, %d, %d, %d, %d, %d", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetMapName(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), static_cast<uint32>(playerBind->save->GetDifficultyID()), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), GetMapName(), mapSave->GetMapId(), mapSave->GetInstanceId(), static_cast<uint32>(mapSave->GetDifficultyID()), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
-            return false;
-        }
-    }
-    else
-    {
-        if (group)
-        {
-            // solo saves should have been reset when the map was loaded
-            InstanceGroupBind* groupBind = group->GetBoundInstance(this);
-            if (playerBind && playerBind->save != mapSave)
+            InstanceLock const* playerLock = sInstanceLockMgr.FindActiveInstanceLock(player->GetGUID(), entries);
+            if (!playerLock || (playerLock->IsExpired() && playerLock->IsExtended()) ||
+                playerLock->GetData()->CompletedEncountersMask != i_instanceLock->GetData()->CompletedEncountersMask)
             {
-                TC_LOG_ERROR("maps", "InstanceMap::Add: player %s %s is being put into instance %s %d, %d, %d, %d, %d, %d but he is in group %s and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetMapName(), mapSave->GetMapId(), mapSave->GetInstanceId(), static_cast<uint32>(mapSave->GetDifficultyID()), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), group->GetLeaderGUID().ToString().c_str(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), static_cast<uint32>(playerBind->save->GetDifficultyID()), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
-                if (groupBind)
-                    TC_LOG_ERROR("maps", "InstanceMap::Add: the group is bound to the instance %s %d, %d, %d, %d, %d, %d", GetMapName(), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), static_cast<uint32>(groupBind->save->GetDifficultyID()), groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
-                //ABORT();
-                return false;
+                WorldPackets::Instance::PendingRaidLock pendingRaidLock;
+                pendingRaidLock.TimeUntilLock = 60000;
+                pendingRaidLock.CompletedMask = i_instanceLock->GetData()->CompletedEncountersMask;
+                pendingRaidLock.Extending = playerLock && playerLock->IsExtended();
+                pendingRaidLock.WarningOnly = entries.Map->IsFlexLocking(); // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
+                player->GetSession()->SendPacket(pendingRaidLock.Write());
+                if (!entries.Map->IsFlexLocking())
+                    player->SetPendingBind(GetInstanceId(), 60000);
             }
-            // bind to the group or keep using the group save
-            if (!groupBind)
-                group->BindToInstance(mapSave, false);
-            else
-            {
-                // cannot jump to a different instance without resetting it
-                if (groupBind->save != mapSave)
-                {
-                    TC_LOG_ERROR("maps", "InstanceMap::Add: player %s %s is being put into instance %d, %d, %d but he is in group %s which is bound to instance %d, %d, %d!", player->GetName().c_str(), player->GetGUID().ToString().c_str(), mapSave->GetMapId(), mapSave->GetInstanceId(), static_cast<uint32>(mapSave->GetDifficultyID()), group->GetLeaderGUID().ToString().c_str(), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), static_cast<uint32>(groupBind->save->GetDifficultyID()));
-                    TC_LOG_ERROR("maps", "MapSave players: %d, group count: %d", mapSave->GetPlayerCount(), mapSave->GetGroupCount());
-                    if (groupBind->save)
-                        TC_LOG_ERROR("maps", "GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
-                    else
-                        TC_LOG_ERROR("maps", "GroupBind save NULL");
-                    return false;
-                }
-                // if the group/leader is permanently bound to the instance
-                // players also become permanently bound when they enter
-                if (groupBind->perm)
-                {
-                    WorldPackets::Instance::PendingRaidLock pendingRaidLock;
-                    pendingRaidLock.TimeUntilLock = 60000;
-                    pendingRaidLock.CompletedMask = i_data ? i_data->GetCompletedEncounterMask() : 0;
-                    pendingRaidLock.Extending = false;
-                    pendingRaidLock.WarningOnly = false; // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-                    player->SendDirectMessage(pendingRaidLock.Write());
-                    player->SetPendingBind(mapSave->GetInstanceId(), 60000);
-                }
-            }
-        }
-        else
-        {
-            // set up a solo bind or continue using it
-            if (!playerBind)
-                player->BindToInstance(mapSave, false);
-            else
-                // cannot jump to a different instance without resetting it
-                ASSERT(playerBind->save == mapSave);
         }
     }
 
@@ -2983,7 +2924,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
     sInstanceSaveMgr->UnloadInstanceSave(GetInstanceId());
 }
 
-void InstanceMap::CreateInstanceData(bool load)
+void InstanceMap::CreateInstanceData()
 {
     if (i_data != nullptr)
         return;
@@ -2998,24 +2939,18 @@ void InstanceMap::CreateInstanceData(bool load)
     if (!i_data)
         return;
 
-    if (load)
+    if (i_instanceLock)
     {
-        /// @todo make a global storage for this
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_INSTANCE);
-        stmt->setUInt16(0, uint16(GetId()));
-        stmt->setUInt32(1, i_InstanceId);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (result)
+        MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
+        if (entries.IsInstanceIdBound() || IsRaid() || entries.MapDifficulty->IsRestoringDungeonState() || !i_owningGroupRef.isValid())
         {
-            Field* fields = result->Fetch();
-            std::string data = fields[0].GetString();
-            i_data->SetCompletedEncountersMask(fields[1].GetUInt32());
-            i_data->SetEntranceLocation(fields[2].GetUInt32());
-            if (!data.empty())
+            InstanceLockData const* lockData = i_instanceLock->GetInstanceInitializationData();
+            i_data->SetCompletedEncountersMask(lockData->CompletedEncountersMask);
+            i_data->SetEntranceLocation(lockData->EntranceWorldSafeLocId);
+            if (!lockData->Data.empty())
             {
                 TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id).c_str(), i_InstanceId);
-                i_data->Load(data.c_str());
+                i_data->Load(lockData->Data.c_str());
             }
         }
     }
@@ -3082,51 +3017,74 @@ std::string const& InstanceMap::GetScriptName() const
     return sObjectMgr->GetScriptName(i_script_id);
 }
 
-void InstanceMap::PermBindAllPlayers()
+void InstanceMap::UpdateInstanceLock(DungeonEncounterEntry const* dungeonEncounter, UpdateSaveDataEvent const& updateSaveDataEvent)
 {
-    if (!IsDungeon())
-        return;
-
-    InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
-    if (!save)
+    if (i_instanceLock)
     {
-        TC_LOG_ERROR("maps", "Cannot bind players to instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) because no instance save is available!", GetMapName(), GetId(), static_cast<uint32>(GetDifficultyID()), GetInstanceId());
-        return;
+        uint32 instanceCompletedEncounters = i_instanceLock->GetData()->CompletedEncountersMask;
+        if (dungeonEncounter)
+            instanceCompletedEncounters |= 1u << dungeonEncounter->Bit;
+
+        MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
+
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+        if (entries.IsInstanceIdBound())
+            sInstanceLockMgr.UpdateSharedInstanceLock(trans,
+                { GetInstanceId(), i_data->GetSaveData(), instanceCompletedEncounters, dungeonEncounter });
+
+        for (MapReference& mapReference : m_mapRefManager)
+        {
+            Player* player = mapReference.GetSource();
+            // never instance bind GMs with GM mode enabled
+            if (player->IsGameMaster())
+                continue;
+
+            InstanceLock const* playerLock = sInstanceLockMgr.FindActiveInstanceLock(player->GetGUID(), entries);
+            std::string const* oldData = nullptr;
+            if (playerLock)
+                oldData = &playerLock->GetData()->Data;
+
+            bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
+
+            InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
+                { GetInstanceId(), i_data->UpdateSaveData(oldData ? *oldData : "", updateSaveDataEvent), instanceCompletedEncounters, dungeonEncounter });
+
+            if (isNewLock)
+            {
+                WorldPackets::Instance::InstanceSaveCreated data;
+                data.Gm = player->IsGameMaster();
+                player->SendDirectMessage(data.Write());
+
+                player->GetSession()->SendCalendarRaidLockoutAdded(newLock);
+            }
+        }
+
+        CharacterDatabase.CommitTransaction(trans);
     }
+}
 
-    // perm bind all players that are currently inside the instance
-    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+void InstanceMap::CreateInstanceLockForPlayer(Player* player)
+{
+    MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
+    InstanceLock const* playerLock = sInstanceLockMgr.FindActiveInstanceLock(player->GetGUID(), entries);
+
+    bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
+        { GetInstanceId(), i_data->GetSaveData(), i_instanceLock->GetData()->CompletedEncountersMask, nullptr });
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    if (isNewLock)
     {
-        Player* player = itr->GetSource();
-        // never instance bind GMs with GM mode enabled
-        if (player->IsGameMaster())
-            continue;
+        WorldPackets::Instance::InstanceSaveCreated data;
+        data.Gm = player->IsGameMaster();
+        player->SendDirectMessage(data.Write());
 
-        InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficultyID());
-        if (bind && bind->perm)
-        {
-            if (bind->save && bind->save->GetInstanceId() != save->GetInstanceId())
-            {
-                TC_LOG_ERROR("maps", "Player (%s, Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a save for the map on ID %u!", player->GetGUID().ToString().c_str(), player->GetName().c_str(), GetMapName(), save->GetMapId(), static_cast<uint32>(save->GetDifficultyID()), save->GetInstanceId(), bind->save->GetInstanceId());
-            }
-            else if (!bind->save)
-            {
-                TC_LOG_ERROR("maps", "Player (%s, Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a bind (without associated save) for the map!", player->GetGUID().ToString().c_str(), player->GetName().c_str(), GetMapName(), save->GetMapId(), static_cast<uint32>(save->GetDifficultyID()), save->GetInstanceId());
-            }
-        }
-        else
-        {
-            player->BindToInstance(save, true);
-            WorldPackets::Instance::InstanceSaveCreated data;
-            data.Gm = player->IsGameMaster();
-            player->SendDirectMessage(data.Write());
-            player->GetSession()->SendCalendarRaidLockout(save, true);
-
-            // if group leader is in instance, group also gets bound
-            if (Group* group = player->GetGroup())
-                if (group->GetLeaderGUID() == player->GetGUID())
-                    group->BindToInstance(save, true);
-        }
+        player->GetSession()->SendCalendarRaidLockoutAdded(newLock);
     }
 }
 

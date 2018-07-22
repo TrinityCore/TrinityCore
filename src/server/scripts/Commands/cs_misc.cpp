@@ -419,19 +419,6 @@ public:
                     }
                 }
 
-                // if the player or the player's group is bound to another instance
-                // the player will not be bound to another one
-                InstancePlayerBind* bind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficultyID(map->GetEntry()));
-                if (!bind)
-                {
-                    Group* group = _player->GetGroup();
-                    // if no bind exists, create a solo bind
-                    InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : nullptr;                // if no bind exists, create a solo bind
-                    if (!gBind)
-                        if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
-                            _player->BindToInstance(save, !save->CanReset());
-                }
-
                 if (map->IsRaid())
                 {
                     _player->SetRaidDifficultyID(target->GetRaidDifficultyID());

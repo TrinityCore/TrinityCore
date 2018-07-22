@@ -741,7 +741,7 @@ enum class ItemSearchCallbackResult
     Continue
 };
 
-enum TransferAbortReason
+enum TransferAbortReason : uint32
 {
     TRANSFER_ABORT_NONE                          = 0,
     TRANSFER_ABORT_ERROR                         = 1,
@@ -2539,7 +2539,19 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_HomebindTimer;
         bool m_InstanceValid;
         // permanent binds and solo binds by difficulty
+        uint32 GetRecentInstanceId(uint32 mapId) const
+        {
+            auto itr = m_recentInstances.find(mapId);
+            return itr != m_recentInstances.end() ? itr->second : 0;
+        }
+
+        void SetRecentInstance(uint32 mapId, uint32 instanceId)
+        {
+            m_recentInstances[mapId] = instanceId;
+        }
+
         BoundInstancesMap m_boundInstances;
+        std::unordered_map<uint32 /*mapId*/, uint32 /*instanceId*/> m_recentInstances;
         InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);
         InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
         BoundInstancesMap::iterator GetBoundInstances(Difficulty difficulty) { return m_boundInstances.find(difficulty); }
@@ -2547,7 +2559,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload = false);
         InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, BindExtensionState extendState = EXTEND_STATE_NORMAL, bool load = false);
-        void BindToInstance();
+        void ConfirmPendingBind();
         void SetPendingBind(uint32 instanceId, uint32 bindTimer);
         bool HasPendingBind() const { return _pendingBindId > 0; }
         void SendRaidInfo();
@@ -2961,7 +2973,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_legacyRaidDifficulty;
-        Difficulty m_prevMapDifficulty;
 
         uint32 m_atLoginFlags;
 

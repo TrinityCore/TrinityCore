@@ -22,6 +22,7 @@
 #include "DB2Stores.h"
 #include "GarrisonMap.h"
 #include "Group.h"
+#include "InstanceLockMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -81,7 +82,7 @@ Map* MapManager::CreateWorldMap(uint32 mapId, uint32 instanceId)
     return map;
 }
 
-InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, InstanceSave* save, Difficulty difficulty, TeamId team)
+InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, InstanceLock* instanceLock, Difficulty difficulty, TeamId team, Group* group)
 {
     // make sure we have a valid map id
     MapEntry const* entry = sMapStore.LookupEntry(mapId);
@@ -94,18 +95,17 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
     // some instances only have one difficulty
     sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %u", save ? "" : "new ", instanceId, mapId, static_cast<uint32>(difficulty));
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %smap instance %d for %d created with difficulty %s",
+        instanceLock && instanceLock->GetInstanceId() ? "" : "new ", instanceId, mapId, sDifficultyStore.AssertEntry(difficulty)->Name[sWorld->GetDefaultDbcLocale()]);
 
-    InstanceMap* map = new InstanceMap(mapId, i_gridCleanUpDelay, instanceId, difficulty, team);
+    InstanceMap* map = new InstanceMap(mapId, i_gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
     ASSERT(map->IsDungeon());
 
     map->LoadRespawnTimes();
     map->LoadCorpseData();
 
-    bool load_data = save != nullptr;
-    map->CreateInstanceData(load_data);
-    if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenario(map, team))
-        map->SetInstanceScenario(instanceScenario);
+    map->CreateInstanceData();
+    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, team));
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
         map->LoadAllCells();
@@ -136,7 +136,7 @@ GarrisonMap* MapManager::CreateGarrison(uint32 mapId, uint32 instanceId, Player*
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapManager::CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId /*= 0*/)
+Map* MapManager::CreateMap(uint32 mapId, Player* player)
 {
     if (!player)
         return nullptr;
@@ -172,63 +172,50 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId 
     }
     else if (entry->IsDungeon())
     {
-        InstancePlayerBind* pBind = player->GetBoundInstance(mapId, player->GetDifficultyID(entry));
-        InstanceSave* pSave = pBind ? pBind->save : nullptr;
-
-        // priority:
-        // 1. player's permanent bind
-        // 2. player's current instance id if this is at login
-        // 3. group's current bind
-        // 4. player's current bind
-        if (!pBind || !pBind->perm)
+        Group* group = player->GetGroup();
+        Difficulty difficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
+        MapDb2Entries entries{ entry, sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty) };
+        ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(mapId) : player->GetGUID();
+        InstanceLock* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
+        if (instanceLock)
         {
-            if (loginInstanceId) // if the player has a saved instance id on login, we either use this instance or relocate him out (return null)
-            {
-                map = FindMap_i(mapId, loginInstanceId);
-                if (!map && pSave && pSave->GetInstanceId() == loginInstanceId)
-                {
-                    map = CreateInstance(mapId, loginInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
-                    i_maps[{ map->GetId(), map->GetInstanceId() }] = map;
-                }
-                return map;
-            }
+            newInstanceId = instanceLock->GetInstanceId();
 
-            InstanceGroupBind* groupBind = nullptr;
-            Group* group = player->GetGroup();
-            // use the player's difficulty setting (it may not be the same as the group's)
-            if (group)
-            {
-                groupBind = group->GetBoundInstance(entry);
-                if (groupBind)
-                {
-                    // solo saves should be reset when entering a group's instance
-                    player->UnbindInstance(mapId, player->GetDifficultyID(entry));
-                    pSave = groupBind->save;
-                }
-            }
-        }
-        if (pSave)
-        {
-            // solo/perm/group
-            newInstanceId = pSave->GetInstanceId();
-            map = FindMap_i(mapId, newInstanceId);
-            // it is possible that the save exists but the map doesn't
-            if (!map)
-                map = CreateInstance(mapId, newInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
+            // Reset difficulty to the one used in instance lock
+            if (!entries.Map->IsFlexLocking())
+                difficulty = instanceLock->GetDifficultyId();
         }
         else
         {
-            Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficultyID(entry) : player->GetDifficultyID(entry);
+            // Try finding instance id for normal dungeon
+            if (!entries.MapDifficulty->HasResetSchedule())
+                newInstanceId = group ? group->GetRecentInstanceId(mapId) : player->GetRecentInstanceId(mapId);
 
-            // if no instanceId via group members or instance saves is found
-            // the instance will be created for the first time
+            // If not found or instance is not a normal dungeon, generate new one
+            if (!newInstanceId)
+                newInstanceId = GenerateInstanceId();
+
+            instanceLock = sInstanceLockMgr.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
+        }
+
+        // it is possible that the save exists but the map doesn't
+        map = FindMap_i(mapId, newInstanceId);
+
+        // is is also possible that instance id is already in use by another group for boss-based locks
+        if (!entries.IsInstanceIdBound() && instanceLock && map && map->ToInstanceMap()->GetInstanceLock() != instanceLock)
+        {
             newInstanceId = GenerateInstanceId();
+            instanceLock->SetInstanceId(newInstanceId);
+            map = nullptr;
+        }
 
-            //Seems it is now possible, but I do not know if it should be allowed
-            //ASSERT(!FindInstanceMap(NewInstanceId));
-            map = FindMap_i(mapId, newInstanceId);
-            if (!map)
-                map = CreateInstance(mapId, newInstanceId, nullptr, diff, player->GetTeamId());
+        if (!map)
+        {
+            map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player->GetTeamId(), group);
+            if (group)
+                group->SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
+            else
+                player->SetRecentInstance(mapId, newInstanceId);
         }
     }
     else if (entry->IsGarrison())
@@ -352,10 +339,14 @@ void MapManager::InitInstanceIds()
 {
     _nextInstanceId = 1;
 
-    if (QueryResult result = CharacterDatabase.Query("SELECT IFNULL(MAX(id), 0) FROM instance"))
-        _freeInstanceIds->resize((*result)[0].GetUInt64() + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
-    else
-        _freeInstanceIds->resize(_nextInstanceId + 1, true);
+    uint64 maxExistingInstanceId = 0;
+    if (QueryResult result = CharacterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance"))
+        maxExistingInstanceId = std::max(maxExistingInstanceId, (*result)[0].GetUInt64());
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock"))
+        maxExistingInstanceId = std::max(maxExistingInstanceId, (*result)[0].GetUInt64());
+
+    _freeInstanceIds->resize(maxExistingInstanceId + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
 
     // never allow 0 id
     _freeInstanceIds->set(0, false);

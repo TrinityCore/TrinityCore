@@ -174,7 +174,7 @@ namespace WorldPackets
             uint64 InstanceID = 0;
             int32 MapID = 0;
             uint32 DifficultyID = 0;
-            time_t ExpireTime = time_t(0);
+            int32 ExpireTime = 0;
         };
 
         struct CalendarSendCalendarEventInfo

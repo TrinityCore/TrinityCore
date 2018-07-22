@@ -39,7 +39,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCal
     data << uint64(lockoutInfo.InstanceID);
     data << int32(lockoutInfo.MapID);
     data << uint32(lockoutInfo.DifficultyID);
-    data << uint32(lockoutInfo.ExpireTime);
+    data << int32(lockoutInfo.ExpireTime);
 
     return data;
 }

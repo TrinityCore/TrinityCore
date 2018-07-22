@@ -106,6 +106,22 @@ DoorData const doorData[] =
     { 0,                                      0,                          DOOR_TYPE_ROOM }  // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_LORD_MARROWGAR, {{ 1101 }} },
+    { DATA_LADY_DEATHWHISPER, {{ 1100 }} },
+    { DATA_ICECROWN_GUNSHIP_BATTLE, {{ 1099 }} },
+    { DATA_DEATHBRINGER_SAURFANG, {{ 1096 }} },
+    { DATA_FESTERGUT, {{ 1097 }} },
+    { DATA_ROTFACE, {{ 1104 }} },
+    { DATA_PROFESSOR_PUTRICIDE, {{ 1102 }} },
+    { DATA_BLOOD_PRINCE_COUNCIL, {{ 1095 }} },
+    { DATA_BLOOD_QUEEN_LANA_THEL, {{ 1103 }} },
+    { DATA_VALITHRIA_DREAMWALKER, {{ 1098 }} },
+    { DATA_SINDRAGOSA, {{ 1105 }} },
+    { DATA_THE_LICH_KING, {{ 1106 }} }
+};
+
 // this doesnt have to only store questgivers, also can be used for related quest spawns
 struct WeeklyQuest
 {
@@ -144,6 +160,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 HeroicAttempts = MaxHeroicAttempts;

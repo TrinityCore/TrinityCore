@@ -32,6 +32,7 @@
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
 #include "GitRevision.h"
+#include "InstanceLockMgr.h"
 #include "InstanceSaveMgr.h"
 #include "IoContext.h"
 #include "MapManager.h"
@@ -320,6 +321,7 @@ extern int main(int argc, char** argv)
         sOutdoorPvPMgr->Die();                    // unload it before MapManager
         sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
         sTerrainMgr.UnloadAll();
+        sInstanceLockMgr.Unload();
     });
 
     // Start the Remote Access port (acceptor) if enabled
