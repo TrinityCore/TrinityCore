@@ -2093,6 +2093,7 @@ ObjectGuid::LowType ObjectMgr::AddGameObjectData(uint32 entry, uint32 mapId, Pos
     data.phaseMask      = PHASEMASK_NORMAL;
     data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT ? 21 : 0;
     data.dbData         = false;
+    data.spawnGroupData = GetLegacySpawnGroup();
 
     AddGameobjectToGrid(spawnId, &data);
 
