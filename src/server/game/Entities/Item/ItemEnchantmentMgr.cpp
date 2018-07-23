@@ -242,6 +242,7 @@ TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uin
             break;
         case INVTYPE_RELIC:
             propIndex = 4;
+            break;
         default:
             return 0;
     }
