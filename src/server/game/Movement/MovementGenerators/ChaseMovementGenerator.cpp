@@ -73,7 +73,7 @@ void ChaseMovementGenerator::Initialize(Unit* owner)
 
     owner->SetWalk(false);
     _path = nullptr;
-    _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f);
+    _lastTargetPosition.reset();
 }
 
 void ChaseMovementGenerator::Reset(Unit* owner)
@@ -102,6 +102,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         owner->StopMoving();
+        _lastTargetPosition.reset();
         return true;
     }
 
@@ -142,7 +143,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     }
 
     // if the target moved, we have to consider whether to adjust
-    if (_lastTargetPosition != target->GetPosition() || mutualChase != _mutualChase)
+    if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.get() || mutualChase != _mutualChase)
     {
         _lastTargetPosition = target->GetPosition();
         _mutualChase = mutualChase;
