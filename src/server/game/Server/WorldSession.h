@@ -549,6 +549,7 @@ namespace WorldPackets
         class PetAction;
         class PetCancelAura;
         class PetSetAction;
+        class PetTameFailure;
     }
 
     namespace Petition
