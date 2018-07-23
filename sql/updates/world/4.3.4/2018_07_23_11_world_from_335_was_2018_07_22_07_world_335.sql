@@ -1,3 +1,4 @@
+/*
 -- Quest "Protecting the Shipment"
 UPDATE `quest_template_addon` SET `SpecialFlags`=2 WHERE `ID`=309; -- Prevents quest from auto completing
 
@@ -80,3 +81,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=43
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14,4322,5494,0,0,29,0,1379,20,0,0,0,0,"","Show gossip text 5494 if Miran is nearby"),
 (14,4322,5501,0,0,29,0,1379,20,0,1,0,0,"","Show gossip text 3522 if Miran is not nearby");
+*/

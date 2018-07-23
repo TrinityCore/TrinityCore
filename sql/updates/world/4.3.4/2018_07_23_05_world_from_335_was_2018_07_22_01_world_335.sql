@@ -1,3 +1,4 @@
+/*
 -- 
 -- Thaurissan Relic
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`=153556;
@@ -25,3 +26,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (8887,0,4,"He cannot be defeated. <The relic burns to nothing. The memories it held are now your own. This city was destroyed by a being not of this world.>",15,0,100,0,0,0,4598,0,"A tormented voice"),
 (8887,0,5,"Your existence is acknowledged. <The relic turns to dust. Your head throbs with newfound wisdom. Something evil lurks in the heart of the mountain.>",15,0,100,0,0,0,4599,0,"A tormented voice"),
 (8887,0,6,"Defiler... you will be punished for this incursion. <A symbol of flame radiates from the relic before it crumbles to the earth.>",15,0,100,0,0,0,4600,0,"A tormented voice");
+*/

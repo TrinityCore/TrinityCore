@@ -1,3 +1,4 @@
+/*
 -- 
 -- Razzle Sprysprocket
 DELETE FROM `creature_text` WHERE `CreatureID` IN (1269,5568);
@@ -50,3 +51,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (1269,1,-5496.54,-455.453,395.439,""),
 (1269,2,-5499.83,-454.55,395.439,""),
 (1269,3,-5497.94,-455.835,395.438,"");
+*/
