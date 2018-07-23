@@ -1034,7 +1034,7 @@ private:
             // Wait for the current build job to finish, if the job finishes in time
             // evaluate it and continue with the next one.
             if (_build_job->GetProcess()->GetFutureResult().
-                    wait_for(0s) == std::future_status::ready)
+                    wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 ProcessReadyBuildJob();
             else
                 return; // Return when the job didn't finish in time
