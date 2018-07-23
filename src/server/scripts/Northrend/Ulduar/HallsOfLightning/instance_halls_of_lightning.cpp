@@ -37,7 +37,7 @@ class instance_halls_of_lightning : public InstanceMapScript
 
         struct instance_halls_of_lightning_InstanceMapScript : public InstanceScript
         {
-            instance_halls_of_lightning_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_halls_of_lightning_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

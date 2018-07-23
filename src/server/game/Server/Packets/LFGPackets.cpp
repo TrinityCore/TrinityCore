@@ -37,7 +37,7 @@ void WorldPackets::LFG::DFProposalResponse::Read()
 {
     _worldPacket >> Ticket;
     _worldPacket >> InstanceID;
-    _worldPacket >> InstanceID;
+    _worldPacket >> ProposalID;
     Accepted = _worldPacket.ReadBit();
 }
 

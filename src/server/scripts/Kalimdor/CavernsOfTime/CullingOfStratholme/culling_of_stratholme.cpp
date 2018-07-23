@@ -1260,7 +1260,7 @@ class npc_crate_helper : public CreatureScript
                         instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
                     if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
                     {
-                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, QuaternionData(), DAY);
+                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, QuaternionData::fromEulerAnglesZYX(crate->GetOrientation(), 0.0f, 0.0f), DAY);
                         crate->Delete();
                     }
                 }

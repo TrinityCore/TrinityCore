@@ -24,7 +24,6 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
 class instance_ragefire_chasm : public InstanceMapScript
 {
@@ -38,7 +37,7 @@ public:
 
     struct instance_ragefire_chasm_InstanceMapScript : public InstanceScript
     {
-        instance_ragefire_chasm_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_ragefire_chasm_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
     };
 };
 
