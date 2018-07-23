@@ -88,7 +88,7 @@ public:
         AreaTableEntry const* zoneEntry = nullptr;
         for (AreaTableEntry const* entry : sAreaTableStore)
         {
-            if (strstr(entry->area_name->Str[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->area_name, channelStr))
             {
                 zoneEntry = entry;
                 break;

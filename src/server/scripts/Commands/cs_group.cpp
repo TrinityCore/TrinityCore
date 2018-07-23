@@ -432,7 +432,7 @@ public:
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
                     if (zone)
-                        zoneName = zone->area_name->Str[localeConstant];
+                        zoneName = zone->area_name[localeConstant];
                 }
             }
             else

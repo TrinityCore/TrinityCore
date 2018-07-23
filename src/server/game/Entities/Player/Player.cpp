@@ -27311,9 +27311,9 @@ std::string Player::GetMapAreaAndZoneString() const
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
         int locale = GetSession()->GetSessionDbcLocale();
-        areaName = area->area_name->Str[locale];
+        areaName = area->area_name[locale];
         if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone))
-            zoneName = zone->area_name->Str[locale];
+            zoneName = zone->area_name[locale];
     }
 
     std::ostringstream str;
