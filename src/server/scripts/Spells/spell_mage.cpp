@@ -84,6 +84,9 @@ enum MageSpells
     SPELL_MAGE_INCANTERS_ABSORBTION_KNOCKBACK    = 86261,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
+    SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FIRE       = 88092,
+    SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_ARCANE     = 88091,
+    SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FROST      = 58832,
     SPELL_MAGE_PERMAFROST                        = 91394,
     SPELL_MAGE_PYROBLAST                         = 11366,
     SPELL_MAGE_SCORCH                            = 2948,
@@ -134,7 +137,8 @@ enum MageIcons
     ICON_MAGE_IMPROVED_MANA_GEM                  = 1036,
     ICON_MAGE_EARLY_FROST_SKILL                  = 189,
     ICON_MAGE_EARLY_FROST                        = 2114,
-    SPELL_ICON_MAGE_LIVING_BOMB                  = 3000
+    ICON_MAGE_GLYPH_OF_MIRROR_IMAGE              = 331,
+    SPELL_ICON_MAGE_LIVING_BOMB                  = 3000,
 };
 
 enum MiscSpells
@@ -2012,6 +2016,97 @@ class spell_mage_pyroblast : public SpellScriptLoader
         }
 };
 
+// 55342 - Mirror Image
+class spell_mage_mirror_image : public SpellScript
+{
+    PrepareSpellScript(spell_mage_mirror_image);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FIRE,
+                SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_ARCANE,
+                SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FROST
+            });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetHitPlayer();
+        if (!player)
+            return;
+
+        uint32 spellId = SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FROST;
+        if (player->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_GLYPH_OF_MIRROR_IMAGE, EFFECT_0))
+        {
+            if (player->GetPrimaryTalentTree(player->GetActiveSpec()) == TALENT_TREE_MAGE_FIRE)
+                spellId = SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FIRE;
+            else if (player->GetPrimaryTalentTree(player->GetActiveSpec()) == TALENT_TREE_MAGE_ARCANE)
+                spellId = SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_ARCANE;
+        }
+
+        player->CastSpell(player, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_mirror_image::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_mage_mirror_image_AurasScript : public AuraScript
+{
+    PrepareAuraScript(spell_mage_mirror_image_AurasScript);
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        if (aurEff->GetTickNumber() == 1)
+            GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_mirror_image_AurasScript::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+class SummonerCheck
+{
+    public:
+        SummonerCheck(Unit* _summoner) : summoner(_summoner)  { }
+
+        bool operator()(WorldObject* object)
+        {
+            if (Unit* unit = object->ToUnit())
+                if (TempSummon* summon = unit->ToTempSummon())
+                    return (summon->GetSummoner() && summon->GetSummoner() != summoner);
+
+            return false;
+        }
+
+    private:
+        Unit* summoner;
+};
+
+class spell_initialize_images : public SpellScript
+{
+    PrepareSpellScript(spell_initialize_images);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(SummonerCheck(GetCaster()));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_initialize_images::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -2032,6 +2127,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
     new spell_mage_improved_hot_streak();
+    RegisterSpellScript(spell_initialize_images);
     new spell_mage_glyph_of_ice_block();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
@@ -2039,6 +2135,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
+    RegisterSpellAndAuraScriptPair(spell_mage_mirror_image, spell_mage_mirror_image_AurasScript);
     new spell_mage_nether_vortex();
     new spell_mage_permafrost();
     new spell_mage_polymorph();

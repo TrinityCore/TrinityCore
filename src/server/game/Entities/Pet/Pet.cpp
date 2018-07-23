@@ -999,17 +999,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         AddAura(58877, this);//Spirit Hunt, passive, Spirit Wolves' attacks heal them and their master for 150% of damage done.
                     break;
                 }
-                case 31216: // Mirror Image
-                {
-                    SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
-                    SetDisplayId(GetOwner()->GetDisplayId());
-                    if (!pInfo)
-                    {
-                        SetCreateMana(28 + 30*petlevel);
-                        SetCreateHealth(28 + 10*petlevel);
-                    }
-                    break;
-                }
                 case 27829: // Ebon Gargoyle
                 {
                     if (!pInfo)

@@ -386,6 +386,13 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
                         break;
                     }
+                    case 88082: // Fireball (Mirror Image)
+                    case 59638: // Frost Bolt (Mirror Image)
+                    case 88084: // Arcane Blast (Mirror Image)
+                        // Mage Mirror Images deal 50% of the coefficient's spell power bonus as bonus damage
+                        if (Unit* owner = m_caster->ToTempSummon()->GetSummoner())
+                            damage += CalculatePct(owner->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, effIndex), 50);
+                        break;
                 }
                 break;
             }

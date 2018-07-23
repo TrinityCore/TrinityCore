@@ -4667,6 +4667,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->SpellLevel = 0;
     });
 
+    // Glyph of Mirror Image
+    ApplySpellFix({ 63093 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+    });
+
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];

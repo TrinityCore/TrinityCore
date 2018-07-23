@@ -427,8 +427,6 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
                         mask = UNIT_MASK_MINION;
                         break;
                     default:
-                        if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
-                            mask = UNIT_MASK_GUARDIAN;
                         break;
                 }
                 break;

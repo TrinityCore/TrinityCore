@@ -968,10 +968,6 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                             break;
                     }
                     break;
-                case SPELLFAMILY_MAGE:
-                    if (GetId() == 55342)// Mirror Image
-                        m_isPeriodic = false;
-                    break;
                 case SPELLFAMILY_DEATHKNIGHT:
                     // Chains of Ice
                     if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00004000)
@@ -5120,14 +5116,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     break;
             }
             break;
-        case SPELLFAMILY_MAGE:
-        {
-            // Mirror Image
-            if (GetId() == 55342)
-                // Set name of summons to name of caster
-                target->CastSpell((Unit*)nullptr, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
-            break;
-        }
         case SPELLFAMILY_DRUID:
         {
             switch (GetSpellInfo()->Id)
