@@ -17,6 +17,7 @@
 
 #include "lost_city_of_the_tolvir.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 
 enum Texts
 {
@@ -26,12 +27,17 @@ enum Texts
 
 enum Events
 {
-    EVENT_SMOKE_BOMB = 1
+    EVENT_SMOKE_BOMB = 1,
+    EVENT_EJECT_ALL_PASSENGERS,
+    EVENT_SLIPSTREAM,
 };
 
 enum Spells
 {
-    SPELL_SMOKE_BOMB = 84768
+    SPELL_SMOKE_BOMB                    = 84768,
+    SPELL_GENERIC_EJECT_ALL_PASSENGERS  = 79737,
+    SPELL_RIDE_VEHICLE                  = 93970,
+    SPELL_SLIPSTREAM                    = 85016
 };
 
 class npc_lct_augh : public CreatureScript
@@ -109,7 +115,91 @@ class npc_lct_augh : public CreatureScript
         }
 };
 
+struct npc_lct_wind_tunnel_landing_zone : public ScriptedAI
+{
+    npc_lct_wind_tunnel_landing_zone(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetDisableGravity(true);
+        me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
+    }
+
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (!who)
+            return;
+
+        if (apply)
+        {
+            who->SetDisableGravity(true, true);
+            _events.ScheduleEvent(EVENT_EJECT_ALL_PASSENGERS, 1s + 500ms);
+        }
+        else
+            who->SetDisableGravity(false, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_EJECT_ALL_PASSENGERS:
+                    DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_lct_wind_tunnel : public ScriptedAI
+{
+    npc_lct_wind_tunnel(Creature* creature) : ScriptedAI(creature) { }
+
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (!who)
+            return;
+
+        if (apply)
+        {
+            who->SetDisableGravity(true, true);
+            _events.ScheduleEvent(EVENT_SLIPSTREAM, 500ms);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SLIPSTREAM:
+                    if (Aura* aura = me->GetAura(SPELL_RIDE_VEHICLE))
+                        if (Unit* target = aura->GetCaster())
+                            DoCast(target, SPELL_SLIPSTREAM, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
 void AddSC_lost_city_of_the_tolvir()
 {
     new npc_lct_augh();
+    RegisterCreatureAI(npc_lct_wind_tunnel_landing_zone);
+    RegisterCreatureAI(npc_lct_wind_tunnel);
 }

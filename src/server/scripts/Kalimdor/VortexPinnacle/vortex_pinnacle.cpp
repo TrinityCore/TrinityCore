@@ -105,6 +105,9 @@ enum Events
 
     // Skyfall Star
     EVENT_FLY_RANDOM,
+
+    // Slipstream Landing Zone
+    EVENT_EJECT_ALL_PASSENGERS
 };
 
 enum Points
@@ -248,14 +251,39 @@ public:
             me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
         }
 
-        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
-            if (!apply)
+            if (!who)
                 return;
 
-            if (me->HasAura(SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA))
-                DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
+            if (apply)
+            {
+                who->SetDisableGravity(true, true);
+                _events.ScheduleEvent(EVENT_EJECT_ALL_PASSENGERS, 1s + 500ms);
+            }
+            else
+                who->SetDisableGravity(false, true);
         }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_EJECT_ALL_PASSENGERS:
+                        DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
