@@ -277,8 +277,8 @@ public:
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->name : unknown),
-            zoneId, (zoneEntry ? zoneEntry->area_name : unknown),
-            areaId, (areaEntry ? areaEntry->area_name : unknown),
+            zoneId, (zoneEntry ? zoneEntry->area_name->Str[handler->GetSessionDbcLocale()] : unknown),
+            areaId, (areaEntry ? areaEntry->area_name->Str[handler->GetSessionDbcLocale()] : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1833,11 +1833,11 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            areaName = area->area_name;
+            areaName = area->area_name->Str[handler->GetSessionDbcLocale()];;
 
             AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
             if (zone)
-                zoneName = zone->area_name;
+                zoneName = zone->area_name->Str[handler->GetSessionDbcLocale()];
         }
 
         if (target)

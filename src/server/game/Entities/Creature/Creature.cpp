@@ -1894,7 +1894,7 @@ void Creature::Respawn(bool force)
         GetName().c_str(), GetGUID().ToString().c_str());
 }
 
-void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawnTimer)
+void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
 {
     if (timeMSToDespawn)
     {
@@ -1946,7 +1946,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
     }
 }
 
-void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& forceRespawnTimer /*= 0*/)
+void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds forceRespawnTimer /*= 0*/)
 {
     if (TempSummon* summon = this->ToTempSummon())
         summon->UnSummon(msTimeToDespawn);

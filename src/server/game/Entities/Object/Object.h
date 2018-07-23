@@ -394,8 +394,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
         TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false);
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds const& despawnTime, uint32 vehId = 0, bool visibleBySummonerOnly = false) { return SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, visibleBySummonerOnly); }
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds despawnTime, uint32 vehId = 0, bool visibleBySummonerOnly = false) { return SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, visibleBySummonerOnly); }
         TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, bool visibleBySummonerOnly = false);
+
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = nullptr);

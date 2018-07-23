@@ -627,7 +627,7 @@ struct AreaTableEntry
     //uint32 unk8;                                          // 8,
     //uint32 unk9;                                          // 9,
     int32   area_level;                                     // 10
-    char*   area_name;                                      // 11
+    LocalizedString*   area_name;                           // 11
     uint32  team;                                           // 12
     uint32  LiquidTypeOverride[4];                          // 13-16 liquid override by type
     float   MaxDepth;                                       // 17,
