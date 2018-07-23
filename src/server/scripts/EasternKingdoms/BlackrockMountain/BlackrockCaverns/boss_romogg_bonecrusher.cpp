@@ -125,15 +125,12 @@ struct boss_romogg_bonecrusher : public BossAI
             summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid2);
             summon->CastSpell(summon, SPELL_CHAINS_OF_WOE_TELEPORT);
             summon->CastSpell(summon, SPELL_CHAINS_OF_WOE_CHANNELED);
-
-            if (summon->IsAIEnabled)
-                summon->AI()->DoZoneInCombat();
         }
         else if (summon->GetEntry() == NPC_ANGERED_EARTH)
         {
             summon->SetCorpseDelay(5);
             if (summon->IsAIEnabled)
-                summon->SetInCombatWithZone();
+                summon->AI()->DoZoneInCombat();
         }
     }
 
