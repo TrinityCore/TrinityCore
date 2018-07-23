@@ -1,10 +1,10 @@
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN 
 ('spell_mage_mirror_image',
-'spell_initialize_images');
+'spell_mage_initialize_images');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (55342, 'spell_mage_mirror_image'),
-(58836, 'spell_initialize_images');
+(58836, 'spell_mage_initialize_images');
 
 UPDATE `creature_template` SET `unit_class`= 8, `ScriptName`= 'npc_pet_mage_mirror_image' WHERE `entry` IN (47244, 47243, 31216);
 

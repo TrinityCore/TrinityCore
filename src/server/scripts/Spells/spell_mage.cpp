@@ -2089,9 +2089,9 @@ class SummonerCheck
         Unit* summoner;
 };
 
-class spell_initialize_images : public SpellScript
+class spell_mage_initialize_images : public SpellScript
 {
-    PrepareSpellScript(spell_initialize_images);
+    PrepareSpellScript(spell_mage_initialize_images);
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2103,7 +2103,7 @@ class spell_initialize_images : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_initialize_images::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_initialize_images::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
@@ -2127,7 +2127,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
     new spell_mage_improved_hot_streak();
-    RegisterSpellScript(spell_initialize_images);
+    RegisterSpellScript(spell_mage_initialize_images);
     new spell_mage_glyph_of_ice_block();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
