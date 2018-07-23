@@ -19,121 +19,306 @@
 #include "blackrock_caverns.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellScript.h"
 
-enum Romogg
+enum Texts
 {
-    YELL_AGGRO                      = 0,
-    YELL_KILL                       = 1,
-    YELL_SKULLCRACKER               = 2,
-    YELL_DEATH                      = 3,
-    EMOTE_CALL_FOR_HELP             = 4,
-    EMOTE_SKULLCRACKER              = 5,
-    SPELL_CALL_FOR_HELP             = 82137, // Needs Scripting
-    SPELL_CHAINS_OF_WOE             = 75539,
-    SPELL_QUAKE                     = 75272,
-    SPELL_SKULLCRACKER              = 75543,
-    SPELL_WOUNDING_STRIKE           = 75571,
-    EVENT_CHAINS_OF_WOE             = 1,
-    EVENT_QUAKE                     = 2,     // Not yet sure of timing
-    EVENT_SKULLCRACKER              = 3,
-    EVENT_WOUNDING_STRIKE           = 4,
-    TYPE_RAZ                        = 1,
-    DATA_ROMOGG_DEAD                = 1
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_CHAINS_OF_WOE           = 2,
+    SAY_DEATH                   = 3,
+    SAY_EMOTE_CALL_FOR_HELP     = 4,
+    SAY_ANNOUNCE_SKULLCRACKER   = 5
 };
 
-Position const SummonPos = { 249.2639f, 949.1614f, 191.7866f, 3.141593f };
+enum Spells
+{
+    // Rom'Ogg Bonecrusher
+    SPELL_CALL_FOR_HELP             = 82137,
+    SPELL_CHAINS_OF_WOE             = 75539,
+    SPELL_QUAKE                     = 75272,
+    SPELL_THE_SKULLCRACKER          = 75543,
+    SPELL_WOUNDING_STRIKE           = 75571,
 
-class boss_romogg_bonecrusher : public CreatureScript
+    // Chains of Woe
+    SPELL_CHAINS_OF_WOE_TELEPORT    = 75437,
+    SPELL_CHAINS_OF_WOE_CHANNELED   = 75441,
+};
+
+enum Events
+{
+    // Rom'Ogg Bonecrusher
+    EVENT_CHAINS_OF_WOE = 1,
+    EVENT_QUAKE,
+    EVENT_SKULLCRACKER,
+    EVENT_WOUNDING_STRIKE
+};
+
+enum Data
+{
+    DATA_CRUSHING_BONES_AND_CRACKING_SKULLS = 0
+};
+
+struct boss_romogg_bonecrusher : public BossAI
+{
+    boss_romogg_bonecrusher(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _killedElementals = 0;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        Talk(SAY_DEATH);
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+
+        if (who->GetEntry() == NPC_ANGERED_EARTH)
+            _killedElementals++;
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        Talk(SAY_AGGRO);
+        Talk(SAY_EMOTE_CALL_FOR_HELP);
+        DoCast(me, SPELL_CALL_FOR_HELP);
+
+        events.ScheduleEvent(EVENT_CHAINS_OF_WOE, 30s);
+        events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 16s);
+        events.ScheduleEvent(EVENT_QUAKE, 24s);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _DespawnAtEvade();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+
+        if (summon->GetEntry() == NPC_CHAINS_OF_WOE)
+        {
+            summon->SetReactState(REACT_PASSIVE);
+            summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid2);
+            summon->CastSpell(summon, SPELL_CHAINS_OF_WOE_TELEPORT);
+            summon->CastSpell(summon, SPELL_CHAINS_OF_WOE_CHANNELED);
+
+            if (summon->IsAIEnabled)
+                summon->AI()->DoZoneInCombat();
+        }
+        else if (summon->GetEntry() == NPC_ANGERED_EARTH)
+        {
+            summon->SetCorpseDelay(5);
+            if (summon->IsAIEnabled)
+                summon->SetInCombatWithZone();
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_CRUSHING_BONES_AND_CRACKING_SKULLS)
+            return _killedElementals >= 10;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHAINS_OF_WOE:
+                    Talk(SAY_CHAINS_OF_WOE);
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCast(me, SPELL_CHAINS_OF_WOE);
+                    events.ScheduleEvent(EVENT_SKULLCRACKER, 3s);
+                    events.Repeat(35s);
+                    break;
+                case EVENT_SKULLCRACKER:
+                    Talk(SAY_ANNOUNCE_SKULLCRACKER);
+                    DoCast(me, SPELL_THE_SKULLCRACKER);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_QUAKE:
+                    DoCast(me, SPELL_QUAKE);
+                    events.ScheduleEvent(EVENT_QUAKE, 24s);
+                    break;
+                case EVENT_WOUNDING_STRIKE:
+                    DoCastVictim(SPELL_WOUNDING_STRIKE);
+                    events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 13s, 14s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    uint8 _killedElementals;
+};
+
+class spell_romogg_quake : public SpellScript
+{
+    PrepareSpellScript(spell_romogg_quake);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_romogg_quake::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_romogg_chains_of_woe : public SpellScript
+{
+    PrepareSpellScript(spell_romogg_chains_of_woe);
+
+    void SetDest(SpellDestination& dest)
+    {
+        dest.RelocateOffset({ 0.0f, 0.0f, 1.6f, 0.0f });
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_romogg_chains_of_woe::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
+    }
+};
+
+class spell_romogg_chains_of_woe_teleport : public SpellScript
+{
+    PrepareSpellScript(spell_romogg_chains_of_woe_teleport);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_romogg_chains_of_woe_teleport::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_romogg_chains_of_woe_teleport_dest : public SpellScript
+{
+    PrepareSpellScript(spell_romogg_chains_of_woe_teleport_dest);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Position pos = dest._position;
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        float dist = 3.0f; // Value taken from DBC value (3 yards)
+        float angle = pos.GetAngle(caster);
+        pos.m_positionX += cos(angle) * dist;
+        pos.m_positionY += sin(angle) * dist;
+        pos.m_positionZ = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), pos.m_positionX, pos.m_positionY, caster->GetPositionZ(), true);
+        dest.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_romogg_chains_of_woe_teleport_dest::SetDest, EFFECT_0, TARGET_DEST_TARGET_RADIUS);
+    }
+};
+
+class spell_romogg_chains_of_woe_root : public SpellScript
+{
+    PrepareSpellScript(spell_romogg_chains_of_woe_root);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_romogg_chains_of_woe_root::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_romogg_call_for_help : public SpellScript
+{
+    PrepareSpellScript(spell_romogg_call_for_help);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        if (Creature* creature = GetHitCreature())
+            if (creature->IsAIEnabled)
+                creature->AI()->DoZoneInCombat();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_romogg_call_for_help::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class achievement_crushing_bones_and_cracking_skulls : public AchievementCriteriaScript
 {
     public:
-        boss_romogg_bonecrusher() : CreatureScript("boss_romogg_bonecrusher") { }
+        achievement_crushing_bones_and_cracking_skulls() : AchievementCriteriaScript("achievement_crushing_bones_and_cracking_skulls") { }
 
-        struct boss_romogg_bonecrusherAI : public BossAI
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            boss_romogg_bonecrusherAI(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER)
-            {
-                me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos, TEMPSUMMON_MANUAL_DESPAWN, 200000);
-            }
+            if (!target)
+                return false;
 
-            void Reset() override
-            {
-                _Reset();
-            }
+            if (target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_CRUSHING_BONES_AND_CRACKING_SKULLS);
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(YELL_DEATH);
-
-                if (Creature* raz = instance->GetCreature(DATA_RAZ_THE_CRAZED))
-                    raz->AI()->SetData(TYPE_RAZ, DATA_ROMOGG_DEAD);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(YELL_KILL);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                events.ScheduleEvent(EVENT_CHAINS_OF_WOE, urand(22000, 32000));
-                events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(26000, 32000));
-                events.ScheduleEvent(EVENT_QUAKE, 45000);
-                Talk(YELL_AGGRO);
-                Talk(EMOTE_CALL_FOR_HELP);
-                DoCast(me, SPELL_CALL_FOR_HELP);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CHAINS_OF_WOE:
-                            Talk(YELL_SKULLCRACKER);
-                            DoCast(me, SPELL_CHAINS_OF_WOE);
-                            events.ScheduleEvent(EVENT_CHAINS_OF_WOE, urand(22000, 32000));
-                            events.ScheduleEvent(EVENT_SKULLCRACKER, 3000);
-                            break;
-                        case EVENT_SKULLCRACKER:
-                            Talk(EMOTE_SKULLCRACKER);
-                            DoCast(me, SPELL_SKULLCRACKER);
-                            break;
-                        case EVENT_QUAKE:
-                            DoCast(me, SPELL_QUAKE);
-                            events.ScheduleEvent(EVENT_QUAKE, urand(32000, 40000));
-                            break;
-                        case EVENT_WOUNDING_STRIKE:
-                            DoCastVictim(SPELL_WOUNDING_STRIKE, true);
-                            events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(26000, 32000));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<boss_romogg_bonecrusherAI>(creature);
+            return false;
         }
 };
 
 void AddSC_boss_romogg_bonecrusher()
 {
-    new boss_romogg_bonecrusher();
+    RegisterBlackrockCavernsCreatureAI(boss_romogg_bonecrusher);
+    RegisterSpellScript(spell_romogg_quake);
+    RegisterSpellScript(spell_romogg_chains_of_woe);
+    RegisterSpellScript(spell_romogg_chains_of_woe_teleport);
+    RegisterSpellScript(spell_romogg_chains_of_woe_teleport_dest);
+    RegisterSpellScript(spell_romogg_chains_of_woe_root);
+    RegisterSpellScript(spell_romogg_call_for_help);
+    new achievement_crushing_bones_and_cracking_skulls();
 }

@@ -613,12 +613,9 @@ class npc_raz_the_crazed : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-                if (summoner->GetEntry() == NPC_ROMOGG_BONECRUSHER)
-                {
-                    me->SetDisableGravity(true);
-                    DoCast(me, SPELL_SHADOW_PRISON);
-                    _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
-                }
+                me->SetDisableGravity(true);
+                DoCast(me, SPELL_SHADOW_PRISON);
+                _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
             }
 
             void SetData(uint32 id, uint32 data) override
@@ -667,115 +664,6 @@ class npc_raz_the_crazed : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_raz_the_crazedAI>(creature);
-        }
-};
-
-/*#####
-# npc_chains_of_woe
-#####*/
-
-enum ChainsOfWoe
-{
-    SPELL_CHAINS_OF_WOE_1       = 75437,
-    SPELL_CHAINS_OF_WOE_2       = 75441,
-    SPELL_CHAINS_OF_WOE_3       = 75464,
-    SPELL_CHAINS_OF_WOE_4       = 82189,
-    SPELL_CHAINS_OF_WOE_5       = 82192,
-    MODEL_INVISIBLE             = 38330
-};
-
-class npc_chains_of_woe : public CreatureScript
-{
-    public: npc_chains_of_woe() : CreatureScript("npc_chains_of_woe") { }
-
-        struct npc_chains_of_woeAI : public ScriptedAI
-        {
-            npc_chains_of_woeAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                me->SetDisplayId(MODEL_INVISIBLE);
-                DoCast(me, SPELL_CHAINS_OF_WOE_1, true);
-                DoCast(me, SPELL_CHAINS_OF_WOE_2, true);
-            }
-
-        private:
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_chains_of_woeAI>(creature);
-        }
-};
-
-/*#####
-# spell_chains_of_woe_1
-#####*/
-
-class spell_chains_of_woe_1 : public SpellScriptLoader
-{
-    public: spell_chains_of_woe_1() : SpellScriptLoader("spell_chains_of_woe_1") { }
-
-        class spell_chains_of_woe_1_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_chains_of_woe_1_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_1 });
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* playerTarget = GetHitPlayer())
-                    playerTarget->CastSpell(GetCaster(), SPELL_CHAINS_OF_WOE_3, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_chains_of_woe_1_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_chains_of_woe_1_SpellScript();
-        }
-};
-
-/*#####
-# spell_chains_of_woe_4
-#####*/
-
-class spell_chains_of_woe_4 : public SpellScriptLoader
-{
-    public: spell_chains_of_woe_4() : SpellScriptLoader("spell_chains_of_woe_4") { }
-
-        class spell_chains_of_woe_4_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_chains_of_woe_4_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_4 });
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* playerTarget = GetHitPlayer())
-                    playerTarget->CastSpell(playerTarget, SPELL_CHAINS_OF_WOE_5, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_chains_of_woe_4_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_chains_of_woe_4_SpellScript();
         }
 };
 
@@ -882,10 +770,7 @@ void AddSC_blackrock_caverns()
     new npc_mad_prisoner();
     new npc_crazed_mage();
     new npc_raz_the_crazed();
-    new npc_chains_of_woe();
     // Spell Scripts
-    new spell_chains_of_woe_1();
-    new spell_chains_of_woe_4();
     new spell_nether_dragon_essence_1();
     new spell_nether_dragon_essence_2();
 }

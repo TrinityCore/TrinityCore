@@ -22,8 +22,9 @@
 
 ObjectData const creatureData[] =
 {
-    { NPC_RAZ_THE_CRAZED, DATA_RAZ_THE_CRAZED },
-    { 0,                  0                   }
+    { BOSS_ROMOGG_BONECRUSHER,  DATA_ROMOGG_BONECRUSHER },
+    { NPC_RAZ_THE_CRAZED,       DATA_RAZ_THE_CRAZED     },
+    { 0,                        0                       }
 };
 
 class instance_blackrock_caverns : public InstanceMapScript
@@ -58,6 +59,22 @@ class instance_blackrock_caverns : public InstanceMapScript
                 }
 
                 return true;
+            }
+
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_QUAKE:
+                    case NPC_ANGERED_EARTH:
+                        if (Creature* romogg = GetCreature(DATA_ROMOGG_BONECRUSHER))
+                            romogg->AI()->JustSummoned(creature);
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 
