@@ -157,7 +157,7 @@ void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactS
 
         // change druid form appearance
         if (artifactAppearance->OverrideShapeshiftDisplayID && artifactAppearance->OverrideShapeshiftFormID && _player->GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID))
-            _player->RestoreDisplayId();
+            _player->RestoreDisplayId(_player->IsMounted());
     }
 }
 
