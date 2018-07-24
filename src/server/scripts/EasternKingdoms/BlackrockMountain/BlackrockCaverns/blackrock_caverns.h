@@ -29,7 +29,7 @@ enum BRCDataTypes
 {
     // Encounter States // Boss GUIDs
     DATA_ROMOGG_BONECRUSHER             = 0,
-    DATA_CORLA                          = 1,
+    DATA_CORLA_HERALD_OF_TWILIGHT       = 1,
     DATA_KARSH_STEELBENDER              = 2,
     DATA_BEAUTY                         = 3,
     DATA_ASCENDANT_LORD_OBSIDIUS        = 4,
@@ -42,15 +42,20 @@ enum BRCCreatureIds
 {
     // Bosses
     BOSS_ROMOGG_BONECRUSHER             = 39665,
+    BOSS_CORLA_HERALD_OF_TWILIGHT       = 39679,
 
     // Encounter Related
-    /*Rom'Ogg Bonecrusher*/
+    /*Rom'ogg Bonecrusher*/
     NPC_CHAINS_OF_WOE                   = 40447,
     NPC_ANGERED_EARTH                   = 50376,
     NPC_QUAKE                           = 40401,
 
+    /*Corla, Herald of Twilight*/
+    NPC_TWILIGHT_ZEALOT                 = 50284,
+    NPC_EVOLVED_TWILIGHT_ZEALOT         = 39987,
+
     NPC_TWILIGHT_FLAME_CALLER           = 39708,
-    NPC_RAZ_THE_CRAZED                  = 39670,
+    NPC_RAZ_THE_CRAZED                  = 39670
 };
 
 template <class AI, class T>

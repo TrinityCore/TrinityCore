@@ -667,99 +667,6 @@ class npc_raz_the_crazed : public CreatureScript
         }
 };
 
-/*#####
-# spell_nether_dragon_essence_1
-#####*/
-
-enum NetherDragonEssence
-{
-    SPELL_NETHER_DRAGON_ESSENCE_1 = 75649,
-    SPELL_NETHER_DRAGON_ESSENCE_2 = 75650,
-    SPELL_NETHER_DRAGON_ESSENCE_3 = 75653,
-    SPELL_NETHER_DRAGON_ESSENCE_4 = 75654
-};
-
-class spell_nether_dragon_essence_1 : public SpellScriptLoader
-{
-    public: spell_nether_dragon_essence_1() : SpellScriptLoader("spell_nether_dragon_essence_1") { }
-
-        class spell_nether_dragon_essence_1_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_nether_dragon_essence_1_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_NETHER_DRAGON_ESSENCE_2,
-                    SPELL_NETHER_DRAGON_ESSENCE_3,
-                    SPELL_NETHER_DRAGON_ESSENCE_4
-                });
-            }
-
-            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, RAND(SPELL_NETHER_DRAGON_ESSENCE_2, SPELL_NETHER_DRAGON_ESSENCE_3, SPELL_NETHER_DRAGON_ESSENCE_4));
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_nether_dragon_essence_1_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_nether_dragon_essence_1_AuraScript();
-        }
-};
-
-/*#####
-# spell_nether_dragon_essence_2
-#####*/
-
-class spell_nether_dragon_essence_2 : public SpellScriptLoader
-{
-    public:
-        spell_nether_dragon_essence_2() : SpellScriptLoader("spell_nether_dragon_essence_2") { }
-
-        class spell_nether_dragon_essence_2_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_nether_dragon_essence_2_SpellScript);
-
-            void ModDestHeight(SpellDestination& dest)
-            {
-                Position offset = { frand(-35.0f, 35.0f), frand(-25.0f, 25.0f), 0.0f, 0.0f };
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case SPELL_NETHER_DRAGON_ESSENCE_2:
-                        offset.m_positionZ = 25.0f;
-                        break;
-                    case SPELL_NETHER_DRAGON_ESSENCE_3:
-                        offset.m_positionZ = 17.0f;
-                        break;
-                    case SPELL_NETHER_DRAGON_ESSENCE_4:
-                        offset.m_positionZ = 33.0f;
-                        break;
-                }
-
-                dest.RelocateOffset(offset);
-            }
-
-            void Register() override
-            {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_nether_dragon_essence_2_SpellScript::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_nether_dragon_essence_2_SpellScript();
-        }
-};
-
 void AddSC_blackrock_caverns()
 {
     // Creature Scripts
@@ -770,7 +677,4 @@ void AddSC_blackrock_caverns()
     new npc_mad_prisoner();
     new npc_crazed_mage();
     new npc_raz_the_crazed();
-    // Spell Scripts
-    new spell_nether_dragon_essence_1();
-    new spell_nether_dragon_essence_2();
 }

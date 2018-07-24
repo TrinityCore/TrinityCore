@@ -4620,6 +4620,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
     });
+
     // ENDOF BLACKROCK CAVERNS SPELLS
 
     //
