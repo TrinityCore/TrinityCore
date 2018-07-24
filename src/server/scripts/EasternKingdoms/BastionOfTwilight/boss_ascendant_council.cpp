@@ -23,7 +23,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Player.h"
-#include "DataStores\DBCStores.h"
 #include "bastion_of_twilight.h"
 
 enum Texts
@@ -286,11 +285,6 @@ enum AchievementData
     DATA_ELEMENTARY = 1
 };
 
-enum SummonProperties
-{
-    PROPERTY_DEFAULT = 64
-};
-
 Position const arionMiddlePosition      = { -1007.961f, -582.0203f, 831.9003f };
 Position const terrastraMiddlePosition  = { -1009.37f,  -583.4302f, 831.901f  };
 Position const feludiusMiddlePosition   = { -1007.965f, -583.4254f, 831.901f  };
@@ -461,8 +455,7 @@ class boss_ascendant_council_controller : public CreatureScript
                             if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
 
-                            if (SummonPropertiesEntry const* entry = sSummonPropertiesStore.LookupEntry(PROPERTY_DEFAULT))
-                                me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), entry, 0, me);
+                            me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition());
                             break;
                         default:
                             break;
