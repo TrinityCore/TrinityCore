@@ -303,6 +303,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
+            case DIFFICULTY_NORMAL_RAID:
             case DIFFICULTY_10_N:
                 return normal10;
             case DIFFICULTY_25_N:
@@ -319,6 +320,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
+            case DIFFICULTY_NORMAL_RAID:
             case DIFFICULTY_10_N:
                 return normal10;
             case DIFFICULTY_25_N:
