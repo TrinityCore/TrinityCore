@@ -245,7 +245,7 @@ public:
     {
         // Check paladin class area
         if (newAreaId == 7638 && !player->IsGameMaster() && (player->getClass() != CLASS_PALADIN || player->getLevel() < 100))
-            player->NearTeleportTo(2283.882080, -5322.789551, 89.235878, 2.362668);
+            player->NearTeleportTo(2283.882080f, -5322.789551f, 89.235878f, 2.362668f);
     }
 };
 
