@@ -377,6 +377,9 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
 
 void UnitAI::UpdateOperations(uint32 const diff)
 {
+    if (!me)
+        return;
+
     if (me->HasUnitState(UnitState::UNIT_STATE_EVADE))
         return;
 
