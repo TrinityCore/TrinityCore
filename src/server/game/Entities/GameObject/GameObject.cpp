@@ -692,10 +692,6 @@ void GameObject::Update(uint32 diff)
                     }
                     else if (Unit* target = ObjectAccessor::GetUnit(*this, m_lootStateUnitGUID))
                     {
-                        // Set in combat with owner
-                        if (Unit* owner = GetOwner())
-                            target->EngageWithTarget(owner);
-
                         // Some traps do not have a spell but should be triggered
                         CastSpellExtraArgs args;
                         args.SetOriginalCaster(GetOwnerGUID());
