@@ -6,7 +6,7 @@ UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE 
 -- Angered Earth
 UPDATE `creature_template` SET `DamageModifier`= 8 WHERE `entry`= 50376;
 -- Chains of Woe
-UPDATE `creature_template` SET `ScriptName`= '' WHERE `entry`= 40447;
+UPDATE `creature_template` SET `ScriptName`= 'npc_romogg_chains_of_woe' WHERE `entry`= 40447;
 UPDATE `creature_template` SET `InhabitType`= 12, `mechanic_immune_mask`= 1 | 2 | 16 | 32 | 256 | 512 | 2048 | 8192 | 65536 | 131072 | 8388608 | 33554432, `flags_extra`= 0x40000000 WHERE `entry` IN (40447, 50379);
 
 -- Template Addons

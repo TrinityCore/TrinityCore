@@ -60,6 +60,23 @@ enum Data
     DATA_CRUSHING_BONES_AND_CRACKING_SKULLS = 0
 };
 
+class AttackStartEvent : public BasicEvent
+{
+    public:
+        AttackStartEvent(Creature* owner) :  _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->SetReactState(REACT_AGGRESSIVE);
+            if (_owner->IsAIEnabled)
+                _owner->AI()->DoZoneInCombat();
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
+
 struct boss_romogg_bonecrusher : public BossAI
 {
     boss_romogg_bonecrusher(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER)
@@ -119,18 +136,11 @@ struct boss_romogg_bonecrusher : public BossAI
     {
         summons.Summon(summon);
 
-        if (summon->GetEntry() == NPC_CHAINS_OF_WOE)
+        if (summon->GetEntry() == NPC_ANGERED_EARTH)
         {
             summon->SetReactState(REACT_PASSIVE);
-            summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid2);
-            summon->CastSpell(summon, SPELL_CHAINS_OF_WOE_TELEPORT);
-            summon->CastSpell(summon, SPELL_CHAINS_OF_WOE_CHANNELED);
-        }
-        else if (summon->GetEntry() == NPC_ANGERED_EARTH)
-        {
             summon->SetCorpseDelay(5);
-            if (summon->IsAIEnabled)
-                summon->AI()->DoZoneInCombat();
+            summon->m_Events.AddEvent(new AttackStartEvent(summon), summon->m_Events.CalculateTime(500));
         }
     }
 
@@ -186,6 +196,31 @@ struct boss_romogg_bonecrusher : public BossAI
     }
 private:
     uint8 _killedElementals;
+};
+
+struct npc_romogg_chains_of_woe : public ScriptedAI
+{
+    npc_romogg_chains_of_woe(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        DoCastSelf(SPELL_CHAINS_OF_WOE_TELEPORT);
+        DoCastSelf(SPELL_CHAINS_OF_WOE_CHANNELED);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override { }
+
+private:
+    EventMap _events;
 };
 
 class spell_romogg_quake : public SpellScript
@@ -311,6 +346,7 @@ class achievement_crushing_bones_and_cracking_skulls : public AchievementCriteri
 void AddSC_boss_romogg_bonecrusher()
 {
     RegisterBlackrockCavernsCreatureAI(boss_romogg_bonecrusher);
+    RegisterBlackrockCavernsCreatureAI(npc_romogg_chains_of_woe);
     RegisterSpellScript(spell_romogg_quake);
     RegisterSpellScript(spell_romogg_chains_of_woe);
     RegisterSpellScript(spell_romogg_chains_of_woe_teleport);
