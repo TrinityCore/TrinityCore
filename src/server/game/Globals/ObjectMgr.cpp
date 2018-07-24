@@ -2013,8 +2013,6 @@ void ObjectMgr::LoadCreatures()
         data.phaseGroup     = fields[25].GetUInt32();
         data.terrainSwapMap = fields[26].GetInt32();
         data.ScriptId       = GetScriptId(fields[27].GetString());
-        if (!data.ScriptId)
-            data.ScriptId = cInfo->ScriptID;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)

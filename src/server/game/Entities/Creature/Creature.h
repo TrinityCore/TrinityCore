@@ -150,7 +150,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool HasSpell(uint32 spellID) const override;
 
-        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
+        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true, bool updateScript = false);
 
         void UpdateMovementFlags();
 
