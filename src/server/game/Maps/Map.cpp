@@ -45,6 +45,8 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "World.h"
+#include <unordered_set>
+#include <vector>
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','6'} };
@@ -845,7 +847,7 @@ void Map::Update(uint32 t_diff)
             for (std::pair<uint32, AuraApplication*> pair : player->GetAppliedAuras())
             {
                 if (Unit* caster = pair.second->GetBase()->GetCaster())
-                    if (caster->GetTypeId() != TYPEID_PLAYER)
+                    if (caster->GetTypeId() != TYPEID_PLAYER && !caster->IsWithinDistInMap(player, GetVisibilityRange(), false))
                         toVisit.insert(caster);
             }
             for (Unit* unit : toVisit)
