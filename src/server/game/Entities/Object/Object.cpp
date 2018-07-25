@@ -67,6 +67,7 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
 
     m_inWorld           = false;
+    m_isNewObject       = false;
     m_objectUpdated     = false;
 }
 
@@ -170,32 +171,32 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
-    switch (GetGUID().GetHigh())
+    if (m_isNewObject)
     {
-        case HighGuid::Player:
-        case HighGuid::Pet:
-        case HighGuid::Corpse:
-        case HighGuid::DynamicObject:
-        case HighGuid::AreaTrigger:
-            updateType = UPDATETYPE_CREATE_OBJECT2;
-            break;
-        case HighGuid::Unit:
-        case HighGuid::Vehicle:
+        switch (GetGUID().GetHigh())
         {
-            if (TempSummon const* summon = ToUnit()->ToTempSummon())
-                if (summon->GetSummonerGUID().IsPlayer())
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-
-            break;
-        }
-        case HighGuid::GameObject:
-        {
-            if (ToGameObject()->GetOwnerGUID().IsPlayer())
+            case HighGuid::Player:
+            case HighGuid::Pet:
+            case HighGuid::Corpse:
+            case HighGuid::DynamicObject:
                 updateType = UPDATETYPE_CREATE_OBJECT2;
-            break;
+                break;
+            case HighGuid::Unit:
+            case HighGuid::Vehicle:
+            {
+                if (ToUnit()->IsSummon())
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            }
+            case HighGuid::GameObject:
+            {
+                if (ToGameObject()->GetOwnerGUID().IsPlayer())
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            }
+            default:
+                break;
         }
-        default:
-            break;
     }
 
     if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
@@ -210,6 +211,14 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
+        // UPDATETYPE_CREATE_OBJECT2 dynamic objects, corpses...
+        if (isType(TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_PLAYER))
+            updateType = UPDATETYPE_CREATE_OBJECT2;
+
+        // UPDATETYPE_CREATE_OBJECT2 for pets...
+        if (target->GetPetGUID() == GetGUID())
+            updateType = UPDATETYPE_CREATE_OBJECT2;
+
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
         if (isType(TYPEMASK_GAMEOBJECT))
         {
@@ -221,15 +230,20 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
                 case GAMEOBJECT_TYPE_FLAGDROP:
                     updateType = UPDATETYPE_CREATE_OBJECT2;
                     break;
+                case GAMEOBJECT_TYPE_TRANSPORT:
+                    flags |= UPDATEFLAG_TRANSPORT;
+                    break;
                 default:
                     break;
             }
         }
-    }
 
-    if (Unit const* unit = ToUnit())
-        if (unit->GetVictim())
-            flags |= UPDATEFLAG_HAS_TARGET;
+        if (isType(TYPEMASK_UNIT))
+        {
+            if (ToUnit()->GetVictim())
+                flags |= UPDATEFLAG_HAS_TARGET;
+        }
+    }
 
     ByteBuffer buf(500);
     buf << uint8(updateType);

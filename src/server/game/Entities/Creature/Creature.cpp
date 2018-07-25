@@ -308,6 +308,20 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 
         float x, y, z, o;
         GetRespawnPosition(x, y, z, &o);
+
+        // We were spawned on transport, calculate real position
+        if (IsSpawnedOnTransport())
+        {
+            Position& pos = m_movementInfo.transport.pos;
+            pos.m_positionX = x;
+            pos.m_positionY = y;
+            pos.m_positionZ = z;
+            pos.SetOrientation(o);
+
+            if (TransportBase* transport = GetDirectTransport())
+                transport->CalculatePassengerPosition(x, y, z, &o);
+        }
+
         SetHomePosition(x, y, z, o);
         GetMap()->CreatureRelocation(this, x, y, z, o);
     }
