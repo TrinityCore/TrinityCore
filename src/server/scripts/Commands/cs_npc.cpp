@@ -356,13 +356,11 @@ public:
             data.phaseMask = chr->GetPhaseMask();
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
 
-            Creature* creature = trans->CreateNPCPassenger(guid, &data);
-
-            // creature->CopyPhaseFrom(chr); // will not be saved, and probably useless
-
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMask());
-
-            sObjectMgr->AddCreatureToGrid(guid, &data);
+            if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
+            {
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMask());
+                sObjectMgr->AddCreatureToGrid(guid, &data);
+            }
             return true;
         }
 
