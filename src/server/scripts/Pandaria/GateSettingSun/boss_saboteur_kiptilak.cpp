@@ -346,7 +346,6 @@ class spell_kiptilak_sabotage: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_saboteur_kiptilak()
 {
     new boss_saboteur_kiptilak();
@@ -354,4 +353,3 @@ void AddSC_boss_saboteur_kiptilak()
     new spell_kiptilak_munitions_explosion();
     new spell_kiptilak_sabotage();
 }
-#endif

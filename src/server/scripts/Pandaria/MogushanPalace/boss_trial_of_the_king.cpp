@@ -907,7 +907,6 @@ public:
     }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_trial_of_the_king()
 {
     new mob_xian_the_weaponmaster_trigger();
@@ -918,4 +917,3 @@ void AddSC_boss_trial_of_the_king()
     new mob_mu_shiba();
     new boss_haiyan_the_unstoppable();
 }
-#endif

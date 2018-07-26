@@ -106,9 +106,7 @@ class world_boss_yu_lon : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_yu_lon()
 {
     new world_boss_yu_lon();
 }
-#endif

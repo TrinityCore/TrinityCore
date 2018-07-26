@@ -90,9 +90,7 @@ public:
 
 };
 
-#ifndef __clang_analyzer__
 void AddSC_instance_stormstout_brewery()
 {
     new instance_stormstout_brewery();
 }
-#endif

@@ -429,10 +429,8 @@ class mob_corrupt_living_water : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_wise_mari()
 {
     new boss_wase_mari();
     new mob_corrupt_living_water();
 }
-#endif

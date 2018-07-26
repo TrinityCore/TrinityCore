@@ -454,7 +454,6 @@ class areatrigger_at_shadopan_archery : public AreaTriggerScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_shadopan_monastery()
 {
     new npc_shadopan_ambusher();
@@ -464,4 +463,3 @@ void AddSC_shadopan_monastery()
     new spell_shadopan_apparitions();
     new areatrigger_at_shadopan_archery();
 }
-#endif

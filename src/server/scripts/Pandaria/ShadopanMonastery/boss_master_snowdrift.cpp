@@ -758,7 +758,6 @@ class npc_snowdrift_fireball : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_master_snowdrift()
 {
     new boss_master_snowdrift();
@@ -767,4 +766,3 @@ void AddSC_boss_master_snowdrift()
     new npc_snowdrift_clone();
     new npc_snowdrift_fireball();
 }
-#endif

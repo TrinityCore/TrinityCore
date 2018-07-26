@@ -639,10 +639,8 @@ public:
     }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_instance_mogu_shan_palace()
 {
     new instance_mogu_shan_palace();
     new go_mogushan_palace_temp_portal();
 }
-#endif

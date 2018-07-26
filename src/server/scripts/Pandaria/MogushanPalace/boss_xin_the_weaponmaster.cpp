@@ -372,11 +372,9 @@ class spell_dart: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_xin_the_weaponmaster()
 {
     new boss_xin_the_weaponmaster();
     new mob_animated_staff();
     new spell_dart();
 }
-#endif

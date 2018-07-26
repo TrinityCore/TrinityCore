@@ -1921,7 +1921,7 @@ public:
                     break;
                 case DATA_VORDRAKA_DEATH:
                     Talk(TEXT_DEATH);
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     _events.CancelEvent(EVENT_TEMPERED_FURY);
                     break;
             }

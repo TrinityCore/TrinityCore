@@ -543,7 +543,6 @@ class mob_lesser_sha : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_liu_flameheat()
 {
     new boss_liu_flameheart();
@@ -553,4 +552,3 @@ void AddSC_boss_liu_flameheat()
     new mob_minion_of_doubt();
     new mob_lesser_sha();
 }
-#endif

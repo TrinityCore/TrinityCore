@@ -106,9 +106,7 @@ class boss_chi_ji : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_chi_ji()
 {
     new boss_chi_ji();
 }
-#endif

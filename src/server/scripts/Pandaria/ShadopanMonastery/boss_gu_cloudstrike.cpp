@@ -446,7 +446,6 @@ class spell_overcharged_soul_damage: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_gu_cloudstrike()
 {
     new boss_gu_cloudstrike();
@@ -455,4 +454,3 @@ void AddSC_boss_gu_cloudstrike()
     new spell_kill_guardians();
     new spell_overcharged_soul_damage();
 }
-#endif

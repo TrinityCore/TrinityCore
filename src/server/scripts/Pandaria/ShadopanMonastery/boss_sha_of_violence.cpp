@@ -122,9 +122,7 @@ class boss_sha_of_violence : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_sha_of_violence()
 {
     new boss_sha_of_violence();
 }
-#endif

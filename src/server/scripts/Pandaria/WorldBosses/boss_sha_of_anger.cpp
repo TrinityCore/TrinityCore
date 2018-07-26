@@ -455,7 +455,6 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
         }
  };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_sha_of_anger()
 {
     new boss_sha_of_anger();
@@ -463,4 +462,3 @@ void AddSC_boss_sha_of_anger()
     new spell_sha_of_anger_aggressive_behaviour();
     new spell_sha_of_anger_overcome_by_anger();
 }
-#endif

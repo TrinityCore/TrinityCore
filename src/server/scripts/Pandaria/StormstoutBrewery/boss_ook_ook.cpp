@@ -227,7 +227,6 @@ class spell_ook_ook_barrel: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_ook_ook()
 {
     new boss_ook_ook();
@@ -235,4 +234,3 @@ void AddSC_boss_ook_ook()
     new spell_ook_ook_barrel_ride();
     new spell_ook_ook_barrel();
 }
-#endif

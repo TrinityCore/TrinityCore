@@ -55,6 +55,26 @@ void AddSC_boss_sha_of_doubt();
 void AddSC_boss_wise_mari();
 void AddSC_instance_temple_of_jade_serpent();
 
+// Mogu'Shan Vault
+void AddSC_boss_stone_guard();
+void AddSC_boss_feng();
+void AddSC_boss_garajal();
+void AddSC_boss_spirit_kings();
+void AddSC_boss_elegon();
+void AddSC_boss_will_of_emperor();
+void AddSC_mogu_shan_vault();
+void AddSC_instance_mogu_shan_vault();
+
+// Heart of Fear
+void AddSC_boss_zorlok();
+void AddSC_boss_tayak();
+void AddSC_boss_garalon();
+void AddSC_boss_meljarak();
+void AddSC_boss_unsok();
+void AddSC_boss_shekzeer();
+void AddSC_heart_of_fear();
+void AddSC_instance_heart_of_fear();
+
 // WorldBosses
 void AddSC_boss_chi_ji();
 void AddSC_boss_galion();
@@ -118,6 +138,26 @@ void AddPandariaScripts()
     AddSC_boss_sha_of_doubt();
     AddSC_boss_wise_mari();
     AddSC_instance_temple_of_jade_serpent();
+
+    // Mogu'Shan Vault
+    AddSC_boss_stone_guard();
+    AddSC_boss_feng();
+    AddSC_boss_garajal();
+    AddSC_boss_spirit_kings();
+    AddSC_boss_elegon();
+    AddSC_boss_will_of_emperor();
+    AddSC_mogu_shan_vault();
+    AddSC_instance_mogu_shan_vault();
+
+    // Heart of Fear
+    AddSC_boss_zorlok();
+    AddSC_boss_tayak();
+    AddSC_boss_garalon();
+    AddSC_boss_meljarak();
+    AddSC_boss_unsok();
+    AddSC_boss_shekzeer();
+    AddSC_heart_of_fear();
+    AddSC_instance_heart_of_fear();
 
     // WorldBosses
     AddSC_boss_chi_ji();

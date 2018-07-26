@@ -195,10 +195,8 @@ class spell_lightning_tether: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_nalak()
 {
     new boss_nalak();
     new spell_lightning_tether();
 }
-#endif

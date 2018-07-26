@@ -369,7 +369,6 @@ class spell_rimok_saboteur_bombard: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_commander_rimok()
 {
     new boss_commander_rimok();
@@ -379,4 +378,3 @@ void AddSC_boss_commander_rimok()
     new npc_viscous_fluid();
     new spell_rimok_saboteur_bombard();
 }
-#endif
