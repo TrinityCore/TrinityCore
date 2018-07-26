@@ -1149,6 +1149,30 @@ class spell_warr_thunder_clap : public SpellScriptLoader
         }
 };
 
+class spell_warr_shield_specialization : public AuraScript
+{
+    PrepareAuraScript(spell_warr_shield_specialization);
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetHitMask() & PROC_HIT_REFLECT)
+        {
+            PreventDefaultAction();
+            Unit* target = GetTarget();
+            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo((GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell)))
+            {
+                int32 bp = spell->Effects[EFFECT_0].CalcValue() * 4;
+                target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, nullptr, true, nullptr, aurEff);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_shield_specialization::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1168,6 +1192,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_second_wind_proc();
     new spell_warr_second_wind_trigger();
     new spell_warr_shattering_throw();
+    RegisterAuraScript(spell_warr_shield_specialization);
     new spell_warr_slam();
     new spell_warr_strikes_of_opportunity();
     new spell_warr_sudden_death();
