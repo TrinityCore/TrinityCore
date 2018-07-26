@@ -1300,11 +1300,11 @@ class npc_rise_br : public CreatureScript
     {
         if (quest->GetQuestId() == QUEST_RISE_OF_THE_BROTHERHOOD)
         {
-            CAST_AI(npc_rise_br::npc_rise_brAI, creature->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(npc_rise_br::npc_rise_brAI, creature->AI())->PlayerGUID = player->GetGUID();
 
-            if(!(CAST_AI(npc_rise_br::npc_rise_brAI, creature->AI())->EventStarted))
+            if(!(ENSURE_AI(npc_rise_br::npc_rise_brAI, creature->AI())->EventStarted))
             {
-                CAST_AI(npc_rise_br::npc_rise_brAI, creature->AI())->EventStarted = true;
+                ENSURE_AI(npc_rise_br::npc_rise_brAI, creature->AI())->EventStarted = true;
             }
         }
         return true;
@@ -1344,6 +1344,8 @@ class npc_rise_br : public CreatureScript
         uint32 EventTimer;
 
         uint8 Phase;
+
+        char playername;
 
         bool EventStarted;
 
@@ -1458,17 +1460,18 @@ class npc_rise_br : public CreatureScript
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     if (Creature* Hope = me->FindNearestCreature(NPC_HOPE, 50.0f, true))
                     if (Creature* Ripsnarl = me->FindNearestCreature(NPC_RIPSNARL, 50.0f, true))
-                    if (me->FindNearestCreature(NPC_HORATIO2, 50.0f, true))
-                    if (me->FindNearestCreature(NPC_DANUVIN, 50.0f, true))
-                    if (me->FindNearestCreature(NPC_GUARD, 50.0f, true))
-                    if (me->FindNearestCreature(NPC_INVESTIGATOR, 50.0f, true))
-                    if (me->FindNearestCreature(NPC_INVESTIGATOR3, 50.0f, true))
                     {
                         switch (Phase)
                         {
                             case 0:
                             {
-                                me->Say("I don't like this, $N. Stay alert!", LANG_UNIVERSAL);
+                                me->SummonCreature(NPC_HORATIO2, -10508.0f, 1047.54f, 60.518f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                                me->SummonCreature(NPC_DANUVIN, -10510.0f, 1040.67f, 60.518f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                                me->SummonCreature(NPC_GUARD, -10504.7f, 1042.87f, 60.518f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                                me->SummonCreature(NPC_INVESTIGATOR, -10509.1f, 1048.56f, 60.518f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                                me->SummonCreature(NPC_INVESTIGATOR3, -10506.3f, 1047.7f, 60.518f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                                std::string l_Msg = "I don't like this, " + std::string(player->GetName()) + ". Stay alert!";
+                                me->Say(l_Msg, LANG_UNIVERSAL);
                                 EventTimer = 4000;
                                 Phase++;
                                 break;
@@ -1491,14 +1494,14 @@ class npc_rise_br : public CreatureScript
                             }
                             case 3:
                             {
-                                me->Say("Hope! What...", LANG_UNIVERSAL);
+                                me->Say("Hope! Wha...", LANG_UNIVERSAL);
                                 EventTimer = 1500;
                                 Phase++;
                                 break;
                             }
                             case 4:
                             {
-                                Hope->Say("Hope? Is that what I was supposed fell when I saw my father decapitated by your henchmen?", LANG_UNIVERSAL);
+                                Hope->Say("Hope? Is that what I was supposed to feel when I saw my father decapitated by your henchmen?", LANG_UNIVERSAL);
                                 EventTimer = 12000;
                                 Phase++;
                                 break;
@@ -1588,7 +1591,8 @@ class npc_rise_br : public CreatureScript
                             case 16:
                             {
                                 Hope->SetFacingToObject(player);
-                                Hope->Say("And you, $N. I will spare your life. You have done much to help our cause, albeit unwittingly, but the next time we meet it will be as enemies.", LANG_UNIVERSAL);
+                                std::string l_Msg = "And you, " + std::string(player->GetName()) + ".  I will spare your life. You have done much to help our cause, albeit unwittingly, but the next time we meet it will be as enemies.";
+                                Hope->Say(l_Msg, LANG_UNIVERSAL);
                                 Ripsnarl->GetMotionMaster()->MovePoint(4, -10516.64f, 1064.78f, 55.362f);
                                 EventTimer = 8000;
                                 Phase++;
@@ -1614,7 +1618,7 @@ class npc_rise_br : public CreatureScript
                             case 19:
                             {
                                 Hope->Say("I took no pleasure in their deaths.", LANG_UNIVERSAL);
-                                SummonFireTrigger();
+                                //SummonFireTrigger(); // I cannot get this to work properly, leaving code in cae someone else works it out
                                 EventTimer = 5000;
                                 Phase++;
                                 break;
@@ -1628,7 +1632,8 @@ class npc_rise_br : public CreatureScript
                             }
                             case 21:
                             {
-                                me->Say("$N, get to Stormwind. Tell King Wrynn everything, EVERYTHING! GO NOW!", LANG_UNIVERSAL);
+                                std::string l_Msg = std::string(player->GetName()) + ", get to Stormwind. Tell King Wrynn everything, EVERYTHING! GO NOW!";
+                                me->Say(l_Msg, LANG_UNIVERSAL);
                                 Hope->GetMotionMaster()->MovePoint(6, -10518.38f, 1067.99f, 54.84f);
                                 Ripsnarl->SetFacingToObject(Hope);
 

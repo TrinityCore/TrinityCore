@@ -126,17 +126,18 @@ enum Events
     EVENT_BUFFET                                 = 3,
     EVENT_FIREBALL                               = 5,
     EVENT_FLIGHT                                 = 6,
-    EVENT_DEVOURING                              = 7,
-    EVENT_FLAME                                  = 8,
-    EVENT_LAND                                   = 9,
-    EVENT_GROUND                                 = 10,
-    EVENT_FUSE                                   = 11,
-    EVENT_SUMMON                                 = 12,
+    EVENT_FLIGHT_FIRST                           = 7,
+    EVENT_DEVOURING                              = 8,
+    EVENT_FLAME                                  = 9,
+    EVENT_LAND                                   = 10,
+    EVENT_GROUND                                 = 11,
+    EVENT_FUSE                                   = 12,
+    EVENT_SUMMON                                 = 13,
     // Razorscale Controller
-    EVENT_BUILD_HARPOON_1                        = 13,
-    EVENT_BUILD_HARPOON_2                        = 14,
-    EVENT_BUILD_HARPOON_3                        = 15,
-    EVENT_BUILD_HARPOON_4                        = 16,
+    EVENT_BUILD_HARPOON_1                        = 14,
+    EVENT_BUILD_HARPOON_2                        = 15,
+    EVENT_BUILD_HARPOON_3                        = 16,
+    EVENT_BUILD_HARPOON_4                        = 17,
 };
 
 #define GROUND_Z                                 391.517f
@@ -180,7 +181,7 @@ const Position PosHarpoon[4] =
     { 606.229f, -136.721f, GROUND_Z, 0 },
 };
 
-const Position RazorFlight = { 588.050f, -251.191f, 470.536f, 1.498f };
+const Position RazorFlight = { 587.072f, -203.205f, 441.237f, 1.605f };
 const Position RazorGround = { 586.966f, -175.534f, GROUND_Z, 4.682f };
 const Position PosEngSpawn = { 591.951f, -95.9680f, GROUND_Z, 0.000f };
 
@@ -377,7 +378,7 @@ class boss_razorscale : public CreatureScript
                 FlyCount = 0;
                 EnrageTimer = 600000;
                 Enraged = false;
-                events.ScheduleEvent(EVENT_FLIGHT, 0, 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_FLIGHT_FIRST, 0, 0, PHASE_GROUND);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -433,6 +434,7 @@ class boss_razorscale : public CreatureScript
                 if (HarpoonCounter == RAID_MODE(2, 4))
                 {
                     HarpoonCounter = 0;
+                    me->GetMotionMaster()->Clear(true);
                     me->GetMotionMaster()->MoveLand(1, RazorGround);
                 }
 
@@ -443,13 +445,15 @@ class boss_razorscale : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_FLIGHT:
+                                me->GetMotionMaster()->MoveTakeoff(0, RazorFlight);
+                                //no break
+                            case EVENT_FLIGHT_FIRST:
                                 phase = PHASE_FLIGHT;
                                 events.SetPhase(PHASE_FLIGHT);
                                 me->SetCanFly(true);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_PASSIVE);
                                 me->AttackStop();
-                                me->GetMotionMaster()->MoveTakeoff(0, RazorFlight);
                                 events.ScheduleEvent(EVENT_FIREBALL, 7000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_SUMMON, 5000, 0, PHASE_FLIGHT);
@@ -551,7 +555,7 @@ class boss_razorscale : public CreatureScript
                 phase = PHASE_PERMAGROUND;
                 events.SetPhase(PHASE_PERMAGROUND);
                 me->SetCanFly(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
                 me->SetSpeedRate(MOVE_FLIGHT, 1.0f);

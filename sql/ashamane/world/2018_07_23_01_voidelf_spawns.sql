@@ -965,6 +965,7 @@ SET @PHASE_171  = 59074; -- horde?
 UPDATE gameobject SET PhaseId = 171 WHERE guid = @OGUID+46;
 UPDATE creature SET PhaseId = 171 WHERE guid = @CGUID+72;
 
+DELETE FROM spell_area WHERE area = 9171 AND racemask = 268435456;
 INSERT INTO spell_area (`spell`, `area`, `teamid`, `racemask`, `flags`) VALUES 
 (@PHASE_171, 9171, 0, 268435456, 3),
 (@PHASE_169, 9171, 0, 268435456, 3);

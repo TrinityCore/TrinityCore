@@ -484,6 +484,9 @@ enum ICSharedActions
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
 
+    // Putricide
+    ACTION_CHECK_BOSS           = -366781,
+
     // Blood-Queen Lana'thel
     ACTION_KILL_MINCHAR         = -379550,
 
