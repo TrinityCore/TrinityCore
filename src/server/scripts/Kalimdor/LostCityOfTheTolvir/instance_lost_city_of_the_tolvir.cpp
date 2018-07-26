@@ -110,6 +110,10 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
+                    case BOSS_SIAMAT:
+                        creature->SetFarVisible(true);
+                        creature->setActive(true);
+                        break;
                     case NPC_ADD_STALKER:
                         addStalkerGUIDs.push_back(creature->GetGUID());
                         break;
@@ -132,9 +136,10 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_SIAMATS_PLATFORM:
+                        go->setActive(true);
+                        go->SetFarVisible(true);
                         if (IsSiamatEnabled())
                         {
-                            go->setActive(true);
                             go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                             go->EnableCollision(true);
                         }
@@ -172,16 +177,12 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         {
                             if (GameObject* platform = GetGameObject(DATA_SIAMAT_PLATFORM))
                             {
-                                platform->setActive(true);
                                 platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                                 platform->EnableCollision(true);
                             }
 
                             if (Creature* siamat = GetCreature(DATA_SIAMAT))
-                            {
-                                siamat->setActive(true);
                                 siamat->AI()->DoAction(ACTION_UNLEASHED);
-                            }
 
                             instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
                             instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
