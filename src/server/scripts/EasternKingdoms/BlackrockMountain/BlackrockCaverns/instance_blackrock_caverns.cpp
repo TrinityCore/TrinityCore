@@ -24,6 +24,7 @@ ObjectData const creatureData[] =
 {
     { BOSS_ROMOGG_BONECRUSHER,          DATA_ROMOGG_BONECRUSHER         },
     { BOSS_CORLA_HERALD_OF_TWILIGHT,    DATA_CORLA_HERALD_OF_TWILIGHT   },
+    { BOSS_KARSH_STEELBENDER,           DATA_KARSH_STEELBENDER          },
     { NPC_RAZ_THE_CRAZED,               DATA_RAZ_THE_CRAZED             },
     { 0,                                0                               }
 };
@@ -72,6 +73,10 @@ class instance_blackrock_caverns : public InstanceMapScript
                     case NPC_ANGERED_EARTH:
                         if (Creature* romogg = GetCreature(DATA_ROMOGG_BONECRUSHER))
                             romogg->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_BOUND_FLAMES:
+                        if (Creature* karsh = GetCreature(DATA_KARSH_STEELBENDER))
+                            karsh->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;

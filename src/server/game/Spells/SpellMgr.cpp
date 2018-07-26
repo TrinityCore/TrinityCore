@@ -4621,6 +4621,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
     });
 
+    // Bound Flames
+    ApplySpellFix({ 93499 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
     // ENDOF BLACKROCK CAVERNS SPELLS
 
     //

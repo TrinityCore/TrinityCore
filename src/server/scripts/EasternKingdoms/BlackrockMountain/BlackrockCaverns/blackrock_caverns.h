@@ -43,6 +43,7 @@ enum BRCCreatureIds
     // Bosses
     BOSS_ROMOGG_BONECRUSHER             = 39665,
     BOSS_CORLA_HERALD_OF_TWILIGHT       = 39679,
+    BOSS_KARSH_STEELBENDER              = 39698,
 
     // Encounter Related
     /*Rom'ogg Bonecrusher*/
@@ -55,7 +56,11 @@ enum BRCCreatureIds
     NPC_EVOLVED_TWILIGHT_ZEALOT         = 39987,
 
     NPC_TWILIGHT_FLAME_CALLER           = 39708,
-    NPC_RAZ_THE_CRAZED                  = 39670
+    NPC_RAZ_THE_CRAZED                  = 39670,
+
+    /*Karsh Steelbender*/
+    NPC_INVISIBLE_STALKER               = 39842,
+    NPC_BOUND_FLAMES                    = 50417,
 };
 
 template <class AI, class T>
