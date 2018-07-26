@@ -320,10 +320,37 @@ class npc_pet_gen_mojo : public CreatureScript
         }
 };
 
+enum SoulTrader
+{
+    SAY_SOUL_TRADER_INTRO           = 0,
+
+    SPELL_ETHEREAL_ONSUMMON         = 50052,
+    SPELL_ETHEREAL_PET_REMOVE_AURA  = 50055
+};
+
+struct npc_pet_gen_soul_trader : public ScriptedAI
+{
+    npc_pet_gen_soul_trader(Creature* creature) : ScriptedAI(creature) { }
+
+    void LeavingWorld() override
+    {
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_ETHEREAL_PET_REMOVE_AURA);
+    }
+
+    void JustAppeared() override
+    {
+        Talk(SAY_SOUL_TRADER_INTRO);
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_ETHEREAL_ONSUMMON);
+    }
+};
+
 void AddSC_generic_pet_scripts()
 {
     new npc_pet_gen_baby_blizzard_bear();
     new npc_pet_gen_egbert();
     new npc_pet_gen_pandaren_monk();
     new npc_pet_gen_mojo();
+    RegisterCreatureAI(npc_pet_gen_soul_trader);
 }
