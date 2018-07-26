@@ -19,6 +19,13 @@
 #ifndef GarrisonConstants_h__
 #define GarrisonConstants_h__
 
+enum GarrisonTimers
+{
+    GUPDATE_MISSIONS_DISTRIBUTION,
+
+    GUPDATE_COUNT
+};
+
 enum GarrisonMisc
 {
     GARRISON_WOD_CURRENCY   = 824,
@@ -37,6 +44,7 @@ enum GarrisonType
     GARRISON_TYPE_NONE          = 0,
     GARRISON_TYPE_GARRISON      = 2,
     GARRISON_TYPE_CLASS_HALL    = 3,
+    //GARRISON_TYPE_WAR_CAMPAIGN  = 9,
 
     GARRISON_TYPE_MIN           = GARRISON_TYPE_GARRISON,
     GARRISON_TYPE_MAX           = GARRISON_TYPE_CLASS_HALL,
@@ -199,6 +207,7 @@ enum GarrisonFollowerStatus
     FOLLOWER_STATUS_NO_XP_GAIN  = 0x10
 };
 
+#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (1.5f)
 namespace GarrisonMission
 {
     enum State
@@ -260,6 +269,12 @@ namespace GarrisonMission
         Ok    = 0,
         Error = 1
     };
+
+    enum AddResult
+    {
+        Success = 0,
+        Fail    = 1,
+    };
 }
 
-#endif  ///< GarrisonConstants_h__
+#endif

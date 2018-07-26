@@ -59,6 +59,7 @@ public:
     virtual void SaveToDB(SQLTransaction trans);
 
     virtual bool Create(uint32 garrSiteId);
+    void Update(uint32 const diff);
     virtual void Delete();
 
     virtual void Enter();
@@ -80,6 +81,7 @@ public:
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
     std::unordered_map<uint64 /*dbId*/, Garrison::Follower> const& GetFollowers() const { return _followers; }
+    uint32 GetActiveFollowersCount() const;
 
     uint32 GetFollowerActivationLimit() const { return _followerActivationsRemainingToday; }
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
@@ -87,7 +89,12 @@ public:
     // Missions
     void AddMission(uint32 garrMissionId);
     Mission const* GetMission(uint64 dbId) const;
+    bool HasMission(uint32 garrMissionId);
     std::unordered_map<uint64 /*dbId*/, Garrison::Mission> const& GetMissions() const { return _missions; }
+    void StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers);
+
+    std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> GetAvailableMissions() const;
+    void GenerateMissions();
 
     bool IsWodGarrison() const { return GetType() == GARRISON_TYPE_GARRISON; }
     WodGarrison* ToWodGarrison() { if (IsWodGarrison()) return reinterpret_cast<WodGarrison*>(this); else return nullptr; }
@@ -104,11 +111,12 @@ protected:
 
     Player* _owner;
     GarrSiteLevelEntry const* _siteLevel;
-    uint32 _followerActivationsRemainingToday;
     std::unique_ptr<GarrisonAI> _ai;
+    IntervalTimer _timers[GUPDATE_COUNT];
 
     std::unordered_map<uint64 /*dbId*/, Garrison::Follower> _followers;
     std::unordered_set<uint32> _followerIds;
+    uint32 _followerActivationsRemainingToday;
 
     std::unordered_map<uint64 /*dbId*/, Garrison::Mission> _missions;
     std::unordered_set<uint32> _missionIds;

@@ -16,6 +16,7 @@
  */
 
 #include "Creature.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Garrison.h"
@@ -33,6 +34,7 @@
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
+    _timers[GUPDATE_MISSIONS_DISTRIBUTION].SetInterval(MINUTE*IN_MILLISECONDS);
 }
 
 bool Garrison::Create(uint32 garrSiteId)
@@ -47,7 +49,26 @@ bool Garrison::Create(uint32 garrSiteId)
     garrisonCreateResult.GarrSiteLevelID = _siteLevel->ID;
     _owner->SendDirectMessage(garrisonCreateResult.Write());
     PhasingHandler::OnConditionChange(_owner);
+
     return true;
+}
+
+void Garrison::Update(uint32 const diff)
+{
+    // Update the different timers
+    for (uint8 i = 0; i < GUPDATE_COUNT; ++i)
+    {
+        if (_timers[i].GetCurrent() >= 0)
+            _timers[i].Update(diff);
+        else
+            _timers[i].SetCurrent(0);
+    }
+
+    if (_timers[GUPDATE_MISSIONS_DISTRIBUTION].Passed())
+    {
+        _timers[GUPDATE_MISSIONS_DISTRIBUTION].Reset();
+        GenerateMissions();
+    }
 }
 
 void Garrison::Delete()
@@ -305,6 +326,10 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     _owner->SendDirectMessage(addFollowerResult.Write());
 
     _owner->UpdateCriteria(CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER, follower.PacketInfo.DbID);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SaveToDB(trans);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
@@ -314,6 +339,14 @@ Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
         return &itr->second;
 
     return nullptr;
+}
+
+uint32 Garrison::GetActiveFollowersCount() const
+{
+    return std::count_if(_followers.begin(), _followers.end(), [](auto followerItr)
+    {
+        return followerItr.second.PacketInfo.FollowerStatus != FOLLOWER_STATUS_INACTIVE;
+    });
 }
 
 void Garrison::AddMission(uint32 garrMissionId)
@@ -336,6 +369,7 @@ void Garrison::AddMission(uint32 garrMissionId)
     mission.PacketInfo.Unknown1 = 0;
     mission.PacketInfo.Unknown2 = 0;
 
+    // TODO : Generate rewards for mission
     WorldPackets::Garrison::GarrisonMissionReward reward;
     reward.ItemID = 140587;
     reward.Quantity = 1;
@@ -345,6 +379,16 @@ void Garrison::AddMission(uint32 garrMissionId)
     reward.BonusAbilityID = 0;
     reward.Unknown = 1118739;
     mission.Rewards.push_back(reward);
+
+    WorldPackets::Garrison::GarrisonAddMissionResult garrisonAddMissionResult;
+    garrisonAddMissionResult.GarrType       = GetType();
+    garrisonAddMissionResult.Result         = GarrisonMission::AddResult::Success;
+    garrisonAddMissionResult.State          = GarrisonMission::State::Available;
+    garrisonAddMissionResult.Mission        = mission.PacketInfo;
+    garrisonAddMissionResult.Rewards        = mission.Rewards;
+    garrisonAddMissionResult.OvermaxRewards = mission.OvermaxRewards;
+    garrisonAddMissionResult.Success        = true;
+    _owner->SendDirectMessage(garrisonAddMissionResult.Write());
 }
 
 Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
@@ -354,6 +398,112 @@ Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
         return &itr->second;
 
     return nullptr;
+}
+
+bool Garrison::HasMission(uint32 garrMissionId)
+{
+    return std::count_if(GetMissions().begin(), GetMissions().end(), [garrMissionId](auto missionItr)
+    {
+        return missionItr.second.PacketInfo.MissionRecID == garrMissionId;
+    });
+}
+
+void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers)
+{
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
+    if (!missionEntry)
+    {
+        // Send error
+        return;
+    }
+
+    if (!HasMission(missionEntry->ID))
+    {
+        // Send error
+        return;
+    }
+
+
+}
+
+std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> Garrison::GetAvailableMissions() const
+{
+    std::vector<GarrMissionEntry const*> availableMissions;
+    std::vector<double> weights;
+
+    for (uint32 i = 0; i < sGarrMissionStore.GetNumRows(); ++i)
+    {
+        GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(i);
+
+        if (!missionEntry)
+            continue;
+
+        uint32 alreadyHasMission = std::count_if(GetMissions().begin(), GetMissions().end(), [missionEntry](auto missionItr)
+        {
+            return missionItr.second.PacketInfo.MissionRecID == missionEntry->ID;
+        });
+
+        if (alreadyHasMission)
+            continue;
+
+        if (missionEntry->GarrTypeID != GetType())
+            continue;
+
+        if (missionEntry->RequiredLevel > GetOwner()->getLevel())
+            continue;
+
+        if (missionEntry->RequiredFollowersCount > GetActiveFollowersCount())
+            continue;
+
+        if (missionEntry->RequiredItemLevel > GetOwner()->GetAverageItemLevelEquipped())
+            continue;
+
+        double weight = 100.0;
+
+        if (missionEntry->Flags & GarrisonMission::Flags::Rare)
+            weight = 25.0;
+
+        availableMissions.push_back(missionEntry);
+        weights.push_back(weight);
+    }
+
+    return std::make_pair(availableMissions, weights);
+}
+
+void Garrison::GenerateMissions()
+{
+    uint32 maxMissionCount = ceil(GetActiveFollowersCount() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
+
+    if (GetMissions().size() >= maxMissionCount)
+        return;
+
+    uint32 missionToAddCount = urand(0, maxMissionCount - GetMissions().size());
+
+    if (!missionToAddCount)
+        return;
+
+    std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> availableMissionWithWeights = GetAvailableMissions();
+
+    for (uint32 i = 0; i < missionToAddCount; ++i)
+    {
+        auto missionItr = Trinity::Containers::SelectRandomWeightedContainerElement(availableMissionWithWeights.first, availableMissionWithWeights.second);
+        if (missionItr == availableMissionWithWeights.first.end())
+            return;
+
+        AddMission((*missionItr)->ID);
+
+        // We will remove mission from available missions, also remove corresponding weight from vector
+        auto distance = std::distance(availableMissionWithWeights.first.cbegin(), missionItr);
+        auto weightItr = availableMissionWithWeights.second.begin();
+        std::advance(weightItr, distance);
+
+        availableMissionWithWeights.first.erase(missionItr);
+        availableMissionWithWeights.second.erase(weightItr);
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SaveToDB(trans);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 Map* Garrison::FindMap() const

@@ -1360,6 +1360,9 @@ void Player::Update(uint32 p_time)
     UpdateEnchantTime(p_time);
     UpdateHomebindTime(p_time);
 
+    for (auto itr = _garrisons.begin(); itr != _garrisons.end(); ++itr)
+        itr->second->Update(p_time);
+
     if (!_instanceResetTimes.empty())
     {
         for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)

@@ -314,6 +314,9 @@ namespace WorldPackets
         class GarrisonOpenMissionNpc;
         class GarrisonRequestScoutingMap;
         class GarrisonScoutingMapResult;
+        class GarrisonAddMissionResult;
+        class GarrisonStartMission;
+        class GarrisonStartMissionResult;
     }
 
     namespace Guild
@@ -1758,6 +1761,7 @@ class TC_GAME_API WorldSession
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
         void HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpcClient& garrisonOpenMissionNpc);
         void HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::GarrisonRequestScoutingMap& scoutingMap);
+        void HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& startMission);
 
         // Battle Pets
         void HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& battlePetRequestJournal);

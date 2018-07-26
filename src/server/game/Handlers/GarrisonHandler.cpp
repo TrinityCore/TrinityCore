@@ -113,3 +113,19 @@ void WorldSession::HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::Garr
     result.Active = true;
     SendPacket(result.Write());
 }
+
+void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& startMission)
+{
+    if (!_player->GetNPCIfCanInteractWith(startMission.NpcGUID, UNIT_NPC_FLAG_GARRISON_MISSION_NPC))
+        return;
+
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(startMission.MissionID);
+    if (!missionEntry)
+        return;
+
+    Garrison* garrison = _player->GetGarrison(GarrisonType(missionEntry->GarrTypeID));
+    if (!garrison)
+        return;
+
+    garrison->StartMission(startMission.MissionID, startMission.Followers);
+}

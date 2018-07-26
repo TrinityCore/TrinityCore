@@ -427,3 +427,46 @@ WorldPacket const* WorldPackets::Garrison::GarrisonScoutingMapResult::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Garrison::GarrisonAddMissionResult::Write()
+{
+    _worldPacket << GarrType;
+    _worldPacket << Result;
+    _worldPacket << State;
+    _worldPacket << Mission;
+
+    _worldPacket << uint32(Rewards.size());
+    _worldPacket << uint32(OvermaxRewards.size());
+
+    for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : Rewards)
+        _worldPacket << missionRewardItem;
+
+    for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : OvermaxRewards)
+        _worldPacket << missionRewardItem;
+
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonStartMission::Read()
+{
+    _worldPacket >> NpcGUID;
+
+    uint32 followerCount = 0;
+    _worldPacket >> followerCount;
+    _worldPacket >> MissionID;
+
+    for (uint32 i = 0; i < followerCount; ++i)
+    {
+        uint64 followerDbID;
+        _worldPacket >> followerDbID;
+        Followers.push_back(followerDbID);
+    }
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonStartMissionResult::Write()
+{
+    return &_worldPacket;
+}
