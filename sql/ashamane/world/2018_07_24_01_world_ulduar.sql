@@ -30,3 +30,5 @@ insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 ('15','10389','15','0','0','13','1','11','3','2','0','0','0','','Show options for gossip only if BOSS_VEZAX done');
 
 UPDATE `gameobject_template_addon` SET `flags` = '32' WHERE `entry` = '194569'; 
+
+DELETE FROM creature WHERE id = 32871;
