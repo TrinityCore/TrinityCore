@@ -3622,6 +3622,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_4))->Effect = 0;
     });
 
+    // Ray of Frost
+    ApplySpellFix({ 205021 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags[AuraInterruptFlagIndex<SpellAuraInterruptFlags>::value] &= ~CHANNEL_FLAG_DELAY;
+    });
+
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
