@@ -2014,6 +2014,7 @@ class spell_feludius_frost_imbued_AuraScript : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_feludius_frost_imbued_AuraScript::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_feludius_frost_imbued_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2142,6 +2143,7 @@ class spell_ignacious_flame_imbued_AuraScript : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_ignacious_flame_imbued_AuraScript::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_ignacious_flame_imbued_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
