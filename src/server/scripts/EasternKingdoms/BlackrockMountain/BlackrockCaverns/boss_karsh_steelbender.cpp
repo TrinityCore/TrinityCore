@@ -44,7 +44,7 @@ enum Spells
     SPELL_CLEAVE                                    = 15284,
     SPELL_BOUND_FLAMES                              = 93499,
     SPELL_FORCECAST_LAVA_SPOUT                      = 88538,
-    SPELL_TRANSFORM                                 = 93750,
+    SPELL_TRANSFORM                                 = 93750
 };
 
 enum Events
@@ -52,7 +52,7 @@ enum Events
     // Karsh Steelbender
     EVENT_CLEAVE = 1,
     EVENT_QUICKSILVER_ARMOR,
-    EVENT_SUPERHEATED_QUICKSILVER_ARMOR,
+    EVENT_SUPERHEATED_QUICKSILVER_ARMOR
 };
 
 enum Actions
