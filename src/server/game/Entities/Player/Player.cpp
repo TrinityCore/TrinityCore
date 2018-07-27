@@ -24618,12 +24618,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 uint32 Player::CalculateTalentsPoints() const
 {
     uint32 base_talent = static_cast<uint32>(getLevel() < 10 ? 0 : getLevel() - 9);
-
-    uint32 talentPointsForLevel = m_questRewardTalentCount;
-
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
+    uint32 talentPointsForLevel = (m_questRewardTalentCount > base_talent) ? base_talent : m_questRewardTalentCount;
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
