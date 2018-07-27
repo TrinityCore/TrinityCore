@@ -5003,7 +5003,7 @@ void Spell::HandleHolyPower(Player* caster)
     if (!m_powerCost || !modOwner)
         return;
 
-    if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
+    if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
     {
         for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
         {
@@ -5015,13 +5015,13 @@ void Spell::HandleHolyPower(Player* caster)
                 break;
             }
         }
+    }
 
-        // The spell did hit the target, apply aura cost mods if there are any.
-        if (hit)
-        {
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost, this);
-            m_caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost);
-        }
+    // The spell did hit the target, apply aura cost mods if there are any.
+    if (hit)
+    {
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost, this);
+        m_caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost);
     }
 }
 
