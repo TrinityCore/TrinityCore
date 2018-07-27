@@ -27,15 +27,17 @@ uint32 const EncounterCount             = 5;
 
 enum BRCDataTypes
 {
-    // Encounter States // Boss GUIDs
-    DATA_ROMOGG_BONECRUSHER             = 0,
-    DATA_CORLA_HERALD_OF_TWILIGHT       = 1,
-    DATA_KARSH_STEELBENDER              = 2,
-    DATA_BEAUTY                         = 3,
-    DATA_ASCENDANT_LORD_OBSIDIUS        = 4,
+    // Encounters
+    DATA_ROMOGG_BONECRUSHER         = 0,
+    DATA_CORLA_HERALD_OF_TWILIGHT   = 1,
+    DATA_KARSH_STEELBENDER          = 2,
+    DATA_BEAUTY                     = 3,
+    DATA_ASCENDANT_LORD_OBSIDIUS    = 4,
 
     // Additional Objects
-    DATA_RAZ_THE_CRAZED                 = 5
+    DATA_RAZ_THE_CRAZED             = 5,
+    DATA_LUCKY                      = 6,
+    DATA_SPOT                       = 7
 };
 
 enum BRCCreatureIds
@@ -44,6 +46,7 @@ enum BRCCreatureIds
     BOSS_ROMOGG_BONECRUSHER             = 39665,
     BOSS_CORLA_HERALD_OF_TWILIGHT       = 39679,
     BOSS_KARSH_STEELBENDER              = 39698,
+    BOSS_BEAUTY                         = 39700,
 
     // Encounter Related
     /*Rom'ogg Bonecrusher*/
@@ -61,6 +64,10 @@ enum BRCCreatureIds
     /*Karsh Steelbender*/
     NPC_INVISIBLE_STALKER               = 39842,
     NPC_BOUND_FLAMES                    = 50417,
+
+    /*Beauty*/
+    NPC_LUCKY                           = 40008,
+    NPC_SPOT                            = 40011
 };
 
 template <class AI, class T>

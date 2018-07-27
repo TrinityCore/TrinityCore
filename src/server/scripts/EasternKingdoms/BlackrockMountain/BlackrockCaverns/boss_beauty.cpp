@@ -21,99 +21,214 @@
 
 enum Sounds
 {
-    SOUND_AGGRO                    = 18559,
-    SOUND_DEATH                    = 18563
+    // Beauty
+    SOUND_AGGRO = 18559,
+    SOUND_DEATH = 18563
 };
 
 enum Spells
 {
-    SPELL_TERRIFYING_ROAR          = 76028, // Not yet Implemented
-    SPELL_BERSERKER_CHARGE         = 76030,
-    SPELL_MAGMA_SPIT               = 76031,
-    SPELL_FLAMEBREAK               = 76032,
-    SPELL_BERSERK                  = 82395  // Not yet Implemented
+    // Beauty
+    SPELL_TERRIFYING_ROAR           = 76028,
+    SPELL_BERSERKER_CHARGE          = 76030,
+    SPELL_MAGMA_SPIT                = 76031,
+    SPELL_FLAMEBREAK                = 76032,
+    SPELL_BERSERK                   = 82395,
+
+    // Lucky, Spot and Buster
+    SPELL_LAVA_DROOL                = 76628,
+    SPELL_LITTLE_BIG_FLAME_BREATH   = 76665,
+
+    // Player
+    SPELL_MAGMA_SPIT_MISSILE_1      = 76058,
+    SPELL_MAGMA_SPIT_MISSILE_2      = 76072,
+    SPELL_MAGMA_SPIT_MISSILE_3      = 76074,
+    SPELL_MAGMA_SPIT_MISSILE_4      = 76076
 };
 
 enum Events
 {
-    EVENT_TERRIFYING_ROAR          = 1,
-    EVENT_BERSERKER_CHARGE         = 2,
-    EVENT_MAGMA_SPIT               = 3,
-    EVENT_FLAMEBREAK               = 4,
-    EVENT_BERSERK                  = 5
+    // Beauty
+    EVENT_TERRIFYING_ROAR = 1,
+    EVENT_BERSERKER_CHARGE,
+    EVENT_MAGMA_SPIT,
+    EVENT_FLAMEBREAK,
+
+    // Lucky, Spot and Buster
+    EVENT_LAVA_DROOL,
+    EVENT_LITTLE_BIG_FLAME_BREATH
 };
 
-class boss_beauty : public CreatureScript
+struct boss_beauty : public BossAI
 {
-    public:
-        boss_beauty(): CreatureScript("boss_beauty") { }
+    boss_beauty(Creature* creature) : BossAI(creature, DATA_BEAUTY) { }
 
-        struct boss_beautyAI : public BossAI
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 15s);
+        events.ScheduleEvent(EVENT_FLAMEBREAK, 21s);
+        events.ScheduleEvent(EVENT_TERRIFYING_ROAR, 36s);
+        events.ScheduleEvent(EVENT_MAGMA_SPIT, 10s);
+        DoPlaySoundToSet(me, SOUND_AGGRO);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGMA_SPIT);
+        DoPlaySoundToSet(me, SOUND_DEATH);
+
+        if (IsHeroic())
         {
-            boss_beautyAI(Creature* creature) : BossAI(creature, DATA_BEAUTY) { }
+            if (Creature* lucky = instance->GetCreature(DATA_LUCKY))
+                lucky->DespawnOrUnsummon();
 
-            void Reset() override
-            {
-                _Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                events.ScheduleEvent(SPELL_MAGMA_SPIT, urand(7000, 10000));
-                events.ScheduleEvent(EVENT_BERSERKER_CHARGE, urand(16000, 19000));
-                events.ScheduleEvent(EVENT_FLAMEBREAK, urand(18000, 22000));
-                DoPlaySoundToSet(me, SOUND_AGGRO);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                DoPlaySoundToSet(me, SOUND_DEATH);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case SPELL_MAGMA_SPIT:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_MAGMA_SPIT, true);
-                            events.ScheduleEvent(SPELL_MAGMA_SPIT, urand(7000, 10000));
-                            break;
-                        case EVENT_BERSERKER_CHARGE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_BERSERKER_CHARGE, true);
-                            events.ScheduleEvent(EVENT_BERSERKER_CHARGE, urand(16000, 19000));
-                            break;
-                        case EVENT_FLAMEBREAK:
-                            DoCast(me, SPELL_FLAMEBREAK);
-                            events.ScheduleEvent(EVENT_FLAMEBREAK, urand(18000, 22000));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<boss_beautyAI>(creature);
+            if (Creature* spot = instance->GetCreature(DATA_SPOT))
+                spot->DespawnOrUnsummon();
         }
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGMA_SPIT);
+
+        if (IsHeroic())
+        {
+            if (Creature* lucky = instance->GetCreature(DATA_LUCKY))
+                lucky->DespawnOrUnsummon(0, 30s);
+
+            if (Creature* spot = instance->GetCreature(DATA_SPOT))
+                spot->DespawnOrUnsummon(0, 30s);
+        }
+
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MAGMA_SPIT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_MAGMA_SPIT))
+                        DoCast(target, SPELL_MAGMA_SPIT);
+                    events.Repeat(7s, 9s);
+                    break;
+                case EVENT_BERSERKER_CHARGE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true, 0))
+                        DoCast(target, SPELL_BERSERKER_CHARGE);
+                    events.Repeat(15s, 21s);
+                    break;
+                case EVENT_FLAMEBREAK:
+                    DoCastAOE(SPELL_FLAMEBREAK);
+                    events.Repeat(15s, 21s);
+                    break;
+                case EVENT_TERRIFYING_ROAR:
+                    DoCastAOE(SPELL_TERRIFYING_ROAR);
+                    events.Repeat(31s, 33s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+struct npc_beauty_puppy : public ScriptedAI
+{
+    npc_beauty_puppy(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        if (!IsHeroic())
+            me->SetNoCallAssistance(true);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (IsHeroic())
+            if (Creature* beauty = _instance->GetCreature(DATA_BEAUTY))
+                beauty->AI()->DoZoneInCombat();
+
+        _events.ScheduleEvent(EVENT_LAVA_DROOL, 5s + 500ms, 6s + 500ms);
+        _events.ScheduleEvent(EVENT_LITTLE_BIG_FLAME_BREATH, 7s, 9s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LAVA_DROOL:
+                    DoCastSelf(SPELL_LAVA_DROOL);
+                    _events.Repeat(12s, 13s);
+                    break;
+                case EVENT_LITTLE_BIG_FLAME_BREATH:
+                    DoCastVictim(SPELL_LITTLE_BIG_FLAME_BREATH);
+                    _events.Repeat(11s, 12s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+class spell_beauty_magma_spit : public AuraScript
+{
+    PrepareAuraScript(spell_beauty_magma_spit);
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_MAGMA_SPIT_MISSILE_1, true);
+        target->CastSpell(target, SPELL_MAGMA_SPIT_MISSILE_2, true);
+        target->CastSpell(target, SPELL_MAGMA_SPIT_MISSILE_3, true);
+        target->CastSpell(target, SPELL_MAGMA_SPIT_MISSILE_4, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_beauty_magma_spit::AfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 void AddSC_boss_beauty()
 {
-    new boss_beauty();
+    RegisterBlackrockCavernsCreatureAI(boss_beauty);
+    RegisterBlackrockCavernsCreatureAI(npc_beauty_puppy);
+    RegisterAuraScript(spell_beauty_magma_spit);
 }

@@ -25,7 +25,10 @@ ObjectData const creatureData[] =
     { BOSS_ROMOGG_BONECRUSHER,          DATA_ROMOGG_BONECRUSHER         },
     { BOSS_CORLA_HERALD_OF_TWILIGHT,    DATA_CORLA_HERALD_OF_TWILIGHT   },
     { BOSS_KARSH_STEELBENDER,           DATA_KARSH_STEELBENDER          },
+    { BOSS_BEAUTY,                      DATA_BEAUTY                     },
     { NPC_RAZ_THE_CRAZED,               DATA_RAZ_THE_CRAZED             },
+    { NPC_LUCKY,                        DATA_LUCKY                      },
+    { NPC_SPOT,                         DATA_SPOT                       },
     { 0,                                0                               }
 };
 
