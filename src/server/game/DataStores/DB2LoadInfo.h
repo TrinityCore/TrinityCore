@@ -1778,6 +1778,26 @@ struct GarrFollowerLoadInfo
     }
 };
 
+struct GarrFollowerTypeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "MaxItemLevel" },
+            { false, FT_BYTE, "MaxFollowers" },
+            { false, FT_BYTE, "MaxFollowerBuildingType" },
+            { false, FT_BYTE, "GarrTypeId" },
+            { false, FT_BYTE, "LevelRangeBias" },
+            { false, FT_BYTE, "ItemLevelRangeBias" },
+            { false, FT_BYTE, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerTypeMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_TYPE);
+        return &loadInfo;
+    }
+};
+
 struct GarrFollowerXAbilityLoadInfo
 {
     static DB2LoadInfo const* Instance()

@@ -40,21 +40,7 @@ bool ClassHall::LoadFromDB()
 
 void ClassHall::SaveToDB(SQLTransaction trans)
 {
-    ClassHall::DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
     Garrison::SaveToDB(trans);
-}
-
-void ClassHall::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
-    stmt->setUInt64(0, ownerGuid);
-    stmt->setUInt8(1, GARRISON_TYPE_CLASS_HALL);
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
-    stmt->setUInt64(0, ownerGuid);
-    stmt->setUInt8(1, GARRISON_TYPE_CLASS_HALL);
-    trans->Append(stmt);
 }
 
 bool ClassHall::Create(uint32 garrSiteId)
@@ -68,7 +54,7 @@ bool ClassHall::Create(uint32 garrSiteId)
 void ClassHall::Delete()
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    ClassHall::DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
+    DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 
     Garrison::Delete();

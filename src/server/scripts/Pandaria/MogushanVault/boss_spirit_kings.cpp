@@ -1494,13 +1494,13 @@ class spell_volley : public SpellScriptLoader
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_VOLLEY_1:
-                        coneAngle = M_PI / (1.5f);
+                        coneAngle = float(M_PI) / 1.5f;
                         break;
                     case SPELL_VOLLEY_2:
-                        coneAngle = M_PI / 4;
+                        coneAngle = float(M_PI) / 4.f;
                         break;
                     case SPELL_VOLLEY_3:
-                        coneAngle = M_PI / 6;
+                        coneAngle = float(M_PI) / 6.f;
                         break;
                 }
 
@@ -1585,7 +1585,7 @@ class spell_maddening_shout : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_maddening_shout_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_maddening_shout_AuraScript::OnAbsorb, EFFECT_0);
                 OnEffectRemove += AuraEffectRemoveFn(spell_maddening_shout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };

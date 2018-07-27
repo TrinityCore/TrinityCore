@@ -114,7 +114,7 @@ namespace WorldPackets
         struct GarrisonMissionReward
         {
             int32 ItemID = 0;
-            uint32 Quantity = 0;
+            uint32 ItemQuantity = 0;
             int32 CurrencyID = 0;
             uint32 CurrencyQuantity = 0;
             uint32 FollowerXP = 0;
@@ -147,7 +147,7 @@ namespace WorldPackets
             std::vector<GarrisonFollower const*> Followers;
             std::vector<GarrisonMission const*> Missions;
             std::vector<std::vector<GarrisonMissionReward>> MissionRewards;
-            std::vector<std::vector<GarrisonMissionReward>> MissionOvermaxRewards;
+            std::vector<std::vector<GarrisonMissionReward>> MissionBonusRewards;
             std::vector<GarrisonMissionAreaBonus const*> MissionAreaBonuses;
             std::vector<GarrisonTalent> Talents;
             std::vector<bool> CanStartMission;
@@ -476,7 +476,7 @@ namespace WorldPackets
             GarrisonMission Mission;
 
             std::vector<WorldPackets::Garrison::GarrisonMissionReward> Rewards;
-            std::vector<WorldPackets::Garrison::GarrisonMissionReward> OvermaxRewards;
+            std::vector<WorldPackets::Garrison::GarrisonMissionReward> BonusRewards;
 
             bool Success = true;
 

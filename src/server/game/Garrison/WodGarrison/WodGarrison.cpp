@@ -94,7 +94,6 @@ bool WodGarrison::LoadFromDB()
 
 void WodGarrison::SaveToDB(SQLTransaction trans)
 {
-    WodGarrison::DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
     Garrison::SaveToDB(trans);
 
     for (uint32 building : _knownBuildings)
@@ -121,29 +120,6 @@ void WodGarrison::SaveToDB(SQLTransaction trans)
             trans->Append(stmt);
         }
     }
-}
-
-void WodGarrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
-    stmt->setUInt64(0, ownerGuid);
-    stmt->setUInt8(1, GARRISON_TYPE_GARRISON);
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BLUEPRINTS);
-    stmt->setUInt64(0, ownerGuid);
-    stmt->setUInt8(1, GARRISON_TYPE_GARRISON);
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_BUILDINGS);
-    stmt->setUInt64(0, ownerGuid);
-    stmt->setUInt8(1, GARRISON_TYPE_GARRISON);
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
-    stmt->setUInt64(0, ownerGuid);
-    stmt->setUInt8(1, GARRISON_TYPE_GARRISON);
-    trans->Append(stmt);
 }
 
 bool WodGarrison::Create(uint32 garrSiteId)
@@ -223,7 +199,7 @@ void WodGarrison::TeleportOwnerAndPlayMovie() const
 void WodGarrison::Delete()
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    WodGarrison::DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
+    DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 
     Garrison::Delete();

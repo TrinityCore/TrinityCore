@@ -76,6 +76,8 @@ public:
     std::list<GarrAbilityEntry const*> GetClassSpecAbilities(GarrFollowerEntry const* follower, uint32 faction) const;
 
     uint32 GetMissionSuccessChance(Garrison* garrison, uint32 missionId);
+    uint32 GetClassByMissionType(uint32 missionType);
+    uint32 GetFactionByMissionType(uint32 missionType);
 
 private:
     void InitializeDbIdSequences();

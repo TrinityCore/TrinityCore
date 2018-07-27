@@ -756,7 +756,7 @@ class npc_tempest_slash_tornado : public CreatureScript
                 if (summoner)
                 {
                     // Random orientation in front of Ta'yak
-                    float ori = summoner->GetOrientation() + ((urand(0, 1) ? 1 : -1) * frand(M_PI/3, M_PI/2));
+                    float ori = summoner->GetOrientation() + ((urand(0, 1) ? 1 : -1) * frand(float(M_PI)/3.f, float(M_PI) / 2.f));
                     me->SetOrientation(ori);
                     me->SetFacingTo(ori);
 

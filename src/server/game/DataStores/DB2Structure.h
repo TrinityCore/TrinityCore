@@ -1236,6 +1236,18 @@ struct GarrFollowerXAbilityEntry
     uint16 GarrFollowerID;
 };
 
+struct GarrFollowerTypeEntry
+{
+    uint32 ID;
+    uint16 MaxItemLevel;
+    uint8 MaxFollowers;
+    uint8 MaxFollowerBuildingType;
+    uint8 GarrTypeId;
+    uint8 LevelRangeBias;
+    uint8 ItemLevelRangeBias;
+    uint8 Flags;
+};
+
 struct GarrMissionEntry
 {
     LocalizedString const* Name;

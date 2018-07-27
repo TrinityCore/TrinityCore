@@ -747,8 +747,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHARACTER_GARRISON_MISSIONS, "SELECT dbId, missionId, offerTime, startTime, status FROM character_garrison_missions WHERE guid = ? AND garrison_type = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_UPD_CHARACTER_GARRISON_MISSIONS, "UPDATE character_garrison_missions SET status = ? WHERE dbId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHARACTER_GARRISON_MISSIONS, "INSERT INTO character_garrison_missions (dbId, guid, garrison_type, missionId, offerTime, startTime, status) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_MISSIONS, "DELETE FROM character_garrison_missions WHERE guid = ? AND garrison_type = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_MISSION,  "DELETE FROM character_garrison_missions WHERE dbId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_MISSIONS, "DELETE gfmr, gm FROM character_garrison_mission_rewards gfmr INNER JOIN character_garrison_missions gm ON gfmr.dbId = gm.dbId WHERE guid = ? AND garrison_type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_MISSION,  "DELETE gfmr, gm FROM character_garrison_mission_rewards gfmr INNER JOIN character_garrison_missions gm ON gfmr.dbId = gm.dbId WHERE gm.dbId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_GARRISON_MISSION_REWARDS, "SELECT gfmr.dbId, gfmr.type, gfmr.itemId, gfmr.itemQuantity, gfmr.currencyId, gfmr.currencyQuantity, gfmr.FollowerXP, gfmr.BonusAbilityId FROM character_garrison_mission_rewards gfmr INNER JOIN character_garrison_missions gm ON gfmr.dbId = gm.dbId WHERE guid = ? AND garrison_type = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_INS_CHARACTER_GARRISON_MISSION_REWARDS, "INSERT INTO character_garrison_mission_rewards (dbId, type, itemId, itemQuantity, currencyId, currencyQuantity, FollowerXP, BonusAbilityId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // Black Market
     PrepareStatement(CHAR_SEL_BLACKMARKET_AUCTIONS, "SELECT marketId, currentBid, time, numBids, bidder FROM blackmarket_auctions", CONNECTION_SYNCH);

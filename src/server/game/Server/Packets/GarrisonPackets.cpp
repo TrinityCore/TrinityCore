@@ -100,7 +100,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMission
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem)
 {
     data << int32(missionRewardItem.ItemID);
-    data << uint32(missionRewardItem.Quantity);
+    data << uint32(missionRewardItem.ItemQuantity);
     data << int32(missionRewardItem.CurrencyID);
     data << uint32(missionRewardItem.CurrencyQuantity);
     data << uint32(missionRewardItem.FollowerXP);
@@ -130,7 +130,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonTalent 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo const& garrison)
 {
     ASSERT(garrison.Missions.size() == garrison.MissionRewards.size());
-    ASSERT(garrison.Missions.size() == garrison.MissionOvermaxRewards.size());
+    ASSERT(garrison.Missions.size() == garrison.MissionBonusRewards.size());
     ASSERT(garrison.Missions.size() == garrison.CanStartMission.size());
 
     data << int32(garrison.GarrTypeID);
@@ -141,7 +141,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     data << uint32(garrison.Followers.size());
     data << uint32(garrison.Missions.size());
     data << uint32(garrison.MissionRewards.size());
-    data << uint32(garrison.MissionOvermaxRewards.size());
+    data << uint32(garrison.MissionBonusRewards.size());
     data << uint32(garrison.MissionAreaBonuses.size());
     data << uint32(garrison.Talents.size());
     data << uint32(garrison.CanStartMission.size());
@@ -162,7 +162,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
             data << missionRewardItem;
     }
 
-    for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
+    for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionBonusRewards)
     {
         data << uint32(missionReward.size());
         for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : missionReward)
@@ -436,12 +436,12 @@ WorldPacket const* WorldPackets::Garrison::GarrisonAddMissionResult::Write()
     _worldPacket << Mission;
 
     _worldPacket << uint32(Rewards.size());
-    _worldPacket << uint32(OvermaxRewards.size());
+    _worldPacket << uint32(BonusRewards.size());
 
     for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : Rewards)
         _worldPacket << missionRewardItem;
 
-    for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : OvermaxRewards)
+    for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : BonusRewards)
         _worldPacket << missionRewardItem;
 
     _worldPacket.WriteBit(Success);
