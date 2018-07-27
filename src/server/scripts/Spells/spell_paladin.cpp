@@ -1753,6 +1753,37 @@ class spell_pal_divine_purpose : public AuraScript
     }
 };
 
+class spell_pal_inquisition : public SpellScript
+{
+    PrepareSpellScript(spell_pal_inquisition);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+    }
+
+    void ChangeDuration()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))
+        {
+            uint8 power = caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC) ? 2 : caster->GetPower(POWER_HOLY_POWER);
+            int32 duration = aura->GetDuration();
+            duration += duration * power;
+            aura->SetDuration(duration);
+        }
+
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_inquisition::ChangeDuration);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1778,6 +1809,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
+    RegisterSpellScript(spell_pal_inquisition);
     new spell_pal_item_healing_discount();
     new spell_pal_judgement();
     RegisterAuraScript(spell_pal_judgements);
