@@ -211,6 +211,17 @@ class spell_beauty_magma_spit : public AuraScript
 {
     PrepareAuraScript(spell_beauty_magma_spit);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_MAGMA_SPIT_MISSILE_1,
+                SPELL_MAGMA_SPIT_MISSILE_2,
+                SPELL_MAGMA_SPIT_MISSILE_3,
+                SPELL_MAGMA_SPIT_MISSILE_4
+            });
+    }
+
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
