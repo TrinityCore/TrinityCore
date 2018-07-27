@@ -203,7 +203,7 @@ uint32 inversionMatching[MAX_INVERSION_SPELLS][2] =
 };
 
 #define MAX_DIST    60.0f
-Position centerPos = {4041.979980f, 1341.859985f, 466.388000f, 3.140160f};
+Position fengCenterPos = {4041.979980f, 1341.859985f, 466.388000f, 3.140160f};
 
 // Positions for Siphoning Shield
 Position shieldPositions[3] =
@@ -722,10 +722,10 @@ class boss_feng : public CreatureScript
                     if (!me->IsInCombat())
                         return;
 
-                    if ((me->GetPositionX() - centerPos.GetPositionX()) > 37.0f ||
-                        (me->GetPositionX() - centerPos.GetPositionX()) < -37.0f ||
-                        (me->GetPositionY() - centerPos.GetPositionY()) > 37.0f ||
-                        (me->GetPositionY() - centerPos.GetPositionY()) < -37.0f)
+                    if ((me->GetPositionX() - fengCenterPos.GetPositionX()) > 37.0f ||
+                        (me->GetPositionX() - fengCenterPos.GetPositionX()) < -37.0f ||
+                        (me->GetPositionY() - fengCenterPos.GetPositionY()) > 37.0f ||
+                        (me->GetPositionY() - fengCenterPos.GetPositionY()) < -37.0f)
                         me->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
                 }
         };
