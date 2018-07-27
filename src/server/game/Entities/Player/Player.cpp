@@ -27617,9 +27617,11 @@ float Player::GetAverageItemLevel() const
             continue;
 
         if (i == EQUIPMENT_SLOT_OFFHAND)
-            if (Item* weapon = m_items[EQUIPMENT_SLOT_MAINHAND])
-                if (weapon->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
-                    continue;
+        {
+            // don't consider offhand slots when we do not use them (2h weapons or no weapon at all)
+            if (!m_items[i])
+                continue;
+        }
 
         if (m_items[i])
             sum += m_items[i]->GetTemplate()->ItemLevel;
