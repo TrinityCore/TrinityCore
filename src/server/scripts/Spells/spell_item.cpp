@@ -722,7 +722,7 @@ class spell_item_goblin_gumbo : public AuraScript
         amplitude = urandms(10, 45);
     }
 
-    void Update(AuraEffect* effect)
+    void Update(AuraEffect* /*effect*/)
     {
         if (Unit* owner = GetUnitOwner())
             owner->CastSpell(owner, SPELL_GOBLIN_GUMBO_VISUAL, false);
