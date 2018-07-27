@@ -706,6 +706,35 @@ class spell_item_defibrillate : public SpellScriptLoader
         uint32 _failSpell;
 };
 
+enum GoblinGumbo
+{
+    SPELL_GOBLIN_GUMBO_VISUAL = 42755
+};
+
+// 42760 - Goblin Gumbo
+class spell_item_goblin_gumbo : public AuraScript
+{
+    PrepareAuraScript(spell_item_goblin_gumbo);
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = urandms(10, 45);
+    }
+
+    void Update(AuraEffect* effect)
+    {
+        if (Unit* owner = GetUnitOwner())
+            owner->CastSpell(owner, SPELL_GOBLIN_GUMBO_VISUAL, false);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_item_goblin_gumbo::CalcPeriodic, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_item_goblin_gumbo::Update, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 enum DesperateDefense
 {
     SPELL_DESPERATE_RAGE    = 33898
@@ -3975,6 +4004,7 @@ void AddSC_item_spell_scripts()
     new spell_item_defibrillate("spell_item_goblin_jumper_cables", 67, SPELL_GOBLIN_JUMPER_CABLES_FAIL);
     new spell_item_defibrillate("spell_item_goblin_jumper_cables_xl", 50, SPELL_GOBLIN_JUMPER_CABLES_XL_FAIL);
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
+    RegisterAuraScript(spell_item_goblin_gumbo);
     RegisterAuraScript(spell_item_desperate_defense);
     RegisterSpellScript(spell_item_deviate_fish);
     RegisterAuraScript(spell_item_discerning_eye_beast_dummy);
