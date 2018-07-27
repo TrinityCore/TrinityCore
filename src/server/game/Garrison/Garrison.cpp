@@ -360,9 +360,9 @@ void Garrison::AddMission(uint32 garrMissionId)
     Mission& mission = _missions[dbId];
     mission.PacketInfo.DbID = dbId;
     mission.PacketInfo.MissionRecID = garrMissionId;
-    mission.PacketInfo.OfferTime = time_t(0);
+    mission.PacketInfo.OfferTime = time(nullptr);
     mission.PacketInfo.OfferDuration = missionEntry->OfferTime;
-    mission.PacketInfo.StartTime = time_t(2288912640);
+    mission.PacketInfo.StartTime = time_t(0);
     mission.PacketInfo.TravelDuration = missionEntry->TravelTime;
     mission.PacketInfo.MissionDuration = missionEntry->Duration;
     mission.PacketInfo.MissionState = 0;
@@ -408,7 +408,7 @@ bool Garrison::HasMission(uint32 garrMissionId)
     });
 }
 
-void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers)
+void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> /*Followers*/)
 {
     GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
     if (!missionEntry)

@@ -1219,10 +1219,10 @@ class mob_sonic_pulse : public CreatureScript
 };
 
 // Inhale - 122852
-class spell_inhale : public SpellScriptLoader
+class spell_inhale_zorlok : public SpellScriptLoader
 {
     public:
-        spell_inhale() : SpellScriptLoader("spell_inhale") { }
+        spell_inhale_zorlok() : SpellScriptLoader("spell_inhale_zorlok") { }
 
         class spell_inhale_SpellScript : public SpellScript
         {
@@ -1685,7 +1685,7 @@ void AddSC_boss_zorlok()
     new boss_zorlok();                  ///< 62980 - Imperial Vizier Zor'lok
     new mob_sonic_ring();               ///< 62689 - Sonic Ring
     new mob_sonic_pulse();              ///< 63837 - Sonic Pulse
-    new spell_inhale();                 ///< 122852 - Inhale
+    new spell_inhale_zorlok();          ///< 122852 - Inhale
     new spell_attenuation();            ///< 122440 - Attenuation
     new spell_force_verve();            ///< 122718 - Force and verve
     new spell_sonic_ring();             ///< 122336 - Sonic Ring

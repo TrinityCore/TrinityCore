@@ -340,7 +340,7 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::GetClassSpecAbilities(GarrFollow
     return abilities;
 }
 
-uint32 GarrisonMgr::GetMissionSuccessChance(Garrison* garrison, uint32 missionId)
+uint32 GarrisonMgr::GetMissionSuccessChance(Garrison* /*garrison*/, uint32 /*missionId*/)
 {
     uint32 winChance = 100;
 
