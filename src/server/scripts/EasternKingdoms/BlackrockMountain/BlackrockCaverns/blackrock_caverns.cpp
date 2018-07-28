@@ -34,48 +34,39 @@ enum FireCyclone
     EVENT_FIRE_CYCLONE_AURA     = 1
 };
 
-class npc_fire_cyclone : public CreatureScript
+struct npc_fire_cyclone : public ScriptedAI
 {
-    public: npc_fire_cyclone() : CreatureScript("npc_fire_cyclone") { }
+    npc_fire_cyclone(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_fire_cycloneAI : public ScriptedAI
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_fire_cycloneAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100);
+                case EVENT_FIRE_CYCLONE_AURA:
+                    DoCast(me, SPELL_FIRE_CYCLONE_AURA, true);
+                    _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 4000);
+                    break;
+                default:
+                    break;
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FIRE_CYCLONE_AURA:
-                            DoCast(me, SPELL_FIRE_CYCLONE_AURA, true);
-                            _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 4000);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            private:
-                EventMap        _events;
-                InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_fire_cycloneAI>(creature);
         }
+    }
+
+private:
+    EventMap        _events;
+    InstanceScript* _instance;
 };
+
 
 /*#####
 # npc_twilight_flame_caller
@@ -83,14 +74,14 @@ class npc_fire_cyclone : public CreatureScript
 
 enum TwilightFlameCaller
 {
-    SPELL_FIRE_CHANNELING_1     = 74911,
-    SPELL_FIRE_CHANNELING_2     = 74912,
-    SPELL_BLAST_WAVE            = 76473,
-    SPELL_CALL_FLAMES           = 76325,
-    NPC_FIRE_CYCLONE            = 40164,
-    EVENT_CHANNEL               = 2,
-    EVENT_BLAST_WAVE            = 3,
-    EVENT_CALL_FLAMES           = 4
+    SPELL_FIRE_CHANNELING_1 = 74911,
+    SPELL_FIRE_CHANNELING_2 = 74912,
+    SPELL_BLAST_WAVE        = 76473,
+    SPELL_CALL_FLAMES       = 76325,
+    NPC_FIRE_CYCLONE        = 40164,
+    EVENT_CHANNEL           = 1,
+    EVENT_BLAST_WAVE,
+    EVENT_CALL_FLAMES
 };
 
 Position const SummonPos[6] =
@@ -103,124 +94,114 @@ Position const SummonPos[6] =
     { 253.6476f, 1070.226f, 201.1344f, 0.0f }
 };
 
-class npc_twilight_flame_caller : public CreatureScript
+struct npc_twilight_flame_caller : public ScriptedAI
 {
-public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller") { }
+    npc_twilight_flame_caller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me)
+    {
+        Initialize();
+    }
 
-        struct npc_twilight_flame_callerAI : public ScriptedAI
+    void Initialize()
+    {
+        _combatPhase = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        _flamecaller1GUID.Clear();
+        _flamecaller2GUID.Clear();
+
+        if (me->GetPositionX() > 172 && me->GetPositionX() < 173 && me->GetPositionY() > 1086 && me->GetPositionY() < 1087)
         {
-            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _combatPhase = false;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-                _flamecaller1GUID.Clear();
-                _flamecaller2GUID.Clear();
-
-                if (me->GetPositionX() > 172 && me->GetPositionX() < 173 && me->GetPositionY() > 1086 && me->GetPositionY() < 1087)
-                {
-                    _flamecaller1GUID = me->GetGUID();
-                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[0], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[1], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[2], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                }
-                if (me->GetPositionX() > 247 && me->GetPositionX() < 248 && me->GetPositionY() > 1081 && me->GetPositionY() < 1082)
-                {
-                    _flamecaller2GUID = me->GetGUID();
-                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[3], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[4], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[5], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                }
-
-                _events.ScheduleEvent(EVENT_CHANNEL, 100);
-            }
-
-            void JustSummoned(Creature* summoned) override
-            {
-                _summons.Summon(summoned);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _summons.DespawnAll();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.Reset();
-                _combatPhase = true;
-                _events.ScheduleEvent(EVENT_BLAST_WAVE, urand(8000, 10000));
-                _events.ScheduleEvent(EVENT_CALL_FLAMES,  urand(10000, 14000));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (!_combatPhase)
-                {
-                    while (uint32 eventId = _events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                            case EVENT_CHANNEL:
-                                if (me->GetGUID() == _flamecaller1GUID)
-                                    DoCast(me, SPELL_FIRE_CHANNELING_1);
-                                if (me->GetGUID() == _flamecaller2GUID)
-                                    DoCast(me, SPELL_FIRE_CHANNELING_2);
-                                _events.ScheduleEvent(EVENT_CHANNEL, 12000);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    return;
-                }
-
-                if (!UpdateVictim())
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_BLAST_WAVE:
-                            DoCast(me, SPELL_BLAST_WAVE);
-                            _events.ScheduleEvent(EVENT_BLAST_WAVE, 16000, 20000);
-                            break;
-                        case EVENT_CALL_FLAMES:
-                            DoCast(me, SPELL_CALL_FLAMES);
-                            _events.ScheduleEvent(EVENT_CALL_FLAMES, 12000, 15000);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap        _events;
-            InstanceScript* _instance;
-            ObjectGuid      _flamecaller1GUID;
-            ObjectGuid      _flamecaller2GUID;
-            SummonList      _summons;
-            bool _combatPhase =false;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_twilight_flame_callerAI>(creature);
+            _flamecaller1GUID = me->GetGUID();
+            me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[0], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[1], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[2], TEMPSUMMON_CORPSE_DESPAWN, 0);
         }
+        if (me->GetPositionX() > 247 && me->GetPositionX() < 248 && me->GetPositionY() > 1081 && me->GetPositionY() < 1082)
+        {
+            _flamecaller2GUID = me->GetGUID();
+            me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[5], TEMPSUMMON_CORPSE_DESPAWN, 0);
+        }
+
+        _events.ScheduleEvent(EVENT_CHANNEL, 100);
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        _summons.Summon(summoned);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _summons.DespawnAll();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.Reset();
+        _combatPhase = true;
+        _events.ScheduleEvent(EVENT_BLAST_WAVE, urand(8000, 10000));
+        _events.ScheduleEvent(EVENT_CALL_FLAMES, urand(10000, 14000));
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (!_combatPhase)
+        {
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CHANNEL:
+                        if (me->GetGUID() == _flamecaller1GUID)
+                            DoCast(me, SPELL_FIRE_CHANNELING_1);
+                        if (me->GetGUID() == _flamecaller2GUID)
+                            DoCast(me, SPELL_FIRE_CHANNELING_2);
+                        _events.ScheduleEvent(EVENT_CHANNEL, 12000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return;
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BLAST_WAVE:
+                    DoCast(me, SPELL_BLAST_WAVE);
+                    _events.ScheduleEvent(EVENT_BLAST_WAVE, 16000, 20000);
+                    break;
+                case EVENT_CALL_FLAMES:
+                    DoCast(me, SPELL_CALL_FLAMES);
+                    _events.ScheduleEvent(EVENT_CALL_FLAMES, 12000, 15000);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    ObjectGuid _flamecaller1GUID;
+    ObjectGuid _flamecaller2GUID;
+    SummonList _summons;
+    bool _combatPhase;
 };
 
 /*#####
@@ -229,106 +210,96 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
 
 enum TwilightTorturer
 {
-    SPELL_INFLICT_PAIN          = 75590,
-    SPELL_RED_HOT_POKER         = 76478,
-    SPELL_SHACKLES              = 76484,
-    SPELL_WILD_BEATDOWN         = 76487,
-    EVENT_INFLICT_PAIN_TT       = 5,
-    EVENT_RED_HOT_POKER         = 6,
-    EVENT_SHACKLES              = 7,
-    EVENT_WILD_BEATDOWN         = 8
+    SPELL_INFLICT_PAIN      = 75590,
+    SPELL_RED_HOT_POKER     = 76478,
+    SPELL_SHACKLES          = 76484,
+    SPELL_WILD_BEATDOWN     = 76487,
+    EVENT_INFLICT_PAIN_TT   = 1,
+    EVENT_RED_HOT_POKER,
+    EVENT_SHACKLES,
+    EVENT_WILD_BEATDOWN
 };
 
-class npc_twilight_torturer : public CreatureScript
+struct npc_twilight_torturer : public ScriptedAI
 {
-    public: npc_twilight_torturer() : CreatureScript("npc_twilight_torturer") { }
+    npc_twilight_torturer(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        Initialize();
+    }
 
-        struct npc_twilight_torturerAI : public ScriptedAI
+    void Initialize()
+    {
+        _combatPhase = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        if (!me->GetWaypointPath())
+            _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(6000, 18000));
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.Reset();
+        _combatPhase = true;
+        _events.ScheduleEvent(EVENT_RED_HOT_POKER, 9000);
+        _events.ScheduleEvent(EVENT_SHACKLES, 13000);
+        _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 17000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (!_combatPhase)
         {
-            npc_twilight_torturerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _combatPhase = false;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-                if (!me->GetWaypointPath())
-                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(6000, 18000));
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.Reset();
-                _combatPhase = true;
-                _events.ScheduleEvent(EVENT_RED_HOT_POKER, 9000);
-                _events.ScheduleEvent(EVENT_SHACKLES, 13000);
-                _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 17000);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (!_combatPhase)
-               {
-                    while (uint32 eventId = _events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                            case EVENT_INFLICT_PAIN_TT:
-                                DoCast(me, SPELL_INFLICT_PAIN);
-                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(25000, 32000));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    return;
-                }
-
-                if (!UpdateVictim())
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_RED_HOT_POKER:
-                            DoCast(me, SPELL_RED_HOT_POKER);
-                            _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16000, 20000);
-                            break;
-                        case EVENT_SHACKLES:
-                            DoCast(me, SPELL_SHACKLES);
-                            _events.ScheduleEvent(EVENT_SHACKLES, 12000, 15000);
-                            break;
-                        case EVENT_WILD_BEATDOWN:
-                            DoCast(me, SPELL_WILD_BEATDOWN);
-                            _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12000, 15000);
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_INFLICT_PAIN_TT:
+                        DoCast(me, SPELL_INFLICT_PAIN);
+                        _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(25000, 32000));
+                        break;
+                    default:
+                        break;
                 }
-
-                DoMeleeAttackIfReady();
             }
-
-        private:
-            EventMap        _events;
-            InstanceScript* _instance;
-            bool            _combatPhase;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_twilight_torturerAI>(creature);
+            return;
         }
+
+        if (!UpdateVictim())
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RED_HOT_POKER:
+                    DoCast(me, SPELL_RED_HOT_POKER);
+                    _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16000, 20000);
+                    break;
+                case EVENT_SHACKLES:
+                    DoCast(me, SPELL_SHACKLES);
+                    _events.ScheduleEvent(EVENT_SHACKLES, 12000, 15000);
+                    break;
+                case EVENT_WILD_BEATDOWN:
+                    DoCast(me, SPELL_WILD_BEATDOWN);
+                    _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12000, 15000);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    bool _combatPhase;
 };
 
 /*#####
@@ -337,99 +308,89 @@ class npc_twilight_torturer : public CreatureScript
 
 enum TwilightSadist
 {
-    SPELL_INFLICT_PAIN_1        = 76497,
-    SPELL_HEAT_SEEKER_BLADE     = 76502,
-    SPELL_SHORT_THROW           = 76572,
-    SPELL_SINISTER_STRIKE       = 76500,
-    EVENT_INFLICT_PAIN_TS       = 9,
-    EVENT_HEAT_SEEKER_BLADE     = 10,
-    EVENT_SHORT_THROW           = 11,
-    EVENT_SINISTER_STRIKE       = 12
+    SPELL_INFLICT_PAIN_1    = 76497,
+    SPELL_HEAT_SEEKER_BLADE = 76502,
+    SPELL_SHORT_THROW       = 76572,
+    SPELL_SINISTER_STRIKE   = 76500,
+    EVENT_INFLICT_PAIN_TS   = 1,
+    EVENT_HEAT_SEEKER_BLADE,
+    EVENT_SHORT_THROW,
+    EVENT_SINISTER_STRIKE
 };
 
-class npc_twilight_sadist : public CreatureScript
+struct npc_twilight_sadist : public ScriptedAI
 {
-    public: npc_twilight_sadist() : CreatureScript("npc_twilight_sadist") { }
+    npc_twilight_sadist(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_twilight_sadistAI : public ScriptedAI
+    void Reset() override
+    {
+        _combatPhase = false;
+        if (!me->GetWaypointPath())
+            _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(6000, 18000));
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.Reset();
+        _combatPhase = true;
+        _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 9000);
+        _events.ScheduleEvent(EVENT_HEAT_SEEKER_BLADE, 13000);
+        _events.ScheduleEvent(EVENT_SHORT_THROW, 17000);
+        _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 17000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (!_combatPhase)
         {
-            npc_twilight_sadistAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void Reset() override
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                _combatPhase = false;
-                if(!me->GetWaypointPath())
-                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(6000, 18000));
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.Reset();
-                _combatPhase = true;
-                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 9000);
-                _events.ScheduleEvent(EVENT_HEAT_SEEKER_BLADE,  13000);
-                _events.ScheduleEvent(EVENT_SHORT_THROW, 17000);
-                _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 17000);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (!_combatPhase)
-               {
-                    while (uint32 eventId = _events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                            case EVENT_INFLICT_PAIN_TS:
-                                DoCast(me, SPELL_INFLICT_PAIN);
-                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(25000, 32000));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    return;
-                }
-
-                if (!UpdateVictim())
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_RED_HOT_POKER:
-                            DoCast(me, SPELL_RED_HOT_POKER);
-                            _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16000, 20000);
-                            break;
-                        case EVENT_SHACKLES:
-                            DoCast(me, SPELL_SHACKLES);
-                            _events.ScheduleEvent(EVENT_SHACKLES, 12000, 15000);
-                            break;
-                        case EVENT_WILD_BEATDOWN:
-                            DoCast(me, SPELL_WILD_BEATDOWN);
-                            _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12000, 15000);
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_INFLICT_PAIN_TS:
+                        DoCast(me, SPELL_INFLICT_PAIN);
+                        _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(25000, 32000));
+                        break;
+                    default:
+                        break;
                 }
-
-                DoMeleeAttackIfReady();
             }
-
-        private:
-            EventMap        _events;
-            InstanceScript* _instance;
-            bool            _combatPhase;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_twilight_sadistAI>(creature);
+            return;
         }
+
+        if (!UpdateVictim())
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RED_HOT_POKER:
+                    DoCast(me, SPELL_RED_HOT_POKER);
+                    _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16000, 20000);
+                    break;
+                case EVENT_SHACKLES:
+                    DoCast(me, SPELL_SHACKLES);
+                    _events.ScheduleEvent(EVENT_SHACKLES, 12000, 15000);
+                    break;
+                case EVENT_WILD_BEATDOWN:
+                    DoCast(me, SPELL_WILD_BEATDOWN);
+                    _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12000, 15000);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    bool _combatPhase;
 };
 
 /*#####
@@ -438,71 +399,61 @@ class npc_twilight_sadist : public CreatureScript
 
 enum MadPrisoner
 {
-    SPELL_HEAD_CRACK            = 77568,
-    SPELL_INFECTED_WOUND        = 76512,
-    SPELL_ENRAGE                = 8599,
-    EVENT_HEAD_CRACK            = 13,
-    EVENT_INFECTED_WOUND        = 14,
-    EVENT_ENRAGE                = 15
+    SPELL_HEAD_CRACK        = 77568,
+    SPELL_INFECTED_WOUND    = 76512,
+    SPELL_ENRAGE            = 8599,
+    EVENT_HEAD_CRACK        = 1,
+    EVENT_INFECTED_WOUND,
+    EVENT_ENRAGE
 };
 
-class npc_mad_prisoner : public CreatureScript
+struct npc_mad_prisoner : public ScriptedAI
 {
-    public: npc_mad_prisoner() : CreatureScript("npc_mad_prisoner") { }
+    npc_mad_prisoner(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_mad_prisonerAI : public ScriptedAI
+    void Reset() override { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_HEAD_CRACK, 9000);
+        _events.ScheduleEvent(EVENT_INFECTED_WOUND, 13000);
+        _events.ScheduleEvent(EVENT_ENRAGE, 17000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_mad_prisonerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void Reset() override { }
-
-            void JustEngagedWith(Unit* /*who*/) override
+            switch (eventId)
             {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_HEAD_CRACK, 9000);
-                _events.ScheduleEvent(EVENT_INFECTED_WOUND,  13000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 17000);
+                case EVENT_HEAD_CRACK:
+                    DoCast(me, SPELL_HEAD_CRACK);
+                    _events.ScheduleEvent(EVENT_HEAD_CRACK, 16000, 20000);
+                    break;
+                case EVENT_INFECTED_WOUND:
+                    DoCast(me, SPELL_INFECTED_WOUND);
+                    _events.ScheduleEvent(EVENT_INFECTED_WOUND, 12000, 15000);
+                    break;
+                case EVENT_ENRAGE:
+                    DoCast(me, SPELL_ENRAGE);
+                    _events.ScheduleEvent(EVENT_ENRAGE, 12000, 15000);
+                    break;
+                default:
+                    break;
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_HEAD_CRACK:
-                            DoCast(me, SPELL_HEAD_CRACK);
-                            _events.ScheduleEvent(EVENT_HEAD_CRACK, 16000, 20000);
-                            break;
-                        case EVENT_INFECTED_WOUND:
-                            DoCast(me, SPELL_INFECTED_WOUND);
-                            _events.ScheduleEvent(EVENT_INFECTED_WOUND, 12000, 15000);
-                            break;
-                        case EVENT_ENRAGE:
-                            DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 12000, 15000);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap        _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_mad_prisonerAI>(creature);
         }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
 /*#####
@@ -511,69 +462,59 @@ class npc_mad_prisoner : public CreatureScript
 
 enum CrazedMage
 {
-    EVENT_HEAD_CRACK2           = 16,
-    EVENT_INFECTED_WOUND2       = 17,
-    EVENT_ENRAGE2               = 18
+    EVENT_HEAD_CRACK2 = 1,
+    EVENT_INFECTED_WOUND2,
+    EVENT_ENRAGE2
 };
 
-class npc_crazed_mage : public CreatureScript
+struct npc_crazed_mage : public ScriptedAI
 {
-    public: npc_crazed_mage() : CreatureScript("npc_crazed_mage") { }
+    npc_crazed_mage(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_crazed_mageAI : public ScriptedAI
+    void Reset() override { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_HEAD_CRACK2, 9000);
+        _events.ScheduleEvent(EVENT_INFECTED_WOUND2, 13000);
+        _events.ScheduleEvent(EVENT_ENRAGE2, 17000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_crazed_mageAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void Reset() override { }
-
-            void JustEngagedWith(Unit* /*who*/) override
+            switch (eventId)
             {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_HEAD_CRACK2, 9000);
-                _events.ScheduleEvent(EVENT_INFECTED_WOUND2,  13000);
-                _events.ScheduleEvent(EVENT_ENRAGE2, 17000);
+                case EVENT_HEAD_CRACK2:
+                    DoCast(me, SPELL_HEAD_CRACK);
+                    _events.ScheduleEvent(EVENT_HEAD_CRACK2, 16000, 20000);
+                    break;
+                case EVENT_INFECTED_WOUND2:
+                    DoCast(me, SPELL_INFECTED_WOUND);
+                    _events.ScheduleEvent(EVENT_INFECTED_WOUND2, 12000, 15000);
+                    break;
+                case EVENT_ENRAGE2:
+                    DoCast(me, SPELL_ENRAGE);
+                    _events.ScheduleEvent(EVENT_ENRAGE2, 12000, 15000);
+                    break;
+                default:
+                    break;
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_HEAD_CRACK2:
-                            DoCast(me, SPELL_HEAD_CRACK);
-                            _events.ScheduleEvent(EVENT_HEAD_CRACK2, 16000, 20000);
-                            break;
-                        case EVENT_INFECTED_WOUND2:
-                            DoCast(me, SPELL_INFECTED_WOUND);
-                            _events.ScheduleEvent(EVENT_INFECTED_WOUND2, 12000, 15000);
-                            break;
-                        case EVENT_ENRAGE2:
-                            DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE2, 12000, 15000);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_crazed_mageAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
 /*#####
@@ -595,86 +536,76 @@ enum RazTheCrazed
     EVENT_FURIOUS_SWIPE         = 21
 };
 
-class npc_raz_the_crazed : public CreatureScript
+struct npc_raz_the_crazed : public ScriptedAI
 {
-    public: npc_raz_the_crazed() : CreatureScript("npc_raz_the_crazed") { }
+    npc_raz_the_crazed(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_raz_the_crazedAI : public ScriptedAI
+    void Reset() override { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
+    }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->SetDisableGravity(true);
+        DoCast(me, SPELL_SHADOW_PRISON);
+        _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
+    }
+
+    void SetData(uint32 id, uint32 data) override
+    {
+        if (id == TYPE_RAZ && data == DATA_ROMOGG_DEAD)
         {
-            npc_raz_the_crazedAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void Reset() override { }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.Reset();
-                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
-            }
-
-            void IsSummonedBy(Unit* summoner) override
-            {
-                me->SetDisableGravity(true);
-                DoCast(me, SPELL_SHADOW_PRISON);
-                _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
-            }
-
-            void SetData(uint32 id, uint32 data) override
-            {
-                if (id == TYPE_RAZ && data == DATA_ROMOGG_DEAD)
-                {
-                    me->RemoveAura(SPELL_SHADOW_PRISON);
-                    me->SetDisableGravity(false);
-                    DoCast(me, SPELL_LEAP_FROM_CAGE);
-                    _events.ScheduleEvent(EVENT_START_FIRST_PATH, 3000);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_AGGO_NEARBY_TARGETS:
-                            DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
-                            _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500);
-                            break;
-                        case EVENT_START_FIRST_PATH:
-                            Talk(SAY_SMASH);
-                            break;
-                        case EVENT_FURIOUS_SWIPE:
-                            DoCastVictim(SPELL_FURIOUS_SWIPE, true);
-                            _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBlackrockCavernsAI<npc_raz_the_crazedAI>(creature);
+            me->RemoveAura(SPELL_SHADOW_PRISON);
+            me->SetDisableGravity(false);
+            DoCast(me, SPELL_LEAP_FROM_CAGE);
+            _events.ScheduleEvent(EVENT_START_FIRST_PATH, 3000);
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_AGGO_NEARBY_TARGETS:
+                DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
+                _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500);
+                break;
+            case EVENT_START_FIRST_PATH:
+                Talk(SAY_SMASH);
+                break;
+            case EVENT_FURIOUS_SWIPE:
+                DoCastVictim(SPELL_FURIOUS_SWIPE, true);
+                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
+                break;
+            default:
+                break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
 void AddSC_blackrock_caverns()
 {
     // Creature Scripts
-    new npc_fire_cyclone();
-    new npc_twilight_flame_caller();
-    new npc_twilight_torturer();
-    new npc_twilight_sadist();
-    new npc_mad_prisoner();
-    new npc_crazed_mage();
-    new npc_raz_the_crazed();
+    RegisterBlackrockCavernsCreatureAI(npc_fire_cyclone);
+    RegisterBlackrockCavernsCreatureAI(npc_twilight_flame_caller);
+    RegisterBlackrockCavernsCreatureAI(npc_twilight_torturer);
+    RegisterBlackrockCavernsCreatureAI(npc_twilight_sadist);
+    RegisterBlackrockCavernsCreatureAI(npc_mad_prisoner);
+    RegisterBlackrockCavernsCreatureAI(npc_crazed_mage);
+    RegisterBlackrockCavernsCreatureAI(npc_raz_the_crazed);
 }
