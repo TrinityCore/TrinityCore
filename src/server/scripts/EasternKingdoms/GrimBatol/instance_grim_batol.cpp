@@ -41,7 +41,7 @@ class instance_grim_batol : public InstanceMapScript
 
         struct instance_grim_batol_InstanceMapScript : public InstanceScript
         {
-            instance_grim_batol_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_grim_batol_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

@@ -35,7 +35,7 @@ class AreaBoundary;
 class Creature;
 class GameObject;
 struct InstanceSpawnGroupInfo;
-class Map;
+class InstanceMap;
 class ModuleReference;
 class Player;
 class Unit;
@@ -149,11 +149,11 @@ typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(Map* map);
+        explicit InstanceScript(InstanceMap* map);
 
         virtual ~InstanceScript() { }
 
-        Map* instance;
+        InstanceMap* instance;
 
         // On creation, NOT load.
         // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!

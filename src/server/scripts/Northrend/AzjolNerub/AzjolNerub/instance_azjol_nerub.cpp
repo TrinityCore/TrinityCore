@@ -21,7 +21,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
 DoorData const doorData[] =
 {

@@ -35,7 +35,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
 
         struct instance_shadow_labyrinth_InstanceMapScript : public InstanceScript
         {
-            instance_shadow_labyrinth_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_shadow_labyrinth_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

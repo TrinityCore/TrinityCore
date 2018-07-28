@@ -158,7 +158,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (mInstance)
     {
         // check if this instance has a reset time and send it to player if so
-        Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
+        Difficulty diff = newMap->GetDifficulty();
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
             if (mapDiff->resetTime)

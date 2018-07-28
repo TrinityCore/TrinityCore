@@ -51,7 +51,7 @@ class instance_sunwell_plateau : public InstanceMapScript
 
         struct instance_sunwell_plateau_InstanceMapScript : public InstanceScript
         {
-            instance_sunwell_plateau_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_sunwell_plateau_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

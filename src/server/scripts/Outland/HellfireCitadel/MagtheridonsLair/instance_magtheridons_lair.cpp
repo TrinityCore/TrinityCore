@@ -71,7 +71,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {
-            instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_magtheridons_lair_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

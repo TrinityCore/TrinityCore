@@ -81,7 +81,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
         struct instance_bastion_of_twilight_InstanceMapScript : public InstanceScript
         {
-            instance_bastion_of_twilight_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_bastion_of_twilight_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(!map->IsHeroic() ? EncounterCountNormal : EncounterCountHeroic); // Sinestra only in heroic mode
