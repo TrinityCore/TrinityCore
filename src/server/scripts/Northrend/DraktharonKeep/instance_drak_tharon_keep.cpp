@@ -29,7 +29,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
 
         struct instance_drak_tharon_keep_InstanceScript : public InstanceScript
         {
-            instance_drak_tharon_keep_InstanceScript(Map* map) : InstanceScript(map)
+            instance_drak_tharon_keep_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

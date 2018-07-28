@@ -97,7 +97,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
 
         struct instance_vortex_pinnacle_InstanceScript : public InstanceScript
         {
-            instance_vortex_pinnacle_InstanceScript(Map* map) : InstanceScript(map)
+            instance_vortex_pinnacle_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);

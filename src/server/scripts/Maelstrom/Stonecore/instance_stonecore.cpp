@@ -54,7 +54,7 @@ class instance_stonecore : public InstanceMapScript
 
         struct instance_stonecore_InstanceScript : public InstanceScript
         {
-            instance_stonecore_InstanceScript(Map* map) : InstanceScript(map)
+            instance_stonecore_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);

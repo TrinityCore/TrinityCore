@@ -63,7 +63,7 @@ class instance_azjol_nerub : public InstanceMapScript
 
         struct instance_azjol_nerub_InstanceScript : public InstanceScript
         {
-            instance_azjol_nerub_InstanceScript(Map* map) : InstanceScript(map)
+            instance_azjol_nerub_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

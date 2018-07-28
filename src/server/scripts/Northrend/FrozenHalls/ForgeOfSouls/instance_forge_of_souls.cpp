@@ -37,7 +37,7 @@ class instance_forge_of_souls : public InstanceMapScript
 
         struct instance_forge_of_souls_InstanceScript : public InstanceScript
         {
-            instance_forge_of_souls_InstanceScript(Map* map) : InstanceScript(map)
+            instance_forge_of_souls_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
