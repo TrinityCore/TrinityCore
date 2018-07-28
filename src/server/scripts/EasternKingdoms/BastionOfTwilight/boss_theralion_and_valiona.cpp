@@ -1287,6 +1287,50 @@ class spell_valiona_blackout: public SpellScriptLoader
         }
 };
 
+class spell_valiona_blackout_damage : public SpellScriptLoader
+{
+    public:
+        spell_valiona_blackout_damage() : SpellScriptLoader("spell_valiona_blackout_damage") { }
+
+        class spell_valiona_blackout_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_blackout_damage_SpellScript);
+
+            bool Load() override
+            {
+                _targetCount = 0;
+                return true;
+            }
+
+            void CountTargets(std::list<WorldObject*>& targets)
+            {
+                _targetCount = targets.size();
+            }
+
+            void SplitDamage()
+            {
+                if (!_targetCount)
+                    return;
+
+                SetHitDamage(GetHitDamage() / _targetCount);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_blackout_damage_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnHit += SpellHitFn(spell_valiona_blackout_damage_SpellScript::SplitDamage);
+            }
+
+        private:
+            uint32 _targetCount;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_blackout_damage_SpellScript();
+        }
+};
+
 class spell_valiona_devouring_flames : public SpellScriptLoader
 {
     public:
@@ -1411,6 +1455,50 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_valiona_twilight_meteorite_targeting_SpellScript();
+        }
+};
+
+class spell_valiona_twilight_meteorite : public SpellScriptLoader
+{
+    public:
+        spell_valiona_twilight_meteorite() : SpellScriptLoader("spell_valiona_twilight_meteorite") { }
+
+        class spell_valiona_twilight_meteorite_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valiona_twilight_meteorite_SpellScript);
+
+            bool Load() override
+            {
+                _targetCount = 0;
+                return true;
+            }
+
+            void CountTargets(std::list<WorldObject*>& targets)
+            {
+                _targetCount = targets.size();
+            }
+
+            void SplitDamage()
+            {
+                if (!_targetCount)
+                    return;
+
+                SetHitDamage(GetHitDamage() / _targetCount);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_valiona_twilight_meteorite_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnHit += SpellHitFn(spell_valiona_twilight_meteorite_SpellScript::SplitDamage);
+            }
+
+        private:
+            uint32 _targetCount;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_valiona_twilight_meteorite_SpellScript();
         }
 };
 
@@ -1904,9 +1992,11 @@ void AddSC_boss_theralion_and_valiona()
     new spell_theralion_engulfing_magic();
     new spell_valiona_blackout_dummy();
     new spell_valiona_blackout();
+    new spell_valiona_blackout_damage();
     new spell_valiona_devouring_flames();
     new spell_valiona_devouring_flames_targeting();
     new spell_valiona_twilight_meteorite_targeting();
+    new spell_valiona_twilight_meteorite();
     new spell_valiona_strafe();
     new spell_valiona_summon_twilight_portal();
     new spell_valiona_summon_twilight_sentry();
