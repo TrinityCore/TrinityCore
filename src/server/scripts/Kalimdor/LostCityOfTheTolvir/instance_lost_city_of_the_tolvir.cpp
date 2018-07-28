@@ -71,7 +71,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
         struct instance_lost_city_of_the_tolvir_InstanceMapScript : public InstanceScript
         {
-            instance_lost_city_of_the_tolvir_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_lost_city_of_the_tolvir_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

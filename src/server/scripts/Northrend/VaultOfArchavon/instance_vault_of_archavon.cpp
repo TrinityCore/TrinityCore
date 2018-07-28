@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "GameTime.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "vault_of_archavon.h"
 
 /* Vault of Archavon encounters:
@@ -44,7 +43,7 @@ class instance_vault_of_archavon : public InstanceMapScript
 
         struct instance_vault_of_archavon_InstanceMapScript : public InstanceScript
         {
-            instance_vault_of_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_vault_of_archavon_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
