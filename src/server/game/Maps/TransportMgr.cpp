@@ -422,7 +422,6 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
 
     // Passengers will be loaded once a player is near
     HashMapHolder<Transport>::Insert(trans);
-    HashMapHolder<Transport>::Insert(trans);
     trans->GetMap()->AddToMap<Transport>(trans);
     return trans;
 }
