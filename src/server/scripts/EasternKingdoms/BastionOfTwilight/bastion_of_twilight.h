@@ -69,6 +69,9 @@ enum BoTDataTypes
     DATA_COLLAPSING_TWILIGHT_PORTAL_COUNT,
     DATA_VALIONA_AURA_DUMMY,
 
+    /*Ascendant Council*/
+    DATA_RESPAWN_ASCENDANT_COUNCIL,
+
     /*Cho'Gall*/
     DATA_FULL_HEROIC_ID
 };
@@ -194,6 +197,11 @@ enum BoTEvents
 enum BoTSpells
 {
     SPELL_DANCING_FLAMES_VISUAL = 83962
+};
+
+enum BoTSpawnGroups
+{
+    SPAWN_GROUP_ASCENDANT_COUNCIL = 53
 };
 
 template<class AI>

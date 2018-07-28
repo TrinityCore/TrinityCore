@@ -237,23 +237,12 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
                             for (ObjectGuid guid : _halfusEncounterGUIDs)
                                 if (Creature* creature = instance->GetCreature(guid))
-                                {
-                                    if (creature->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
-                                    {
-                                        creature->SendSetPlayHoverAnim(false);
-                                        creature->SetDisableGravity(false);
-                                        creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                                    }
-
                                     creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
-                                }
 
                             if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
-                            {
-                                cage->ResetDoorOrButton();
-                                cage->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            }
+                                cage->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
 
+                            _halfusEncounterGUIDs.clear();
                             _deadOrphanedEmeraldWhelps = 0;
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
@@ -267,7 +256,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                                     creature->DespawnOrUnsummon(Milliseconds(0));
 
                             if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
-                                cage->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                cage->DespawnOrUnsummon(Milliseconds(0));
 
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
@@ -423,6 +412,11 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             _lastAreatriggerIndex = AT_INDEX_CHOGALL_INTRO;
                             SaveToDB();
                         }
+                        break;
+                    case DATA_RESPAWN_ASCENDANT_COUNCIL:
+                        if (!GetCreature(DATA_FELUDIUS))
+                            if (instance->IsSpawnGroupActive(SPAWN_GROUP_ASCENDANT_COUNCIL))
+                                instance->SpawnGroupSpawn(SPAWN_GROUP_ASCENDANT_COUNCIL, true, true);
                         break;
                     default:
                         break;

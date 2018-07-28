@@ -23,6 +23,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Player.h"
+#include "DataStores\DBCStores.h"
 #include "bastion_of_twilight.h"
 
 enum Texts
@@ -285,6 +286,11 @@ enum AchievementData
     DATA_ELEMENTARY = 1
 };
 
+enum SummonProperties
+{
+    PROPERTY_DEFAULT = 64
+};
+
 Position const arionMiddlePosition      = { -1007.961f, -582.0203f, 831.9003f };
 Position const terrastraMiddlePosition  = { -1009.37f,  -583.4302f, 831.901f  };
 Position const feludiusMiddlePosition   = { -1007.965f, -583.4254f, 831.901f  };
@@ -301,9 +307,8 @@ class boss_ascendant_council_controller : public CreatureScript
 
             void Reset() override
             {
-                if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
-                    instance->SetData(DATA_ASCENDANT_COUNCIL, NOT_STARTED);
-
+                _Reset();
+                instance->SetData(DATA_RESPAWN_ASCENDANT_COUNCIL, IN_PROGRESS);
                 events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
             }
 
@@ -441,6 +446,7 @@ class boss_ascendant_council_controller : public CreatureScript
                     {
                         case EVENT_RESET_BOSS_STATE:
                             instance->SetBossState(DATA_ASCENDANT_COUNCIL, NOT_STARTED);
+                            instance->SetData(DATA_RESPAWN_ASCENDANT_COUNCIL, IN_PROGRESS);
                             break;
                         case EVENT_SUMMON_ELEMENTIUM_MONSTROSITY:
                             if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
@@ -455,7 +461,8 @@ class boss_ascendant_council_controller : public CreatureScript
                             if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
 
-                            me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition());
+                            if (SummonPropertiesEntry const* entry = sSummonPropertiesStore.LookupEntry(PROPERTY_DEFAULT))
+                                me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), entry, 0, me);
                             break;
                         default:
                             break;
@@ -520,7 +527,7 @@ class npc_feludius : public CreatureScript
                 {
                     _EnterEvadeMode();
                     _summons.DespawnAll();
-                    me->DespawnOrUnsummon(0, Seconds(30));
+                    me->DespawnOrUnsummon();
                 }
             }
 
@@ -711,7 +718,7 @@ class npc_ignacious : public CreatureScript
             {
                 _EnterEvadeMode();
                 _summons.DespawnAll();
-                me->DespawnOrUnsummon(0, Seconds(30));
+                me->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* who) override
@@ -933,7 +940,7 @@ class npc_arion : public CreatureScript
             {
                 _EnterEvadeMode();
                 _summons.DespawnAll();
-                me->DespawnOrUnsummon(0, Seconds(30));
+                me->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* who) override
@@ -1125,7 +1132,7 @@ class npc_terrastra : public CreatureScript
             {
                 _EnterEvadeMode();
                 _summons.DespawnAll();
-                me->DespawnOrUnsummon(0, Seconds(30));
+                me->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* who) override
