@@ -23,7 +23,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Player.h"
-#include "DataStores\DBCStores.h"
+#include "DBCStores.h"
 #include "bastion_of_twilight.h"
 
 enum Texts
