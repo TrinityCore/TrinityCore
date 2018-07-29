@@ -1,3 +1,4 @@
+/*
 -- Talvash del Kissel
 DELETE FROM `creature_text` WHERE `CreatureID`=6826 AND `GroupID` IN (1,2,3,4,5);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -39,3 +40,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (6826,8,-4578.79,-998.015,503.657,""),
 (6826,9,-4586.89,-997.797,503.658,""),
 (6826,10,-4588.3,-1001.21,503.657,"");
+*/

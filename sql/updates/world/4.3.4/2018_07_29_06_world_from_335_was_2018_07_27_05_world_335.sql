@@ -1,3 +1,4 @@
+/*
 -- 
 -- Ma'ruk Wyrmscale
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2090 AND `source_type`=0 AND `id`=0;
@@ -355,3 +356,4 @@ UPDATE `creature_template_addon` SET `bytes2`=2 WHERE `entry` IN (2103,6523);
 
 -- Fix spawn position for one creature
 UPDATE `creature` SET `position_z`=40.336 WHERE `guid`=10886;
+*/

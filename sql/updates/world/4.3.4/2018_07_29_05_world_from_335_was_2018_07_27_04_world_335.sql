@@ -1,3 +1,4 @@
+/*
 -- 
 -- Quest "A New Threat"
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=1 WHERE `ID`=170;
@@ -1061,3 +1062,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (5302,1,1,1,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=4, `EmoteOnComplete`=4 WHERE `ID`=5302;
 UPDATE `quest_offer_reward` SET `Emote1`=25, `Emote2`=1 WHERE `ID`=5302;
+*/
