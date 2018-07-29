@@ -1990,6 +1990,11 @@ void Aura::AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd)
     m_procCooldown = cooldownEnd;
 }
 
+void Aura::ResetProcCooldown()
+{
+    m_procCooldown = std::chrono::steady_clock::now();
+}
+
 void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now)
 {
     bool prepare = CallScriptPrepareProcHandlers(aurApp, eventInfo);
