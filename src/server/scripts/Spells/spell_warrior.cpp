@@ -1173,12 +1173,38 @@ class spell_warr_shield_specialization : public AuraScript
     }
 };
 
+class spell_warr_devastate : public SpellScript
+{
+    PrepareSpellScript(spell_warr_devastate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SUNDER_ARMOR });
+    }
+
+    void HandleBonusDamage(SpellEffIndex effIndex)
+    {
+        if (Aura* aura = GetHitUnit()->GetAura(SPELL_WARRIOR_SUNDER_ARMOR))
+        {
+            uint8 stacks = std::max(0, aura->GetStackAmount() - 1);
+            int32 damage = GetSpellInfo()->Effects[effIndex].CalcValue(GetCaster(), nullptr, GetHitUnit());
+            SetHitDamage(GetHitDamage() + (stacks * damage));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_devastate::HandleBonusDamage, EFFECT_1, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
     new spell_warr_charge();
     new spell_warr_concussion_blow();
+    RegisterSpellScript(spell_warr_devastate);
     new spell_warr_deep_wounds();
     new spell_warr_execute();
     new spell_warr_glyph_of_sunder_armor();
