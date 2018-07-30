@@ -99,6 +99,7 @@ struct boss_romogg_bonecrusher : public BossAI
     void Reset() override
     {
         _Reset();
+        instance->SetData(DATA_RAZ_LAST_AREA_INDEX, RAZ_AREA_INDEX_ROMOGG);
         Initialize();
     }
 

@@ -34,15 +34,21 @@ ObjectData const creatureData[] =
 class instance_blackrock_caverns : public InstanceMapScript
 {
     public:
-        instance_blackrock_caverns(): InstanceMapScript(BCScriptName, 645) { }
+        instance_blackrock_caverns(): InstanceMapScript(BCScriptName, 645) {  }
 
         struct instance_blackrock_caverns_InstanceMapScript : public InstanceScript
         {
             instance_blackrock_caverns_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
+                Initialize();
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
+            }
+
+            void Initialize()
+            {
+                _lastRazAreaIndex = RAZ_AREA_INDEX_ROMOGG;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -53,6 +59,9 @@ class instance_blackrock_caverns : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ROMOGG_BONECRUSHER:
+                        if (state == DONE)
+                            if (Creature* raz = GetCreature(DATA_RAZ_THE_CRAZED))
+                                raz->AI()->DoAction(ACTION_BREAK_OUT_OF_PRISON);
                     case DATA_CORLA_HERALD_OF_TWILIGHT:
                     case DATA_KARSH_STEELBENDER:
                     case DATA_BEAUTY:
@@ -84,6 +93,48 @@ class instance_blackrock_caverns : public InstanceMapScript
                         break;
                 }
             }
+
+            uint32 GetData(uint32 type) const override
+            {
+                if (type == DATA_RAZ_LAST_AREA_INDEX)
+                    return _lastRazAreaIndex;
+
+                return 0;
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                if (type == DATA_RAZ_LAST_AREA_INDEX)
+                {
+                    _lastRazAreaIndex = data;
+
+                    switch (data)
+                    {
+                        case RAZ_AREA_INDEX_ROMOGG:
+                            if (!GetCreature(DATA_RAZ_THE_CRAZED))
+                                instance->SummonCreature(NPC_RAZ_THE_CRAZED, RazTheCrazedSummonPositions[RAZ_AREA_INDEX_ROMOGG]);
+                            break;
+                        case RAZ_AREA_INDEX_CORLA:
+                            instance->SummonCreature(NPC_RAZ_THE_CRAZED, RazTheCrazedSummonPositions[RAZ_AREA_INDEX_CORLA]);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << _lastRazAreaIndex;
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                data >> _lastRazAreaIndex;
+            }
+
+        private:
+            uint8 _lastRazAreaIndex;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

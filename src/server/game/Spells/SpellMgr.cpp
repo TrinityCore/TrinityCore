@@ -4604,6 +4604,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->MaxAffectedTargets = 3;
     });
+
+    // Furious Swipe
+    ApplySpellFix({ 80340 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
+    });
     // ENDOF BLACKROCK CAVERNS SPELLS
 
     //

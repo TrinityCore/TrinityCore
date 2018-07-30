@@ -19,6 +19,7 @@
 #include "blackrock_caverns.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
@@ -523,74 +524,180 @@ private:
 
 enum RazTheCrazed
 {
-    SAY_SMASH                   = 0,
-    SPELL_AGGRO_NEARBY_TARGETS  = 80196,
-    SPELL_SHADOW_PRISON         = 79725,
-    SPELL_LEAP_FROM_CAGE        = 79720,
-    SPELL_FURIOUS_SWIPE         = 80206,
-    SPELL_LEAP_FROM_BRIDGE      = 80273,
-    TYPE_RAZ                    = 1,
-    DATA_ROMOGG_DEAD            = 1,
-    EVENT_AGGO_NEARBY_TARGETS   = 19,
-    EVENT_START_FIRST_PATH      = 20,
-    EVENT_FURIOUS_SWIPE         = 21
+    // Texts
+    SAY_SMASH = 0,
+
+    // Spells
+    SPELL_AGGRO_NEARBY_TARGETS          = 80189,
+    SPELL_HIGH_SECURITY_SHADOW_PRISON   = 79725,
+    SPELL_LEAP_FROM_CAGE                = 79720,
+    SPELL_LEAP_FROM_BRIDGE              = 80273,
+    SPELL_LEAP_FROM_LEDGE               = 80300,
+    SPELL_LEAP_OVER_BORER_PACKS         = 80305,
+    SPELL_LEAP_AT_OBSIDIUS              = 80320,
+    SPELL_FURIOUS_SWIPE                 = 80206,
+    SPELL_FURIOUS_SWIPE_DUMMY           = 80340,
+    SPELL_FURIOUS_RAGE                  = 80218,
+
+    EVENT_DISABLE_GRAVITY_AND_HOVER = 1,
+    EVENT_SAY_SMASH,
+    EVENT_START_ESCORT_PATH,
+    EVENT_FACE_TO_THE_SIDE,
+    EVENT_LEAP_FROM_BRIDGE,
+    EVENT_LEAP_FROM_LEDGE,
+    EVENT_LEAP_OVER_BORER_PACKS,
+    EVENT_RESUME_ESCORT
 };
 
-struct npc_raz_the_crazed : public ScriptedAI
+Position const RazPathRomogg[] =
 {
-    npc_raz_the_crazed(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    { 208.311f,  946.102f,  191.0072f },
+    { 216.6545f, 913.2952f, 190.9795f },
+    { 230.5486f, 910.7917f, 191.057f  },
+    { 242.2326f, 905.5382f, 190.97f   },
+    { 255.8333f, 910.5886f, 191.0629f },
+    { 268.3038f, 918.5191f, 190.9722f },
+    { 288.9861f, 949.3038f, 190.8299f },
+    { 314.5087f, 949.7239f, 191.1788f },
+    { 345.4254f, 948.5174f, 190.9669f },
+    { 375.7309f, 949.0417f, 192.2794f },
+    { 398.0313f, 945.6302f, 193.3367f },
+    { 470.9601f, 905.092f,  165.8345f }
+};
 
-    void Reset() override { }
+Position const RazPathCorla[] =
+{
+    { 283.8698f, 817.0018f, 99.45939f },
+    { 273.4479f, 816.1007f, 95.95034f }
+};
 
-    void JustEngagedWith(Unit* /*who*/) override
+struct npc_raz_the_crazed : public npc_escortAI
+{
+    npc_raz_the_crazed(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
     {
-        _events.Reset();
-        _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
+        SetCombatMovement(false);
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        me->SetDisableGravity(true);
-        DoCast(me, SPELL_SHADOW_PRISON);
-        _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
+        me->DeleteThreatList();
+        me->CombatStop(true);
+        ReturnToLastPoint();
     }
 
-    void SetData(uint32 id, uint32 data) override
+    void JustAppeared() override
     {
-        if (id == TYPE_RAZ && data == DATA_ROMOGG_DEAD)
+        if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG)
         {
-            me->RemoveAura(SPELL_SHADOW_PRISON);
-            me->SetDisableGravity(false);
-            DoCast(me, SPELL_LEAP_FROM_CAGE);
-            _events.ScheduleEvent(EVENT_START_FIRST_PATH, 3000);
+            me->SetDisableGravity(true);
+            me->SetHover(true);
+            DoCastSelf(SPELL_HIGH_SECURITY_SHADOW_PRISON, true);
+        }
+        else if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA)
+        {
+            _events.ScheduleEvent(EVENT_LEAP_FROM_LEDGE, 2s);
+            BuildCorlaPath();
+        }
+
+        DoCastSelf(SPELL_AGGRO_NEARBY_TARGETS, true);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_BREAK_OUT_OF_PRISON)
+        {
+            me->RemoveAurasDueToSpell(SPELL_HIGH_SECURITY_SHADOW_PRISON);
+            DoCastSelf(SPELL_LEAP_FROM_CAGE);
+            BuildRomoggPath();
+            _events.ScheduleEvent(EVENT_DISABLE_GRAVITY_AND_HOVER, 2s + 500ms);
+            _events.ScheduleEvent(EVENT_START_ESCORT_PATH, 4s);
+            _events.ScheduleEvent(EVENT_SAY_SMASH, 4s);
         }
     }
 
-    void UpdateAI(uint32 diff) override
+    void BuildRomoggPath()
     {
+        for (uint8 i = 0; i < 12; i++)
+            AddWaypoint(i, RazPathRomogg[i].GetPositionX(), RazPathRomogg[i].GetPositionY(), RazPathRomogg[i].GetPositionZ());
+    }
+
+    void BuildCorlaPath()
+    {
+        for (uint8 i = 0; i < 2; i++)
+        AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ());
+    }
+
+    void WaypointReached(uint32 id) override
+    {
+        if (id == 10 && _instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG)
+        {
+            SetEscortPaused(true);
+            _events.ScheduleEvent(EVENT_FACE_TO_THE_SIDE, 1s);
+            _events.ScheduleEvent(EVENT_LEAP_FROM_BRIDGE, 2s);
+            _events.ScheduleEvent(EVENT_RESUME_ESCORT, 2s + 500ms);
+            me->DespawnOrUnsummon(12s);
+        }
+        else if (id == 1 && _instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA)
+            _events.ScheduleEvent(EVENT_LEAP_OVER_BORER_PACKS, 1s);
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        if (!target)
+            return;
+
+        if (!target->IsInCombatWith(me))
+            return;
+
+        if (spell->Id == SPELL_FURIOUS_SWIPE_DUMMY)
+        {
+            DoCast(target, SPELL_FURIOUS_SWIPE);
+            DoCastSelf(SPELL_FURIOUS_RAGE, true);
+        }
+    }
+
+    void UpdateEscortAI(uint32 diff) override
+    {
+        UpdateVictim();
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
             {
-            case EVENT_AGGO_NEARBY_TARGETS:
-                DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
-                _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500);
-                break;
-            case EVENT_START_FIRST_PATH:
-                Talk(SAY_SMASH);
-                break;
-            case EVENT_FURIOUS_SWIPE:
-                DoCastVictim(SPELL_FURIOUS_SWIPE, true);
-                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
-                break;
-            default:
-                break;
+                case EVENT_DISABLE_GRAVITY_AND_HOVER:
+                    me->SetDisableGravity(false);
+                    me->SetHover(false);
+                    break;
+                case EVENT_SAY_SMASH:
+                    Talk(SAY_SMASH);
+                    break;
+                case EVENT_START_ESCORT_PATH:
+                    Start(false, false);
+                    break;
+                case EVENT_FACE_TO_THE_SIDE:
+                    me->SetFacingTo(5.061455f);
+                    break;
+                case EVENT_LEAP_FROM_BRIDGE:
+                    DoCastSelf(SPELL_LEAP_FROM_BRIDGE);
+                    break;
+                case EVENT_RESUME_ESCORT:
+                    SetEscortPaused(false);
+                    break;
+                case EVENT_LEAP_FROM_LEDGE:
+                    DoCastSelf(SPELL_LEAP_FROM_LEDGE);
+                    _events.ScheduleEvent(EVENT_SAY_SMASH, 1s);
+                    _events.ScheduleEvent(EVENT_START_ESCORT_PATH, 2s);
+                    break;
+                case EVENT_LEAP_OVER_BORER_PACKS:
+                    DoCastSelf(SPELL_LEAP_OVER_BORER_PACKS);
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                default:
+                    break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -598,9 +705,25 @@ private:
     InstanceScript* _instance;
 };
 
+class at_raz_corla_event : public AreaTriggerScript
+{
+    public:
+        at_raz_corla_event() : AreaTriggerScript("at_raz_corla_event") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG
+                    && instance->GetBossState(DATA_CORLA_HERALD_OF_TWILIGHT) == DONE)
+                    instance->SetData(DATA_RAZ_LAST_AREA_INDEX, RAZ_AREA_INDEX_CORLA);
+
+            return true;
+
+        }
+};
+
 void AddSC_blackrock_caverns()
 {
-    // Creature Scripts
     RegisterBlackrockCavernsCreatureAI(npc_fire_cyclone);
     RegisterBlackrockCavernsCreatureAI(npc_twilight_flame_caller);
     RegisterBlackrockCavernsCreatureAI(npc_twilight_torturer);
@@ -608,4 +731,5 @@ void AddSC_blackrock_caverns()
     RegisterBlackrockCavernsCreatureAI(npc_mad_prisoner);
     RegisterBlackrockCavernsCreatureAI(npc_crazed_mage);
     RegisterBlackrockCavernsCreatureAI(npc_raz_the_crazed);
+    new at_raz_corla_event();
 }

@@ -34,10 +34,11 @@ enum BRCDataTypes
     DATA_BEAUTY                     = 3,
     DATA_ASCENDANT_LORD_OBSIDIUS    = 4,
 
-    // Additional Objects
+    // Additional Data
     DATA_RAZ_THE_CRAZED             = 5,
-    DATA_LUCKY                      = 6,
-    DATA_SPOT                       = 7
+    DATA_RAZ_LAST_AREA_INDEX        = 6,
+    DATA_LUCKY                      = 7,
+    DATA_SPOT                       = 8
 };
 
 enum BRCCreatureIds
@@ -68,6 +69,24 @@ enum BRCCreatureIds
     /*Beauty*/
     NPC_LUCKY                           = 40008,
     NPC_SPOT                            = 40011
+};
+
+enum BRCActions
+{
+    ACTION_BREAK_OUT_OF_PRISON = 0
+};
+
+enum BRCRazAreaIndex
+{
+    RAZ_AREA_INDEX_ROMOGG   = 0,
+    RAZ_AREA_INDEX_CORLA    = 1,
+    RAZ_AREA_INDEX_OBSIDIUS = 2
+};
+
+Position const RazTheCrazedSummonPositions[] =
+{
+    { 249.2639f, 949.1614f, 191.7866f, 3.141593f },
+    { 406.1927f, 906.0121f, 163.4926f, 4.310963f }
 };
 
 template <class AI, class T>
