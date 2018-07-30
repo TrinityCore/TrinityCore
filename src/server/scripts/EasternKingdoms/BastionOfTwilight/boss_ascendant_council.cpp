@@ -770,8 +770,7 @@ class npc_ignacious : public CreatureScript
                         Unit* target = me->GetVictim();
 
                         if (Unit* previousVictim = ObjectAccessor::GetUnit(*me, _lastVictimGuid))
-                            if (me->GetDistance(previousVictim) <= 100.0f)
-                                target = previousVictim;
+                            target = previousVictim;
 
                         if (target)
                         {
@@ -865,6 +864,8 @@ class npc_ignacious : public CreatureScript
                                 if (Unit* victim = me->GetVictim())
                                     _lastVictimGuid = victim->GetGUID();
 
+                                me->AttackStop();
+                                me->SetReactState(REACT_PASSIVE);
                                 DoCast(target, SPELL_INFERNO_LEAP);
                             }
                             _events.Repeat(Seconds(31) + Milliseconds(500));
@@ -873,6 +874,8 @@ class npc_ignacious : public CreatureScript
                             for (ObjectGuid guid : _infernoRushGUIDs)
                                 if (Creature* infernoRush = ObjectAccessor::GetCreature(*me, guid))
                                     infernoRush->CastSpell(infernoRush, SPELL_INFERNO_RUSH_AURA);
+
+                            me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         case EVENT_EXPLOSION_DND:
                             DoCastSelf(SPELL_FIRE_EXPLOSION_DND);
@@ -2154,9 +2157,9 @@ class spell_ignacious_flame_imbued_AuraScript : public AuraScript
     }
 };
 
-class spell_ignacious_inferno_rush : public SpellScript
+class spell_ignacious_inferno_leap : public SpellScript
 {
-    PrepareSpellScript(spell_ignacious_inferno_rush);
+    PrepareSpellScript(spell_ignacious_inferno_leap);
 
     void HandleInfernoRush()
     {
@@ -2168,7 +2171,7 @@ class spell_ignacious_inferno_rush : public SpellScript
 
     void Register()
     {
-        AfterCast += SpellCastFn(spell_ignacious_inferno_rush::HandleInfernoRush);
+        AfterCast += SpellCastFn(spell_ignacious_inferno_leap::HandleInfernoRush);
     }
 };
 
@@ -2781,7 +2784,7 @@ void AddSC_boss_ascendant_council()
     RegisterAuraScript(spell_ignacious_rising_flames);
     RegisterAuraScript(spell_ignacious_burning_blood);
     RegisterSpellAndAuraScriptPair(spell_ignacious_flame_imbued, spell_ignacious_flame_imbued_AuraScript);
-    RegisterSpellScript(spell_ignacious_inferno_rush);
+    RegisterSpellScript(spell_ignacious_inferno_leap);
     RegisterSpellScript(spell_ignacious_flame_strike);
     RegisterSpellScript(spell_arion_lashing_winds);
     RegisterSpellScript(spell_arion_thundershock);
