@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "MoveSplineInit.h"
 #include "Player.h"
 #include "grim_batol.h"
 
@@ -73,7 +74,6 @@ enum Events
 
     // Valiona
     EVENT_MOVE_INTRO,
-    EVENT_ATTACK,
     EVENT_SHREDDING_SWIPE,
     EVENT_DEVOURING_FLAMES,
     EVENT_DEVOURING_FLAMES_CAST,
@@ -180,19 +180,13 @@ class boss_drahga_shadowburner : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                switch (summon->GetEntry())
-                {
-                    case NPC_VALIONA:
-                        break;
-                    default:
-                        summons.Summon(summon);
-                        break;
-                }
+                if (summon->GetEntry() != NPC_VALIONA)
+                    summons.Summon(summon);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HealthBelowPct(30) && events.IsInPhase(PHASE_1))
+                if (me->HealthBelowPctDamaged(30, damage) && events.IsInPhase(PHASE_1))
                 {
                     events.Reset();
                     events.SetPhase(PHASE_2);
@@ -234,8 +228,8 @@ class boss_drahga_shadowburner : public CreatureScript
                 switch(action)
                 {
                     case ACTION_SCHEDULE_EVENTS:
-                        events.ScheduleEvent(EVENT_BURNING_SHADOWBOLT, Seconds(3));
-                        events.ScheduleEvent(EVENT_INVOCATION_OF_FLAME, Seconds(9) + Milliseconds(500));
+                        events.ScheduleEvent(EVENT_BURNING_SHADOWBOLT, Milliseconds(1));
+                        events.ScheduleEvent(EVENT_INVOCATION_OF_FLAME, Milliseconds(1));
                         break;
                     default:
                         break;
@@ -285,7 +279,7 @@ class npc_drahga_valiona : public CreatureScript
 
         struct npc_drahga_valionaAI : public ScriptedAI
         {
-            npc_drahga_valionaAI(Creature* creature) : ScriptedAI(creature), _summons(me)
+            npc_drahga_valionaAI(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(me->GetInstanceScript())
             {
                 Initialize();
             }
@@ -293,13 +287,12 @@ class npc_drahga_valiona : public CreatureScript
             void Initialize()
             {
                 _finished = false;
-                _instance = me->GetInstanceScript();
             }
 
             void IsSummonedBy(Unit* /*summon*/) override
             {
-                me->SetCanFly(true);
                 me->SetDisableGravity(true);
+                me->SetHover(true);
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetSpeed(MOVE_FLIGHT, 4.5f);
                 me->SetReactState(REACT_PASSIVE);
@@ -320,6 +313,7 @@ class npc_drahga_valiona : public CreatureScript
                 switch (point)
                 {
                     case POINT_INTRO_1:
+                        DoZoneInCombat();
                         _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->GetMotionMaster()->MovePoint(POINT_INTRO_2, ValionaPos2);
@@ -328,11 +322,21 @@ class npc_drahga_valiona : public CreatureScript
                         me->GetMotionMaster()->MoveLand(POINT_LAND, LandingPos);
                         break;
                     case POINT_LAND:
-                        me->SetCanFly(false);
-                        me->SetHover(false);
+                        me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
                         me->SetDisableGravity(false);
+                        me->SetHover(false);
+                        me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        _events.ScheduleEvent(EVENT_ATTACK, Milliseconds(800));
+                        me->SetReactState(REACT_AGGRESSIVE);
+
+                        if (Unit* nearTarget = me->SelectNearestTarget(100.0f))
+                            AttackStart(nearTarget);
+
+                        if (Creature* drahga = _instance->GetCreature(DATA_DRAHGA_SHADOWBURNER))
+                            drahga->AI()->DoAction(ACTION_SCHEDULE_EVENTS);
+
+                        _events.ScheduleEvent(EVENT_SHREDDING_SWIPE, Seconds(1));
+                        _events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(15) + Milliseconds(500));
                         break;
                     case POINT_TAKEOFF:
                         me->GetMotionMaster()->MovePoint(POINT_FLEE, FleePos);
@@ -346,9 +350,9 @@ class npc_drahga_valiona : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HealthBelowPct(20) && !_finished)
+                if (me->HealthBelowPctDamaged(20, damage)  && !_finished)
                 {
                     Talk(SAY_VALIONA_FLEE);
                     DoCast(SPELL_TWILIGHT_SHIFT);
@@ -357,7 +361,6 @@ class npc_drahga_valiona : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     _events.Reset();
                     me->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
-                    me->SetCanFly(true);
                     me->SetDisableGravity(true);
                     me->SetHover(true);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
@@ -407,14 +410,6 @@ class npc_drahga_valiona : public CreatureScript
                             Talk(SAY_VALIONA_AGGRO);
                             me->GetMotionMaster()->MovePoint(POINT_INTRO_1, ValionaPos1);
                             break;
-                        case EVENT_ATTACK:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            if (Creature* drahga = _instance->GetCreature(DATA_DRAHGA_SHADOWBURNER))
-                                drahga->AI()->DoAction(ACTION_SCHEDULE_EVENTS);
-
-                            _events.ScheduleEvent(EVENT_SHREDDING_SWIPE, Seconds(1) + Milliseconds(500));
-                            _events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(15) + Milliseconds(500));
-                            break;
                         case EVENT_SHREDDING_SWIPE:
                             DoCastVictim(SPELL_SHREDDING_SWIPE);
                             _events.Repeat(Seconds(25));
@@ -431,14 +426,12 @@ class npc_drahga_valiona : public CreatureScript
                             _events.Repeat(Seconds(25));
                             break;
                         case EVENT_DEVOURING_FLAMES_CAST:
-                            if (Creature* dummy = me->FindNearestCreature(NPC_DEVOURING_FLAMES, 500.0f, true))
+                            if (Creature* dummy = me->FindNearestCreature(NPC_DEVOURING_FLAMES, 200.0f, true))
                             {
                                 Talk(SAY_ANNOUNCE_DEVOURING_FLAMES);
                                 me->StopMoving();
-                                me->SetReactState(REACT_PASSIVE);
-                                me->AttackStop();
                                 me->SetFacingToObject(dummy);
-                                DoCastAOE(SPELL_DEVOURING_FLAMES);
+                                DoCast(dummy, SPELL_DEVOURING_FLAMES);
                                 _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(7) + Milliseconds(500));
                             }
                             break;
@@ -471,13 +464,20 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
 
         struct npc_drahga_invoked_flaming_spiritAI : public ScriptedAI
         {
-            npc_drahga_invoked_flaming_spiritAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_drahga_invoked_flaming_spiritAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void Initialize()
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetWalk(true);
-                me->SetInCombatWithZone();
+            }
+
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
+                DoZoneInCombat();
                 _events.ScheduleEvent(EVENT_CHASE_PLAYER, Seconds(2));
             }
 
@@ -509,7 +509,7 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
                             {
                                 me->AddThreat(target, 1500500.0f);
                                 DoCast(target, SPELL_FLAMING_FIXATE, true);
-                                me->AI()->AttackStart(target);
+                                AttackStart(target);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
                                 me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
                                 _events.ScheduleEvent(EVENT_REPEAT_MOVEMENT, Seconds(1));
@@ -537,70 +537,46 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
     }
 };
 
-class spell_drahga_burning_shadowbolt : public SpellScriptLoader
+class spell_drahga_burning_shadowbolt : public SpellScript
 {
-    public:
-        spell_drahga_burning_shadowbolt() : SpellScriptLoader("spell_drahga_burning_shadowbolt") { }
+    PrepareSpellScript(spell_drahga_burning_shadowbolt);
 
-        class spell_drahga_burning_shadowbolt_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_drahga_burning_shadowbolt_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BURNING_SHADOWBOLT_DUMMY });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_BURNING_SHADOWBOLT_DUMMY });
-            }
+    void CastDummySpell(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_BURNING_SHADOWBOLT_DUMMY, true);
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-                auto itr = targets.begin();
-                if (Unit* target = (*itr)->ToUnit())
-                    GetCaster()->CastSpell(target, SPELL_BURNING_SHADOWBOLT_DUMMY, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_drahga_burning_shadowbolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_drahga_burning_shadowbolt_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_drahga_burning_shadowbolt::CastDummySpell, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
-class spell_drahga_devouring_flames_aoe : public SpellScriptLoader
+class spell_drahga_devouring_flames : public SpellScript
 {
-    public:
-        spell_drahga_devouring_flames_aoe() : SpellScriptLoader("spell_drahga_devouring_flames_aoe") { }
+    PrepareSpellScript(spell_drahga_devouring_flames);
 
-        class spell_drahga_devouring_flames_aoe_SpellScript : public SpellScript
+    void ChangeDamage()
+    {
+        if (Unit* caster = GetCaster())
         {
-            PrepareSpellScript(spell_drahga_devouring_flames_aoe_SpellScript);
+            float distance = GetHitUnit()->GetDistance(caster) * 3.0f;
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_drahga_devouring_flames_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_drahga_devouring_flames_aoe_SpellScript();
+            uint32 damageReduction = CalculatePct(GetHitDamage(), distance);
+            SetHitDamage(GetHitDamage() - damageReduction);
         }
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_drahga_devouring_flames::ChangeDamage);
+    }
 };
 
 void AddSC_boss_drahga_shadowburner()
@@ -608,6 +584,6 @@ void AddSC_boss_drahga_shadowburner()
     new boss_drahga_shadowburner();
     new npc_drahga_valiona();
     new npc_drahga_invoked_flaming_spirit();
-    new spell_drahga_burning_shadowbolt();
-    new spell_drahga_devouring_flames_aoe();
+    RegisterSpellScript(spell_drahga_burning_shadowbolt);
+    RegisterSpellScript(spell_drahga_devouring_flames);
 }

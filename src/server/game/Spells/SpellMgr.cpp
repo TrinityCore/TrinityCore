@@ -4387,6 +4387,21 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
     });
 
+    // Devouring Flames
+    ApplySpellFix({ 90945 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Burning Shadowbolt
+    ApplySpellFix({
+        75245,
+        90915
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // Erudax
     // Twilight Blast
     ApplySpellFix({ 76194, 91042 }, [](SpellInfo* spellInfo)
