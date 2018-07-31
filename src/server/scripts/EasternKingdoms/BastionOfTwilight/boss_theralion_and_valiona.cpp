@@ -564,21 +564,6 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                if (!target)
-                    return;
-
-                switch (spell->Id)
-                {
-                    case SPELL_DEVOURING_FLAMES_TARGETING: // tempoary workarround to fix a core internal focusing issue
-                        me->SetOrientation(me->GetAngle(target));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void DoAction(int32 action)
             {
                 switch (action)
