@@ -38,6 +38,7 @@
 #include "SpellMgr.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
