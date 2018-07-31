@@ -20,6 +20,7 @@
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "ArtifactPackets.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
@@ -970,6 +971,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
     WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
     SendPacket(lock.Write());
+
+    WorldPackets::Artifact::ArtifactKnowledge artifactKnowledge;
+    artifactKnowledge.ArtifactCategoryID = ARTIFACT_CATEGORY_PRIMARY;
+    artifactKnowledge.KnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE);
+    SendPacket(artifactKnowledge.Write());
+
+    WorldPackets::Artifact::ArtifactKnowledge artifactKnowledgeFishingPole;
+    artifactKnowledgeFishingPole.ArtifactCategoryID = ARTIFACT_CATEGORY_FISHING;
+    artifactKnowledgeFishingPole.KnowledgeLevel = 0;
+    SendPacket(artifactKnowledgeFishingPole.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
