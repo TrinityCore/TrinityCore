@@ -38,6 +38,7 @@
 #include "SpellMgr.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
@@ -320,7 +321,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
             SetSpellCharges(i, itemProto->Effects[i]->Charges);
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemProto->Effects[i]->SpellID))
             if (owner && spellInfo->HasEffect(SPELL_EFFECT_GIVE_ARTIFACT_POWER))
-                if (uint32 artifactKnowledgeLevel = owner->GetCurrency(CURRENCY_TYPE_ARTIFACT_KNOWLEDGE))
+                if (uint32 artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE))
                     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, artifactKnowledgeLevel + 1);
     }
 
@@ -346,6 +347,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
                 break;
             }
         }
+
+        CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
     }
 
     return true;
@@ -536,6 +539,7 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt64(1, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_ARTIFACT_TIER));
                 trans->Append(stmt);
 
                 for (ItemDynamicFieldArtifactPowers const& artifactPower : GetArtifactPowers())
@@ -794,11 +798,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     return true;
 }
 
-void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers)
+void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ItemDynamicFieldArtifactPowers>& powers)
 {
-    InitArtifactPowers(GetTemplate()->GetArtifactID(), 0);
+    for (uint8 i = 0; i <= artifactTier; ++i)
+        InitArtifactPowers(GetTemplate()->GetArtifactID(), i);
+
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, xp);
     SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearanceId);
+    SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
+
     if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifactAppearanceId))
         SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
 
@@ -856,6 +864,23 @@ void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceI
         power.CurrentRankWithBonus = totalPurchasedRanks + 1;
         SetArtifactPower(&power);
     }
+
+    CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
+}
+
+void Item::CheckArtifactRelicSlotUnlock(Player const* owner)
+{
+    if (!owner)
+        return;
+
+    uint8 artifactId = GetTemplate()->GetArtifactID();
+    if (!artifactId)
+        return;
+
+    for (ArtifactUnlockEntry const* artifactUnlock : sArtifactUnlockStore)
+        if (artifactUnlock->ArtifactID == artifactId)
+            if (owner->MeetPlayerCondition(artifactUnlock->PlayerConditionID))
+                AddBonuses(artifactUnlock->ItemBonusListID);
 }
 
 /*static*/
@@ -2371,6 +2396,9 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
+    if (HasDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID))
+        return;
+
     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
     {
         AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
@@ -2426,7 +2454,7 @@ void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
         memset(&powerData, 0, sizeof(powerData));
         powerData.ArtifactPowerId = artifactPower->ID;
         powerData.PurchasedRank = 0;
-        powerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) ? 1 : 0;
+        powerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) == ARTIFACT_POWER_FLAG_FIRST ? 1 : 0;
         SetArtifactPower(&powerData, true);
     }
 }
@@ -2534,24 +2562,21 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
 
     if (artifactCategoryId)
     {
-        if (ArtifactCategoryEntry const* artifactCategory = sArtifactCategoryStore.LookupEntry(artifactCategoryId))
-        {
-            uint32 artifactKnowledgeLevel = 1;
-            if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
-                artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
-            else
-                artifactKnowledgeLevel = owner->GetCurrency(artifactCategory->XpMultCurrencyID) + 1;
+        uint32 artifactKnowledgeLevel = 1;
+        if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
+            artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
+        else if (artifactCategoryId == ARTIFACT_CATEGORY_PRIMARY)
+            artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE) + 1;
 
-            if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
-                amount = uint64(amount * artifactKnowledge->Multiplier);
+        if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
+            amount = uint64(amount * artifactKnowledge->Multiplier);
 
-            if (amount >= 5000)
-                amount = 50 * (amount / 50);
-            else if (amount >= 1000)
-                amount = 25 * (amount / 25);
-            else if (amount >= 50)
-                amount = 5 * (amount / 5);
-        }
+        if (amount >= 5000)
+            amount = 50 * (amount / 50);
+        else if (amount >= 1000)
+            amount = 25 * (amount / 25);
+        else if (amount >= 50)
+            amount = 5 * (amount / 5);
     }
 
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) + amount);

@@ -188,6 +188,7 @@ class TC_GAME_API Object
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
         uint32 GetDynamicValue(uint16 index, uint16 offset) const;
+        bool HasDynamicValue(uint16 index, uint32 value);
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
