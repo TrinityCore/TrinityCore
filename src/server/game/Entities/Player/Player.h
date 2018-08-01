@@ -2378,6 +2378,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
 
+        bool MeetPlayerCondition(uint32 conditionId) const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

@@ -69,3 +69,11 @@ WorldPacket const* WorldPackets::Artifact::ArtifactXpGain::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Artifact::ArtifactKnowledge::Write()
+{
+    _worldPacket << int32(ArtifactCategoryID);
+    _worldPacket << int8(KnowledgeLevel);
+
+    return &_worldPacket;
+}
