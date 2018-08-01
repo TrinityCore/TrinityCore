@@ -1433,6 +1433,17 @@ uint32 Object::GetDynamicValue(uint16 index, uint16 offset) const
     return _dynamicValues[index][offset];
 }
 
+bool Object::HasDynamicValue(uint16 index, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    std::vector<uint32>& values = _dynamicValues[index];
+    for (std::size_t i = 0; i < values.size(); ++i)
+        if (values[i] == value)
+            return true;
+
+    return false;
+}
+
 void Object::AddDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
