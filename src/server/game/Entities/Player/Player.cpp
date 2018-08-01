@@ -811,6 +811,12 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     return final_damage;
 }
 
+
+/**
+ *
+ * @param MirrorTimerType timer
+ * @return
+ */
 int32 Player::getMaxTimer(MirrorTimerType timer) const
 {
     switch (timer)
@@ -822,7 +828,7 @@ int32 Player::getMaxTimer(MirrorTimerType timer) const
             if (!IsAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_DISABLE_BREATHING)))
                 return DISABLED_MIRROR_TIMER;
 
-            int32 UnderWaterTime = 3 * MINUTE * IN_MILLISECONDS;
+            int32 UnderWaterTime = sWorld->getIntConfig(CONFIG_BREATH_TIME) * IN_MILLISECONDS;
             UnderWaterTime *= GetTotalAuraMultiplier(SPELL_AURA_MOD_WATER_BREATHING);
             return UnderWaterTime;
         }
@@ -830,7 +836,7 @@ int32 Player::getMaxTimer(MirrorTimerType timer) const
         {
             if (!IsAlive())
                 return DISABLED_MIRROR_TIMER;
-            return 1 * IN_MILLISECONDS;
+            return IN_MILLISECONDS;
         }
         default:
             return 0;
