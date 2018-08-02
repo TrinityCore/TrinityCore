@@ -243,7 +243,7 @@ void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32
             continue;
 
         if (itr->second->point_1)
-            if (m_leader->GetCurrentWaypointID() == itr->second->point_1 - 1 || m_leader->GetCurrentWaypointID() == itr->second->point_2 - 1)
+            if (m_leader->GetCurrentWaypointInfo().first == itr->second->point_1 || m_leader->GetCurrentWaypointInfo().first == itr->second->point_2)
                 itr->second->follow_angle = float(M_PI) * 2 - itr->second->follow_angle;
 
         float angle = itr->second->follow_angle;
