@@ -268,13 +268,6 @@ void Creature::DisappearAndDie()
     RemoveCorpse(false);
 }
 
-void Creature::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
-{
-    Unit::PauseMovement(timer, slot);
-
-    SetHomePosition(GetPosition());
-}
-
 bool Creature::IsReturningHome() const
 {
     if (GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == HOME_MOTION_TYPE)

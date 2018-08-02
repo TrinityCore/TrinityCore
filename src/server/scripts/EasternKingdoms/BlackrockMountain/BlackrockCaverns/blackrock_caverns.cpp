@@ -578,11 +578,10 @@ struct npc_raz_the_crazed : public EscortAI
         SetCombatMovement(false);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        me->DeleteThreatList();
-        me->CombatStop(true);
-        ReturnToLastPoint();
+        EscortAI::EnterEvadeMode(why);
+        DoCastSelf(SPELL_AGGRO_NEARBY_TARGETS, true);
     }
 
     void JustAppeared() override

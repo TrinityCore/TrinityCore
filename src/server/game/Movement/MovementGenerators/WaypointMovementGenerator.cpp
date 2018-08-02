@@ -31,16 +31,15 @@
 #include "WaypointManager.h"
 #include "World.h"
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId),
+_repeating(repeating), _loadedFromDB(true), _stalled(false), _done(false)
+{
+}
+
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(0),
+_repeating(repeating), _loadedFromDB(false), _stalled(false), _done(false)
 {
     _path = &path;
-    _nextMoveTime = 0;
-    _recalculateSpeed = false;
-    _isArrivalDone = false;
-    _pathId = 0;
-    _repeating = repeating;
-    _loadedFromDB = false;
-    _stalled = false;
 }
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
@@ -60,14 +59,12 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
         return;
     }
 
-    _nextMoveTime.Reset(3000);
-
-    if (CanMove(creature))
-        StartMoveNow(creature);
+    _nextMoveTime.Reset(1000);
 }
 
 void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
 {
+    _done = false;
     LoadPath(creature);
 }
 
@@ -79,8 +76,14 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* creature)
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* creature)
 {
-    if (CanMove(creature))
+    if (!_done && CanMove(creature))
         StartMoveNow(creature);
+    else if (_done)
+    {
+        // mimic IdleMovementGenerator
+        if (!creature->IsStopped())
+            creature->StopMoving();
+    }
 }
 
 void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
@@ -117,10 +120,10 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
 bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 {
     if (!creature || !creature->IsAlive())
-        return false;
+        return true;
 
-    if (!_path || _path->nodes.empty())
-        return false;
+    if (_done || !_path || _path->nodes.empty())
+        return true;
 
     // if the owner is the leader of its formation, check members status
     if (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())
@@ -157,7 +160,8 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
                     transportPath = false;
                 // else if (vehicle) - this should never happen, vehicle offsets are const
             }
-            return false;
+            _done = true;
+            return true;
         }
 
         _currentNode = (_currentNode + 1) % _path->nodes.size();
@@ -229,17 +233,16 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff)
 {
     if (!creature || !creature->IsAlive())
-        return false;
+        return true;
+
+    if (_done || !_path || _path->nodes.empty())
+        return true;
 
     if (_stalled || creature->HasUnitState(UNIT_STATE_NOT_MOVE) || creature->IsMovementPreventedByCasting())
     {
         creature->StopMoving();
         return true;
     }
-
-    // prevent a crash at empty waypoint path.
-    if (!_path || _path->nodes.empty())
-        return false;
 
     if (!_nextMoveTime.Passed())
     {
@@ -267,7 +270,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
                 StartMove(creature);
         }
     }
-     return true;
+    return true;
 }
 
 void WaypointMovementGenerator<Creature>::MovementInform(Creature* creature)
@@ -315,7 +318,14 @@ bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)
 #define SKIP_SPLINE_POINT_DISTANCE_SQ (40.f * 40.f)
 #define PLAYER_FLIGHT_SPEED 32.0f
 
-//----------------------------------------------------//
+FlightPathMovementGenerator::FlightPathMovementGenerator(uint32 startNode)
+{
+    _currentNode = startNode;
+    _endGridX = 0.0f;
+    _endGridY = 0.0f;
+    _endMapId = 0;
+    _preloadTargetNode = 0;
+}
 
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 {

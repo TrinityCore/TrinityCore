@@ -613,6 +613,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 
     // Stop the npc if moving
     vendor->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    vendor->SetHomePosition(vendor->GetPosition());
 
     VendorItemData const* vendorItems = vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
