@@ -41,8 +41,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
     if (!owner || !owner->IsAlive())
         return false;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner)
-        || (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true)))
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner))
     {
         _interrupt = true;
         owner->StopMoving();
@@ -82,7 +81,9 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
     }
 
     if (targetMoved)
-        SetTargetLocation(owner, targetMoved);
+        SetTargetLocation(owner, true);
+    else if (_speedChanged)
+        SetTargetLocation(owner, false);
 
     if (!_targetReached && owner->movespline->Finalized())
     {
@@ -136,8 +137,7 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
     if (!owner || !owner->IsAlive())
         return;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner)
-        || (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true)))
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner))
     {
         _interrupt = true;
         owner->StopMoving();
@@ -204,6 +204,7 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
 
     _targetReached = false;
     _recalculateTravel = false;
+    _speedChanged = false;
 
     AddUnitStateMove(owner);
 

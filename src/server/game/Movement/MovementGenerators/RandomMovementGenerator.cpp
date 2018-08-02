@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "RandomMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "Map.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "PathGenerator.h"
-#include "RandomMovementGenerator.h"
 #include "Random.h"
 
 template<class T>
@@ -44,7 +44,7 @@ void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
         return;
 
     owner->AddUnitState(UNIT_STATE_ROAMING);
-    owner->GetPosition(_reference.x, _reference.y, _reference.z);
+    _reference = owner->GetPosition();
     owner->StopMoving();
 
     if (!_wanderDistance)
@@ -91,7 +91,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
 
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
-    Position position(_reference.x, _reference.y, _reference.z);
+    Position position(_reference);
     float distance = frand(0.f, 1.f) * _wanderDistance;
     float angle = frand(0.f, 1.f) * float(M_PI) * 2.f;
     owner->MovePositionToFirstCollision(position, distance, angle);
