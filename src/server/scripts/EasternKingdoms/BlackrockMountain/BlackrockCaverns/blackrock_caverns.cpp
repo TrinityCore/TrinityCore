@@ -582,6 +582,10 @@ struct npc_raz_the_crazed : public EscortAI
     {
         EscortAI::EnterEvadeMode(why);
         DoCastSelf(SPELL_AGGRO_NEARBY_TARGETS, true);
+        if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG)
+            BuildRomoggPath();
+        else if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA)
+            BuildCorlaPath();
     }
 
     void JustAppeared() override
@@ -590,6 +594,7 @@ struct npc_raz_the_crazed : public EscortAI
         {
             me->SetDisableGravity(true);
             me->SetHover(true);
+            BuildRomoggPath();
             DoCastSelf(SPELL_HIGH_SECURITY_SHADOW_PRISON, true);
         }
         else if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA)
@@ -607,7 +612,6 @@ struct npc_raz_the_crazed : public EscortAI
         {
             me->RemoveAurasDueToSpell(SPELL_HIGH_SECURITY_SHADOW_PRISON);
             DoCastSelf(SPELL_LEAP_FROM_CAGE);
-            BuildRomoggPath();
             _events.ScheduleEvent(EVENT_DISABLE_GRAVITY_AND_HOVER, 2s + 500ms);
             _events.ScheduleEvent(EVENT_START_ESCORT_PATH, 4s);
             _events.ScheduleEvent(EVENT_SAY_SMASH, 4s);
@@ -623,7 +627,7 @@ struct npc_raz_the_crazed : public EscortAI
     void BuildCorlaPath()
     {
         for (uint8 i = 0; i < 2; i++)
-        AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ());
+            AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ());
     }
 
     void WaypointReached(uint32 id, uint32 /*pathId*/) override
@@ -673,6 +677,7 @@ struct npc_raz_the_crazed : public EscortAI
                     Talk(SAY_SMASH);
                     break;
                 case EVENT_START_ESCORT_PATH:
+                    me->SetHomePosition(me->GetPosition());
                     Start(false, false);
                     break;
                 case EVENT_FACE_TO_THE_SIDE:
