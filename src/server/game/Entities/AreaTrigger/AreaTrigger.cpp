@@ -19,7 +19,6 @@
 #include "AreaTriggerAI.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerPackets.h"
-#include "AreaTriggerTemplate.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "DB2Stores.h"
@@ -139,13 +138,19 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
 
     uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
 
-    if (GetMiscTemplate()->HasSplines())
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
+    {
+        AreaTriggerCircularMovementInfo cmi = GetMiscTemplate()->CircularMovementInfo;
+        if (target && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+            cmi.TargetGUID = target->GetGUID();
+        else
+            cmi.Center = pos;
+
+        InitCircularMovement(cmi, timeToTarget);
+    }
+    else if (GetMiscTemplate()->HasSplines())
     {
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
-    }
-    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
-    {
-        InitCircularMovement(GetMiscTemplate()->CircularMovementInfo, timeToTarget);
     }
 
     // movement on transport of areatriggers on unit is handled by themself
@@ -163,12 +168,9 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
 
     AI_Initialize();
 
-    // If has circular movement but no center set, define caster as default center
+    // Relocate areatriggers with circular movement again
     if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
-    {
-        if (!_areaTriggerCircularMovementInfo.Center.is_initialized() && !_areaTriggerCircularMovementInfo.TargetGUID.is_initialized())
-            SetCircularMovementCenterGUID(GetCasterGuid());
-    }
+        Relocate(CalculateCircularMovementPosition());
 
     if (!GetMap()->AddToMap(this))
     {
@@ -661,56 +663,61 @@ bool AreaTrigger::HasSplines() const
 
 void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget)
 {
+    // Circular movement requires either a center position or an attached unit
+    ASSERT(cmi.Center.is_initialized() || cmi.TargetGUID.is_initialized());
+
     // should be sent in object create packets only
     m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
 
-    _areaTriggerCircularMovementInfo = cmi;
+    _circularMovementInfo = cmi;
 
-    _areaTriggerCircularMovementInfo.TimeToTarget = GetTimeToTarget();
-    _areaTriggerCircularMovementInfo.ElapsedTimeForMovement = GetElapsedTimeForMovement();
+    _circularMovementInfo.TimeToTarget = GetTimeToTarget();
+    _circularMovementInfo.ElapsedTimeForMovement = std::max(0u, GetElapsedTimeForMovement() - cmi.StartDelay);
 
     if (IsInWorld())
     {
-        // TODO: broadcast AreaTriggerReShape?
+        WorldPackets::AreaTrigger::AreaTriggerReShape reshape;
+        reshape.TriggerGUID = GetGUID();
+        reshape.AreaTriggerCircularMovement = _circularMovementInfo;
+
+        SendMessageToSet(reshape.Write(), true);
     }
 }
 
 Position const* AreaTrigger::GetCircularMovementCenterPosition() const
 {
-    if (_areaTriggerCircularMovementInfo.TargetGUID.is_initialized())
-        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_areaTriggerCircularMovementInfo.TargetGUID))
+    if (_circularMovementInfo.TargetGUID.is_initialized())
+        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_circularMovementInfo.TargetGUID))
             return center;
 
-    return _areaTriggerCircularMovementInfo.Center.is_initialized() ? &_areaTriggerCircularMovementInfo.Center->Pos : nullptr;
+    if (_circularMovementInfo.Center.is_initialized())
+        return &_circularMovementInfo.Center->Pos;
+
+    return nullptr;
 }
 
-void AreaTrigger::UpdateCircularMovementPosition()
+Position AreaTrigger::CalculateCircularMovementPosition() const
 {
     Position const* centerPos = GetCircularMovementCenterPosition();
     if (!centerPos)
-        return;
+        return GetPosition();
 
-    AreaTriggerCircularMovementInfo& cmi = _areaTriggerCircularMovementInfo;
-    if (cmi.StartDelay > GetElapsedTimeForMovement())
-        return;
-
-    cmi.TimeToTarget = GetTimeToTarget();
-    cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement() - cmi.StartDelay;
+    AreaTriggerCircularMovementInfo const& cmi = GetCircularMovementInfo();
 
     // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
     float pathProgress = float(cmi.ElapsedTimeForMovement) / float(cmi.TimeToTarget);
 
     // We already made one circle and can't loop
-    if (!cmi.CanLoop && G3D::fuzzyEq(std::min(1.f, pathProgress), 1.f))
-        return;
+    if (!cmi.CanLoop)
+        pathProgress = std::min(1.f, pathProgress);
 
     float radius = cmi.Radius;
     if (G3D::fuzzyNe(cmi.BlendFromRadius, radius))
     {
-        float blender = std::max((cmi.BlendFromRadius - radius) / radius, 1.f);
+        float blendCurve = (cmi.BlendFromRadius - radius) / radius;
         // 4.f Defines four quarters
-        blender = std::min(blender, 4.f) / 4.f;
-        float blendProgress = std::min(1.f, pathProgress / blender);
+        blendCurve = RoundToInterval(blendCurve, 1.f, 4.f) / 4.f;
+        float blendProgress = std::min(1.f, pathProgress / blendCurve);
         radius = G3D::lerp(cmi.BlendFromRadius, cmi.Radius, blendProgress);
     }
 
@@ -723,8 +730,24 @@ void AreaTrigger::UpdateCircularMovementPosition()
     float y = centerPos->GetPositionY() + (radius * std::sin(angle));
     float z = centerPos->GetPositionZ() + cmi.ZOffset;
 
-    // We have to use relocate here because cell update in Map->RelocateAreaTrigger is delayed
-    Relocate(x, y, z, angle);
+    return { x, y, z, angle };
+}
+
+void AreaTrigger::UpdateCircularMovementPosition()
+{
+    AreaTriggerCircularMovementInfo& cmi = _circularMovementInfo;
+    if (cmi.StartDelay > GetElapsedTimeForMovement())
+        return;
+
+    cmi.TimeToTarget = GetTimeToTarget();
+    cmi.ElapsedTimeForMovement = std::max(0u, GetElapsedTimeForMovement() - cmi.StartDelay);
+
+    Position pos = CalculateCircularMovementPosition();
+
+    // TODO: verify this
+    // We have to use relocate here because cell update in Map::AreaTriggerRelocation is delayed
+    //Relocate(pos);
+    GetMap()->AreaTriggerRelocation(this, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
 #ifdef TRINITY_DEBUG
     DebugVisualizePosition();
 #endif

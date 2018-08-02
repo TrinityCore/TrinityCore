@@ -646,7 +646,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
 
         if (hasCircularMovement)
-            *data << areaTrigger->GetAreaTriggerCircularMovementInfo();
+            *data << areaTrigger->GetCircularMovementInfo();
     }
 
     if (HasGameObject)

@@ -22,14 +22,10 @@
 #include "MapObject.h"
 #include "AreaTriggerTemplate.h"
 
-class AreaTriggerTemplate;
-class AreaTriggerMiscTemplate;
+class AuraEffect;
+class AreaTriggerAI;
 class SpellInfo;
 class Unit;
-class AreaTriggerAI;
-class AuraEffect;
-
-struct AreaTriggerPolygonVertice;
 
 namespace G3D
 {
@@ -93,18 +89,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
         void InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget);
-        AreaTriggerCircularMovementInfo GetAreaTriggerCircularMovementInfo() const { return _areaTriggerCircularMovementInfo; }
-
-        Optional<ObjectGuid> GetCircularMovementCenterGUID() const { return _areaTriggerCircularMovementInfo.TargetGUID; }
-        void SetCircularMovementCenterGUID(ObjectGuid const& guid) { _areaTriggerCircularMovementInfo.TargetGUID = guid; }
-        void ResetCircularMovementCenterGUID() { _areaTriggerCircularMovementInfo.TargetGUID.reset(); }
-
-        Position const* GetCircularMovementCenterPosition() const;
-        void SetCircularMovementCenterPosition(Position const& pos) { _areaTriggerCircularMovementInfo.Center = pos; }
-        void ResetCircularMovementCenterPosition() { _areaTriggerCircularMovementInfo.Center.reset(); }
-
-        // Won't work if its used after the AreaTrigger was created
-        void SetCircularMovementStartDelay(uint32 delay) { _areaTriggerCircularMovementInfo.StartDelay = delay; }
+        AreaTriggerCircularMovementInfo const& GetCircularMovementInfo() const { return _circularMovementInfo; }
 
         void UpdateShape();
 
@@ -127,6 +112,9 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UpdateCircularMovementPosition();
         void UpdateSplinePosition(uint32 diff);
 
+        Position const* GetCircularMovementCenterPosition() const;
+        Position CalculateCircularMovementPosition() const;
+
         void DebugVisualizePosition(); // Debug purpose only
 
         ObjectGuid _targetGuid;
@@ -148,12 +136,12 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _lastSplineIndex;
         uint32 _movementTime;
 
+        AreaTriggerCircularMovementInfo _circularMovementInfo;
+
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
 
         std::unique_ptr<AreaTriggerAI> _ai;
-
-        AreaTriggerCircularMovementInfo _areaTriggerCircularMovementInfo;
 };
 
 #endif
