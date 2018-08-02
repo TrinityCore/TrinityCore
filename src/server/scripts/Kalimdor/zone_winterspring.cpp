@@ -268,9 +268,9 @@ public:
         return new npc_ranshallaAI(creature);
     }
 
-    struct npc_ranshallaAI : public npc_escortAI, private DialogueHelper
+    struct npc_ranshallaAI : public EscortAI, private DialogueHelper
     {
-        npc_ranshallaAI(Creature* creature) : npc_escortAI(creature),
+        npc_ranshallaAI(Creature* creature) : EscortAI(creature),
             DialogueHelper(introDialogue)
         {
             Initialize();
@@ -365,7 +365,7 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {
@@ -552,7 +552,7 @@ public:
             if (events.ExecuteEvent() == EVENT_RESUME)
                 StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
     private:
         EventMap events;

@@ -376,11 +376,11 @@ class npc_isla_starmane : public CreatureScript
 public:
     npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
 
-    struct npc_isla_starmaneAI : public npc_escortAI
+    struct npc_isla_starmaneAI : public EscortAI
     {
-        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

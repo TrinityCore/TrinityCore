@@ -47,11 +47,11 @@ class npc_injured_goblin : public CreatureScript
     public:
         npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-        struct npc_injured_goblinAI : public npc_escortAI
+        struct npc_injured_goblinAI : public EscortAI
         {
-            npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)
@@ -81,7 +81,7 @@ class npc_injured_goblin : public CreatureScript
 
             void UpdateAI(uint32 uiDiff) override
             {
-                npc_escortAI::UpdateAI(uiDiff);
+                EscortAI::UpdateAI(uiDiff);
                 if (!UpdateVictim())
                     return;
                 DoMeleeAttackIfReady();
@@ -345,9 +345,9 @@ class npc_icefang : public CreatureScript
 public:
     npc_icefang() : CreatureScript("npc_icefang") { }
 
-    struct npc_icefangAI : public npc_escortAI
+    struct npc_icefangAI : public EscortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -362,13 +362,13 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
+        void WaypointReached(uint32 /*waypointId*/, uint32 /*pathId*/) override { }
         void JustDied(Unit* /*killer*/) override { }
         void OnCharmed(bool /*apply*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;

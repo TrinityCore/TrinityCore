@@ -571,9 +571,9 @@ Position const RazPathCorla[] =
     { 273.4479f, 816.1007f, 95.95034f }
 };
 
-struct npc_raz_the_crazed : public npc_escortAI
+struct npc_raz_the_crazed : public EscortAI
 {
-    npc_raz_the_crazed(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
+    npc_raz_the_crazed(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript())
     {
         SetCombatMovement(false);
     }
@@ -627,7 +627,7 @@ struct npc_raz_the_crazed : public npc_escortAI
         AddWaypoint(i, RazPathCorla[i].GetPositionX(), RazPathCorla[i].GetPositionY(), RazPathCorla[i].GetPositionZ());
     }
 
-    void WaypointReached(uint32 id) override
+    void WaypointReached(uint32 id, uint32 /*pathId*/) override
     {
         if (id == 10 && _instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG)
         {
