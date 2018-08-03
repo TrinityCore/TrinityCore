@@ -672,7 +672,7 @@ void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cm
     _circularMovementInfo = cmi;
 
     _circularMovementInfo.TimeToTarget = GetTimeToTarget();
-    _circularMovementInfo.ElapsedTimeForMovement = std::max(0u, GetElapsedTimeForMovement() - cmi.StartDelay);
+    _circularMovementInfo.ElapsedTimeForMovement = GetElapsedTimeForMovement() > cmi.StartDelay ? (GetElapsedTimeForMovement() - cmi.StartDelay) : 0;
 
     if (IsInWorld())
     {
@@ -740,13 +740,10 @@ void AreaTrigger::UpdateCircularMovementPosition()
         return;
 
     cmi.TimeToTarget = GetTimeToTarget();
-    cmi.ElapsedTimeForMovement = std::max(0u, GetElapsedTimeForMovement() - cmi.StartDelay);
+    cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement() - cmi.StartDelay;
 
     Position pos = CalculateCircularMovementPosition();
 
-    // TODO: verify this
-    // We have to use relocate here because cell update in Map::AreaTriggerRelocation is delayed
-    //Relocate(pos);
     GetMap()->AreaTriggerRelocation(this, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
 #ifdef TRINITY_DEBUG
     DebugVisualizePosition();
