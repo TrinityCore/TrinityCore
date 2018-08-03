@@ -57,7 +57,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
     public:
         static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
 
-        void Update(uint32 p_time) override;
+        void Update(uint32 diff) override;
         void Remove();
         bool IsRemoved() const { return _isRemoved; }
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
@@ -109,7 +109,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
-        void UpdateCircularMovementPosition();
+        void UpdateCircularMovementPosition(uint32 diff);
         void UpdateSplinePosition(uint32 diff);
 
         Position const* GetCircularMovementCenterPosition() const;

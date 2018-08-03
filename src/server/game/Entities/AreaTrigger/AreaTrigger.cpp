@@ -207,7 +207,7 @@ void AreaTrigger::Update(uint32 diff)
     // "If" order matter here, Circular Movement > Attached > Splines
     if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
     {
-        UpdateCircularMovementPosition();
+        UpdateCircularMovementPosition(diff);
     }
     else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
     {
@@ -671,7 +671,7 @@ void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cm
 
     _circularMovementInfo = cmi;
 
-    _circularMovementInfo.TimeToTarget = GetTimeToTarget();
+    _circularMovementInfo.TimeToTarget = timeToTarget;
     _circularMovementInfo.ElapsedTimeForMovement = GetElapsedTimeForMovement() > cmi.StartDelay ? (GetElapsedTimeForMovement() - cmi.StartDelay) : 0;
 
     if (IsInWorld())
@@ -733,7 +733,7 @@ Position AreaTrigger::CalculateCircularMovementPosition() const
     return { x, y, z, angle };
 }
 
-void AreaTrigger::UpdateCircularMovementPosition()
+void AreaTrigger::UpdateCircularMovementPosition(uint32 /*diff*/)
 {
     AreaTriggerCircularMovementInfo& cmi = _circularMovementInfo;
     if (cmi.StartDelay > GetElapsedTimeForMovement())
