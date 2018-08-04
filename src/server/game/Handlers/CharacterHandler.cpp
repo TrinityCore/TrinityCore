@@ -18,8 +18,6 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
-#include "ArenaTeam.h"
-#include "ArenaTeamMgr.h"
 #include "ArtifactPackets.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"

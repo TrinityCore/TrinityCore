@@ -330,7 +330,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
 
     if (itemProto->GetArtifactID())
     {
-        InitArtifactPowers(itemProto->GetArtifactID());
+        InitArtifactPowers(itemProto->GetArtifactID(), 0);
         for (ArtifactAppearanceEntry const* artifactAppearance : sArtifactAppearanceStore)
         {
             if (ArtifactAppearanceSetEntry const* artifactAppearanceSet = sArtifactAppearanceSetStore.LookupEntry(artifactAppearance->ArtifactAppearanceSetID))
@@ -2465,10 +2465,13 @@ void Item::SetArtifactPower(ItemDynamicFieldArtifactPowers const* artifactPower,
     SetDynamicStructuredValue(ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS, index, artifactPower);
 }
 
-void Item::InitArtifactPowers(uint8 artifactId)
+void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
 {
     for (ArtifactPowerEntry const* artifactPower : sDB2Manager.GetArtifactPowers(artifactId))
     {
+        if (artifactPower->Tier != artifactTier)
+            continue;
+
         if (m_artifactPowerIdToIndex.find(artifactPower->ID) != m_artifactPowerIdToIndex.end())
             continue;
 
