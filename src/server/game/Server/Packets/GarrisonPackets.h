@@ -500,6 +500,11 @@ namespace WorldPackets
         public:
             GarrisonStartMissionResult() : ServerPacket(SMSG_GARRISON_START_MISSION_RESULT, 4) { }
 
+            uint32 Result;
+            uint16 FailReason = 1;
+            GarrisonMission Mission;
+            std::vector<uint64 /* dbID */> Followers;
+
             WorldPacket const* Write() override;
         };
     }

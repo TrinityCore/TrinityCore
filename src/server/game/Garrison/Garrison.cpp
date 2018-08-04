@@ -146,8 +146,8 @@ bool Garrison::LoadFromDB()
             if (!sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID))
                 follower.PacketInfo.CurrentBuildingID = 0;
 
-            //if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
-            //    follower.PacketInfo.CurrentMissionID = 0;
+            if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
+                follower.PacketInfo.CurrentMissionID = 0;
 
         } while (followersStmt->NextRow());
 
@@ -421,7 +421,7 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
+Garrison::Follower* Garrison::GetFollower(uint64 dbId)
 {
     auto itr = _followers.find(dbId);
     if (itr != _followers.end())
@@ -483,8 +483,8 @@ void Garrison::AddMission(uint32 garrMissionId)
     mission.PacketInfo.TravelDuration = missionEntry->TravelTime;
     mission.PacketInfo.MissionDuration = missionEntry->Duration;
     mission.PacketInfo.MissionState = 0;
-    mission.PacketInfo.Unknown1 = 0;
-    mission.PacketInfo.Unknown2 = 0;
+    mission.PacketInfo.Unknown1 = 200;
+    mission.PacketInfo.Unknown2 = 1;
 
     // TODO : Generate rewards for mission
     WorldPackets::Garrison::GarrisonMissionReward reward;
@@ -508,11 +508,24 @@ void Garrison::AddMission(uint32 garrMissionId)
     _owner->SendDirectMessage(garrisonAddMissionResult.Write());
 }
 
-Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
+Garrison::Mission* Garrison::GetMission(uint64 dbId)
 {
     auto itr = _missions.find(dbId);
     if (itr != _missions.end())
         return &itr->second;
+
+    return nullptr;
+}
+
+Garrison::Mission* Garrison::GetMissionByID(uint32 ID)
+{
+    auto missionItr = std::find_if(_missions.begin(), _missions.end(), [ID](auto itr)
+    {
+        return itr.second.PacketInfo.MissionRecID == ID;
+    });
+
+    if (missionItr != _missions.end())
+        return &missionItr->second;
 
     return nullptr;
 }
@@ -525,22 +538,51 @@ bool Garrison::HasMission(uint32 garrMissionId) const
     });
 }
 
-void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> /*Followers*/)
+void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers)
 {
     GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
     if (!missionEntry)
+        return SendStartMissionResult(false);
+
+    Garrison::Mission* mission = GetMissionByID(missionEntry->ID);
+    if (!mission)
+        return SendStartMissionResult(false);
+
+    mission->PacketInfo.StartTime = time(nullptr);
+    mission->PacketInfo.MissionState = GarrisonMission::State::InProgress;
+
+    for (uint64 followerDbID : Followers)
     {
-        // Send error
-        return;
+        Garrison::Follower* follower = GetFollower(followerDbID);
+
+        if (!follower)
+            return SendStartMissionResult(false);
+
+        if (follower->PacketInfo.CurrentMissionID != 0 || follower->PacketInfo.CurrentBuildingID != 0)
+            return SendStartMissionResult(false);
+
+        follower->PacketInfo.CurrentMissionID = missionEntry->ID;
     }
 
-    if (!HasMission(missionEntry->ID))
+    SendStartMissionResult(true, mission, &Followers);
+}
+
+void Garrison::SendStartMissionResult(bool success, Garrison::Mission* mission /*= nullptr*/, std::vector<uint64 /*DbID*/>* Followers /*= nullptr*/)
+{
+    WorldPackets::Garrison::GarrisonStartMissionResult garrisonStartMissionResult;
+
+    if (success)
     {
-        // Send error
-        return;
+        garrisonStartMissionResult.Result = GarrisonMission::AddResult::Success;
+        garrisonStartMissionResult.Mission = mission->PacketInfo;
+        garrisonStartMissionResult.Followers = *Followers;
+    }
+    else
+    {
+        garrisonStartMissionResult.Result = GarrisonMission::AddResult::Fail;
     }
 
-
+    _owner->SendDirectMessage(garrisonStartMissionResult.Write());
 }
 
 std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> Garrison::GetAvailableMissions() const

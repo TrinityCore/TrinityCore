@@ -391,8 +391,6 @@ void WorldPackets::Garrison::GarrisonOpenMissionNpcClient::Read()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpc::Write()
 {
-    // Shauren> ... Traesh: int32, int32, uint32(loop counter), loop:{ int32 }, bit, bit
-
     _worldPacket << int32(garrType);
     _worldPacket << int32(result);
     _worldPacket << uint32(Missions.size());
@@ -468,5 +466,13 @@ void WorldPackets::Garrison::GarrisonStartMission::Read()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonStartMissionResult::Write()
 {
+    _worldPacket << Result;
+    _worldPacket << FailReason;
+    _worldPacket << Mission;
+
+    _worldPacket << Followers.size();
+    for (uint64 followerDbID : Followers)
+        _worldPacket << followerDbID;
+
     return &_worldPacket;
 }

@@ -81,7 +81,7 @@ public:
 
     // Followers
     void AddFollower(uint32 garrFollowerId);
-    Follower const* GetFollower(uint64 dbId) const;
+    Follower* GetFollower(uint64 dbId);
     std::unordered_map<uint64 /*dbId*/, Garrison::Follower> const& GetFollowers() const { return _followers; }
     uint32 GetActiveFollowersCount() const;
     uint32 GetAverageFollowerILevel() const;
@@ -92,10 +92,12 @@ public:
 
     // Missions
     void AddMission(uint32 garrMissionId);
-    Mission const* GetMission(uint64 dbId) const;
+    Mission* GetMission(uint64 dbId);
+    Mission* GetMissionByID(uint32 ID);
     bool HasMission(uint32 garrMissionId) const;
     std::unordered_map<uint64 /*dbId*/, Garrison::Mission> const& GetMissions() const { return _missions; }
     void StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers);
+    void SendStartMissionResult(bool success, Garrison::Mission* mission = nullptr, std::vector<uint64 /*DbID*/>* Followers = nullptr);
 
     std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> GetAvailableMissions() const;
     void GenerateMissions();
