@@ -48,6 +48,7 @@ enum BRCCreatureIds
     BOSS_CORLA_HERALD_OF_TWILIGHT       = 39679,
     BOSS_KARSH_STEELBENDER              = 39698,
     BOSS_BEAUTY                         = 39700,
+    BOSS_ASCENDANT_LORD_OBSIDIUS        = 39705,
 
     // Encounter Related
     /*Rom'ogg Bonecrusher*/
@@ -59,16 +60,19 @@ enum BRCCreatureIds
     NPC_TWILIGHT_ZEALOT                 = 50284,
     NPC_EVOLVED_TWILIGHT_ZEALOT         = 39987,
 
-    NPC_TWILIGHT_FLAME_CALLER           = 39708,
-    NPC_RAZ_THE_CRAZED                  = 39670,
-
     /*Karsh Steelbender*/
     NPC_INVISIBLE_STALKER               = 39842,
     NPC_BOUND_FLAMES                    = 50417,
 
     /*Beauty*/
     NPC_LUCKY                           = 40008,
-    NPC_SPOT                            = 40011
+    NPC_SPOT                            = 40011,
+
+    /*Ascendant Lord Obsidius*/
+    NPC_SHADOW_OF_OBSIDIUS              = 40817,
+
+    NPC_TWILIGHT_FLAME_CALLER           = 39708,
+    NPC_RAZ_THE_CRAZED                  = 39670,
 };
 
 enum BRCActions
@@ -86,7 +90,8 @@ enum BRCRazAreaIndex
 Position const RazTheCrazedSummonPositions[] =
 {
     { 249.2639f, 949.1614f, 191.7866f, 3.141593f },
-    { 406.1927f, 906.0121f, 163.4926f, 4.310963f }
+    { 406.1927f, 906.0121f, 163.4926f, 4.310963f },
+    { 308.9653f, 635.8195f, 64.79769f, 4.555309f }
 };
 
 template <class AI, class T>

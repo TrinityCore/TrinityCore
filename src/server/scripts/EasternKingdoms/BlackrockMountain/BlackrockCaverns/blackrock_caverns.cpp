@@ -525,7 +525,8 @@ private:
 enum RazTheCrazed
 {
     // Texts
-    SAY_SMASH = 0,
+    SAY_SMASH                           = 0,
+    SAY_TIRED                           = 1,
 
     // Spells
     SPELL_AGGRO_NEARBY_TARGETS          = 80189,
@@ -538,15 +539,18 @@ enum RazTheCrazed
     SPELL_FURIOUS_SWIPE                 = 80206,
     SPELL_FURIOUS_SWIPE_DUMMY           = 80340,
     SPELL_FURIOUS_RAGE                  = 80218,
+    SPELL_STOP_HEART                    = 82393,
+    SPELL_INSTAKILL_SELF                = 29878,
 
-    EVENT_DISABLE_GRAVITY_AND_HOVER = 1,
-    EVENT_SAY_SMASH,
+    EVENT_SAY_SMASH                     = 1,
     EVENT_START_ESCORT_PATH,
     EVENT_FACE_TO_THE_SIDE,
     EVENT_LEAP_FROM_BRIDGE,
     EVENT_LEAP_FROM_LEDGE,
     EVENT_LEAP_OVER_BORER_PACKS,
-    EVENT_RESUME_ESCORT
+    EVENT_RESUME_ESCORT,
+    EVENT_LEAP_AT_OBSIDIUS,
+    EVENT_KILL_RAZ
 };
 
 Position const RazPathRomogg[] =
@@ -573,19 +577,12 @@ Position const RazPathCorla[] =
 
 struct npc_raz_the_crazed : public EscortAI
 {
-    npc_raz_the_crazed(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript())
-    {
-        SetCombatMovement(false);
-    }
+    npc_raz_the_crazed(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript()) { }
 
     void EnterEvadeMode(EvadeReason why) override
     {
         EscortAI::EnterEvadeMode(why);
         DoCastSelf(SPELL_AGGRO_NEARBY_TARGETS, true);
-        if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_ROMOGG)
-            BuildRomoggPath();
-        else if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA)
-            BuildCorlaPath();
     }
 
     void JustAppeared() override
@@ -602,8 +599,17 @@ struct npc_raz_the_crazed : public EscortAI
             _events.ScheduleEvent(EVENT_LEAP_FROM_LEDGE, 2s);
             BuildCorlaPath();
         }
+        else if (_instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_OBSIDIUS)
+            _events.ScheduleEvent(EVENT_LEAP_AT_OBSIDIUS, 2s);
 
+        SetDespawnAtEnd(false);
         DoCastSelf(SPELL_AGGRO_NEARBY_TARGETS, true);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_TIRED);
+        me->DespawnOrUnsummon(9s);
     }
 
     void DoAction(int32 action) override
@@ -611,11 +617,18 @@ struct npc_raz_the_crazed : public EscortAI
         if (action == ACTION_BREAK_OUT_OF_PRISON)
         {
             me->RemoveAurasDueToSpell(SPELL_HIGH_SECURITY_SHADOW_PRISON);
+            me->SetDisableGravity(false);
+            me->SetHover(false);
             DoCastSelf(SPELL_LEAP_FROM_CAGE);
-            _events.ScheduleEvent(EVENT_DISABLE_GRAVITY_AND_HOVER, 2s + 500ms);
             _events.ScheduleEvent(EVENT_START_ESCORT_PATH, 4s);
             _events.ScheduleEvent(EVENT_SAY_SMASH, 4s);
         }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_STOP_HEART)
+            _events.ScheduleEvent(EVENT_KILL_RAZ, 4s);
     }
 
     void BuildRomoggPath()
@@ -649,7 +662,7 @@ struct npc_raz_the_crazed : public EscortAI
         if (!target)
             return;
 
-        if (!target->IsInCombatWith(me))
+        if (!target->IsInCombat())
             return;
 
         if (spell->Id == SPELL_FURIOUS_SWIPE_DUMMY)
@@ -669,16 +682,12 @@ struct npc_raz_the_crazed : public EscortAI
         {
             switch (eventId)
             {
-                case EVENT_DISABLE_GRAVITY_AND_HOVER:
-                    me->SetDisableGravity(false);
-                    me->SetHover(false);
-                    break;
                 case EVENT_SAY_SMASH:
                     Talk(SAY_SMASH);
                     break;
                 case EVENT_START_ESCORT_PATH:
                     me->SetHomePosition(me->GetPosition());
-                    Start(false, false);
+                    Start(true, true);
                     break;
                 case EVENT_FACE_TO_THE_SIDE:
                     me->SetFacingTo(5.061455f);
@@ -697,6 +706,13 @@ struct npc_raz_the_crazed : public EscortAI
                 case EVENT_LEAP_OVER_BORER_PACKS:
                     DoCastSelf(SPELL_LEAP_OVER_BORER_PACKS);
                     me->DespawnOrUnsummon(2s);
+                    break;
+                case EVENT_LEAP_AT_OBSIDIUS:
+                    Talk(SAY_SMASH);
+                    DoCastSelf(SPELL_LEAP_AT_OBSIDIUS);
+                    break;
+                case EVENT_KILL_RAZ:
+                    DoCastSelf(SPELL_INSTAKILL_SELF);
                     break;
                 default:
                     break;
@@ -726,6 +742,23 @@ class at_raz_corla_event : public AreaTriggerScript
         }
 };
 
+class at_raz_obsidius_event : public AreaTriggerScript
+{
+    public:
+        at_raz_obsidius_event() : AreaTriggerScript("at_raz_obsidius_event") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA
+                    && instance->GetBossState(DATA_KARSH_STEELBENDER) == DONE)
+                    instance->SetData(DATA_RAZ_LAST_AREA_INDEX, RAZ_AREA_INDEX_OBSIDIUS);
+
+            return true;
+
+        }
+};
+
 void AddSC_blackrock_caverns()
 {
     RegisterBlackrockCavernsCreatureAI(npc_fire_cyclone);
@@ -736,4 +769,5 @@ void AddSC_blackrock_caverns()
     RegisterBlackrockCavernsCreatureAI(npc_crazed_mage);
     RegisterBlackrockCavernsCreatureAI(npc_raz_the_crazed);
     new at_raz_corla_event();
+    new at_raz_obsidius_event();
 }

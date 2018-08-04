@@ -4625,6 +4625,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
     });
+
+    // Transformation
+    ApplySpellFix({ 76196 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF BLACKROCK CAVERNS SPELLS
 
     //

@@ -25,6 +25,7 @@ ObjectData const creatureData[] =
     { BOSS_CORLA_HERALD_OF_TWILIGHT,    DATA_CORLA_HERALD_OF_TWILIGHT   },
     { BOSS_KARSH_STEELBENDER,           DATA_KARSH_STEELBENDER          },
     { BOSS_BEAUTY,                      DATA_BEAUTY                     },
+    { BOSS_ASCENDANT_LORD_OBSIDIUS,     DATA_ASCENDANT_LORD_OBSIDIUS    },
     { NPC_RAZ_THE_CRAZED,               DATA_RAZ_THE_CRAZED             },
     { NPC_LUCKY,                        DATA_LUCKY                      },
     { NPC_SPOT,                         DATA_SPOT                       },
@@ -111,15 +112,18 @@ class instance_blackrock_caverns : public InstanceMapScript
                     switch (data)
                     {
                         case RAZ_AREA_INDEX_ROMOGG:
-                            if (!GetCreature(DATA_RAZ_THE_CRAZED))
-                                instance->SummonCreature(NPC_RAZ_THE_CRAZED, RazTheCrazedSummonPositions[RAZ_AREA_INDEX_ROMOGG]);
+                            instance->SummonCreature(NPC_RAZ_THE_CRAZED, RazTheCrazedSummonPositions[RAZ_AREA_INDEX_ROMOGG]);
                             break;
                         case RAZ_AREA_INDEX_CORLA:
                             instance->SummonCreature(NPC_RAZ_THE_CRAZED, RazTheCrazedSummonPositions[RAZ_AREA_INDEX_CORLA]);
                             break;
+                        case RAZ_AREA_INDEX_OBSIDIUS:
+                            instance->SummonCreature(NPC_RAZ_THE_CRAZED, RazTheCrazedSummonPositions[RAZ_AREA_INDEX_OBSIDIUS]);
+                            break;
                         default:
                             break;
                     }
+                    SaveToDB();
                 }
             }
 
