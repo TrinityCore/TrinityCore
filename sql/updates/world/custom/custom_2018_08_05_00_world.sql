@@ -1,7 +1,7 @@
 -- Template Updates
 -- Shadow of Obsidius
-UPDATE `creature_template` SET `modelid1`= 35979, `BaseVariance`= 0.5, `DamageModifier`= 4 WHERE `entry`= 40818;
-UPDATE `creature_template` SET `BaseVariance`= 0.5, `DamageModifier`= 8 WHERE `entry`= 40817;
+UPDATE `creature_template` SET `modelid1`= 35979, `BaseVariance`= 0.5, `DamageModifier`= 8 WHERE `entry`= 40818;
+UPDATE `creature_template` SET `BaseVariance`= 0.5, `DamageModifier`= 4 WHERE `entry`= 40817;
 
 -- Template Addon
 DELETE FROM `creature_template_addon` WHERE `entry` IN (40817, 40818);
