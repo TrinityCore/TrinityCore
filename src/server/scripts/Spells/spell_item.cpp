@@ -716,14 +716,19 @@ class spell_item_goblin_gumbo : public AuraScript
 {
     PrepareAuraScript(spell_item_goblin_gumbo);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GOBLIN_GUMBO_VISUAL });
+    }
+
     void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
     {
-        isPeriodic = true;
         amplitude = urandms(10, 45);
     }
 
-    void Update(AuraEffect* /*effect*/)
+    void Update(AuraEffect* effect)
     {
+        effect->SetPeriodicTimer(urandms(10, 45));
         if (Unit* owner = GetUnitOwner())
             owner->CastSpell(owner, SPELL_GOBLIN_GUMBO_VISUAL, false);
     }
