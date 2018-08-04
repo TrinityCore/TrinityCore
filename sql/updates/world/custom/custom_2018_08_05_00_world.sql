@@ -97,14 +97,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 2, 2111, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set faction to 2111 // "),
 (@ENTRY, 0, 3, 0, 6, 0, 100, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 10, 361667, 0, 0, 0, 0, 0, 0, "On death - Creature Ascendant Lord Obsidius 39705 (361667): Set creature data #0 to 0 // ");
 
-SET @ENTRY := -361823;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 200, 300, 4000, 5000, 11, 75205, 0, 0, 0, 0, 0, 19, 40343, 200, 0, 0, 0, 0, 0, "When out of combat and timer at the begining between 200 and 300 ms (and later repeats every 4000 and 5000 ms) - Self: Cast spell 75205 on Closest alive creature Channel Target (40343) in 200 yards // Twilight Element Warden - Out of Combat - Cast 'Bore'"),
-(@ENTRY, 0, 1, 2, 25, 0, 100, 0, 0, 0, 0, 0, 11, 74919, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On reset (e.g. after reaching home) - Self: Cast spell 74919 on Self // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 2, 2111, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set faction to 2111 // "),
-(@ENTRY, 0, 3, 0, 6, 0, 100, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 10, 361667, 0, 0, 0, 0, 0, 0, "On death - Creature Ascendant Lord Obsidius 39705 (361667): Set creature data #0 to 0 // ");
-
 DELETE FROM `creature_formations` WHERE `leaderGUID`= 361820;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `groupAI`, `dist`, `angle`) VALUES
 (361820, 361820, 3, 0, 0),
