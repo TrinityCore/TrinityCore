@@ -169,7 +169,7 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
     AI_Initialize();
 
     // Relocate areatriggers with circular movement again
-    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
+    if (HasCircularMovement())
         Relocate(CalculateCircularMovementPosition());
 
     if (!GetMap()->AddToMap(this))
@@ -205,7 +205,7 @@ void AreaTrigger::Update(uint32 diff)
     _timeSinceCreated += diff;
 
     // "If" order matter here, Circular Movement > Attached > Splines
-    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
+    if (HasCircularMovement())
     {
         UpdateCircularMovementPosition(diff);
     }
@@ -671,8 +671,8 @@ void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cm
 
     _circularMovementInfo = cmi;
 
-    _circularMovementInfo.TimeToTarget = timeToTarget;
-    _circularMovementInfo.ElapsedTimeForMovement = GetElapsedTimeForMovement() > cmi.StartDelay ? (GetElapsedTimeForMovement() - cmi.StartDelay) : 0;
+    _circularMovementInfo->TimeToTarget = timeToTarget;
+    _circularMovementInfo->ElapsedTimeForMovement = 0;
 
     if (IsInWorld())
     {
@@ -684,14 +684,22 @@ void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cm
     }
 }
 
+bool AreaTrigger::HasCircularMovement() const
+{
+    return _circularMovementInfo.is_initialized();
+}
+
 Position const* AreaTrigger::GetCircularMovementCenterPosition() const
 {
-    if (_circularMovementInfo.TargetGUID.is_initialized())
-        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_circularMovementInfo.TargetGUID))
+    if (_circularMovementInfo.is_initialized())
+        return nullptr;
+
+    if (_circularMovementInfo->TargetGUID.is_initialized())
+        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_circularMovementInfo->TargetGUID))
             return center;
 
-    if (_circularMovementInfo.Center.is_initialized())
-        return &_circularMovementInfo.Center->Pos;
+    if (_circularMovementInfo->Center.is_initialized())
+        return &_circularMovementInfo->Center->Pos;
 
     return nullptr;
 }
@@ -702,7 +710,7 @@ Position AreaTrigger::CalculateCircularMovementPosition() const
     if (!centerPos)
         return GetPosition();
 
-    AreaTriggerCircularMovementInfo const& cmi = GetCircularMovementInfo();
+    AreaTriggerCircularMovementInfo const& cmi = *_circularMovementInfo;
 
     // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
     float pathProgress = float(cmi.ElapsedTimeForMovement) / float(cmi.TimeToTarget);
@@ -735,12 +743,10 @@ Position AreaTrigger::CalculateCircularMovementPosition() const
 
 void AreaTrigger::UpdateCircularMovementPosition(uint32 /*diff*/)
 {
-    AreaTriggerCircularMovementInfo& cmi = _circularMovementInfo;
-    if (cmi.StartDelay > GetElapsedTimeForMovement())
+    if (_circularMovementInfo->StartDelay > GetElapsedTimeForMovement())
         return;
 
-    cmi.TimeToTarget = GetTimeToTarget();
-    cmi.ElapsedTimeForMovement = GetElapsedTimeForMovement() - cmi.StartDelay;
+    _circularMovementInfo->ElapsedTimeForMovement = GetElapsedTimeForMovement() - _circularMovementInfo->StartDelay;
 
     Position pos = CalculateCircularMovementPosition();
 

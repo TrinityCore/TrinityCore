@@ -548,7 +548,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
         bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasCircularMovement    = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT);
+        bool hasCircularMovement    = areaTrigger->HasCircularMovement();
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -646,7 +646,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
 
         if (hasCircularMovement)
-            *data << areaTrigger->GetCircularMovementInfo();
+            *data << *areaTrigger->GetCircularMovementInfo();
     }
 
     if (HasGameObject)

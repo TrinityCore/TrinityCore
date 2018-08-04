@@ -89,7 +89,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
         void InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget);
-        AreaTriggerCircularMovementInfo const& GetCircularMovementInfo() const { return _circularMovementInfo; }
+        bool HasCircularMovement() const;
+        Optional<AreaTriggerCircularMovementInfo> const& GetCircularMovementInfo() const { return _circularMovementInfo; }
 
         void UpdateShape();
 
@@ -136,7 +137,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _lastSplineIndex;
         uint32 _movementTime;
 
-        AreaTriggerCircularMovementInfo _circularMovementInfo;
+        Optional<AreaTriggerCircularMovementInfo> _circularMovementInfo;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
