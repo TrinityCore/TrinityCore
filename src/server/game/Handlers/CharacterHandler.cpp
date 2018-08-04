@@ -1973,6 +1973,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     stmt->setUInt16(1, 111);
                     break;
                 case RACE_DRAENEI:
+                case RACE_LIGHTFORGED_DRAENEI:
                     stmt->setUInt16(1, 759);
                     break;
                 case RACE_GNOME:
@@ -1988,17 +1989,26 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     stmt->setUInt16(1, 673);
                     break;
                 case RACE_TAUREN:
+                case RACE_HIGHMOUNTAIN_TAUREN:
                     stmt->setUInt16(1, 115);
                     break;
                 case RACE_TROLL:
                     stmt->setUInt16(1, 315);
                     break;
                 case RACE_BLOODELF:
+                case RACE_VOID_ELF:
                     stmt->setUInt16(1, 137);
                     break;
                 case RACE_GOBLIN:
                     stmt->setUInt16(1, 792);
                     break;
+                case RACE_NIGHTBORNE:
+                    stmt->setUInt16(1, 2464);
+                    break;
+                default:
+                    TC_LOG_ERROR("entities.player", "Could not find language data for race (%u).", factionChangeInfo->RaceID);
+                    SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
+                    return;
             }
 
             trans->Append(stmt);
