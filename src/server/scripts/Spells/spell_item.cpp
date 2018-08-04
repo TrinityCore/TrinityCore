@@ -721,7 +721,7 @@ class spell_item_goblin_gumbo : public AuraScript
         return ValidateSpellInfo({ SPELL_GOBLIN_GUMBO_VISUAL });
     }
 
-    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& /*isPeriodic*/, int32& amplitude)
     {
         amplitude = urandms(10, 45);
     }
