@@ -2536,6 +2536,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         ArchaeologyPlayerMgr& GetArchaeologyMgr() { return m_archaeologyPlayerMgr; }
 
+        bool MeetPlayerCondition(uint32 conditionId) const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

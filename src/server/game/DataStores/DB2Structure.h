@@ -266,10 +266,10 @@ struct ArtifactUnlockEntry
 {
     uint32 ID;
     uint16 ItemBonusListID;
-    uint8  PowerRank;
+    uint8 PowerRank;
     uint32 PowerID;
     uint32 PlayerConditionID;
-    uint8  ArtifactID;
+    uint8 ArtifactID;
 };
 
 struct AuctionHouseEntry

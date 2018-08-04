@@ -38,6 +38,7 @@
 #include "SpellMgr.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
@@ -320,7 +321,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
             SetSpellCharges(i, itemProto->Effects[i]->Charges);
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemProto->Effects[i]->SpellID))
             if (owner && spellInfo->HasEffect(SPELL_EFFECT_GIVE_ARTIFACT_POWER))
-                if (uint32 artifactKnowledgeLevel = owner->GetCurrency(CURRENCY_TYPE_ARTIFACT_KNOWLEDGE))
+                if (uint32 artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE))
                     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, artifactKnowledgeLevel + 1);
     }
 
@@ -347,7 +348,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
             }
         }
 
-        CheckArtifactUnlock(owner ? owner : GetOwner());
+        CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
     }
 
     return true;
@@ -819,7 +820,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
 void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ItemDynamicFieldArtifactPowers>& powers)
 {
-    InitArtifactPowers(GetTemplate()->GetArtifactID());
+    for (uint8 i = 0; i <= artifactTier; ++i)
+        InitArtifactPowers(GetTemplate()->GetArtifactID(), i);
+
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, xp);
     SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearanceId);
     SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
@@ -882,19 +885,22 @@ void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceI
         SetArtifactPower(&power);
     }
 
-    CheckArtifactUnlock(owner ? owner : GetOwner());
+    CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
 }
 
-void Item::CheckArtifactUnlock(Player const* owner)
+void Item::CheckArtifactRelicSlotUnlock(Player const* owner)
 {
     if (!owner)
         return;
 
-    for (uint32 i = 0; i < sArtifactUnlockStore.GetNumRows(); ++i)
-        if (ArtifactUnlockEntry const* artifactUnlockEntry = sArtifactUnlockStore.LookupEntry(i))
-            if (GetTemplate()->GetArtifactID() == artifactUnlockEntry->ArtifactID)
-                if (owner->MeetPlayerCondition(artifactUnlockEntry->PlayerConditionID))
-                    AddBonuses(artifactUnlockEntry->ItemBonusListID);
+    uint8 artifactId = GetTemplate()->GetArtifactID();
+    if (!artifactId)
+        return;
+
+    for (ArtifactUnlockEntry const* artifactUnlock : sArtifactUnlockStore)
+        if (artifactUnlock->ArtifactID == artifactId)
+            if (owner->MeetPlayerCondition(artifactUnlock->PlayerConditionID))
+                AddBonuses(artifactUnlock->ItemBonusListID);
 }
 
 /*static*/
@@ -2578,24 +2584,21 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
 
     if (artifactCategoryId)
     {
-        if (ArtifactCategoryEntry const* artifactCategory = sArtifactCategoryStore.LookupEntry(artifactCategoryId))
-        {
-            uint32 artifactKnowledgeLevel = 1;
-            if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
-                artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
-            else
-                artifactKnowledgeLevel = owner->GetCurrency(artifactCategory->XpMultCurrencyID) + 1;
+        uint32 artifactKnowledgeLevel = 1;
+        if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
+            artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
+        else if (artifactCategoryId == ARTIFACT_CATEGORY_PRIMARY)
+            artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE) + 1;
 
-            if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
-                amount = uint64(amount * artifactKnowledge->Multiplier);
+        if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
+            amount = uint64(amount * artifactKnowledge->Multiplier);
 
-            if (amount >= 5000)
-                amount = 50 * (amount / 50);
-            else if (amount >= 1000)
-                amount = 25 * (amount / 25);
-            else if (amount >= 50)
-                amount = 5 * (amount / 5);
-        }
+        if (amount >= 5000)
+            amount = 50 * (amount / 50);
+        else if (amount >= 1000)
+            amount = 25 * (amount / 25);
+        else if (amount >= 50)
+            amount = 5 * (amount / 5);
     }
 
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) + amount);

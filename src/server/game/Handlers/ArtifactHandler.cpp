@@ -39,7 +39,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
 
     uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint64(currentArtifactTier == 1 ? cost->XP2 : cost->XP);
+        xpCost = uint64(currentArtifactTier == MAX_ARTIFACT_TIER ? cost->XP2 : cost->XP);
 
     if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
@@ -59,8 +59,13 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         return;
 
     uint32 maxRank = artifactPowerEntry->MaxPurchasableRank;
-    if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER)
-        maxRank += currentArtifactTier;
+    if (artifactPowerEntry->Tier < currentArtifactTier)
+    {
+        if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FINAL)
+            maxRank = 1;
+        else if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER)
+            maxRank += currentArtifactTier - artifactPowerEntry->Tier;
+    }
 
     if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
         artifactAddPower.PowerChoices[0].Rank > maxRank)
@@ -131,19 +136,27 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     uint32 totalPurchasedArtifactPower = artifact->GetTotalPurchasedArtifactPowers();
     uint32 artifactTier = 0;
 
-    for (uint32 i = 0; i < sArtifactTierStore.GetNumRows(); ++i)
+    for (ArtifactTierEntry const* tier : sArtifactTierStore)
     {
-        if (ArtifactTierEntry const* tier = sArtifactTierStore.LookupEntry(i))
+        if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FINAL && artifactPowerEntry->Tier < MAX_ARTIFACT_TIER)
         {
-            if (totalPurchasedArtifactPower < tier->MaxNumTraits)
-            {
-                artifactTier = tier->ArtifactTier;
-                break;
-            }
+            artifactTier = artifactPowerEntry->Tier + 1;
+            break;
+        }
+
+        if (totalPurchasedArtifactPower < tier->MaxNumTraits)
+        {
+            artifactTier = tier->ArtifactTier;
+            break;
         }
     }
 
-     artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
+    artifactTier = std::max(artifactTier, currentArtifactTier);
+
+    for (uint32 i = currentArtifactTier; i <= artifactTier; ++i)
+        artifact->InitArtifactPowers(artifact->GetTemplate()->GetArtifactID(), uint8(i));
+
+    artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
 }
 
 void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance)

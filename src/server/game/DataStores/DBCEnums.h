@@ -151,6 +151,12 @@ enum AreaMountFlags
     AREA_MOUNT_FLAG_UNDERWATER_ALLOWED  = 0x8
 };
 
+enum ArtifactCategory : uint32
+{
+    ARTIFACT_CATEGORY_PRIMARY = 1,
+    ARTIFACT_CATEGORY_FISHING = 2
+};
+
 enum ArtifactPowerFlag : uint8
 {
     ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
@@ -162,6 +168,8 @@ enum ArtifactPowerFlag : uint8
 
     ARTIFACT_POWER_FLAG_FIRST                       = ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED | ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK,
 };
+
+#define MAX_ARTIFACT_TIER 1
 
 #define BATTLE_PET_SPECIES_MAX_ID 2164
 
@@ -1111,7 +1119,6 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARCHAEOLOGY_NERUBIAN  = 400,
     CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR    = 401,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
-    CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
 };
 
 enum WorldMapTransformsFlags
