@@ -19,6 +19,7 @@
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
 #include <vector>
