@@ -179,6 +179,12 @@ void AddSC_boss_eredar_twins();
 void AddSC_boss_muru();
 void AddSC_boss_kiljaeden();
 void AddSC_sunwell_plateau();
+void AddSC_throne_of_the_tides();            // Throne of the Tides
+void AddSC_instance_throne_of_the_tides();
+void AddSC_boss_lady_nazjar();
+void AddSC_boss_commander_ulthok();
+void AddSC_boss_mindbender_gursha();
+void AddSC_boss_ozumat();
 void AddSC_boss_archaedas();                 //Uldaman
 void AddSC_boss_ironaya();
 void AddSC_uldaman();
@@ -398,6 +404,12 @@ void AddEasternKingdomsScripts()
     AddSC_boss_hogger();
     AddSC_boss_randolph_moloch();
     AddSC_boss_lord_overheat();
+    AddSC_throne_of_the_tides();            // Throne of the Tides
+    AddSC_instance_throne_of_the_tides();
+    AddSC_boss_lady_nazjar();
+    AddSC_boss_commander_ulthok();
+    AddSC_boss_mindbender_gursha();
+    AddSC_boss_ozumat();
     AddSC_boss_archaedas();                 //Uldaman
     AddSC_boss_ironaya();
     AddSC_uldaman();

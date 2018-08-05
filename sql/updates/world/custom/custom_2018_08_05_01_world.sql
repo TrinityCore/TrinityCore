@@ -1,0 +1,11 @@
+UPDATE `creature_addon` SET `auras`= '' WHERE `guid`= 255068;
+UPDATE `creature_addon` SET `auras`= '' WHERE `guid` IN 
+(254870, 254871, 254872, 254873, 254875, 254877, 254878, 254879, 254881, 254884, 254885,  254888, 254892, 254893, 254894, 254895, 254896, 254897, 254898, 254899, 254900, 254901, 254902, 254903, 254904, 254905, 254906, 254907, 254908, 254909, 254910, 254911, 254912, 254913, 254916, 254919, 254886, 254891, 255406);
+
+UPDATE `creature_template` SET `InhabitType`= 4 WHERE `entry` IN (44581, 49100, 49101, 45030, 44566, 49097, 45672, 45621, 40655, 49096);
+
+DELETE FROM `creature` WHERE `guid`= 255406;
+DELETE FROM `creature_addon` WHERE `guid`= 255406;
+
+UPDATE `instance_template` SET `script`= 'instance_throne_of_the_tides' WHERE `map`= 643;
+UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry` IN (45030, 49101, 44581, 49100);
