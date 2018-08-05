@@ -129,7 +129,7 @@ static uint32 GetRandomBossExcept(uint32 exception)
         if (data != exception)
             bossData.emplace_back(data);
 
-    return bossData[urand(0, 3)];
+    return Trinity::Containers::SelectRandomContainerElement(bossData);
 }
 
 class boss_illidari_council : public CreatureScript
@@ -197,7 +197,8 @@ public:
                     // Allow loot
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, council);
                     council->LowerPlayerDamageReq(council->GetMaxHealth());
-                    council->CastSpell(council, SPELL_QUIET_SUICIDE, true);
+                    //council->CastSpell(council, SPELL_QUIET_SUICIDE, true);
+                    council->KillSelf();
                 }
             }
         }
@@ -699,16 +700,20 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHARED_RULE });
             }
 
-            void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                DamageInfo* dmgInfo = eventInfo.GetDamageInfo();
+                if (!dmgInfo)
+                    return;
+
                 PreventDefaultAction();
-                int32 bp = dmgInfo.GetDamage();
+                int32 bp = dmgInfo->GetDamage();
                 GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_illidari_council_balance_of_power_AuraScript::Absorb, EFFECT_0);
+                OnEffectProc += AuraEffectProcFn(spell_illidari_council_balance_of_power_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
