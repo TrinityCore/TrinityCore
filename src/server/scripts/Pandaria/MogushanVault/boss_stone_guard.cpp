@@ -256,7 +256,7 @@ class boss_stone_guard_controler : public CreatureScript
                     }
                     case ACTION_POWER_DOWN:
                     {
-                        if (Creature* guardian = pInstance->GetCreature(NPC_AMETHYST))
+                        if (pInstance->GetCreature(NPC_AMETHYST))
                         {
                             // Removing Tiles & deactivating them
                             me->RemoveAllDynObjects();
@@ -377,7 +377,7 @@ class boss_stone_guard_controler : public CreatureScript
                             {
                                 nextPetrifierEntry = guardiansEntry[rand() % 4];
                                 // In 10 man mode, there're only 3 guardians, so we mustn't choose the absent one
-                                if (Creature* stoneGuard = pInstance->GetCreature(nextPetrifierEntry))
+                                if (pInstance->GetCreature(nextPetrifierEntry))
                                     if (nextPetrifierEntry != lastPetrifierEntry)
                                         searching = false;
                             }
@@ -756,7 +756,7 @@ class boss_generic_guardian : public CreatureScript
             {
                 for (uint32 entry: guardiansEntry)
                     if (entry != me->GetEntry())
-                        if (Creature* gardian = GetClosestCreatureWithEntry(me, entry, 12.0f, true))
+                        if (GetClosestCreatureWithEntry(me, entry, 12.0f, true))
                             return true;
 
                 return false;

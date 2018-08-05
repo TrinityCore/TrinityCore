@@ -527,16 +527,14 @@ class instance_dragon_soul : public InstanceMapScript
 
                 if (trownStoneTimer <= diff)
                 {
-                    for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-                        if (Player* pPlayer = i->GetSource())
-                            if (GetBossState(BOSS_MORCHOK) == NOT_STARTED)
+                    if (GetBossState(BOSS_MORCHOK) == NOT_STARTED)
+                        if (Creature* morchok = instance->GetCreature(uiMorchokGUID))
+                            for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
                             {
-                                if (Creature* morchok = instance->GetCreature(uiMorchokGUID))
-                                {
-                                    morchok->CastSpell(morchok, SPELL_MORCHOK_SIEGE_MISSILE_1, true);
-                                    TrownRock(NPC_TARGET_DUMMY);
-                                }
+                                morchok->CastSpell(morchok, SPELL_MORCHOK_SIEGE_MISSILE_1, true);
+                                TrownRock(NPC_TARGET_DUMMY);
                             }
+
                     trownStoneTimer = 7000;
                 }
                 else

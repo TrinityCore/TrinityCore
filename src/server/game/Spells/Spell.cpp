@@ -7484,7 +7484,7 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
 
     if (mod >= SPELLVALUE_TRIGGER_SPELL && mod < SPELLVALUE_TRIGGER_SPELL_END)
     {
-        if (SpellEffectInfo const* effect = GetEffect(mod - SPELLVALUE_TRIGGER_SPELL))
+        if (GetEffect(mod - SPELLVALUE_TRIGGER_SPELL) != nullptr)
             m_spellValue->EffectTriggerSpell[mod - SPELLVALUE_TRIGGER_SPELL] = (uint32)value;
         return;
     }

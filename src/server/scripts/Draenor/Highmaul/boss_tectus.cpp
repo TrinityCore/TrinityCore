@@ -1969,15 +1969,12 @@ class spell_highmaul_petrification : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (Unit* target = GetTarget())
+                if (Unit* l_Attacker = p_EventInfo.GetActor())
                 {
-                    if (Unit* l_Attacker = p_EventInfo.GetActor())
-                    {
-                        if (l_Attacker->GetEntry() != eHighmaulCreatures::Tectus)
-                            return;
+                    if (l_Attacker->GetEntry() != eHighmaulCreatures::Tectus)
+                        return;
 
-                        l_Attacker->CastSpell(l_Attacker, eSpell::Petrification, true);
-                    }
+                    l_Attacker->CastSpell(l_Attacker, eSpell::Petrification, true);
                 }
             }
 

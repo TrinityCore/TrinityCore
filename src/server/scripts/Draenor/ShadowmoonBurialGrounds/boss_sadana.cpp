@@ -434,8 +434,8 @@ public:
                     {
                         if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eSadanaSpells::SpellDaggerFallGroundMarker))
                         {
-                            if (Creature* l_Dagger = me->SummonCreature(eSadanaCreatures::CreatureDaggerFall, target->GetPositionX(), target->GetPositionY(), DaggerFallAltitude, target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                                target->CastSpell(target, eSadanaSpells::SpellDaggerFallGroundMarker);     
+                            me->SummonCreature(eSadanaCreatures::CreatureDaggerFall, target->GetPositionX(), target->GetPositionY(), DaggerFallAltitude, target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                            target->CastSpell(target, eSadanaSpells::SpellDaggerFallGroundMarker);     
                         }
                     }
 

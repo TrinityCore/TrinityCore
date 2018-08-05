@@ -468,6 +468,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
                                 willOfEmperorGasPhaseTimer      = 210000; // 120 + 90
                                 woeIsGasPhaseActive             = false;
                                 break;
+                            default:
+                                break;
                         }
                     }
                     default:

@@ -4708,7 +4708,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype, std::function<bool(AuraEff
             // If the Aura Effect does not have this Stack Rule, it returns false so we can add to the multiplier as usual
             if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(aurEff->GetSpellInfo(), aurEff->GetAmount(), sameEffectSpellGroup))
                 if (int32 amount = aurEff->GetAmount())
-                    AddPct(multiplier, aurEff->GetAmount());
+                    AddPct(multiplier, amount);
         }
     }
 

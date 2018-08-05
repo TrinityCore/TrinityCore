@@ -198,14 +198,14 @@ void Arena::EndBattleground(uint32 winner)
                 /*TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d",
                     GetArenaType(), GetArenaGroupIdByIndex(TEAM_ALLIANCE), GetArenaGroupIdByIndex(TEAM_HORDE), winnerArenaGroup->GetId(), winnerChange, loserChange);*/
 
-                if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
+                /*if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (auto const& score : PlayerScores)
                         if (Player* player = ObjectAccessor::FindConnectedPlayer(score.first))
                         {
-                            /*TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (%s, Team: %d, IP: %s): %s",
+                            TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (%s, Team: %d, IP: %s): %s",
                                 GetArenaType(), player->GetName().c_str(), score.first.ToString().c_str(), player->GetArenaGroupId(GetArenaType() == 5 ? 2 : GetArenaType() == 3),
-                                player->GetSession()->GetRemoteAddress().c_str(), score.second->ToString().c_str());*/
-                        }
+                                player->GetSession()->GetRemoteAddress().c_str(), score.second->ToString().c_str());
+                        }*/
             }
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
             else

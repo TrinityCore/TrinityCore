@@ -418,7 +418,7 @@ class boss_unsok : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                             {
                                 scalpelTargetGuid = target->GetGUID().GetCounter();
-                                Creature* scalpel = me->SummonCreature(NPC_AMBER_SCALPEL, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
+                                me->SummonCreature(NPC_AMBER_SCALPEL, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                             }
 
                             events.ScheduleEvent(EVENT_AMBER_SCALPEL, phase == 3 ? 15000 : 50000);

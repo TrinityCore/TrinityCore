@@ -130,7 +130,7 @@ struct boss_hyrja : public BossAI
 
         uint8 count1 = 0;
 
-        if (Creature* olmyr = instance->GetCreature(NPC_OLMYR_GHOST))
+        if (instance->GetCreature(NPC_OLMYR_GHOST))
             count1++;
         else if (Creature* olmyr = instance->GetCreature(NPC_OLMYR_THE_ENLIGHTENED))
         {
@@ -140,7 +140,7 @@ struct boss_hyrja : public BossAI
             count1++;
         }
 
-        if (Creature* solsten = instance->GetCreature(NPC_SOLSTEN_GHOST))
+        if (instance->GetCreature(NPC_SOLSTEN_GHOST))
             count1++;
         else if (Creature* solsten = instance->GetCreature(NPC_SOLSTEN))
         {

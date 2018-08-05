@@ -379,22 +379,22 @@ namespace Instances
                         }
                     }
 
-                    void SetGuidData(uint32 type, ObjectGuid data) override
+                    /*void SetGuidData(uint32 type, ObjectGuid data) override
                     {
                         switch (type)
                         {
                             case uint32(Data::RaiseTheMinersChangeTarget):
                                 if (Player* l_Plr = ObjectAccessor::FindPlayer(data))
                                 {
-                                    /*for (auto guid : m_CapturedMinerGuids)
+                                    for (auto guid : m_CapturedMinerGuids)
                                     {
                                         if (Creature* summon = ObjectAccessor::GetCreature(guid))
                                             summon->GetMotionMaster()->MoveChase(l_Plr);
-                                    }*/
+                                    }
                                 }
                                 break;
                         }
-                    }
+                    }*/
 
                     ObjectGuid GetGuidData(uint32 type) const override
                     {

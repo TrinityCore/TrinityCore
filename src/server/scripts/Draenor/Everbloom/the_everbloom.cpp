@@ -116,7 +116,7 @@ public:
 
                     if (!aqueous)
                     {
-                        if (Creature* mob_aqueous = me->FindNearestCreature(NPC_AQUEOUS, 10.0f))
+                        if (me->FindNearestCreature(NPC_AQUEOUS, 10.0f))
                         {
                             aqueous = true;
                             DoCast(me, SPELL_COSMETIC_CHANNEL);
@@ -201,7 +201,7 @@ public:
                 {
                     if (!aqueous)
                     {
-                        if (Creature* mob_aqueous = me->FindNearestCreature(NPC_AQUEOUS, 10.0f))
+                        if (me->FindNearestCreature(NPC_AQUEOUS, 10.0f))
                         {
                             aqueous = true;
                             DoCast(me, SPELL_COSMETIC_CHANNEL);

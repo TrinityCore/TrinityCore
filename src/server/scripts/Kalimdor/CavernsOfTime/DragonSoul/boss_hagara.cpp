@@ -868,8 +868,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                                 events.ScheduleEvent(EVENT_STORM_PILLARS, 5000);
                             break;
                         case EVENT_STORM_PILLARS:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCastAOE(SPELL_STORM_PILLARS, true);
+                            DoCastAOE(SPELL_STORM_PILLARS, true);
                             events.ScheduleEvent(EVENT_STORM_PILLARS, urand(5000, 10000));
                             break;
                         case EVENT_END_SPECIAL_PHASE:
@@ -1112,10 +1111,14 @@ class npc_hagara_the_stormbinder_stormbinder_adept : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(SPELL_TORNADO);
-                    events.ScheduleEvent(EVENT_TORNADO, urand(15000, 20000));
+                    case EVENT_TORNADO:
+                        DoCast(SPELL_TORNADO);
+                        events.ScheduleEvent(EVENT_TORNADO, urand(15000, 20000));
+                        break;
+                    default:
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1156,14 +1159,18 @@ class npc_hagara_the_stormbinder_tornado_stalker : public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    me->StopMoving();
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                    {
-                        DoCast(pTarget, SPELL_TORNADO_FIXATE, true);
-                        me->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
-                    }
+                    case EVENT_TORNADO:
+                        me->StopMoving();
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        {
+                            DoCast(pTarget, SPELL_TORNADO_FIXATE, true);
+                            me->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -1530,10 +1537,14 @@ class npc_hagara_the_stormbinder_collapsing_icicle : public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(me, SPELL_ICICLE_AURA);
-                    DoCast(me, SPELL_ICICLE_FALL);
+                    case EVENT_ICICLE:
+                        DoCast(me, SPELL_ICICLE_AURA);
+                        DoCast(me, SPELL_ICICLE_FALL);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -1761,12 +1772,16 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (Player* pPlayer = me->SelectNearestPlayer(10.0f))
-                        DoCast(pPlayer, SPELL_LIGHTNING_CONDUIT_DUMMY_1, true);
+                    case EVENT_CHECK_PLAYERS:
+                        if (Player* pPlayer = me->SelectNearestPlayer(10.0f))
+                            DoCast(pPlayer, SPELL_LIGHTNING_CONDUIT_DUMMY_1, true);
 
-                    events.ScheduleEvent(EVENT_CHECK_PLAYERS, 1000);
+                        events.ScheduleEvent(EVENT_CHECK_PLAYERS, 1000);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -1825,10 +1840,14 @@ class npc_hagara_the_stormbinder_bound_lightning_elemental : public CreatureScri
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    AttackStart(me->GetVictim());
+                    case EVENT_CHECK_PLAYERS:
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        AttackStart(me->GetVictim());
+                        break;
+                    default:
+                        break;
                 }
 
                 DoMeleeAttackIfReady();

@@ -732,12 +732,9 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* target = GetTarget())
+                if (InstanceScript* l_Instance = caster->GetInstanceScript())
                 {
-                    if (InstanceScript* l_Instance = caster->GetInstanceScript())
-                    {
-                        l_Instance->DoRemoveAurasDueToSpellOnPlayers(eNhalishSpells::SpellVoidBlastDot);
-                    }
+                    l_Instance->DoRemoveAurasDueToSpellOnPlayers(eNhalishSpells::SpellVoidBlastDot);
                 }
             }
         }
@@ -783,12 +780,7 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
-            {
-                if (Unit* target = GetTarget())
-                {
-                    caster->GetAI()->DoAction(eNhalishActions::ActionDeactivateVortex);
-                }
-            }
+                caster->GetAI()->DoAction(eNhalishActions::ActionDeactivateVortex);
         }
 
         void Register() override

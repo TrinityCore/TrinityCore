@@ -2049,7 +2049,7 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerAI
 
         void OnRemove() override
         {
-            if (Unit* caster = at->GetCaster())
+            if (at->GetCaster() != nullptr)
             {
                 std::list<Unit*> targetList;
                 float radius = 15.0f;

@@ -3371,7 +3371,7 @@ public:
                         victim->RemoveAurasDueToSpell(SpellEyesofheAbyss);
 
                     if (!m_LastNearestTargetGUID.IsEmpty())
-                        if (Player *ancientPlr = ObjectAccessor::GetPlayer(*me, m_LastNearestTargetGUID))
+                        if (ObjectAccessor::GetPlayer(*me, m_LastNearestTargetGUID) != nullptr)
                             if (victim->HasAura(SpellEyesofheAbyss, me->GetGUID()))
                                 victim->RemoveAurasDueToSpell(SpellEyesofheAbyss, me->GetGUID());
 
@@ -3380,7 +3380,7 @@ public:
                 }
                 else if (!m_LastNearestTargetGUID.IsEmpty())
                 {
-                    if (Player *ancientPlr = ObjectAccessor::GetPlayer(*me, m_LastNearestTargetGUID))
+                    if (ObjectAccessor::GetPlayer(*me, m_LastNearestTargetGUID) != nullptr)
                         if (victim->HasAura(SpellEyesofheAbyss, me->GetGUID()))
                             victim->RemoveAurasDueToSpell(SpellEyesofheAbyss, me->GetGUID());
                 }
@@ -3577,46 +3577,43 @@ class spell_highmaul_branded : public SpellScriptLoader
 
                     if (Unit* target = GetTarget())
                     {
-                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
+                        ObjectGuid guid = target->GetGUID();
+
+                        uint32 l_SpellID = GetSpellInfo()->Id;
+                        uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                        l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                         {
-                            ObjectGuid guid = target->GetGUID();
+                            uint8 l_StacksCopy = l_Stacks;
 
-                            uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
+                            if (Creature* l_Margok = GetContextCreature())
                             {
-                                uint8 l_StacksCopy = l_Stacks;
-
-                                if (Creature* l_Margok = GetContextCreature())
+                                if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                 {
-                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
+                                    CustomSpellValues l_Values;
+                                    l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
+
+                                    l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
+
+                                    /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                    /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
+                                    float l_JumpRange = 200.0f;
+                                    for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                                        l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
+
+                                    if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
                                     {
-                                        CustomSpellValues l_Values;
-                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
+                                        /// Increase jump count
+                                        ++l_StacksCopy;
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
-
-                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
-                                        float l_JumpRange = 200.0f;
-                                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
-                                            l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
-
-                                        if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
+                                        if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                         {
-                                            /// Increase jump count
-                                            ++l_StacksCopy;
-
-                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
-                                            {
-                                                l_Aura->SetStackAmount(l_StacksCopy);
-                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
-                                            }
+                                            l_Aura->SetStackAmount(l_StacksCopy);
+                                            l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
                                         }
                                     }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             }
@@ -3697,46 +3694,43 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
                     if (Unit* target = GetTarget())
                     {
-                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
+                        ObjectGuid guid = target->GetGUID();
+
+                        uint32 l_SpellID = GetSpellInfo()->Id;
+                        uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                        l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                         {
-                            ObjectGuid guid = target->GetGUID();
+                            uint8 l_StackCopy = l_Stacks;
 
-                            uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
+                            if (Creature* l_Margok = GetContextCreature())
                             {
-                                uint8 l_StackCopy = l_Stacks;
-
-                                if (Creature* l_Margok = GetContextCreature())
+                                if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                 {
-                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
+                                    CustomSpellValues l_Values;
+                                    l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StackCopy);
+
+                                    l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
+
+                                    /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                    /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
+                                    float l_JumpRange = 200.0f;
+                                    for (uint8 l_I = 0; l_I < l_StackCopy; ++l_I)
+                                        l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
+
+                                    if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
                                     {
-                                        CustomSpellValues l_Values;
-                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StackCopy);
+                                        /// Increase jump count
+                                        ++l_StackCopy;
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
-
-                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
-                                        float l_JumpRange = 200.0f;
-                                        for (uint8 l_I = 0; l_I < l_StackCopy; ++l_I)
-                                            l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
-
-                                        if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
+                                        if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                         {
-                                            /// Increase jump count
-                                            ++l_StackCopy;
-
-                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
-                                            {
-                                                l_Aura->SetStackAmount(l_StackCopy);
-                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
-                                            }
+                                            l_Aura->SetStackAmount(l_StackCopy);
+                                            l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
                                         }
                                     }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             }
@@ -3794,46 +3788,43 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
 
                     if (Unit* target = GetTarget())
                     {
-                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
+                        ObjectGuid guid = target->GetGUID();
+
+                        uint32 l_SpellID = GetSpellInfo()->Id;
+                        uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                        l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                         {
-                            ObjectGuid guid = target->GetGUID();
+                            uint8 l_StacksCopy = l_Stacks;
 
-                            uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
+                            if (Creature* l_Margok = GetContextCreature())
                             {
-                                uint8 l_StacksCopy = l_Stacks;
-
-                                if (Creature* l_Margok = GetContextCreature())
+                                if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                 {
-                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
+                                    CustomSpellValues l_Values;
+                                    l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
+
+                                    l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
+
+                                    /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                    /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
+                                    float l_JumpRange = 200.0f;
+                                    for (uint8 l_I = 0; l_I < l_StacksCopy; ++l_I)
+                                        l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
+
+                                    if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
                                     {
-                                        CustomSpellValues l_Values;
-                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
+                                        /// Increase jump count
+                                        ++l_StacksCopy;
 
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
-
-                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
-                                        float l_JumpRange = 200.0f;
-                                        for (uint8 l_I = 0; l_I < l_StacksCopy; ++l_I)
-                                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
-
-                                        if (Player* l_OtherPlayer = target->SelectNearestPlayer(l_JumpRange))
+                                        if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                         {
-                                            /// Increase jump count
-                                            ++l_StacksCopy;
-
-                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
-                                            {
-                                                l_Aura->SetStackAmount(l_StacksCopy);
-                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
-                                            }
+                                            l_Aura->SetStackAmount(l_StacksCopy);
+                                            l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
                                         }
                                     }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             }
@@ -3889,85 +3880,82 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                     if (Unit* target = GetTarget())
                     {
-                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
+                        ObjectGuid guid = target->GetGUID();
+
+                        uint32 l_SpellID = GetSpellInfo()->Id;
+                        uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
+                        l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
                         {
-                            ObjectGuid guid = target->GetGUID();
+                            uint8 l_StacksCopy = l_Stacks;
 
-                            uint32 l_SpellID = GetSpellInfo()->Id;
-                            uint8 l_Stacks = aurEff->GetBase()->GetStackAmount();
-                            l_Margok->GetScheduler().Schedule(1s, [l_SpellID, l_Stacks, guid](TaskContext context)
+                            if (Creature* l_Margok = GetContextCreature())
                             {
-                                uint8 l_StacksCopy = l_Stacks;
-
-                                if (Creature* l_Margok = GetContextCreature())
+                                if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
                                 {
-                                    if (Unit* target = ObjectAccessor::GetUnit(*l_Margok, guid))
+                                    CustomSpellValues l_Values;
+                                    l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
+
+                                    l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
+
+                                    /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                    /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
+                                    float l_JumpRange = 200.0f;
+                                    for (uint8 l_I = 0; l_I < l_StacksCopy; ++l_I)
+                                        l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
+
+                                    /// In addition to Arcane Wrath's normal effects, a second player will be Branded the first time Arcane Wrath jumps.
+                                    if (l_StacksCopy <= 1)
                                     {
-                                        CustomSpellValues l_Values;
-                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StacksCopy);
-
-                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, target, TRIGGERED_FULL_MASK);
-
-                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
-                                        float l_JumpRange = 200.0f;
-                                        for (uint8 l_I = 0; l_I < l_StacksCopy; ++l_I)
-                                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
-
-                                        /// In addition to Arcane Wrath's normal effects, a second player will be Branded the first time Arcane Wrath jumps.
-                                        if (l_StacksCopy <= 1)
-                                        {
-                                            std::list<Player*> l_PlrList;
-                                            target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
-
-                                            if (l_PlrList.size() > 2)
-                                            {
-                                                l_PlrList.sort(Trinity::ObjectDistanceOrderPred(target));
-                                                Trinity::Containers::RandomResize(l_PlrList, 2);
-                                            }
-
-                                            /// Increase jump count
-                                            ++l_StacksCopy;
-
-                                            for (Player* player : l_PlrList)
-                                            {
-                                                if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, player))
-                                                {
-                                                    l_Aura->SetStackAmount(l_StacksCopy);
-                                                    l_Margok->AI()->Talk(eTalk::Branded, player);
-                                                }
-                                            }
-
-                                            return;
-                                        }
-
                                         std::list<Player*> l_PlrList;
                                         target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
 
-                                        /// It cannot jumps twice on the same player at the same time
-                                        if (!l_PlrList.empty())
-                                            l_PlrList.remove_if(Trinity::UnitAuraCheck(true, l_SpellID));
-
-                                        if (!l_PlrList.empty())
+                                        if (l_PlrList.size() > 2)
                                         {
                                             l_PlrList.sort(Trinity::ObjectDistanceOrderPred(target));
+                                            Trinity::Containers::RandomResize(l_PlrList, 2);
+                                        }
 
-                                            if (Player* l_OtherPlayer = l_PlrList.front())
+                                        /// Increase jump count
+                                        ++l_StacksCopy;
+
+                                        for (Player* player : l_PlrList)
+                                        {
+                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, player))
                                             {
-                                                /// Increase jump count
-                                                ++l_StacksCopy;
+                                                l_Aura->SetStackAmount(l_StacksCopy);
+                                                l_Margok->AI()->Talk(eTalk::Branded, player);
+                                            }
+                                        }
 
-                                                if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
-                                                {
-                                                    l_Aura->SetStackAmount(l_StacksCopy);
-                                                    l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
-                                                }
+                                        return;
+                                    }
+
+                                    std::list<Player*> l_PlrList;
+                                    target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
+
+                                    /// It cannot jumps twice on the same player at the same time
+                                    if (!l_PlrList.empty())
+                                        l_PlrList.remove_if(Trinity::UnitAuraCheck(true, l_SpellID));
+
+                                    if (!l_PlrList.empty())
+                                    {
+                                        l_PlrList.sort(Trinity::ObjectDistanceOrderPred(target));
+
+                                        if (Player* l_OtherPlayer = l_PlrList.front())
+                                        {
+                                            /// Increase jump count
+                                            ++l_StacksCopy;
+
+                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
+                                            {
+                                                l_Aura->SetStackAmount(l_StacksCopy);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer);
                                             }
                                         }
                                     }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             }
@@ -4376,16 +4364,13 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
                         l_Margok->AI()->SetData(eData::OrbOfChaosAngle, 0);
                         l_Margok->AI()->Talk(eTalk::OrbsOfChaos, target);
 
-                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
+                        ObjectGuid guid = target->GetGUID();
+                        l_Margok->GetScheduler().Schedule(2s, [guid](TaskContext context)
                         {
-                            ObjectGuid guid = target->GetGUID();
-                            l_Margok->GetScheduler().Schedule(2s, [guid](TaskContext context)
-                            {
-                                if (Unit* target = ObjectAccessor::GetUnit(*GetContextUnit(), guid))
-                                    target->CastSpell(target, eSpells::OrbsOfChaosSummoning, true);
-                            });
-                        }
-                    }
+                            if (Unit* target = ObjectAccessor::GetUnit(*GetContextUnit(), guid))
+                                target->CastSpell(target, eSpells::OrbsOfChaosSummoning, true);
+                        });
+                }
                 }
             }
 
@@ -4675,27 +4660,24 @@ class areatrigger_highmaul_orb_of_chaos : public AreaTriggerAI
 
         void OnUpdate(uint32 diff) override
         {
-            if (Unit* caster = at->GetCaster())
+            if (m_DamageTimer)
             {
-                if (m_DamageTimer)
+                if (m_DamageTimer <= diff)
                 {
-                    if (m_DamageTimer <= diff)
-                    {
-                        std::list<Player*> targetList;
-                        float radius = 1.5f;
+                    std::list<Player*> targetList;
+                    float radius = 1.5f;
 
-                        Trinity::AnyPlayerInObjectRangeCheck l_Check(at, radius);
-                        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
-                        Cell::VisitAllObjects(at, l_Searcher, radius);
+                    Trinity::AnyPlayerInObjectRangeCheck l_Check(at, radius);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+                    Cell::VisitAllObjects(at, l_Searcher, radius);
 
-                        for (Player* player : targetList)
-                            player->CastSpell(player, eSpell::OrbOfChaosDamage, true);
+                    for (Player* player : targetList)
+                        player->CastSpell(player, eSpell::OrbOfChaosDamage, true);
 
-                        m_DamageTimer = 200;
-                    }
-                    else
-                        m_DamageTimer -= diff;
+                    m_DamageTimer = 200;
                 }
+                else
+                    m_DamageTimer -= diff;
             }
         }
 };

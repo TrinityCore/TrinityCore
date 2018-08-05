@@ -132,7 +132,7 @@ struct boss_fenryr : public BossAI
                 return;
         }
 
-        if (Player* player = me->SelectNearestPlayer(5.0f))
+        if (me->SelectNearestPlayer(5.0f) != nullptr)
         {
             if (!secondCombatStart && phase2)
             {

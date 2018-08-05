@@ -2774,7 +2774,7 @@ class npc_highmauareaTrigger_for_crowd : public CreatureScript
 
                 if (m_CheckTimer <= diff)
                 {
-                    if (Player* player = me->SelectNearestPlayer(10.0f))
+                    if (me->SelectNearestPlayer(10.0f) != nullptr)
                     {
                         m_IntroStarted = true;
 

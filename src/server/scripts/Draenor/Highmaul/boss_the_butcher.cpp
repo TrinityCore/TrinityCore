@@ -421,7 +421,7 @@ class boss_the_butcher : public CreatureScript
             {
                 if (!m_IntroDone)
                 {
-                    if (Player* player = me->SelectNearestPlayer(130.0f))
+                    if (me->SelectNearestPlayer(130.0f) != nullptr)
                     {
                         m_IntroDone = true;
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
@@ -623,7 +623,7 @@ class npc_highmaul_night_twisted_cadaver : public CreatureScript
                         ExplodeAndSpawnVitriol();
                 }
 
-                if (Player* player = me->SelectNearestPlayer(1.0f))
+                if (me->SelectNearestPlayer(1.0f) != nullptr)
                     ExplodeAndSpawnVitriol();
             }
 

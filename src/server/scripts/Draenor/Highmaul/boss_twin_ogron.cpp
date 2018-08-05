@@ -1041,41 +1041,38 @@ class boss_twin_ogron_phemos : public CreatureScript
 
             void SpawnBlazeWave(Position pos)
             {
-                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BlazeFirstSpawn))
+                float l_OStep = (pos.GetOrientation() - (float(M_PI) / 2.0f)) + frand(0.0f, (float(M_PI) / 3.0f));
+
+                for (uint8 l_I = 0; l_I < eMiscs::BlazeFirstSpawnCounter; ++l_I)
                 {
-                    float l_OStep = (pos.GetOrientation() - (float(M_PI) / 2.0f)) + frand(0.0f, (float(M_PI) / 3.0f));
+                    uint32 l_Timer = 0;
+                    float orientation = l_OStep;
 
-                    for (uint8 l_I = 0; l_I < eMiscs::BlazeFirstSpawnCounter; ++l_I)
+                    for (uint8 l_J = 0; l_J < eMiscs::BlazeWaveSpawnCounter; ++l_J)
                     {
-                        uint32 l_Timer = 0;
-                        float orientation = l_OStep;
+                        Position l_Dest = pos;
+                        l_Dest.m_positionX = pos.m_positionX + (g_BlazeDistToCenter * cos(orientation));
+                        l_Dest.m_positionY = pos.m_positionY + (g_BlazeDistToCenter * sin(orientation));
 
-                        for (uint8 l_J = 0; l_J < eMiscs::BlazeWaveSpawnCounter; ++l_J)
+                        if (l_Timer)
                         {
-                            Position l_Dest = pos;
-                            l_Dest.m_positionX = pos.m_positionX + (g_BlazeDistToCenter * cos(orientation));
-                            l_Dest.m_positionY = pos.m_positionY + (g_BlazeDistToCenter * sin(orientation));
-
-                            if (l_Timer)
-                            {
-                                AddTimedDelayedOperation(l_Timer, [this, pos, l_Dest]() -> void
-                                {
-                                    me->CastSpell(me, eSpells::BlazeFirstSpawn, true);
-                                });
-                            }
-                            else
+                            AddTimedDelayedOperation(l_Timer, [this, pos, l_Dest]() -> void
                             {
                                 me->CastSpell(me, eSpells::BlazeFirstSpawn, true);
-                            }
-
-                            /// Is it enough?
-                            orientation += 0.05f;
-
-                            l_Timer += 500;
+                            });
+                        }
+                        else
+                        {
+                            me->CastSpell(me, eSpells::BlazeFirstSpawn, true);
                         }
 
-                        l_OStep += float(M_PI) / 3.0f;
+                        /// Is it enough?
+                        orientation += 0.05f;
+
+                        l_Timer += 500;
                     }
+
+                    l_OStep += float(M_PI) / 3.0f;
                 }
             }
         };

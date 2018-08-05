@@ -282,7 +282,7 @@ public:
 
                         events.CancelEvent(eBoneMawEvents::EventFetidSpit);
 
-                        if (Unit* target = me->GetVictim())
+                        if (me->GetVictim() != nullptr)
                             DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
 
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
@@ -471,7 +471,7 @@ public:
 
                         events.CancelEvent(eBoneMawEvents::EventFetidSpit);
 
-                        if (Unit* target = me->GetVictim())
+                        if (me->GetVictim() != nullptr)
                             DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
 
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
@@ -692,12 +692,9 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* target = GetTarget())
+                if (InstanceScript* l_Instance = caster->GetInstanceScript())
                 {
-                    if (InstanceScript* l_Instance = caster->GetInstanceScript())
-                    {
-                        l_Instance->DoRemoveAurasDueToSpellOnPlayers(eBoneMawSpells::SpellCorpseBreathDamage);
-                    }
+                    l_Instance->DoRemoveAurasDueToSpellOnPlayers(eBoneMawSpells::SpellCorpseBreathDamage);
                 }
             }
         }

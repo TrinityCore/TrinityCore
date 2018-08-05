@@ -2519,8 +2519,7 @@ struct at_mage_frozen_orb : AreaTriggerAI
 
     void OnCreate() override
     {
-        if (Unit* caster = at->GetCaster())
-            at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 40291);
+        at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 40291);
     }
 
     void OnUpdate(uint32 diff) override

@@ -173,7 +173,7 @@ struct npc_hatecoil_crestrider : public ScriptedAI
     {
         me->GetScheduler().Schedule(Seconds(1), Seconds(1), [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+            if (SelectTarget(SELECT_TARGET_RANDOM, 1))
                 GetContextUnit()->CastSpell(nullptr, SPELL_SHELLBREAKER_BELLOWING_ROAR, false);
 
             context.Repeat();

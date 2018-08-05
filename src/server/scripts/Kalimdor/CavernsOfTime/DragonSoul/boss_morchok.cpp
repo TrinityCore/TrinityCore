@@ -1048,21 +1048,21 @@ class spell_morchok_stomp : public SpellScriptLoader
                 if (!GetHitUnit()->IsAlive() || !_targetCount)
                     return;
 
-                if (Creature* creature = GetCaster()->ToCreature())
+                /*if (Creature* creature = GetCaster()->ToCreature())
                 {
                     if (Unit* target = GetHitUnit())
                     {
                         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_STOMP))
                         {
                             uint32 damage = (uint32(GetEffectValue() / _targetCount));
-                            /*SpellNonMeleeDamage damageInfo(creature, target, SPELL_STOMP, spellInfo->SchoolMask);
+                            SpellNonMeleeDamage damageInfo(creature, target, SPELL_STOMP, spellInfo->SchoolMask);
                             damageInfo.damage = damage;
                             creature->SendSpellNonMeleeDamageLog(&damageInfo);
-                            creature->DealSpellDamage(&damageInfo, false);*/
+                            creature->DealSpellDamage(&damageInfo, false);
                             SetHitDamage(damage);
                         }
                     }
-                }
+                }*/
             }
 
             void Register() override

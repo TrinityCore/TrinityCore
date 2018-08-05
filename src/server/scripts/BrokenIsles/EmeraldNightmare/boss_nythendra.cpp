@@ -362,7 +362,7 @@ class aura_nythendra_volatile_rot : public AuraScript
             {
                 Position castPos;
                 GetRandPosFromCenterInDist(GetTarget(), 10.0f, castPos);
-                GetCaster()->CastSpell(castPos, SPELL_INFESTED_GROUND, true);
+                caster->CastSpell(castPos, SPELL_INFESTED_GROUND, true);
             }
         }
     }

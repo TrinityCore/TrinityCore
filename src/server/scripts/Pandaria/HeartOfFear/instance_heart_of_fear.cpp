@@ -295,7 +295,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 return true;
             }
 
-            void OnPlayerEnter(Player* p_Player) override
+            void OnPlayerEnter(Player* /*p_Player*/) override
             {
                 if (!m_SecondPartInitialized && instance->IsLFR())
                 {

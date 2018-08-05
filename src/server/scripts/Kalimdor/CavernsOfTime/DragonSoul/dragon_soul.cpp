@@ -607,7 +607,7 @@ class npc_dragon_soul_twilight_portal : public CreatureScript
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     if (!SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
                     {
@@ -668,7 +668,7 @@ class npc_dragon_soul_crimson_globule : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     me->CastCustomSpell(SPELL_SEARING_BLOOD, SPELLVALUE_MAX_TARGETS, RAID_MODE(3, 8), me);
                     events.ScheduleEvent(EVENT_SEARING_BLOOD, (me->HasAura(SPELL_GLOWING_BLOOD_OF_SHUMA_2) ? 7000 : 14000));
@@ -728,7 +728,7 @@ class npc_dragon_soul_acidic_globule : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     DoCastAOE(SPELL_DIGESTIVE_ACID);
                     events.ScheduleEvent(EVENT_DIGESTIVE_ACID, (me->HasAura(SPELL_GLOWING_BLOOD_OF_SHUMA_2) ? 7000 : 14000));
@@ -788,7 +788,7 @@ class npc_dragon_soul_dark_globule : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     DoCastVictim(SPELL_PSYCHIC_SLICE);
                     events.ScheduleEvent(EVENT_PSYCHIC_SLICE, (me->HasAura(SPELL_GLOWING_BLOOD_OF_SHUMA_2) ? 7000 : 14000));
@@ -848,7 +848,7 @@ class npc_dragon_soul_shadowed_globule : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(pTarget, SPELL_DEEP_CORRUPTION);
@@ -911,7 +911,7 @@ class npc_dragon_soul_cobalt_globule : public CreatureScript
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                     DoCast(me, SPELL_MANA_VOID);
 
                 DoMeleeAttackIfReady();
@@ -1156,7 +1156,7 @@ class npc_dragon_soul_eye_of_gorath : public CreatureScript
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(pTarget, SPELL_SHADOW_GAZE);

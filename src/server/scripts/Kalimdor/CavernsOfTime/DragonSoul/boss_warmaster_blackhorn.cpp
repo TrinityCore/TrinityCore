@@ -1176,10 +1176,16 @@ class npc_warmaster_blackhorn_skyfire_harpoon_gun: public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    ReleaseAssaultDrake(drakeEntry);
-                    //DoCast(me, SPELL_RELOADING);
+                    case EVENT_HARPOON_END:
+                    {
+                        ReleaseAssaultDrake(drakeEntry);
+                        //DoCast(me, SPELL_RELOADING);
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -1780,12 +1786,9 @@ class spell_warmaster_blackhorn_twilight_barrage_dmg : public SpellScriptLoader
 
                     if (Creature* pShip = GetCaster()->FindNearestCreature(NPC_SKYFIRE, 300.0f))
                     {
-                        if (SpellInfo const* spellInfo = GetSpellInfo())
-                        {
-                            int32 bp0 = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
-                            bp0 *= 1.5f;
-                            GetCaster()->CastCustomSpell(pShip, SPELL_TWILIGHT_BARRAGE_DMG_2, &bp0, NULL, NULL, true);
-                        }
+                        int32 bp0 = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
+                        bp0 *= 1.5f;
+                        GetCaster()->CastCustomSpell(pShip, SPELL_TWILIGHT_BARRAGE_DMG_2, &bp0, NULL, NULL, true);
                     }
                 }
             }

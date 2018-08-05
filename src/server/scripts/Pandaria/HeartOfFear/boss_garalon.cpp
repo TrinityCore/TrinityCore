@@ -740,7 +740,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*p_Diff*/) { }
+        void UpdateAI(const uint32 /*p_Diff*/) override { }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -866,21 +866,6 @@ class spell_garalon_pheromones_forcecast: public SpellScriptLoader
         {
             return new spell_garalon_pheromones_forcecastSpellScript();
         }
-};
-
-// Mend Leg target check for Garalon's Legs.
-class TargetCheck : public std::unary_function<Unit*, bool>
-{
-    public:
-        explicit TargetCheck(Unit* _caster) : caster(_caster) { }
-
-        bool operator()(WorldObject* object)
-        {
-            return object->GetEntry() != NPC_GARALON_LEG;
-        }
-
-    private:
-        Unit* caster;
 };
 
 // Mend Leg: 123495.

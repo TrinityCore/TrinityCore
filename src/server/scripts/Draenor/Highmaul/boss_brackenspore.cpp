@@ -1764,7 +1764,7 @@ public:
     {
         if (Unit* caster = at->GetCaster())
         {
-            if (Player* target = at->SelectNearestPlayer(1.0f))
+            if (at->SelectNearestPlayer(1.0f) != nullptr)
             {
                 caster->CastSpell(*at, eSpell::SporeShotDamage, true);
                 at->SetDuration(1);
@@ -1848,59 +1848,54 @@ public:
 
     void OnUpdate(uint32 diff) override
     {
-        //at->SearchUnitInBox(32, 4, 40);
-
-        if (Unit* caster = at->GetCaster())
+        if (timer <= diff)
         {
-            if (timer <= diff)
+            if (instance)
             {
-                if (instance)
+                std::list<Unit*> targetList;
+
+                Trinity::AnyUnitInObjectRangeCheck l_Check(at, 35);
+                Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+                Cell::VisitAllObjects(at, l_Searcher, 35.f);
+
+                targetList.remove_if([this](Unit* unit) -> bool
                 {
-                    std::list<Unit*> targetList;
+                    float unitX, unitY, unitZ;
 
-                    Trinity::AnyUnitInObjectRangeCheck l_Check(at, 35);
-                    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
-                    Cell::VisitAllObjects(at, l_Searcher, 35.f);
+                    unitX = at->GetPositionX() + (unit->GetPositionX() - at->GetPositionX()) * cos(at->GetOrientation()) - (unit->GetPositionY() - at->GetPositionY()) * sin(at->GetOrientation());
+                    unitY = at->GetPositionY() + (unit->GetPositionX() - at->GetPositionX()) * sin(at->GetOrientation()) + (unit->GetPositionY() - at->GetPositionY()) * cos(at->GetOrientation());
 
-                    targetList.remove_if([this](Unit* unit) -> bool
+                    unitZ = unit->GetPositionZ();
+
+                    float minX = at->GetPositionX() - (16.0f);
+                    float maxX = at->GetPositionX() + (16.0f);
+
+                    float minY = at->GetPositionY() - (2.0f);
+                    float maxY = at->GetPositionY() + (12.0f);
+
+                    float minZ = at->GetPositionZ() - (20.0f);
+                    float maxZ = at->GetPositionZ() + (20.0f);
+
+                    if (unitX >= minX && unitX <= maxX &&
+                        unitY >= minY && unitY <= maxY &&
+                        unitZ >= minZ && unitZ <= maxZ)
                     {
-                        float unitX, unitY, unitZ;
+                        return false;
+                    }
 
-                        unitX = at->GetPositionX() + (unit->GetPositionX() - at->GetPositionX()) * cos(at->GetOrientation()) - (unit->GetPositionY() - at->GetPositionY()) * sin(at->GetOrientation());
-                        unitY = at->GetPositionY() + (unit->GetPositionX() - at->GetPositionX()) * sin(at->GetOrientation()) + (unit->GetPositionY() - at->GetPositionY()) * cos(at->GetOrientation());
+                    return true;
+                });
 
-                        unitZ = unit->GetPositionZ();
-
-                        float minX = at->GetPositionX() - (16.0f);
-                        float maxX = at->GetPositionX() + (16.0f);
-
-                        float minY = at->GetPositionY() - (2.0f);
-                        float maxY = at->GetPositionY() + (12.0f);
-
-                        float minZ = at->GetPositionZ() - (20.0f);
-                        float maxZ = at->GetPositionZ() + (20.0f);
-
-                        if (unitX >= minX && unitX <= maxX &&
-                            unitY >= minY && unitY <= maxY &&
-                            unitZ >= minZ && unitZ <= maxZ)
-                        {
-                            return false;
-                        }
-
-                        return true;
-                    });
-
-                    for (auto target : targetList)
-                        if (Creature* brackenspore = instance->instance->GetCreature(instance->GetGuidData(eHighmaulCreatures::Brackenspore)))
-                            target->CastSpell(target, CallOfTheTidesDamage, true, nullptr, nullptr, brackenspore->GetGUID());
-                }
+                for (auto target : targetList)
+                    if (Creature* brackenspore = instance->instance->GetCreature(instance->GetGuidData(eHighmaulCreatures::Brackenspore)))
+                        target->CastSpell(target, CallOfTheTidesDamage, true, nullptr, nullptr, brackenspore->GetGUID());
+            }
                         
 
-                timer = 1 * IN_MILLISECONDS;
-            }
-            else
-                timer -= diff;
+            timer = 1 * IN_MILLISECONDS;
         }
+        else
+            timer -= diff;
     }
 };
 

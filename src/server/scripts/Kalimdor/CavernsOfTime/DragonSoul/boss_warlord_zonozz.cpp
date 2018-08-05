@@ -557,7 +557,7 @@ class npc_warlord_zonozz_void_of_the_unmaking : public CreatureScript
 
                 if (bAura && !targetPlayer)
                 {
-                    if (Player* pPlayer = me->SelectNearestPlayer(2.0f))
+                    if (me->SelectNearestPlayer(2.0f) != nullptr)
                     {
                         if (Aura const* aur = me->GetAura(SPELL_VOID_DIFFUSION_BUFF))
                         {

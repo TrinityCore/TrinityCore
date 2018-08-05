@@ -1070,17 +1070,23 @@ class npc_spine_of_deathwing_burning_tendons : public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (isOpened)
+                    case EVENT_CHECK_CASTING:
                     {
-                        if (!me->HasUnitState(UNIT_STATE_CASTING))
+                        if (isOpened)
                         {
-                            isOpened = false;
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            if (!me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                isOpened = false;
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            }
+                            events.ScheduleEvent(EVENT_CHECK_CASTING, 1000);
                         }
-                        events.ScheduleEvent(EVENT_CHECK_CASTING, 1000);
+                        break;
                     }
+                    default:
+                        break;
                 }
             }
 
@@ -1277,7 +1283,7 @@ class spell_spine_of_deathwing_nuclear_blast_script : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                if (Player* pPlayer = GetCaster()->ToPlayer())
+                if (GetCaster()->IsPlayer())
                 {
                     if (targets.size() > 1)
                     {

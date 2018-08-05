@@ -657,17 +657,14 @@ class spell_mogu_petrification : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* target = GetTarget())
                 {
-                    if (Unit* target = GetTarget())
+                    if (target->HasAura(SPELL_PETRIFIED))
                     {
-                        if (target->HasAura(SPELL_PETRIFIED))
-                        {
-                            stack = GetTarget()->GetAura(SPELL_PETRIFIED)->GetStackAmount();
+                        stack = GetTarget()->GetAura(SPELL_PETRIFIED)->GetStackAmount();
 
-                            if (stack >= 100)
-                                target->AddAura(SPELL_FULLY_PETRIFIED, target);
-                        }
+                        if (stack >= 100)
+                            target->AddAura(SPELL_FULLY_PETRIFIED, target);
                     }
                 }
             }
@@ -886,7 +883,7 @@ class npc_lorewalker_cho : public CreatureScript
                     // Before the 2 first Cursed Mogu Sculptures
                     case 9:
                     {
-                        if (Creature* cursedScupture = GetClosestCreatureWithEntry(me, NPC_CURSED_MOGU_SCULPTURE_2, 100.0f))
+                        if (GetClosestCreatureWithEntry(me, NPC_CURSED_MOGU_SCULPTURE_2, 100.0f))
                             SetEscortPaused(true);
                         break;
                     }
@@ -899,7 +896,7 @@ class npc_lorewalker_cho : public CreatureScript
                     // Before the line of 5 Cursed Mogu Sculptures, in front of Feng
                     case 12:
                     {
-                        if (Creature* cursedSculpture = GetClosestCreatureWithEntry(me, NPC_CURSED_MOGU_SCULPTURE_1, 50.0f, true))
+                        if (GetClosestCreatureWithEntry(me, NPC_CURSED_MOGU_SCULPTURE_1, 50.0f, true))
                             SetEscortPaused(true);
                         break;
                     }
@@ -918,10 +915,10 @@ class npc_lorewalker_cho : public CreatureScript
                     // If the trash before Garajal are done, we don't go on the left side
                     case 18:
                     {
-                        Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 100.0f, true);
+                        /*Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 100.0f, true);
                         Creature* infiltrator  = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_INFILTRATOR,  100.0f, true);
                         Creature* firedancer   = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_FIREDANCER,   100.0f, true);
-                        /*if (!skullcharger && !infiltrator && !firedancer)
+                        if (!skullcharger && !infiltrator && !firedancer)
                             SetNextWaypoint(20);*/
                         break;
                     }
@@ -1186,18 +1183,7 @@ class npc_lorewalker_cho : public CreatureScript
                         Map::PlayerList const& players = me->GetMap()->GetPlayers();
                         // Previous boss not done
                         if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
-#ifdef CROSS
-                        {
-                            sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
-                            sLog->outAshran("CheckRequiredBosses fail, player in raid : ");
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                sLog->outAshran("Player[%u] : %s", itr->GetSource()->GetGUID().GetCounter(), itr->GetSource()->GetName());
-                            sLog->outAshran("=============================================");
-#endif /* CROSS */
                             break;
-#ifdef CROSS
-                        }
-#endif /* CROSS */
                         else
                         {
                             Talk(25);
@@ -1467,7 +1453,7 @@ class mob_sorcerer_mogu : public CreatureScript
                 StartNextFight(NPC_SORCERER_MOGU, NPC_MOUNTED_MOGU, MOB_ZIAN, MOB_QIANG, ACTION_END_FIRST_COMBAT, ACTION_START_SECOND_COMBAT, me);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 switch (action)
                 {

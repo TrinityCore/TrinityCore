@@ -844,7 +844,7 @@ class boss_spirit_kings : public CreatureScript
                     }
                     case ACTION_CHECK_SPIRITKINGS:
                     {
-                        if (Unit* mob_meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
+                        if (GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
                         {
                             me->SetFullHealth();
                             me->SetReactState(REACT_PASSIVE);
@@ -987,14 +987,14 @@ class boss_spirit_kings : public CreatureScript
                         controler->AI()->DoAction(ACTION_SAY_INTRO_FOR_NEXT_SPIRIT_IF_ANY);
                 }
 
-                if (Aura* aura = me->GetAura(SPELL_COWARDICE))
+                if (me->HasAura(SPELL_COWARDICE))
                 {
                     int32 percentage = me->GetPower(POWER_RAGE) / 10;
                     int32 bp = int32(CalculatePct(damage, percentage));
 
                     bp /= 5;
 
-                    if (Aura* cowardiceDot = attacker->GetAura(SPELL_COWARDICE_DOT))
+                    if (attacker->HasAura(SPELL_COWARDICE_DOT))
                         bp += attacker->GetRemainingPeriodicAmount(me->GetGUID(), SPELL_COWARDICE_DOT, SPELL_AURA_PERIODIC_DAMAGE);
 
                     me->CastCustomSpell(attacker, SPELL_COWARDICE_DOT, &bp, NULL, NULL, true);

@@ -1287,7 +1287,7 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
 
                 AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    if (Creature* l_Boss = me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f))
+                    if (me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f) != nullptr)
                     {
                         m_IsCosmetic = true;
                         m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
@@ -1453,7 +1453,7 @@ class npc_highmaul_iron_warmaster : public CreatureScript
 
                 AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    if (Creature* l_Boss = me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f))
+                    if (me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f) != nullptr)
                         m_IsCosmetic = true;
                 });
             }

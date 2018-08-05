@@ -527,7 +527,7 @@ public:
                 if (checkBoss <= diff)
                 {
                     checkBoss = 200;
-                    if (Unit* boss = me->FindNearestCreature(81522, 0.5f))
+                    if (me->FindNearestCreature(81522, 0.5f))
                     {
                         DoCast(me, SPELL_AQUEOUS_BURST);
                         DoCast(me, SPELL_ENERGIZE);

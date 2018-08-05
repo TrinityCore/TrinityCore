@@ -1300,7 +1300,7 @@ class npc_wind_bomb_meljarak : public CreatureScript
 
                 if (canExplode)
                 {
-                    if (Player* player = me->SelectNearestPlayer(2.5f))
+                    if (me->SelectNearestPlayer(2.5f) != nullptr)
                     {
                         DoCast(me, SPELL_WIND_BOMB_EXPLODE);
                         canExplode = false;
