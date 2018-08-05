@@ -48,7 +48,7 @@ public:
         TALK_4 = 4,
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
     {
         switch (quest->GetQuestId())
         {
