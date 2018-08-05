@@ -1532,7 +1532,7 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
                 if (targets.empty() || !currentTarget)
                     return;
 
-                targets.remove_if([this, caster, currentTarget](WorldObject* p_Object) -> bool
+                targets.remove_if([caster, currentTarget](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == currentTarget)
                         return false;
