@@ -19,7 +19,6 @@
 #include "AreaTriggerAI.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerPackets.h"
-#include "AreaTriggerTemplate.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "DB2Stores.h"
@@ -137,9 +136,20 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
 
     UpdateShape();
 
-    if (GetMiscTemplate()->HasSplines())
+    uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
+
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT))
     {
-        uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
+        AreaTriggerCircularMovementInfo cmi = GetMiscTemplate()->CircularMovementInfo;
+        if (target && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+            cmi.TargetGUID = target->GetGUID();
+        else
+            cmi.Center = pos;
+
+        InitCircularMovement(cmi, timeToTarget);
+    }
+    else if (GetMiscTemplate()->HasSplines())
+    {
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
     }
 
@@ -157,6 +167,10 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
     }
 
     AI_Initialize();
+
+    // Relocate areatriggers with circular movement again
+    if (HasCircularMovement())
+        Relocate(CalculateCircularMovementPosition());
 
     if (!GetMap()->AddToMap(this))
     {
@@ -190,7 +204,12 @@ void AreaTrigger::Update(uint32 diff)
     WorldObject::Update(diff);
     _timeSinceCreated += diff;
 
-    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+    // "If" order matter here, Circular Movement > Attached > Splines
+    if (HasCircularMovement())
+    {
+        UpdateCircularMovementPosition(diff);
+    }
+    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
     {
         if (Unit* target = GetTarget())
             GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
@@ -640,6 +659,101 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
 bool AreaTrigger::HasSplines() const
 {
     return bool(_spline);
+}
+
+void AreaTrigger::InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget)
+{
+    // Circular movement requires either a center position or an attached unit
+    ASSERT(cmi.Center.is_initialized() || cmi.TargetGUID.is_initialized());
+
+    // should be sent in object create packets only
+    m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
+
+    _circularMovementInfo = cmi;
+
+    _circularMovementInfo->TimeToTarget = timeToTarget;
+    _circularMovementInfo->ElapsedTimeForMovement = 0;
+
+    if (IsInWorld())
+    {
+        WorldPackets::AreaTrigger::AreaTriggerReShape reshape;
+        reshape.TriggerGUID = GetGUID();
+        reshape.AreaTriggerCircularMovement = _circularMovementInfo;
+
+        SendMessageToSet(reshape.Write(), true);
+    }
+}
+
+bool AreaTrigger::HasCircularMovement() const
+{
+    return _circularMovementInfo.is_initialized();
+}
+
+Position const* AreaTrigger::GetCircularMovementCenterPosition() const
+{
+    if (_circularMovementInfo.is_initialized())
+        return nullptr;
+
+    if (_circularMovementInfo->TargetGUID.is_initialized())
+        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_circularMovementInfo->TargetGUID))
+            return center;
+
+    if (_circularMovementInfo->Center.is_initialized())
+        return &_circularMovementInfo->Center->Pos;
+
+    return nullptr;
+}
+
+Position AreaTrigger::CalculateCircularMovementPosition() const
+{
+    Position const* centerPos = GetCircularMovementCenterPosition();
+    if (!centerPos)
+        return GetPosition();
+
+    AreaTriggerCircularMovementInfo const& cmi = *_circularMovementInfo;
+
+    // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
+    float pathProgress = float(cmi.ElapsedTimeForMovement) / float(cmi.TimeToTarget);
+
+    // We already made one circle and can't loop
+    if (!cmi.CanLoop)
+        pathProgress = std::min(1.f, pathProgress);
+
+    float radius = cmi.Radius;
+    if (G3D::fuzzyNe(cmi.BlendFromRadius, radius))
+    {
+        float blendCurve = (cmi.BlendFromRadius - radius) / radius;
+        // 4.f Defines four quarters
+        blendCurve = RoundToInterval(blendCurve, 1.f, 4.f) / 4.f;
+        float blendProgress = std::min(1.f, pathProgress / blendCurve);
+        radius = G3D::lerp(cmi.BlendFromRadius, cmi.Radius, blendProgress);
+    }
+
+    // Adapt Path progress depending of circle direction
+    if (!cmi.CounterClockwise)
+        pathProgress *= -1;
+
+    float angle = cmi.InitialAngle + 2.f * float(M_PI) * pathProgress;
+    float x = centerPos->GetPositionX() + (radius * std::cos(angle));
+    float y = centerPos->GetPositionY() + (radius * std::sin(angle));
+    float z = centerPos->GetPositionZ() + cmi.ZOffset;
+
+    return { x, y, z, angle };
+}
+
+void AreaTrigger::UpdateCircularMovementPosition(uint32 /*diff*/)
+{
+    if (_circularMovementInfo->StartDelay > GetElapsedTimeForMovement())
+        return;
+
+    _circularMovementInfo->ElapsedTimeForMovement = GetElapsedTimeForMovement() - _circularMovementInfo->StartDelay;
+
+    Position pos = CalculateCircularMovementPosition();
+
+    GetMap()->AreaTriggerRelocation(this, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+#ifdef TRINITY_DEBUG
+    DebugVisualizePosition();
+#endif
 }
 
 void AreaTrigger::UpdateSplinePosition(uint32 diff)
