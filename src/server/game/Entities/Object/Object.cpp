@@ -17,8 +17,8 @@
  */
 
 #include "Object.h"
-#include "AreaTriggerTemplate.h"
 #include "AreaTriggerPackets.h"
+#include "AreaTriggerTemplate.h"
 #include "BattlefieldMgr.h"
 #include "CellImpl.h"
 #include "CinematicMgr.h"

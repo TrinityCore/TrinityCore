@@ -18,10 +18,10 @@
 #ifndef AreaTriggerPackets_h__
 #define AreaTriggerPackets_h__
 
+#include "Packet.h"
 #include "AreaTriggerTemplate.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include "Packet.h"
 
 namespace WorldPackets
 {
