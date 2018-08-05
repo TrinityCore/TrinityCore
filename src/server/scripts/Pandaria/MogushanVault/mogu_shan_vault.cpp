@@ -1180,7 +1180,6 @@ class npc_lorewalker_cho : public CreatureScript
                     }
                     case ACTION_ELEGON_GOB_ACTIVATION:
                     {
-                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
                         // Previous boss not done
                         if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
                             break;
