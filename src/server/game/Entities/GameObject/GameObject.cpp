@@ -389,7 +389,7 @@ void GameObject::Update(uint32 diff)
         else
         {
             m_despawnDelay = 0;
-            DespawnOrUnsummon(0ms, m_despawnRespawnTime);;
+            DespawnOrUnsummon(0ms, m_despawnRespawnTime);
         }
     }
 
@@ -809,7 +809,7 @@ void GameObject::AddUniqueUse(Player* player)
     m_unique_users.insert(player->GetGUID());
 }
 
-void GameObject::DespawnOrUnsummon(Milliseconds delay, Seconds forceRespawnTime)
+void GameObject::DespawnOrUnsummon(Milliseconds const& delay, Seconds const& forceRespawnTime)
 {
     if (delay > 0ms)
     {
@@ -821,11 +821,9 @@ void GameObject::DespawnOrUnsummon(Milliseconds delay, Seconds forceRespawnTime)
     }
     else
     {
-        if (m_goData)
-        {
-            uint32 const respawnDelay = (forceRespawnTime > 0s) ? forceRespawnTime.count() : m_goData->spawntimesecs;
+        uint32 const respawnDelay = (forceRespawnTime > 0s) ? forceRespawnTime.count() : m_respawnDelayTime;
+        if (m_goData && respawnDelay)
             SaveRespawnTime(respawnDelay);
-        }
         Delete();
     }
 }
