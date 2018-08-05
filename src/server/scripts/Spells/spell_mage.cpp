@@ -789,7 +789,7 @@ class spell_mage_blazing_barrier : public AuraScript
     {
         Unit* caster = auraEffect->GetCaster();
         Unit* target = dmgInfo.GetAttacker();
-        if (!caster || !target)
+        if (!caster || !target || caster == target)
             return;
 
         caster->CastSpell(target, SPELL_BLAZING_BARRIER_TRIGGER, true);
