@@ -53,7 +53,7 @@ class at_tott_first_invader_event : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_CURRENT_EVENT_PROGRESS) < EVENT_INDEX_FIRST_INVADERS)
-                instance->SetData(DATA_CURRENT_EVENT_PROGRESS, EVENT_INDEX_FIRST_INVADERS);
+                    instance->SetData(DATA_CURRENT_EVENT_PROGRESS, EVENT_INDEX_FIRST_INVADERS);
 
             return true;
         }
