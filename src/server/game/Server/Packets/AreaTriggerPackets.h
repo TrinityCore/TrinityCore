@@ -19,9 +19,9 @@
 #define AreaTriggerPackets_h__
 
 #include "Packet.h"
+#include "AreaTriggerTemplate.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include "Position.h"
 
 namespace WorldPackets
 {
@@ -32,21 +32,6 @@ namespace WorldPackets
             uint32 TimeToTarget = 0;
             uint32 ElapsedTimeForMovement = 0;
             std::vector<TaggedPosition<Position::XYZ>> Points;
-        };
-
-        struct AreaTriggerUnkTypeInfo
-        {
-            Optional<ObjectGuid> AreaTriggerUnkGUID;
-            Optional<TaggedPosition<Position::XYZ>> Center;
-            bool UnkBit1 = false;
-            bool UnkBit2 = false;
-            uint32 UnkUInt1 = 0;
-            int32 UnkInt1 = 0;
-            uint32 UnkUInt2 = 0;
-            float Radius = 0.0;
-            float BlendFromRadius = 0.0f;
-            float InitialAngel = 0.0f;
-            float ZOffset = 0.0f;
         };
 
         class AreaTrigger final : public ClientPacket
@@ -99,10 +84,12 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<AreaTriggerSplineInfo> AreaTriggerSpline;
-            Optional<AreaTriggerUnkTypeInfo> AreaTriggerUnkType;
+            Optional<AreaTriggerCircularMovementInfo> AreaTriggerCircularMovement;
             ObjectGuid TriggerGUID;
         };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& areaTriggerCircularMovement);
 
 #endif // AreaTriggerPackets_h__

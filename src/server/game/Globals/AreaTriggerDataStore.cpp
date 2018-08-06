@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Timer.h"
+#include <cmath>
 
 namespace
 {
@@ -195,6 +196,51 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     else
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 Spell AreaTrigger templates. DB table `spell_areatrigger` is empty.");
+    }
+
+    //                                                                  0            1           2             3                4             5        6                 7
+    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT SpellMiscId, StartDelay, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `spell_areatrigger_circular` ORDER BY `SpellMiscId`"))
+    {
+        do
+        {
+            Field* circularMovementInfoFields = circularMovementInfos->Fetch();
+            uint32 spellMiscId = circularMovementInfoFields[0].GetUInt32();
+
+            auto atSpellMiscItr = _areaTriggerTemplateSpellMisc.find(spellMiscId);
+            if (atSpellMiscItr == _areaTriggerTemplateSpellMisc.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` reference invalid SpellMiscId %u", spellMiscId);
+                continue;
+            }
+
+            AreaTriggerCircularMovementInfo& circularMovementInfo = atSpellMiscItr->second.CircularMovementInfo;
+
+            circularMovementInfo.StartDelay         = circularMovementInfoFields[1].GetUInt32();
+
+#define VALIDATE_AND_SET_FLOAT(Float, Value) \
+            circularMovementInfo.Float = Value; \
+            if (!std::isfinite(circularMovementInfo.Float)) \
+            { \
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` has listed areatrigger (MiscId: %u) with invalid " #Float " (%f), set to 0!", \
+                    spellMiscId, circularMovementInfo.Float); \
+                circularMovementInfo.Float = 0.0f; \
+            }
+
+            VALIDATE_AND_SET_FLOAT(Radius,          circularMovementInfoFields[2].GetFloat());
+            VALIDATE_AND_SET_FLOAT(BlendFromRadius, circularMovementInfoFields[3].GetFloat());
+            VALIDATE_AND_SET_FLOAT(InitialAngle,    circularMovementInfoFields[4].GetFloat());
+            VALIDATE_AND_SET_FLOAT(ZOffset,         circularMovementInfoFields[5].GetFloat());
+
+#undef VALIDATE_AND_SET_FLOAT
+
+            circularMovementInfo.CounterClockwise   = circularMovementInfoFields[6].GetBool();
+            circularMovementInfo.CanLoop            = circularMovementInfoFields[7].GetBool();
+        }
+        while (circularMovementInfos->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates circular movement infos. DB table `spell_areatrigger_circular` is empty.");
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
