@@ -592,6 +592,17 @@ struct PlayerInfo
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
 };
 
+struct PetScalingInfo
+{
+    PetScalingInfo() : APMultiplier(0.f), SPMultiplier(0.f), SPtoAPMultiplier(0.f), HealthMultiplier(0.f), ArmorMultiplier(0.f) {}
+
+    float APMultiplier;
+    float SPMultiplier;
+    float SPtoAPMultiplier;
+    float HealthMultiplier;
+    float ArmorMultiplier;
+};
+
 struct MailLevelReward
 {
     MailLevelReward() : raceMask(0), mailTemplateId(0), senderEntry(0) { }
@@ -958,6 +969,8 @@ class TC_GAME_API ObjectMgr
 
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId) const;
 
+        PetScalingInfo const* GetPetScalingInfo(uint32 creature_id) const;
+
         void GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const;
 
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
@@ -1213,6 +1226,7 @@ class TC_GAME_API ObjectMgr
         PageText const* GetPageText(uint32 pageEntry);
 
         void LoadPlayerInfo();
+        void LoadPetOwnerBenefit();
         void LoadExplorationBaseXP();
         void LoadPetNames();
         void LoadPetNumber();
@@ -1665,6 +1679,10 @@ class TC_GAME_API ObjectMgr
         MailLevelRewardContainer _mailLevelRewardStore;
 
         CreatureBaseStatsContainer _creatureBaseStatsStore;
+
+        typedef std::unordered_map<uint32, PetScalingInfo> PetScalingInfoContainer;
+        // PetLevelInfoContainer[creature_id][level]
+        PetScalingInfoContainer _petScalingStore;                            // [creature_id]
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 

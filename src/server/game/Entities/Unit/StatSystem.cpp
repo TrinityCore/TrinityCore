@@ -1046,47 +1046,26 @@ void Guardian::UpdateArmor()
     float pctFromOwnerArmor = 0.0f;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
+    PetScalingInfo const* petScalingInfo = sObjectMgr->GetPetScalingInfo(GetEntry());
 
     switch (petType)
     {
         case SUMMON_PET:
-            switch (GetEntry())
+            if (petScalingInfo)
             {
-                // Mage
-                case ENTRY_WATER_ELEMENTAL:
-                    pctFromOwnerArmor = 300.f;
-                    break;
-                // Warlock
-                case ENTRY_FELGUARD:
-                case ENTRY_VOIDWALKER:
-                    pctFromOwnerArmor = 400.f;
-                    break;
-                case ENTRY_FELHUNTER:
-                case ENTRY_IMP:
-                case ENTRY_SUCCUBUS:
-                    pctFromOwnerArmor = 300.f;
-                    break;
-                case ENTRY_NIUZAO:
-                    pctFromOwnerArmor = 400.f;
-                    break;
-                case ENTRY_XUEN:
-                    pctFromOwnerArmor = 100.f;
-                default:
-                    break;
+                float multiplier = petScalingInfo->ArmorMultiplier;
+                if (multiplier == 0.f)
+                    TC_LOG_ERROR("entities.pet", "Unit (entry %d) has pet_scaling.ArmorMultiplier = 0. Used creature baseArmor instead", GetEntry());
+                else
+                    armor = m_owner->GetArmor() * multiplier;
             }
             break;
         case HUNTER_PET:
-            pctFromOwnerArmor = 170.f;
+            armor = CalculatePct(m_owner->GetArmor(), 170.f);
             break;
         default:
             break;
     }
-
-    if (pctFromOwnerArmor)
-        armor = CalculatePct(m_owner->GetArmor(), pctFromOwnerArmor);
-    else
-        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerArmor defined. Armor set to 1.",
-            GetGUID().ToString().c_str(), GetEntry());
 
     // Pets do not have static base values
     if (!(GetModifierValue(unitMod, BASE_VALUE) == armor))
@@ -1109,57 +1088,28 @@ void Guardian::UpdateMaxHealth()
     float pctFromOwnerHealth = 0.0f;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
+    PetScalingInfo const* petScalingInfo = sObjectMgr->GetPetScalingInfo(GetEntry());
 
     switch (petType)
     {
         case SUMMON_PET:
         {
-            switch (GetEntry())
+            if (petScalingInfo)
             {
-                case ENTRY_BLOODWORM:
-                    pctFromOwnerHealth = 15.f;
-                    break;
-                case ENTRY_RISEN_SKULKER:
-                    pctFromOwnerHealth = 20.f;
-                    break;
-                case ENTRY_GHOUL:
-                    pctFromOwnerHealth = 35.f;
-                    break;
-                case ENTRY_XUEN:
-                case ENTRY_NIUZAO:
-                case ENTRY_CHI_JI:
-                    pctFromOwnerHealth = 100.f;
-                    break;
-                case ENTRY_FIRE_ELEMENTAL:
-                    pctFromOwnerHealth = 75.f;
-                    break;
-                case ENTRY_FELGUARD:
-                case ENTRY_VOIDWALKER:
-                case ENTRY_INFERNAL:
-                case ENTRY_WATER_ELEMENTAL:
-                    pctFromOwnerHealth = 50.f;
-                    break;
-                case ENTRY_FELHUNTER:
-                case ENTRY_SUCCUBUS:
-                    pctFromOwnerHealth = 40.f;
-                    break;
-                case ENTRY_IMP:
-                    pctFromOwnerHealth = 30.f;
-                    break;
-                default:
-                    break;
+                float multiplier = petScalingInfo->HealthMultiplier;
+                if (multiplier == 0.f)
+                    TC_LOG_ERROR("entities.pet", "Unit (entry %d) has pet_scaling.HealthMultiplier = 0. Used creature baseHealth instead", GetEntry());
+                else
+                    health = m_owner->GetMaxHealth() * multiplier;
             }
             break;
         }
         case HUNTER_PET:
-            pctFromOwnerHealth = 70.f;
+            health = CalculatePct(m_owner->GetMaxHealth(), 70.f);
             break;
         default:
             break;
     }
-
-    if (pctFromOwnerHealth)
-        health = CalculatePct(m_owner->GetMaxHealth(), pctFromOwnerHealth);
 
     // Pets do not have static base values
     if (!(GetModifierValue(unitMod, BASE_VALUE) == health))
@@ -1199,6 +1149,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     uint16 index_mult = UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
+    PetScalingInfo const* petScalingInfo = sObjectMgr->GetPetScalingInfo(GetEntry());
 
     if (ranged)
     {
@@ -1210,23 +1161,31 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         case SUMMON_PET:
         {
-            switch (GetEntry())
+            if (petScalingInfo)
             {
-                case ENTRY_XUEN:
-                    value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 600.f);
-                    // Bluetracker says 600% (needs ingame data)
-                    break;
-                case ENTRY_NIUZAO:
-                    value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 100.f);
-                    // Bluetracker says 100% (needs ingame data)
-                    break;
-                case ENTRY_IMP:
-                    value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
-                    break;
-                case ENTRY_VOIDWALKER:
-                    value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 120.f);
-                default:
-                    break;
+                float APmultiplier = petScalingInfo->APMultiplier;
+                float SPtoAPmultiplier = petScalingInfo->SPtoAPMultiplier;
+
+                if (IsWarlockMinion())
+                {
+                    if (APmultiplier != 0.f)
+                        TC_LOG_ERROR("entities.pet", "Unit (entry %d) has pet_scaling.ap_multiplier set, but is WarlockPet (won't benefit).", GetEntry());
+                    if (SPtoAPmultiplier == 0.f)
+                        TC_LOG_ERROR("entities.pet", "Unit (entry %d) has pet_scaling.sp_to_ap_multiplier = 0.", GetEntry());
+
+                    value = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) * SPtoAPmultiplier;
+                }
+
+                if (!IsWarlockMinion())
+                {
+                    if (SPtoAPmultiplier != 0.f)
+                        TC_LOG_ERROR("entities.pet", "Unit (entry %d) has pet_scaling.sp_to_ap_multiplier set, but is no WarlockPet (won't benefit!).", GetEntry());
+
+                    if (APmultiplier == 0.f)
+                        TC_LOG_ERROR("entities.pet", "Unit (entry %d) has pet_scaling.ap_multiplier = 0.", GetEntry());
+
+                    value = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * APmultiplier;
+                }
             }
             break;
         }
@@ -1320,6 +1279,11 @@ void Guardian::UpdateSpellPower()
     // need some more proofs which are affected and which arent
     if (IsWarlockMinion())
         SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC));
+
+    PetScalingInfo const* petScalingInfo = sObjectMgr->GetPetScalingInfo(GetEntry());
+    if (petScalingInfo)
+        if (petScalingInfo->SPMultiplier != 0.f)
+            SetBonusDamage((int32)(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) * petScalingInfo->SPMultiplier));
 }
 
 void Guardian::SetBonusDamage(int32 damage)
