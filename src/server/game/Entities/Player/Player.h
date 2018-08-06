@@ -2403,6 +2403,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
 
+        bool MeetPlayerCondition(uint32 conditionId) const;
+        
         PlayerPetData* GetPlayerPetDataById(uint32 petId);
         PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
         PlayerPetData* GetPlayerPetDataByCreatureId(uint32 creatureId);
