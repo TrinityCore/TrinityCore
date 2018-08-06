@@ -92,7 +92,7 @@ bool WodGarrison::LoadFromDB()
     return true;
 }
 
-void WodGarrison::SaveToDB(SQLTransaction trans)
+void WodGarrison::SaveToDB(SQLTransaction& trans)
 {
     Garrison::SaveToDB(trans);
 

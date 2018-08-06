@@ -226,14 +226,14 @@ bool Garrison::LoadFromDB()
                 else
                     itr->second.BonusRewards.push_back(reward);
 
-            } while (abilitiesStmt->NextRow());
+            } while (rewardsStmt->NextRow());
         }
     }
 
     return true;
 }
 
-void Garrison::SaveToDB(SQLTransaction trans)
+void Garrison::SaveToDB(SQLTransaction& trans)
 {
     DeleteFromDB(trans);
 
@@ -308,12 +308,12 @@ void Garrison::SaveToDB(SQLTransaction trans)
     }
 }
 
-void Garrison::DeleteFromDB(SQLTransaction trans)
+void Garrison::DeleteFromDB(SQLTransaction& trans)
 {
     Garrison::DeleteFromDB(trans, _owner->GetGUID().GetCounter(), GetType());
 }
 
-void Garrison::DeleteFromDB(SQLTransaction trans, ObjectGuid::LowType guid, GarrisonType garrType)
+void Garrison::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType guid, GarrisonType garrType)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, guid);
@@ -538,53 +538,6 @@ bool Garrison::HasMission(uint32 garrMissionId) const
     });
 }
 
-void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers)
-{
-    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
-    if (!missionEntry)
-        return SendStartMissionResult(false);
-
-    Garrison::Mission* mission = GetMissionByID(missionEntry->ID);
-    if (!mission)
-        return SendStartMissionResult(false);
-
-    mission->PacketInfo.StartTime = time(nullptr);
-    mission->PacketInfo.MissionState = GarrisonMission::State::InProgress;
-
-    for (uint64 followerDbID : Followers)
-    {
-        Garrison::Follower* follower = GetFollower(followerDbID);
-
-        if (!follower)
-            return SendStartMissionResult(false);
-
-        if (follower->PacketInfo.CurrentMissionID != 0 || follower->PacketInfo.CurrentBuildingID != 0)
-            return SendStartMissionResult(false);
-
-        follower->PacketInfo.CurrentMissionID = missionEntry->ID;
-    }
-
-    SendStartMissionResult(true, mission, &Followers);
-}
-
-void Garrison::SendStartMissionResult(bool success, Garrison::Mission* mission /*= nullptr*/, std::vector<uint64 /*DbID*/>* Followers /*= nullptr*/)
-{
-    WorldPackets::Garrison::GarrisonStartMissionResult garrisonStartMissionResult;
-
-    if (success)
-    {
-        garrisonStartMissionResult.Result = GarrisonMission::AddResult::Success;
-        garrisonStartMissionResult.Mission = mission->PacketInfo;
-        garrisonStartMissionResult.Followers = *Followers;
-    }
-    else
-    {
-        garrisonStartMissionResult.Result = GarrisonMission::AddResult::Fail;
-    }
-
-    _owner->SendDirectMessage(garrisonStartMissionResult.Write());
-}
-
 std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> Garrison::GetAvailableMissions() const
 {
     std::vector<GarrMissionEntry const*> availableMissions;
@@ -673,6 +626,87 @@ void Garrison::GenerateMissions()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     SaveToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
+}
+
+void Garrison::StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers)
+{
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
+    if (!missionEntry)
+        return SendStartMissionResult(false);
+
+    Garrison::Mission* mission = GetMissionByID(missionEntry->ID);
+    if (!mission)
+        return SendStartMissionResult(false);
+
+    mission->PacketInfo.StartTime = time(nullptr);
+    mission->PacketInfo.MissionState = GarrisonMission::State::InProgress;
+
+    for (uint64 followerDbID : Followers)
+    {
+        Garrison::Follower* follower = GetFollower(followerDbID);
+
+        if (!follower)
+            return SendStartMissionResult(false);
+
+        if (follower->PacketInfo.CurrentMissionID != 0 || follower->PacketInfo.CurrentBuildingID != 0)
+            return SendStartMissionResult(false);
+
+        follower->PacketInfo.CurrentMissionID = missionEntry->ID;
+    }
+
+    SendStartMissionResult(true, mission, &Followers);
+}
+
+void Garrison::SendStartMissionResult(bool success, Garrison::Mission* mission /*= nullptr*/, std::vector<uint64 /*DbID*/>* Followers /*= nullptr*/)
+{
+    WorldPackets::Garrison::GarrisonStartMissionResult garrisonStartMissionResult;
+
+    if (success)
+    {
+        garrisonStartMissionResult.Result = GarrisonMission::AddResult::Success;
+        garrisonStartMissionResult.Mission = mission->PacketInfo;
+        garrisonStartMissionResult.Followers = *Followers;
+    }
+    else
+    {
+        garrisonStartMissionResult.Result = GarrisonMission::AddResult::Fail;
+    }
+
+    _owner->SendDirectMessage(garrisonStartMissionResult.Write());
+}
+
+void Garrison::CompleteMission(uint32 garrMissionId)
+{
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
+    if (!missionEntry)
+        return;
+
+    Garrison::Mission* mission = GetMissionByID(missionEntry->ID);
+    if (!mission)
+        return;
+
+    WorldPackets::Garrison::GarrisonCompleteMissionResult garrisonCompleteMissionResult;
+    garrisonCompleteMissionResult.CanComplete = true;
+    garrisonCompleteMissionResult.Mission = mission->PacketInfo;
+    garrisonCompleteMissionResult.Succeed = true;
+    _owner->SendDirectMessage(garrisonCompleteMissionResult.Write());
+}
+
+void Garrison::CalculateMissonBonusRoll(uint32 garrMissionId)
+{
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId);
+    if (!missionEntry)
+        return;
+
+    Garrison::Mission* mission = GetMissionByID(missionEntry->ID);
+    if (!mission)
+        return;
+
+    WorldPackets::Garrison::GarrisonMissionBonusRollResult garrisonMissionBonusRollResult;
+    garrisonMissionBonusRollResult.Mission = mission->PacketInfo;
+    garrisonMissionBonusRollResult.Unk1 = 0;
+    garrisonMissionBonusRollResult.Unk2 = 0;
+    _owner->SendDirectMessage(garrisonMissionBonusRollResult.Write());
 }
 
 Map* Garrison::FindMap() const

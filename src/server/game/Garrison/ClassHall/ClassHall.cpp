@@ -38,7 +38,7 @@ bool ClassHall::LoadFromDB()
     return true;
 }
 
-void ClassHall::SaveToDB(SQLTransaction trans)
+void ClassHall::SaveToDB(SQLTransaction& trans)
 {
     Garrison::SaveToDB(trans);
 }

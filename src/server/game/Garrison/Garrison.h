@@ -56,9 +56,9 @@ public:
     Player* GetOwner() const { return _owner; }
 
     virtual bool LoadFromDB();
-    virtual void SaveToDB(SQLTransaction trans);
-    void DeleteFromDB(SQLTransaction trans);
-    static void DeleteFromDB(SQLTransaction trans, ObjectGuid::LowType guid, GarrisonType garrType);
+    virtual void SaveToDB(SQLTransaction& trans);
+    void DeleteFromDB(SQLTransaction& trans);
+    static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType guid, GarrisonType garrType);
 
     virtual bool Create(uint32 garrSiteId);
     void Update(uint32 const diff);
@@ -98,6 +98,8 @@ public:
     std::unordered_map<uint64 /*dbId*/, Garrison::Mission> const& GetMissions() const { return _missions; }
     void StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers);
     void SendStartMissionResult(bool success, Garrison::Mission* mission = nullptr, std::vector<uint64 /*DbID*/>* Followers = nullptr);
+    void CompleteMission(uint32 garrMissionId);
+    void CalculateMissonBonusRoll(uint32 garrMissionId);
 
     std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> GetAvailableMissions() const;
     void GenerateMissions();

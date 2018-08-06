@@ -79,7 +79,7 @@ public:
     explicit WodGarrison(Player* owner);
 
     bool LoadFromDB() override;
-    void SaveToDB(SQLTransaction trans) override;
+    void SaveToDB(SQLTransaction& trans) override;
 
     bool Create(uint32 garrSiteId) override;
     bool CanUpgrade(bool checkCost = true);

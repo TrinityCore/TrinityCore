@@ -129,3 +129,35 @@ void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonSt
 
     garrison->StartMission(startMission.MissionID, startMission.Followers);
 }
+
+void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::GarrisonCompleteMission& completeMission)
+{
+    if (!_player->GetNPCIfCanInteractWith(completeMission.NpcGUID, UNIT_NPC_FLAG_GARRISON_MISSION_NPC))
+        return;
+
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(completeMission.MissionID);
+    if (!missionEntry)
+        return;
+
+    Garrison* garrison = _player->GetGarrison(GarrisonType(missionEntry->GarrTypeID));
+    if (!garrison)
+        return;
+
+    garrison->CompleteMission(completeMission.MissionID);
+}
+
+void WorldSession::HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::GarrisonMissionBonusRoll& missionBonusRoll)
+{
+    if (!_player->GetNPCIfCanInteractWith(missionBonusRoll.NpcGUID, UNIT_NPC_FLAG_GARRISON_MISSION_NPC))
+        return;
+
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(missionBonusRoll.MissionID);
+    if (!missionEntry)
+        return;
+
+    Garrison* garrison = _player->GetGarrison(GarrisonType(missionEntry->GarrTypeID));
+    if (!garrison)
+        return;
+
+    garrison->CalculateMissonBonusRoll(missionBonusRoll.MissionID);
+}

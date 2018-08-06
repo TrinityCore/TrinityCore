@@ -476,3 +476,33 @@ WorldPacket const* WorldPackets::Garrison::GarrisonStartMissionResult::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Garrison::GarrisonCompleteMission::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> MissionID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonCompleteMissionResult::Write()
+{
+    _worldPacket << CanComplete;
+    _worldPacket << Mission;
+    _worldPacket << Succeed;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonMissionBonusRoll::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> MissionID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonMissionBonusRollResult::Write()
+{
+    _worldPacket << Mission;
+    _worldPacket << Unk1;
+    _worldPacket << Unk2;
+
+    return &_worldPacket;
+}
