@@ -26,7 +26,7 @@
 #endif
 
 AppenderGraylog::AppenderGraylog(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs)
-    : Appender(id, name, level, flags)
+    : Appender(id, name, level, flags), _realmId(0)
 {
     _graylogSourceURL = extraArgs[0];
 }
@@ -37,11 +37,25 @@ void AppenderGraylog::_write(LogMessage const* message)
         if (_graylogSourceURL.empty())
             return;
 
-        boost::replace_all(message->text, "\"", "\\\"");
+        std::string text    = message->text;
+        uint32 logLevel     = message->level;
+
+        boost::replace_all(text, "\"", "\\\"");
 
         std::ostringstream payload;
-        payload << message->text;
+        payload << "{";
+        payload << "\"host\": \"" << _realmName << "\", ";
+        payload << "\"_realmId\": \"" << _realmId << "\", ";
+        payload << "\"short_message\" : \"" << text << "\", ";
+        payload << "\"level\" : " << logLevel;
+        payload << "}";
 
         cpr::Response r = cpr::Post(cpr::Url{ _graylogSourceURL }, cpr::Body{ payload.str() });
     #endif
+}
+
+void AppenderGraylog::setRealmId(uint32 realmId, std::string realmName)
+{
+    _realmId = realmId;
+    _realmName = realmName;
 }

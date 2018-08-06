@@ -3872,7 +3872,8 @@ Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
-Appender.SQLUpdateLog=2,1,16,SQLUpdate.log,w
+#Appender.SQLUpdateLog=2,1,16,SQLUpdate.log,w
+#Appender.GrayLog=4,3,0,"http://0.0.0.0:12201/gelf"
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3932,6 +3933,7 @@ Logger.mmaps=3,Server
 #Logger.loot=3,Console Server
 #Logger.maps.script=3,Console Server
 #Logger.maps=3,Console Server
+#Logger.metric=3,GrayLog
 #Logger.misc=3,Console Server
 #Logger.network=3,Console Server
 #Logger.network.opcode=3,Console Server

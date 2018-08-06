@@ -28,10 +28,14 @@ class TC_COMMON_API AppenderGraylog : public Appender
         AppenderGraylog(uint8 _id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs);
         AppenderType getType() const override { return TypeIndex::value; }
 
+        void setRealmId(uint32 realmId, std::string /*realmName*/) override;
+
     private:
         void _write(LogMessage const* message) override;
 
         std::string _graylogSourceURL;
+        uint32 _realmId;
+        std::string _realmName;
 };
 
 #endif
