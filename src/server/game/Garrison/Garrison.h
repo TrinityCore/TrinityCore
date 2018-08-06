@@ -40,6 +40,9 @@ public:
     struct Follower
     {
         uint32 GetItemLevel() const;
+        void EarnXP(Player* owner, uint32 xp);
+        uint32 _EarnXP(uint32 xp);
+        uint32 GetRequiredLevelUpXP() const;
 
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
@@ -94,12 +97,14 @@ public:
     void AddMission(uint32 garrMissionId);
     Mission* GetMission(uint64 dbId);
     Mission* GetMissionByID(uint32 ID);
-    bool HasMission(uint32 garrMissionId) const;
     std::unordered_map<uint64 /*dbId*/, Garrison::Mission> const& GetMissions() const { return _missions; }
+    std::vector<Follower*> GetMissionFollowers(uint32 garrMissionId);
+    bool HasMission(uint32 garrMissionId) const;
     void StartMission(uint32 garrMissionId, std::vector<uint64 /*DbID*/> Followers);
     void SendStartMissionResult(bool success, Garrison::Mission* mission = nullptr, std::vector<uint64 /*DbID*/>* Followers = nullptr);
     void CompleteMission(uint32 garrMissionId);
     void CalculateMissonBonusRoll(uint32 garrMissionId);
+    void RewardMission(Mission* mission, bool withOvermaxReward);
 
     std::pair<std::vector<GarrMissionEntry const*>, std::vector<double>> GetAvailableMissions() const;
     void GenerateMissions();

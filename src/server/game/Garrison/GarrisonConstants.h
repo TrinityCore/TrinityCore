@@ -47,7 +47,7 @@ enum GarrisonType
     //GARRISON_TYPE_WAR_CAMPAIGN  = 9,
 
     GARRISON_TYPE_MIN           = GARRISON_TYPE_GARRISON,
-    GARRISON_TYPE_MAX           = GARRISON_TYPE_CLASS_HALL,
+    GARRISON_TYPE_MAX           = GARRISON_TYPE_CLASS_HALL + 1,
 };
 
 enum GarrisonFactionIndex
@@ -295,7 +295,7 @@ namespace GarrisonMission
         Error = 1
     };
 
-    enum AddResult
+    enum Result
     {
         Success = 0,
         Fail    = 1,

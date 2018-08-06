@@ -386,6 +386,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_TYPE, "SELECT ID, MaxItemLevel, MaxFollowers, MaxFollowerBuildingType, GarrTypeId, LevelRangeBias, ItemLevelRangeBias, Flags FROM garr_follower_type"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GarrFollowerLevelXP.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP, "SELECT ID, XpToNextLevel, ShipmentXP, FollowerLevel, GarrFollowerTypeId FROM garr_follower_level_xp"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollowerQuality.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_QUALITY, "SELECT ID, XpToNextQuality, ShipmentXP, Quality, AbilityCount, TraitCount, GarrFollowerTypeId, ClassSpecId FROM garr_follower_quality"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GarrFollowerXAbility.db2
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrAbilityID, FactionIndex, GarrFollowerID FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);

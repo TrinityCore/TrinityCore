@@ -107,7 +107,7 @@ namespace WorldPackets
             uint32 TravelDuration = 0;
             uint32 MissionDuration = 0;
             uint32 MissionState = 0;
-            uint32 Unknown1 = 0;
+            uint32 SuccessChance = 0;
             uint32 Unknown2 = 0;
         };
 
@@ -524,9 +524,10 @@ namespace WorldPackets
         public:
             GarrisonCompleteMissionResult() : ServerPacket(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 4) { }
 
-            uint32 CanComplete;
+            uint32 Result;
             GarrisonMission Mission;
-            uint32 Succeed;
+            std::map<uint64 /*followerDBID*/, uint32 /*unk*/> Followers;
+            bool Succeed;
 
             WorldPacket const* Write() override;
         };
@@ -548,8 +549,20 @@ namespace WorldPackets
             GarrisonMissionBonusRollResult() : ServerPacket(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT, 4) { }
 
             GarrisonMission Mission;
-            uint32 Unk1;
-            uint32 Unk2;
+            uint32 Result;
+
+            WorldPacket const* Write() override;
+        };
+
+        class GarrisonFollowerChangeXP final : public ServerPacket
+        {
+        public:
+            GarrisonFollowerChangeXP() : ServerPacket(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 4) { }
+
+            uint32 XP;
+            uint32 Unk;
+            GarrisonFollower OldFollower;
+            GarrisonFollower NewFollower;
 
             WorldPacket const* Write() override;
         };
