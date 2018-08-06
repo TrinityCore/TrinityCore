@@ -796,7 +796,7 @@ void Garrison::Follower::EarnXP(Player* owner, uint32 xp)
     owner->SendDirectMessage(garrisonFollowerChangeXP.Write());
 }
 
-const std::array<uint32, GARRISON_TYPE_MAX> FollowerMaxLevel =
+const uint32 FollowerMaxLevel[GARRISON_TYPE_MAX] =
 {
     0,
     0,
