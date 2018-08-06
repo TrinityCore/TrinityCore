@@ -43,7 +43,7 @@ enum TotTCreatureIds
     BOSS_LADY_NAZJAR                = 40586,
     BOSS_COMMANDER_ULTHOK           = 40765,
     BOSS_MINDBENDER_GURSHA          = 40788,
-    BOSS_OZUMAT                     = 40655,
+    BOSS_OZUMAT                     = 44566,
 
     // Event Creatures
     NPC_OZUMAT_VEHICLE_BIG          = 45030,
@@ -51,6 +51,7 @@ enum TotTCreatureIds
     NPC_WORLD_TRIGGER_INFINITE_AOI  = 36171,
     NPC_NAZJAR_SPIRITMENDER         = 41096,
     NPC_NAZJAR_INVADER              = 39616,
+    NPC_OZUMAT                      = 40655,
 
 };
 

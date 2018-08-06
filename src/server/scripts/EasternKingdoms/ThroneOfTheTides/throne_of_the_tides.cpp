@@ -27,7 +27,7 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
     void JustAppeared() override
     {
         if (_instance->GetData(DATA_CURRENT_EVENT_PROGRESS) < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
-            if (Creature* ozumat = DoSummon(BOSS_OZUMAT, me->GetPosition()))
+            if (Creature* ozumat = DoSummon(NPC_OZUMAT, me->GetPosition()))
                 me->HandleSpellClick(ozumat, -1);
     }
 
