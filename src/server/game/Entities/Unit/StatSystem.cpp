@@ -1043,7 +1043,6 @@ void Guardian::UpdateArmor()
 
     float armor = GetArmor();
     float value = 0.0f;
-    float pctFromOwnerArmor = 0.0f;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
     PetScalingInfo const* petScalingInfo = sObjectMgr->GetPetScalingInfo(GetEntry());
@@ -1085,7 +1084,6 @@ void Guardian::UpdateMaxHealth()
 
     uint64 health = GetMaxHealth();
     float value = 0.0f;
-    float pctFromOwnerHealth = 0.0f;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
     PetScalingInfo const* petScalingInfo = sObjectMgr->GetPetScalingInfo(GetEntry());
@@ -1197,8 +1195,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     }
 
     if (!value)
-        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerAP defined. AttackPower set to 0.",
-            GetGUID().ToString().c_str(), GetEntry());
+        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has AttackPower set to 0.", GetGUID().ToString().c_str(), GetEntry());
 
     SetModifierValue(unitMod, BASE_VALUE, value);
 
