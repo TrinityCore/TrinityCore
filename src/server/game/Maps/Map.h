@@ -145,6 +145,9 @@ enum ZLiquidStatus : uint32
     LIQUID_MAP_UNDER_WATER  = 0x00000008
 };
 
+#define MAP_LIQUID_STATUS_SWIMMING (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)
+#define MAP_LIQUID_STATUS_IN_CONTACT (MAP_LIQUID_STATUS_SWIMMING | LIQUID_MAP_WATER_WALK)
+
 #define MAP_LIQUID_TYPE_NO_WATER    0x00
 #define MAP_LIQUID_TYPE_WATER       0x01
 #define MAP_LIQUID_TYPE_OCEAN       0x02
@@ -161,6 +164,25 @@ struct LiquidData
     uint32 entry;
     float  level;
     float  depth_level;
+};
+
+struct PositionFullTerrainStatus
+{
+    struct AreaInfo
+    {
+        AreaInfo(int32 _adtId, int32 _rootId, int32 _groupId, uint32 _flags) : adtId(_adtId), rootId(_rootId), groupId(_groupId), mogpFlags(_flags) { }
+        int32 const adtId;
+        int32 const rootId;
+        int32 const groupId;
+        uint32 const mogpFlags;
+    };
+
+    uint32 areaId;
+    float floorZ;
+    bool outdoors;
+    ZLiquidStatus liquidStatus;
+    Optional<AreaInfo> areaInfo;
+    Optional<LiquidData> liquidInfo;
 };
 
 class TC_GAME_API GridMap
@@ -195,11 +217,16 @@ class TC_GAME_API GridMap
     uint8 _liquidOffY;
     uint8 _liquidWidth;
     uint8 _liquidHeight;
+
+    uint16* _holes;
+
     bool _fileExists;
 
     bool loadAreaData(FILE* in, uint32 offset, uint32 size);
     bool loadHeightData(FILE* in, uint32 offset, uint32 size);
     bool loadLiquidData(FILE* in, uint32 offset, uint32 size);
+    bool loadHolesData(FILE* in, uint32 offset, uint32 size);
+    bool isHole(int row, int col) const;
 
     // Get height functions and pointers
     typedef float (GridMap::*GetHeightPtr) (float x, float y) const;
@@ -218,7 +245,6 @@ public:
     uint16 getArea(float x, float y) const;
     inline float getHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
     float getLiquidLevel(float x, float y) const;
-    uint8 getTerrainType(float x, float y) const;
     ZLiquidStatus GetLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
     bool fileExists() const { return _fileExists; }
 };
@@ -370,17 +396,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
 
+        void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType = MAP_ALL_LIQUIDS) const;
         ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr) const;
 
-        bool GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId) const;
-
-
-        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, bool *isOutdoors) const;
-        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) const
-        {
-            return GetAreaId(phaseShift, x, y, z, nullptr);
-        }
-
+        uint32 GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) const;
         uint32 GetAreaId(PhaseShift const& phaseShift, Position const& pos) const
         {
             return GetAreaId(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
@@ -398,9 +417,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             GetZoneAndAreaId(phaseShift, zoneid, areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
         }
 
-        bool IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z) const;
-
-        uint8 GetTerrainType(PhaseShift const& phaseShift, float x, float y) const;
         float GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const;
         bool IsInWater(PhaseShift const& phaseShift, float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z) const;

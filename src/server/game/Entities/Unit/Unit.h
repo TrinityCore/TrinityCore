@@ -1260,7 +1260,6 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
-        virtual void UpdateUnderwaterState(Map* m, float x, float y, float z);
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
         void SendHealSpellLog(HealInfo& healInfo, bool critical = false);
@@ -1980,6 +1979,8 @@ class TC_GAME_API Unit : public WorldObject
 
         void DisableSpline();
 
+        void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
+        virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
