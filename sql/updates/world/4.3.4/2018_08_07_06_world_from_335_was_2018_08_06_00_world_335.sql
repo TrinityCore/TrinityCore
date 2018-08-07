@@ -1,3 +1,4 @@
+/*
 DELETE FROM  `smart_scripts` WHERE `entryorguid`=7665 AND `source_type`=0 AND `id`=2;
 DELETE FROM  `smart_scripts` WHERE `entryorguid`=7666 AND `source_type`=0 AND `id`=6;
 DELETE FROM  `smart_scripts` WHERE `entryorguid`=7667 AND `source_type`=0 AND `id`=5;
@@ -14,3 +15,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 12938, 0, 2, 31, 0, 3, 7667, 0, 0, 0, 0, '', 'Fel Curse Targets Lady Sevine'),
 (13, 1, 12938, 0, 3, 31, 0, 3, 7664, 0, 0, 0, 0, '', 'Fel Curse Targets Razelikh the Defiler'),
 (13, 1, 12938, 0, 4, 31, 0, 3, 7668, 0, 0, 0, 0, '', 'Fel Curse Targets Servent of Razelikh');
+*/

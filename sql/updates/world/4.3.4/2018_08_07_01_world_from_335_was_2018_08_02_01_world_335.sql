@@ -1,3 +1,4 @@
+/*
 -- Theldurin the Lost
 DELETE FROM `creature_text` WHERE `CreatureID`=2785;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -18,3 +19,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (278500,9,5,0,0,0,100,0,4000,4000,0,0,11,5017,0,0,0,0,0,1,0,0,0,0,0,0,0,"Theldurin the Lost - On Script - Cast 'Divining Trance'"),
 (278500,9,6,0,0,0,100,0,7000,7000,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Theldurin the Lost - On Script - Say Line 2"),
 (278500,9,7,0,0,0,100,0,3000,3000,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Theldurin the Lost - On Script - Add Npc Flag Questgiver+Gossip");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Captain Nials
 UPDATE `creature_template` SET `npcflag`=2, `gossip_menu_id`=0 WHERE `entry`=2700;
 
@@ -14,3 +15,4 @@ UPDATE `npc_text` SET `em0_0`=0, `em0_1`=274 WHERE `ID`=12209;
 
 -- Restless Apparition
 UPDATE `creature_template` SET `npcflag`=0 WHERE `entry`=23861;
+*/
