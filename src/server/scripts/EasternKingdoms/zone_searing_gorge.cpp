@@ -30,7 +30,7 @@ enum PillowFight
 class event_dark_iron_rush : public WorldMapScript
 {
 public:
-    event_dark_iron_rush() : WorldMapScript("event_dark_iron_rush", 0), running(false), numWave(0), duration(0) {}
+    event_dark_iron_rush() : WorldMapScript("event_dark_iron_rush", 0), duration(0), numWave(0), running(false) {}
 
     void OnUpdate(Map* map, uint32 diff) override
     {
