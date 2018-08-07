@@ -105,7 +105,7 @@ public:
     {
         go_dark_iron_pillowAI(GameObject* go) : GameObjectAI(go) {};
 
-        bool GossipHello(Player* player) override
+        bool GossipHello(Player* /*player*/) override
         {
             if (edir_p) edir_p->Trigger();
 
