@@ -34,7 +34,9 @@ enum TotTDataTypes
     DATA_OZUMAT                 = 3,
 
     // Additional Data Types
-    DATA_CURRENT_EVENT_PROGRESS = 4
+    DATA_CURRENT_EVENT_PROGRESS = 4,
+    DATA_LADY_NAZJAR_GAUNTLET   = 5,
+    DATA_ABYSSAL_MAW_DOOR_1     = 6
 };
 
 enum TotTCreatureIds
@@ -49,10 +51,20 @@ enum TotTCreatureIds
     NPC_OZUMAT_VEHICLE_BIG          = 45030,
     NPC_OZUMAT_VEHICLE              = 44581,
     NPC_WORLD_TRIGGER_INFINITE_AOI  = 36171,
-    NPC_NAZJAR_SPIRITMENDER         = 41096,
-    NPC_NAZJAR_INVADER              = 39616,
+    NPC_NAZJAR_SPIRITMENDER_1       = 41096,
+    NPC_NAZJAR_SPIRITMENDER_2       = 41139,
+    NPC_NAZJAR_INVADER_1            = 39616,
+    NPC_NAZJAR_INVADER_2            = 40584,
     NPC_OZUMAT                      = 40655,
+    NPC_WORLD_TRIGGER_NOT_IMMUNE_PC = 21252,
+    NPC_LADY_NAZJAR                 = 39959,
+};
 
+enum TotTGameObjectIds
+{
+    GO_TEMP_FALLING_ROCKS           = 202742,
+    GO_DOODAD_ABYSSAL_MAW_DOOR_1    = 204338,
+    GO_DOODAD_ABYSSAL_MAW_DOOR_2    = 204339
 };
 
 enum TotTSpells
@@ -92,6 +104,36 @@ Position const TotTFirstInvaderJumpPositions[] =
     { -409.13f,  802.774f, 248.357f, 3.106686f },
     { -414.969f, 810.604f, 248.433f, 3.106686f },
     { -413.5f,   798.38f,  248.561f, 3.106686f }
+};
+
+Position const TotTLadyNazjarInvaderPositions[] =
+{
+    { -103.3125f, 775.8559f, 810.9689f, 1.448623f }, // mender 0x20307C5060282CC00033C700004F1EDB
+    { -70.23785f, 774.9618f, 810.3751f, 1.712018f }, // mender  0x20307C5060282CC00033C700014F1EDB
+    { -72.86459f, 831.441f,  809.7106f, 4.86808f  }, // mender 0x20307C5060282CC00033C70000CF1EDB
+    { -135.0625f, 772.4739f, 810.089f,  1.448623f }, // invader 0x20307C506027A2000033C700004F1EDB
+    { -135.5764f, 831.9948f, 808.1715f, 4.39823f  }, // invader 0x20307C506027A2000033C70000CF1EDB
+    { -103.8837f, 832.8108f, 808.739f,  4.572762f }  // invader 0x20307C506027A2000033C700014F1EDB
+};
+
+Position const TotTLadyNazjarInvaderInitialMovePositions[] =
+{
+    { -102.865f, 782.165f, 806.063f },
+    { -71.2622f, 782.167f, 804.698f },
+    { -71.4601f, 822.493f, 806.099f },
+    { -134.22f,  785.163f, 809.356f },
+    { -133.75f,  822.464f, 806.963f },
+    { -102.62f,  822.491f, 806.619f }
+};
+
+Position const TotTLadyNazjarInvaderJumpPositions[] =
+{
+    { -101.747f, 798.698f, 796.926f, 3.159046f },
+    { -68.9392f, 798.405f, 796.894f, 3.298672f },
+    { -68.0035f, 805.835f, 796.846f, 3.211406f },
+    { -136.613f, 799.226f, 796.844f, 3.176499f },
+    { -135.474f, 806.198f, 796.912f, 3.176499f },
+    { -101.955f, 806.373f, 796.964f, 3.071779f }
 };
 
 template <class AI, class T>
