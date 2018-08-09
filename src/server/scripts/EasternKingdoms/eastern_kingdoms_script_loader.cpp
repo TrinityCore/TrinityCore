@@ -235,6 +235,7 @@ void AddSC_dun_morogh();
 void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_duskwood();
 void AddSC_elwyn_forest();
+void AddSC_eversong_woods();
 void AddSC_zone_gnomeregan();
 void AddSC_ghostlands();
 void AddSC_hinterlands();
@@ -476,6 +477,7 @@ void AddEasternKingdomsScripts()
     AddSC_dun_morogh_area_coldridge_valley();
     AddSC_duskwood();
     AddSC_elwyn_forest();
+    AddSC_eversong_woods();
     AddSC_zone_gnomeregan();
     AddSC_ghostlands();
     AddSC_hinterlands();
