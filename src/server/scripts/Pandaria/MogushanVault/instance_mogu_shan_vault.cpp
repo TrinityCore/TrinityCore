@@ -164,6 +164,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_STONE_GUARD_CONTROLER:
@@ -262,6 +264,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GOB_STONE_GUARD_DOOR_ENTRANCE:
@@ -333,6 +337,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             void OnGameObjectRemove(GameObject* go) override
             {
+                InstanceScript::OnGameObjectRemove(go);
+
                 switch (go->GetEntry())
                 {
                     case GOB_STONE_GUARD_DOOR_ENTRANCE:
@@ -353,12 +359,14 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 }
             }
 
-            void OnPlayerExit(Player* p_Player) override
+            void OnPlayerExit(Player* player) override
             {
+                InstanceScript::OnPlayerExit(player);
+
                 for (const uint32& l_AuraID : m_AuraToClear)
                 {
-                    if (p_Player->HasAura(l_AuraID))
-                        p_Player->RemoveAurasDueToSpell(l_AuraID);
+                    if (player->HasAura(l_AuraID))
+                        player->RemoveAurasDueToSpell(l_AuraID);
                 }
             }
 
@@ -479,8 +487,10 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 /*p_Data*/) override
+            void SetData(uint32 type, uint32 data) override
             {
+                InstanceScript::SetData(type, data);
+
                 if (type == ACHIEVEMENT_SHOWMOVES)
                     SetAchievementValid(ACHIEVEMENT_SHOWMOVES);
 
@@ -492,7 +502,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 if (type == ACHIEVEMENT_SHOWMOVES)
                     return IsAchievementValid(ACHIEVEMENT_SHOWMOVES);
 
-                return 0;
+                return InstanceScript::GetData(type);
             }
 
             ObjectGuid GetGuidData(uint32 type) const override
@@ -584,7 +594,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         break;
                 }
 
-                return ObjectGuid::Empty;
+                return InstanceScript::GetGuidData(type);
             }
 
             /*bool IsWipe()
@@ -610,6 +620,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
+                InstanceScript::Update(diff);
+
                 UpdateOperations(diff);
 
                 if (GetBossState(DATA_WILL_OF_EMPEROR) != IN_PROGRESS)

@@ -88,6 +88,8 @@ class instance_heart_of_fear : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_ZORLOK:
@@ -115,6 +117,8 @@ class instance_heart_of_fear : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     // Generic doors
@@ -170,6 +174,8 @@ class instance_heart_of_fear : public InstanceMapScript
 
             void OnGameObjectRemove(GameObject* go) override
             {
+                InstanceScript::OnGameObjectRemove(go);
+
                 switch (go->GetEntry())
                 {
                     // Generic doors
@@ -239,7 +245,7 @@ class instance_heart_of_fear : public InstanceMapScript
                         break;
                 }
 
-                return ObjectGuid::Empty;
+                return InstanceScript::GetGuidData(type);
             }
 
             /*bool IsWipe() const override
@@ -295,16 +301,18 @@ class instance_heart_of_fear : public InstanceMapScript
                 return true;
             }
 
-            void OnPlayerEnter(Player* /*p_Player*/) override
+            void OnPlayerEnter(Player* player) override
             {
+                InstanceScript::OnPlayerEnter(player);
+
                 if (!m_SecondPartInitialized && instance->IsLFR())
                 {
-                    /*uint32 l_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
+                    /*uint32 l_DungeonID = player->GetGroup() ? sLFGMgr->GetDungeon(player->GetGroup()->GetGUID()) : 0;
                     if (l_DungeonID == eMisc::HeartOfFearSecondPart)
                     {
                         m_SecondPartInitialized = true;
 
-                        if (Creature* l_Garalon = ObjectAccessor::GetCreature(*p_Player, garalonGuid))
+                        if (Creature* l_Garalon = ObjectAccessor::GetCreature(*player, garalonGuid))
                         {
                             std::list<Unit*> l_TrashMobs;
 
@@ -333,10 +341,12 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
             }
 
-            void OnPlayerExit(Player* p_Player) override
+            void OnPlayerExit(Player* player) override
             {
-                if (p_Player->HasAura(SPELL_RESHAPE_LIFE))
-                    p_Player->RemoveAura(SPELL_RESHAPE_LIFE);
+                InstanceScript::OnPlayerExit(player);
+
+                if (player->HasAura(SPELL_RESHAPE_LIFE))
+                    player->RemoveAura(SPELL_RESHAPE_LIFE);
             }
         };
 };
