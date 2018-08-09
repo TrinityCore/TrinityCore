@@ -1717,7 +1717,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 UnsummonPetTemporaryIfAny();
         }
 
-
         if (!(options & TELE_TO_NOT_LEAVE_COMBAT))
             CombatStop();
 
