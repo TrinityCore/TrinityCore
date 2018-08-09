@@ -1710,9 +1710,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             return true;
         }
 
-        //same map, only remove pet if out of range for new position
-        if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityRange()))
-            UnsummonPetTemporaryIfAny();
+        if (!(options & TELE_TO_NOT_UNSUMMON_PET))
+        {
+            //same map, only remove pet if out of range for new position
+            if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityRange()))
+                UnsummonPetTemporaryIfAny();
+        }
+
 
         if (!(options & TELE_TO_NOT_LEAVE_COMBAT))
             CombatStop();
