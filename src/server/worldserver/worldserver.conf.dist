@@ -403,7 +403,7 @@ mmap.enablePathFinding = 0
 #
 #    vmap.enableLOS
 #    vmap.enableHeight
-#        Description: VMmap support for line of sight and height calculation.
+#        Description: Vmap support for line of sight and height calculation.
 #        Default:     1 - (Enabled, vmap.enableLOS)
 #                     1 - (Enabled, vmap.enableHeight)
 #                     0 - (Disabled)
