@@ -141,8 +141,10 @@ bool Garrison::LoadFromDB()
             follower.PacketInfo.ItemLevelWeapon = fields[4].GetUInt32();
             follower.PacketInfo.ItemLevelArmor = fields[5].GetUInt32();
             follower.PacketInfo.Xp = fields[6].GetUInt32();
+            follower.PacketInfo.CurrentBuildingID = fields[7].GetUInt32();
             follower.PacketInfo.CurrentMissionID = fields[8].GetUInt32();
             follower.PacketInfo.FollowerStatus = fields[9].GetUInt32();
+
             if (!sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID))
                 follower.PacketInfo.CurrentBuildingID = 0;
 
