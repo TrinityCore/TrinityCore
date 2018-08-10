@@ -229,32 +229,6 @@ enum eGatewayNpc
     PurpleGate = 59271
 };
 
-// Call Dreadstalkers - 104316
-class spell_warl_call_dreadstalker : public SpellScript
-{
-    PrepareSpellScript(spell_warl_call_dreadstalker);
-
-    void HandleCast()
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (caster->HasAura(SPELL_WARLOCK_IMPROVED_DREADSTALKERS))
-        {
-            for (int32 i = 0; i < 2; i++)
-                caster->CastSpell(caster, SPELL_WARLOCK_HAND_OF_GULDAN_SUMMON, true);
-        }
-        else
-            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_DREADSTALKER, true);
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_warl_call_dreadstalker::HandleCast);
-    }
-};
-
 // Demonwrath damage - 193439
 class spell_warl_demonwrath : public SpellScript
 {
@@ -2071,8 +2045,8 @@ class spell_warl_call_dreadstalkers : public SpellScript
         caster->CastSpell(caster, SPELL_WARLOCK_CALL_DREADSTALKERS_SUMMON, true);
         caster->CastSpell(caster, SPELL_WARLOCK_CALL_DREADSTALKERS_SUMMON + 1, true);
 
-        if (caster->HasAura(SPELL_WARLOCK_IMPROVED_DREADSTALKERS))
-            for (int i = 0; i < 2; i++)
+        if (Aura* aura = caster->GetAura(SPELL_WARLOCK_IMPROVED_DREADSTALKERS))
+            for (int i = 0; i < aura->GetSpellEffectInfo(EFFECT_0)->BasePoints; ++i)
                 caster->CastSpell(caster, SPELL_WARLOCK_HAND_OF_GULDAN_SUMMON, true);
     }
 
@@ -3655,7 +3629,6 @@ class spell_warl_incinerate : public SpellScript
 
 void AddSC_warlock_spell_scripts()
 {
-    RegisterSpellScript(spell_warl_call_dreadstalker);
     RegisterAuraScript(spell_warl_demonskin);
     RegisterAuraScript(spell_warl_doom);
     RegisterSpellScript(spell_warl_banish);

@@ -2016,98 +2016,78 @@ public:
 };
 
 //190456 - Ignore Pain
-class spell_warr_ignore_pain : public SpellScriptLoader
+class spell_warr_ignore_pain : public SpellScript
 {
-public:
-    spell_warr_ignore_pain() : SpellScriptLoader("spell_warr_ignore_pain") {}
+    PrepareSpellScript(spell_warr_ignore_pain);
 
-    class spell_warr_ignore_pain_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_warr_ignore_pain_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RENEWED_FURY))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VENGEANCE_FOCUSED_RAGE))
-                return false;
-            return true;
-        }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                if(caster->HasAura(SPELL_WARRIOR_RENEWED_FURY))
-                    caster->CastSpell(caster, SPELL_WARRIOR_RENEWED_FURY_EFFECT, true);
-                if (caster->HasAura(SPELL_WARRIOR_VENGEANCE_AURA))
-                    caster->CastSpell(caster, SPELL_WARRIOR_VENGEANCE_FOCUSED_RAGE, true);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_ignore_pain_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    class spell_warr_ignore_pain_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_ignore_pain_AuraScript);
-
-        int32 m_ExtraSpellCost;
-
-        bool Load() override
-        {
-            Unit* caster = GetCaster();
-            // In this phase the initial 20 Rage cost is removed already
-            // We just check for bonus.
-            m_ExtraSpellCost = std::min(caster->GetPower(POWER_RAGE), 400);
-            return true;
-        }
-
-        void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                amount = (float)(22.3f * caster->GetTotalAttackPowerValue(BASE_ATTACK)) * (float(m_ExtraSpellCost+200) / 600.0f);
-                int32 m_newRage = caster->GetPower(POWER_RAGE) - m_ExtraSpellCost;
-                if (m_newRage < 0)
-                    m_newRage = 0;
-                caster->SetPower(POWER_RAGE, m_newRage);
-                if (Player* player = caster->ToPlayer())
-                    player->SendPowerUpdate(POWER_RAGE, m_newRage);
-            }
-        }
-
-        void OnAbsorb(AuraEffect * /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                SpellNonMeleeDamage spell(caster, caster, SPELL_WARRIOR_IGNORE_PAIN, 0, SPELL_SCHOOL_MASK_NORMAL);
-                spell.damage = dmgInfo.GetDamage() - dmgInfo.GetDamage() * 0.9f;
-                spell.cleanDamage = spell.damage;
-                caster->DealSpellDamage(&spell, false);
-                caster->SendSpellNonMeleeDamageLog(&spell);
-            }
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_ignore_pain_AuraScript::CalcAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_warr_ignore_pain_AuraScript::OnAbsorb, EFFECT_0);
-        }
-    };
-
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_ignore_pain_SpellScript();
+        return ValidateSpellInfo({ SPELL_WARRIOR_RENEWED_FURY, SPELL_WARRIOR_VENGEANCE_FOCUSED_RAGE });
     }
 
-    AuraScript* GetAuraScript() const override
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        return new spell_warr_ignore_pain_AuraScript();
+        if (Unit* caster = GetCaster())
+        {
+            if(caster->HasAura(SPELL_WARRIOR_RENEWED_FURY))
+                caster->CastSpell(caster, SPELL_WARRIOR_RENEWED_FURY_EFFECT, true);
+            if (caster->HasAura(SPELL_WARRIOR_VENGEANCE_AURA))
+                caster->CastSpell(caster, SPELL_WARRIOR_VENGEANCE_FOCUSED_RAGE, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_ignore_pain::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+//190456 - Ignore Pain
+class aura_warr_ignore_pain : public AuraScript
+{
+    PrepareAuraScript(aura_warr_ignore_pain);
+
+    int32 m_ExtraSpellCost;
+
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        // In this phase the initial 20 Rage cost is removed already
+        // We just check for bonus.
+        m_ExtraSpellCost = std::min(caster->GetPower(POWER_RAGE), 400);
+        return true;
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            amount = (float)(22.3f * caster->GetTotalAttackPowerValue(BASE_ATTACK)) * (float(m_ExtraSpellCost+200) / 600.0f);
+            int32 m_newRage = caster->GetPower(POWER_RAGE) - m_ExtraSpellCost;
+            if (m_newRage < 0)
+                m_newRage = 0;
+            caster->SetPower(POWER_RAGE, m_newRage);
+            if (Player* player = caster->ToPlayer())
+                player->SendPowerUpdate(POWER_RAGE, m_newRage);
+        }
+    }
+
+    void OnAbsorb(AuraEffect * /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            SpellNonMeleeDamage spell(caster, caster, SPELL_WARRIOR_IGNORE_PAIN, 0, SPELL_SCHOOL_MASK_NORMAL);
+            spell.damage = dmgInfo.GetDamage() - dmgInfo.GetDamage() * 0.9f;
+            spell.cleanDamage = spell.damage;
+            caster->DealSpellDamage(&spell, false);
+            caster->SendSpellNonMeleeDamageLog(&spell);
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(aura_warr_ignore_pain::CalcAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(aura_warr_ignore_pain::OnAbsorb, EFFECT_0);
     }
 };
 
@@ -2975,7 +2955,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_frenzy();
     new spell_warr_frothing_berserker();
     new spell_warr_heroic_leap();
-    new spell_warr_ignore_pain();
+    RegisterSpellAndAuraScriptPair(spell_warr_ignore_pain, aura_warr_ignore_pain);
     new spell_warr_impending_victory();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intercept();
