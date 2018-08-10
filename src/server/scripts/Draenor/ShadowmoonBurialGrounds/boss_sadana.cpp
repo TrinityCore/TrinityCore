@@ -623,7 +623,7 @@ public:
 
         void MovementInform(uint32 /*type*/, uint32 id) override
         {
-            if (id == m_MovementIndentifier)
+            if (id == m_MovementIndentifier && me->IsInWorld())
             {
                 /// Movement handler.
                 m_MovementIndentifier++;
