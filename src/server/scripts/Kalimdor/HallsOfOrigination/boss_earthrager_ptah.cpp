@@ -74,7 +74,7 @@ enum Spells
 
     // Tumultuous Earthstorm
     SPELL_CONSUME                   = 89633,
-    SPELL_CONSUME_DAMAGE            = 75369,
+    SPELL_CONSUME_DAMAGE            = 75369
 };
 
 enum Phases

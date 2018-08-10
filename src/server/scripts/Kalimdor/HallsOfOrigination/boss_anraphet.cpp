@@ -210,7 +210,7 @@ public:
             events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, Seconds(35), 0, PHASE_COMBAT);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             summons.DespawnAll();
