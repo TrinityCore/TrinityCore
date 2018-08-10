@@ -97,6 +97,7 @@ public:
     void AddMission(uint32 garrMissionId);
     Mission* GetMission(uint64 dbId);
     Mission* GetMissionByID(uint32 ID);
+    void DeleteMission(uint64 dbId);
     std::unordered_map<uint64 /*dbId*/, Garrison::Mission> const& GetMissions() const { return _missions; }
     std::vector<Follower*> GetMissionFollowers(uint32 garrMissionId);
     bool HasMission(uint32 garrMissionId) const;

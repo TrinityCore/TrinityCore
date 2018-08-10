@@ -141,8 +141,10 @@ bool Garrison::LoadFromDB()
             follower.PacketInfo.ItemLevelWeapon = fields[4].GetUInt32();
             follower.PacketInfo.ItemLevelArmor = fields[5].GetUInt32();
             follower.PacketInfo.Xp = fields[6].GetUInt32();
+            follower.PacketInfo.CurrentBuildingID = fields[7].GetUInt32();
             follower.PacketInfo.CurrentMissionID = fields[8].GetUInt32();
             follower.PacketInfo.FollowerStatus = fields[9].GetUInt32();
+
             if (!sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID))
                 follower.PacketInfo.CurrentBuildingID = 0;
 
@@ -532,6 +534,11 @@ Garrison::Mission* Garrison::GetMissionByID(uint32 ID)
     return nullptr;
 }
 
+void Garrison::DeleteMission(uint64 dbId)
+{
+    _missions.erase(dbId);
+}
+
 std::vector<Garrison::Follower*> Garrison::GetMissionFollowers(uint32 garrMissionId)
 {
     std::vector<Garrison::Follower*> missionFollowers;
@@ -738,6 +745,8 @@ void Garrison::CalculateMissonBonusRoll(uint32 garrMissionId)
     garrisonMissionBonusRollResult.Mission = mission->PacketInfo;
     garrisonMissionBonusRollResult.Result = 0;
     _owner->SendDirectMessage(garrisonMissionBonusRollResult.Write());
+
+    DeleteMission(mission->PacketInfo.DbID);
 }
 
 void Garrison::RewardMission(Mission* mission, bool withOvermaxReward)
