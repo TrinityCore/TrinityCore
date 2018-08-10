@@ -138,6 +138,11 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum AreaFlags2
+{
+    AREA_FLAG_GARRISON  = 0x20,
+};
+
 enum AreaMountFlags
 {
     AREA_MOUNT_FLAG_GROUND_ALLOWED      = 0x1,

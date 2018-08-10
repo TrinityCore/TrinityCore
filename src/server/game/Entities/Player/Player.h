@@ -24,6 +24,7 @@
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "EquipementSet.h"
+#include "GarrisonMgr.h"
 #include "GroupReference.h"
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
@@ -1058,7 +1059,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetObjectScale(float scale) override;
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
+        bool TeleportTo(uint32 mapid, Position const &pos, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
+        bool SeamlessTeleportToMap(uint32 mapid, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -1444,6 +1447,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CurrencyChanged(uint32 currencyId, int32 change);
         bool HasQuestForItem(uint32 itemId) const;
         bool HasQuestForGO(int32 goId) const;
+        bool HasQuest(uint32 questID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
 
@@ -2366,15 +2370,54 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void OnCombatExit();
 
+        // Garrisons
+
         void CreateGarrison(uint32 garrSiteId);
-        void DeleteGarrison();
-        Garrison* GetGarrison() const { return _garrison.get(); }
+        void DeleteGarrison(GarrisonType type);
+        PlayerGarrisonMap& GetGarrisons() { return _garrisons; }
+        Garrison* GetGarrison(GarrisonType type) const { auto garItr = _garrisons.find(type); return (garItr != _garrisons.end()) ? garItr->second.get() : nullptr; }
+
+        GarrisonType GetCurrentGarrison() const;
+        void SetCurrentGarrison(GarrisonType type);
+        bool IsInGarrison() const;
+
+        void AddGarrisonFollower(uint32 garrFollowerId);
+        void AddGarrisonMission(uint32 garrMissionId);
+
+        void SendGarrisonInfo() const;
+        void SendGarrisonRemoteInfo() const;
+        void SendGarrisonBlueprintAndSpecializationData() const;
+
+        // End Garrisons
 
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
+
+        struct MovieDelayedTeleport
+        {
+            uint32 movieId;
+            WorldLocation loc;
+        };
+
+        std::vector<MovieDelayedTeleport> MovieDelayedTeleports;
+
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, float x, float y, float z, float o)
+        {
+            MovieDelayedTeleport data;
+            data.movieId = movieId;
+            data.loc = WorldLocation(mapID);
+            data.loc.Relocate(x, y, z, o);
+
+            MovieDelayedTeleports.push_back(data);
+        }
+
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, Position pos)
+        {
+            AddMovieDelayedTeleport(movieId, mapID, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        }
 
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
 
@@ -2713,7 +2756,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
 
-        std::unique_ptr<Garrison> _garrison;
+        PlayerGarrisonMap _garrisons;
+        GarrisonType _insideGarrisonType;
 
         bool _advancedCombatLoggingEnabled;
 

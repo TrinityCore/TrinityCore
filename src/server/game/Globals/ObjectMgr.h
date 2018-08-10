@@ -1582,6 +1582,9 @@ class TC_GAME_API ObjectMgr
 
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
+        void LoadGarrisonScriptNames();
+        uint32 GetScriptIdForGarrison(uint32 siteLevelId);
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1673,6 +1676,8 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, TerrainSwapInfo> _terrainSwapInfoById;
         std::unordered_map<uint32, std::vector<PhaseAreaInfo>> _phaseInfoByArea;
         std::unordered_map<uint32, std::vector<TerrainSwapInfo*>> _terrainSwapInfoByMap;
+
+        std::unordered_map<uint32, uint32> _scriptIdsByGarrisonStore;
 
     private:
         void LoadScripts(ScriptsType type);

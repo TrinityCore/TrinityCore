@@ -1730,51 +1730,57 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         {
             if (!referencePlayer)
                 return false;
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
-            if (!follower || follower->PacketInfo.GarrFollowerID != reqValue)
-                return false;
-            break;
+
+            for (auto const& garrison : referencePlayer->GetGarrisons())
+            {
+                Garrison::Follower const* follower = garrison.second->GetFollower(miscValue1);
+                if (follower && follower->PacketInfo.GarrFollowerID == reqValue)
+                    return true;
+            }
+
+            return false;
         }
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY: // 145
         {
             if (!referencePlayer)
                 return false;
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
-            if (!follower || follower->PacketInfo.Quality != reqValue)
-                return false;
 
-            break;
+            for (auto const& garrison : referencePlayer->GetGarrisons())
+            {
+                Garrison::Follower const* follower = garrison.second->GetFollower(miscValue1);
+                if (follower && follower->PacketInfo.Quality == reqValue)
+                    return true;
+            }
+
+            return false;
         }
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL: // 146
         {
             if (!referencePlayer)
                 return false;
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
-            if (!follower || follower->PacketInfo.FollowerLevel < reqValue)
-                return false;
 
-            break;
+            for (auto const& garrison : referencePlayer->GetGarrisons())
+            {
+                Garrison::Follower const* follower = garrison.second->GetFollower(miscValue1);
+                if (follower && follower->PacketInfo.FollowerLevel >= reqValue)
+                    return true;
+            }
+
+            return false;
         }
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL: // 184
         {
             if (!referencePlayer)
                 return false;
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
-            if (!follower || follower->GetItemLevel() < reqValue)
-                return false;
-            break;
+
+            for (auto const& garrison : referencePlayer->GetGarrisons())
+            {
+                Garrison::Follower const* follower = garrison.second->GetFollower(miscValue1);
+                if (follower && follower->GetItemLevel() >= reqValue)
+                    return true;
+            }
+
+            return false;
         }
         case CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL: // 193
             if (!referencePlayer || referencePlayer->GetHonorLevel() != reqValue)

@@ -1646,6 +1646,63 @@ struct GarrFollowerLoadInfo
     }
 };
 
+struct GarrFollowerLevelXPLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "XpToNextLevel" },
+            { false, FT_SHORT, "ShipmentXP" },
+            { false, FT_BYTE, "FollowerLevel" },
+            { false, FT_BYTE, "GarrFollowerTypeId" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerLevelXPMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP);
+        return &loadInfo;
+    }
+};
+
+struct GarrFollowerQualityLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "XpToNextQuality" },
+            { false, FT_SHORT, "ShipmentXP" },
+            { false, FT_BYTE, "Quality" },
+            { false, FT_BYTE, "AbilityCount" },
+            { false, FT_BYTE, "TraitCount" },
+            { false, FT_BYTE, "GarrFollowerTypeId" },
+            { false, FT_INT, "ClassSpecId" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerQualityMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_QUALITY);
+        return &loadInfo;
+    }
+};
+
+struct GarrFollowerTypeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "MaxItemLevel" },
+            { false, FT_BYTE, "MaxFollowers" },
+            { false, FT_BYTE, "MaxFollowerBuildingType" },
+            { false, FT_BYTE, "GarrTypeId" },
+            { false, FT_BYTE, "LevelRangeBias" },
+            { false, FT_BYTE, "ItemLevelRangeBias" },
+            { false, FT_BYTE, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerTypeMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_TYPE);
+        return &loadInfo;
+    }
+};
+
 struct GarrFollowerXAbilityLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -1658,6 +1715,49 @@ struct GarrFollowerXAbilityLoadInfo
             { false, FT_SHORT, "GarrFollowerID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerXAbilityMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY);
+        return &loadInfo;
+    }
+};
+
+struct GarrMissionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "Location" },
+            { false, FT_INT, "MissionDuration" },
+            { false, FT_INT, "OfferDuration" },
+            { false, FT_FLOAT, "MapPosX" },
+            { false, FT_FLOAT, "MapPosY" },
+            { false, FT_FLOAT, "WorldPosX" },
+            { false, FT_FLOAT, "WorldPosY" },
+            { false, FT_SHORT, "TargetItemLevel" },
+            { false, FT_SHORT, "UiTextureKitId" },
+            { false, FT_SHORT, "MissionCostCurrencyTypesId" },
+            { false, FT_BYTE, "TargetLevel" },
+            { false, FT_BYTE, "EnvGarrMechanicTypeId" },
+            { false, FT_BYTE, "MaxFollowers" },
+            { false, FT_BYTE, "OfferedGarrMissionTextureId" },
+            { false, FT_BYTE, "GarrMissionTypeId" },
+            { false, FT_BYTE, "GarrFollowerTypeId" },
+            { false, FT_BYTE, "BaseCompletionChance" },
+            { false, FT_BYTE, "FollowerDeathChance" },
+            { false, FT_BYTE, "GarrTypeID" },
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TravelDuration" },
+            { false, FT_INT, "PlayerConditionId" },
+            { false, FT_INT, "SubCategory1" },
+            { false, FT_INT, "MissionCost" },
+            { false, FT_INT, "Flags" },
+            { false, FT_INT, "BaseFollowerXP" },
+            { false, FT_INT, "AreaId" },
+            { false, FT_INT, "OvermaxRewardPackId" },
+            { false, FT_INT, "EnvGarrMechanicId" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrMissionMeta::Instance(), HOTFIX_SEL_GARR_MISSION);
         return &loadInfo;
     }
 };

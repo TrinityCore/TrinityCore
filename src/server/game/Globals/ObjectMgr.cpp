@@ -9226,6 +9226,36 @@ uint32 ObjectMgr::GetScriptId(std::string const& name)
     return uint32(itr - _scriptNamesStore.begin());
 }
 
+void ObjectMgr::LoadGarrisonScriptNames()
+{
+    uint32 oldMSTime = getMSTime();
+    QueryResult result = WorldDatabase.Query("SELECT GarSiteLevelId, ScriptName FROM garrison_scripts");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loading 0 garrison scripts");
+        return;
+    }
+
+    do
+    {
+        if (uint32 scriptId = GetScriptId((*result)[1].GetString()))
+            _scriptIdsByGarrisonStore[(*result)[0].GetUInt32()] = scriptId;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " garrison scriptnames in %u ms", _scriptIdsByGarrisonStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint32 ObjectMgr::GetScriptIdForGarrison(uint32 siteLevelId)
+{
+    auto itr = _scriptIdsByGarrisonStore.find(siteLevelId);
+    if (itr != _scriptIdsByGarrisonStore.end())
+        return itr->second;
+
+    return 0;
+}
+
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
 {
     CreatureBaseStatsContainer::const_iterator it = _creatureBaseStatsStore.find(MAKE_PAIR16(level, unitClass));

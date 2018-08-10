@@ -54,7 +54,7 @@ void GarrisonMgr::Initialize()
     {
         if (GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(followerAbility->GarrAbilityID))
         {
-            if (ability->GarrFollowerTypeID != FOLLOWER_TYPE_GARRISON)
+            if (ability->GarrFollowerTypeID != FOLLOWER_TYPE_GARRISON && ability->GarrFollowerTypeID != FOLLOWER_TYPE_CLASS_HALL)
                 continue;
 
             if (!(ability->Flags & GARRISON_ABILITY_CANNOT_ROLL) && ability->Flags & GARRISON_ABILITY_FLAG_TRAIT)
@@ -153,6 +153,17 @@ uint64 GarrisonMgr::GenerateFollowerDbId()
     }
 
     return _followerDbIdGenerator++;
+}
+
+uint64 GarrisonMgr::GenerateMissionDbId()
+{
+    if (_missionDbIdGenerator >= std::numeric_limits<uint64>::max())
+    {
+        TC_LOG_ERROR("misc", "Garrison mission db id overflow! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    return _missionDbIdGenerator++;
 }
 
 uint32 const AbilitiesForQuality[][2] =
@@ -329,10 +340,54 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::GetClassSpecAbilities(GarrFollow
     return abilities;
 }
 
+uint32 GarrisonMgr::GetMissionSuccessChance(Garrison* /*garrison*/, uint32 /*missionId*/)
+{
+    uint32 winChance = 100;
+
+    // TODO
+
+    return winChance;
+}
+
+uint32 GarrisonMgr::GetClassByMissionType(uint32 missionType)
+{
+    switch (missionType)
+    {
+        case GarrisonMission::Type::ArtifactMonk:           return CLASS_MONK;
+        case GarrisonMission::Type::ArtifactShaman:         return CLASS_SHAMAN;
+        case GarrisonMission::Type::ArtifactDruid:          return CLASS_DRUID;
+        case GarrisonMission::Type::ArtifactMage:           return CLASS_MAGE;
+        case GarrisonMission::Type::ArtifactHunter:         return CLASS_HUNTER;
+        case GarrisonMission::Type::ArtifactPaladin:        return CLASS_PALADIN;
+        case GarrisonMission::Type::ArtifactWarlock:        return CLASS_WARLOCK;
+        case GarrisonMission::Type::ArtifactDemonHunter:    return CLASS_DEMON_HUNTER;
+        case GarrisonMission::Type::ArtifactRogue:          return CLASS_ROGUE;
+        case GarrisonMission::Type::ArtifactPriest:         return CLASS_PRIEST;
+        case GarrisonMission::Type::ArtifactDeathKnight:    return CLASS_DEATH_KNIGHT;
+        case GarrisonMission::Type::ArtifactWarrior:        return CLASS_WARRIOR;
+    }
+
+    return CLASS_NONE;
+}
+
+uint32 GarrisonMgr::GetFactionByMissionType(uint32 missionType)
+{
+    switch (missionType)
+    {
+        case GarrisonMission::Type::ZoneSupportAlliance:    return TEAM_ALLIANCE;
+        case GarrisonMission::Type::ZoneSupportHorde:       return TEAM_HORDE;
+    }
+
+    return TEAM_OTHER;
+}
+
 void GarrisonMgr::InitializeDbIdSequences()
 {
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers"))
         _followerDbIdGenerator = (*result)[0].GetUInt64() + 1;
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_missions"))
+        _missionDbIdGenerator = (*result)[0].GetUInt64() + 1;
 }
 
 void GarrisonMgr::LoadPlotFinalizeGOInfo()
