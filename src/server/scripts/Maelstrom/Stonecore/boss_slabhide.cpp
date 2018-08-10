@@ -287,8 +287,9 @@ class boss_slabhide : public CreatureScript
                         case EVENT_ATTACK:
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, Seconds(6), Seconds(8));
                             events.ScheduleEvent(EVENT_SAND_BLAST, Seconds(8), Seconds(10));
-                            DoCast(me, SPELL_CRYSTAL_STORM_PERIODIC);
                             me->SetReactState(REACT_AGGRESSIVE);
+                            if (IsHeroic())
+                                DoCast(me, SPELL_CRYSTAL_STORM_PERIODIC);
                             break;
                         default:
                             break;
