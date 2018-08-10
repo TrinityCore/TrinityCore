@@ -7107,9 +7107,9 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                                 crit_chance += (*i)->GetAmount();
                             break;
-                        case 7997: // Renewed Hope
-                        case 7998:
-                            if (victim->HasAura(6788))
+                        case 57470: // Renewed Hope
+                        case 57472:
+                            if (victim->HasAura(6788) || victim->HasAura(47930))
                                 crit_chance += (*i)->GetAmount();
                             break;
                         default:
