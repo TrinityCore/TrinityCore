@@ -704,15 +704,12 @@ class spell_pal_eye_for_an_eye : public AuraScript
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        PreventDefaultAction();
-        Unit* caster = GetCaster();
-
-        caster->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, true);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, true);
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
