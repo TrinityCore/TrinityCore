@@ -2336,7 +2336,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_bloodtalons();
     new spell_dru_travel_form_dummy();
     new spell_dru_travel_form();
-    RegisterAuraScript(spell_dru_charm_woodland_creature);
+    RegisterAuraScript(aura_dru_charm_woodland_creature);
 
     RegisterSpellScript(spell_dru_thrash);
     RegisterAuraScript(spell_dru_thrash_periodic_damage);
