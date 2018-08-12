@@ -1,3 +1,4 @@
+/*
 -- Smiling Jim
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4895;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4895 AND `source_type`=0;
@@ -15,3 +16,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (4895,1,0,"A grinning face from ear to ear...",12,7,100,0,0,0,1633,0,"Smiling Jim"),
 (4895,2,0,"He's served us all from year to year...",12,7,100,0,0,0,1634,0,"Smiling Jim"),
 (4895,3,0,"We call him Smiling Jim...",12,7,100,11,0,0,1635,0,"Smiling Jim");
+*/

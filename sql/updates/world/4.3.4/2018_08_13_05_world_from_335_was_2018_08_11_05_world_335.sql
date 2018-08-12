@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `quest_template_addon` WHERE `ID`=1268;
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`) VALUES
@@ -8,3 +9,4 @@ UPDATE `quest_template_addon` SET `PrevQuestID`=0 WHERE `ID`=1276; -- Quest "The
 UPDATE `quest_template_addon` SET `PrevQuestID`=1276 WHERE `ID`=11204; -- Quest "Return to Krog"
 UPDATE `quest_template_addon` SET `ExclusiveGroup`=-11201, `NextQuestID`=11203 WHERE `ID` IN (11201,11200); -- Quests "The Grimtotem Plot" / "More than Coincidence"
 UPDATE `quest_template_addon` SET `PrevQuestID`=0 WHERE `ID`=11203; -- Quest "Seek Out Tabetha"
+*/

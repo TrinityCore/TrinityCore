@@ -1,3 +1,4 @@
+/*
 -- Acolyte Dellis
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=5386;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=5386 AND `source_type`=0;
@@ -10,3 +11,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (5386,0,1,"It was a simple mistake. A wrong turn I tell you!",12,7,100,0,0,0,1829,0,"Acolyte Dellis"),
 (5386,0,2,"The swamp was horrible! I was so... so... scared!",12,7,100,0,0,0,1830,0,"Acolyte Dellis"),
 (5386,0,3,"I'm lucky to be alive!",12,7,100,0,0,0,1831,0,"Acolyte Dellis");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Renn McGill
 UPDATE `creature_template` SET `unit_flags`=33536 WHERE `entry`=23569;
 
@@ -28,3 +29,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (23569,0,0,"Hmm... old coins... ugly jewelry...",12,7,100,0,0,0,22160,0,"Renn McGill"),
 (23569,1,0,"More ugly jewelry... letters home... I'm beginning to give up hope!",12,7,100,0,0,0,22161,0,"Renn McGill"),
 (23569,2,0,"Hey... what's this? A pair of manacles and not just any. These are enchanted. This cargo, it wasn't a thing... it was a person!",12,7,100,0,0,0,22162,0,"Renn McGill");
+*/

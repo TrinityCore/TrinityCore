@@ -1,3 +1,4 @@
+/*
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN (4962,4971,4963);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -71,3 +72,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (497100,9,1,0,0,0,100,0,0,0,0,0,0,2,123,0,0,0,0,0,1,0,0,0,0,0,0,0,"Slim's Friend - On Script - Set Faction 123"),
 (497100,9,2,0,0,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Slim's Friend - On Script - Say Line 0"),
 (497100,9,3,0,0,0,100,0,6000,6000,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Slim's Friend - On Script - Despawn");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Calia Hastings
 UPDATE `creature_template` SET `npcflag`=2, `gossip_menu_id`=0 WHERE `entry`=23566; -- She didn't have a gossip text in WotLK. Current text was added in Cata when she became a rogue trainer.
 
@@ -33,3 +34,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (23566,5,-3818.89,-4564.21,8.92453,""),
 (23566,6,-3817.87,-4561.44,9.11807,""),
 (23566,7,-3819.74,-4562.35,9.14216,"");
+*/
