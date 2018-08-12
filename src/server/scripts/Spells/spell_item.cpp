@@ -4634,6 +4634,38 @@ class spell_item_brutal_kinship : public SpellScriptLoader
         }
 };
 
+enum BurningEssenceSpell
+{
+    MODEL_DRUID_OF_THE_FLAMES            = 38150
+};
+
+// Druid of the Flames - 99245, used by Fandral's Flamescythe
+// Burning Essence - 138927, used by Burning Seed and Fandral's Seed Pouch
+class aura_item_burning_essence : public AuraScript
+{
+    PrepareAuraScript(aura_item_burning_essence);
+
+    void OnApply(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->GetShapeshiftForm() == FORM_CAT_FORM)       // Check if the caster is in Cat Form
+                caster->SetDisplayId(MODEL_DRUID_OF_THE_FLAMES);    // Change the caster model to Druid of the Flames (Fire Cat Form)
+    }
+
+    void OnRemove(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* target = GetTarget())
+            if (target->GetShapeshiftForm() == FORM_CAT_FORM)       // Check if the target is in Cat Form
+                target->RestoreDisplayId();                         // Restore the target model
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(aura_item_burning_essence::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(aura_item_burning_essence::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4750,4 +4782,5 @@ void AddSC_item_spell_scripts()
     new spell_item_world_queller_focus();
     new spell_item_water_strider();
     new spell_item_brutal_kinship();
+    RegisterAuraScript(aura_item_burning_essence);
 }
