@@ -1,0 +1,9 @@
+UPDATE creature_template SET scriptname = "npc_giant_infernal" WHERE scriptname = "mob_giant_infernal";
+UPDATE creature_template SET scriptname = "npc_abomination" WHERE scriptname = "mob_abomination";
+UPDATE creature_template SET scriptname = "npc_ghoul" WHERE scriptname = "mob_ghoul";
+UPDATE creature_template SET scriptname = "npc_necromancer" WHERE scriptname = "mob_necromancer";
+UPDATE creature_template SET scriptname = "npc_banshee" WHERE scriptname = "mob_banshee";
+UPDATE creature_template SET scriptname = "npc_crypt_fiend" WHERE scriptname = "mob_crypt_fiend";
+UPDATE creature_template SET scriptname = "npc_fel_stalker" WHERE scriptname = "mob_fel_stalker";
+UPDATE creature_template SET scriptname = "npc_frost_wyrm" WHERE scriptname = "mob_frost_wyrm";
+UPDATE creature_template SET scriptname = "npc_gargoyle" WHERE scriptname = "mob_gargoyle";

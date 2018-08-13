@@ -86,13 +86,13 @@ public:
 
     ToyBoxContainer const& GetAccountToys() const { return _toys; }
 
-    void OnItemAdded(Item* item);
+    void OnItemAdded(Item* item, Player* owner = nullptr);
 
     // Account-wide heirlooms
     void LoadHeirlooms();
     void LoadAccountHeirlooms(PreparedQueryResult result);
     void SaveAccountHeirlooms(SQLTransaction& trans);
-    void AddHeirloom(uint32 itemId, uint32 flags);
+    void AddHeirloom(uint32 itemId, uint32 flags, Player* owner = nullptr);
     void UpgradeHeirloom(uint32 itemId, int32 castItem);
     void CheckHeirloomUpgrades(Item* item);
 

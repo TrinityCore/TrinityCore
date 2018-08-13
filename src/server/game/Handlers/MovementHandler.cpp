@@ -47,6 +47,9 @@ void WorldSession::HandleMoveWorldportAck()
     if (!GetPlayer()->IsBeingTeleportedFar())
         return;
 
+    // We must calculate this before SetSemaphoreTeleportFar(false)
+    uint32 castOnArrivalSpellId = GetPlayer()->GetOnArrivalCastSpellTeleport();
+
     bool seamlessTeleport = GetPlayer()->IsBeingTeleportedSeamlessly();
     GetPlayer()->SetSemaphoreTeleportFar(false);
 
@@ -139,8 +142,7 @@ void WorldSession::HandleMoveWorldportAck()
     else
     {
         GetPlayer()->UpdateVisibilityForPlayer();
-        if (Garrison* garrison = GetPlayer()->GetGarrison())
-            garrison->SendRemoteInfo();
+        GetPlayer()->SendGarrisonRemoteInfo();
     }
 
     // flight fast teleport case
@@ -215,6 +217,13 @@ void WorldSession::HandleMoveWorldportAck()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+
+    // now that the player has been relocated, it's time to cast the arrival spell (if any)
+    if (castOnArrivalSpellId != 0)
+    {
+        GetPlayer()->CastSpell(GetPlayer(), castOnArrivalSpellId, true);
+        GetPlayer()->ResetOnArrivalCastSpellTeleport();
+    }
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
@@ -418,7 +427,23 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
 
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.pos.GetPositionZ() < plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY()))
+        // TODO : Fix GetMap()->GetMinHeight for Vash'jir
+        float minHeight = -500.0f;
+        switch (plrMover->GetAreaId())
+        {
+            case 4815:
+            case 4816:
+            case 5144:
+            case 5145:
+            case 5146:
+                minHeight = -2000.0f;
+                break;
+            default:
+                minHeight = plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY());
+                break;
+        }
+
+        if (movementInfo.pos.GetPositionZ() < minHeight)
         {
             if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
             {

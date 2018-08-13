@@ -17,6 +17,7 @@
 
 #include "MiscPackets.h"
 #include "Common.h"
+#include "Player.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
@@ -105,6 +106,11 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
 void WorldPackets::Misc::ViolenceLevel::Read()
 {
     _worldPacket >> ViolenceLvl;
+}
+
+void WorldPackets::Misc::PlayerSelectFaction::Read()
+{
+    _worldPacket >> SelectedFaction;
 }
 
 WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
@@ -606,6 +612,36 @@ WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::ReqResearchHistory const& resHistory)
+{
+    data << resHistory.id;
+    data << resHistory.time;
+    data << resHistory.count;
+
+    return data;
+}
+
+void WorldPackets::Misc::ResearchHistory::Read()
+{
+    _worldPacket << resHistory;
+}
+
+WorldPacket const* WorldPackets::Misc::ResearchSetupHistory::Write()
+{
+    _worldPacket << int32(ResearchHistory.size());
+
+    for (auto const& Research : ResearchHistory)
+        _worldPacket << Research;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ResearchComplete::Write()
+{
+    _worldPacket << researchHistory;
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
 {
     _worldPacket << UnitGUID;
@@ -676,4 +712,44 @@ void WorldPackets::Misc::MountSetFavorite::Read()
 void WorldPackets::Misc::CloseInteraction::Read()
 {
     _worldPacket >> SourceGuid;
+}
+
+void WorldPackets::Misc::FactionSelect::Read()
+{
+    _worldPacket >> FactionChoice;
+}
+
+void WorldPackets::Misc::AdventureJournalOpenQuest::Read()
+{
+    _worldPacket >> AdventureJournalID;
+}
+
+void WorldPackets::Misc::AdventureJournalStartQuest::Read()
+{
+    _worldPacket >> QuestID;
+}
+
+WorldPacket const* WorldPackets::Misc::StartTimer::Write()
+{
+    _worldPacket << Type;
+    _worldPacket << TimeLeft;
+    _worldPacket << TotalTime;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
+{
+    _worldPacket << TimerID;
+    _worldPacket << CurrentDuration;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::OpenAlliedRaceDetailsGiver::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << RaceId;
+
+    return &_worldPacket;
 }

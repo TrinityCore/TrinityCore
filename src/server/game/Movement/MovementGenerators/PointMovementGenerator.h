@@ -73,8 +73,8 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
-            : _id(id), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
+        EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellCasterGuid = ObjectGuid::Empty, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
+            : _id(id), _arrivalSpellId(arrivalSpellId), _arrivalSpellCasterGuid(arrivalSpellCasterGuid), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
         void Initialize(Unit*) override { }
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
@@ -83,6 +83,7 @@ class EffectMovementGenerator : public MovementGenerator
     private:
         uint32 _id;
         uint32 _arrivalSpellId;
+        ObjectGuid _arrivalSpellCasterGuid;
         ObjectGuid _arrivalSpellTargetGuid;
 };
 

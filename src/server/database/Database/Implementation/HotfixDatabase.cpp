@@ -36,6 +36,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Faction, Points, MinimumCriteria, ID, IconFileID, CriteriaTree FROM achievement ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT ID, Title_lang, Description_lang, Reward_lang FROM achievement_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // AdventureJournal.db2
+    PrepareStatement(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Title, Description, ButtonText, Unk1, Unk2, Unk3, ObjectiveText, Unk4, QuestID, Unk5_1, Unk5_2, Unk6, Unk7, Unk8, Unk9, "
+        "Unk10, Unk11, Unk12, Unk13, Unk14_1, Unk14_2, Unk15, Unk16, Unk17 FROM adventure_journal ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Title_lang, Description_lang, ButtonText_lang, Unk3_lang, ObjectiveText_lang FROM adventure_journal_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // AnimKit.db2
     PrepareStatement(HOTFIX_SEL_ANIM_KIT, "SELECT ID, OneShotDuration, OneShotStopAnimKitID, LowDefAnimKitID FROM anim_kit ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -118,6 +123,22 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BARBER_SHOP_STYLE, "SELECT ID, DisplayName_lang, Description_lang FROM barber_shop_style_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // BattlePetAbility.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT ID, Name, Description, IconFileDataID, BattlePetVisualID, PetTypeEnum, Flags, Cooldown "
+        "FROM battle_pet_ability ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT ID, Name_lang, Description_lang FROM battle_pet_ability_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // BattlePetAbilityEffect.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_EFFECT, "SELECT BattlePetAbilityTurnID, BattlePetVisualID, AuraBattlePetAbilityID, BattlePetEffectPropertiesID, "
+        "Param1, Param2, Param3, Param4, Param5, Param6, OrderIndex, ID FROM battle_pet_ability_effect ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetAbilityState.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_STATE, "SELECT ID, Value, BattlePetStateID, BattlePetAbilityID FROM battle_pet_ability_state ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetAbilityTurn.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_TURN, "SELECT BattlePetAbilityID, BattlePetVisualID, OrderIndex, TurnTypeEnum, EventTypeEnum, ID "
+        "FROM battle_pet_ability_turn ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // BattlePetBreedQuality.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_BREED_QUALITY, "SELECT ID, StateMultiplier, QualityEnum FROM battle_pet_breed_quality ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -132,6 +153,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // BattlePetSpeciesState.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES_STATE, "SELECT ID, Value, BattlePetStateID, BattlePetSpeciesID FROM battle_pet_species_state"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetSpeciesXAbility.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY, "SELECT ID, BattlePetAbilityID, RequiredLevel, SlotEnum, BattlePetSpeciesID FROM battle_pet_species_x_abitily"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // BattlemasterList.db2
@@ -357,9 +382,28 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_FOLLOWER, "SELECT ID, HordeSourceText_lang, AllianceSourceText_lang, TitleName_lang FROM garr_follower_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 
+    // GarrFollowerType.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_TYPE, "SELECT ID, MaxItemLevel, MaxFollowers, MaxFollowerBuildingType, GarrTypeId, LevelRangeBias, ItemLevelRangeBias, Flags FROM garr_follower_type"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollowerLevelXP.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP, "SELECT ID, XpToNextLevel, ShipmentXP, FollowerLevel, GarrFollowerTypeId FROM garr_follower_level_xp"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollowerQuality.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_QUALITY, "SELECT ID, XpToNextQuality, ShipmentXP, Quality, AbilityCount, TraitCount, GarrFollowerTypeId, ClassSpecId FROM garr_follower_quality"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GarrFollowerXAbility.db2
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrAbilityID, FactionIndex, GarrFollowerID FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrMission.db2
+    PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT Duration, OfferTime, Name, Description, Location, Map1X, Map1Y, Map2X, Map2Y, RequiredItemLevel, "
+        "LocPrefixID, CurrencyID, RequiredLevel, GarrMechanicTypeRecID, RequiredFollowersCount, Category, MissionType, LostChance, unk1, ID, TravelTime, "
+        "SubCategory2, SubCategory1, CurrencyCost, Flags, RewardFollowerExperience, unk2, unk3, unk4, VerifiedBuild FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, Name_lang, Description_lang, Location_lang FROM garr_mission_locale"
+        " WHERE locale = ?", CONNECTION_SYNCH);
 
     // GarrPlot.db2
     PrepareStatement(HOTFIX_SEL_GARR_PLOT, "SELECT ID, Name, AllianceConstructObjID, HordeConstructObjID, UiCategoryID, PlotType, Flags, "
@@ -382,6 +426,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // GemProperties.db2
     PrepareStatement(HOTFIX_SEL_GEM_PROPERTIES, "SELECT ID, Type, EnchantId, MinItemLevel FROM gem_properties ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GlobalStrings.db2
+    PrepareStatement(HOTFIX_SEL_GLOBAL_STRINGS, "SELECT ID, StringName, StringValue, Unknown FROM global_strings ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GLOBAL_STRINGS, "SELECT ID, StringValue_lang FROM global_strings_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // GlyphBindableSpell.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -632,6 +680,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_MAP, "SELECT ID, MapName_lang, MapDescription0_lang, MapDescription1_lang, PvpShortDescription_lang, "
         "PvpLongDescription_lang FROM map_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // MapChallengeMode.db2
+    PrepareStatement(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT Name, ID, MapID, CriteriaCount1, CriteriaCount2, CriteriaCount3, Flags "
+        " FROM map_challenge_mode ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT ID, Name_lang FROM map_challenge_mode_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // MapDifficulty.db2
     PrepareStatement(HOTFIX_SEL_MAP_DIFFICULTY, "SELECT ID, Message, DifficultyID, ResetInterval, MaxPlayers, LockID, Flags, ItemContext, "
         "ItemContextPickerID, MapID FROM map_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -739,6 +792,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_QUEST_MONEY_REWARD, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_money_reward ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // QuestV2CliTask.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT Unk1, Name, Description, Unk2, Unk3, Unk4, Unk5, QuestID0, QuestID1, QuestID2, "
+        "Unk7, Unk8, Unk9, Unk10, Unk11, Unk12, Unk13, Unk14, Unk15, Unk16, RequiredLevel, Unk18, ID, Unk19, QuestInfoID "
+        "FROM QuestV2CliTask ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // QuestPackageItem.db2
     PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, ItemID, PackageID, DisplayType, ItemQuantity FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -753,9 +811,28 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_QUEST_XP, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, Difficulty7, "
         "Difficulty8, Difficulty9, Difficulty10 FROM quest_xp ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // QuestPOIBlob.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT ID, MapId, WorldMapAreaId, NumPoints, Floor, PlayerConditionId, QuestId, ObjectiveIndex FROM quest_poi_blob ORDER BY Id DESC", CONNECTION_SYNCH);
+
+    // QuestPOIPoint.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_POINT, "SELECT ID, X, Y, QuestPoiBlobId FROM quest_poi_point ORDER BY Id DESC", CONNECTION_SYNCH);
+
     // RandPropPoints.db2
     PrepareStatement(HOTFIX_SEL_RAND_PROP_POINTS, "SELECT ID, Epic1, Epic2, Epic3, Epic4, Epic5, Superior1, Superior2, Superior3, Superior4, "
         "Superior5, Good1, Good2, Good3, Good4, Good5 FROM rand_prop_points ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ResearchBranch.db2
+    PrepareStatement(HOTFIX_SEL_RESEARCH_BRANCH, "SELECT ID, Name, ItemId, CurrencyId, ResearchFieldId, TextureFileId, BigTextureFileId FROM research_branch ORDER BY Id DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_RESEARCH_BRANCH, "SELECT ID, Name_lang FROM research_branch_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ResearchProject.db2
+    PrepareStatement(HOTFIX_SEL_RESEARCH_PROJECT, "SELECT Name, Description, SpellId, ResearchBranchId, Rarity, NumSockets, ID, TextureFileId, RequiredWeight "
+        "FROM research_project ORDER BY Id DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_RESEARCH_PROJECT, "SELECT ID, Name_lang, Description_lang FROM research_project_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ResearchSite.db2
+    PrepareStatement(HOTFIX_SEL_RESEARCH_SITE, "SELECT ID, Name, QuestPoiBlobId, MapId, AreaPOIIconEnum FROM research_site ORDER BY Id DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_RESEARCH_SITE, "SELECT ID, Name_lang FROM research_site_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // RewardPack.db2
     PrepareStatement(HOTFIX_SEL_REWARD_PACK, "SELECT ID, Money, ArtifactXPMultiplier, ArtifactXPDifficulty, ArtifactXPCategoryID, CharTitleID, "

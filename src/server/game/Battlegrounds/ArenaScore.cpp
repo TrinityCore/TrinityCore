@@ -49,15 +49,15 @@ std::string ArenaScore::ToString() const
     return stream.str();
 }
 
-ArenaTeamScore::ArenaTeamScore()
+ArenaGroupScore::ArenaGroupScore()
 {
 }
 
-ArenaTeamScore::~ArenaTeamScore()
+ArenaGroupScore::~ArenaGroupScore()
 {
 }
 
-void ArenaTeamScore::Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR)
+void ArenaGroupScore::Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR)
 {
     PreMatchRating = preMatchRating;
     PostMatchRating = postMatchRating;

@@ -38,6 +38,7 @@
 
 Battlefield::Battlefield()
 {
+    _scriptType = ZONE_SCRIPT_TYPE_BATTLEFIELD;
     m_Timer = 0;
     m_IsEnabled = true;
     m_isActive = false;

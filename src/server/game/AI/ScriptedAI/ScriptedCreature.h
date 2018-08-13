@@ -103,6 +103,15 @@ public:
         DoActionImpl(info, listCopy);
     }
 
+    template <class Predicate>
+    ObjectGuid GetRandomGUID(Predicate&& predicate)
+    {
+        // We need to use a copy of SummonList here, otherwise original SummonList would be modified
+        StorageType listCopy = storage_;
+        Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), 1);
+        return listCopy.front();
+    }
+
     void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
@@ -174,6 +183,10 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
     //For fleeing
     bool IsFleeing;
+
+    SummonList summons;
+    EventMap events;
+    InstanceScript* const instance;
 
     // *************
     //Pure virtual functions
@@ -266,6 +279,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
     // return true for 25 man or 25 man heroic mode
     bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
+    bool IsLFR() const { return _difficulty == DIFFICULTY_LFR || _difficulty == DIFFICULTY_LFR_NEW; }
+    bool IsMythic() const { return me->GetMap()->IsMythic(); }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
@@ -288,6 +303,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
+            case DIFFICULTY_NORMAL_RAID:
             case DIFFICULTY_10_N:
                 return normal10;
             case DIFFICULTY_25_N:
@@ -304,6 +320,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
+            case DIFFICULTY_NORMAL_RAID:
             case DIFFICULTY_10_N:
                 return normal10;
             case DIFFICULTY_25_N:
@@ -325,13 +342,20 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         bool _isHeroic;
 };
 
+struct TC_GAME_API Scripted_NoMovementAI : public ScriptedAI
+{
+    Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
+    virtual ~Scripted_NoMovementAI() {}
+
+    //Called at each attack of me by any victim
+    void AttackStart(Unit* target);
+};
+
 class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
         BossAI(Creature* creature, uint32 bossId);
         virtual ~BossAI() { }
-
-        InstanceScript* const instance;
 
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;
@@ -350,22 +374,20 @@ class TC_GAME_API BossAI : public ScriptedAI
         void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
+        void KilledUnit(Unit* victim) override { _KilledUnit(victim); }
 
         bool CanAIAttack(Unit const* target) const override;
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _EnterCombat(bool showFrameEngage = true);
         void _JustDied();
         void _JustReachedHome();
+        void _KilledUnit(Unit* victim);
         void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr);
         void _DespawnAtEvade(Seconds const& time, Creature* who = nullptr) { _DespawnAtEvade(uint32(time.count()), who); }
 
         void TeleportCheaters();
-
-        EventMap events;
-        SummonList summons;
-        TaskScheduler scheduler;
 
     private:
         uint32 const _bossId;
@@ -387,6 +409,8 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
         // note: You must re-schedule the event within this method if the event
         // is supposed to run more than once
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
+
+        virtual void ScheduleTasks() { }
 
         void Reset() override { _Reset(); }
         void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
@@ -429,5 +453,13 @@ inline void GetPlayerListInGrid(Container& container, WorldObject* source, float
 {
     source->GetPlayerListInGrid(container, maxSearchRange);
 }
+
+TC_GAME_API void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y);
+TC_GAME_API void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition);
+
+TC_GAME_API void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y);
+TC_GAME_API void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition);
+
+TC_GAME_API void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition);
 
 #endif // SCRIPTEDCREATURE_H_

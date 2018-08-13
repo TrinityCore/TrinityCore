@@ -10,7 +10,7 @@ echo
 # Select all entries which are in the updates table
 entries=$(mysql -uroot ${database} -e "SELECT name FROM updates" | grep ".sql")
 
-cd sql/updates/${name}/${branch}
+cd sql/ashamane/${name}
 
 error=0
 updates=0

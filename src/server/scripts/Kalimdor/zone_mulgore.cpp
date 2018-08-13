@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,40 +42,117 @@ Position const EagleSpiritflightPath[] =
 };
 size_t const EagleSpiritflightPathSize = std::extent<decltype(EagleSpiritflightPath)>::value;
 
-class npc_eagle_spirit : public CreatureScript
+struct npc_eagle_spirit : public ScriptedAI
 {
-public:
-    npc_eagle_spirit() : CreatureScript("npc_eagle_spirit") { }
+    npc_eagle_spirit(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_eagle_spirit_AI : public ScriptedAI
+    void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
     {
-        npc_eagle_spirit_AI(Creature* creature) : ScriptedAI(creature) { }
+        if (!apply)
+            return;
 
-        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
+        me->GetMotionMaster()->MoveSmoothPath(uint32(EagleSpiritflightPathSize), EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
+        me->CastSpell(me, SPELL_SPIRIT_FORM);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == EFFECT_MOTION_TYPE && pointId == EagleSpiritflightPathSize)
         {
-            if (!apply)
-                return;
-
-            me->GetMotionMaster()->MoveSmoothPath(uint32(EagleSpiritflightPathSize), EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
-            me->CastSpell(me, SPELL_SPIRIT_FORM);
+            DoCast(SPELL_EJECT_ALL_PASSENGERS);
         }
+    }
+};
 
-        void MovementInform(uint32 type, uint32 pointId) override
+// 71898 Funeral Offering
+class spell_mulgore_funeral_offering : public SpellScript
+{
+    PrepareSpellScript(spell_mulgore_funeral_offering);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* target = GetHitCreature())
+            if (GetCaster()->IsPlayer())
+                GetCaster()->ToPlayer()->KilledMonsterCredit(target->GetEntry());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mulgore_funeral_offering::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum eAgitatedEarthSpirit
+{
+    SPELL_SOOTHE_EARTH_SPIRIT       = 69453,
+    SPELL_ROCK_BARRAGE              = 81305,
+
+    NPC_EARTH_SPIRIT_CREDIT_BUNNY   = 36872
+};
+
+// 36845 - Agitated Earth Spirit
+struct npc_agitated_earth_spirit : public ScriptedAI
+{
+    npc_agitated_earth_spirit(Creature* creature) : ScriptedAI(creature) { }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SOOTHE_EARTH_SPIRIT)
         {
-            if (type == EFFECT_MOTION_TYPE && pointId == EagleSpiritflightPathSize)
+            Position pos;
+            caster->GetNearPoint(caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, MIN_MELEE_REACH, caster->GetAngle(me));
+            me->GetMotionMaster()->MovePoint(1, pos);
+            _playerGUID = caster->GetGUID();
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE && pointId == 1)
+        {
+            switch (urand(0, 1))
             {
-                DoCast(SPELL_EJECT_ALL_PASSENGERS);
+                case 0:
+                {
+                    me->setFaction(35);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        player->KilledMonsterCredit(NPC_EARTH_SPIRIT_CREDIT_BUNNY);
+
+                    me->GetScheduler().Schedule(1s, [](TaskContext context)
+                    {
+                        GetContextCreature()->DisappearAndDie();
+                    });
+
+                    break;
+                }
+                case 1:
+                    me->setFaction(14);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        AttackStart(player);
+                    break;
             }
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_eagle_spirit_AI(creature);
     }
+
+    void EnterCombat(Unit* /*victim*/) override
+    {
+        me->GetScheduler().Schedule(4s, 5s, [this](TaskContext context)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+            {
+                GetContextUnit()->CastSpell(target, SPELL_ROCK_BARRAGE, false);
+                context.Repeat(18s, 21s);
+            }
+        });
+    }
+
+private:
+    ObjectGuid _playerGUID;
 };
 
 void AddSC_mulgore()
 {
-    new npc_eagle_spirit();
+    RegisterCreatureAI(npc_eagle_spirit);
+    RegisterSpellScript(spell_mulgore_funeral_offering);
+    RegisterCreatureAI(npc_agitated_earth_spirit);
 }

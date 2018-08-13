@@ -18,7 +18,9 @@
 #ifndef AreaTriggerPackets_h__
 #define AreaTriggerPackets_h__
 
+#include "AreaTriggerTemplate.h"
 #include "Packet.h"
+#include "Position.h"
 #include "AreaTriggerTemplate.h"
 #include "ObjectGuid.h"
 #include "Optional.h"

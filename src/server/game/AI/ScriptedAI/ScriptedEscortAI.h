@@ -61,7 +61,8 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
 
-        virtual void WaypointReached(uint32 pointId) = 0;
+        virtual void WaypointReached(uint32 /*pointId*/) { }
+        virtual void LastWaypointReached() { }
         virtual void WaypointStart(uint32 /*pointId*/) { }
 
         void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);

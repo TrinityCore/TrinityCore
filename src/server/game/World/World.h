@@ -93,6 +93,7 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_BLACKMARKET,
     WUPDATE_CHECK_FILECHANGES,
+    WUPDATE_WORLD_QUEST,
     WUPDATE_COUNT
 };
 
@@ -191,6 +192,8 @@ enum WorldBoolConfigs
     CONFIG_PREVENT_RENAME_CUSTOMIZATION,
     CONFIG_CREATURE_CHECK_INVALID_POSITION,
     CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION,
+    CONFIG_LEGACY_BUFF_ENABLED,
+    CONFIG_IGNORE_DUNGEONS_BIND,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -578,6 +581,8 @@ struct CharacterInfo
 class TC_GAME_API World
 {
     public:
+        Ashamane::AnyData Variables;
+
         static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;

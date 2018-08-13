@@ -41,7 +41,7 @@ class TC_COMMON_API Appender
         void setLogLevel(LogLevel);
         void write(LogMessage* message);
         static const char* getLogLevelString(LogLevel level);
-        virtual void setRealmId(uint32 /*realmId*/) { }
+        virtual void setRealmId(uint32 /*realmId*/, std::string /*realmName*/ = "") { }
 
     private:
         virtual void _write(LogMessage const* /*message*/) = 0;

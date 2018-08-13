@@ -325,11 +325,16 @@ typedef std::set <uint8> SlotIds;
 
 class TC_GAME_API Guild
 {
+    public:
+    Ashamane::AnyData Variables;
+
     private:
         // Class representing guild member
         class Member
         {
             public:
+
+                Ashamane::AnyData Variables;
                 Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
 
                 void SetStats(Player* player);

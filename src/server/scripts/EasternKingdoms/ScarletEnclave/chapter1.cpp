@@ -373,7 +373,7 @@ class npc_eye_of_acherus : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
                 {
-                    me->GetCharmInfo()->InitPossessCreateSpells();
+                    me->InitCharmInfo()->InitPossessCreateSpells();
                     owner->SendAutoRepeatCancel(me);
                 }
 
@@ -946,7 +946,7 @@ public:
             // Ghouls should display their Birth Animation
             // Crawling out of the ground
             //DoCast(me, 35177, true);
-            //me->MonsterSay("Mommy?", LANG_UNIVERSAL, 0);
+            //me->Say("Mommy?", LANG_UNIVERSAL, 0);
             me->SetReactState(REACT_DEFENSIVE);
         }
 

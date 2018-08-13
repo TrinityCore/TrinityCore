@@ -361,7 +361,8 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                 return nullptr;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
+
             {
                 _checkTimer += diff;
                 if (_checkTimer >= 1000)

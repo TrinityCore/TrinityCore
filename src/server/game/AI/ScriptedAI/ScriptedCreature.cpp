@@ -125,6 +125,8 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
+    summons(creature),
+    instance(creature->GetInstanceScript()),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
@@ -148,11 +150,13 @@ void ScriptedAI::AttackStart(Unit* who)
         AttackStartNoMove(who);
 }
 
-void ScriptedAI::UpdateAI(uint32 /*diff*/)
+void ScriptedAI::UpdateAI(uint32 diff)
 {
     //Check if we have a current target
     if (!UpdateVictim())
         return;
+
+    events.Update(diff);
 
     DoMeleeAttackIfReady();
 }
@@ -432,18 +436,21 @@ enum NPCs
     NPC_SARTHARION  = 28860
 };
 
+void Scripted_NoMovementAI::AttackStart(Unit* target)
+{
+    if (!target)
+        return;
+
+    if (me->Attack(target, true))
+        DoStartNoMovement(target);
+}
+
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
-    instance(creature->GetInstanceScript()),
-    summons(creature),
     _bossId(bossId)
 {
     if (instance)
         SetBoundary(instance->GetBossBoundary(bossId));
-    scheduler.SetValidator([this]
-    {
-        return !me->HasUnitState(UNIT_STATE_CASTING);
-    });
 }
 
 void BossAI::_Reset()
@@ -455,7 +462,7 @@ void BossAI::_Reset()
     me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
-    scheduler.CancelAll();
+    me->GetScheduler().CancelAll();
     if (instance)
         instance->SetBossState(_bossId, NOT_STARTED);
 }
@@ -464,17 +471,30 @@ void BossAI::_JustDied()
 {
     events.Reset();
     summons.DespawnAll();
-    scheduler.CancelAll();
+    me->GetScheduler().CancelAll();
     if (instance)
+    {
         instance->SetBossState(_bossId, DONE);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+    Talk(BOSS_TALK_JUST_DIED);
 }
 
 void BossAI::_JustReachedHome()
 {
     me->setActive(false);
+
+    if (instance)
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 }
 
-void BossAI::_EnterCombat()
+void BossAI::_KilledUnit(Unit* victim)
+{
+    if (victim->IsPlayer() && urand(0, 1))
+        Talk(BOSS_TALK_KILL_PLAYER);
+}
+
+void BossAI::_EnterCombat(bool showFrameEngage /*= true*/)
 {
     if (instance)
     {
@@ -485,12 +505,16 @@ void BossAI::_EnterCombat()
             return;
         }
         instance->SetBossState(_bossId, IN_PROGRESS);
+
+        if (showFrameEngage)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
     }
 
     me->SetCombatPulseDelay(5);
     me->setActive(true);
     DoZoneInCombat();
     ScheduleTasks();
+    Talk(BOSS_TALK_ENTER_COMBAT);
 }
 
 void BossAI::TeleportCheaters()
@@ -589,6 +613,7 @@ void WorldBossAI::_JustDied()
 
 void WorldBossAI::_EnterCombat()
 {
+    ScheduleTasks();
     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
     if (target)
         AttackStart(target);
@@ -625,4 +650,40 @@ void WorldBossAI::UpdateAI(uint32 diff)
     }
 
     DoMeleeAttackIfReady();
+}
+
+void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y)
+{
+    x = pUnit->GetPositionX() + (dist * cos(orientation));
+    y = pUnit->GetPositionY() + (dist * sin(orientation));
+}
+
+void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition)
+{
+    float x = 0.0f;
+    float y = 0.0f;
+
+    GetPositionWithDistInOrientation(fromPos, dist, orientation, x, y);
+
+    movePosition.m_positionX = x;
+    movePosition.m_positionY = y;
+    movePosition.m_positionZ = fromPos->GetPositionZ();
+}
+
+void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y)
+{
+    float randOrientation = frand(0.0f, 2.0f * (float)M_PI);
+
+    x = centerX + (dist * cos(randOrientation));
+    y = centerY + (dist * sin(randOrientation));
+}
+
+void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition)
+{
+    GetPositionWithDistInOrientation(centerPos, dist, frand(0, 2 * float(M_PI)), movePosition);
+}
+
+void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition)
+{
+    GetPositionWithDistInOrientation(centerPos, dist, centerPos->GetOrientation(), movePosition);
 }

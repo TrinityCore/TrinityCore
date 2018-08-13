@@ -138,6 +138,11 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum AreaFlags2
+{
+    AREA_FLAG_GARRISON  = 0x20,
+};
+
 enum AreaMountFlags
 {
     AREA_MOUNT_FLAG_GROUND_ALLOWED      = 0x1,
@@ -167,6 +172,22 @@ enum ArtifactPowerFlag : uint8
 #define MAX_ARTIFACT_TIER 1
 
 #define BATTLE_PET_SPECIES_MAX_ID 2164
+
+enum BattlePetSpeciesFlags
+{
+    BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE  = 0x400
+};
+
+enum BattlePetSpeciesSourceType
+{
+    BATTLE_PET_SPECIES_SOURCE_LOOT          = 0,
+    BATTLE_PET_SPECIES_SOURCE_QUEST         = 1,
+    BATTLE_PET_SPECIES_SOURCE_VENDOR        = 2,
+    BATTLE_PET_SPECIES_SOURCE_PROFESSION    = 3,
+    BATTLE_PET_SPECIES_SOURCE_WILD_PET      = 4,
+    BATTLE_PET_SPECIES_SOURCE_ACHIEVEMENT   = 5,
+    BATTLE_PET_SPECIES_SOURCE_WORLD_EVENT   = 6,
+};
 
 enum ChrSpecializationFlag
 {
@@ -257,6 +278,7 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
     CRITERIA_ADDITIONAL_CONDITION_EXPANSION                     = 92,
+    CRITERIA_ADDITIONAL_CONDITION_REPUTATION                    = 95,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
@@ -514,7 +536,8 @@ enum CriteriaTreeFlags : uint16
     CRITERIA_TREE_FLAG_SHOW_CURRENCY_ICON   = 0x0008,
     CRITERIA_TREE_FLAG_ALLIANCE_ONLY        = 0x0200,
     CRITERIA_TREE_FLAG_HORDE_ONLY           = 0x0400,
-    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800
+    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800,
+    CRITERIA_TREE_FLAG_NOT_LINKED_TO_ACH    = 0x1000
 };
 
 enum CriteriaTreeOperator : uint8
@@ -682,6 +705,11 @@ enum MapFlags
     MAP_FLAG_GARRISON               = 0x4000000
 };
 
+enum MapFlags2
+{
+    MAP_FLAG2_WORLD_PVP             = 0x40,
+};
+
 enum AbilytyLearnType
 {
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
@@ -800,6 +828,26 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_RELIC_HOLY       = 39,
 
     ITEM_SPEC_STAT_NONE             = 40
+};
+
+enum ItemContext : uint8
+{
+    None            = 0,
+
+    DungeonNormal   = 1,
+    DungeonHeroic   = 2,
+    DungeonMythic   = 23,
+
+    RaidLfr         = 4,
+    RaidNormal      = 3,
+    RaidHeroic      = 5,
+    RaidMythic      = 6,
+
+    ScenarioNormal  = 9,
+    ScenarioHeroic  = 10,
+
+    Event           = 9,
+    TimeWalker      = 22,
 };
 
 enum MapDifficultyFlags : uint8
@@ -996,7 +1044,8 @@ enum TaxiNodeFlags
 {
     TAXI_NODE_FLAG_ALLIANCE             = 0x01,
     TAXI_NODE_FLAG_HORDE                = 0x02,
-    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10,
+    TAXI_NODE_FLAG_ARGUS                = 0x20
 };
 
 enum TaxiPathNodeFlags
@@ -1058,8 +1107,17 @@ enum VehicleSeatFlagsB
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {
+    CURRENCY_TYPE_ARCHAEOLOGY_DWARF     = 384,
+    CURRENCY_TYPE_ARCHAEOLOGY_TROLL     = 385,
+    CURRENCY_TYPE_ARCHAEOLOGY_FOSSIL    = 393,
+    CURRENCY_TYPE_ARCHAEOLOGY_NIGHT_ELF = 394,
     CURRENCY_TYPE_JUSTICE_POINTS        = 395,
     CURRENCY_TYPE_VALOR_POINTS          = 396,
+    CURRENCY_TYPE_ARCHAEOLOGY_ORC       = 397,
+    CURRENCY_TYPE_ARCHAEOLOGY_DRAENEI   = 398,
+    CURRENCY_TYPE_ARCHAEOLOGY_VRYKUL    = 399,
+    CURRENCY_TYPE_ARCHAEOLOGY_NERUBIAN  = 400,
+    CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR    = 401,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
 };
 

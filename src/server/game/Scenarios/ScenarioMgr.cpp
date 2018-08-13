@@ -34,7 +34,14 @@ InstanceScenario* ScenarioMgr::CreateInstanceScenario(Map const* map, TeamId tea
     auto dbDataItr = _scenarioDBData.find(std::make_pair(map->GetId(), map->GetDifficultyID()));
     // No scenario registered for this map and difficulty in the database
     if (dbDataItr == _scenarioDBData.end())
-        return nullptr;
+    {
+        // We then search for global scenario
+        dbDataItr = _scenarioDBData.find(std::make_pair(map->GetId(), 0));
+
+        // No more luck, return
+        if (dbDataItr == _scenarioDBData.end())
+            return nullptr;
+    }
 
     uint32 scenarioID = 0;
     switch (team)

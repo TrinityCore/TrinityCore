@@ -4894,7 +4894,7 @@ uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END] =
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_DYNAMIC_FIELD_WORLD_EFFECTS
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS
-    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_RESERACH_SITE
+    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_RESEARCH_SITE
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_DAILY_QUESTS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_ID

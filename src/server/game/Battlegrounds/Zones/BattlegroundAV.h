@@ -1653,8 +1653,13 @@ class BattlegroundAV : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
+        bool IsBothMinesControlledByTeam(uint32 team) const;
+        bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
+		
+         uint32 GetTeamQuestStatus(uint8 team, uint8 index) const { return m_Team_QuestStatus[team][index]; }
+		
         // Achievement: Av perfection and Everything counts
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
+        //bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
 
         uint32 GetPrematureWinner() override;
 
@@ -1711,6 +1716,8 @@ class BattlegroundAV : public Battleground
         bool m_CaptainAlive[2];
 
         bool m_IsInformedNearVictory[2];
+
+        int32 m_CheatersCheckTimer;
 };
 
 #endif

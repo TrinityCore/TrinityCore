@@ -279,11 +279,13 @@ enum ItemFlagsCustom
 
 enum CurrencyFlags
 {
-    CURRENCY_FLAG_TRADEABLE          = 0x01,
+    CURRENCY_FLAG_TRADEABLE             = 0x01,
     // ...
-    CURRENCY_FLAG_HIGH_PRECISION     = 0x08,
+    CURRENCY_FLAG_HIGH_PRECISION        = 0x08,
     // ...
-    CURRENCY_FLAG_COUNT_SEASON_TOTAL = 0x80,
+    CURRENCY_FLAG_ARCHAEOLOGY_FRAGMENT  = 0x20,
+    // ...
+    CURRENCY_FLAG_COUNT_SEASON_TOTAL    = 0x80,
 };
 
 enum CurrencyCategory
@@ -788,7 +790,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetSkill() const;
 
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
-    bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
+    bool IsVellum() const { return GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS; }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
 
@@ -804,6 +806,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
+    bool IsUsableBySpecialization(uint32 spec, uint32 level, bool alwaysAllowBoundToAccount) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };
 

@@ -86,7 +86,7 @@ class TC_COMMON_API Log
 
         void outCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
 
-        void SetRealmId(uint32 id);
+        void SetRealmId(uint32 id, std::string name);
 
         template<class AppenderImpl>
         void RegisterAppender()

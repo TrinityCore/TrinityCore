@@ -17,4 +17,5 @@
 
 void AddSC_tirisfal_glades()
 {
+
 }

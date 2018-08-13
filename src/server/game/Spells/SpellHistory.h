@@ -89,7 +89,7 @@ public:
     // Cooldowns
     static Clock::duration const InfinityCooldownDelay;  // used for set "infinity cooldowns" for spells and check
 
-    void StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool onHold = false);
+    void StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool onHold = false, bool forceSendPacket = false);
     void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = nullptr, bool startCooldown = true);
 
     template<class Type, class Period>
@@ -134,11 +134,19 @@ public:
     bool IsSchoolLocked(SpellSchoolMask schoolMask) const;
 
     // Charges
+    void ForceSendSpellCharges();
+    void ForceSendSpellCharge(SpellCategoryEntry const* chargeCategoryEntry);
+    void ForceSendSetSpellCharges(SpellCategoryEntry const* chargeCategoryEntry);
+    void UpdateCharges();
+    void UpdateCharge(SpellCategoryEntry const* chargeCategoryEntry);
+    void ReduceChargeCooldown(uint32 chargeCategoryId, uint32 reductionTime);
+    void ReduceChargeCooldown(SpellCategoryEntry const* chargeCategoryEntry, uint32 reductionTime);
     bool ConsumeCharge(uint32 chargeCategoryId);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
     bool HasCharge(uint32 chargeCategoryId) const;
+    int32 GetChargeCount(uint32 chargeCategoryId) const;
     int32 GetMaxCharges(uint32 chargeCategoryId) const;
     int32 GetChargeRecoveryTime(uint32 chargeCategoryId) const;
 

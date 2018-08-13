@@ -1045,6 +1045,8 @@ enum TrinityStrings
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2     = 5070,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3     = 5071,
     LANG_NPCINFO_NPC_FLAGS              = 5072,
+    LANG_NPC_RELOADED                   = 5073,
+    LANG_NPCS_RELOADED                  = 5074,
 
     // Room for more Trinity strings      5073-9999
 
@@ -1134,6 +1136,12 @@ enum TrinityStrings
     LANG_SHUTDOWN_CANCELLED                       = 11018,
     LANG_YOU_CHANGE_POWER                         = 11019,
     LANG_YOUR_POWER_CHANGED                       = 11020,
-    LANG_INVALID_POWER_NAME                       = 11021
+    LANG_INVALID_POWER_NAME                       = 11021,
+
+    LANG_LIST_QUESTS                              = 11022,
+    LANG_LIST_QUESTS_DETAIL                       = 11023,
+
+    LANG_DEBUG_LFG_ON                             = 11024,
+    LANG_DEBUG_LFG_OFF                            = 11025,
 };
 #endif

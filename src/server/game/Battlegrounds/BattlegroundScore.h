@@ -91,6 +91,9 @@ struct BattlegroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+
+public:
+        uint32 RatingChange;
 };
 
 #endif // TRINITY_BATTLEGROUND_SCORE_H

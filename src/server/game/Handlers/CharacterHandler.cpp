@@ -18,8 +18,6 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
-#include "ArenaTeam.h"
-#include "ArenaTeamMgr.h"
 #include "ArtifactPackets.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
@@ -266,25 +264,21 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON_BLUEPRINTS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ARCHAEOLOGY_DIGSITES);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_DIGSITES, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON_BUILDINGS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ARCHAEOLOGY_BRANCHS);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_BRANCHS, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON_FOLLOWERS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ARCHAEOLOGY_HISTORY);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS, stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
-    stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_HISTORY, stmt);
 
     return res;
 }
@@ -357,6 +351,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
         raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
+        raceUnlock.HasAchievement = requirement.second.AchievementId == 0 /*|| HasAchievement(requirement.second.AchievementId)*/;
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
@@ -376,8 +371,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
 
-    stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(0, GetAccountId());
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
 }
@@ -418,8 +412,7 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_UNDELETE_ENUM);
 
-    stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(0, GetAccountId());
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharUndeleteEnum, this, std::placeholders::_1)));
 }
@@ -775,14 +768,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
         return;
     }
 
-    // is arena team captain
-    if (sArenaTeamMgr->GetArenaTeamByCaptain(charDelete.Guid))
-    {
-        sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
-        SendCharDelete(CHAR_DELETE_FAILED_ARENA_CAPTAIN);
-        return;
-    }
-
     CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(charDelete.Guid);
     if (!characterInfo)
     {
@@ -996,7 +981,30 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             else if (cEntry->CinematicSequenceID)
                 pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
             else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
-                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+            {
+                if (rEntry->CinematicSequenceID)
+                    pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+                else
+                {
+                    switch (pCurrChar->getRace())
+                    {
+//                      case RACE_HIGHMOUNTAIN_TAUREN:
+//                          pCurrChar->GetSceneMgr().PlayScene(1901);
+//                          break;
+                        case RACE_NIGHTBORNE:
+                            pCurrChar->GetSceneMgr().PlayScene(1900);
+                            break;
+                        case RACE_LIGHTFORGED_DRAENEI:
+                            pCurrChar->GetSceneMgr().PlayScene(1902);
+                            break;
+                        case RACE_VOID_ELF:
+                            pCurrChar->GetSceneMgr().PlayScene(1903);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 
             // send new char string if not empty
             if (!sWorld->GetNewCharString().empty())
@@ -1006,7 +1014,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
-        AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
+        AreaTriggerTeleportStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
         if (at)
             pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
         else
@@ -1083,6 +1091,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         CharacterDatabase.Execute(stmtSpec);
     }
 
+    pCurrChar->LoadPetsFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS));
+
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
 
@@ -1117,6 +1127,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         for (uint32 spellId : info->castSpells)
             pCurrChar->CastSpell(pCurrChar, spellId, true);
     }
+
+    if (pCurrChar->getClass() == CLASS_HUNTER)
+        pCurrChar->GetSession()->SendStablePet(ObjectGuid::Empty);
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())
@@ -1802,6 +1815,13 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     uint8 playerClass = characterInfo->Class;
     uint8 level       = characterInfo->Level;
 
+    TeamId oldTeamId = Player::TeamIdForRace(oldRace);
+    if (oldTeamId == TEAM_NEUTRAL)
+    {
+        SendCharFactionChange(CHAR_CREATE_RESTRICTED_RACECLASS, factionChangeInfo.get());
+        return;
+    }
+
     if (!sObjectMgr->GetPlayerInfo(factionChangeInfo->RaceID, playerClass))
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
@@ -1822,11 +1842,15 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     TeamId newTeamId = Player::TeamIdForRace(factionChangeInfo->RaceID);
     if (newTeamId == TEAM_NEUTRAL)
     {
-        SendCharFactionChange(CHAR_CREATE_RESTRICTED_RACECLASS, factionChangeInfo.get());
-        return;
+        if (factionChangeInfo->FactionChange)
+            factionChangeInfo->RaceID = (oldTeamId == TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLIANCE);
+        else
+            factionChangeInfo->RaceID = (oldTeamId == TEAM_ALLIANCE ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE);
+
+        newTeamId = Player::TeamIdForRace(factionChangeInfo->RaceID);
     }
 
-    if (factionChangeInfo->FactionChange == (Player::TeamIdForRace(oldRace) == newTeamId))
+    if (factionChangeInfo->FactionChange == (oldTeamId == newTeamId))
     {
         SendCharFactionChange(factionChangeInfo->FactionChange ? CHAR_CREATE_CHARACTER_SWAP_FACTION : CHAR_CREATE_CHARACTER_RACE_ONLY, factionChangeInfo.get());
         return;
@@ -1879,12 +1903,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             SendCharFactionChange(CHAR_CREATE_NAME_IN_USE, factionChangeInfo.get());
             return;
         }
-    }
-
-    if (sArenaTeamMgr->GetArenaTeamByCaptain(factionChangeInfo->Guid))
-    {
-        SendCharFactionChange(CHAR_CREATE_CHARACTER_ARENA_LEADER, factionChangeInfo.get());
-        return;
     }
 
     // All checks are fine, deal with race change now
@@ -1967,50 +1985,33 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
             stmt->setUInt64(0, lowGuid);
 
+            uint16 raceLang = 0;
+
             switch (factionChangeInfo->RaceID)
             {
-                case RACE_DWARF:
-                    stmt->setUInt16(1, 111);
-                    break;
+                case RACE_DWARF:                raceLang = 111;     break;
                 case RACE_DRAENEI:
-                case RACE_LIGHTFORGED_DRAENEI:
-                    stmt->setUInt16(1, 759);
-                    break;
-                case RACE_GNOME:
-                    stmt->setUInt16(1, 313);
-                    break;
-                case RACE_NIGHTELF:
-                    stmt->setUInt16(1, 113);
-                    break;
-                case RACE_WORGEN:
-                    stmt->setUInt16(1, 791);
-                    break;
-                case RACE_UNDEAD_PLAYER:
-                    stmt->setUInt16(1, 673);
-                    break;
+                case RACE_LIGHTFORGED_DRAENEI:  raceLang = 759;     break;
+                case RACE_GNOME:                raceLang = 313;     break;
+                case RACE_NIGHTELF:             raceLang = 113;     break;
+                case RACE_WORGEN:               raceLang = 791;     break;
+                case RACE_UNDEAD_PLAYER:        raceLang = 673;     break;
                 case RACE_TAUREN:
-                case RACE_HIGHMOUNTAIN_TAUREN:
-                    stmt->setUInt16(1, 115);
-                    break;
-                case RACE_TROLL:
-                    stmt->setUInt16(1, 315);
-                    break;
-                case RACE_BLOODELF:
-                case RACE_VOID_ELF:
-                    stmt->setUInt16(1, 137);
-                    break;
-                case RACE_GOBLIN:
-                    stmt->setUInt16(1, 792);
-                    break;
-                case RACE_NIGHTBORNE:
-                    stmt->setUInt16(1, 2464);
-                    break;
+                case RACE_HIGHMOUNTAIN_TAUREN:  raceLang = 115;     break;
+                case RACE_TROLL:                raceLang = 315;     break;
+                case RACE_BLOODELF:             raceLang = 137;     break;
+                case RACE_GOBLIN:               raceLang = 792;     break;
+                case RACE_PANDAREN_ALLIANCE:
+                case RACE_PANDAREN_HORDE:       raceLang = 905;     break;
+                case RACE_NIGHTBORNE:           raceLang = 2464;    break;
+                case RACE_VOID_ELF:             raceLang = 2465;    break;
                 default:
                     TC_LOG_ERROR("entities.player", "Could not find language data for race (%u).", factionChangeInfo->RaceID);
                     SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
                     return;
             }
 
+            stmt->setUInt16(1, raceLang);
             trans->Append(stmt);
         }
 
@@ -2052,8 +2053,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 if (PreparedQueryResult memberResult = CharacterDatabase.Query(stmt))
                     if (Guild* guild = sGuildMgr->GetGuildById(memberResult->Fetch()[0].GetUInt64()))
                         guild->DeleteMember(trans, factionChangeInfo->Guid, false, false, true);
-
-                Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
 
             if (!HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))

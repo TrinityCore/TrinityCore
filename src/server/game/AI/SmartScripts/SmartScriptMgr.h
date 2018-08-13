@@ -457,7 +457,7 @@ enum SMART_ACTION
     SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
     SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags, TriggeredFlags
-    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker
+    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker, data if value > 0
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
@@ -513,7 +513,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_ORIENTATION                    = 66,     //
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
-    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding
+    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding, ContactDistance
     SMART_ACTION_RESPAWN_TARGET                     = 70,     //
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
@@ -564,11 +564,28 @@ enum SMART_ACTION
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
     SMART_ACTION_GO_SET_GO_STATE                    = 118,    // state
     // 119 - 127 : 3.3.5 reserved
-    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
+    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim, 4 = spellVisualKit)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
+    
+    // Ashamane' specific actions
+    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 200,    // id, type, duration.
+    SMART_ACTION_PLAY_SPELL_VISUAL                  = 201,    // id, travelSpeed, target type variation.
+    SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL           = 202,    // id, travelSpeed, target type variation.
+    SMART_ACTION_CANCEL_VISUAL                      = 203,    // VisualType, VisualId.
+    SMART_ACTION_CIRCLE_PATH                        = 204,    // Radius, Clockwise, StepCount
+    SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT            = 205,    // zone Id, light Id, timer in milliseconds.
+    SMART_ACTION_START_CONVERSATION                 = 206,    // conversation Id
+    SMART_ACTION_MODIFY_THREAT                      = 207,    // increase, decrease
+    SMART_ACTION_SET_SPEED                          = 208,    // speedType, speed
+    SMART_ACTION_IGNORE_PATHFINDING                 = 209,    // 0/1 (1 = ignored, 0 = enabled)
+    SMART_ACTION_SET_OVERRIDE_ZONE_MUSIC            = 210,    // zone Id, music Id.
+	SMART_ACTION_SET_POWER_TYPE                     = 211,    // Power Type. See enum in Unit.h
+	SMART_ACTION_SET_MAX_POWER                      = 212,    // Power Type, value
+	SMART_ACTION_ADD_FLYING_MOVEMENT_FLAG           = 213,    // Variation
+    SMART_ACTION_REMOVE_FLYING_MOVEMENT_FLAG        = 214,    // Variation
 
-    SMART_ACTION_END                                = 131
+    SMART_ACTION_END
 };
 
 struct SmartAction
@@ -655,6 +672,8 @@ struct SmartAction
             uint32 type;
             uint32 duration;
             uint32 attackInvoker;
+            uint32 isPersonnal;
+            uint32 data;
         } summonCreature;
 
         struct
@@ -866,6 +885,8 @@ struct SmartAction
         struct
         {
             uint32 run;
+            uint32 speed;
+            uint32 speedDivider;
         } setRun;
 
         struct
@@ -997,6 +1018,7 @@ struct SmartAction
             uint32 pointId;
             uint32 transport;
             uint32 disablePathfinding;
+            uint32 ContactDistance;
         } MoveToPos;
 
         struct
@@ -1100,6 +1122,80 @@ struct SmartAction
             uint32 sceneId;
         } scene;
 
+        struct
+        {
+            uint32 visualId;
+            uint32 visualType;
+	        uint32 visualDuration;
+        } spellVisualKit;
+        
+        struct
+        {
+            uint32 playVisualId;
+            uint32 travelSpeed;
+            uint32 variations;
+        } playSpellVisual;
+        
+        struct
+        {
+            uint32 playOrphanVisualId;
+            uint32 travelSpeed;
+            uint32 variations;
+        } playOrphanSpellVisual;
+        
+        struct
+        {
+            uint32 typeVisual;
+            uint32 cancelVisualId;
+        } cancelSpellVisual;
+        
+        struct
+        {
+            uint32 radius;
+            uint32 clockWise;
+			uint32 stepCount;
+        } moveCirclePath;
+        
+        struct
+        {
+            uint32 zoneId;
+            uint32 lightId;
+			uint32 fadeTime;
+        } setOverrideZoneLight;
+
+        struct {
+            uint32 conversationId;
+        } startConversation;
+
+        struct {
+            uint32 increase;
+            uint32 decrease;
+        } modifyThreat;
+
+        struct {
+            uint32 type;
+            uint32 speed;
+        } setSpeed;
+
+        struct {
+            uint32 ignore;
+        } ignorePathfinding;
+
+        struct
+        {
+            uint32 zoneId;
+            uint32 musicId;
+        } setOverrideZoneMusic;
+		
+		struct
+        {
+            uint32 powerType;
+        } powerType;
+		
+		struct
+        {
+            uint32 variationMovementFlags;
+        } SetMovementFlags;
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1159,7 +1255,10 @@ enum SMARTAI_TARGETS
     SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
     SMART_TARGET_VEHICLE_ACCESSORY              = 29,   // seat number (vehicle can target it's own accessory)
 
-    SMART_TARGET_END                            = 30
+    // Ashamane' specific targets
+    SMART_TARGET_INVOKER_SUMMON                 = 100,  // entry
+
+    SMART_TARGET_END
 };
 
 struct SmartTarget
@@ -1268,6 +1367,11 @@ struct SmartTarget
         {
             uint32 seat;
         } vehicle;
+
+        struct
+        {
+            uint32 entry;
+        } invokerSummon;
     };
 };
 

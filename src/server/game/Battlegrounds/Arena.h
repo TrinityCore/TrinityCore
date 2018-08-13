@@ -65,7 +65,7 @@ class TC_GAME_API Arena : public Battleground
         void CheckWinConditions() override;
         void EndBattleground(uint32 winner) override;
 
-        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
+        ArenaGroupScore _ArenaGroupScores[BG_TEAMS_COUNT];
 };
 
 #endif // TRINITY_ARENA_H

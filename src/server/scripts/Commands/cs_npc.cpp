@@ -246,6 +246,7 @@ public:
             { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "" },
             { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "" },
             { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "" },
+            { "inhabit",    rbac::RBAC_PERM_COMMAND_NPC_SET,           false, &HandleNpcSetInhabitTypeCommand,   "" },
         };
         static std::vector<ChatCommand> npcCommandTable =
         {
@@ -263,6 +264,7 @@ public:
             { "follow",    rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,    false, nullptr,           "", npcFollowCommandTable },
             { "set",       rbac::RBAC_PERM_COMMAND_NPC_SET,       false, nullptr,              "", npcSetCommandTable },
             { "evade",     rbac::RBAC_PERM_COMMAND_NPC_EVADE,     false, &HandleNpcEvadeCommand,             ""       },
+            { "reload",    rbac::RBAC_PERM_COMMAND_NPC_RELOAD,    false, &HandleNpcReloadCommand,            ""		  },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -540,6 +542,8 @@ public:
 
         handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
 
+        TC_LOG_DEBUG("sql.dev", "DELETE FROM creature WHERE guid = %s;", std::to_string(unit->GetSpawnId()).c_str());
+
         return true;
     }
 
@@ -815,13 +819,14 @@ public:
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();
                 float z = fields[4].GetFloat();
-                uint16 mapId = fields[5].GetUInt16();
+                float o = fields[5].GetFloat();
+                uint16 mapId = fields[6].GetUInt16();
 
                 CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(entry);
                 if (!creatureTemplate)
                     continue;
 
-                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), std::to_string(guid).c_str(), creatureTemplate->Name.c_str(), x, y, z, mapId);
+                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), creatureTemplate->Name.c_str(), x, y, z, o, mapId);
 
                 ++count;
             }
@@ -904,6 +909,8 @@ public:
         stmt->setUInt64(4, lowguid);
 
         WorldDatabase.Execute(stmt);
+
+        TC_LOG_DEBUG("sql.dev", "UPDATE creature SET position_x = %f, position_y = %f, position_z = %f, orientation = %f WHERE guid = %s;", x, y, z, o, std::to_string(creature->GetSpawnId()).c_str());
 
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
         return true;
@@ -1130,7 +1137,7 @@ public:
             return false;
 
         uint32 phaseID = atoul(args);
-        if (!sPhaseStore.LookupEntry(phaseID))
+        if (phaseID != 0 && !sPhaseStore.LookupEntry(phaseID))
         {
             handler->SendSysMessage(LANG_PHASE_NOTFOUND);
             handler->SetSentErrorMessage(true);
@@ -1146,10 +1153,14 @@ public:
         }
 
         PhasingHandler::ResetPhaseShift(creature);
-        PhasingHandler::AddPhase(creature, phaseID, true);
+        if (phaseID != 0)
+            PhasingHandler::AddPhase(creature, phaseID, true);
+
         creature->SetDBPhase(phaseID);
 
         creature->SaveToDB();
+
+        TC_LOG_DEBUG("sql.dev", "UPDATE creature SET PhaseId = %u WHERE guid = %s;", phaseID, std::to_string(creature->GetSpawnId()).c_str());
 
         return true;
     }
@@ -1473,7 +1484,7 @@ public:
         // caster have pet now
         player->SetMinion(pet, true);
 
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
         player->PetSpellInitialize();
 
         return true;
@@ -1520,6 +1531,36 @@ public:
         if (force)
             creatureTarget->ClearUnitState(UNIT_STATE_EVADE);
         creatureTarget->AI()->EnterEvadeMode(why);
+
+        return true;
+    }
+
+    static bool HandleNpcReloadCommand(ChatHandler* handler, char const* args)
+    {
+        Creature* creatureTarget = handler->getSelectedCreature();
+        if (!creatureTarget || creatureTarget->IsPet() || creatureTarget->IsGuardian())
+        {
+            handler->PSendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        creatureTarget->ReLoad(false);
+
+        if (args && stricmp(args, "all") == 0)
+        {
+            Player* me = handler->GetSession()->GetPlayer();
+            std::list<Creature*> list;
+            me->GetCreatureListWithEntryInGrid(list, creatureTarget->GetEntry(), me->GetMap()->GetVisibilityRange());
+
+            for (Creature* creature : list)
+                if (creature != creatureTarget)
+                    creature->ReLoad(true);
+
+            handler->PSendSysMessage(LANG_NPCS_RELOADED);
+        }
+        else
+            handler->PSendSysMessage(LANG_NPC_RELOADED);
 
         return true;
     }
@@ -1676,6 +1717,32 @@ public:
             return true;
         }
         */
+        return true;
+    }
+
+    //set inhabit type of creature
+    static bool HandleNpcSetInhabitTypeCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        uint8 inhabitType = uint8(atoi((char*)args));
+        if (inhabitType > INHABIT_ANYWHERE)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            return false;
+        }
+
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+            return false;
+
+        uint32 entry = creature->GetEntry();
+        WorldDatabase.PExecute("UPDATE creature_template SET InhabitType = %u WHERE entry = %u", inhabitType, entry);
+        TC_LOG_DEBUG("sql.dev", "UPDATE creature_template SET InhabitType = %u WHERE entry = %u;", inhabitType, entry);
+
+        handler->PSendSysMessage("InhabitType updated in database, reboot needed");
         return true;
     }
 };
