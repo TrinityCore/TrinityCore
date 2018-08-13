@@ -12488,6 +12488,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
+        // Check if in Cat Form and have Druid of the Flames or Burning Essence aura
+        if ((form == FORM_CAT_FORM) && (HasAura(99245) || HasAura(138927)))
+            return 38150;
+
         if (Aura* artifactAura = GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
             if (Item* artifact = ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID()))
                 if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))

@@ -44,7 +44,7 @@ enum DruidSpells
     SPELL_DRUID_GORE                                = 210706,
     SPELL_DRUID_YSERA_GIFT                          = 145108,
     SPELL_DRUID_YSERA_GIFT_CASTER_HEAL              = 145109,
-    SPELL_DRUID_YSERA_GIFT_RAID_HEAL                = 145110, 
+    SPELL_DRUID_YSERA_GIFT_RAID_HEAL                = 145110,
     SPELL_DRUID_REJUVENATION                        = 774,
     SPELL_DRUID_HEALING_TOUCH                       = 5185,
     SPELL_DRUID_SWIFTMEND                           = 18562,
@@ -143,7 +143,7 @@ class spell_dru_thrash_periodic_damage : public AuraScript
                     int32 dmg = player->GetUInt32Value(UNIT_FIELD_ATTACK_POWER) * 0.605f;
                     dmg = (dmg * GetStackAmount()) / 5;
                     aurEff->SetDamage(dmg);
-                } 
+                }
             }
         }
     }
@@ -1192,6 +1192,13 @@ enum CatFormSpells
     SPELL_DRUID_MOONFIRE_CAT_OVERRIDE    = 155627
 };
 
+enum DruidFlamesSpells
+{
+    SPELL_DRUID_DRUID_OF_THE_FLAMES      = 99245,
+    SPELL_DRUID_BURNING_ESSENCE          = 138927,
+    MODEL_DRUID_OF_THE_FLAMES            = 38150
+};
+
 // Cat Form - 768
 // @Called : Cat Form (Speed) - 113636, Cat Form (Thrash/Swipe) - 48629, Dash - 1850, Lunar Inspiration - 155580
 // @Version : 7.1.0.22908
@@ -1247,6 +1254,15 @@ public:
             }
         }
 
+        void AfterApply(const AuraEffect* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                // Check if the caster have Burning Essence or Druid of the Flames aura
+                if (caster->HasAura(SPELL_DRUID_BURNING_ESSENCE) || caster->HasAura(SPELL_DRUID_DRUID_OF_THE_FLAMES))
+                    // Change the caster model to Druid of the Flames (Fire Cat Form)
+                    caster->SetDisplayId(MODEL_DRUID_OF_THE_FLAMES);
+        }
+
         void OnRemove(const AuraEffect* /* aurEff */, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
@@ -1267,6 +1283,7 @@ public:
         void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_dru_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_dru_cat_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
         }
     };
@@ -1934,9 +1951,9 @@ public:
             if (triggeredSpellId) // Apply new form
                 player->AddAura(triggeredSpellId, player);
             else // If not set, simply remove Travel Form dummy
-                player->RemoveAura(SPELL_DRUID_TRAVEL_FORM);                
+                player->RemoveAura(SPELL_DRUID_TRAVEL_FORM);
         }
-        
+
         void Register() override
         {
             OnEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
