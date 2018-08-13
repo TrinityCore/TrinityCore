@@ -981,27 +981,31 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             else if (cEntry->CinematicSequenceID)
                 pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
             else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
-                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
-            else
             {
-                switch (pCurrChar->getRace())
+                if (rEntry->CinematicSequenceID)
+                    pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+                else
                 {
-//                    case RACE_HIGHMOUNTAIN_TAUREN:
-//                        pCurrChar->GetSceneMgr().PlayScene(1901);
-//                        break;
-                    case RACE_NIGHTBORNE:
-                        pCurrChar->GetSceneMgr().PlayScene(1900);
-                        break;
-                    case RACE_LIGHTFORGED_DRAENEI:
-                        pCurrChar->GetSceneMgr().PlayScene(1902);
-                        break;
-                    case RACE_VOID_ELF:
-                        pCurrChar->GetSceneMgr().PlayScene(1903);
-                        break;
-                    default:
-                        break;
+                    switch (pCurrChar->getRace())
+                    {
+//                      case RACE_HIGHMOUNTAIN_TAUREN:
+//                          pCurrChar->GetSceneMgr().PlayScene(1901);
+//                          break;
+                        case RACE_NIGHTBORNE:
+                            pCurrChar->GetSceneMgr().PlayScene(1900);
+                            break;
+                        case RACE_LIGHTFORGED_DRAENEI:
+                            pCurrChar->GetSceneMgr().PlayScene(1902);
+                            break;
+                        case RACE_VOID_ELF:
+                            pCurrChar->GetSceneMgr().PlayScene(1903);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
+
             // send new char string if not empty
             if (!sWorld->GetNewCharString().empty())
                 chH.PSendSysMessage("%s", sWorld->GetNewCharString().c_str());
