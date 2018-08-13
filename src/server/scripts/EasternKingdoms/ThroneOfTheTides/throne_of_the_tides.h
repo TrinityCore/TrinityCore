@@ -47,6 +47,13 @@ enum TotTCreatureIds
     BOSS_MINDBENDER_GURSHA          = 40788,
     BOSS_OZUMAT                     = 44566,
 
+    // Encounter Related
+    /*Lady Naz'jar*/
+    NPC_GEYSER                      = 40597,
+    NPC_NAZJAR_HONOR_GUARD          = 40633,
+    NPC_NAZJAR_TEMPEST_WITCH        = 44404,
+    NPC_WATERSPOUT                  = 48571,
+
     // Event Creatures
     NPC_OZUMAT_VEHICLE_BIG          = 45030,
     NPC_OZUMAT_VEHICLE              = 44581,
@@ -58,6 +65,9 @@ enum TotTCreatureIds
     NPC_OZUMAT                      = 40655,
     NPC_WORLD_TRIGGER_NOT_IMMUNE_PC = 21252,
     NPC_LADY_NAZJAR                 = 39959,
+
+    // Generic Creatures
+    NPC_GEYSER_DUMMY                = 48983,
 };
 
 enum TotTGameObjectIds
@@ -70,7 +80,9 @@ enum TotTGameObjectIds
 enum TotTSpells
 {
     SPELL_SUMMON_FALLING_ROCKS              = 74465,
-    SPELL_WATER_JUMP_THROUGH_WINDOW_VISUAL  = 74048
+    SPELL_WATER_JUMP_THROUGH_WINDOW_VISUAL  = 74048,
+    SPELL_GEYSER_DUMMY                      = 91347,
+    SPELL_GEYSER_DUMMY_KNOCKBACK            = 91349,
 };
 
 enum TotTEventIndex

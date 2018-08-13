@@ -126,6 +126,30 @@ class instance_throne_of_the_tides : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
+                switch (type)
+                {
+                    case DATA_LADY_NAZJAR:
+                        for (ObjectGuid guid : _geyserGUIDs)
+                        {
+                            if (Creature* geyser = instance->GetCreature(guid))
+                            {
+                                if (state == IN_PROGRESS)
+                                {
+                                    geyser->CastSpell(geyser, SPELL_GEYSER_DUMMY);
+                                    geyser->CastSpell(geyser, SPELL_GEYSER_DUMMY_KNOCKBACK);
+                                }
+                                else
+                                {
+                                    geyser->RemoveAurasDueToSpell(SPELL_GEYSER_DUMMY);
+                                    geyser->RemoveAurasDueToSpell(SPELL_GEYSER_DUMMY_KNOCKBACK);
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
                 return true;
             }
 
@@ -153,6 +177,9 @@ class instance_throne_of_the_tides : public InstanceMapScript
                             if (_eventIndex < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
                                 events.ScheduleEvent(EVENT_FALLING_ROCKS, 1min + 15s);
                         }
+                        break;
+                    case NPC_GEYSER_DUMMY:
+                        _geyserGUIDs.push_back(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -286,6 +313,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
             EventMap events;
             uint8 _eventIndex;
             ObjectGuid _fallingRocksDummyGUID;
+            GuidVector _geyserGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
