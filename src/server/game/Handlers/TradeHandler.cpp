@@ -133,6 +133,11 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId());
                 }
 
+                TC_LOG_INFO("metric", "%s (Account: %u) trade: %s (Entry: %d Count: %u) to %s (Account: %u)",
+                    _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
+                    myItems[i]->GetTemplate()->GetDefaultLocaleName(), myItems[i]->GetEntry(), myItems[i]->GetCount(),
+                    trader->GetName().c_str(), trader->GetSession()->GetAccountId());
+
                 // adjust time (depends on /played)
                 if (myItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
                     myItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, trader->GetTotalPlayedTime()-(_player->GetTotalPlayedTime()-myItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
@@ -150,6 +155,11 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                         hisItems[i]->GetTemplate()->GetDefaultLocaleName(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId());
                 }
+
+                TC_LOG_INFO("metric", "%s (Account: %u) trade: %s (Entry: %d Count: %u) to %s (Account: %u)",
+                    trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
+                    hisItems[i]->GetTemplate()->GetDefaultLocaleName(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
+                    _player->GetName().c_str(), _player->GetSession()->GetAccountId());
 
                 // adjust time (depends on /played)
                 if (hisItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
@@ -491,6 +501,11 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
                     _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
                     my_trade->GetMoney(),
                     trader->GetName().c_str(), trader->GetSession()->GetAccountId());
+
+                TC_LOG_INFO("metric", "%s (Account: %u) give money (Amount: " UI64FMTD ") to %s (Account: %u)",
+                    _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
+                    my_trade->GetMoney(),
+                    trader->GetName().c_str(), trader->GetSession()->GetAccountId());
             }
 
             if (his_trade->GetMoney() > 0)
@@ -498,6 +513,11 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
                 sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
                     trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
                     his_trade->GetMoney(),
+                    _player->GetName().c_str(), _player->GetSession()->GetAccountId());
+
+                TC_LOG_INFO("metric", "%s (Account: %u) give money (Amount: " UI64FMTD ") to %s (Account: %u)",
+                    trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
+                    my_trade->GetMoney(),
                     _player->GetName().c_str(), _player->GetSession()->GetAccountId());
             }
         }
