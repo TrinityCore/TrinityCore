@@ -2837,10 +2837,10 @@ class spell_warr_execute : public SpellScript
         return true;
     }
 
-    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    void HandleTakePower(SpellPowerCost& powerCost)
     {
-        powerCount += m_ExtraSpellCost;
-        m_powerTaken = powerCount;
+        powerCost.Amount += m_ExtraSpellCost;
+        m_powerTaken = powerCost.Amount;
     }
 
     void HandleDamage(SpellEffIndex /*effIndex*/)

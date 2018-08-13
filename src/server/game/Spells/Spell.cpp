@@ -4797,8 +4797,7 @@ void Spell::TakePower()
             }
         }
 
-        int32 powerCost = cost.Amount;
-        CallScriptOnTakePowerHandlers(powerType, powerCost);
+        CallScriptOnTakePowerHandlers(cost);
 
         if (powerType == POWER_RUNES)
         {
@@ -4806,13 +4805,13 @@ void Spell::TakePower()
             continue;
         }
 
-        if (!powerCost)
+        if (!cost.Amount)
             continue;
 
         // health as power used
         if (powerType == POWER_HEALTH)
         {
-            m_caster->ModifyHealth(-powerCost);
+            m_caster->ModifyHealth(-cost.Amount);
             continue;
         }
 
@@ -4823,9 +4822,9 @@ void Spell::TakePower()
         }
 
         if (hit)
-            m_caster->ModifyPower(powerType, -powerCost);
-        else if (powerCost > 0)
-            m_caster->ModifyPower(powerType, -irand(0, powerCost / 4));
+            m_caster->ModifyPower(powerType, -cost.Amount);
+        else if (cost.Amount > 0)
+            m_caster->ModifyPower(powerType, -irand(0, cost.Amount / 4));
     }
 }
 
@@ -7577,14 +7576,14 @@ void Spell::CallScriptAfterCastHandlers()
     }
 }
 
-void Spell::CallScriptOnTakePowerHandlers(Powers& power, int32& powerCost)
+void Spell::CallScriptOnTakePowerHandlers(SpellPowerCost& powerCost)
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_TAKE_POWER);
         auto hookItrEnd = (*scritr)->OnTakePower.end(), hookItr = (*scritr)->OnTakePower.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            (*hookItr).Call(*scritr, power, powerCost);
+            (*hookItr).Call(*scritr, powerCost);
 
         (*scritr)->_FinishScriptCall();
     }

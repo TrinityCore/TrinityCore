@@ -425,10 +425,13 @@ struct TC_GAME_API SpellDiminishInfo
     int32 DiminishDurationLimit = 0;
 };
 
-struct SpellPowerCost
+struct TC_GAME_API SpellPowerCost
 {
     Powers Power;
     int32 Amount;
+
+    // OptionalAmount is included in Amount
+    int32 OptionalAmount = 0;
 };
 
 class TC_GAME_API SpellInfo

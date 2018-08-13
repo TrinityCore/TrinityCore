@@ -222,9 +222,9 @@ SpellScript::OnSummonHandler::OnSummonHandler(SpellOnSummonFnType OnSummonHandle
     _onSummonHandlerScript = OnSummonHandlerScript;
 }
 
-void SpellScript::OnTakePowerHandler::Call(SpellScript* spellScript, Powers& power, int32& powerCost)
+void SpellScript::OnTakePowerHandler::Call(SpellScript* spellScript, SpellPowerCost& powerCost)
 {
-    (spellScript->*_onTakePowerHandlerScript)(power, powerCost);
+    (spellScript->*_onTakePowerHandlerScript)(powerCost);
 }
 
 SpellScript::OnTakePowerHandler::OnTakePowerHandler(SpellOnTakePowerFnType OnTakePowerHandlerScript)

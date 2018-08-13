@@ -849,7 +849,7 @@ class TC_GAME_API Spell
         void CallScriptBeforeCastHandlers();
         void CallScriptOnCastHandlers();
         void CallScriptAfterCastHandlers();
-        void CallScriptOnTakePowerHandlers(Powers& power, int32& powerCost);
+        void CallScriptOnTakePowerHandlers(SpellPowerCost& powerCost);
         void CallScriptOnCalcCastTimeHandlers();
         SpellCastResult CallScriptCheckCastHandlers();
         void PrepareScriptHitHandlers();

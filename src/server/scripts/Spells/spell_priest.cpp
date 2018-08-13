@@ -599,9 +599,9 @@ class spell_pri_void_eruption : public SpellScript
         });
     }
 
-    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    void HandleTakePower(SpellPowerCost& powerCost)
     {
-        powerCount = 0;
+        powerCost.Amount = 0;
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)

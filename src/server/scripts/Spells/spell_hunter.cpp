@@ -1112,9 +1112,9 @@ class spell_hun_piercing_shot : public SpellScript
         return true;
     }
 
-    void HandleTakePower(Powers& /*power*/, int32& powerCount)
+    void HandleTakePower(SpellPowerCost& powerCost)
     {
-        powerCount += m_ExtraSpellCost;
+        powerCost.Amount += m_ExtraSpellCost;
     }
 
     void CalcDamage(SpellEffIndex /*effIndex*/)

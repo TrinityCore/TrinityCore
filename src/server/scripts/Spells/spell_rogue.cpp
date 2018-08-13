@@ -276,10 +276,10 @@ class spell_rog_between_the_eyes :public SpellScript
 {
     PrepareSpellScript(spell_rog_between_the_eyes);
 
-    void HandleTakePower(Powers& power, int32& powerCount)
+    void HandleTakePower(SpellPowerCost& powerCost)
     {
-        if (power == POWER_COMBO_POINTS)
-            _cp = powerCount;
+        if (powerCost.Power == POWER_COMBO_POINTS)
+            _cp = powerCost.Amount;
     }
 
     void HandleAfterHit()
@@ -1122,10 +1122,10 @@ class spell_rog_kidney_shot :public SpellScript
 {
     PrepareSpellScript(spell_rog_kidney_shot);
 
-    void HandleTakePower(Powers& power, int32& powerCount)
+    void HandleTakePower(SpellPowerCost& powerCost)
     {
-        if (power == POWER_COMBO_POINTS)
-            _cp = powerCount + 1;
+        if (powerCost.Power == POWER_COMBO_POINTS)
+            _cp = powerCost.Amount + 1;
     }
 
     void HandleAfterHit()

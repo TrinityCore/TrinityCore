@@ -1670,10 +1670,10 @@ class spell_dru_maim : public SpellScript
 {
     PrepareSpellScript(spell_dru_maim);
 
-    void HandleTakePower(Powers& power, int32& powerCount)
+    void HandleTakePower(SpellPowerCost& powerCost)
     {
-        if (power == POWER_COMBO_POINTS)
-            _usedComboPoints = powerCount;
+        if (powerCost.Power == POWER_COMBO_POINTS)
+            _usedComboPoints = powerCost.Amount;
     }
 
     void AfterCast()
