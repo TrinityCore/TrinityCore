@@ -3310,20 +3310,20 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     float step = dist / 10.0f;
 
     for (uint8 j = 0; j < 10; ++j)
-{
+    {
         // do not allow too big z changes
         if (std::fabs(pos.m_positionZ - destz) > 6.0f)
-    {
+        {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);
             UpdateAllowedPositionZ(destx, desty, destz);
         }
         // we have correct destz now
         else
-    {
+        {
             pos.Relocate(destx, desty, destz);
             break;
-    }
+        }
     }
 
     Trinity::NormalizeMapCoord(pos.m_positionX);
