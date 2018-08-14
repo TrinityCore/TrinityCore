@@ -50,6 +50,7 @@ DoorData const doorData[] =
 {
     { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_2,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
+    { GO_DOODAD_ABYSSAL_MAW_DOOR_4,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_PASSAGE   },
     { 0,                                0,                       DOOR_TYPE_ROOM      } // END
 };
 
