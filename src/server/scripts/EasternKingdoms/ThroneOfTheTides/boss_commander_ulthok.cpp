@@ -172,8 +172,7 @@ struct boss_commander_ulthok : public BossAI
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     break;
                 case EVENT_SQUEEZE:
-                    //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                         DoCast(target, SPELL_SQUEEZE);
                     events.Repeat(20s);
                     break;
