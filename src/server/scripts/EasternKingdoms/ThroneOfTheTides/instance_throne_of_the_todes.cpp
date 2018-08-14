@@ -48,7 +48,7 @@ ObjectData const gameobjectData[] =
 
 DoorData const doorData[] =
 {
-    { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_PASSAGE   },
+    { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_2,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { 0,                                0,                       DOOR_TYPE_ROOM      } // END
 };
@@ -58,7 +58,7 @@ enum Events
     EVENT_FALLING_ROCKS = 1,
     EVENT_RESPAWN_COMMANDER_ULTHOK,
     EVENT_BREAK_CORAL,
-    EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS,
+    EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS
 };
 
 Position const fallingRocksDummyPos         = { -144.283f,  983.316f,  230.4773f };
@@ -301,6 +301,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                                 }
                                 break;
                             case EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED:
+                                SetBossState(EVENT_RESPAWN_COMMANDER_ULTHOK, NOT_STARTED); // Initialize Ulthok's boss state
                                 events.CancelEvent(EVENT_FALLING_ROCKS);
                                 if (Creature* shockDefenseDummy = instance->GetCreature(_shockDefenseDummyGUID))
                                 {
@@ -337,6 +338,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                             case EVENT_INDEX_ULTHOK_ARRIVED:
                                 if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokIntroPos))
                                 {
+                                    ulthok->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     ulthok->PlayDirectSound(SOUND_ULTHOK_INTRO);
                                     ulthok->CastSpell(ulthok, SPELL_ULTHOK_INTRO_VISUAL_STATE);
                                     ulthok->CastSpell(ulthok, SPELL_ULTHOK_INTRO_JUMP);
@@ -382,8 +384,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                             events.Repeat(1min + 25s, 2min);
                             break;
                         case EVENT_RESPAWN_COMMANDER_ULTHOK:
-                            if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokRespawnPos))
-                                ulthok->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokRespawnPos);
                             break;
                         case EVENT_BREAK_CORAL:
                             if (GameObject* coral = GetGameObject(DATA_ABYSSAL_CORAL_CHUNK))
@@ -416,8 +417,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                 data >> _eventIndex;
 
                 if (_eventIndex == EVENT_INDEX_ULTHOK_ARRIVED && GetBossState(DATA_COMMANDER_ULTHOK) != DONE)
-                    if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokRespawnPos))
-                        ulthok->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokRespawnPos);
             }
 
         private:

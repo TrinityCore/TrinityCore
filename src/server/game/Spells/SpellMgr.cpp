@@ -4374,6 +4374,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_TARGET_RANDOM);
     });
 
+    // Commander Ulthok
+    // Dark Fissure
+    ApplySpellFix({
+        76047,
+        96311
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
+    });
+
     // END OF THRONE OF THE TIDES SPELLS
 
     //

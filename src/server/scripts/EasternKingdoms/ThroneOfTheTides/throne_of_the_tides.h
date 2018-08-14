@@ -108,7 +108,7 @@ enum TotTSpells
 
 enum TotTCinematic
 {
-    CINEMATIC_DEFENSE_SYSTEM_ACTIVE         = 169
+    CINEMATIC_DEFENSE_SYSTEM_ACTIVE = 169
 };
 
 enum TotTEventIndex
