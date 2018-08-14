@@ -17,10 +17,25 @@
 
 #include "throne_of_the_tides.h"
 #include "AreaBoundary.h"
+#include "GameObjectAI.h"
 #include "GridNotifiers.h"
+#include "MoveSplineInit.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Transport.h"
 #include "Vehicle.h"
+
+enum OzumatVehicleBig
+{
+    SEAT_TENTACLE_BLOCK = 0,
+    SEAT_DEFENSE_SYSTEM = 1,
+    SEAT_ESCAPE         = 2,
+
+    EVENT_CHANGE_TO_SHOCK_SEAT = 1,
+    EVENT_CHANGE_TO_ESCAPE_SEAT,
+};
+
+Position const OzumatEscapePos = { 75.f, 0.f, 0.f, 3.141593f }; // Looks odd but it's sniffed
 
 struct npc_tott_ozumat_vehicle_big : public ScriptedAI
 {
@@ -30,10 +45,16 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
     {
         if (_instance->GetData(DATA_CURRENT_EVENT_PROGRESS) < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
             if (Creature* ozumat = DoSummon(NPC_OZUMAT, me->GetPosition()))
-                me->HandleSpellClick(ozumat, -1);
+                me->HandleSpellClick(ozumat, SEAT_TENTACLE_BLOCK);
     }
 
-    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_DEFENSE_SYSTEM_ACTIVATED)
+            _events.ScheduleEvent(EVENT_CHANGE_TO_SHOCK_SEAT, 2s);
+    }
+
+    void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
     {
         if (!who)
             return;
@@ -42,8 +63,41 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
             who->SetFacingTo(3.141593f, true);
     }
 
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHANGE_TO_SHOCK_SEAT:
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                        if (Unit* ozumat = vehicle->GetPassenger(SEAT_TENTACLE_BLOCK))
+                            me->HandleSpellClick(ozumat, SEAT_DEFENSE_SYSTEM);
+                    _events.RescheduleEvent(EVENT_CHANGE_TO_ESCAPE_SEAT, 29s);
+                    break;
+                case EVENT_CHANGE_TO_ESCAPE_SEAT:
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                    {
+                        if (Unit* ozumat = vehicle->GetPassenger(SEAT_DEFENSE_SYSTEM))
+                        {
+                            me->HandleSpellClick(ozumat, SEAT_ESCAPE);
+                            me->DespawnOrUnsummon(6s);
+                            if (Creature* creature = ozumat->ToCreature())
+                                creature->DespawnOrUnsummon(6s);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
 private:
     InstanceScript* _instance;
+    EventMap _events;
 };
 
 enum LadyNazjarGauntlet
@@ -301,6 +355,82 @@ class at_tott_first_invader_event : public AreaTriggerScript
         }
 };
 
+struct go_tott_defense_system : public GameObjectAI
+{
+    go_tott_defense_system(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+
+    bool OnReportUse(Player* /*player*/) override
+    {
+        if (GameObject* system = me->ToGameObject())
+        {
+            system->SendCustomAnim(0);
+            _instance->SetData(DATA_CURRENT_EVENT_PROGRESS, EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED);
+        }
+
+        return true;
+    }
+private:
+    InstanceScript * _instance;
+};
+
+class spell_tott_camera: public SpellScript
+{
+    PrepareSpellScript(spell_tott_camera);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitPlayer())
+            player->SendCinematicStart(CINEMATIC_DEFENSE_SYSTEM_ACTIVE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_tott_camera::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum ShockDefense
+{
+    SPELL_SHOCK_DEFENSE_DEST = 86618
+};
+
+class spell_tott_shock_defense_script : public SpellScript
+{
+    PrepareSpellScript(spell_tott_shock_defense_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHOCK_DEFENSE_DEST });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_SHOCK_DEFENSE_DEST, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_tott_shock_defense_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_tott_ulthok_intro_visual_impact: public SpellScript
+{
+    PrepareSpellScript(spell_tott_ulthok_intro_visual_impact);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->RemoveAurasDueToSpell(GetSpellInfo()->Effects[effIndex].BasePoints);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_tott_ulthok_intro_visual_impact::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum OzumatTentacle
 {
     SPELL_TENTACLE_KNOCKBACK = 84566
@@ -337,12 +467,32 @@ class at_tott_lady_nazjar_gauntlet : public AreaTriggerScript
         }
 };
 
+class at_tott_commander_ulthok_summon : public AreaTriggerScript
+{
+    public:
+        at_tott_commander_ulthok_summon() : AreaTriggerScript("at_tott_commander_ulthok_summon") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetData(DATA_CURRENT_EVENT_PROGRESS) == EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
+                    instance->SetData(DATA_CURRENT_EVENT_PROGRESS, EVENT_INDEX_ULTHOK_ARRIVED);
+
+            return true;
+        }
+};
+
 void AddSC_throne_of_the_tides()
 {
     RegisterThroneOfTheTidesCreatureAI(npc_tott_ozumat_vehicle_big);
     RegisterThroneOfTheTidesCreatureAI(npc_tott_lady_nazjar);
     RegisterSpellScript(spell_tott_trigger_murloc);
+    RegisterGameObjectAI(go_tott_defense_system);
+    RegisterSpellScript(spell_tott_camera);
+    RegisterSpellScript(spell_tott_shock_defense_script);
+    RegisterSpellScript(spell_tott_ulthok_intro_visual_impact);
     new at_tott_first_invader_event();
     new at_tott_tentacle_knockback();
     new at_tott_lady_nazjar_gauntlet();
+    new at_tott_commander_ulthok_summon();
 }

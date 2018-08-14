@@ -29,31 +29,44 @@ ObjectData const creatureData[] =
     { BOSS_MINDBENDER_GURSHA,   DATA_MINDBENDER_GURSHA      },
     { BOSS_OZUMAT,              DATA_OZUMAT                 },
     { NPC_LADY_NAZJAR,          DATA_LADY_NAZJAR_GAUNTLET   },
+    { NPC_OZUMAT_VEHICLE_BIG,   DATA_OZUMAT_VEHICLE_BIG     },
     { 0,                        0                           } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_ABYSSAL_MAW_DOOR_1 },
-    { 0,                                0                       } // END
+    { GO_DOODAD_ABYSSAL_MAW_DOOR_1,             DATA_ABYSSAL_MAW_DOOR_1                 },
+    { GO_DOODAD_ABYSSAL_MAW_DOOR_2,             DATA_ABYSSAL_MAW_DOOR_2                 },
+    { GO_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM,    DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM },
+    { GO_DOODAD_INVISIBLE_DOOR_1,               DATA_INVISIBLE_DOOR_1                   },
+    { GO_DOODAD_INVISIBLE_DOOR_2,               DATA_INVISIBLE_DOOR_2                   },
+    { GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_1,   DATA_LEVIATHAN_TENTACLE_1               },
+    { GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_2,   DATA_LEVIATHAN_TENTACLE_2               },
+    { GO_DOODAD_ABYSSAL_CORAL_CHUNK_CEILING,    DATA_ABYSSAL_CORAL_CHUNK                },
+    { 0,                                        0                                       } // END
 };
 
 DoorData const doorData[] =
 {
     { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_PASSAGE   },
-    { GO_DOODAD_ABYSSAL_MAW_DOOR_2,     DATA_LADY_NAZJAR,        DOOR_TYPE_ROOM      },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_2,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { 0,                                0,                       DOOR_TYPE_ROOM      } // END
 };
 
 enum Events
 {
-    EVENT_FALLING_ROCKS = 1
+    EVENT_FALLING_ROCKS = 1,
+    EVENT_RESPAWN_COMMANDER_ULTHOK,
+    EVENT_BREAK_CORAL,
+    EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS,
 };
 
-Position const fallingRocksDummyPos = { -144.283f, 983.316f, 230.4773f };
-
-Position const ladyNazjarGauntletPos = { -20.19097f, 802.0608f, 807.5371f, 3.141593f };
+Position const fallingRocksDummyPos         = { -144.283f,  983.316f,  230.4773f };
+Position const shockDefenseDummyPos         = { -188.321f,  805.252f,  384.9963f };
+Position const ulthokIntroDummyPos          = { 51.1059f,   802.1563f, 846.4826f };
+Position const ladyNazjarGauntletPos        = { -20.19097f, 802.0608f, 807.5371f, 3.141593f };
+Position const commanderUlthokIntroPos      = { 51.9911f,   802.6801f, 888.0374f, 6.198466f };
+Position const commanderUlthokRespawnPos    = { 51.5573f,   802.717f,  805.7309f, 6.230825f };
 
 class FaceDirectionEvent : public BasicEvent
 {
@@ -145,6 +158,14 @@ class instance_throne_of_the_tides : public InstanceMapScript
                                 }
                             }
                         }
+
+                        if (state == DONE)
+                            if (GameObject* defenseSystem = GetGameObject(DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM))
+                                defenseSystem->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    case DATA_COMMANDER_ULTHOK:
+                        if (state == FAIL)
+                            events.ScheduleEvent(EVENT_RESPAWN_COMMANDER_ULTHOK, 30s);
                         break;
                     default:
                         break;
@@ -171,12 +192,18 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         creature->setActive(true);
                         creature->SetFarVisible(true);
 
+                        _infiniteAOIDummyGUIDs.push_back(creature->GetGUID());
+
                         if (creature->GetExactDist2d(fallingRocksDummyPos) < 1.0f)
                         {
                             _fallingRocksDummyGUID = creature->GetGUID();
                             if (_eventIndex < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
                                 events.ScheduleEvent(EVENT_FALLING_ROCKS, 1min + 15s);
                         }
+                        else if (creature->GetExactDist2d(shockDefenseDummyPos) < 1.0f)
+                            _shockDefenseDummyGUID = creature->GetGUID();
+                        else if (creature->GetExactDist2d(ulthokIntroDummyPos) < 1.0f)
+                            _ulthokIntroDummyGUID = creature->GetGUID();
                         break;
                     case NPC_GEYSER_DUMMY:
                         _geyserGUIDs.push_back(creature->GetGUID());
@@ -199,6 +226,23 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         if (_eventIndex >= EVENT_INDEX_LADY_NAZJAR_GAUNTLET)
                             go->SetGoState(GO_STATE_ACTIVE);
                         break;
+                    case GO_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM:
+                        if (_eventIndex < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED && GetBossState(DATA_LADY_NAZJAR) == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    case GO_DOODAD_INVISIBLE_DOOR_1:
+                    case GO_DOODAD_INVISIBLE_DOOR_2:
+                        if (_eventIndex >= EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_1:
+                    case GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_2:
+                        if (_eventIndex >= EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
+                            go->DespawnOrUnsummon();
+                        break;
+                    case GO_DOODAD_ABYSSAL_CORAL_CHUNK_CEILING:
+                        if (_eventIndex == EVENT_INDEX_ULTHOK_ARRIVED)
+                            go->DespawnOrUnsummon();
                     default:
                         break;
                 }
@@ -258,6 +302,50 @@ class instance_throne_of_the_tides : public InstanceMapScript
                                 break;
                             case EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED:
                                 events.CancelEvent(EVENT_FALLING_ROCKS);
+                                if (Creature* shockDefenseDummy = instance->GetCreature(_shockDefenseDummyGUID))
+                                {
+                                    shockDefenseDummy->CastSpell(shockDefenseDummy, SPELL_CAMERA, true);
+                                    shockDefenseDummy->CastSpell(shockDefenseDummy, SPELL_SHOCK_DEFENSE_OZUMAT, true);
+                                }
+
+                                if (GameObject* defenseSystem = GetGameObject(DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM))
+                                    defenseSystem->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                                for (ObjectGuid guid : _infiniteAOIDummyGUIDs)
+                                    if (Creature* trigger = instance->GetCreature(guid))
+                                        trigger->CastSpell(trigger, SPELL_SHOCK_DEFENSE, true);
+
+                                if (Creature* ozumatVehicle = GetCreature(DATA_OZUMAT_VEHICLE_BIG))
+                                    if (ozumatVehicle->IsAIEnabled)
+                                        ozumatVehicle->AI()->DoAction(ACTION_DEFENSE_SYSTEM_ACTIVATED);
+
+                                if (GameObject* door1 = GetGameObject(DATA_INVISIBLE_DOOR_1))
+                                    door1->SetGoState(GO_STATE_ACTIVE);
+
+                                if (GameObject* door2 = GetGameObject(DATA_INVISIBLE_DOOR_2))
+                                    door2->SetGoState(GO_STATE_ACTIVE);
+
+                                if (GameObject* abyssalMawDoor = GetGameObject(DATA_ABYSSAL_MAW_DOOR_2))
+                                    abyssalMawDoor->SetGoState(GO_STATE_ACTIVE);
+
+                                if (GameObject* tentacle1 = GetGameObject(DATA_LEVIATHAN_TENTACLE_1))
+                                    tentacle1->DespawnOrUnsummon(20s);
+
+                                if (GameObject* tentacle2 = GetGameObject(DATA_LEVIATHAN_TENTACLE_2))
+                                    tentacle2->DespawnOrUnsummon(15s);
+                                break;
+                            case EVENT_INDEX_ULTHOK_ARRIVED:
+                                if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokIntroPos))
+                                {
+                                    ulthok->PlayDirectSound(SOUND_ULTHOK_INTRO);
+                                    ulthok->CastSpell(ulthok, SPELL_ULTHOK_INTRO_VISUAL_STATE);
+                                    ulthok->CastSpell(ulthok, SPELL_ULTHOK_INTRO_JUMP);
+                                }
+
+                                if (Creature* introDummy = instance->GetCreature(_ulthokIntroDummyGUID))
+                                    introDummy->CastSpell(introDummy, SPELL_ULTHOK_INTRO_VISUAL_CEILING_IMPACT);
+
+                                events.ScheduleEvent(EVENT_BREAK_CORAL, 2s);
                                 break;
                             default:
                                 break;
@@ -293,6 +381,25 @@ class instance_throne_of_the_tides : public InstanceMapScript
                                 fallingRocksDummy->CastSpell(fallingRocksDummy, SPELL_SUMMON_FALLING_ROCKS, true);
                             events.Repeat(1min + 25s, 2min);
                             break;
+                        case EVENT_RESPAWN_COMMANDER_ULTHOK:
+                            if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokRespawnPos))
+                                ulthok->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            break;
+                        case EVENT_BREAK_CORAL:
+                            if (GameObject* coral = GetGameObject(DATA_ABYSSAL_CORAL_CHUNK))
+                            {
+                                coral->SendCustomAnim(0);
+                                coral->DespawnOrUnsummon(800ms);
+                            }
+                            events.ScheduleEvent(EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS, 1ms);
+                            break;
+                        case EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS:
+                            if (Creature* ulthok = GetCreature(DATA_COMMANDER_ULTHOK))
+                            {
+                                ulthok->SetHomePosition(commanderUlthokRespawnPos);
+                                ulthok->GetMotionMaster()->MoveTargetedHome();
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -307,13 +414,20 @@ class instance_throne_of_the_tides : public InstanceMapScript
             void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _eventIndex;
+
+                if (_eventIndex == EVENT_INDEX_ULTHOK_ARRIVED && GetBossState(DATA_COMMANDER_ULTHOK) != DONE)
+                    if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokRespawnPos))
+                        ulthok->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
         private:
             EventMap events;
             uint8 _eventIndex;
             ObjectGuid _fallingRocksDummyGUID;
+            ObjectGuid _shockDefenseDummyGUID;
+            ObjectGuid _ulthokIntroDummyGUID;
             GuidVector _geyserGUIDs;
+            GuidVector _infiniteAOIDummyGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

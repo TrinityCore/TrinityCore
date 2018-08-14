@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "throne_of_the_tides.h"
+#include "GameObject.h"
 #include "MoveSpline.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
@@ -159,6 +160,7 @@ struct boss_lady_nazjar : public BossAI
     {
         _JustEngagedWith();
         Talk(SAY_AGGRO);
+        HandleDoor(false);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_SUMMON_GEYSER, 11s, 16s);
         events.ScheduleEvent(EVENT_FUNGAL_SPORES, 13s, 19s);
@@ -181,6 +183,7 @@ struct boss_lady_nazjar : public BossAI
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
+        HandleDoor(true);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_SPORES_AURA);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_SURGE);
@@ -192,6 +195,7 @@ struct boss_lady_nazjar : public BossAI
     {
         _JustDied();
         Talk(SAY_DEATH);
+        HandleDoor(false);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_SPORES_AURA);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_SURGE);
@@ -332,7 +336,20 @@ struct boss_lady_nazjar : public BossAI
         }
         DoMeleeAttackIfReady();
     }
+
 private:
+    void HandleDoor(bool open)
+    {
+        GameObject* door = instance->GetGameObject(DATA_ABYSSAL_MAW_DOOR_2);
+        if (!door)
+            return;
+
+        if (open)
+            door->SetGoState(GO_STATE_ACTIVE);
+        else
+            door->SetGoState(GO_STATE_READY);
+    }
+
     uint8 _waterspoutPhaseCount;
     uint8 _killedAdds;
 };

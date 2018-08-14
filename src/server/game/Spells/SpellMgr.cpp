@@ -4365,6 +4365,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     // END OF DEADMINES SPELLS
 
     //
+    // THRONE OF THE TIDES SPELLS
+    //
+
+    // Shock Defense
+    ApplySpellFix({ 86618 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_TARGET_RANDOM);
+    });
+
+    // END OF THRONE OF THE TIDES SPELLS
+
+    //
     // GRIM BATOL SPELLS
     //
     // General Umbriss

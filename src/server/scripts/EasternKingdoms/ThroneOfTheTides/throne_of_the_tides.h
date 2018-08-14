@@ -28,15 +28,24 @@ uint32 const EncounterCount = 4;
 enum TotTDataTypes
 {
     // Encounters
-    DATA_LADY_NAZJAR            = 0,
-    DATA_COMMANDER_ULTHOK       = 1,
-    DATA_MINDBENDER_GURSHA      = 2,
-    DATA_OZUMAT                 = 3,
+    DATA_LADY_NAZJAR                        = 0,
+    DATA_COMMANDER_ULTHOK                   = 1,
+    DATA_MINDBENDER_GURSHA                  = 2,
+    DATA_OZUMAT                             = 3,
 
     // Additional Data Types
-    DATA_CURRENT_EVENT_PROGRESS = 4,
-    DATA_LADY_NAZJAR_GAUNTLET   = 5,
-    DATA_ABYSSAL_MAW_DOOR_1     = 6
+    DATA_CURRENT_EVENT_PROGRESS             = 4,
+    DATA_LADY_NAZJAR_GAUNTLET               = 5,
+    DATA_ABYSSAL_MAW_DOOR_1                 = 6,
+    DATA_ABYSSAL_MAW_DOOR_2                 = 7,
+    DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM = 8,
+    DATA_OZUMAT_VEHICLE_BIG                 = 9,
+    DATA_INVISIBLE_DOOR_1                   = 10,
+    DATA_INVISIBLE_DOOR_2                   = 11,
+    DATA_LEVIATHAN_TENTACLE_1               = 12,
+    DATA_LEVIATHAN_TENTACLE_2               = 13,
+    DATA_ABYSSAL_CORAL_CHUNK                = 14,
+
 };
 
 enum TotTCreatureIds
@@ -72,17 +81,34 @@ enum TotTCreatureIds
 
 enum TotTGameObjectIds
 {
-    GO_TEMP_FALLING_ROCKS           = 202742,
-    GO_DOODAD_ABYSSAL_MAW_DOOR_1    = 204338,
-    GO_DOODAD_ABYSSAL_MAW_DOOR_2    = 204339
+    GO_TEMP_FALLING_ROCKS                   = 202742,
+    GO_DOODAD_ABYSSAL_MAW_DOOR_1            = 204338,
+    GO_DOODAD_ABYSSAL_MAW_DOOR_2            = 204339,
+    GO_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM   = 203199,
+    GO_DOODAD_INVISIBLE_DOOR_1              = 207997,
+    GO_DOODAD_INVISIBLE_DOOR_2              = 207998,
+    GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_1  = 208302,
+    GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_2  = 208301,
+    GO_DOODAD_ABYSSAL_CORAL_CHUNK_CEILING   = 205542,
 };
 
 enum TotTSpells
 {
-    SPELL_SUMMON_FALLING_ROCKS              = 74465,
-    SPELL_WATER_JUMP_THROUGH_WINDOW_VISUAL  = 74048,
-    SPELL_GEYSER_DUMMY                      = 91347,
-    SPELL_GEYSER_DUMMY_KNOCKBACK            = 91349,
+    SPELL_SUMMON_FALLING_ROCKS                  = 74465,
+    SPELL_WATER_JUMP_THROUGH_WINDOW_VISUAL      = 74048,
+    SPELL_GEYSER_DUMMY                          = 91347,
+    SPELL_GEYSER_DUMMY_KNOCKBACK                = 91349,
+    SPELL_CAMERA                                = 77229,
+    SPELL_SHOCK_DEFENSE                         = 85170,
+    SPELL_SHOCK_DEFENSE_OZUMAT                  = 86635,
+    SPELL_ULTHOK_INTRO_VISUAL_CEILING_IMPACT    = 76021,
+    SPELL_ULTHOK_INTRO_JUMP                     = 82960,
+    SPELL_ULTHOK_INTRO_VISUAL_STATE             = 76017,
+};
+
+enum TotTCinematic
+{
+    CINEMATIC_DEFENSE_SYSTEM_ACTIVE         = 169
 };
 
 enum TotTEventIndex
@@ -92,6 +118,16 @@ enum TotTEventIndex
     EVENT_INDEX_LADY_NAZJAR_GAUNTLET,
     EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED,
     EVENT_INDEX_ULTHOK_ARRIVED
+};
+
+enum TotTActions
+{
+    ACTION_DEFENSE_SYSTEM_ACTIVATED = 1
+};
+
+enum TotTSounds
+{
+    SOUND_ULTHOK_INTRO = 18546
 };
 
 Position const TotTFirstInvaderPositions[] =
