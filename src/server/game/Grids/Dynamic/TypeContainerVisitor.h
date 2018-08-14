@@ -32,28 +32,28 @@
 template<class T, class Y> class TypeContainerVisitor;
 
 // visitor helper
-template<class VISITOR, class TYPE_CONTAINER> void VisitorHelper(VISITOR &v, TYPE_CONTAINER &c)
+template<class VISITOR, class TYPE_CONTAINER> void VisitorHelper(VISITOR& v, TYPE_CONTAINER& c)
 {
     v.Visit(c);
 }
 
 // terminate condition container map list
-template<class VISITOR> void VisitorHelper(VISITOR &/*v*/, ContainerMapList<TypeNull> &/*c*/) { }
+template<class VISITOR> void VisitorHelper(VISITOR&, ContainerMapList<TypeNull>&) { }
 
-template<class VISITOR, class T> void VisitorHelper(VISITOR &v, ContainerMapList<T> &c)
+template<class VISITOR, class T> void VisitorHelper(VISITOR &v, ContainerMapList<T>& c)
 {
     v.Visit(c._element);
 }
 
 // recursion container map list
-template<class VISITOR, class H, class T> void VisitorHelper(VISITOR &v, ContainerMapList<TypeList<H, T> > &c)
+template<class VISITOR, class H, class T> void VisitorHelper(VISITOR &v, ContainerMapList<TypeList<H,T>>& c)
 {
     VisitorHelper(v, c._elements);
     VisitorHelper(v, c._TailElements);
 }
 
 // for TypeMapContainer
-template<class VISITOR, class OBJECT_TYPES> void VisitorHelper(VISITOR &v, TypeMapContainer<OBJECT_TYPES> &c)
+template<class VISITOR, class OBJECT_TYPES> void VisitorHelper(VISITOR &v, TypeMapContainer<OBJECT_TYPES>& c)
 {
     VisitorHelper(v, c.GetElements());
 }
@@ -92,12 +92,18 @@ class TypeContainerVisitor
             VisitorHelper(i_visitor, c);
         }
 
-        void Visit(TYPE_CONTAINER const& c) const
-        {
-            VisitorHelper(i_visitor, c);
-        }
-
     private:
         VISITOR &i_visitor;
 };
+
+namespace TypeContainer
+{
+    // visit helper
+    template <class VISITOR, class CONTAINER>
+    void Visit(CONTAINER& c, VISITOR& v)
+    {
+        TypeContainerVisitor<VISITOR, CONTAINER>(v).Visit(c);
+    }
+}
+
 #endif

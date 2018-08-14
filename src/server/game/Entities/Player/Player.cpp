@@ -25610,14 +25610,8 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
 void Player::ResetMap()
 {
-    // this may be called during Map::Update
-    // after decrement+unlink, ++m_mapRefIter will continue correctly
-    // when the first element of the list is being removed
-    // nocheck_prev will return the padding element of the RefManager
-    // instead of nullptr in the case of prev
-    GetMap()->UpdateIteratorBack(this);
     Unit::ResetMap();
-    GetMapRef().unlink();
+    m_mapRef.unlink();
 }
 
 void Player::SetMap(Map* map)
