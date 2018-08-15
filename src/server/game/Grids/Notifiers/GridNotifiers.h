@@ -177,15 +177,6 @@ namespace Trinity
         }
     };
 
-    struct ObjectUpdater
-    {
-        uint32 i_timeDiff;
-        explicit ObjectUpdater(const uint32 diff) : i_timeDiff(diff) { }
-        template<class T> void Visit(GridRefManager<T> &m);
-        void Visit(PlayerMapType &) { }
-        void Visit(CorpseMapType &) { }
-    };
-
     // SEARCHERS & LIST SEARCHERS & WORKERS
 
     // WorldObject searchers & workers
