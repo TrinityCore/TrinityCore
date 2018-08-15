@@ -151,83 +151,6 @@ public:
     }
 };
 
-/*######
-## npc_zelfrax
-######*/
-
-Position const MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
-
-enum Zelfrax
-{
-    SAY_ZELFRAX1     = 0,
-    SAY_ZELFRAX2     = 1
-};
-
-class npc_zelfrax : public CreatureScript
-{
-public:
-    npc_zelfrax() : CreatureScript("npc_zelfrax") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_zelfraxAI(creature);
-    }
-
-    struct npc_zelfraxAI : public ScriptedAI
-    {
-        npc_zelfraxAI(Creature* creature) : ScriptedAI(creature)
-        {
-            MoveToDock();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-
-                if (IsCombatMovementAllowed())
-                    me->GetMotionMaster()->MoveChase(who);
-            }
-        }
-
-        void MovementInform(uint32 Type, uint32 /*Id*/) override
-        {
-            if (Type != POINT_MOTION_TYPE)
-                return;
-
-            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-            me->SetImmuneToPC(false);
-            SetCombatMovement(true);
-
-            if (me->IsInCombat())
-                if (Unit* unit = me->GetVictim())
-                    me->GetMotionMaster()->MoveChase(unit);
-        }
-
-        void MoveToDock()
-        {
-            SetCombatMovement(false);
-            me->GetMotionMaster()->MovePoint(0, MovePosition);
-            Talk(SAY_ZELFRAX1);
-            Talk(SAY_ZELFRAX2);
-        }
-
-        void UpdateAI(uint32 /*Diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
 enum SpellScripts
 {
     SPELL_OOZE_ZAP              = 42489,
@@ -365,7 +288,6 @@ void AddSC_dustwallow_marsh()
 {
     new npc_nat_pagle();
     new npc_private_hendel();
-    new npc_zelfrax();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
