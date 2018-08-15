@@ -826,8 +826,6 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
         {
             for (uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
             {
-                uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-
                 CellCoord pair(x, y);
                 Cell cell(pair);
                 cell.SetNoCreate();
@@ -865,9 +863,6 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
         {
             for (uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
             {
-                uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-                    continue;
-
                 CellCoord pair(x, y);
                 Cell cell(pair);
                 cell.SetNoCreate();
