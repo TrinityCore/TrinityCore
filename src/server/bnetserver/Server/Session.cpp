@@ -175,7 +175,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
             }
             else
             {
-                if (component.Program != "WoW" || !AuthHelper::IsBuildSupportingBattlenet(component.Build))
+                if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
                     logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
