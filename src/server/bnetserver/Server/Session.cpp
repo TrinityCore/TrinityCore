@@ -175,7 +175,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
             }
             else
             {
-                if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
+                if (component.Program != "WoW" || !AuthHelper::IsBuildSupportingBattlenet(component.Build))
                     logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
@@ -603,7 +603,6 @@ void Battlenet::Session::Start()
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
-    stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
 }
