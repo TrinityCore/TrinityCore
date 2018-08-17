@@ -244,12 +244,22 @@ INSERT INTO `battlenet_components` VALUES
 ('Bnet','Cmp1',3),
 ('Bnet','Win',26487),
 ('Bnet','Wn64',26487),
-('Tool','Win',2736),
+('Tool','Win',0),
 ('WoW','base',15595),
 ('WoW','enGB',15595),
 ('WoW','enUS',15595),
 ('WoW','Win',15595),
-('WoW','Wn64',15595);
+('WoW','Wn64',15595),
+('WoW','deDE',15595),
+('WoW','frFR',15595),
+('WoW','esES',15595),
+('WoW','esMX',15595),
+('WoW','ptPT',15595),
+('WoW','ptBR',15595),
+('WoW','ruRU',15595),
+('WoW','zhCN',15595),
+('WoW','zhTW',15595);
+
 /*!40000 ALTER TABLE `battlenet_components` ENABLE KEYS */;
 UNLOCK TABLES;
 
