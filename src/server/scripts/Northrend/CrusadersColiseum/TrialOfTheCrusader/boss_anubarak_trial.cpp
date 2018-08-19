@@ -858,18 +858,18 @@ class spell_pursuing_spikes : public AuraScript
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        PreventDefaultAction();
-
         Unit* permafrostCaster = nullptr;
         if (Aura* permafrostAura = GetTarget()->GetAura(SPELL_PERMAFROST))
             permafrostCaster = permafrostAura->GetCaster();
 
         if (permafrostCaster)
         {
+            PreventDefaultAction();
+
             if (Creature* permafrostCasterCreature = permafrostCaster->ToCreature())
                 permafrostCasterCreature->DespawnOrUnsummon(3000);
 
-            GetTarget()->CastSpell(nullptr, SPELL_SPIKE_FAIL, false);
+            GetTarget()->CastSpell(nullptr, SPELL_SPIKE_FAIL);
             GetTarget()->RemoveAllAuras();
             if (Creature* targetCreature = GetTarget()->ToCreature())
                 targetCreature->DisappearAndDie();
