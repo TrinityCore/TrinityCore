@@ -314,7 +314,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
-        uint8 _combatResurrectionCharges; // the counter for available battle resurrections
+        uint8 _combatResurrectionCharges; // the counter for available combat resurrections
         std::unordered_set<uint32> _activatedAreaTriggers;
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
 

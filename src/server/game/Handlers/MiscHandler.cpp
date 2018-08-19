@@ -625,18 +625,21 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     if (!player->IsResurrectRequestedBy(guid))
         return;
 
-    if (InstanceScript* instance = player->GetInstanceScript())
+    if (Player* resurrectingPlayer = ObjectAccessor::GetPlayer(*player, guid))
     {
-        if (instance->IsEncounterInProgress() && player->GetMap()->IsRaid())
+        if (InstanceScript* instance = resurrectingPlayer->GetInstanceScript())
         {
-            if (!instance->GetCombatResurrectionCharges())
-                return;
-            else
-                instance->UseCombatResurrection();
+            if (instance->IsEncounterInProgress() && resurrectingPlayer->GetMap()->IsRaid())
+            {
+                if (!instance->GetCombatResurrectionCharges())
+                    return;
+                else
+                    instance->UseCombatResurrection();
+            }
         }
     }
 
-    GetPlayer()->ResurrectUsingRequestData();
+    player->ResurrectUsingRequestData();
 }
 
 void WorldSession::SendAreaTriggerMessage(char const* Text, ...)
