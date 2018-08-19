@@ -103,6 +103,8 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         owner->StopMoving();
         _lastTargetPosition.reset();
+        if (Creature* cOwner = owner->ToCreature())
+            cOwner->SetCannotReachTarget(false);
         return true;
     }
 
@@ -137,6 +139,8 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->movespline->Finalized())
     {
         _path = nullptr;
+        if (Creature* cOwner = owner->ToCreature())
+            cOwner->SetCannotReachTarget(false);
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
         owner->SetInFront(target);
         DoMovementInform(owner, target);
@@ -219,6 +223,8 @@ void ChaseMovementGenerator::Deactivate(Unit* owner)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
+    if (Creature* cOwner = owner->ToCreature())
+        cOwner->SetCannotReachTarget(false);
 }
 
 void ChaseMovementGenerator::Finalize(Unit* owner, bool active, bool/* movementInform*/)
