@@ -609,29 +609,30 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     recvData >> guid;
     recvData >> status;
 
-    if (GetPlayer()->IsAlive())
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    if (player->IsAlive())
         return;
 
     if (status == 0)
     {
-        GetPlayer()->ClearResurrectRequestData();           // reject
+        player->ClearResurrectRequestData();           // reject
         return;
     }
 
-    if (!GetPlayer()->IsResurrectRequestedBy(guid))
+    if (!player->IsResurrectRequestedBy(guid))
         return;
 
-    if (Player* ressPlayer = ObjectAccessor::GetPlayer(*GetPlayer(), guid))
+    if (InstanceScript* instance = player->GetInstanceScript())
     {
-        if (InstanceScript* instance = ressPlayer->GetInstanceScript())
+        if (instance->IsEncounterInProgress() && player->GetMap()->IsRaid())
         {
-            if ((instance->IsEncounterInProgress() && ressPlayer->GetMap()->IsRaid()))
-            {
-                if (!instance->GetCombatResurrectionCharges())
-                    return;
-                else
-                    instance->UseCombatResurrection();
-            }
+            if (!instance->GetCombatResurrectionCharges())
+                return;
+            else
+                instance->UseCombatResurrection();
         }
     }
 

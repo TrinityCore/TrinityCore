@@ -172,7 +172,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) { }
-		void UpdateCombatResurrection(uint32 /*diff*/);
 
         // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
@@ -265,12 +264,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
         bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
 
-        void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
-        void AddCombatResurrectionCharge();
+        void InitializeCombatResurrections();
         void UseCombatResurrection();
-        void ResetCombatResurrections();
         uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
-        uint32 GetCombatResurrectionChargeInterval() const;
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
@@ -318,9 +314,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
-        uint32 _combatResurrectionTimer;
         uint8 _combatResurrectionCharges; // the counter for available battle resurrections
-        bool _combatResurrectionTimerStarted;
         std::unordered_set<uint32> _activatedAreaTriggers;
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
 

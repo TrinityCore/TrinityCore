@@ -5103,6 +5103,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             return SPELL_FAILED_ONLY_INDOORS;
     }
 
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION) && m_caster->GetMap()->IsRaid())
+        if (InstanceScript* instance = m_caster->GetInstanceScript())
+            if (instance->IsEncounterInProgress())
+                if (!instance->GetCombatResurrectionCharges())
+                    return SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED;
+
     // only check at first call, Stealth auras are already removed at second call
     // for now, ignore triggered spells
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_SHAPESHIFT))

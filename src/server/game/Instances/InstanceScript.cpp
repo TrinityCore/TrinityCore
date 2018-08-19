@@ -366,29 +366,22 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 						if (minion->isWorldBoss() && minion->IsAlive())
 							return false;
 
-			switch (state)
-			{
-				case IN_PROGRESS:
-				{
-					uint32 resInterval = GetCombatResurrectionChargeInterval();
-					if (instance->Is25ManRaid() || (instance->Is25ManRaid() && instance->IsHeroic()))
-					{
-						InitializeCombatResurrections(3, resInterval);
-					}
-					else if (instance->IsRaid())
-					{
-						InitializeCombatResurrections(1, resInterval);
-					}
-					break;
-				}
-
-				case FAIL:
-				case DONE:
-					ResetCombatResurrections();
-					break;
-				default:
-					break;
-			}
+            if (instance->IsRaid())
+            {
+                switch (state)
+                {
+                    case IN_PROGRESS:
+                        InitializeCombatResurrections();
+                        SendEncounterUnit(ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT);
+                        break;
+                    case FAIL:
+                    case DONE:
+                        SendEncounterUnit(ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             bossInfo->state = state;
             SaveToDB();
@@ -842,55 +835,14 @@ void InstanceScript::UpdatePhasing()
             PhasingHandler::SendToPlayer(player);
 }
 
-void InstanceScript::UpdateCombatResurrection(uint32 diff)
+void InstanceScript::InitializeCombatResurrections()
 {
-	if (!_combatResurrectionTimerStarted)
-		return;
-
-	_combatResurrectionTimer -= diff;
-	if (_combatResurrectionTimer <= 0)
-	{
-		AddCombatResurrectionCharge();
-		_combatResurrectionTimerStarted = false;
-	}
-}
-
-void InstanceScript::InitializeCombatResurrections(uint8 charges /*= 1*/, uint32 interval /*= 0*/)
-{
-	_combatResurrectionCharges = charges;
-	if (!interval)
-		return;
-
-	_combatResurrectionTimer = interval;
-	_combatResurrectionTimerStarted = true; // true;
-}
-
-void InstanceScript::AddCombatResurrectionCharge()
-{
-	//	++_combatResurrectionCharges;
-	_combatResurrectionTimer = GetCombatResurrectionChargeInterval();
-	_combatResurrectionTimerStarted = true;
+    if (instance->IsRaid())
+	    _combatResurrectionCharges = instance->Is25ManRaid() ? 3 : 1;
 }
 
 void InstanceScript::UseCombatResurrection()
 {
-	--_combatResurrectionCharges;
-}
-
-void InstanceScript::ResetCombatResurrections()
-{
-	_combatResurrectionCharges = 0;
-	_combatResurrectionTimer = 0;
-	_combatResurrectionTimerStarted = 0;
-}
-
-uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
-{
-	// This System here is from MoP and not Cataclysm.
-	// In Cataclysm have 10 Man Raids 1 Resurrection and 25 Man Raids 3 Resurrection free.
-	uint32 interval = 0;
-	if (uint32 playerCount = instance->GetPlayers().getSize())
-		interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
-
-	return interval;
+	_combatResurrectionCharges--;
+    SendEncounterUnit(ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT);
 }
