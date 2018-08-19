@@ -709,8 +709,13 @@ ObjectGuid SmartAI::GetGUID(int32 /*id*/) const
 
 void SmartAI::SetRun(bool run)
 {
+    if (run == mRun)
+        return;
+
     me->SetWalk(!run);
     mRun = run;
+    for (auto& node : _path.nodes)
+        node.moveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 }
 
 void SmartAI::SetDisableGravity(bool fly)
