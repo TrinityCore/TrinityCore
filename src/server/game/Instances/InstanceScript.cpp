@@ -802,11 +802,11 @@ void InstanceScript::UpdatePhasing()
 void InstanceScript::InitializeCombatResurrections()
 {
     if (instance->IsRaid())
-	    _combatResurrectionCharges = instance->Is25ManRaid() ? 3 : 1;
+        _combatResurrectionCharges = instance->Is25ManRaid() ? 3 : 1;
 }
 
 void InstanceScript::UseCombatResurrection()
 {
-	_combatResurrectionCharges--;
+    _combatResurrectionCharges--;
     SendEncounterUnit(ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT);
 }
