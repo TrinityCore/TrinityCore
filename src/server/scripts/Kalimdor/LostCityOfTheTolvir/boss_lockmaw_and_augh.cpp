@@ -414,8 +414,8 @@ class npc_lockmaw_frenzied_crocolisk : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, ScentOfBloodTargetSelector()))
                             {
                                 DoCastSelf(SPELL_STEALTHED);
+                                me->AddThreat(target, 50000000.0f);
                                 AttackStart(target);
-                                target->AddThreat(me, 50000000.0f);
                             }
                             break;
                         default:

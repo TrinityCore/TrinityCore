@@ -507,9 +507,9 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
                             {
+                                me->AddThreat(target, 1500500.0f);
                                 DoCast(target, SPELL_FLAMING_FIXATE, true);
                                 AttackStart(target);
-                                target->AddThreat(me, 1500500.0f);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
                                 me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
                                 _events.ScheduleEvent(EVENT_REPEAT_MOVEMENT, Seconds(1));
