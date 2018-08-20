@@ -245,6 +245,16 @@ struct npc_corla_twilight_zealot : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
+    void EnterEvadeMode(EvadeReason /*why*/) override { }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (InstanceScript* instance = me->GetInstanceScript())
+            if (Creature* corla = instance->GetCreature(DATA_CORLA_HERALD_OF_TWILIGHT))
+                if (!corla->IsInCombat())
+                    corla->AI()->DoZoneInCombat();
+    }
+
     void IsSummonedBy(Unit* /*summoner*/) override
     {
         DoCastSelf(SPELL_KNEELING_SUPPLICATION);
