@@ -247,7 +247,7 @@ struct npc_corla_twilight_zealot : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (InstanceScript* instance = me->GetInstanceScript())
             if (Creature* corla = instance->GetCreature(DATA_CORLA_HERALD_OF_TWILIGHT))
