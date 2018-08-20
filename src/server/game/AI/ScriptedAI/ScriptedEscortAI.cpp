@@ -352,11 +352,13 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
 
 void EscortAI::SetRun(bool on)
 {
-    if (on && !_running)
-        me->SetWalk(false);
-    else if (!on && _running)
-        me->SetWalk(true);
+    if (on == _running)
+        return;
 
+    for (auto& node : _path.nodes)
+        node.moveType = on ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+
+    me->SetWalk(!on);
     _running = on;
 }
 
