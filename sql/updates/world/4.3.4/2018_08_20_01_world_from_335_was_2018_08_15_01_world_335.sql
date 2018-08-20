@@ -1,3 +1,4 @@
+/*
 -- Witchbane Torch
 SET @GUID := 5160;
 DELETE FROM `gameobject` WHERE `guid`=@GUID;
@@ -46,3 +47,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `waypoints` WHERE `entry`=23864;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (23864,1,-2965.74,-3873.83,33.3183,"");
+*/

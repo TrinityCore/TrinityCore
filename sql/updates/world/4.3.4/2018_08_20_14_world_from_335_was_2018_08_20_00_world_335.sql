@@ -1,3 +1,4 @@
+/*
 -- Suntara Stones
 UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry` IN (8284,8338,8337);
 UPDATE `creature_addon` SET `bytes1`= 0 WHERE `guid`= 6823;
@@ -142,3 +143,4 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (82840, 49, -6389.20, -1978.71, 247.48),
 (82840, 50, -6388.39, -1983.85, 246.72),
 (82840, 51, -6388.39, -1983.85, 246.72);
+*/

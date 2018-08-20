@@ -1,3 +1,4 @@
+/*
 -- Quest "The Missing Diplomat (Part 16)"
 UPDATE `quest_template_addon` SET `SpecialFlags`=2 WHERE `ID`=1324; -- Prevents quest from auto completing
 
@@ -100,3 +101,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (496700,9,9,0,0,0,100,0,2000,2000,0,0,0,15,1324,0,0,0,0,0,12,1,0,0,0,0,0,0,"Archmage Tervosh - On Script - Complete Quest 'The Missing Diplomat (Part 16)'"),
 (496700,9,10,0,0,0,100,0,1000,1000,0,0,0,1,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Tervosh - On Script - Say Line 2"),
 (496700,9,11,0,0,0,100,0,6000,6000,0,0,0,1,4,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Tervosh - On Script - Say Line 3");
+*/

@@ -1,3 +1,4 @@
+/*
 --
 UPDATE `gossip_menu_option` SET `OptionText`='How do I use the cannon?', `OptionBroadcastTextID`= 10769 WHERE `MenuID`= 6575;
 UPDATE `gossip_menu_option` SET `OptionText`='Tonks?', `OptionBroadcastTextID`= 11934 WHERE `MenuID`= 6581 AND `OptionID`= 0;
@@ -17,3 +18,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,7095,8348,0,0,22,0,0,0,0,0,0,0,"","Show text 8348 on map 0"),
 (14,7095,8349,0,0,22,0,1,0,0,0,0,0,"","Show text 8349 on map 1"),
 (14,7095,11743,0,0,22,0,530,0,0,0,0,0,"","Show text 11743 on map 530");
+*/

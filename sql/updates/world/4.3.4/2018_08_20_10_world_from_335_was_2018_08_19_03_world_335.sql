@@ -1,3 +1,4 @@
+/*
 --
 -- Apprentice Morlann
 DELETE FROM `creature_text` WHERE `CreatureID` IN (23600,23601);
@@ -36,3 +37,4 @@ UPDATE `creature` SET `MovementType`=0 WHERE `guid`=18604;
 UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=18604;
 DELETE FROM `waypoint_data` WHERE `id`=186040;
 DELETE FROM `waypoint_scripts` WHERE `id` IN (1006,1007,1008);
+*/

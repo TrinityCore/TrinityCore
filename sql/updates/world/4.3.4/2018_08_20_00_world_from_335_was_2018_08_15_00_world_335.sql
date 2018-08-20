@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gameobject` WHERE `guid` IN (5111,5117,5122,5126,5131,5140,5144,5155);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -58,3 +59,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (22,6,180867,1,0,6,0,67,0,0,0,0,'','Lunar Festival SAI the player Must Must Be Horde'),
 (22,7,180867,1,0,29,0,15719,5,0,0,0,'','Lunar Festival Execute sai if near npc 15719'),
 (22,7,180867,1,0,6,0,67,0,0,0,0,'','Lunar Festival SAI the player Must Must Be Horde');
+*/

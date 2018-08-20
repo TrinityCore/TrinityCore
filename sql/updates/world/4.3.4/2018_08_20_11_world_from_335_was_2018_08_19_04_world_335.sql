@@ -1,3 +1,4 @@
+/*
 --
 -- Stonemaul Spirit
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=23786;
@@ -16,3 +17,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (23786,0,3,"Raaar!!! Me smash $r!",12,0,100,15,0,0,1925,0,"Stonemaul Spirit"),
 (23786,0,4,"Me smash! You die!",12,0,100,15,0,0,1926,0,"Stonemaul Spirit"),
 (23786,0,5,"I'll crush you!",12,0,100,15,0,0,1927,0,"Stonemaul Spirit");
+*/
