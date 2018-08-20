@@ -357,7 +357,6 @@ public:
                 guid.Clear();
 
             _killSpamFilter = false;
-            _canAttack = false;
             _executingVortex = false;
             _arcaneReinforcements = true;
             _flyingOutOfPlatform = false;
@@ -467,7 +466,6 @@ public:
                         alexstraszaBunny->GetNearPoint2D(nullptr, pos.m_positionX, pos.m_positionY, 30.0f, alexstraszaBunny->GetAbsoluteAngle(me));
                         me->GetMotionMaster()->MoveLand(POINT_LAND_P_ONE, pos);
                         me->SetImmuneToAll(false);
-                        me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat();
                         events.ScheduleEvent(EVENT_LAND_START_ENCOUNTER, 7*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
                     }
@@ -562,13 +560,6 @@ public:
             }
         }
 
-        // There are moments where boss will do nothing while being attacked
-        void AttackStart(Unit* target) override
-        {
-            if (_canAttack)
-               BossAI::AttackStart(target);
-        }
-
         void JustEngagedWith(Unit* /*who*/) override
         {
             // We can't call full function here since it includes DoZoneInCombat(),
@@ -590,30 +581,10 @@ public:
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
             instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
+            instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
 
             me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_GET_DEFAULT_FOR_MAP, 1*IN_MILLISECONDS);
 
-            if (_phase == PHASE_THREE)
-                me->SetControlled(false, UNIT_STATE_ROOT);
-
-            uint32 corpseDelay = me->GetCorpseDelay();
-            uint32 respawnDelay = me->GetRespawnDelay();
-            me->SetCorpseDelay(1);
-            me->SetRespawnDelay(29);
-            me->DespawnOrUnsummon();
-            me->SetCorpseDelay(corpseDelay);
-            me->SetRespawnDelay(respawnDelay);
-
-            // Set speed to normal value
-            me->SetSpeedRate(MOVE_FLIGHT, _flySpeed);
-            me->RemoveAllAuras();
-            me->CombatStop(); // Sometimes threat can remain, so it's a safety measure
-
-            if (!_despawned)
-                _despawned = true;
-
-            me->ResetLootMode();
-            events.Reset();
             if (!summons.empty())
             {
                 if (_phase == PHASE_TWO)
@@ -627,7 +598,7 @@ public:
                     summons.DespawnAll();
             }
 
-            instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
+            me->DespawnOrUnsummon(0, 30s);
         }
 
         void KilledUnit(Unit* victim) override
@@ -707,7 +678,7 @@ public:
                 case POINT_LAND_AFTER_VORTEX_P_ONE:
                     me->SetDisableGravity(false);
                     _executingVortex = false;
-                    _canAttack = true;
+                    me->SetReactState(REACT_AGGRESSIVE);
                     break;
                 case POINT_LIFT_IN_AIR_P_ONE:
                     me->SetDisableGravity(true);
@@ -753,9 +724,15 @@ public:
             }
         }
 
+        void DamageTaken(Unit* /*cause*/, uint32& damage) override
+        {
+            if (damage > me->GetHealth() && _phase != PHASE_THREE)
+                damage = me->GetHealth() - 1;
+        }
+
         void UpdateAI(uint32 diff) override
         {
-            if (!instance || (!UpdateVictim() && _phase != PHASE_NOT_STARTED && _phase != PHASE_TWO))
+            if (!UpdateVictim() && _phase != PHASE_NOT_STARTED && _phase != PHASE_TWO)
                 return;
 
             events.Update(diff);
@@ -768,7 +745,7 @@ public:
             if (_phase == PHASE_ONE && me->GetHealthPct() <= 50.0f)
             {
                 SetPhase(PHASE_TWO, true);
-                _canAttack = false;
+                me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
                 Talk(SAY_END_P_ONE);
             }
@@ -790,7 +767,7 @@ public:
                             me->SetFacingToObject(iris);
                             iris->Delete(); // this is not the best way.
                         }
-                        _canAttack = true;
+                        me->SetReactState(REACT_AGGRESSIVE);
                         SetPhase(PHASE_ONE, true);
                         break;
                     case EVENT_SAY_INTRO:
@@ -803,7 +780,7 @@ public:
                         events.ScheduleEvent(EVENT_VORTEX, urand(60, 80)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_MOVE_TO_VORTEX_POINT:
-                        _canAttack = false;
+                        me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
                         me->GetMotionMaster()->MovePoint(POINT_VORTEX_P_ONE, MalygosPositions[1]);
                         break;
@@ -945,9 +922,9 @@ public:
                         me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_OBSCURE_ARCANE_RUNES, 1 * IN_MILLISECONDS);
                         DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                         DoCast(me, SPELL_IMMUNE_CURSES);
-                        _canAttack = true;
-                        UpdateVictim();
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        DoZoneInCombat();
                         SetPhase(PHASE_THREE, true);
                         break;
                     case EVENT_SURGE_OF_POWER_P_THREE:
@@ -1017,7 +994,6 @@ public:
         ObjectGuid _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
 
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
-        bool _canAttack; // Used to control attacking (Move Chase not being applied after Stop Attack, only few times should act like this).
         bool _despawned; // Checks if boss pass through evade on reset.
         bool _executingVortex; // Prevents some events being sheduled during Vortex takeoff/land.
         bool _arcaneReinforcements; // Checks if 10 or 25 man arcane trash will be spawned.
