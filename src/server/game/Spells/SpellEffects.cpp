@@ -870,12 +870,18 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 
 void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
 {
+    float miscA = 0.0f;
+    float miscB = 0.0f;
     if (m_spellInfo->Effects[i].MiscValue)
-        speedZ = float(m_spellInfo->Effects[i].MiscValue) / 10;
-    else if (m_spellInfo->Effects[i].MiscValueB)
-        speedZ = float(m_spellInfo->Effects[i].MiscValueB) / 10;
-    else
+        miscA = float(m_spellInfo->Effects[i].MiscValue) / 10;
+
+    if (m_spellInfo->Effects[i].MiscValueB)
+        miscB = float(m_spellInfo->Effects[i].MiscValueB) / 10;
+
+    if (miscA == 0.0f && miscB == 0.0f)
         speedZ = 10.0f;
+    else
+        speedZ = std::max(miscA, miscB);
 
     if (m_spellInfo->Speed != 0.0f)
         speedXY = m_spellInfo->Speed;
