@@ -428,6 +428,29 @@ class spell_tott_ulthok_intro_visual_impact: public SpellScript
     }
 };
 
+class spell_tott_shock_defense : public SpellScript
+{
+    PrepareSpellScript(spell_tott_shock_defense);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        float x = caster->GetPositionX() + frand(-80.0f, 80.0f);
+        float y = caster->GetPositionY() + frand(-80.0f, 80.0f);
+        float z = caster->GetPositionZ() + frand(-80.0f, 80.0f);
+
+        dest.Relocate({ x, y, z, 0.0f });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_tott_shock_defense::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+    }
+};
+
 enum OzumatTentacle
 {
     SPELL_TENTACLE_KNOCKBACK = 84566
@@ -503,6 +526,7 @@ void AddSC_throne_of_the_tides()
     RegisterSpellScript(spell_tott_camera);
     RegisterSpellScript(spell_tott_shock_defense_script);
     RegisterSpellScript(spell_tott_ulthok_intro_visual_impact);
+    RegisterSpellScript(spell_tott_shock_defense);
     new at_tott_first_invader_event();
     new at_tott_tentacle_knockback();
     new at_tott_lady_nazjar_gauntlet();
