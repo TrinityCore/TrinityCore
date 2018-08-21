@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "throne_of_the_tides.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Vehicle.h"
@@ -30,6 +31,8 @@ ObjectData const creatureData[] =
     { BOSS_OZUMAT,              DATA_OZUMAT                 },
     { NPC_LADY_NAZJAR,          DATA_LADY_NAZJAR_GAUNTLET   },
     { NPC_OZUMAT_VEHICLE_BIG,   DATA_OZUMAT_VEHICLE_BIG     },
+    { NPC_OZUMAT_VEHICLE,       DATA_OZUMAT_VEHICLE         },
+    { NPC_NEPTULON,             DATA_NEPTULON               },
     { 0,                        0                           } // END
 };
 
@@ -51,6 +54,7 @@ DoorData const doorData[] =
     { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_2,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_4,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_PASSAGE   },
+    { GO_DOODAD_ABYSSAL_MAW_DOOR_4,     DATA_OZUMAT,             DOOR_TYPE_ROOM      },
     { 0,                                0,                       DOOR_TYPE_ROOM      } // END
 };
 
@@ -59,7 +63,8 @@ enum Events
     EVENT_FALLING_ROCKS = 1,
     EVENT_RESPAWN_COMMANDER_ULTHOK,
     EVENT_BREAK_CORAL,
-    EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS
+    EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS,
+    EVENT_CHECK_DEAD_PLAYERS,
 };
 
 Position const fallingRocksDummyPos         = { -144.283f,  983.316f,  230.4773f };
@@ -91,7 +96,6 @@ class FaceDirectionEvent : public BasicEvent
         Creature* _owner;
         float _facingAngle;
 };
-
 
 class JumpThroughWindowEvent : public BasicEvent
 {
@@ -186,6 +190,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                     case NPC_OZUMAT_VEHICLE:
                     case NPC_OZUMAT_VEHICLE_BIG:
                     case NPC_LADY_NAZJAR:
+                    case NPC_OZUMAT_ADD_SPAWNER:
                         creature->setActive(true);
                         creature->SetFarVisible(true);
                         break;
@@ -208,6 +213,16 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         break;
                     case NPC_GEYSER_DUMMY:
                         _geyserGUIDs.push_back(creature->GetGUID());
+                        break;
+                    case NPC_DEEP_MURLOC_INVADER:
+                    case NPC_VICIOUS_MINDLASHER:
+                    case NPC_UNYIELDING_BEHEMOTH:
+                    case NPC_UNYIELDING_BEHEMOTH_LEAP_VEHICLE:
+                    case NPC_BLIGHT_BEAST:
+                    case NPC_BLIGHT_OF_OZUMAT:
+                    case NPC_BLIGHT_OF_OZUMAT_2:
+                        if (Creature* neptulon = GetCreature(DATA_NEPTULON))
+                            neptulon->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
@@ -350,6 +365,10 @@ class instance_throne_of_the_tides : public InstanceMapScript
 
                                 events.ScheduleEvent(EVENT_BREAK_CORAL, 2s);
                                 break;
+                            case EVENT_INDEX_NEPTULON_INTRO_DONE:
+                                if (Creature* neptulon = GetCreature(DATA_NEPTULON))
+                                    neptulon->AI()->DoAction(ACTION_CORAL_GARDEN_ENTERED);
+                                break;
                             default:
                                 break;
                         }
@@ -363,6 +382,9 @@ class instance_throne_of_the_tides : public InstanceMapScript
 
             void OnUnitDeath(Unit* who) override
             {
+                if (who->GetTypeId() == TYPEID_PLAYER && GetBossState(DATA_OZUMAT) == IN_PROGRESS)
+                    events.ScheduleEvent(EVENT_CHECK_DEAD_PLAYERS, 100ms);
+
                 if (who->GetTypeId() != TYPEID_UNIT)
                     return;
 
@@ -402,6 +424,29 @@ class instance_throne_of_the_tides : public InstanceMapScript
                                 ulthok->GetMotionMaster()->MoveTargetedHome();
                             }
                             break;
+                        case EVENT_CHECK_DEAD_PLAYERS:
+                        {
+                            uint8 instancePlayersCount = instance->GetPlayersCountExceptGMs();
+                            uint8 deadPlayersCount = 0;
+                            Map::PlayerList const& players = instance->GetPlayers();
+
+                            for (auto const& i : players)
+                            {
+                                if (Player* player = i.GetSource())
+                                {
+                                    if (player->IsGameMaster())
+                                        continue;
+
+                                    if (player->isDead())
+                                        deadPlayersCount++;
+
+                                    if (deadPlayersCount == instancePlayersCount)
+                                        if (Creature* neptulon = GetCreature(DATA_NEPTULON))
+                                            neptulon->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
+                                }
+                            }
+                            break;
+                        }
                         default:
                             break;
                     }

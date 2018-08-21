@@ -45,38 +45,53 @@ enum TotTDataTypes
     DATA_LEVIATHAN_TENTACLE_1               = 12,
     DATA_LEVIATHAN_TENTACLE_2               = 13,
     DATA_ABYSSAL_CORAL_CHUNK                = 14,
-
+    DATA_NEPTULON                           = 15,
+    DATA_OZUMAT_VEHICLE                     = 16
 };
 
 enum TotTCreatureIds
 {
     // Bosses
-    BOSS_LADY_NAZJAR                = 40586,
-    BOSS_COMMANDER_ULTHOK           = 40765,
-    BOSS_MINDBENDER_GURSHA          = 40788,
-    BOSS_OZUMAT                     = 44566,
+    BOSS_LADY_NAZJAR                        = 40586,
+    BOSS_COMMANDER_ULTHOK                   = 40765,
+    BOSS_MINDBENDER_GURSHA                  = 40788,
+    BOSS_OZUMAT                             = 44566,
 
     // Encounter Related
     /*Lady Naz'jar*/
-    NPC_GEYSER                      = 40597,
-    NPC_NAZJAR_HONOR_GUARD          = 40633,
-    NPC_NAZJAR_TEMPEST_WITCH        = 44404,
-    NPC_WATERSPOUT                  = 48571,
+    NPC_GEYSER                              = 40597,
+    NPC_NAZJAR_HONOR_GUARD                  = 40633,
+    NPC_NAZJAR_TEMPEST_WITCH                = 44404,
+    NPC_WATERSPOUT                          = 48571,
+
+    /*Ozumat*/
+    NPC_NEPTULON                            = 40792,
+    NPC_OZUMAT_COMBAT_TRIGGER               = 44864,
+    NPC_WORLD_TRIGGER_FRIENDLY              = 18721,
+    NPC_DEEP_MURLOC_INVADER                 = 44658,
+    NPC_VICIOUS_MINDLASHER                  = 44715,
+    NPC_UNYIELDING_BEHEMOTH                 = 44648,
+    NPC_UNYIELDING_BEHEMOTH_LEAP_VEHICLE    = 44949,
+    NPC_OZUMAT_ADD_SPAWNER                  = 44656,
+    NPC_OZUMAT_VEHICLE                      = 44581,
+    NPC_FACELESS_SAPPER                     = 44752,
+    NPC_BLIGHT_BEAST                        = 44841,
+    NPC_BLIGHT_OF_OZUMAT                    = 44801,
+    NPC_BLIGHT_OF_OZUMAT_2                  = 44834,
 
     // Event Creatures
-    NPC_OZUMAT_VEHICLE_BIG          = 45030,
-    NPC_OZUMAT_VEHICLE              = 44581,
-    NPC_WORLD_TRIGGER_INFINITE_AOI  = 36171,
-    NPC_NAZJAR_SPIRITMENDER_1       = 41096,
-    NPC_NAZJAR_SPIRITMENDER_2       = 41139,
-    NPC_NAZJAR_INVADER_1            = 39616,
-    NPC_NAZJAR_INVADER_2            = 40584,
-    NPC_OZUMAT                      = 40655,
-    NPC_WORLD_TRIGGER_NOT_IMMUNE_PC = 21252,
-    NPC_LADY_NAZJAR                 = 39959,
+    NPC_OZUMAT_VEHICLE_BIG                  = 45030,
+    NPC_WORLD_TRIGGER_INFINITE_AOI          = 36171,
+    NPC_NAZJAR_SPIRITMENDER_1               = 41096,
+    NPC_NAZJAR_SPIRITMENDER_2               = 41139,
+    NPC_NAZJAR_INVADER_1                    = 39616,
+    NPC_NAZJAR_INVADER_2                    = 40584,
+    NPC_OZUMAT                              = 40655,
+    NPC_WORLD_TRIGGER_NOT_IMMUNE_PC         = 21252,
+    NPC_LADY_NAZJAR                         = 39959,
 
     // Generic Creatures
-    NPC_GEYSER_DUMMY                = 48983,
+    NPC_GEYSER_DUMMY                        = 48983
 };
 
 enum TotTGameObjectIds
@@ -85,13 +100,14 @@ enum TotTGameObjectIds
     GO_DOODAD_ABYSSAL_MAW_DOOR_1            = 204338,
     GO_DOODAD_ABYSSAL_MAW_DOOR_2            = 204339,
     GO_DOODAD_ABYSSAL_MAW_DOOR_4            = 204341,
-
     GO_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM   = 203199,
     GO_DOODAD_INVISIBLE_DOOR_1              = 207997,
     GO_DOODAD_INVISIBLE_DOOR_2              = 207998,
     GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_1  = 208302,
     GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_2  = 208301,
     GO_DOODAD_ABYSSAL_CORAL_CHUNK_CEILING   = 205542,
+    GO_NEPTULONS_CACHE_NORMAL               = 205216,
+    GO_NEPTULONS_CACHE_HEROIC               = 207973
 };
 
 enum TotTSpells
@@ -105,7 +121,7 @@ enum TotTSpells
     SPELL_SHOCK_DEFENSE_OZUMAT                  = 86635,
     SPELL_ULTHOK_INTRO_VISUAL_CEILING_IMPACT    = 76021,
     SPELL_ULTHOK_INTRO_JUMP                     = 82960,
-    SPELL_ULTHOK_INTRO_VISUAL_STATE             = 76017,
+    SPELL_ULTHOK_INTRO_VISUAL_STATE             = 76017
 };
 
 enum TotTCinematic
@@ -119,12 +135,14 @@ enum TotTEventIndex
     EVENT_INDEX_FIRST_INVADERS,
     EVENT_INDEX_LADY_NAZJAR_GAUNTLET,
     EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED,
-    EVENT_INDEX_ULTHOK_ARRIVED
+    EVENT_INDEX_ULTHOK_ARRIVED,
+    EVENT_INDEX_NEPTULON_INTRO_DONE
 };
 
 enum TotTActions
 {
-    ACTION_DEFENSE_SYSTEM_ACTIVATED = 1
+    ACTION_DEFENSE_SYSTEM_ACTIVATED = 1,
+    ACTION_CORAL_GARDEN_ENTERED     = 1
 };
 
 enum TotTSounds

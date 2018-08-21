@@ -58,9 +58,6 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
     {
         if (!who)
             return;
-
-        if (apply)
-            who->SetFacingTo(3.141593f, true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -482,6 +479,21 @@ class at_tott_commander_ulthok_summon : public AreaTriggerScript
         }
 };
 
+class at_tott_neptulon_intro : public AreaTriggerScript
+{
+    public:
+        at_tott_neptulon_intro() : AreaTriggerScript("at_tott_neptulon_intro") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetData(DATA_CURRENT_EVENT_PROGRESS) <= EVENT_INDEX_ULTHOK_ARRIVED)
+                    instance->SetData(DATA_CURRENT_EVENT_PROGRESS, EVENT_INDEX_NEPTULON_INTRO_DONE);
+
+            return true;
+        }
+};
+
 void AddSC_throne_of_the_tides()
 {
     RegisterThroneOfTheTidesCreatureAI(npc_tott_ozumat_vehicle_big);
@@ -495,4 +507,5 @@ void AddSC_throne_of_the_tides()
     new at_tott_tentacle_knockback();
     new at_tott_lady_nazjar_gauntlet();
     new at_tott_commander_ulthok_summon();
+    new at_tott_neptulon_intro();
 }
