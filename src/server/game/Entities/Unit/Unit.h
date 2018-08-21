@@ -1788,6 +1788,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateCharmAI();
         void RestoreDisabledAI();
         std::unique_ptr<UnitAI> i_AI, i_disabledAI;
+        uint32 m_AIUpdateTimer;
 
         std::unordered_set<AbstractFollower*> m_followingMe;
 

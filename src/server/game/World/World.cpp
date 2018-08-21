@@ -698,6 +698,8 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
         sMapMgr->SetMapUpdateInterval(m_int_configs[CONFIG_INTERVAL_MAPUPDATE]);
 
+    m_int_configs[CONFIG_INTERVAL_AIUPDATE] = sConfigMgr->GetIntDefault("AIUpdateInterval", 1000);
+
     m_int_configs[CONFIG_INTERVAL_CHANGEWEATHER] = sConfigMgr->GetIntDefault("ChangeWeatherInterval", 10 * MINUTE * IN_MILLISECONDS);
 
     if (reload)

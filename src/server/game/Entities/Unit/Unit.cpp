@@ -293,7 +293,7 @@ Unit::Unit(bool isWorldObject) :
     movespline(new Movement::MoveSpline()), m_AutoRepeatFirstCast(false), m_procDeep(0), m_removedAurasCount(0),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr), m_vehicleKit(nullptr),
     m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this), m_threatManager(this),
-    m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
+    m_AIUpdateTimer(0), m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -9407,12 +9407,15 @@ uint32 Unit::GetCreatePowers(Powers power) const
     return 0;
 }
 
-void Unit::AIUpdateTick(uint32 diff, bool /*force*/)
+void Unit::AIUpdateTick(uint32 diff, bool force)
 {
-    if (!diff) // some places call with diff = 0, which does nothing (for now), see PR #22296
-        return;
-    if (UnitAI* ai = GetAI())
-        ai->UpdateAI(diff);
+    m_AIUpdateTimer += diff;
+    if (force || m_AIUpdateTimer >= sWorld->getIntConfig(CONFIG_INTERVAL_AIUPDATE))
+    {
+        if (UnitAI* ai = GetAI())
+            ai->UpdateAI(m_AIUpdateTimer);
+        m_AIUpdateTimer = 0;
+    }
 }
 
 void Unit::SetAI(UnitAI* newAI)
