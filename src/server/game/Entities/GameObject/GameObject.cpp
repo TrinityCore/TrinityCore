@@ -83,6 +83,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
                 queryTemp.Stats.QuestItems[i] = (*items)[i];
 
     queryTemp.Write();
+    queryTemp.ShrinkToFit();
     return queryTemp.Move();
 }
 
