@@ -59,6 +59,7 @@ enum Spells
     SPELL_SUMMON_BLIGHT_OF_OZUMAT       = 83606,
     SPELL_SUMMON_CHEST_VISUAL           = 84074,
     SPELL_GRAB_NEPTULON                 = 94170,
+    SPELL_THRONE_OF_TIDES_COMPLETE      = 95673,
 
     // Phase 1 Adds
     SPELL_CHARGE_TO_WINDOW              = 83240,
@@ -216,7 +217,7 @@ Position const GroundJumpPos1           = { -122.5607f, 1001.56f, 230.2997f };
 Position const GroundJumpPos2           = { -137.7711f, 952.5314f, 231.0441f };
 Position const OzumatVehicleEscapePos   = { 69.08652f, 746.204f, 423.8753f };
 Position const NeptulonsCachePos        = { -157.986f, 982.238f, 229.131f, 2.984498f };
-QuaternionData  const NeptulonsCacheRot = QuaternionData(0.0f, 0.0f, 0.9969168f, 0.07846643f);
+QuaternionData const NeptulonsCacheRot  = QuaternionData(0.0f, 0.0f, 0.9969168f, 0.07846643f);
 
 Position const OzumatAddSpawnerPositions[] =
 {
@@ -304,6 +305,7 @@ struct boss_ozumat : public BossAI
                     DoCastAOE(SPELL_CLEAR_TIDAL_SURGE, true);
                     if (Creature* neptulon = instance->GetCreature(DATA_NEPTULON))
                     {
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_THRONE_OF_TIDES_COMPLETE, 0, me);
                         instance->SetBossState(DATA_OZUMAT, DONE);
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, neptulon);
 
