@@ -48,7 +48,9 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_ozumat_jump_to_ground',
 'spell_ozumat_shadow_blast',
 'spell_ozumat_shadow_blast_missile',
-'spell_ozumat_blight_of_ozumat');
+'spell_ozumat_blight_of_ozumat',
+'spell_ozumat_purify');
+
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (83240, 'spell_ozumat_charge_to_window'),
 (83241, 'spell_ozumat_jump_to_ground'),
@@ -56,7 +58,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (83652, 'spell_ozumat_jump_to_ground'),
 (83929, 'spell_ozumat_shadow_blast'),
 (83931, 'spell_ozumat_shadow_blast_missile'),
-(83518, 'spell_ozumat_blight_of_ozumat');
+(83518, 'spell_ozumat_blight_of_ozumat'),
+(76953, 'spell_ozumat_purify');
 
 -- Gossips
 DELETE FROM `gossip_menu_option` WHERE (`MenuID`=11469 AND `OptionID`=0);
@@ -64,14 +67,16 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (11469, 0, 0, 'We are ready!', 1, 1, 41133);
 
 -- Spellclicks
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (44648);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (44648, 49104);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
-(44648, 46598, 1, 1);
+(44648, 46598, 1, 1),
+(49104, 46598, 1, 1);
 
 -- Vehicle Accessories
-DELETE FROM `vehicle_template_accessory` WHERE `entry` IN (44648);
+DELETE FROM `vehicle_template_accessory` WHERE `entry` IN (44648, 49104);
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
-(44648, 44950, 0, 1, 'Unyielding Behemoth - Hand Visual', 8, 0);
+(44648, 44950, 0, 1, 'Unyielding Behemoth - Hand Visual', 8, 0),
+(49104, 44950, 0, 1, 'Unyielding Behemoth - Hand Visual', 8, 0);
 
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID`= 40792;
@@ -120,7 +125,7 @@ INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCou
 (49097, 395, 7000);
 
 -- Loot
-UPDATE `gameobject_template_addon`SET `flags`= 16,`mingold`= 19800, `maxgold`= 20000 WHERE `entry` IN (205216, 207973);
+UPDATE `gameobject_template_addon`SET `flags`= 16, `mingold`= 19800, `maxgold`= 20000 WHERE `entry` IN (205216, 207973);
 
 DELETE FROM `gameobject_loot_template` WHERE `Entry` IN (29711, 36142);
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (297110, 361420);

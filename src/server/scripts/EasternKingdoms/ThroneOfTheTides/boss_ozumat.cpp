@@ -116,6 +116,7 @@ enum Events
     // Vicious Mindlasher
     EVENT_BRAIN_SPIKE,
     EVENT_VEIL_OF_SHADOW,
+    EVENT_SHADOW_BOLT,
 
     // Unyielding Behemoth
     EVENT_BLIGHT_SPRAY,
@@ -599,7 +600,8 @@ struct npc_ozumat_vicious_mindlasher : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_BRAIN_SPIKE, 44s, 45s);
-        _events.ScheduleEvent(SPELL_VEIL_OF_SHADOW, 8s, 9s);
+        _events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 8s, 9s);
+        _events.ScheduleEvent(EVENT_SHADOW_BOLT, 1ms);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -625,16 +627,19 @@ struct npc_ozumat_vicious_mindlasher : public ScriptedAI
                 case EVENT_BRAIN_SPIKE:
                     DoCastAOE(SPELL_BRAIN_SPIKE);
                     break;
-                case SPELL_VEIL_OF_SHADOW:
+                case EVENT_VEIL_OF_SHADOW:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
                         DoCast(target, SPELL_VEIL_OF_SHADOW);
+                    break;
+                case EVENT_SHADOW_BOLT:
+                    if (Unit* target = me->GetVictim())
+                        DoCast(target, SPELL_SHADOW_BOLT);
+                    _events.Repeat(2s + 500ms);
                     break;
                 default:
                     break;
             }
         }
-
-        DoSpellAttackIfReady(SPELL_SHADOW_BOLT);
     }
 
 private:
@@ -882,6 +887,35 @@ class spell_ozumat_blight_of_ozumat : public SpellScript
     }
 };
 
+class PurifyHeightCheck
+{
+    public:
+        PurifyHeightCheck() { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (object->GetPositionZ() < 265.42f);
+        }
+};
+
+class spell_ozumat_purify : public SpellScript
+{
+    PrepareSpellScript(spell_ozumat_purify);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(PurifyHeightCheck());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ozumat_purify::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
 void AddSC_boss_ozumat()
 {
     RegisterThroneOfTheTidesCreatureAI(boss_ozumat);
@@ -893,4 +927,5 @@ void AddSC_boss_ozumat()
     RegisterSpellAndAuraScriptPair(spell_ozumat_shadow_blast, spell_ozumat_shadow_blast_AuraScript);
     RegisterSpellScript(spell_ozumat_shadow_blast_missile);
     RegisterSpellScript(spell_ozumat_blight_of_ozumat);
+    RegisterSpellScript(spell_ozumat_purify);
 }
