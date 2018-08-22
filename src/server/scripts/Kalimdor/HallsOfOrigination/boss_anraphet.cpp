@@ -382,7 +382,7 @@ struct npc_brann_bronzebeard_anraphet : public CreatureAI
                     break;
                 case EVENT_BRANN_UNLOCK_DOOR:
                     Talk(BRANN_SAY_UNLOCK_DOOR);
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
+                    _instance->SetData(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
                     events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, Seconds(3));
                     break;
                 case EVENT_BRANN_MOVE_INTRO:
