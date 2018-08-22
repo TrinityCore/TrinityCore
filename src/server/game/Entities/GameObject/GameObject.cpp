@@ -89,6 +89,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
     stats.ContentTuningId = ContentTuningId;
 
     queryTemp.Write();
+    queryTemp.ShrinkToFit();
     return queryTemp.Move();
 }
 

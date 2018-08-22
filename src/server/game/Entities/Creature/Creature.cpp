@@ -244,6 +244,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
         }
 
     queryTemp.Write();
+    queryTemp.ShrinkToFit();
     return queryTemp.Move();
 }
 

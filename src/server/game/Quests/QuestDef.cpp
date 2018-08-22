@@ -594,6 +594,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.TimeAllowed = GetLimitTime();
 
     response.Write();
+    response.ShrinkToFit();
     return response.Move();
 }
 

@@ -10492,6 +10492,7 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
 void QuestPOIData::InitializeQueryData()
 {
     QueryDataBuffer << *this;
+    QueryDataBuffer.shrink_to_fit();
 }
 
 void ObjectMgr::LoadSceneTemplates()
