@@ -1610,7 +1610,7 @@ class npc_sif : public CreatureScript
                 if (action == ACTION_START_HARD_MODE)
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
-                    DoZoneInCombat(me, 250.0f);
+                    DoZoneInCombat(me);
                     Talk(SAY_SIF_EVENT);
                     _events.Reset();
                     _events.ScheduleEvent(EVENT_FROSTBOLT, 2000);
