@@ -36,9 +36,7 @@ enum BRCDataTypes
 
     // Additional Data
     DATA_RAZ_THE_CRAZED             = 5,
-    DATA_RAZ_LAST_AREA_INDEX        = 6,
-    DATA_LUCKY                      = 7,
-    DATA_SPOT                       = 8
+    DATA_RAZ_LAST_AREA_INDEX        = 6
 };
 
 enum BRCCreatureIds
@@ -67,12 +65,14 @@ enum BRCCreatureIds
     /*Beauty*/
     NPC_LUCKY                           = 40008,
     NPC_SPOT                            = 40011,
+    NPC_BUSTER                          = 40013,
+    NPC_RUNTY                           = 40015,
 
     /*Ascendant Lord Obsidius*/
     NPC_SHADOW_OF_OBSIDIUS              = 40817,
 
     NPC_TWILIGHT_FLAME_CALLER           = 39708,
-    NPC_RAZ_THE_CRAZED                  = 39670,
+    NPC_RAZ_THE_CRAZED                  = 39670
 };
 
 enum BRCActions

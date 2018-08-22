@@ -27,8 +27,6 @@ ObjectData const creatureData[] =
     { BOSS_BEAUTY,                      DATA_BEAUTY                     },
     { BOSS_ASCENDANT_LORD_OBSIDIUS,     DATA_ASCENDANT_LORD_OBSIDIUS    },
     { NPC_RAZ_THE_CRAZED,               DATA_RAZ_THE_CRAZED             },
-    { NPC_LUCKY,                        DATA_LUCKY                      },
-    { NPC_SPOT,                         DATA_SPOT                       },
     { 0,                                0                               }
 };
 
