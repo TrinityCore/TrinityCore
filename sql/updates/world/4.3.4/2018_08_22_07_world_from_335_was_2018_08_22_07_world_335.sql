@@ -1,3 +1,4 @@
+/*
 -- Add some missing gameobjects
 DELETE FROM `gameobject` WHERE `guid` IN (5111,5117,5122,5126,5131,5140,5144,5155,5160,5165,5171,5210,5217,5224,5230,5232,5234,5255,5315,5332,5334,5339,5341,5345,5349,5350,5357,5367,5373,5395,5397,5402);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -81,3 +82,4 @@ UPDATE `gameobject_loot_template` SET `LootMode`=1 WHERE `Entry` IN (3458,3459,3
 
 -- Add quest emotes
 UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=2 WHERE `ID`=1271;
+*/
