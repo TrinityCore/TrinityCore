@@ -291,6 +291,11 @@ enum SummonProperties
     PROPERTY_DEFAULT = 64
 };
 
+Position const feludiusSpawnPos         = { -1053.37f, -564.056f, 835.242f, 5.70723f   };
+Position const ignaciousSpawnPos        = { -1051.52f, -600.976f, 835.284f, 0.0349066f };
+Position const arionSpawnPos            = { -1060.87f, -634.283f, 877.773f, 0.855211f  };
+Position const terrastraSpawnPos        = { -1059.68f,  -531.37f, 877.773f, 5.68977f   };
+
 Position const arionMiddlePosition      = { -1007.961f, -582.0203f, 831.9003f };
 Position const terrastraMiddlePosition  = { -1009.37f,  -583.4302f, 831.901f  };
 Position const feludiusMiddlePosition   = { -1007.965f, -583.4254f, 831.901f  };
@@ -307,9 +312,11 @@ class boss_ascendant_council_controller : public CreatureScript
 
             void Reset() override
             {
-                _Reset();
-                instance->SetData(DATA_RESPAWN_ASCENDANT_COUNCIL, IN_PROGRESS);
-                events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+                if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
+                {
+                    events.ScheduleEvent(EVENT_RESET_BOSS_STATE, Milliseconds(1));
+                    events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+                }
             }
 
             void DoAction(int32 action) override
@@ -446,7 +453,10 @@ class boss_ascendant_council_controller : public CreatureScript
                     {
                         case EVENT_RESET_BOSS_STATE:
                             instance->SetBossState(DATA_ASCENDANT_COUNCIL, NOT_STARTED);
-                            instance->SetData(DATA_RESPAWN_ASCENDANT_COUNCIL, IN_PROGRESS);
+                            DoSummon(BOSS_FELUDIUS, feludiusSpawnPos);
+                            DoSummon(BOSS_IGNACIOUS, ignaciousSpawnPos);
+                            DoSummon(BOSS_ARION, arionSpawnPos);
+                            DoSummon(BOSS_TERRASTRA, terrastraSpawnPos);
                             break;
                         case EVENT_SUMMON_ELEMENTIUM_MONSTROSITY:
                             if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))

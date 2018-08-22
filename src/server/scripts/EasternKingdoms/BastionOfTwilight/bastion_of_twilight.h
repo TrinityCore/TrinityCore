@@ -46,31 +46,28 @@ enum BoTDataTypes
     DATA_CORRUPTION                     = 14,
 
     // GameObject Types
-    DATA_WHELP_CAGE                     = 15,
-    DATA_GRIM_BATOL_RAID_TRAP_DOOR      = 16,
+    DATA_GRIM_BATOL_RAID_TRAP_DOOR      = 15,
 
     // Areatriggers
-    DATA_AT_HALFUS_INTRO                = 17,
-    DATA_AT_THERALION_AND_VALIONA_INTRO = 18,
-    DATA_AT_ASCENDANT_COUNCIL_INTRO_1   = 19,
-    DATA_AT_ASCENDANT_COUNCIL_INTRO_2   = 20,
-    DATA_AT_ASCENDANT_COUNCIL_INTRO_3   = 21,
-    DATA_AT_CHOGALL_INTRO               = 22,
+    DATA_AT_HALFUS_INTRO                = 16,
+    DATA_AT_THERALION_AND_VALIONA_INTRO = 17,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_1   = 18,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_2   = 19,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_3   = 20,
+    DATA_AT_CHOGALL_INTRO               = 21,
 
     // Encounter Related
     /*Halfus Wyrmbreaker*/
     DATA_UNRESPONSIVE_DRAGON_FIRST,
     DATA_UNRESPONSIVE_DRAGON_SECOND,
     DATA_CAST_DRAGON_BUFFS,
+    DATA_DRAGON_CAGE_ENABLED,
     DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE,
 
     /*Theralion and Valiona*/
     DATA_RANDOM_VALIONA_DUMMY,
     DATA_COLLAPSING_TWILIGHT_PORTAL_COUNT,
     DATA_VALIONA_AURA_DUMMY,
-
-    /*Ascendant Council*/
-    DATA_RESPAWN_ASCENDANT_COUNCIL,
 
     /*Cho'Gall*/
     DATA_FULL_HEROIC_ID
@@ -159,6 +156,7 @@ enum BoTGameObjects
     GO_ASCENDANT_COUNCIL_EXIT           = 205227,
     GO_CHOGALL_ENTRANCE                 = 205228,
     GO_WHELP_CAGE                       = 205087,
+    GO_WHELP_CAGE_BASE                  = 205088,
     GO_GRIM_BATOL_RAID_TRAP_DOOR        = 205898
 };
 
@@ -197,11 +195,6 @@ enum BoTEvents
 enum BoTSpells
 {
     SPELL_DANCING_FLAMES_VISUAL = 83962
-};
-
-enum BoTSpawnGroups
-{
-    SPAWN_GROUP_ASCENDANT_COUNCIL = 53
 };
 
 template<class AI>

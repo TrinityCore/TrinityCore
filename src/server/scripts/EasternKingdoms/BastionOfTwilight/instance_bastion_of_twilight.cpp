@@ -46,7 +46,6 @@ ObjectData const creatureData[] =
 
 ObjectData const gameobjectData[] =
 {
-    { GO_WHELP_CAGE,                DATA_WHELP_CAGE                 },
     { GO_GRIM_BATOL_RAID_TRAP_DOOR, DATA_GRIM_BATOL_RAID_TRAP_DOOR  },
     { 0,                            0                               } // END
 };
@@ -192,10 +191,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     case DATA_HALFUS_WYRMBREAKER:
                         if (state == IN_PROGRESS)
                         {
-                            if (instance->IsHeroic() || HasActiveOrphanedEmeraldWhelps())
-                                if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
-                                    cage->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-
                             for (ObjectGuid guid : _halfusEncounterGUIDs)
                             {
                                 if (Creature* creature = instance->GetCreature(guid))
@@ -232,34 +227,12 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         }
                         else if (state == FAIL)
                         {
-                            if (Creature* protoBehemoth = GetCreature(DATA_PROTO_BEHEMOTH))
-                                protoBehemoth->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
-
-                            for (ObjectGuid guid : _halfusEncounterGUIDs)
-                                if (Creature* creature = instance->GetCreature(guid))
-                                    creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
-
-                            if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
-                                cage->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
-
                             _halfusEncounterGUIDs.clear();
                             _deadOrphanedEmeraldWhelps = 0;
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
                         else if (state == DONE)
-                        {
-                            if (Creature* protoBehemoth = GetCreature(DATA_PROTO_BEHEMOTH))
-                                protoBehemoth->DespawnOrUnsummon(Milliseconds(0));
-
-                            for (ObjectGuid guid : _halfusEncounterGUIDs)
-                                if (Creature* creature = instance->GetCreature(guid))
-                                    creature->DespawnOrUnsummon(Milliseconds(0));
-
-                            if (GameObject* cage = GetGameObject(DATA_WHELP_CAGE))
-                                cage->DespawnOrUnsummon(Milliseconds(0));
-
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
-                        }
                         break;
                     case DATA_THERALION_AND_VALIONA:
                         if (state == FAIL)
@@ -413,11 +386,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             SaveToDB();
                         }
                         break;
-                    case DATA_RESPAWN_ASCENDANT_COUNCIL:
-                        if (!GetCreature(DATA_FELUDIUS))
-                            if (instance->IsSpawnGroupActive(SPAWN_GROUP_ASCENDANT_COUNCIL))
-                                instance->SpawnGroupSpawn(SPAWN_GROUP_ASCENDANT_COUNCIL, true, true);
-                        break;
                     default:
                         break;
                 }
@@ -446,6 +414,8 @@ class instance_bastion_of_twilight : public InstanceMapScript
                         return _unresponsiveDragonEntryFirst;
                     case DATA_UNRESPONSIVE_DRAGON_SECOND:
                         return _unresponsiveDragonEntrySecond;
+                    case DATA_DRAGON_CAGE_ENABLED:
+                        return uint8((instance->IsHeroic() || HasActiveOrphanedEmeraldWhelps()));
                     case DATA_COLLAPSING_TWILIGHT_PORTAL_COUNT:
                     {
                         uint8 portalCount = 0;
@@ -520,7 +490,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     && _unresponsiveDragonEntrySecond != NPC_ORPHANED_EMERALD_WELP);
             }
 
-        protected:
+        private:
             EventMap events;
             GuidSet _halfusEncounterGUIDs;
             GuidSet _dancingFlamesInvisibleStalkerGUIDs;

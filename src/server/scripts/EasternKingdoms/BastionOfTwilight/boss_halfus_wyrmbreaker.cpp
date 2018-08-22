@@ -91,6 +91,48 @@ enum Texts
     SAY_ANNOUNCE_FURIOUS_ROAR   = 3
 };
 
+Position const SpikePositions[] =
+{
+    { -348.538f, -700.247f, 888.19f,  5.53269f },
+    { -353.764f, -706.361f, 888.19f,  2.30383f },
+    { -352.804f, -695.064f, 888.19f,  5.35816f },
+    { -358.964f, -702.148f, 888.19f,  2.30383f },
+    { -320.158f, -727.995f, 888.191f, 3.24631f },
+    { -274.891f, -656.835f, 888.189f, 4.95674f },
+    { -284.868f, -661.151f, 888.19f,  1.71042f },
+    { -277.955f, -687.788f, 888.192f, 3.15905f },
+    { -314.986f, -717.396f, 888.19f,  0.261799f },
+    { -280.724f, -674.46f,  888.19f,  0.0872665f },
+    { -273.922f, -675.948f, 888.189f, 6.19592f },
+    { -283.142f, -685.325f, 888.191f, 3.15905f },
+    { -321.974f, -718.424f, 888.191f, 0.383972f },
+    { -273.01f,  -684.694f, 888.191f, 3.15905f }
+};
+
+Position const OrphanedEmeraldWhelpPositions[] =
+{
+    { -342.002f, -726.528f, 891.764f, 1.16937f },
+    { -340.75f,  -722.476f, 891.764f, 1.16937f },
+    { -350.564f, -721.663f, 891.763f, 1.01229f },
+    { -347.08f,  -728.128f, 891.764f, 1.11701f },
+    { -346.434f, -724.049f, 891.764f, 1.09956f },
+    { -347.578f, -717.302f, 891.763f, 1.0472f  },
+    { -350.571f, -725.417f, 891.763f, 1.06465f },
+    { -344.839f, -720.163f, 891.764f, 1.0821f  }
+};
+
+Position const NetherScionPos   = { -280.118f, -659.385f, 888.188f, 1.67552f };
+Position const SlateDragonPos   = { -279.111f, -680.594f, 888.191f, 3.10669f };
+Position const StormRiderPos    = { -318.705f, -722.688f, 888.191f, 3.19395f };
+Position const TimeWardenPos    = { -353.179f, -700.667f, 888.19f,  5.53269f };
+Position const ProtoBehemothPos = { -265.891f, -740.023f, 907.363f, 2.33874f };
+
+Position const WhelpCageBasePos = { -346.672f, -723.26f,  888.106f, 5.53269f };
+QuaternionData const WhelpCageBaseRot = QuaternionData(0.0f, 0.0f, -0.366501f, 0.930418f);
+
+Position const WhelpCagePos     = { -346.672f, -723.26f,  888.106f, 5.53269f };
+QuaternionData const WhelpCageRot = QuaternionData(0.0f, 0.0f, -0.366501f, 0.930418f);
+
 class boss_halfus_wyrmbreaker : public CreatureScript
 {
     public:
@@ -116,6 +158,25 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 _Reset();
                 Initialize();
                 instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_HALFUS_WYRMBREAKER);
+
+                if (GameObject* cageBase = me->SummonGameObject(GO_WHELP_CAGE_BASE, WhelpCageBasePos, WhelpCageBaseRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
+                    _cageBaseGUID = cageBase->GetGUID();
+
+                if (GameObject* cage = me->SummonGameObject(GO_WHELP_CAGE, WhelpCagePos, WhelpCageRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
+                    _cageGUID = cage->GetGUID();
+
+                DoSummon(NPC_NETHER_SCION, NetherScionPos);
+                DoSummon(NPC_SLATE_DRAGON, SlateDragonPos);
+                DoSummon(NPC_STORM_RIDER, StormRiderPos);
+                DoSummon(NPC_TIME_WARDEN, TimeWardenPos);
+
+                for (uint8 i = 0; i < 8; i++)
+                    DoSummon(NPC_ORPHANED_EMERALD_WELP, OrphanedEmeraldWhelpPositions[i]);
+
+                for (uint8 i = 0; i < 14; i++)
+                    DoSummon(NPC_SPIKE, SpikePositions[i]);
+
+                DoSummon(NPC_PROTO_BEHEMOTH, ProtoBehemothPos);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -125,7 +186,11 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                 if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
-                    protoBehemoth->SetInCombatWithZone();
+                    protoBehemoth->AI()->DoZoneInCombat();
+
+                if (instance->GetData(DATA_DRAGON_CAGE_ENABLED))
+                    if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
+                        cage->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (me->HasAura(SPELL_SHADOW_WRAPPED))
                     events.ScheduleEvent(EVENT_SHADOW_NOVA, Seconds(7));
@@ -141,12 +206,26 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             {
                 _JustDied();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
+                    cage->DespawnOrUnsummon();
+
+                if (GameObject* cageBase = ObjectAccessor::GetGameObject(*me, _cageBaseGUID))
+                    cageBase->DespawnOrUnsummon();
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 _EnterEvadeMode();
+                summons.DespawnAll();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
+                    cage->DespawnOrUnsummon();
+
+                if (GameObject* cageBase = ObjectAccessor::GetGameObject(*me, _cageBaseGUID))
+                    cageBase->DespawnOrUnsummon();
+
                 _DespawnAtEvade();
             }
 
@@ -265,6 +344,8 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             }
 
         private:
+            ObjectGuid _cageGUID;
+            ObjectGuid _cageBaseGUID;
             bool _announcedOrphanedEmeraldWhelpBinding;
             bool _furiousRoarEnabled;
             uint8 _theOnlyEscapeAchievementState;
