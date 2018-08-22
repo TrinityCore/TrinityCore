@@ -30,11 +30,6 @@ enum HOOData
     // Bosses
     DATA_TEMPLE_GUARDIAN_ANHUUR,
     DATA_EARTHRAGER_PTAH,
-    DATA_VAULT_OF_LIGHTS,
-    DATA_FIRE_WARDEN,
-    DATA_EARTH_WARDEN,
-    DATA_WATER_WARDEN,
-    DATA_AIR_WARDEN,
     DATA_ANRAPHET,
     DATA_ISISET,
     DATA_AMMUNAE,
@@ -61,6 +56,7 @@ enum HOOData
     DATA_UPDATE_LASERBEAMS,
     DATA_ANRAPHET_SUN_MIRROR,
     DATA_ANRAPHET_DOOR,
+    DATA_VAULT_OF_LIGHTS,
 
     // Earthrager Ptah
     DATA_SUMMON_SANDSTORM_ADDS,
@@ -100,7 +96,6 @@ enum HOOCreatures
     NPC_AIR_WARDEN                  = 39803,
 
     WARDEN_ENTRY_MAX_COUNT          = 4,
-    WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - DATA_FIRE_WARDEN,
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,
     NPC_OMEGA_STANCE                = 41194,
@@ -194,13 +189,6 @@ enum HOOMisc
     SPELL_ZERO_ENERGY_NO_REGEN_AURA     = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
 //  SPELL_SHRINK                        = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
 
-    // Hmm... Do elementals use these spells to spawn on a random platform?
-    // Probably also 81796, 81798, 81799, 81800 (all hidden client-side).
-    SPELL_TELEPORT_EARTH                = 82329, // South-West
-    SPELL_TELEPORT_AIR                  = 82330, // South-East
-    SPELL_TELEPORT_FIRE                 = 82331, // North-West
-    SPELL_TELEPORT_WATER                = 82332, // North-East
-
     // Cave In Stalker (beacons)
     SPELL_SHIELD_VISUAL_LEFT            = 83697,
     SPELL_SHIELD_VISUAL_RIGHT           = 83698,
@@ -222,17 +210,27 @@ enum HOOGlobalActions
     ACTION_OMEGA_TRIGGER
 };
 
-enum DataStates
+enum HoODataStates
 {
     ACTIVATE_SHIELD_OF_LIGHT = 0,
     DISABLE_SHIELD_OF_LIGHT
 };
+
+enum HoOEvents
+{
+    EVENT_RESPAWN_ANRAPHET = 1
+};
+
+Position const AnraphetSpawnPos     = { -90.2726f, 366.339f, 89.8639f,  3.14159f  };
+Position const AnraphetRespawnPos   = { -193.656f, 366.689f, 75.91001f, 3.138207f };
 
 template<typename AI>
 inline AI* GetHallsOfOriginationAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, HoOScriptName);
 }
+
+#define RegisterHallsOfOriginationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfOriginationAI)
 
 template<typename AI>
 inline AI* GetHallsOfOriginationAI(GameObject* go)

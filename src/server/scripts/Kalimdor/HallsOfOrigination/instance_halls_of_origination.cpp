@@ -46,10 +46,6 @@ ObjectData const creatureData[] =
     { BOSS_TEMPLE_GUARDIAN_ANHUUR,      DATA_TEMPLE_GUARDIAN_ANHUUR },
     { BOSS_EARTHRAGER_PTAH,             DATA_EARTHRAGER_PTAH        },
     { NPC_BRANN_BRONZEBEARD_0,          DATA_BRANN_0                },
-    { NPC_FIRE_WARDEN,                  DATA_FIRE_WARDEN            },
-    { NPC_EARTH_WARDEN,                 DATA_EARTH_WARDEN           },
-    { NPC_WATER_WARDEN,                 DATA_WATER_WARDEN           },
-    { NPC_AIR_WARDEN,                   DATA_AIR_WARDEN             },
     { BOSS_ANRAPHET,                    DATA_ANRAPHET               },
     { BOSS_ISISET,                      DATA_ISISET                 },
     { BOSS_AMMUNAE,                     DATA_AMMUNAE                },
@@ -89,11 +85,30 @@ class instance_halls_of_origination : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+            }
 
+            void Initialize()
+            {
                 _brannIntroStarted = 0;
                 _deadElementals = 0;
+                _anraphetInitialized = false;
+                _vaultOfLightState = NOT_STARTED;
+            }
 
-                RotateWardenPositions();
+            void OnPlayerEnter(Player* /*player*/) override
+            {
+                if (!_anraphetInitialized)
+                {
+                    if (GetData(DATA_VAULT_OF_LIGHTS) != DONE)
+                    {
+                        if (Creature* anraphet = instance->SummonCreature(BOSS_ANRAPHET, AnraphetSpawnPos))
+                            anraphet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
+                    }
+                    else
+                        instance->SummonCreature(BOSS_ANRAPHET, AnraphetRespawnPos);
+
+                    _anraphetInitialized = true;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -111,44 +126,31 @@ class instance_halls_of_origination : public InstanceMapScript
                         go->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 0);
                         break;
                     case GO_VAULT_OF_LIGHTS_DOOR:
-                        if (_brannIntroStarted || GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
+                        if (_vaultOfLightState != NOT_STARTED)
                             go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_DOODAD_ULDUM_LASERBEAMS01:
-                        if (GetBossState(DATA_EARTH_WARDEN) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        break;
                     case GO_DOODAD_ULDUM_LASERBEAMS_01:
-                        if (GetBossState(DATA_FIRE_WARDEN) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        break;
                     case GO_DOODAD_ULDUM_LASERBEAMS_02:
-                        if (GetBossState(DATA_AIR_WARDEN) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        break;
                     case GO_DOODAD_ULDUM_LASERBEAMS_03:
-                        if (GetBossState(DATA_WATER_WARDEN) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        break;
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_01:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_02:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_03:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_04:
                     case GO_SUN_MIRROR:
                     case GO_ANRAPHET_DOOR:
-                        if (GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
+                        go->SetFarVisible(true);
+                        go->setActive(true);
+                        if (GetData(DATA_VAULT_OF_LIGHTS) == DONE)
                             go->SetGoState(GO_STATE_ACTIVE);
                         break;
-                    case GO_ULDUM_TEMPLE: // Research about these objects.
+                    case GO_ULDUM_TEMPLE:
                     case GO_REORIGINATION_MECHANISM_1:
                     case GO_REORIGINATION_MECHANISM_2:
                     case GO_REORIGINATION_MECHANISM_3:
                     case GO_REORIGINATION_MECHANISM_4:
                     case GO_REORIGINATION_MECHANISM_5:
                         go->SetGoState(GO_STATE_ACTIVE);
-                        break;
-                    case GO_DOODAD_ULDUM_LIGHTMACHINE_01:
-                    case GO_DOODAD_ULDUM_LIGHTMACHINE_02:
-                    case GO_DOODAD_ULDUM_LIGHTMACHINE_03:
-                    case GO_DOODAD_ULDUM_LIGHTMACHINE_04:
-                        if (GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     default:
                         break;
@@ -175,18 +177,18 @@ class instance_halls_of_origination : public InstanceMapScript
                         if (Creature* ptah = GetCreature(DATA_EARTHRAGER_PTAH))
                             ptah->AI()->JustSummoned(creature);
                         break;
-                    case BOSS_ANRAPHET: // Must be active (their AI runs the event at the Vault of Lights).
+                    case BOSS_ANRAPHET:
                     case NPC_BRANN_BRONZEBEARD_0:
                         creature->setActive(true);
+                        creature->SetFarVisible(true);
                         break;
-                    case NPC_FIRE_WARDEN: // random teleport spell + far-visibility
+                    case NPC_FIRE_WARDEN:
                     case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:
                     case NPC_AIR_WARDEN:
-                        creature->CastSpell(nullptr, _wardenPositionSpells[creature->GetEntry() - NPC_FIRE_WARDEN]);
                         creature->SetFarVisible(true);
                         break;
-                    case NPC_STONE_TROGG_PILLAGER: // far-visibility
+                    case NPC_STONE_TROGG_PILLAGER:
                     case NPC_STONE_TROGG_BRUTE:
                     case NPC_STONE_TROGG_ROCK_FLINGER:
                         if (GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
@@ -272,6 +274,21 @@ class instance_halls_of_origination : public InstanceMapScript
                                 else
                                     beetleStalker->CastSpell(beetleStalker, SPELL_BEETLE_BURROW);
                         break;
+                    case DATA_VAULT_OF_LIGHTS:
+                        _vaultOfLightState = value;
+
+                        if (value == IN_PROGRESS)
+                        {
+                            if (GameObject* door = GetGameObject(DATA_VAULT_OF_LIGHTS_DOOR))
+                                door->SetGoState(GO_STATE_ACTIVE);
+
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_START_EVENT);
+                        }
+                        else if (value == DONE)
+                            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_VAULT_OF_LIGHTS_CREDIT);
+
+                        SaveToDB();
+                        break;
                     default:
                         break;
                 }
@@ -291,6 +308,8 @@ class instance_halls_of_origination : public InstanceMapScript
                         return _isisetCelestialCallAlive;
                     case DATA_ISISET_VEIL_OF_SKY_ALIVE:
                         return _isisetVeilOfSkyAlive;
+                    case DATA_VAULT_OF_LIGHTS:
+                        return _vaultOfLightState;
                     default:
                         break;
                 }
@@ -303,7 +322,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
-                if (state == DONE) // Respawn transit devices if needed.
+                if (state == DONE)
                     for (ObjectGuid guid : _transitDeviceGUIDs)
                         if (GameObject* transit = instance->GetGameObject(guid))
                             UpdateTransitDevice(transit);
@@ -330,28 +349,9 @@ class instance_halls_of_origination : public InstanceMapScript
                                     beetleStalker->RemoveAllAuras();
                         }
                         break;
-                    case DATA_VAULT_OF_LIGHTS:
-                        if (state == IN_PROGRESS)
-                        {
-                            HandleGameObject(ObjectGuid::Empty, true, GetGameObject(DATA_VAULT_OF_LIGHTS_DOOR));
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_START_EVENT);
-                        }
-                        else if (state == DONE)
-                        {
-                            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_VAULT_OF_LIGHTS_CREDIT);
-                        }
-                        break;
-                    case DATA_FIRE_WARDEN:
-                    case DATA_EARTH_WARDEN:
-                    case DATA_WATER_WARDEN:
-                    case DATA_AIR_WARDEN:
-                        if (state == DONE)
-                        {
-                            UpdateAllLightMachines();
-                            ++_deadElementals;
-                            if (Creature* brann = GetCreature(DATA_BRANN_0))
-                                brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
-                        }
+                    case DATA_ANRAPHET:
+                        if (state == FAIL)
+                            _events.ScheduleEvent(EVENT_RESPAWN_ANRAPHET, 30s);
                         break;
                     default:
                         break;
@@ -373,16 +373,14 @@ class instance_halls_of_origination : public InstanceMapScript
                         if (Creature* ptah = GetCreature(DATA_EARTHRAGER_PTAH))
                             ptah->GetAI()->DoAction(ACTION_PTAH_ADD_DIED);
                         break;
-                    case NPC_FIRE_WARDEN: // We have to set boss states manually (wardens use SmartAI).
-                    case NPC_EARTH_WARDEN: // To-do: check if smart scripts can handle this
+                    case NPC_FIRE_WARDEN:
+                    case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:
                     case NPC_AIR_WARDEN:
-                    {
-                        uint32 data = creature->GetEntry() - WARDEN_ENTRY_DATA_DELTA;
-                        SetBossState(data, IN_PROGRESS); // Needs to be set to IN_PROGRESS or else the gameobjects state won't be updated
-                        SetBossState(data, DONE);
+                        _deadElementals++;
+                        if (Creature* brann = GetCreature(DATA_BRANN_0))
+                            brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
                         break;
-                    }
                     case NPC_SPATIAL_ANOMALY:
                     case NPC_FLUX_ANIMATOR:
                     case NPC_STAR_SHARD:
@@ -408,48 +406,44 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
+            void Update(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_RESPAWN_ANRAPHET:
+                            instance->SummonCreature(BOSS_ANRAPHET, AnraphetRespawnPos);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _brannIntroStarted << ' ' << _deadElementals << ' ';
-            
-                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
-                    data << _wardenPositionSpells[i] << ' ';
+                data << _vaultOfLightState << ' '
+                    << _deadElementals;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                data >> _brannIntroStarted >> _deadElementals;
-                    
-                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
-                    data >> _wardenPositionSpells[i];
+                data >> _vaultOfLightState;
+                data >> _deadElementals;
             }
 
         private:
-            void RotateWardenPositions()
-            {
-                uint32 startAt = urand(0, WARDEN_ENTRY_MAX_COUNT - 1);
-                for (uint32 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
-                    _wardenPositionSpells[(i + startAt) % WARDEN_ENTRY_MAX_COUNT] = SPELL_TELEPORT_EARTH + i;
-            }
             
-            // Activated when warden dies (on SetBossState DONE).
             void UpdateAllLightMachines()
             {
-                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
-                {
-                    uint32 positionIndex = _wardenPositionSpells[i] - SPELL_TELEPORT_EARTH;
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_FIRE_WARDEN + i) == DONE, GetGameObject(DATA_LIGHTMACHINE_EARTH + positionIndex));
-                }
             }
 
             // Activated 9 seconds after warden dies (on SetData DATA_UPDATE_LASERBEAMS, called by Brann).
             void UpdateAllLaserBeams()
             {
-                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
-                {
-                    uint32 positionIndex = _wardenPositionSpells[i] - SPELL_TELEPORT_EARTH;
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_FIRE_WARDEN + i) == DONE, GetGameObject(DATA_LIGHTMACHINE_EARTH + positionIndex));
-                }
             }
 
             void UpdateTransitDevice(GameObject* transit)
@@ -461,19 +455,21 @@ class instance_halls_of_origination : public InstanceMapScript
                 else // All other transits.
                     transit->SetRespawnTime(GetBossState(DATA_ANRAPHET) == DONE ? -1 : DAY);
             }
-            
+
+            EventMap _events;
             GuidSet _transitDeviceGUIDs;
             GuidSet _hooCamelGUIDs;
             GuidSet _isisetTrashGUIDs;
             GuidSet _caveInStalkerGUIDs;
             GuidSet _beetleStalkerGUIDS;
             uint32 _brannIntroStarted;
-            uint32 _wardenPositionSpells[WARDEN_ENTRY_MAX_COUNT];
             uint32 _deadElementals;
             uint32 _isisetPhase;
             uint32 _isisetAstralRainAlive;
             uint32 _isisetCelestialCallAlive;
             uint32 _isisetVeilOfSkyAlive;
+            uint8 _vaultOfLightState;
+            bool _anraphetInitialized;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
