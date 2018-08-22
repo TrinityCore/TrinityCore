@@ -1657,7 +1657,7 @@ class npc_phantom_hallucination : public CreatureScript
 
             void Reset() override
             {
-                DoZoneInCombat(me, 150.0f);
+                DoZoneInCombat(me);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -2182,7 +2182,7 @@ struct npc_escape_event_trash : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
-        DoZoneInCombat(me, 0.0f);
+        DoZoneInCombat(me);
         if (Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
         {
             me->SetImmuneToPC(false);
