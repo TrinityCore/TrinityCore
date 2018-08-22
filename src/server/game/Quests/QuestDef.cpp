@@ -429,6 +429,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
         response.Info.ObjectiveText[i] = locQuestObjectiveText[i];
 
     response.Write();
+    response.ShrinkToFit();
     return response.Move();
 }
 
