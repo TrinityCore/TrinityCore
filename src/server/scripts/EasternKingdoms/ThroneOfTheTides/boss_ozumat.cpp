@@ -299,7 +299,7 @@ struct boss_ozumat : public BossAI
                     break;
                 case EVENT_SWIM_AWAY:
                     if (Creature* vehicle = me->GetVehicleCreatureBase())
-                        vehicle->GetMotionMaster()->MovePoint(0, OzumatVehicleEscapePos, false);
+                        vehicle->GetMotionMaster()->MovePoint(POINT_NONE, OzumatVehicleEscapePos, false);
                     events.ScheduleEvent(EVENT_COMPLETE_ENCOUNTER, 5s);
                     break;
                 case EVENT_COMPLETE_ENCOUNTER:
