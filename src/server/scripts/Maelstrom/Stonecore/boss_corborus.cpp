@@ -83,7 +83,12 @@ enum Events
 
 enum Phases
 {
-    PHASE_ACTIVE = 1
+    // Corborus
+    PHASE_INTRO     = 0,
+    PHASE_COMBAT    = 1,
+
+    // Crystal Shards
+    PHASE_ACTIVE    = 1
 };
 
 Position const CorborusHomePos = { 1154.55f, 878.843f, 284.963f, 3.176499f };
@@ -102,7 +107,6 @@ class boss_corborus : public CreatureScript
 
             void Initialize()
             {
-                stateIntro = NOT_STARTED;
                 _countTrashingCharge = 0;
             }
 
@@ -110,9 +114,10 @@ class boss_corborus : public CreatureScript
             {
                 _Reset();
                 _countTrashingCharge = 0;
+                events.SetPhase(PHASE_INTRO);
 
-                if (stateIntro != DONE)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                if (instance->GetData(DATA_EVENT_PROGRESS) < EVENT_INDEX_CORBORUS_INTRO)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -125,11 +130,11 @@ class boss_corborus : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                _EnterEvadeMode();
                 summons.DespawnAll();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _EnterEvadeMode();
-                _DespawnAtEvade();
-                me->SetPosition(CorborusHomePos);
+                instance->SetBossState(DATA_CORBORUS, FAIL);
+                me->DespawnOrUnsummon();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -144,11 +149,6 @@ class boss_corborus : public CreatureScript
                 {
                     case ACTION_CORBORUS_INTRO: // Executes Corborus intro event
                     {
-                        if (stateIntro != NOT_STARTED)
-                            return;
-
-                        stateIntro = IN_PROGRESS;
-
                         if (Creature* Millhouse = instance->GetCreature(DATA_MILLHOUSE_MANASTORM))
                         {
                             Millhouse->InterruptNonMeleeSpells(true);
@@ -174,7 +174,7 @@ class boss_corborus : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() && stateIntro != IN_PROGRESS)
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);
@@ -207,18 +207,14 @@ class boss_corborus : public CreatureScript
 
                             // Knockback Millhouse and other mobs
                             instance->SetData(DATA_MILLHOUSE_EVENT_KNOCKBACK, 0);
-
                             events.ScheduleEvent(EVENT_CORBORUS_FACE_PLAYERS, Seconds(2));
                             break;
                         case EVENT_CORBORUS_FACE_PLAYERS:
-                            // Face Corborus to players and set new home position
                             me->SetFacingTo(3.176499f);
-                            me->SetHomePosition(CorborusHomePos);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
 
                             // Despawn Millhouse and all trash
                             instance->SetData(DATA_MILLHOUSE_EVENT_DESPAWN, 0);
-                            stateIntro = DONE;
                             break;
                         case EVENT_DAMPENING_WAVE:
                             DoCastVictim(SPELL_DAMPENING_WAVE);
@@ -276,7 +272,6 @@ class boss_corborus : public CreatureScript
             }
 
         private:
-            EncounterState stateIntro;
             uint32 _countTrashingCharge;
         };
 

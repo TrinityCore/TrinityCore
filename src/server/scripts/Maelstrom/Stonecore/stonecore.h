@@ -37,9 +37,8 @@ enum SCDataTypes
     DATA_HANDLE_CORBORUS_ROCKDOOR,
     DATA_MILLHOUSE_EVENT_KNOCKBACK,
     DATA_MILLHOUSE_EVENT_DESPAWN,
-
-    DATA_SLABHIDE_INTRO,
     DATA_SLABHIDE_ROCK_WALL,
+    DATA_EVENT_PROGRESS,
 
     // Teleporters
     DATA_STONECORE_TELEPORTER,
@@ -99,6 +98,24 @@ enum SCMisc
     CREATURE_FORMATION_MILLHOUSE_EVENT_TRASH        = 340418,
     CREATURE_FORMATION_MILLHOUSE_EVENT_LAST_GROUP   = 340492
 };
+
+enum SCEvents
+{
+    EVENT_RESPAWN_CORBORUS = 1,
+    EVENT_RESPAWN_SLABHIDE,
+};
+
+enum SCEventIndex
+{
+    EVENT_INDEX_NONE            = 0,
+    EVENT_INDEX_CORBORUS_INTRO  = 1,
+    EVENT_INDEX_SLABHIDE_INTRO  = 2
+};
+
+Position const CorborusRespawnPos   = { 1154.55f,  878.843f,  284.963f,  3.176499f };
+Position const CorborusSpawnPos     = { 1150.34f,  947.063f,  283.89f,   4.69494f  };
+Position const SlabhideRespawnPos   = { 1292.352f, 1226.478f, 247.6368f, 3.630285f };
+Position const SlabhideSpawnPos     = { 1191.1f,   1154.01f,  270.759f,  4.69494f  };
 
 template <class AI, class T>
 inline AI* GetStonecoreAI(T* obj)

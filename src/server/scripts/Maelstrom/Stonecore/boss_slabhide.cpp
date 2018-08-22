@@ -117,30 +117,30 @@ class boss_slabhide : public CreatureScript
 
             void Initialize()
             {
-                me->setActive(true);
-                me->SetCanFly(true);
-                me->SetDisableGravity(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                me->SetReactState(REACT_PASSIVE);
-                instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
-                events.SetPhase(PHASE_INTRO);
                 _isFlying = false;
             }
 
             void Reset() override
             {
-                if (instance->GetData(DATA_SLABHIDE_INTRO) != DONE)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                if (instance->GetData(DATA_SLABHIDE_INTRO) == NOT_STARTED)
-                    return;
-
                 _Reset();
-                me->SetCanFly(false);
-                me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                Initialize();
 
-                _isFlying = false;
+                if (instance->GetData(DATA_EVENT_PROGRESS) == EVENT_INDEX_SLABHIDE_INTRO)
+                {
+                    me->SetCanFly(false);
+                    me->SetDisableGravity(false);
+                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                }
+                else
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->setActive(true);
+                    me->SetCanFly(true);
+                    me->SetDisableGravity(true);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                    me->SetReactState(REACT_PASSIVE);
+                    events.SetPhase(PHASE_INTRO);
+                }
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -165,10 +165,10 @@ class boss_slabhide : public CreatureScript
             {
                 _EnterEvadeMode();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->SetBossState(DATA_SLABHIDE, FAIL);
                 DespawnAll();
                 summons.DespawnAll();
-                _DespawnAtEvade();
-                me->SetPosition(SlabhideIntroLandPos);
+                me->DespawnOrUnsummon();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -183,10 +183,6 @@ class boss_slabhide : public CreatureScript
                 switch (action)
                 {
                     case ACTION_SLABHIDE_INTRO:
-                        if (instance->GetData(DATA_SLABHIDE_INTRO) != NOT_STARTED)
-                            return;
-
-                        instance->SetData(DATA_SLABHIDE_INTRO, IN_PROGRESS);
                         me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_INTRO, SlabhideIntroPos, false);
                         break;
                     default:
@@ -214,7 +210,6 @@ class boss_slabhide : public CreatureScript
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        instance->SetData(DATA_SLABHIDE_INTRO, DONE);
                         break;
                     case POINT_SLABHIDE_MIDDLE:
                         _isFlying = true;

@@ -402,8 +402,8 @@ public:
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* corborus = instance->GetCreature(DATA_CORBORUS))
-                corborus->AI()->DoAction(ACTION_CORBORUS_INTRO);
+            if (instance->GetData(DATA_EVENT_PROGRESS) < EVENT_INDEX_CORBORUS_INTRO)
+                instance->SetData(DATA_EVENT_PROGRESS, EVENT_INDEX_CORBORUS_INTRO);
         return true;
     }
 };
@@ -416,8 +416,8 @@ public:
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* slabhide = instance->GetCreature(DATA_SLABHIDE))
-                slabhide->AI()->DoAction(ACTION_SLABHIDE_INTRO);
+            if (instance->GetData(DATA_EVENT_PROGRESS) < EVENT_INDEX_SLABHIDE_INTRO)
+                instance->SetData(DATA_EVENT_PROGRESS, EVENT_INDEX_SLABHIDE_INTRO);
         return true;
     }
 };
