@@ -218,7 +218,7 @@ class npc_faerlina_add : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
-                    faerlina->AI()->DoZoneInCombat(nullptr, 250.0f);
+                    faerlina->AI()->DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/) override

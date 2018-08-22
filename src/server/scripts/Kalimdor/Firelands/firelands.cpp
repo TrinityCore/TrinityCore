@@ -43,7 +43,7 @@ enum Spells
 
 bool DelayedAttackStartEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
-    _owner->AI()->DoZoneInCombat(_owner, 200.0f);
+    _owner->AI()->DoZoneInCombat(_owner);
     return true;
 }
 

@@ -183,7 +183,7 @@ class npc_harbinger_of_flame : public CreatureScript
             {
                 for (ObjectGuid const& birdGuid : me->m_unitData->ChannelObjects)
                     if (Creature* bird = ObjectAccessor::GetCreature(*me, birdGuid))
-                        DoZoneInCombat(bird, 200.0f);
+                        DoZoneInCombat(bird);
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 _events.Reset();

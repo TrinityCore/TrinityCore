@@ -41,7 +41,7 @@ void SummonList::Despawn(Creature const* summon)
     storage_.remove(summon->GetGUID());
 }
 
-void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
+void SummonList::DoZoneInCombat(uint32 entry)
 {
     for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
     {
@@ -50,7 +50,7 @@ void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
         if (summon && summon->IsAIEnabled
                 && (!entry || summon->GetEntry() == entry))
         {
-            summon->AI()->DoZoneInCombat(nullptr, maxRangeToNearestTarget);
+            summon->AI()->DoZoneInCombat(nullptr);
         }
     }
 }
