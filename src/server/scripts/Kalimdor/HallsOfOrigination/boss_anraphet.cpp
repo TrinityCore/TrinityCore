@@ -257,6 +257,7 @@ struct boss_anraphet : public BossAI
                     events.ScheduleEvent(EVENT_ANRAPHET_READY, Seconds(6), 0, PHASE_INTRO);
                     break;
                 case EVENT_ANRAPHET_READY:
+                    me->SetReactState(REACT_AGGRESSIVE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     break;
                 case EVENT_ANRAPHET_NEMESIS_STRIKE:

@@ -102,7 +102,10 @@ class instance_halls_of_origination : public InstanceMapScript
                     if (GetData(DATA_VAULT_OF_LIGHTS) != DONE)
                     {
                         if (Creature* anraphet = instance->SummonCreature(BOSS_ANRAPHET, AnraphetSpawnPos))
+                        {
                             anraphet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
+                            anraphet->SetReactState(REACT_PASSIVE);
+                        }
                     }
                     else
                         instance->SummonCreature(BOSS_ANRAPHET, AnraphetRespawnPos);
