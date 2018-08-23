@@ -1140,14 +1140,14 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
 
                 if (Aura* aura = target->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD))
                 {
-                    aura->SetCharges(std::min(aura->GetCharges() + 1, aurEff->GetAmount()));
+                    uint8 charges = std::min(aura->GetCharges() + 1, aurEff->GetAmount());
+                    aura->SetCharges(charges);
                     aura->RefreshDuration();
 
-                    // Fulmination
+                    // Fulmination visual
                     if (AuraEffect const* fulAurEff = target->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0))
-                        if (aura->GetCharges() - fulAurEff->GetAmount() > 0)
+                        if (charges == aurEff->GetAmount())
                             target->CastSpell(GetTarget(), SPELL_SHAMAN_FULMINATION_PROC, true, nullptr, aurEff);
-
                 }
             }
 
@@ -1577,6 +1577,57 @@ class spell_sha_cleanse_spirit : public SpellScriptLoader
         }
 };
 
+// 8042 - Earth Shock
+class spell_sha_earth_shock : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earth_shock);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_LIGHTNING_SHIELD,
+                SPELL_SHAMAN_FULMINATION_DAMAGE,
+                SPELL_SHAMAN_FULMINATION_PROC,
+                SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE
+            });
+    }
+
+    void HandleFulmination(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return;
+
+        AuraEffect const* fulminationEffect = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0);
+        if (!fulminationEffect)
+            return;
+
+        Aura* lightningShieldAura = caster->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD);
+        if (!lightningShieldAura)
+            return;
+
+        if (uint8 surplousCharges = std::max(0, (lightningShieldAura->GetCharges() - fulminationEffect->GetAmount())))
+        {
+            if (SpellInfo const* shieldDamageSpell = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE))
+            {
+                lightningShieldAura->SetCharges(fulminationEffect->GetAmount());
+                int32 basepoints = (shieldDamageSpell->Effects[EFFECT_0].CalcValue() + caster->SpellDamageBonusDone(target, shieldDamageSpell, 0, SPELL_DIRECT_DAMAGE, EFFECT_0)) * surplousCharges;
+                caster->CastCustomSpell(SPELL_SHAMAN_FULMINATION_DAMAGE, SPELLVALUE_BASE_POINT0, basepoints, target, true);
+
+                caster->RemoveAurasDueToSpell(SPELL_SHAMAN_FULMINATION_PROC);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sha_earth_shock::HandleFulmination, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 73920 - Healing Rain
 class spell_sha_healing_rain : public SpellScriptLoader
 {
@@ -1969,55 +2020,6 @@ class spell_sha_frozen_power : public AuraScript
     }
 };
 
-// 95774 - Fulmination
-class spell_sha_fulmination : public AuraScript
-{
-    PrepareAuraScript(spell_sha_fulmination);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-            {
-                SPELL_SHAMAN_FULMINATION_DAMAGE,
-                SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE
-            });
-    }
-
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-
-        Unit* caster = GetTarget();
-
-        Unit* target = eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
-        if (!target)
-            return;
-
-        Aura* lightningShieldAura = caster->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD);
-        if (!lightningShieldAura)
-            return;
-
-        AuraEffect const* fulminationEffect = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0);
-        if (!fulminationEffect)
-            return;
-
-        if (uint8 surplousCharges = std::max(0, (lightningShieldAura->GetCharges() - fulminationEffect->GetAmount())))
-        {
-            if (SpellInfo const* shieldDamageSpell = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE))
-            {
-                lightningShieldAura->SetCharges(fulminationEffect->GetAmount());
-                int32 basepoints = (shieldDamageSpell->Effects[EFFECT_0].CalcValue() + caster->SpellDamageBonusDone(target, shieldDamageSpell, 0, SPELL_DIRECT_DAMAGE, EFFECT_0)) * surplousCharges;
-                caster->CastCustomSpell(SPELL_SHAMAN_FULMINATION_DAMAGE, SPELLVALUE_BASE_POINT0, basepoints, target, true);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_sha_fulmination::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -2028,6 +2030,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_cleanse_spirit();
     new spell_sha_chain_heal();
     new spell_sha_earth_shield();
+    RegisterSpellScript(spell_sha_earth_shock);
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
     new spell_sha_earthliving_weapon();
@@ -2038,7 +2041,6 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_flametongue_weapon);
     new spell_sha_focused_insight();
     RegisterAuraScript(spell_sha_frozen_power);
-    RegisterAuraScript(spell_sha_fulmination);
     new spell_sha_glyph_of_healing_wave();
     new spell_sha_healing_rain();
     new spell_sha_healing_rain_triggered();
