@@ -1153,7 +1153,8 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
-        ObjectGuid GetCharmerOrOwnerGUID() const override;
+        Player* GetControllingPlayer() const;
+        ObjectGuid GetCharmerOrOwnerGUID() const override { return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID(); }
         bool IsCharmedOwnedByPlayerOrPlayer() const { return GetCharmerOrOwnerOrOwnGUID().IsPlayer(); }
 
         Guardian* GetGuardianPet() const;

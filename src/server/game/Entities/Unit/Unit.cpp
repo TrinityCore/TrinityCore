@@ -762,7 +762,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             return 0;
 
         // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-        if (victim->ToPlayer()->duel->opponent == attacker || victim->ToPlayer()->duel->opponent->GetGUID() == attacker->GetOwnerGUID())
+        if (victim->ToPlayer()->duel->opponent == attacker->GetControllingPlayer())
             damage = health - 1;
 
         duel_hasEnded = true;
@@ -777,7 +777,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 return 0;
 
             // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-            if (victimRider->duel->opponent == attacker || victimRider->duel->opponent->GetGUID() == attacker->GetCharmerGUID())
+            if (victimRider->duel->opponent == attacker->GetControllingPlayer())
                 damage = health - 1;
 
             duel_wasMounted = true;
@@ -5779,6 +5779,18 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     RemoveFieldNotifyFlag(UF_FLAG_OWNER);
 }
 
+Player* Unit::GetControllingPlayer() const
+{
+    if (ObjectGuid guid = GetCharmerOrOwnerGUID())
+    {
+        if (Unit* master = ObjectAccessor::GetUnit(*this, guid))
+            return master->GetControllingPlayer();
+        return nullptr;
+    }
+    else
+        return const_cast<Player*>(ToPlayer());
+}
+
 Unit* Unit::GetCharmer() const
 {
     if (ObjectGuid charmerGUID = GetCharmerGUID())
@@ -10115,11 +10127,6 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 
     if (disableProcs)
         SetCantProc(false);
-}
-
-ObjectGuid Unit::GetCharmerOrOwnerGUID() const
-{
-    return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID();
 }
 
 ///----------Pet responses methods-----------------
