@@ -189,7 +189,7 @@ class npc_dk_understudy : public CreatureScript
             {
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                 if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
-                    razuvious->AI()->DoZoneInCombat(nullptr, 250.0f);
+                    razuvious->AI()->DoZoneInCombat();
             }
 
             void JustReachedHome() override
@@ -232,7 +232,7 @@ class npc_dk_understudy : public CreatureScript
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Unit* charmer = ObjectAccessor::GetUnit(*me, _charmer))
                         AddThreat(charmer, 100000.0f);
-                    DoZoneInCombat(nullptr, 250.0f);
+                    DoZoneInCombat();
                 }
             }
         private:
