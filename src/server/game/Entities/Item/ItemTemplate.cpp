@@ -267,5 +267,6 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     response.Stats.HolidayId = HolidayId;
 
     response.Write();
+    response.ShrinkToFit();
     return response.Move();
 }
