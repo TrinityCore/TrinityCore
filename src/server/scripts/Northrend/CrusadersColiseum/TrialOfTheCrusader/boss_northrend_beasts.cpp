@@ -1079,7 +1079,7 @@ class spell_gormok_ride_player : public AuraScript
             return;
 
         if (Unit *caster = GetCaster())
-            if (caster->IsAIEnabled)
+            if (caster->IsAIEnabled())
                 caster->GetAI()->SetGUID(target->GetGUID(), DATA_NEW_TARGET);
     }
 
@@ -1300,7 +1300,7 @@ class spell_icehowl_trample : public SpellScript
     void CheckTargets(std::list<WorldObject*>& targets)
     {
         Creature* caster = GetCaster()->ToCreature();
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         if (targets.empty())

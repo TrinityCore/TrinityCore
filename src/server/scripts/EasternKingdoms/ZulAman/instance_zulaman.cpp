@@ -226,7 +226,7 @@ class instance_zulaman : public InstanceMapScript
                     case EVENT_START_ZULAMAN:
                         if (Creature* voljin = instance->GetCreature(VoljinGUID))
                         {
-                            if (voljin->IsAIEnabled)
+                            if (voljin->IsAIEnabled())
                                 voljin->AI()->DoAction(ACTION_START_ZULAMAN);
                         }
                         break;

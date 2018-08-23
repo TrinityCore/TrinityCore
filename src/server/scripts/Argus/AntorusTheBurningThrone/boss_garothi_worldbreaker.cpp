@@ -560,7 +560,7 @@ class spell_garothi_fel_bombardment_selector : public SpellScript
     void HandleWarningEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster() ? GetCaster()->ToCreature() : nullptr;
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         Unit* target = GetHitUnit();
@@ -693,7 +693,7 @@ class spell_garothi_decimation_selector : public SpellScript
         {
             caster->CastSpell(GetHitUnit(), SPELL_DECIMATION_WARNING, true);
             if (Creature* decimator = caster->ToCreature())
-                if (decimator->IsAIEnabled)
+                if (decimator->IsAIEnabled())
                     decimator->AI()->Talk(SAY_ANNOUNCE_DECIMATION, GetHitUnit());
         }
     }
@@ -843,7 +843,7 @@ class spell_garothi_cannon_chooser : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetHitCreature();
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         InstanceScript* instance = caster->GetInstanceScript();

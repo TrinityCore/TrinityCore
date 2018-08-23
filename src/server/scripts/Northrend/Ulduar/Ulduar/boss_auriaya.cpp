@@ -553,7 +553,7 @@ class spell_auriaya_agro_creator : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
-        if (!caster || !caster->IsAIEnabled || caster->HasReactState(REACT_PASSIVE))
+        if (!caster || !caster->IsAIEnabled() || caster->HasReactState(REACT_PASSIVE))
             return;
 
         if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CatsTargetSelector(caster, 5.0f, 10.0f)))
@@ -583,7 +583,7 @@ class spell_auriaya_random_agro_periodic : public AuraScript
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
         Creature* owner = GetUnitOwner()->ToCreature();
-        if (!owner || !owner->IsAIEnabled || owner->HasReactState(REACT_PASSIVE))
+        if (!owner || !owner->IsAIEnabled() || owner->HasReactState(REACT_PASSIVE))
             return;
 
         bool farTarget = true;

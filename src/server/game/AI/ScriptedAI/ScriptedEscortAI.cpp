@@ -151,13 +151,6 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
     }
 }
 
-///@todo investigate whether if its necessary to handle anything on charm
-/*
-void EscortAI::OnCharmed(bool apply)
-{
-}
-*/
-
 void EscortAI::UpdateAI(uint32 diff)
 {
     // Waypoint Updating

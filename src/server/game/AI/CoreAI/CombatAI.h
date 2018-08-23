@@ -102,7 +102,7 @@ struct TC_GAME_API VehicleAI : public CreatureAI
         void UpdateAI(uint32 diff) override;
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
-        void OnCharmed(bool apply) override;
+        void OnCharmed(bool isNew) override;
 
         static int32 Permissible(Creature const* creature);
 

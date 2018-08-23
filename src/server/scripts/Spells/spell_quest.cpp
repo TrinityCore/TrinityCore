@@ -54,8 +54,8 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
                 if (!creatureTarget->IsPet() && creatureTarget->GetEntry() == _originalEntry)
                 {
                     creatureTarget->UpdateEntry(_newEntry);
-                    if (_shouldAttack && creatureTarget->IsAIEnabled)
-                        creatureTarget->AI()->AttackStart(GetCaster());
+                    if (_shouldAttack)
+                        creatureTarget->EngageWithTarget(GetCaster());
 
                     if (_despawnTime)
                         creatureTarget->DespawnOrUnsummon(_despawnTime);

@@ -131,7 +131,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
 
-        void OnCharmed(bool apply) override;
+        void OnCharmed(bool isNew) override;
 
         // Called when a spell cast gets interrupted
         virtual void OnSpellCastInterrupt(SpellInfo const* /*spell*/) { }

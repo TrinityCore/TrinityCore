@@ -27,6 +27,7 @@
 #include "Map.h"
 #include "MapReference.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
@@ -34,13 +35,16 @@
 #include "World.h"
 
 //Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool apply)
+void CreatureAI::OnCharmed(bool isNew)
 {
-    if (apply)
+    if (isNew && !me->IsCharmed() && !me->LastCharmerGUID.IsEmpty())
     {
-        me->NeedChangeAI = true;
-        me->IsAIEnabled = false;
+        if (!me->HasReactState(REACT_PASSIVE))
+            if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                me->EngageWithTarget(lastCharmer);
+        me->LastCharmerGUID.Clear();
     }
+    UnitAI::OnCharmed(isNew);
 }
 
 std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> UnitAI::AISpellInfo;

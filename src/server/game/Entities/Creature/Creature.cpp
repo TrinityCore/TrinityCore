@@ -318,15 +318,6 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_isTempWorldObject = false;
 }
 
-Creature::~Creature()
-{
-    delete i_AI;
-    i_AI = nullptr;
-
-    //if (m_uint32Values)
-    //    TC_LOG_ERROR("entities.unit", "Deconstruct Creature Entry = %u", GetEntry());
-}
-
 void Creature::AddToWorld()
 {
     ///- Register the creature for guid lookup
@@ -430,8 +421,8 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         RemoveAllAuras();
         loot.clear();
         uint32 respawnDelay = m_respawnDelay;
-        if (IsAIEnabled)
-            AI()->CorpseRemoved(respawnDelay);
+        if (CreatureAI* ai = AI())
+            ai->CorpseRemoved(respawnDelay);
 
         if (destroyForNearbyPlayers)
             DestroyForNearbyPlayers();
@@ -691,7 +682,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
 void Creature::Update(uint32 diff)
 {
-    if (IsAIEnabled && m_triggerJustAppeared && m_deathState != DEAD)
+    if (IsAIEnabled() && m_triggerJustAppeared && m_deathState != DEAD)
     {
         if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
@@ -810,21 +801,8 @@ void Creature::Update(uint32 diff)
                 m_shouldReacquireTarget = false;
             }
 
-            // if creature is charmed, switch to charmed AI (and back)
-            if (NeedChangeAI)
-            {
-                UpdateCharmAI();
-                NeedChangeAI = false;
-                IsAIEnabled = true;
-                if (!IsInEvadeMode() && !LastCharmerGUID.IsEmpty())
-                    if (Unit* charmer = ObjectAccessor::GetUnit(*this, LastCharmerGUID))
-                        EngageWithTarget(charmer);
-
-                LastCharmerGUID.Clear();
-            }
-
             // periodic check to see if the creature has passed an evade boundary
-            if (IsAIEnabled && !IsInEvadeMode() && IsEngaged())
+            if (IsAIEnabled() && !IsInEvadeMode() && IsEngaged())
             {
                 if (diff >= m_boundaryCheckTime)
                 {
@@ -863,14 +841,11 @@ void Creature::Update(uint32 diff)
                 }
             }
 
-            if (!IsInEvadeMode() && IsAIEnabled)
-            {
-                // do not allow the AI to be changed during update
-                m_AI_locked = true;
 
-                i_AI->UpdateAI(diff);
-                m_AI_locked = false;
-            }
+            // do not allow the AI to be changed during update
+            m_AI_locked = true;
+            Unit::AIUpdateTick(diff);
+            m_AI_locked = false;
 
             // creature can be dead after UpdateAI call
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
@@ -906,8 +881,8 @@ void Creature::Update(uint32 diff)
             {
                 m_cannotReachTimer += diff;
                 if (m_cannotReachTimer >= CREATURE_NOPATH_EVADE_TIME)
-                    if (IsAIEnabled)
-                        AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_PATH);
+                    if (CreatureAI* ai = AI())
+                        ai->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_PATH);
             }
             break;
         }
@@ -1035,13 +1010,7 @@ bool Creature::AIM_Destroy()
         return false;
     }
 
-    ASSERT(!i_disabledAI,
-           "The disabled AI wasn't cleared!");
-
-    delete i_AI;
-    i_AI = nullptr;
-
-    IsAIEnabled = false;
+    SetAI(nullptr);
     return true;
 }
 
@@ -1054,21 +1023,14 @@ bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
         return false;
     }
 
-    AIM_Destroy();
+    if (!ai)
+        ai = FactorySelector::SelectAI(this);
+
+    SetAI(ai);
 
     Motion_Initialize();
 
-    i_AI = ai ? ai : FactorySelector::SelectAI(this);
     return true;
-}
-
-void Creature::AI_InitializeAndEnable()
-{
-    IsAIEnabled = true;
-    i_AI->InitializeAI();
-    // Initialize vehicle
-    if (GetVehicleKit())
-        GetVehicleKit()->Reset();
 }
 
 bool Creature::AIM_Initialize(CreatureAI* ai)
@@ -1076,7 +1038,9 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     if (!AIM_Create(ai))
         return false;
 
-    AI_InitializeAndEnable();
+    AI()->InitializeAI();
+    if (GetVehicleKit())
+        GetVehicleKit()->Reset();
     return true;
 }
 
@@ -1987,7 +1951,7 @@ bool Creature::IsInvisibleDueToDespawn() const
 
 bool Creature::CanAlwaysSee(WorldObject const* obj) const
 {
-    if (IsAIEnabled && AI()->CanSeeAlways(obj))
+    if (IsAIEnabled() && AI()->CanSeeAlways(obj))
         return true;
 
     return false;
@@ -2250,8 +2214,8 @@ void Creature::Respawn(bool force)
             // Re-initialize reactstate that could be altered by movementgenerators
             InitializeReactState();
 
-            if (IsAIEnabled) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
-                AI()->Reset();
+            if (UnitAI* ai = AI()) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
+                ai->Reset();
 
             m_triggerJustAppeared = true;
 
@@ -2616,7 +2580,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
     if (!victim->isInAccessiblePlaceFor(this))
         return false;
 
-    if (IsAIEnabled && !AI()->CanAIAttack(victim))
+    if (IsAIEnabled() && !AI()->CanAIAttack(victim))
         return false;
 
     // we cannot attack in evade mode
@@ -3432,8 +3396,7 @@ void Creature::AtExitCombat()
 
 bool Creature::IsEscortNPC(bool onlyIfActive)
 {
-    if (!IsAIEnabled)
-        return false;
-
-    return AI()->IsEscortNPC(onlyIfActive);
+    if (CreatureAI* ai = AI())
+        return ai->IsEscortNPC(onlyIfActive);
+    return false;
 }
