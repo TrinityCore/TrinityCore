@@ -2322,6 +2322,8 @@ void Creature::CallForHelp(float radius)
     Unit* target = GetThreatManager().GetCurrentVictim();
     if (!target)
         target = GetThreatManager().GetAnyTarget();
+    if (!target)
+        target = GetCombatManager().GetAnyTarget();
     ASSERT(target, "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
 
     Trinity::CallOfHelpCreatureInRangeDo u_do(this, target, radius);
