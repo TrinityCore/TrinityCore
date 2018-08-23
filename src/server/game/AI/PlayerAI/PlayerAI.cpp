@@ -1325,7 +1325,6 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
 static const float CASTER_CHASE_DISTANCE = 28.0f;
 void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
 {
-    printf("SCPAI updateai %u\n", diff);
     Creature* charmer = GetCharmer();
     if (!charmer)
         return;
@@ -1429,7 +1428,6 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
 
 void SimpleCharmedPlayerAI::OnCharmed(bool isNew)
 {
-    printf("SCPAI oncharm %u\n", isNew);
     if (me->IsCharmed())
     {
         me->CastStop();

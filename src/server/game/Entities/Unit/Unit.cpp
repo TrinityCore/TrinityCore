@@ -9425,7 +9425,6 @@ void Unit::SetAI(UnitAI* newAI)
 
 void Unit::ScheduleAIChange()
 {
-    printf("ScheduleAIChange %s\n", GetName().c_str());
     bool const charmed = IsCharmed();
     // if charm is applied, we can't have disabled AI already, and vice versa
     if (charmed)
