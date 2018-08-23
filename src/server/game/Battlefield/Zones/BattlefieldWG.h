@@ -572,6 +572,7 @@ public:
     ObjectGuid const& GetGUID() const { return _buildGUID; }
 
     void Rebuild();
+    void Rebuildgate();
 
     // Called when associated gameobject is damaged
     void Damaged();
