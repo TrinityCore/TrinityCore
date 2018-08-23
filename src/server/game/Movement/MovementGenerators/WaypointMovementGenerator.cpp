@@ -117,8 +117,8 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     _nextMoveTime.Reset(1000);
 
     // inform AI
-    if (owner->IsAIEnabled)
-        owner->AI()->WaypointPathStarted(_path->id);
+    if (CreatureAI* AI = owner->AI())
+        AI->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
@@ -256,10 +256,10 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
     }
 
     // inform AI
-    if (owner->IsAIEnabled)
+    if (CreatureAI* AI = owner->AI())
     {
-        owner->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
-        owner->AI()->WaypointReached(waypoint.id, _path->id);
+        AI->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
+        AI->WaypointReached(waypoint.id, _path->id);
     }
 
     owner->UpdateCurrentWaypointInfo(waypoint.id, _path->id);
@@ -286,8 +286,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
 
             // inform AI
-            if (owner->IsAIEnabled)
-                owner->AI()->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
+            if (CreatureAI* AI = owner->AI())
+                AI->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
         }
         else
         {
@@ -314,8 +314,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             owner->UpdateCurrentWaypointInfo(0, 0);
 
             // inform AI
-            if (owner->IsAIEnabled)
-                owner->AI()->WaypointPathEnded(waypoint.id, _path->id);
+            if (CreatureAI* AI = owner->AI())
+                AI->WaypointPathEnded(waypoint.id, _path->id);
             return;
         }
     }
@@ -324,8 +324,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
         AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
         // inform AI
-        if (owner->IsAIEnabled)
-            owner->AI()->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
+        if (CreatureAI* AI = owner->AI())
+            AI->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
     }
 
     ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);

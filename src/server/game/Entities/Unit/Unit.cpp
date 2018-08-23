@@ -289,12 +289,11 @@ bool DispelableAura::RollDispel() const
 
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0),
-    IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(), m_ControlledByPlayer(false),
-    movespline(new Movement::MoveSpline()), i_AI(nullptr), i_disabledAI(nullptr),
-    m_AutoRepeatFirstCast(false), m_procDeep(0), m_removedAurasCount(0),
-    i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr),
-    m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this),
-    m_threatManager(this), m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
+    LastCharmerGUID(), m_ControlledByPlayer(false),
+    movespline(new Movement::MoveSpline()), m_AutoRepeatFirstCast(false), m_procDeep(0), m_removedAurasCount(0),
+    i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr), m_vehicleKit(nullptr),
+    m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this), m_threatManager(this),
+    m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -453,6 +452,9 @@ void Unit::Update(uint32 p_time)
 
     UpdateSplineMovement(p_time);
     i_motionMaster->Update(p_time);
+
+    if (!i_AI && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
+        UpdateCharmAI();
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -640,11 +642,11 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 {
     uint32 rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
 
-    if (victim->IsAIEnabled)
-        victim->GetAI()->DamageTaken(attacker, damage);
+    if (UnitAI* victimAI = victim->GetAI())
+        victimAI->DamageTaken(attacker, damage);
 
-    if (attacker && attacker->IsAIEnabled)
-        attacker->GetAI()->DamageDealt(victim, damage, damagetype);
+    if (UnitAI* attackerAI = attacker ? attacker->GetAI() : nullptr)
+        attackerAI->DamageDealt(victim, damage, damagetype);
 
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(attacker, victim, damage);
@@ -656,8 +658,8 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         {
             for (Unit* controlled : victim->m_Controlled)
                 if (Creature* cControlled = controlled->ToCreature())
-                    if (cControlled->IsAIEnabled)
-                        cControlled->AI()->OwnerAttackedBy(attacker);
+                    if (CreatureAI* controlledAI = cControlled->AI())
+                        controlledAI->OwnerAttackedBy(attacker);
         }
 
         if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
@@ -5544,8 +5546,8 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     {
         for (Unit* controlled : m_Controlled)
             if (Creature* cControlled = controlled->ToCreature())
-                if (cControlled->IsAIEnabled)
-                    cControlled->AI()->OwnerAttacked(victim);
+                if (CreatureAI* controlledAI = cControlled->AI())
+                    controlledAI->OwnerAttacked(victim);
     }
 
     return true;
@@ -6093,14 +6095,11 @@ void Unit::SetCharm(Unit* charm, bool apply)
     Unit* victim = healInfo.GetTarget();
     uint32 addhealth = healInfo.GetHeal();
 
-    if (healer)
-    {
-        if (victim->IsAIEnabled)
-            victim->GetAI()->HealReceived(healer, addhealth);
+    if (UnitAI* victimAI = victim->GetAI())
+        victimAI->HealReceived(healer, addhealth);
 
-        if (healer->IsAIEnabled)
-            healer->GetAI()->HealDone(victim, addhealth);
-    }
+    if (UnitAI* healerAI = healer ? healer->GetAI() : nullptr)
+        healerAI->HealDone(victim, addhealth);
 
     if (addhealth)
         gain = victim->ModifyHealth(int32(addhealth));
@@ -9408,12 +9407,49 @@ uint32 Unit::GetCreatePowers(Powers power) const
     return 0;
 }
 
+void Unit::AIUpdateTick(uint32 diff, bool /*force*/)
+{
+    if (!diff) // some places call with diff = 0, which does nothing (for now), see PR #22296
+        return;
+    if (UnitAI* ai = GetAI())
+        ai->UpdateAI(diff);
+}
+
+void Unit::SetAI(UnitAI* newAI)
+{
+    if (i_AI)
+        AIUpdateTick(0, true); // old AI gets a final tick if enabled
+    i_AI.reset(newAI);
+    AIUpdateTick(0, true); // new AI gets its initial tick
+}
+
+void Unit::ScheduleAIChange()
+{
+    printf("ScheduleAIChange %s\n", GetName().c_str());
+    bool const charmed = IsCharmed();
+    // if charm is applied, we can't have disabled AI already, and vice versa
+    if (charmed)
+        ASSERT(!i_disabledAI, "Attempt to schedule charm AI change on unit that already has disabled AI");
+    else if (GetTypeId() != TYPEID_PLAYER)
+        ASSERT(i_disabledAI, "Attempt to schedule charm ID change on unit that doesn't have disabled AI");
+
+    if (charmed)
+        i_disabledAI = std::move(i_AI);
+    else
+        i_AI.reset();
+}
+
+void Unit::RestoreDisabledAI()
+{
+    ASSERT((GetTypeId() == TYPEID_PLAYER) || i_disabledAI, "Attempt to restore disabled AI on creature without disabled AI");
+    i_AI = std::move(i_disabledAI);
+    AIUpdateTick(0, true);
+}
+
 void Unit::AddToWorld()
 {
     if (!IsInWorld())
-    {
         WorldObject::AddToWorld();
-    }
 }
 
 void Unit::RemoveFromWorld()
@@ -9424,8 +9460,8 @@ void Unit::RemoveFromWorld()
     if (IsInWorld())
     {
         m_duringRemoveFromWorld = true;
-        if (IsAIEnabled)
-            GetAI()->LeavingWorld();
+        if (UnitAI* ai = GetAI())
+            ai->LeavingWorld();
 
         if (IsVehicle())
             RemoveVehicleKit();
@@ -9501,80 +9537,44 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
 
 void Unit::UpdateCharmAI()
 {
-    switch (GetTypeId())
+    if (IsCharmed())
     {
-        case TYPEID_UNIT:
-            if (i_disabledAI) // disabled AI must be primary AI
-            {
-                if (!IsCharmed())
-                {
-                    delete i_AI;
-                    i_AI = i_disabledAI;
-                    i_disabledAI = nullptr;
-
-                    if (GetTypeId() == TYPEID_UNIT)
-                        ToCreature()->AI()->OnCharmed(false);
-                }
-            }
-            else
-            {
-                if (IsCharmed())
-                {
-                    i_disabledAI = i_AI;
-                    if (isPossessed() || IsVehicle())
-                        i_AI = new PossessedAI(ToCreature());
-                    else
-                        i_AI = new PetAI(ToCreature());
-                }
-            }
-            break;
-        case TYPEID_PLAYER:
+        UnitAI* newAI = nullptr;
+        if (GetTypeId() == TYPEID_PLAYER)
         {
-            if (IsCharmed()) // if we are currently being charmed, then we should apply charm AI
+            if (Unit* charmer = GetCharmer())
             {
-                i_disabledAI = i_AI;
-
-                UnitAI* newAI = nullptr;
                 // first, we check if the creature's own AI specifies an override playerai for its owned players
-                if (Unit* charmer = GetCharmer())
+                if (Creature* creatureCharmer = charmer->ToCreature())
                 {
-                    if (Creature* creatureCharmer = charmer->ToCreature())
-                    {
-                        if (PlayerAI* charmAI = creatureCharmer->IsAIEnabled ? creatureCharmer->AI()->GetAIForCharmedPlayer(ToPlayer()) : nullptr)
-                            newAI = charmAI;
-                    }
-                    else
-                    {
-                        TC_LOG_ERROR("misc", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
-                    }
-                }
-                if (!newAI) // otherwise, we default to the generic one
-                    newAI = new SimpleCharmedPlayerAI(ToPlayer());
-                i_AI = newAI;
-                newAI->OnCharmed(true);
-            }
-            else
-            {
-                if (i_AI)
-                {
-                    // we allow the charmed PlayerAI to clean up
-                    i_AI->OnCharmed(false);
-                    // then delete it
-                    delete i_AI;
+                    if (CreatureAI* charmerAI = creatureCharmer->AI())
+                        newAI = charmerAI->GetAIForCharmedPlayer(ToPlayer());
                 }
                 else
-                {
-                    TC_LOG_ERROR("misc", "Attempt to remove charm AI from player %s who doesn't currently have charm AI.", GetGUID().ToString().c_str());
-                }
-                // and restore our previous PlayerAI (if we had one)
-                i_AI = i_disabledAI;
-                i_disabledAI = nullptr;
-                // IsAIEnabled gets handled in the caller
+                    TC_LOG_ERROR("misc", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
             }
-            break;
+            if (!newAI) // otherwise, we default to the generic one
+                newAI = new SimpleCharmedPlayerAI(ToPlayer());
         }
-        default:
-            TC_LOG_ERROR("misc", "Attempt to update charm AI for unit %s, which is neither player nor creature.", GetGUID().ToString().c_str());
+        else
+        {
+            ASSERT(GetTypeId() == TYPEID_UNIT);
+            if (isPossessed() || IsVehicle())
+                newAI = new PossessedAI(ToCreature());
+            else
+                newAI = new PetAI(ToCreature());
+        }
+
+        ASSERT(newAI);
+        i_AI.reset(newAI);
+        newAI->OnCharmed(true);
+        AIUpdateTick(0, true);
+    }
+    else
+    {
+        RestoreDisabledAI();
+        if (i_AI)
+            i_AI->OnCharmed(true);
     }
 }
 
@@ -10946,7 +10946,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             plrVictim->SendDirectMessage(&data);
         }
         // Call KilledUnit for creatures
-        if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->IsAIEnabled)
+        if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->IsAIEnabled())
             attacker->ToCreature()->AI()->KilledUnit(victim);
 
         // last damage from non duel opponent or opponent controlled creature
@@ -10973,16 +10973,16 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-        if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->IsAIEnabled)
+        if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->IsAIEnabled())
             attacker->ToCreature()->AI()->KilledUnit(victim);
 
         // Call creature just died function
-        if (creature->IsAIEnabled)
-            creature->AI()->JustDied(attacker);
+        if (CreatureAI* ai = creature->AI())
+            ai->JustDied(attacker);
 
         if (TempSummon* summon = creature->ToTempSummon())
             if (Unit* summoner = summon->GetSummoner())
-                if (summoner->ToCreature() && summoner->IsAIEnabled)
+                if (summoner->ToCreature() && summoner->IsAIEnabled())
                     summoner->ToCreature()->AI()->SummonedCreatureDies(creature, attacker);
 
         // Dungeon specific stuff, only applies to players killing creatures
@@ -11400,7 +11400,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
         StopMoving();
 
-        ToCreature()->AI()->OnCharmed(true);
+        // AI will schedule its own change if appropriate
+        if (UnitAI* ai = GetAI())
+            ai->OnCharmed(false);
+        else
+            ScheduleAIChange();
     }
     else if (Player* player = ToPlayer())
     {
@@ -11410,12 +11414,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         if (charmer->GetTypeId() == TYPEID_UNIT) // we are charmed by a creature
         {
             // change AI to charmed AI on next Update tick
-            NeedChangeAI = true;
-            if (IsAIEnabled)
-            {
-                IsAIEnabled = false;
-                player->AI()->OnCharmed(true);
-            }
+            if (UnitAI* ai = GetAI())
+                ai->OnCharmed(false);
+            else
+                player->ScheduleAIChange();
         }
         player->SetClientControl(this, false);
     }
@@ -11517,16 +11519,9 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     ///@todo Handle SLOT_IDLE motion resume
     GetMotionMaster()->InitializeDefault();
 
-    if (Creature* creature = ToCreature())
-    {
-        // Creature will restore its old AI on next update
-        if (creature->AI())
-            creature->AI()->OnCharmed(false);
-
-        // Vehicle should not attack its passenger after he exists the seat
-        if (type != CHARM_TYPE_VEHICLE)
-            LastCharmerGUID = ASSERT_NOTNULL(charmer)->GetGUID();
-    }
+    // Vehicle should not attack its passenger after he exists the seat
+    if (type != CHARM_TYPE_VEHICLE)
+        LastCharmerGUID = ASSERT_NOTNULL(charmer)->GetGUID();
 
     // If charmer still exists
     if (!charmer)
@@ -11573,16 +11568,11 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         }
     }
 
-    if (Player* player = ToPlayer())
-    {
-        if (charmer->GetTypeId() == TYPEID_UNIT) // charmed by a creature, this means we had PlayerAI
-        {
-            NeedChangeAI = true;
-            IsAIEnabled = false;
-        }
+    if (GetTypeId() != TYPEID_PLAYER || charmer->GetTypeId() == TYPEID_UNIT)
+        GetAI()->OnCharmed(false); // AI will potentially schedule a charm ai update
 
+    if (Player* player = ToPlayer())
         player->SetClientControl(this, true);
-    }
 
     // a guardian should always have charminfo
     if (playerCharmer && this != charmer->GetFirstControlled())
@@ -12466,7 +12456,7 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
     }
 
     Creature* creature = ToCreature();
-    if (creature && creature->IsAIEnabled)
+    if (creature && creature->IsAIEnabled())
         creature->AI()->OnSpellClick(clicker, spellClickHandled);
 }
 

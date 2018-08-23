@@ -288,13 +288,14 @@ void VehicleAI::UpdateAI(uint32 diff)
     }
 }
 
-void VehicleAI::OnCharmed(bool apply)
+void VehicleAI::OnCharmed(bool /*isNew*/)
 {
-    if (!me->GetVehicleKit()->IsVehicleInUse() && !apply && m_HasConditions) // was used and has conditions
+    bool const charmed = me->IsCharmed();
+    if (!me->GetVehicleKit()->IsVehicleInUse() && !charmed && m_HasConditions) // was used and has conditions
     {
         m_DoDismiss = true; // needs reset
     }
-    else if (apply)
+    else if (charmed)
         m_DoDismiss = false; // in use again
 
     m_DismissTimer = VEHICLE_DISMISS_TIME; // reset timer

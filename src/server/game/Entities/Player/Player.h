@@ -886,7 +886,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         explicit Player(WorldSession* session);
         ~Player();
 
-        PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(i_AI); }
+        PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(GetAI()); }
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
