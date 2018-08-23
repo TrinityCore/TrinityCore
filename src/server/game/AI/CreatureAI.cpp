@@ -26,6 +26,7 @@
 #include "Map.h"
 #include "MapReference.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
@@ -40,7 +41,7 @@ void CreatureAI::OnCharmed(bool isNew)
         if (!me->HasReactState(REACT_PASSIVE))
             if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
                 me->EngageWithTarget(lastCharmer);
-            me->LastCharmerGUID.Clear();
+        me->LastCharmerGUID.Clear();
     }
     UnitAI::OnCharmed(isNew);
 }
