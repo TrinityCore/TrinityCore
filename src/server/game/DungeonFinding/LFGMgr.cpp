@@ -894,20 +894,38 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles)
 */
 void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
 {
-    GuidList players;
+    GuidList players, tankPlayers, healPlayers, dpsPlayers;
     GuidList playersToTeleport;
 
     for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
         ObjectGuid guid = it->first;
         if (guid == proposal.leader)
-            players.push_front(guid);
-        else
             players.push_back(guid);
+        else
+            switch (it->second.role & ~PLAYER_ROLE_LEADER)
+            {
+                case PLAYER_ROLE_TANK:
+                    tankPlayers.push_back(guid);
+                    break;
+                case PLAYER_ROLE_HEALER:
+                    healPlayers.push_back(guid);
+                    break;
+                case PLAYER_ROLE_DAMAGE:
+                    dpsPlayers.push_back(guid);
+                    break;
+                default:
+                    ASSERT(false, "Invalid LFG role %u", it->second.role);
+                    break;
+            }
 
         if (proposal.isNew || GetGroup(guid) != proposal.group)
             playersToTeleport.push_back(guid);
     }
+
+    players.splice(players.end(), tankPlayers);
+    players.splice(players.end(), healPlayers);
+    players.splice(players.end(), dpsPlayers);
 
     // Set the dungeon difficulty
     LFGDungeonData const* dungeon = GetLFGDungeon(proposal.dungeonId);
