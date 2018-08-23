@@ -42,6 +42,7 @@ void CreatureAI::OnCharmed(bool isNew)
                 me->EngageWithTarget(lastCharmer);
             me->LastCharmerGUID.Clear();
     }
+    UnitAI::OnCharmed(isNew);
 }
 
 AISpellInfoType* UnitAI::AISpellInfo;
