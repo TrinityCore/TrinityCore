@@ -220,9 +220,9 @@ struct LfgReward
 struct LfgProposalPlayer
 {
     LfgProposalPlayer(): role(0), accept(LFG_ANSWER_PENDING), group() { }
-    uint8 role;                                            ///< Proposed role
-    LfgAnswer accept;                                      ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
-    ObjectGuid group;                                      ///< Original group guid. 0 if no original group
+    uint8 role;                                            /// Proposed role
+    LfgAnswer accept;                                      /// Accept status (-1 not answer | 0 Not agree | 1 agree)
+    ObjectGuid group;                                      /// Original group guid. 0 if no original group
 };
 
 /// Stores group data related to proposal to join
@@ -232,38 +232,38 @@ struct LfgProposal
         group(), leader(), cancelTime(0), encounters(0), isNew(true)
         { }
 
-    uint32 id;                                             ///< Proposal Id
-    uint32 dungeonId;                                      ///< Dungeon to join
-    LfgProposalState state;                                ///< State of the proposal
-    ObjectGuid group;                                      ///< Proposal group (0 if new)
-    ObjectGuid leader;                                     ///< Leader guid.
-    time_t cancelTime;                                     ///< Time when we will cancel this proposal
-    uint32 encounters;                                     ///< Dungeon Encounters
-    bool isNew;                                            ///< Determines if it's new group or not
-    GuidList queues;                                       ///< Queue Ids to remove/readd
-    GuidList showorder;                                    ///< Show order in update window
-    LfgProposalPlayerContainer players;                    ///< Players data
+    uint32 id;                                             /// Proposal Id
+    uint32 dungeonId;                                      /// Dungeon to join
+    LfgProposalState state;                                /// State of the proposal
+    ObjectGuid group;                                      /// Proposal group (0 if new)
+    ObjectGuid leader;                                     /// Leader guid.
+    time_t cancelTime;                                     /// Time when we will cancel this proposal
+    uint32 encounters;                                     /// Dungeon Encounters
+    bool isNew;                                            /// Determines if it's new group or not
+    GuidList queues;                                       /// Queue Ids to remove/readd
+    GuidList showorder;                                    /// Show order in update window
+    LfgProposalPlayerContainer players;                    /// Players data
 };
 
 /// Stores all rolecheck info of a group that wants to join
 struct LfgRoleCheck
 {
-    time_t cancelTime;                                     ///< Time when the rolecheck will fail
-    LfgRolesMap roles;                                     ///< Player selected roles
-    LfgRoleCheckState state;                               ///< State of the rolecheck
-    LfgDungeonSet dungeons;                                ///< Dungeons group is applying for (expanded random dungeons)
-    uint32 rDungeonId;                                     ///< Random Dungeon Id.
-    ObjectGuid leader;                                     ///< Leader of the group
+    time_t cancelTime;                                     /// Time when the rolecheck will fail
+    LfgRolesMap roles;                                     /// Player selected roles
+    LfgRoleCheckState state;                               /// State of the rolecheck
+    LfgDungeonSet dungeons;                                /// Dungeons group is applying for (expanded random dungeons)
+    uint32 rDungeonId;                                     /// Random Dungeon Id.
+    ObjectGuid leader;                                     /// Leader of the group
 };
 
 /// Stores information of a current vote to kick someone from a group
 struct LfgPlayerBoot
 {
-    time_t cancelTime;                                     ///< Time left to vote
-    bool inProgress;                                       ///< Vote in progress
-    LfgAnswerContainer votes;                              ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
-    ObjectGuid victim;                                     ///< Player guid to be kicked (can't vote)
-    std::string reason;                                    ///< kick reason
+    time_t cancelTime;                                     /// Time left to vote
+    bool inProgress;                                       /// Vote in progress
+    LfgAnswerContainer votes;                              /// Player votes (-1 not answer | 0 Not agree | 1 agree)
+    ObjectGuid victim;                                     /// Player guid to be kicked (can't vote)
+    std::string reason;                                    /// kick reason
 };
 
 struct LFGDungeonData
@@ -447,21 +447,21 @@ class TC_GAME_API LFGMgr
         GuidSet const& GetPlayers(ObjectGuid guid);
 
         // General variables
-        uint32 m_QueueTimer;                               ///< used to check interval of update
-        uint32 m_lfgProposalId;                            ///< used as internal counter for proposals
-        uint32 m_options;                                  ///< Stores config options
+        uint32 m_QueueTimer;                               /// used to check interval of update
+        uint32 m_lfgProposalId;                            /// used as internal counter for proposals
+        uint32 m_options;                                  /// Stores config options
 
-        LfgQueueContainer QueuesStore;                     ///< Queues
-        LfgCachedDungeonContainer CachedDungeonMapStore;   ///< Stores all dungeons by groupType
+        LfgQueueContainer QueuesStore;                     /// Queues
+        LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType
         // Reward System
-        LfgRewardContainer RewardMapStore;                 ///< Stores rewards for random dungeons
+        LfgRewardContainer RewardMapStore;                 /// Stores rewards for random dungeons
         LFGDungeonContainer  LfgDungeonStore;
         // Rolecheck - Proposal - Vote Kicks
-        LfgRoleCheckContainer RoleChecksStore;             ///< Current Role checks
-        LfgProposalContainer ProposalsStore;               ///< Current Proposals
-        LfgPlayerBootContainer BootsStore;                 ///< Current player kicks
-        LfgPlayerDataContainer PlayersStore;               ///< Player data
-        LfgGroupDataContainer GroupsStore;                 ///< Group data
+        LfgRoleCheckContainer RoleChecksStore;             /// Current Role checks
+        LfgProposalContainer ProposalsStore;               /// Current Proposals
+        LfgPlayerBootContainer BootsStore;                 /// Current player kicks
+        LfgPlayerDataContainer PlayersStore;               /// Player data
+        LfgGroupDataContainer GroupsStore;                 /// Group data
 };
 
 } // namespace lfg

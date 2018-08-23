@@ -558,7 +558,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* moragg = GetCreature(DATA_MORAGG))
                                     {
                                         moragg->SetImmuneToAll(false);
-                                        moragg->AI()->DoZoneInCombat(moragg, 200.0f);
+                                        moragg->AI()->DoZoneInCombat(moragg);
                                     }
                                 });
                             });
@@ -596,7 +596,7 @@ class instance_violet_hold : public InstanceMapScript
                                         if (Creature* erekem = GetCreature(DATA_EREKEM))
                                         {
                                             erekem->SetImmuneToAll(false);
-                                            erekem->AI()->DoZoneInCombat(erekem, 200.0f);
+                                            erekem->AI()->DoZoneInCombat(erekem);
                                         }
                                     });
                                 });
@@ -619,7 +619,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                     {
                                         ichoron->SetImmuneToAll(false);
-                                        ichoron->AI()->DoZoneInCombat(ichoron, 200.0f);
+                                        ichoron->AI()->DoZoneInCombat(ichoron);
                                     }
                                 });
                             });
@@ -641,7 +641,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                     {
                                         lavanthor->SetImmuneToAll(false);
-                                        lavanthor->AI()->DoZoneInCombat(lavanthor, 200.0f);
+                                        lavanthor->AI()->DoZoneInCombat(lavanthor);
                                     }
                                 });
                             });
@@ -668,7 +668,7 @@ class instance_violet_hold : public InstanceMapScript
                                         if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                         {
                                             xevozz->SetImmuneToAll(false);
-                                            xevozz->AI()->DoZoneInCombat(xevozz, 200.0f);
+                                            xevozz->AI()->DoZoneInCombat(xevozz);
                                         }
                                     });
                                 });
@@ -694,7 +694,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                                     {
                                         zuramat->SetImmuneToAll(false);
-                                        zuramat->AI()->DoZoneInCombat(zuramat, 200.0f);
+                                        zuramat->AI()->DoZoneInCombat(zuramat);
                                     }
                                 });
                             });

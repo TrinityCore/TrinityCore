@@ -104,7 +104,7 @@ struct generic_boss_controllerAI : public BossAI
         if (IsInGhostForm)
         {
             // Call this here since ghosts aren't set in combat as they spawn.
-            DoZoneInCombat(me, 50.0f);
+            DoZoneInCombat(me);
         }
         else
             _Reset();
