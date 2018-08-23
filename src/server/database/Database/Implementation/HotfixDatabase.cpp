@@ -357,9 +357,29 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_FOLLOWER, "SELECT ID, HordeSourceText_lang, AllianceSourceText_lang, TitleName_lang FROM garr_follower_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 
+    // GarrFollowerType.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_TYPE, "SELECT ID, MaxItemLevel, MaxFollowers, MaxFollowerBuildingType, GarrTypeId, LevelRangeBias, ItemLevelRangeBias, Flags FROM garr_follower_type"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollowerLevelXP.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP, "SELECT ID, XpToNextLevel, ShipmentXP, FollowerLevel, GarrFollowerTypeId FROM garr_follower_level_xp"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollowerQuality.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_QUALITY, "SELECT ID, XpToNextQuality, ShipmentXP, Quality, AbilityCount, TraitCount, GarrFollowerTypeId, ClassSpecId FROM garr_follower_quality"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GarrFollowerXAbility.db2
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrAbilityID, FactionIndex, GarrFollowerID FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrMission.db2
+    PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT Name, Description, Location, MissionDuration, OfferDuration, MapPosX, MapPosY, WorldPosX, WorldPosY, TargetItemLevel, "
+        "UiTextureKitId, MissionCostCurrencyTypesId, TargetLevel, EnvGarrMechanicTypeId, MaxFollowers, OfferedGarrMissionTextureId, GarrMissionTypeId, GarrFollowerTypeId, "
+        "BaseCompletionChance, FollowerDeathChance, GarrTypeID, ID, TravelDuration, PlayerConditionId, SubCategory1, MissionCost, Flags, BaseFollowerXP, AreaId, OvermaxRewardPackId, "
+        "EnvGarrMechanicId, VerifiedBuild FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, Name_lang, Description_lang, Location_lang FROM garr_mission_locale"
+        " WHERE locale = ?", CONNECTION_SYNCH);
 
     // GarrPlot.db2
     PrepareStatement(HOTFIX_SEL_GARR_PLOT, "SELECT ID, Name, AllianceConstructObjID, HordeConstructObjID, UiCategoryID, PlotType, Flags, "

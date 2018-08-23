@@ -33,6 +33,7 @@
 #include "BattlegroundScore.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "ClassHall.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
@@ -116,6 +117,7 @@
 #include "VehiclePackets.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
+#include "WodGarrison.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -351,6 +353,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _restMgr = Trinity::make_unique<RestMgr>(this);
 
     _usePvpItemLevels = false;
+
+    _insideGarrisonType = GARRISON_TYPE_NONE;
 }
 
 Player::~Player()
@@ -1329,6 +1333,9 @@ void Player::Update(uint32 p_time)
     UpdateEnchantTime(p_time);
     UpdateHomebindTime(p_time);
 
+    for (auto itr = _garrisons.begin(); itr != _garrisons.end(); ++itr)
+        itr->second->Update(p_time);
+
     if (!_instanceResetTimes.empty())
     {
         for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)
@@ -1657,9 +1664,21 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+bool Player::TeleportTo(uint32 mapid, Position const &pos, uint32 options /*= 0*/)
+{
+    WorldLocation loc(mapid);
+    loc.Relocate(pos);
+    return TeleportTo(loc, options);
+}
+
 bool Player::TeleportTo(WorldLocation const &loc, uint32 options /*= 0*/)
 {
     return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
+}
+
+bool Player::SeamlessTeleportToMap(uint32 mapid, uint32 options /*= 0*/)
+{
+    return TeleportTo(mapid, GetPosition(), options | TELE_TO_SEAMLESS);
 }
 
 bool Player::TeleportToBGEntryPoint()
@@ -4076,7 +4095,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
             Corpse::DeleteFromDB(playerguid, trans);
 
-            Garrison::DeleteFromDB(guid, trans);
+            for (uint8 garrType = GARRISON_TYPE_MIN; garrType < GARRISON_TYPE_MAX; ++garrType)
+                Garrison::DeleteFromDB(trans, guid, GarrisonType(garrType));
 
             sWorld->DeleteCharacterInfo(playerguid);
             break;
@@ -7000,6 +7020,8 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    uint32 oldArea = m_areaUpdateId;
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId = newArea;
@@ -7033,6 +7055,22 @@ void Player::UpdateArea(uint32 newArea)
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
+
+    if (oldArea != newArea)
+    {
+        if (IsInGarrison())
+        {
+            if (Garrison* garrison = GetGarrison(GetCurrentGarrison()))
+                if (!garrison->IsAllowedArea(area))
+                    garrison->Leave();
+        }
+        else
+        {
+            for (auto& garrison : GetGarrisons())
+                if (garrison.second->IsAllowedArea(area))
+                    garrison.second->Enter();
+        }
+    }
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -18318,13 +18356,13 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
-    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
-    if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES)))
-        _garrison = std::move(garrison);
+    std::unique_ptr<WodGarrison> wodGarrison = Trinity::make_unique<WodGarrison>(this);
+    if (wodGarrison->LoadFromDB())
+        _garrisons[GARRISON_TYPE_GARRISON] = std::move(wodGarrison);
+
+    std::unique_ptr<ClassHall> classHall = Trinity::make_unique<ClassHall>(this);
+    if (classHall->LoadFromDB())
+        _garrisons[GARRISON_TYPE_CLASS_HALL] = std::move(classHall);
 
     _InitHonorLevelOnLoadFromDB(fields[73].GetUInt32(), fields[74].GetUInt32(), fields[75].GetUInt32());
 
@@ -20270,8 +20308,10 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
-    if (_garrison)
-        _garrison->SaveToDB(trans);
+
+    for (auto const& garrison : GetGarrisons())
+        if (garrison.second)
+            garrison.second->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -23840,8 +23880,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     PhasingHandler::OnMapChange(this);
 
-    if (_garrison)
-        _garrison->SendRemoteInfo();
+    SendGarrisonRemoteInfo();
 
     UpdateItemLevelAreaBasedScaling();
 }
@@ -24280,8 +24319,9 @@ void Player::DailyReset()
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    if (_garrison)
-        _garrison->ResetFollowerActivationLimit();
+    for (auto const& garrison : GetGarrisons())
+        if (garrison.second)
+            garrison.second->ResetFollowerActivationLimit();
 }
 
 void Player::ResetWeeklyQuestStatus()
@@ -24548,6 +24588,15 @@ bool Player::HasQuestForGO(int32 GOId) const
             }
         }
     }
+    return false;
+}
+
+bool Player::HasQuest(uint32 questID) const
+{
+    for (uint8 itr = 0; itr < MAX_QUEST_LOG_SIZE; ++itr)
+        if (GetQuestSlotQuestId(itr) == questID)
+            return true;
+
     return false;
 }
 
@@ -27551,17 +27600,155 @@ void Player::OnCombatExit()
 
 void Player::CreateGarrison(uint32 garrSiteId)
 {
-    std::unique_ptr<Garrison> garrison(new Garrison(this));
-    if (garrison->Create(garrSiteId))
-        _garrison = std::move(garrison);
+    if (garrSiteId == GARRISON_SITE_WOD_ALLIANCE ||
+        garrSiteId == GARRISON_SITE_WOD_HORDE)
+    {
+        std::unique_ptr<Garrison> garrison(new WodGarrison(this));
+        if (garrison->Create(garrSiteId))
+        {
+            _garrisons[GARRISON_TYPE_GARRISON] = std::move(garrison);
+        }
+    }
+    else
+    {
+        std::unique_ptr<Garrison> garrison(new ClassHall(this));
+        if (garrison->Create(garrSiteId))
+        {
+            _garrisons[GARRISON_TYPE_CLASS_HALL] = std::move(garrison);
+        }
+    }
 }
 
-void Player::DeleteGarrison()
+void Player::DeleteGarrison(GarrisonType type)
 {
-    if (_garrison)
+    auto garItr = _garrisons.find(type);
+
+    if (garItr != _garrisons.end())
     {
-        _garrison->Delete();
-        _garrison.reset();
+        garItr->second->Delete();
+        garItr->second.reset();
+        _garrisons.erase(garItr);
+    }
+}
+
+GarrisonType Player::GetCurrentGarrison() const
+{
+    return _insideGarrisonType;
+}
+
+void Player::SetCurrentGarrison(GarrisonType type)
+{
+    _insideGarrisonType = type;
+}
+
+bool Player::IsInGarrison() const
+{
+    return GetCurrentGarrison() != GARRISON_TYPE_NONE;
+}
+
+void Player::AddGarrisonFollower(uint32 garrFollowerId)
+{
+    if (GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId))
+        if (Garrison* garrison = GetGarrison((GarrisonType)followerEntry->GarrTypeID))
+            garrison->AddFollower(garrFollowerId);
+}
+
+void Player::AddGarrisonMission(uint32 garrMissionId)
+{
+    if (GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId))
+        if (Garrison* garrison = GetGarrison((GarrisonType)missionEntry->GarrTypeID))
+            garrison->AddMission(garrMissionId);
+}
+
+void Player::SendGarrisonInfo() const
+{
+    WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfoResult;
+    garrisonInfoResult.FactionIndex = GetTeam() == ALLIANCE ? GARRISON_FACTION_INDEX_ALLIANCE: GARRISON_FACTION_INDEX_HORDE;
+
+    for (auto const& garrison : _garrisons)
+    {
+        WorldPackets::Garrison::GarrisonInfo garrisonInfo;
+        garrisonInfo.GarrTypeID = garrison.second->GetType();
+        garrisonInfo.GarrSiteID = garrison.second->GetSiteLevel()->GarrSiteID;
+        garrisonInfo.GarrSiteLevelID = garrison.second->GetSiteLevel()->ID;
+        garrisonInfo.NumFollowerActivationsRemaining = garrison.second->GetFollowerActivationLimit();
+
+        if (WodGarrison* wodGarrison = garrison.second->ToWodGarrison())
+        {
+            for (auto& plot : wodGarrison->GetPlots())
+            {
+                garrisonInfo.Plots.push_back(&plot->PacketInfo);
+                if (plot->BuildingInfo.PacketInfo)
+                    garrisonInfo.Buildings.push_back(plot->BuildingInfo.PacketInfo.get_ptr());
+            }
+        }
+
+        for (auto const& p : garrison.second->GetFollowers())
+            garrisonInfo.Followers.push_back(&p.second.PacketInfo);
+
+        for (auto const& p : garrison.second->GetMissions())
+        {
+            garrisonInfo.Missions.push_back(&p.second.PacketInfo);
+            garrisonInfo.MissionRewards.push_back(p.second.Rewards);
+            garrisonInfo.MissionOvermaxRewards.push_back(p.second.OvermaxRewards);
+            garrisonInfo.CanStartMission.push_back(p.second.CanStartMission);
+        }
+
+        garrisonInfoResult.Garrisons.push_back(garrisonInfo);
+    }
+
+    for (uint32 i = 0; i < sGarrFollowerTypeStore.GetNumRows(); ++i)
+    {
+        if (GarrFollowerTypeEntry const* followerTypeEntry = sGarrFollowerTypeStore.LookupEntry(i))
+        {
+            WorldPackets::Garrison::FollowerSoftCapInfo followerSoftCapInfo;
+            followerSoftCapInfo.GarrFollowerTypeID = followerTypeEntry->ID;
+            followerSoftCapInfo.Count = followerTypeEntry->MaxFollowers;
+            garrisonInfoResult.FollowerSoftCaps.push_back(followerSoftCapInfo);
+        }
+    }
+
+    SendDirectMessage(garrisonInfoResult.Write());
+}
+
+void Player::SendGarrisonRemoteInfo() const
+{
+    WorldPackets::Garrison::GarrisonRemoteInfo remoteInfo;
+
+    for (auto const& garrison : _garrisons)
+    {
+        auto siteLevel = garrison.second->GetSiteLevel();
+        MapEntry const* garrisonMap = sMapStore.LookupEntry(siteLevel->MapID);
+        if (!garrisonMap || int32(GetMapId()) != garrisonMap->ParentMapID)
+            return;
+
+        WorldPackets::Garrison::GarrisonRemoteSiteInfo remoteSiteInfo;
+        remoteSiteInfo.GarrSiteLevelID = siteLevel->ID;
+
+        if (WodGarrison* wodGarrison = garrison.second->ToWodGarrison())
+        {
+            for (auto const& plot : wodGarrison->GetPlots())
+                if (plot->BuildingInfo.PacketInfo)
+                    remoteSiteInfo.Buildings.emplace_back(plot->PacketInfo.GarrPlotInstanceID, plot->BuildingInfo.PacketInfo->GarrBuildingID);
+        }
+
+        remoteInfo.Sites.push_back(remoteSiteInfo);
+    }
+
+    SendDirectMessage(remoteInfo.Write());
+}
+
+void Player::SendGarrisonBlueprintAndSpecializationData() const
+{
+    WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationDataResult data;
+
+    if (Garrison* garrison = GetGarrison(GARRISON_TYPE_GARRISON))
+    {
+        auto knownBlueprints = garrison->ToWodGarrison()->GetKnownBuildings();
+
+        data.GarrTypeID = GARRISON_TYPE_GARRISON;
+        data.BlueprintsKnown = &knownBlueprints;
+        SendDirectMessage(data.Write());
     }
 }
 

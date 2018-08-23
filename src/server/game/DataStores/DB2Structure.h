@@ -1142,12 +1142,78 @@ struct GarrFollowerEntry
     uint32 ID;
 };
 
+struct GarrFollowerLevelXPEntry
+{
+    uint32 ID;
+    uint16 XpToNextLevel;
+    uint16 ShipmentXP;
+    uint8 FollowerLevel;
+    uint8 GarrFollowerTypeId;
+};
+
+struct GarrFollowerQualityEntry
+{
+    uint32 ID;
+    uint32 XpToNextQuality;
+    uint16 ShipmentXP;
+    uint8 Quality;
+    uint8 AbilityCount;
+    uint8 TraitCount;
+    uint8 GarrFollowerTypeId;
+    uint32 ClassSpecId;
+};
+
 struct GarrFollowerXAbilityEntry
 {
     uint32 ID;
     uint16 GarrAbilityID;
     uint8 FactionIndex;
     uint16 GarrFollowerID;
+};
+
+struct GarrFollowerTypeEntry
+{
+    uint32 ID;
+    uint16 MaxItemLevel;
+    uint8 MaxFollowers;
+    uint8 MaxFollowerBuildingType;
+    uint8 GarrTypeId;
+    uint8 LevelRangeBias;
+    uint8 ItemLevelRangeBias;
+    uint8 Flags;
+};
+
+struct GarrMissionEntry
+{
+    LocalizedString const* Name;
+    LocalizedString const* Description;
+    LocalizedString const* Location;
+    uint32 MissionDuration;
+    uint32 OfferDuration;
+    float MapPos[2];
+    float WorldPos[2];
+    uint16 TargetItemLevel;
+    uint16 UiTextureKitId;
+    uint16 MissionCostCurrencyTypesId;
+    uint8 TargetLevel;
+    uint8 EnvGarrMechanicTypeId;
+    uint8 MaxFollowers;
+    uint8 OfferedGarrMissionTextureId;
+    uint8 GarrMissionTypeId;
+    uint8 GarrFollowerTypeId;
+    uint8 BaseCompletionChance;
+    uint8 LostChance;
+    uint8 GarrTypeID;
+    uint32 ID;
+    uint32 TravelDuration;
+    uint32 PlayerConditionId;
+    uint32 SubCategory1;
+    uint32 MissionCost;
+    uint32 Flags;
+    uint32 BaseFollowerXP;
+    uint32 AreaId;
+    uint32 OvermaxRewardPackId;
+    uint32 EnvGarrMechanicId;
 };
 
 struct GarrPlotEntry

@@ -26,6 +26,8 @@
 #include "CreatureAIImpl.h"
 #include "Errors.h"
 #include "GameObject.h"
+#include "Garrison.h"
+#include "GarrisonAI.h"
 #include "GossipDef.h"
 #include "Item.h"
 #include "LFGScripts.h"
@@ -108,6 +110,10 @@ struct is_script_database_bound<AchievementCriteriaScript>
 
 template<>
 struct is_script_database_bound<AreaTriggerEntityScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<GarrisonScript>
     : std::true_type { };
 
 template<>
@@ -655,6 +661,11 @@ class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
 /// This hook is responsible for swapping BattlegroundScript's
 template<typename Base>
 class ScriptRegistrySwapHooks<BattlegroundScript, Base>
+    : public UnsupportedScriptRegistrySwapHooks<Base> { };
+
+/// This hook is responsible for swapping Garrison's
+template<typename Base>
+class ScriptRegistrySwapHooks<GarrisonScript, Base>
     : public UnsupportedScriptRegistrySwapHooks<Base> { };
 
 /// This hook is responsible for swapping OutdoorPvP's
@@ -1800,6 +1811,14 @@ AreaTriggerAI* ScriptMgr::GetAreaTriggerAI(AreaTrigger* areatrigger)
     return tmpscript->GetAI(areatrigger);
 }
 
+GarrisonAI* ScriptMgr::GetGarrisonAI(Garrison* garrison)
+{
+    ASSERT(garrison);
+
+    GET_SCRIPT_RET(GarrisonScript, garrison->GetScriptId(), tmpscript, nullptr);
+    return tmpscript->GetAI(garrison);
+}
+
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 {
     ASSERT(creature);
@@ -2720,6 +2739,12 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
     ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
 }
 
+GarrisonScript::GarrisonScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<GarrisonScript>::Instance()->AddScript(this);
+}
+
 ConversationScript::ConversationScript(char const* name)
     : ScriptObject(name)
 {
@@ -2754,6 +2779,7 @@ template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
+template class TC_GAME_API ScriptRegistry<GarrisonScript>;
 template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
 template class TC_GAME_API ScriptRegistry<QuestScript>;

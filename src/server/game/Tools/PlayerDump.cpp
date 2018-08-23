@@ -50,6 +50,8 @@ DumpTable const dumpTables[] =
     { "character_garrison_buildings",     DTT_CHAR_TABLE },
     /// @todo: character_garrison_follower_abilities
     /// @todo: character_garrison_followers
+    /// @todo: character_garrison_missions
+    /// @todo: character_garrison_mission_rewards
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_homebind",               DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },
