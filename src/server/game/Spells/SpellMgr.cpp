@@ -4752,6 +4752,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
     });
 
+    // Grace
+    ApplySpellFix({
+        47930,
+        77613
+    },[](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
+    });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
