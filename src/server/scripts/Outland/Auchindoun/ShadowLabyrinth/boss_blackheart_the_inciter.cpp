@@ -58,16 +58,15 @@ enum Events
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
-    void OnCharmed(bool apply) override
+    void OnCharmed(bool isNew) override
     {
-        SimpleCharmedPlayerAI::OnCharmed(apply);
-        if (!me->GetMap()->IsDungeon())
-            return;
-        if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
-        {
-            blackheart->AI()->SetData(0, apply);
-            blackheart->GetThreatManager().AddThreat(me, 0.0f);
-        }
+        if (me->GetMap()->IsDungeon())
+            if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
+            {
+                blackheart->AI()->SetData(0, me->IsCharmed());
+                blackheart->GetThreatManager().AddThreat(me, 0.0f);
+            }
+        SimpleCharmedPlayerAI::OnCharmed(isNew);
     }
 };
 

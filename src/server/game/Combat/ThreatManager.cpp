@@ -96,7 +96,7 @@ ThreatReference::OnlineState ThreatReference::SelectOnlineState()
         return ONLINE_STATE_OFFLINE;
     if (!FlagsAllowFighting(_owner, _victim) || !FlagsAllowFighting(_victim, _owner))
         return ONLINE_STATE_OFFLINE;
-    if (_owner->IsAIEnabled && !_owner->GetAI()->CanAIAttack(_victim))
+    if (_owner->IsAIEnabled() && !_owner->GetAI()->CanAIAttack(_victim))
         return ONLINE_STATE_OFFLINE;
     // next, check suppression (immunity to chosen melee attack school)
     if (_victim->IsImmunedToDamage(_owner->GetMeleeDamageSchoolMask()))
@@ -280,7 +280,7 @@ void ThreatManager::UpdateOnlineStates(bool meThreateningOthers, bool othersThre
 static void SaveCreatureHomePositionIfNeed(Creature* c)
 {
     MovementGeneratorType const movetype = c->GetMotionMaster()->GetCurrentMovementGeneratorType();
-    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (c->IsAIEnabled && c->AI()->IsEscorted()))
+    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (c->IsAIEnabled() && c->AI()->IsEscorted()))
         c->SetHomePosition(c->GetPosition());
 }
 
@@ -374,8 +374,8 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         Creature* cOwner = _owner->ToCreature();
         ASSERT(cOwner); // if we got here the owner can have a threat list, and must be a creature!
         SaveCreatureHomePositionIfNeed(cOwner);
-        if (cOwner->IsAIEnabled)
-            cOwner->AI()->JustEngagedWith(target);
+        if (CreatureAI* ownerAI = cOwner->AI())
+            ownerAI->JustEngagedWith(target);
     }
 }
 

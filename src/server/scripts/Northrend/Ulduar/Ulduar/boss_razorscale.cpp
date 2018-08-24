@@ -1711,7 +1711,7 @@ class achievement_iron_dwarf_medium_rare : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target) override
         {
-            return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_IRON_DWARF_MEDIUM_RARE);
+            return target && target->GetAI() && target->GetAI()->GetData(DATA_IRON_DWARF_MEDIUM_RARE);
         }
 };
 

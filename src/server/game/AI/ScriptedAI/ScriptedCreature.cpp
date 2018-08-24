@@ -54,7 +54,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
     {
         Creature* summon = ObjectAccessor::GetCreature(*me, *i);
         ++i;
-        if (summon && summon->IsAIEnabled
+        if (summon && summon->IsAIEnabled()
                 && (!entry || summon->GetEntry() == entry))
         {
             summon->AI()->DoZoneInCombat(nullptr);
@@ -118,7 +118,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     for (auto const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*me, guid);
-        if (summon && summon->IsAIEnabled)
+        if (summon && summon->IsAIEnabled())
             summon->AI()->DoAction(action);
     }
 }

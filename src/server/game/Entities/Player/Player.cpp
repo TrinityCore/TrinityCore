@@ -1059,14 +1059,7 @@ void Player::Update(uint32 p_time)
 
     UpdateAfkReport(now);
 
-    if (IsAIEnabled && GetAI())
-        GetAI()->UpdateAI(p_time);
-    else if (NeedChangeAI)
-    {
-        UpdateCharmAI();
-        NeedChangeAI = false;
-        IsAIEnabled = (GetAI() != nullptr);
-    }
+    AIUpdateTick(p_time);
 
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)

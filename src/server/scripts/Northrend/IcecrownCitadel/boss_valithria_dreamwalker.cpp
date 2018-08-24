@@ -1279,7 +1279,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
             void HandleSummon(Unit* caster)
             {
-                if (!caster || !caster->IsAIEnabled)
+                if (!caster || !caster->IsAIEnabled())
                     return;
 
                 std::list<Creature*> summoners;
