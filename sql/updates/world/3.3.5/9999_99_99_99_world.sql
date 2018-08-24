@@ -45,9 +45,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- GROUND
 
 -- Drakuramas Teleport Bunnies should not move or spawn of center
-UPDATE creature
-SET spawndist = 0, MovementType = 0
-WHERE id = 28617;
+UPDATE `creature`
+SET `spawndist` = 0, `MovementType` = 0
+WHERE `id` = 28617;
 
 DELETE FROM `areatrigger_teleport` WHERE `ID` IN (5051, 5061, 5079, 5080);
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5051, 5061, 5079, 5080);
