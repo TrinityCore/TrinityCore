@@ -115,23 +115,31 @@ ObjectData const creatureData[] =
     { NPC_HIGH_EXPLORER_DELLORAH,   DATA_DELLORAH                 },
     { NPC_BRONZEBEARD_RADIO,        DATA_BRONZEBEARD_RADIO        },
     { NPC_HEART_OF_DECONSTRUCTOR,   DATA_XT002_HEART              },
+    { NPC_AZEROTH,                  DATA_AZEROTH                  },
     { 0,                            0,                            }
 };
 
 ObjectData const objectData[] =
 {
-    { GO_MIMIRON_ELEVATOR,             DATA_MIMIRON_ELEVATOR },
-    { GO_MIMIRON_BUTTON,               DATA_MIMIRON_BUTTON   },
-    { GO_DOODAD_UL_UNIVERSEGLOBE01,    DATA_UNIVERSE_GLOBE   },
-    { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03, DATA_ALGALON_TRAPDOOR },
-    { GO_RAZOR_HARPOON_1,              GO_RAZOR_HARPOON_1    },
-    { GO_RAZOR_HARPOON_2,              GO_RAZOR_HARPOON_2    },
-    { GO_RAZOR_HARPOON_3,              GO_RAZOR_HARPOON_3    },
-    { GO_RAZOR_HARPOON_4,              GO_RAZOR_HARPOON_4    },
-    { GO_THORIM_LEVER,                 DATA_THORIM_LEVER     },
-    { GO_THORIM_STONE_DOOR,            DATA_STONE_DOOR       },
-    { GO_THORIM_RUNIC_DOOR,            DATA_RUNIC_DOOR       },
-    { 0,                               0                     }
+    { GO_MIMIRON_ELEVATOR,             DATA_MIMIRON_ELEVATOR     },
+    { GO_MIMIRON_BUTTON,               DATA_MIMIRON_BUTTON       },
+    { GO_DOODAD_UL_UNIVERSEGLOBE01,    DATA_UNIVERSE_GLOBE       },
+    { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03, DATA_ALGALON_TRAPDOOR     },
+    { GO_RAZOR_HARPOON_1,              GO_RAZOR_HARPOON_1        },
+    { GO_RAZOR_HARPOON_2,              GO_RAZOR_HARPOON_2        },
+    { GO_RAZOR_HARPOON_3,              GO_RAZOR_HARPOON_3        },
+    { GO_RAZOR_HARPOON_4,              GO_RAZOR_HARPOON_4        },
+    { GO_THORIM_LEVER,                 DATA_THORIM_LEVER         },
+    { GO_THORIM_STONE_DOOR,            DATA_STONE_DOOR           },
+    { GO_THORIM_RUNIC_DOOR,            DATA_RUNIC_DOOR           },
+    { GO_DOODAD_UL_SIGILDOOR_01,       DATA_SIGILDOOR_01         },
+    { GO_DOODAD_UL_SIGILDOOR_02,       DATA_SIGILDOOR_02         },
+    { GO_DOODAD_UL_SIGILDOOR_03,       DATA_SIGILDOOR_03         },
+    { GO_DOODAD_UL_UNIVERSEFLOOR_01,   DATA_UNIVERSE_FLOOR_01    },
+    { GO_DOODAD_UL_UNIVERSEFLOOR_02,   DATA_UNIVERSE_FLOOR_02    },
+    { GO_GIFT_OF_THE_OBSERVER_10,      DATA_GIFT_OF_THE_OBSERVER },
+    { GO_GIFT_OF_THE_OBSERVER_25,      DATA_GIFT_OF_THE_OBSERVER },
+    { 0,                               0                         }
 };
 
 class instance_ulduar : public InstanceMapScript
@@ -194,10 +202,6 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid MimironTramGUID;
 
             ObjectGuid BrainRoomDoorGUIDs[3];
-            ObjectGuid AlgalonSigilDoorGUID[3];
-            ObjectGuid AlgalonFloorGUID[2];
-
-            ObjectGuid GiftOfTheObserverGUID;
 
             // Miscellaneous
             uint32 TeamInInstance;
@@ -514,29 +518,6 @@ class instance_ulduar : public InstanceMapScript
                         if (_algalonSummoned)
                             gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         break;
-                    case GO_DOODAD_UL_SIGILDOOR_01:
-                        AlgalonSigilDoorGUID[0] = gameObject->GetGUID();
-                        if (_algalonSummoned)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
-                        break;
-                    case GO_DOODAD_UL_SIGILDOOR_02:
-                        AlgalonSigilDoorGUID[1] = gameObject->GetGUID();
-                        if (_algalonSummoned)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
-                        break;
-                    case GO_DOODAD_UL_SIGILDOOR_03:
-                        AlgalonSigilDoorGUID[2] = gameObject->GetGUID();
-                        break;
-                    case GO_DOODAD_UL_UNIVERSEFLOOR_01:
-                        AlgalonFloorGUID[0] = gameObject->GetGUID();
-                        break;
-                    case GO_DOODAD_UL_UNIVERSEFLOOR_02:
-                        AlgalonFloorGUID[1] = gameObject->GetGUID();
-                        break;
-                    case GO_GIFT_OF_THE_OBSERVER_10:
-                    case GO_GIFT_OF_THE_OBSERVER_25:
-                        GiftOfTheObserverGUID = gameObject->GetGUID();
-                        break;
                     default:
                         break;
                 }
@@ -710,8 +691,8 @@ class instance_ulduar : public InstanceMapScript
                             _events.CancelEvent(EVENT_DESPAWN_ALGALON);
                             DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 0);
                             _algalonTimer = 61;
-                            if (GameObject* gameObject = instance->GetGameObject(GiftOfTheObserverGUID))
-                                gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
+                            if (GameObject* gift = GetGameObject(DATA_GIFT_OF_THE_OBSERVER))
+                                gift->SetRespawnTime(gift->GetRespawnDelay());
                             // get item level (recheck weapons)
                             Map::PlayerList const& players = instance->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -853,18 +834,6 @@ class instance_ulduar : public InstanceMapScript
                         return KeeperGUIDs[2];
                     case DATA_MIMIRON_YS:
                         return KeeperGUIDs[3];
-
-                    // Algalon
-                    case DATA_SIGILDOOR_01:
-                        return AlgalonSigilDoorGUID[0];
-                    case DATA_SIGILDOOR_02:
-                        return AlgalonSigilDoorGUID[1];
-                    case DATA_SIGILDOOR_03:
-                        return AlgalonSigilDoorGUID[2];
-                    case DATA_UNIVERSE_FLOOR_01:
-                        return AlgalonFloorGUID[0];
-                    case DATA_UNIVERSE_FLOOR_02:
-                        return AlgalonFloorGUID[1];
                 }
 
                 return InstanceScript::GetGuidData(data);
