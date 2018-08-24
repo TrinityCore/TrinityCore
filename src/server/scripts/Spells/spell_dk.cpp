@@ -2914,20 +2914,14 @@ public:
             if (ghoulGuid.IsEmpty())
                 return;
 
-            oldAI = player->AI();
-            oldAIState = player->IsAIEnabled;
             player->SetAI(new player_ghoulAI(player, ghoulGuid));
-            player->IsAIEnabled = true;
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
 
-            player->IsAIEnabled = oldAIState;
-            PlayerAI* thisAI = player->AI();
-            player->SetAI(oldAI);
-            delete thisAI;
+            player->SetAI(nullptr);
 
             // Dismiss ghoul if necessary
             if (Creature* ghoul = ObjectAccessor::GetCreature(*player, ghoulGuid))
@@ -2946,8 +2940,6 @@ public:
         }
 
         ObjectGuid ghoulGuid;
-        PlayerAI* oldAI = nullptr;
-        bool oldAIState = false;
     };
 
     AuraScript* GetAuraScript() const override

@@ -630,7 +630,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled;
+                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled();
             }
 
             SpellCastResult CheckCast()

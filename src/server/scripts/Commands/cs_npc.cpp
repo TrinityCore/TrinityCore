@@ -1502,7 +1502,7 @@ public:
             return false;
         }
 
-        if (!creatureTarget->IsAIEnabled)
+        if (!creatureTarget->IsAIEnabled())
         {
             handler->PSendSysMessage(LANG_CREATURE_NOT_AI_ENABLED);
             handler->SetSentErrorMessage(true);

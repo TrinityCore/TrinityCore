@@ -62,7 +62,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 {
     public:
         explicit Creature(bool isWorldObject = false);
-        virtual ~Creature();
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -134,11 +133,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool AIM_Destroy();
         bool AIM_Create(CreatureAI* ai = nullptr);
-        void AI_InitializeAndEnable();
         bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
-        CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
+        CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
         bool SetWalk(bool enable) override;
         bool SetDisableGravity(bool disable, bool packetOnly = false) override;

@@ -1792,7 +1792,7 @@ class npc_gunship_cannon : public CreatureScript
             {
             }
 
-            void OnCharmed(bool /*apply*/) override { }
+            void OnCharmed(bool /*isNew*/) override { }
 
             void PassengerBoarded(Unit* /*passenger*/, int8 /*seat*/, bool apply) override
             {

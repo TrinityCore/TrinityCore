@@ -52,9 +52,8 @@ static void DoMovementInform(Unit* owner, Unit* target)
     if (owner->GetTypeId() != TYPEID_UNIT)
         return;
 
-    Creature* creatureOwner = owner->ToCreature();
-    if (creatureOwner->IsAIEnabled && creatureOwner->AI())
-        creatureOwner->AI()->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
+    if (CreatureAI* AI = owner->ToCreature()->AI())
+        AI->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
 ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle)

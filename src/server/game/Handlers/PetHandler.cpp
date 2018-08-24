@@ -209,7 +209,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                         if (pet->GetVictim())
                             pet->AttackStop();
 
-                        if (pet->GetTypeId() != TYPEID_PLAYER && pet->ToCreature()->IsAIEnabled)
+                        if (pet->GetTypeId() != TYPEID_PLAYER && pet->ToCreature()->IsAIEnabled())
                         {
                             charmInfo->SetIsCommandAttack(true);
                             charmInfo->SetIsAtStay(false);
@@ -368,9 +368,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     if (pet->GetVictim() != unit_target)
                     {
                         pet->GetMotionMaster()->Clear();
-                        if (pet->ToCreature()->IsAIEnabled)
+                        if (CreatureAI* AI = pet->ToCreature()->AI())
                         {
-                            CreatureAI* AI = pet->ToCreature()->AI();
                             if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
                                 petAI->_AttackStart(unit_target); // force victim switch
                             else
