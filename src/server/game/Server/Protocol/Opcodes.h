@@ -243,6 +243,7 @@ enum OpcodeClient : uint16
     CMSG_CONNECT_TO_FAILED                            = 0x35D4,
     CMSG_CONTRIBUTION_CONTRIBUTE                      = 0x3558,
     CMSG_CONTRIBUTION_GET_STATE                       = 0x3559,
+    CMSG_CONVERSATION_LINE_STARTED                    = 0x354A,
     CMSG_CONVERT_CONSUMPTION_TIME                     = 0x36F9,
     CMSG_CONVERT_RAID                                 = 0x364E,
     CMSG_CREATE_CHARACTER                             = 0x3643,

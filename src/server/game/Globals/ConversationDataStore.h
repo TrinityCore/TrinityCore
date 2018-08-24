@@ -23,6 +23,11 @@
 
 #include <vector>
 
+enum ConversationLineFlags
+{
+    CONVERSATION_LINE_FLAG_NOTIFY_STARTED = 0x1 // Client will send CMSG_CONVERSATION_LINE_STARTED when it runs this line
+};
+
 #pragma pack(push, 1)
 struct ConversationActorTemplate
 {
@@ -36,8 +41,9 @@ struct ConversationLineTemplate
     uint32 Id;          // Link to ConversationLine.db2
     uint32 StartTime;   // Time in ms after conversation creation the line is displayed
     uint32 UiCameraID;  // Link to UiCamera.db2
-    uint16 ActorIdx;    // Index from conversation_actors
-    uint16 Unk;
+    uint8 ActorIdx;     // Index from conversation_actors
+    uint8 Flags;
+    uint16 Padding;
 };
 #pragma pack(pop)
 
