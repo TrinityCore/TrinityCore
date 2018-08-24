@@ -31,6 +31,9 @@
 enum PriestSpells
 {
     SPELL_PRIEST_ABSOLUTION                         = 33167,
+    SPELL_PRIEST_ARCHANGEL_DUMMY                    = 94709,
+    SPELL_PRIEST_ARCHANGEL_TRIGGERED                = 81700,
+    SPELL_PRIEST_ARCHANGEL_ENERGIZE                 = 87152,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_CHAKRA_SERENITY                    = 81208,
@@ -38,11 +41,18 @@ enum PriestSpells
     SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED            = 81207,
     SPELL_PRIEST_CHAKRA_CHASTISE                    = 81209,
     SPELL_PRIEST_CURE_DISEASE                       = 528,
+    SPELL_PRIEST_DARK_ARCHANGEL_TRIGGERED           = 87153,
+    SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1        = 87117,
+    SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_2        = 87118,
     SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY              = 97690,
     SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_DIVINE_TOUCH                       = 63544,
     SPELL_PRIEST_ECHO_OF_LIGHT                      = 77489,
+    SPELL_PRIEST_EVANGELISM_ARCHANGEL_DUMMY         = 87154,
+    SPELL_PRIEST_EVANGELISM_R1                      = 81659,
+    SPELL_PRIEST_EVANGELISM_TRIGGERED_1             = 81660,
+    SPELL_PRIEST_EVANGELISM_TRIGGERED_2             = 81661,
     SPELL_PRIEST_EMPOWERED_SHADOW                   = 95799,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
@@ -59,6 +69,7 @@ enum PriestSpells
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
     SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
+    SPELL_PRIEST_MIND_FLAY                          = 15407,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
@@ -1493,8 +1504,151 @@ private:
     uint32 _targets;
 };
 
+// -81659 - Evangelism
+class spell_pri_evangelism : public AuraScript
+{
+    PrepareAuraScript(spell_pri_evangelism);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_EVANGELISM_R1,
+                SPELL_PRIEST_EVANGELISM_TRIGGERED_1,
+                SPELL_PRIEST_EVANGELISM_TRIGGERED_2,
+                SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1,
+                SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_2,
+                SPELL_PRIEST_EVANGELISM_ARCHANGEL_DUMMY,
+                SPELL_PRIEST_ARCHANGEL_DUMMY
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+
+        uint32 spellId = SPELL_PRIEST_EVANGELISM_TRIGGERED_1;
+        if (GetSpellInfo()->Id != SPELL_PRIEST_EVANGELISM_R1)
+            spellId = SPELL_PRIEST_EVANGELISM_TRIGGERED_2;
+
+        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_MIND_FLAY)
+            spellId = spellId == SPELL_PRIEST_EVANGELISM_TRIGGERED_1 ?
+            SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1 : SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_2;
+
+        target->CastSpell(target, spellId, true, nullptr, aurEff);
+        target->CastSpell(target, SPELL_PRIEST_EVANGELISM_ARCHANGEL_DUMMY, true, nullptr, aurEff);
+
+        if (Aura* aura = target->GetAura(spellId))
+            if (aura->GetStackAmount() == aura->GetSpellInfo()->StackAmount)
+                target->CastSpell(target, SPELL_PRIEST_ARCHANGEL_DUMMY, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_evangelism::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 81660, 81661 - Evangelism (Triggered Effect) / 87117, 87118 - Dark Evangelism (Triggered Effect)
+class spell_pri_evangelism_triggered : public AuraScript
+{
+    PrepareAuraScript(spell_pri_evangelism_triggered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_EVANGELISM_ARCHANGEL_DUMMY,
+                SPELL_PRIEST_ARCHANGEL_DUMMY
+            });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->RemoveAurasDueToSpell(SPELL_PRIEST_EVANGELISM_ARCHANGEL_DUMMY);
+        target->RemoveAurasDueToSpell(SPELL_PRIEST_ARCHANGEL_DUMMY);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_evangelism_triggered::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 87151 - Archangel
+class spell_pri_archangel : public SpellScript
+{
+    PrepareSpellScript(spell_pri_archangel);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_ARCHANGEL_TRIGGERED,
+                SPELL_PRIEST_ARCHANGEL_ENERGIZE,
+                SPELL_PRIEST_DARK_ARCHANGEL_TRIGGERED,
+                SPELL_PRIEST_EVANGELISM_TRIGGERED_1,
+                SPELL_PRIEST_EVANGELISM_TRIGGERED_2,
+                SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1,
+                SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_2,
+                SPELL_PRIEST_EVANGELISM_ARCHANGEL_DUMMY,
+                SPELL_PRIEST_ARCHANGEL_DUMMY
+            });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        uint32 spellId = 0;
+        if (caster->HasAura(SPELL_PRIEST_EVANGELISM_TRIGGERED_1))
+            spellId = SPELL_PRIEST_EVANGELISM_TRIGGERED_1;
+        else if (caster->HasAura(SPELL_PRIEST_EVANGELISM_TRIGGERED_2))
+            spellId = SPELL_PRIEST_EVANGELISM_TRIGGERED_2;
+        else if (caster->HasAura(SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1))
+            spellId = SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_1;
+        else if (caster->HasAura(SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_2))
+            spellId = SPELL_PRIEST_DARK_EVANGELISM_TRIGGERED_2;
+
+        Aura const* aura = caster->GetAura(spellId);
+        if (!aura)
+            return;
+
+        uint8 stacks = aura->GetStackAmount();
+        if (spellId == SPELL_PRIEST_EVANGELISM_TRIGGERED_1 || spellId == SPELL_PRIEST_EVANGELISM_TRIGGERED_2)
+        {
+            int32 bp = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_ARCHANGEL_TRIGGERED)->Effects[EFFECT_0].BasePoints * stacks;
+            caster->CastCustomSpell(SPELL_PRIEST_ARCHANGEL_TRIGGERED, SPELLVALUE_BASE_POINT0, bp, caster, true);
+            caster->CastCustomSpell(SPELL_PRIEST_ARCHANGEL_ENERGIZE, SPELLVALUE_BASE_POINT0, stacks, caster, true);
+        }
+        else
+        {
+            SpellInfo const* spell = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DARK_ARCHANGEL_TRIGGERED);
+            int32 bp0 = spell->Effects[EFFECT_0].BasePoints * stacks;
+            int32 bp1 = spell->Effects[EFFECT_1].BasePoints * stacks;
+            int32 energize = spell->Effects[EFFECT_2].BasePoints * stacks;
+            caster->CastCustomSpell(caster, SPELL_PRIEST_DARK_ARCHANGEL_TRIGGERED, &bp0, &bp1, nullptr, true);
+            caster->CastCustomSpell(SPELL_PRIEST_ARCHANGEL_ENERGIZE, SPELLVALUE_BASE_POINT0, energize, caster, true);
+        }
+
+        caster->RemoveAurasDueToSpell(spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_archangel::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    RegisterSpellScript(spell_pri_archangel);
     new spell_pri_body_and_soul();
     RegisterAuraScript(spell_pri_chakra);
     RegisterAuraScript(spell_pri_chakra_sanctuary);
@@ -1504,6 +1658,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_aegis();
     new spell_pri_divine_hymn();
     RegisterAuraScript(spell_pri_echo_of_light);
+    RegisterAuraScript(spell_pri_evangelism);
+    RegisterAuraScript(spell_pri_evangelism_triggered);
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_hymn_of_hope();
     new spell_pri_improved_power_word_shield();
