@@ -36,12 +36,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 2, 5340, 2, 0, 6, 0,  67, 0, 0, 0, 0, 0, "", "SAI areatrigger 5340.1 triggers only if player is horde");
 
 -- VOLTARUS
--- BUNNY-GUID AREATRIGGER-ID SPELL-ID
+-- BUNNY-GUID AREATRIGGER-ID SPELL-ID TELE-ID
 -- SKY
--- 114831 5080 52089
--- 114830 5079 52676
--- 114829 5061 52239
--- 114832 5051 52089
+-- 114831 5080 52089 52091
+-- 114830 5079 52676 52677
+-- 114829 5061 52239 52240
+-- 114832 5051 52089 52091
 -- GROUND
 
 -- Drakuramas Teleport Bunnies should not move or spawn of center
@@ -56,11 +56,20 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (5080, "SmartTrigger");
 
 DELETE FROM `smart_scripts` WHERE `source_type` = 2 AND `entryorguid` IN (5051, 5061, 5079, 5080);
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` IN (505100, 506100, 507900, 508000);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(5051, 2, 0, 0, 46, 0, 100, 0, 5051, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 10, 114832, 28617, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Set Data 1 1"),
-(5061, 2, 0, 0, 46, 0, 100, 0, 5061, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 10, 114829, 28617, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Set Data 1 1"),
-(5079, 2, 0, 0, 46, 0, 100, 0, 5079, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 10, 114830, 28617, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Set Data 1 1"),
-(5080, 2, 0, 0, 46, 0, 100, 0, 5080, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 10, 114831, 28617, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Set Data 1 1");
+(5051, 2, 0, 0, 46, 0, 100, 0, 5051, 0, 0, 0, 0, 80, 505100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Action list"),
+(5061, 2, 0, 0, 46, 0, 100, 0, 5061, 0, 0, 0, 0, 80, 506100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Action list"),
+(5079, 2, 0, 0, 46, 0, 100, 0, 5079, 0, 0, 0, 0, 80, 507900, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Action list"),
+(5080, 2, 0, 0, 46, 0, 100, 0, 5080, 0, 0, 0, 0, 80, 508000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Action list"),
+(505100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 85, 52089, 0, 0, 0, 0, 0, 19, 28617, 10, 0, 0, 0, 0, 0, "Areatrigger - Action list - Cast self 'Drakuramas Teleport Script 01"),
+(505100, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 85, 52091, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast self 'Drakuramas Teleport 01'"),
+(506100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 85, 52239, 0, 0, 0, 0, 0, 19, 28617, 10, 0, 0, 0, 0, 0, "Areatrigger - Action list - Cast 'Drakuramas Teleport Script 02"),
+(506100, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 85, 52240, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list1 - Cast 'Drakuramas Teleport 02'"),
+(507900, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 85, 52676, 0, 0, 0, 0, 0, 19, 28617, 10, 0, 0, 0, 0, 0, "Areatrigger - Action list - Cast 'Drakuramas Teleport Script 03"),
+(507900, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 85, 52677, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 03'"),
+(508000, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 85, 52089, 0, 0, 0, 0, 0, 19, 28617, 10, 0, 0, 0, 0, 0, "Areatrigger - Action list - Cast 'Drakuramas Teleport Script 01"),
+(508000, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 85, 52091, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 01'");
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` IN (5051, 5061, 5079, 5080);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -70,21 +79,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 5079, 2, 0, 2, 0, 39319, 1, 0, 0, 0, 0, "", "SAI areatrigger 5079 triggers only if player has item Scepter of Domination"),
 (22, 1, 5080, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5080 triggers only if player has aura Scourge Disguise");
 
-DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` IN (-114832, -114829, -114830, -114831);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(-114832, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 11, 52089, 0, 0, 0, 0, 0, 21, 10, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - On Data Set 1 1 - Cast 'Drakuramas Teleport Script 01'"),
-(-114829, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 11, 52239, 0, 0, 0, 0, 0, 21, 10, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - On Data Set 1 1 - Cast 'Drakuramas Teleport Script 02'"),
-(-114830, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 11, 52676, 0, 0, 0, 0, 0, 21, 10, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - On Data Set 1 1 - Cast 'Drakuramas Teleport Script 03'"),
-(-114831, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 11, 52089, 0, 0, 0, 0, 0, 21, 10, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - On Data Set 1 1 - Cast 'Drakuramas Teleport Script 01'");
-
 DELETE FROM `spell_target_position` WHERE `id` IN (52240);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
 (52240, 0, 571, 6175.59, -2000.67, 241.769, 1.54, 0);
 
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (52239);
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
-(52239, 52240, 1, "Teleport");
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (52239);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 1, 52239, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, "", "Spell only hits player");
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (52089,52239,52676);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (52089, 52091, 52239, 52676, 52240,52677);
