@@ -45,9 +45,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- GROUND
 
 -- Drakuramas Teleport Bunnies should not move or spawn of center
-UPDATE `creature`
-SET `spawndist` = 0, `MovementType` = 0
-WHERE `id` = 28617;
+UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` IN (28617, 28751);
 
 DELETE FROM `areatrigger_teleport` WHERE `ID` IN (5051, 5061, 5079, 5080);
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5051, 5061, 5079, 5080);
@@ -79,3 +77,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (-114830, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 11, 52676, 0, 0, 0, 0, 0, 21, 10, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - On Data Set 1 1 - Cast 'Drakuramas Teleport Script 03'"),
 (-114831, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 11, 52089, 0, 0, 0, 0, 0, 21, 10, 0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - On Data Set 1 1 - Cast 'Drakuramas Teleport Script 01'");
 
+DELETE FROM `spell_target_position` WHERE `id` IN (52240);
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
+(52240, 0, 571, 6175.59, -2000.67, 241.769, 1.54, 0);
+
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (52239);
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
+(52239, 52240, 1, "Teleport");
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (52239);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 52239, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, "", "Spell only hits player");
