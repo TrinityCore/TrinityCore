@@ -589,7 +589,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
                     if (!caster->GetPetGUID().IsEmpty())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                    if (!caster->GetCharmGUID().IsEmpty())
+                    if (!caster->GetCharmedGUID().IsEmpty())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
                 else
