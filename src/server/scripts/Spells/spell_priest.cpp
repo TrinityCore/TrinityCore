@@ -278,51 +278,43 @@ public:
 };
 
 // -47509 - Divine Aegis
-class spell_pri_divine_aegis : public SpellScriptLoader
+class spell_pri_divine_aegis : public AuraScript
 {
-    public:
-        spell_pri_divine_aegis() : SpellScriptLoader("spell_pri_divine_aegis") { }
+    PrepareAuraScript(spell_pri_divine_aegis);
 
-        class spell_pri_divine_aegis_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_divine_aegis_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_AEGIS });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_AEGIS });
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() != nullptr;
+    }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetProcTarget() != nullptr;
-            }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+        int32 absorb = CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
 
-                int32 absorb = CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
+        // Multiple effects stack, so let's try to find this aura.
+        if (AuraEffect const* aegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0))
+            absorb += aegis->GetAmount();
 
-                // Multiple effects stack, so let's try to find this aura.
-                if (AuraEffect const* aegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0))
-                    absorb += aegis->GetAmount();
+        if (AuraEffect const* shieldDiscipline = GetTarget()->GetDummyAuraEffect(SPELLFAMILY_HUNTER, PRIEST_ICON_ID_SHIELD_DISCIPLINE, EFFECT_0))
+            AddPct(absorb, shieldDiscipline->GetAmount());
 
-                absorb = std::min(absorb, int32(CalculatePct(eventInfo.GetProcTarget()->GetMaxHealth(), 40)));
+        absorb = std::min(absorb, int32(CalculatePct(eventInfo.GetProcTarget()->GetMaxHealth(), 40)));
 
-                GetTarget()->CastCustomSpell(SPELL_PRIEST_DIVINE_AEGIS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, nullptr, aurEff);
-            }
+        GetTarget()->CastCustomSpell(SPELL_PRIEST_DIVINE_AEGIS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
 
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_pri_divine_aegis_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_divine_aegis_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_divine_aegis::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 64844 - Divine Hymn
@@ -1690,7 +1682,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_chakra_serenity_script);
     new spell_pri_circle_of_healing();
     new spell_pri_dispel_magic();
-    new spell_pri_divine_aegis();
+    RegisterAuraScript(spell_pri_divine_aegis);
     new spell_pri_divine_hymn();
     RegisterAuraScript(spell_pri_echo_of_light);
     RegisterAuraScript(spell_pri_evangelism);
