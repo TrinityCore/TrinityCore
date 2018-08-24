@@ -8407,6 +8407,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         ++itr;
 
         controlled->SetInCombatState(PvP, enemy);
+        controlled->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     }
 }
 

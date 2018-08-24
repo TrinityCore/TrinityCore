@@ -93,7 +93,8 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
-    PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566
+    PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566,
+    PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_BARRIER      = 3837
 };
 
 enum MiscSpells
@@ -1646,6 +1647,40 @@ class spell_pri_archangel : public SpellScript
     }
 };
 
+class spell_power_word_barrier : public AuraScript
+{
+    PrepareAuraScript(spell_power_word_barrier);
+
+    bool Load()
+    {
+        TempSummon* summon = GetCaster()->ToTempSummon();
+        if (!summon)
+            return false;
+
+        Unit* summoner = summon->GetSummoner();
+        if (!summoner)
+            return false;
+
+        _glyphEnabled = summoner->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_BARRIER, EFFECT_0) != nullptr;
+
+        return true;
+    }
+
+    void HandleGlyph(AuraEffect const* /*aurEff*/)
+    {
+        if (!_glyphEnabled)
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_power_word_barrier::HandleGlyph, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+
+private:
+    bool _glyphEnabled;
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1674,6 +1709,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
     new spell_pri_phantasm();
+    RegisterAuraScript(spell_power_word_barrier);
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
     RegisterAuraScript(spell_pri_shadow_orb);
