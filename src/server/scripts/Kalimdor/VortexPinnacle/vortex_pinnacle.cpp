@@ -201,7 +201,11 @@ public:
     {
         npc_slipstreamAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetDisableGravity(true);
+            Initialize();
+        }
+
+        void Initialize()
+        {
             me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
         }
 
@@ -211,7 +215,10 @@ public:
                 return;
 
             if (me->HasAura(SPELL_SLIPSTREAM_SPELLCLICK))
+            {
                 DoCast(who, SPELL_SLIPSTREAM_FIRST, true);
+                who->SetDisableGravity(true, true);
+            }
             else if (me->HasAura(SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA))
                 DoCast(who, SPELL_SLIPSTREAM_SECOND, true);
             else if (me->HasAura(SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA))
