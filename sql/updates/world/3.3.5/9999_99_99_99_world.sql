@@ -71,22 +71,22 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5080,    2, 0, 1, 46, 0, 100, 0, 5080,    0, 0, 0, 0,  64,       1, 0, 0, 0, 0, 0,  7,      0,     0, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Store target"),
 (5080,    2, 1, 2, 61, 0, 100, 0,    0,    0, 0, 0, 0, 100,       1, 0, 0, 0, 0, 0, 10, 114831, 28617, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Send target"),
 (5080,    2, 2, 0, 61, 0, 100, 0,    0,    0, 0, 0, 0,  80, 2861703, 0, 0, 0, 0, 0, 10, 114831, 28617, 0, 0, 0, 0, 0, "Areatrigger - On Trigger - Action list"),
-(2861700, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52089, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 01 on self"),
-(2861700, 9, 1, 0,  0, 0, 100, 0, 1000, 1000, 0, 0, 0,  85,   52091, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 01' on stored target"),
-(2861701, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52239, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 02 on self"),
-(2861701, 9, 1, 0,  0, 0, 100, 0, 1000, 1000, 0, 0, 0,  85,   52240, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 02' on stored target"),
-(2861702, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52676, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 03 self"),
-(2861702, 9, 1, 0,  0, 0, 100, 0, 1000, 1000, 0, 0, 0,  85,   52677, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 03' on stored target"),
-(2861703, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52089, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 01 self"),
-(2861703, 9, 1, 0,  0, 0, 100, 0, 1000, 1000, 0, 0, 0,  85,   52091, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 01' on stored target");
+(2861700, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52089, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 01' on self"),
+(2861700, 9, 1, 0,  0, 0, 100, 0, 1500, 1500, 0, 0, 0,  85,   52091, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 01' on stored target"),
+(2861701, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52239, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 02' on self"),
+(2861701, 9, 1, 0,  0, 0, 100, 0, 1500, 1500, 0, 0, 0,  85,   52240, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 02' on stored target"),
+(2861702, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52676, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 03' self"),
+(2861702, 9, 1, 0,  0, 0, 100, 0, 1500, 1500, 0, 0, 0,  85,   52677, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 03' on stored target"),
+(2861703, 9, 0, 0,  0, 0, 100, 0,    0,    0, 0, 0, 0,  85,   52089, 0, 0, 0, 0, 0,  1,      0,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport Script 01' self"),
+(2861703, 9, 1, 0,  0, 0, 100, 0, 1500, 1500, 0, 0, 0,  85,   52091, 0, 0, 0, 0, 0, 12,      1,     0, 0, 0, 0, 0, 0, "Drakuramas Teleport Bunny 01 - Action list - Cast 'Drakuramas Teleport 01' on stored target");
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` IN (5051, 5061, 5079, 5080);
--- INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
--- (22, 1, 5051, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5051 triggers only if player has aura Scourge Disguise"),
--- (22, 1, 5061, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5061 triggers only if player has aura Scourge Disguise"),
--- (22, 1, 5079, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5079 triggers only if player has aura Scourge Disguise"),
--- (22, 1, 5079, 2, 0, 2, 0, 39319, 1, 0, 0, 0, 0, "", "SAI areatrigger 5079 triggers only if player has item Scepter of Domination"),
--- (22, 1, 5080, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5080 triggers only if player has aura Scourge Disguise");
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(22, 1, 5051, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5051 triggers if player has aura 'Scourge Disguise'"),
+(22, 1, 5061, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5061 triggers if player has aura 'Scourge Disguise'"),
+(22, 1, 5079, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5079 triggers if player has aura 'Scourge Disguise' AND"),
+(22, 1, 5079, 2, 0, 2, 0, 39319, 1, 0, 0, 0, 0, "", "SAI areatrigger 5079 triggers if player has item 'Scepter of Domination' AND"),
+(22, 1, 5080, 2, 0, 1, 0, 51966, 0, 0, 0, 0, 0, "", "SAI areatrigger 5080 triggers if player has aura 'Scourge Disguise'");
 
 DELETE FROM `spell_target_position` WHERE `id` IN (52240);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
