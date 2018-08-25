@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -24,77 +25,12 @@
 enum PillowFight
 {
     NPC_SLEEPY_DARK_IRON_WORKER = 14635,
-    NPC_CHAMBERMAID_PILLACLENCHER = 14636
+    NPC_CHAMBERMAID_PILLACLENCHER = 14636,
+    GAMEOBJECT_DARK_IRON_PILLOW_EVENT_GENERATOR = 179829
 };
 
-class event_dark_iron_rush : public WorldMapScript
-{
-public:
-    event_dark_iron_rush() : WorldMapScript("event_dark_iron_rush", 0), duration(0), numWave(0), running(false) {}
 
-    void OnUpdate(Map* map, uint32 diff) override
-    {
-        if (running && numWave < 3)
-        {
-            duration += diff;
-            if (numWave == 0 && duration > 60000)
-            {
-                for (size_t i = 0; i < 10; i++)
-                {
-                    Position pos = { -6568.03f + frand(-5,5),-1306.73f + frand(-5,5),208.7f, frand(0.0f, 2.0f * (float)M_PI) };
-                    TempSummon* summon = map->SummonCreature(NPC_SLEEPY_DARK_IRON_WORKER, pos, nullptr, 60000);
-                    summon->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
-
-                    if(i == 0)
-                        summon->ToCreature()->AI()->Talk(0);
-                }
-                numWave++;
-            }
-            else if (numWave == 1 && duration > 180000)
-            {
-                for (size_t i = 0; i < 10; i++)
-                {
-                    Position pos = {-6483.42f + frand(-5,5), -1350.1f + frand(-5,5), 212.1f, frand(0.0f, 2.0f * (float)M_PI) };
-                    TempSummon* summon = map->SummonCreature(NPC_SLEEPY_DARK_IRON_WORKER, pos, nullptr, 60000);
-                    summon->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
-
-                    if (i == 0)
-                        summon->ToCreature()->AI()->Talk(1);
-                }
-                numWave++;
-            }
-            else if (numWave == 2 && duration > 300000)
-            {
-                Position pos = { -6545.88f, -1345.29f, 208.89f };
-                TempSummon* summon = map->SummonCreature(NPC_CHAMBERMAID_PILLACLENCHER, pos, nullptr, 300000);
-                summon->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
-                numWave++;
-                running = false;
-            }
-        }
-    }
-
-    void Trigger()
-    {
-        std::lock_guard<std::mutex> triggerGuard(triggerLock);
-        if (!running)
-        {
-            running = true;
-            duration = 0;
-            numWave = 0;
-        }
-    }
-
-    uint32_t duration;
-    uint32_t numWave;
-    bool running;
-
-    std::mutex triggerLock;
-};
-
-static event_dark_iron_rush *edir_p = NULL;
-
-
+static std::mutex triggerLock;
 class go_dark_iron_pillow : public GameObjectScript
 {
 public:
@@ -105,9 +41,16 @@ public:
     {
         go_dark_iron_pillowAI(GameObject* go) : GameObjectAI(go) {};
 
-        bool GossipHello(Player* /*player*/) override
+        bool GossipHello(Player* player) override
         {
-            if (edir_p) edir_p->Trigger();
+            std::lock_guard<std::mutex> triggerGuard(triggerLock);
+
+            if (!player->FindNearestGameObject(GAMEOBJECT_DARK_IRON_PILLOW_EVENT_GENERATOR, 200.0f))
+            {
+                Position pos = { -6545.88f, -1345.29f, 208.89f };
+                
+                player->SummonGameObject(GAMEOBJECT_DARK_IRON_PILLOW_EVENT_GENERATOR, pos, QuaternionData(), 65000, GO_SUMMON_TIMED_DESPAWN);
+            }
 
             return false;
         }
@@ -122,5 +65,4 @@ public:
 void AddSC_searing_gorge()
 {
     new go_dark_iron_pillow();
-    edir_p = new event_dark_iron_rush();
 }
