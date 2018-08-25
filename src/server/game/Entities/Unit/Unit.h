@@ -1144,13 +1144,44 @@ class TC_GAME_API Unit : public WorldObject
         void SetCreatorGUID(ObjectGuid creator) { SetGuidValue(UNIT_FIELD_CREATEDBY, creator); }
         ObjectGuid GetMinionGUID() const { return GetGuidValue(UNIT_FIELD_SUMMON); }
         void SetMinionGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_SUMMON, guid); }
-        ObjectGuid GetCharmerGUID() const { return GetGuidValue(UNIT_FIELD_CHARMEDBY); }
-        void SetCharmerGUID(ObjectGuid owner) { SetGuidValue(UNIT_FIELD_CHARMEDBY, owner); }
-        ObjectGuid GetCharmGUID() const { return  GetGuidValue(UNIT_FIELD_CHARM); }
         void SetPetGUID(ObjectGuid guid) { m_SummonSlot[SUMMON_SLOT_PET] = guid; }
         ObjectGuid GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
         void SetCritterGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
         ObjectGuid GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
+
+        bool SetCharmerData(Unit const* unit)
+        {
+            if (!AddGuidValue(UNIT_FIELD_CHARMEDBY, unit->GetGUID()))
+                return false;
+            m_charmer = const_cast<Unit*>(unit);
+            return true;
+        }
+        bool ClearCharmerData(Unit const* verify)
+        {
+            if (!RemoveGuidValue(UNIT_FIELD_CHARMEDBY, verify->GetGUID()))
+                return false;
+            m_charmer = nullptr;
+            return true;
+        }
+        ObjectGuid GetCharmerGUID() const { return GetGuidValue(UNIT_FIELD_CHARMEDBY); }
+        Unit* GetCharmer() const { return m_charmer; }
+
+        bool SetCharmedData(Unit const* unit)
+        {
+            if (!AddGuidValue(UNIT_FIELD_CHARM, unit->GetGUID()))
+                return false;
+            m_charmed = const_cast<Unit*>(unit);
+            return true;
+        }
+        bool ClearCharmedData(Unit const* verify)
+        {
+            if (!RemoveGuidValue(UNIT_FIELD_CHARM, verify->GetGUID()))
+                return false;
+            m_charmed = nullptr;
+            return true;
+        }
+        ObjectGuid GetCharmedGUID() const { return GetGuidValue(UNIT_FIELD_CHARM); }
+        Unit* GetCharmed() const { return m_charmed; }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         Player* GetControllingPlayer() const;
@@ -1159,9 +1190,7 @@ class TC_GAME_API Unit : public WorldObject
 
         Guardian* GetGuardianPet() const;
         Minion* GetFirstMinion() const;
-        Unit* GetCharmer() const;
-        Unit* GetCharm() const;
-        Unit* GetCharmerOrOwner() const;
+        Unit* GetCharmerOrOwner() const { return IsCharmed() ? GetCharmer() : GetOwner(); }
 
         void SetMinion(Minion *minion, bool apply);
         void GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry);
@@ -1732,6 +1761,8 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_speed_rate[MAX_MOVE_TYPE];
 
+        Unit* m_charmer; // Unit that is charming ME
+        Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;
         SharedVisionList m_sharedVision;
 
