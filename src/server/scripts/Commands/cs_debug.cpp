@@ -480,7 +480,7 @@ public:
         char const* name = "test";
         uint8 code = atoi(args);
 
-        WorldPackets::Channel::ChannelNotify channelNotify = WorldPackets::Channel::ChannelNotify();
+        WorldPackets::Channel::ChannelNotify channelNotify;
         channelNotify.Type = code;
         channelNotify._Channel = name;
         handler->GetSession()->SendPacket(channelNotify.Write());
