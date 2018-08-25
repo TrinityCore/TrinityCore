@@ -2367,8 +2367,8 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster()->IsAIEnabled)
-                    GetCaster()->GetAI()->DoAction(ACTION_START_ATTACK);
+                if (UnitAI* AI = GetCaster()->GetAI())
+                    AI->DoAction(ACTION_START_ATTACK);
             }
 
             void Register() override

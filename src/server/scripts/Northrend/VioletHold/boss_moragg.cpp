@@ -111,14 +111,12 @@ class spell_moragg_ray : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!GetTarget()->IsAIEnabled)
-                    return;
-
-                if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
-                {
-                    uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    GetTarget()->CastSpell(target, triggerSpell, aurEff);
-                }
+                if (UnitAI* AI = GetTarget()->GetAI())
+                    if (Unit* target = AI->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                    {
+                        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                        GetTarget()->CastSpell(target, triggerSpell, aurEff);
+                    }
             }
 
             void Register() override

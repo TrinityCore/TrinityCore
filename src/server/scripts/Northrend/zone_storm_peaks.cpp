@@ -364,7 +364,7 @@ public:
         }
 
         void JustDied(Unit* /*killer*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

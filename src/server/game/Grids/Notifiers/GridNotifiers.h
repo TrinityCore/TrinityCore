@@ -1102,8 +1102,7 @@ namespace Trinity
                 if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
-                if (u->GetAI() && u->IsAIEnabled)
-                    u->GetAI()->AttackStart(i_enemy);
+                u->EngageWithTarget(i_enemy);
             }
         private:
             Unit* const i_funit;
