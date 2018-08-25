@@ -25664,13 +25664,6 @@ void Player::ResyncRunes() const
     GetSession()->SendPacket(data.Write());
 }
 
-void Player::AddRunePower(uint8 index) const
-{
-    WorldPacket data(SMSG_ADD_RUNE_POWER, 4);
-    data << uint32(1 << index);                             // mask (0x00-0x3F probably)
-    GetSession()->SendPacket(&data);
-}
-
 void Player::InitRunes()
 {
     if (getClass() != CLASS_DEATH_KNIGHT)
