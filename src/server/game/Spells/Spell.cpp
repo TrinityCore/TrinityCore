@@ -3789,7 +3789,7 @@ void Spell::finish(bool ok)
     // Unsummon summon as possessed creatures on spell cancel
     if (m_spellInfo->IsChanneled() && unitCaster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (Unit* charm = unitCaster->GetCharm())
+        if (Unit* charm = unitCaster->GetCharmed())
             if (charm->GetTypeId() == TYPEID_UNIT
                 && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
                 && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
@@ -5616,7 +5616,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                         // intentional missing break, check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET
                     case SUMMON_CATEGORY_PUPPET:
-                        if (unitCaster->GetCharmGUID())
+                        if (unitCaster->GetCharmedGUID())
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
                         break;
                 }
@@ -5651,7 +5651,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
 
-                if (unitCaster->GetCharmGUID())
+                if (unitCaster->GetCharmedGUID())
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 break;
             }
@@ -5817,7 +5817,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && unitCaster->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                    if (unitCaster->GetCharmGUID())
+                    if (unitCaster->GetCharmedGUID())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
 
