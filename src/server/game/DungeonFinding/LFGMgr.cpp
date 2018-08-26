@@ -54,8 +54,8 @@ LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(d
 
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK)),
-    _isCallToArmsEligible(sWorld->getBoolConfig(CONFIG_LFG_CALL_TO_ARMS_ENABLED)),
-    _callToArmsRoles(PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER)
+    _isCallToArmsEnabled(sWorld->getBoolConfig(CONFIG_LFG_CALL_TO_ARMS_ENABLED)),
+    _callToArmsRoles(PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER | PLAYER_ROLE_DAMAGE)
 {
 }
 
@@ -186,10 +186,11 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return nullptr;
 }
 
-bool LFGMgr::IsCallToArmsEligible(uint32 level, uint32 dungeonId)
+bool LFGMgr::IsCallToArmsEligible(Player* player, uint32 dungeonId)
 {
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-        return (level == DEFAULT_MAX_LEVEL && dungeon->type == LFG_TYPE_RANDOM && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC);
+        return (player->getLevel() == DEFAULT_MAX_LEVEL && !player->GetGroup()
+            && dungeon->type == LFG_TYPE_RANDOM && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC);
 
     return false;
 }
@@ -390,15 +391,22 @@ void LFGMgr::Update(uint32 diff)
         for (LfgQueueContainer::iterator it = QueuesStore.begin(); it != QueuesStore.end(); ++it)
             it->second.UpdateQueueTimers(it->first, currTime, tankCount, healerCount, dpsCount);
 
-        LFGMgr::RemoveCallToArmsRole(PLAYER_ROLE_HEALER);
-        LFGMgr::RemoveCallToArmsRole(PLAYER_ROLE_TANK);
-        LFGMgr::RemoveCallToArmsRole(PLAYER_ROLE_DAMAGE);
-        if (!tankCount || tankCount < dpsCount)
-            LFGMgr::AddCallToArmsRole(PLAYER_ROLE_TANK);
-        if (!healerCount || healerCount < dpsCount)
-            LFGMgr::AddCallToArmsRole(PLAYER_ROLE_HEALER);
-        if (dpsCount && (dpsCount < tankCount || dpsCount < healerCount))
+        uint32 dpsCountAbsolute = dpsCount ? std::floor(dpsCount / 3) : 0;
+        
+        if (!tankCount || dpsCount && tankCount < dpsCountAbsolute || tankCount < healerCount)
+            AddCallToArmsRole(PLAYER_ROLE_TANK);
+        else
+            RemoveCallToArmsRole(PLAYER_ROLE_TANK);
+
+        if (!healerCount || dpsCount && healerCount < dpsCountAbsolute || healerCount < tankCount)
+            AddCallToArmsRole(PLAYER_ROLE_HEALER);
+        else
+            RemoveCallToArmsRole(PLAYER_ROLE_HEALER);
+
+        if (!dpsCountAbsolute || dpsCountAbsolute < tankCount || dpsCountAbsolute < healerCount)
             AddCallToArmsRole(PLAYER_ROLE_DAMAGE);
+        else
+            RemoveCallToArmsRole(PLAYER_ROLE_DAMAGE);
     }
     else
         m_QueueTimer += diff;
@@ -544,6 +552,9 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         player->GetSession()->SendLfgJoinResult(joinData);
         return;
     }
+
+    if (IsCallToArmsEnabled())
+        player->SetTempCallToArmsRoles(GetRolesForCallToArms());
 
     SetComment(guid, comment);
 
@@ -1521,7 +1532,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (Group *group = player->GetGroup())
             tmpRole = group->GetLfgRoles(player->GetGUID());
 
-        if (IsCallToArmsEligible(player->getLevel(), rDungeonId))
+        if (IsCallToArmsEligible(player, rDungeonId))
             if (player->GetCallToArmsTempRoles() & tmpRole)
                 if (Quest const* callToArmsQuest = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST))
                     player->RewardQuest(callToArmsQuest, 0, nullptr, false);

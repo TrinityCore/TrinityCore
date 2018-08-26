@@ -82,9 +82,9 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
 
 void LfgQueueData::InitializeGroupSetup()
 {
-    tanks = -1;
-    healers = -1;
-    dps = -1;
+    tanks = 0;
+    healers = 0;
+    dps = 0;
 
     if (!dungeons.empty())
     {
@@ -622,12 +622,18 @@ void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime, uint32 &tankCou
             role |= itPlayer->second;
         role &= ~PLAYER_ROLE_LEADER;
 
-        if (role & PLAYER_ROLE_TANK)
-            tankCount++;
-        if (role & PLAYER_ROLE_HEALER)
-            healerCount++;
-        if (role & PLAYER_ROLE_DAMAGE)
-            dpsCount++;
+        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
+        {
+            if (dungeon->minlevel == DEFAULT_MAX_LEVEL && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
+            {
+                if (role & PLAYER_ROLE_TANK)
+                    tankCount++;
+                if (role & PLAYER_ROLE_HEALER)
+                    healerCount++;
+                if (role & PLAYER_ROLE_DAMAGE)
+                    dpsCount++;
+            }
+        }
 
         switch (role)
         {
@@ -730,11 +736,12 @@ void LFGQueue::FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueu
     std::string sguid = o.str();
 
     for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)
-        if (itr->second.compatibility == LFG_COMPATIBLES_WITH_LESS_PLAYERS &&
-            std::string::npos != itr->first.find(sguid))
+    {
+        if (itr->second.compatibility == LFG_COMPATIBLES_WITH_LESS_PLAYERS && std::string::npos != itr->first.find(sguid))
         {
             UpdateBestCompatibleInQueue(itrQueue, itr->first, itr->second.roles);
         }
+    }
 }
 
 void LFGQueue::UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue, std::string const& key, LfgRolesMap const& roles)

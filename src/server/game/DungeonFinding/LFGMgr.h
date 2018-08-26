@@ -353,11 +353,11 @@ class TC_GAME_API LFGMgr
         /// Return Lfg dungeon entry for given dungeon id
         uint32 GetLFGDungeonEntry(uint32 id);
         /// Handles Call to Arms bonuses
-        bool IsCallToArmsEligible(uint32 level, uint32 dungeonId);
+        bool IsCallToArmsEligible(Player* player, uint32 dungeonId);
         uint8 GetRolesForCallToArms() { return _callToArmsRoles; }
         void AddCallToArmsRole(uint8 role) { _callToArmsRoles |= role; }
         void RemoveCallToArmsRole(uint8 role) { _callToArmsRoles = _callToArmsRoles & ~role; }
-        void SetCallToArmsEligible(bool val) { _isCallToArmsEligible = val; }
+        bool IsCallToArmsEnabled() const { return _isCallToArmsEnabled; }
 
         // cs_lfg
         /// Get current player roles
@@ -496,7 +496,7 @@ class TC_GAME_API LFGMgr
         LfgPlayerDataContainer PlayersStore;               ///< Player data
         LfgGroupDataContainer GroupsStore;                 ///< Group data
         // Call to Arms System
-        bool _isCallToArmsEligible;
+        bool _isCallToArmsEnabled;
         uint8 _callToArmsRoles;
 };
 

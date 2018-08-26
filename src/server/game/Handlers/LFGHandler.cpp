@@ -135,8 +135,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
         GetPlayerInfo().c_str(), roles, uint8(newDungeons.size()), comment.c_str());
 
-    GetPlayer()->SetTempCallToArmsRoles(sLFGMgr->GetRolesForCallToArms());
-
     sLFGMgr->JoinLfg(GetPlayer(), uint8(roles), newDungeons, comment);
 }
 
@@ -406,7 +404,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         data << uint32(0);                                              // completedEncounters
 
-        bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEligible(level, dungeonId & 0x00FFFFFF);
+        bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEnabled() && sLFGMgr->IsCallToArmsEligible(player, dungeonId & 0x00FFFFFF);
 
         data << uint8(isCallToArmsEligible);                            // Call to Arms eligible
         Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(lfg::LFG_CALL_TO_ARMS_QUEST);
@@ -425,9 +423,9 @@ void WorldSession::SendLfgPlayerLockInfo()
 
             for (uint8 i = 0; i < 3; i++)
             {
+                data << uint32(callToArmsRoleMask);
                 if (callToArmsRoleMask & roleSet[i])
                 {
-                    data << uint32(callToArmsRoleMask);
                     if (!rewardSent)
                     {
                         BuildQuestReward(data, ctaQuest, player);
@@ -440,8 +438,6 @@ void WorldSession::SendLfgPlayerLockInfo()
                         data << uint8(0);
                     }
                 }
-                else
-                    data << uint32(0);
             }
         }
         else
