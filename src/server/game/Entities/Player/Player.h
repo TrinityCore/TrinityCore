@@ -2307,7 +2307,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetRuneBaseCooldown() const;
         void SetRuneCooldown(uint8 index, uint32 cooldown);
         void ResyncRunes() const;
-        void AddRunePower(uint8 index) const;
         void InitRunes();
 
         void SendRespondInspectAchievements(Player* player) const;
