@@ -87,18 +87,25 @@ void Archaeology::VerifySites()
 
 void Archaeology::UseSite()
 {
-    float dist;
+    float dist = 0.0f;
     uint32 position = GetNearestSite(dist);
+    uint32 surveyGoID = 0;
 
     if (0 == position)
         return;
 
     position--;
 
+    float o = _player->GetOrientation();
+    float x = _player->GetPositionX() + cos(o) * 2.0f;
+    float y = _player->GetPositionY() + sin(o) * 2.0f;
+    float z = _player->GetPositionZ();
+    float ground = _player->GetMap()->GetHeight(_player->GetPhaseShift(), x, y, z + 5.0f);
+    float angle = 0.0f;
+
     if (dist > DIST_CLOSE)
     {
-        uint32 surveyGoID;
-        float angle = std::atan2(_site[position].Y - _player->GetPositionY(), _site[position].X - _player->GetPositionX());
+        angle = std::atan2(_site[position].Y - _player->GetPositionY(), _site[position].X - _player->GetPositionX());
         static float const pi = float(M_PI);
 
         if (dist < DIST_MED)
@@ -116,44 +123,38 @@ void Archaeology::UseSite()
             surveyGoID = FAR_SURVEYBOT;       // outside far radius -> red light
             angle += frand(-pi / 3.f, pi / 3.f);
         }
-
-        float o      = _player->GetOrientation();
-        float x      = _player->GetPositionX() + cos(o) * 2.0f;
-        float y      = _player->GetPositionY() + sin(o) * 2.0f;
-        float z      = _player->GetPositionZ();        
-        float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
-
-        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(angle, 0.f, 0.f);
-        if (std::abs(z - ground) < 1.5f)
-        {
-            _player->SummonGameObject(surveyGoID, Position(x, y, ground, angle), rot, 4);
-            return;
-        }
-        else
-        {
-            _player->GetSession()->SendNotification(LANG_YOU_CANT_USE_THAT_HERE);
-            return;
-        }
     }
 
-    // Spawn the correct Find Object Here
-    uint32 goId  = sArchaeologyMgr->GetSiteType(_site[position].Entry);
-    float o      = _player->GetOrientation();
-    float x      = _player->GetPositionX() + cos(o) * 2.0f;
-    float y      = _player->GetPositionY() + sin(o) * 2.0f;
-    float z      = _player->GetPositionZ();
-    float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
+    if ((std::abs(z - ground) >= 5.0f) || !_player->IsWithinLOS(x, y, ground))
+    {
+        x = _player->GetPositionX();
+        y = _player->GetPositionY();
+        ground = z;
+    }
 
-    // Spawn object
-    _player->SummonGameObject(goId, Position(x, y, ground, o), QuaternionData(), 60);
-    (_site[position].State)++;
-
-    if (_site[position].State >= DIGS_PER_SITE)
-        RegeneratePosition(position, GetContinent());
+    // Using survey bot
+    if (surveyGoID)
+    {
+        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(angle, 0.f, 0.f);
+        _player->SummonGameObject(surveyGoID, Position(x, y, ground, angle), rot, 4);
+    }
     else
     {
-        CharacterDatabase.PExecute("UPDATE character_archaeology_sites SET finds = %u WHERE site= %u AND guid= %u", _site[position].State, position, _player->GetGUID());
-        sArchaeologyMgr->SetSiteCoords(_site[position]);
+        // Found a artifact. Let's spawn it.
+        uint32 goId = sArchaeologyMgr->GetSiteType(_site[position].Entry);
+        angle = frand(0.0f, float(M_PI * 2));
+
+        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(angle, 0.f, 0.f);
+        _player->SummonGameObject(goId, Position(x, y, ground, o), rot, MINUTE);
+        (_site[position].State)++;
+
+        if (_site[position].State >= DIGS_PER_SITE)
+            RegeneratePosition(position, GetContinent());
+        else
+        {
+            CharacterDatabase.PExecute("UPDATE character_archaeology_sites SET finds = %u WHERE site= %u AND guid= %u", _site[position].State, position, _player->GetGUID());
+            sArchaeologyMgr->SetSiteCoords(_site[position]);
+        }
     }
 }
 

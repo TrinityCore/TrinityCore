@@ -3195,7 +3195,7 @@ void Spell::EffectSurvey(SpellEffIndex effIndex)
     if (!m_caster || m_spellInfo->Id != uint32(80451) || effIndex != EFFECT_0)
         return;
 
-    if (Player *player = m_caster->ToPlayer())
+    if (Player* player = m_caster->ToPlayer())
         if (player->HasSkill(SKILL_ARCHAEOLOGY))
             player->SurveyDigSite();
 }

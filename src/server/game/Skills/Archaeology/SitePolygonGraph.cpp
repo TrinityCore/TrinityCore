@@ -16,6 +16,7 @@
 */
 
 #include "SitePolygonGraph.h"
+#include "Random.h"
 
 //===========================================================================//
 //      CLASS BASE METHODS
@@ -118,17 +119,17 @@ SitePolygonGraphNode SitePolygonGraph::randomize_poi()
     SitePolygonGraphNode poi_node;
     index_type i_poi[SITE_POLYGON_GRAPH_MAX_VERTEX];
 
-    if(_size_arches <= 0 || _size_arches <= 0)
+    if (_size_arches <= 0)
         return poi_node;
 
-    for(index_type i = 0; i < SITE_POLYGON_GRAPH_MAX_VERTEX; i++)
-        i_poi[i]              = std::rand() % _size_arches;
+    for (index_type i = 0; i < SITE_POLYGON_GRAPH_MAX_VERTEX; i++)
+        i_poi[i] = urand(0, _size_arches - 2);
 
-    index_type i_idx          = std::rand() % SITE_POLYGON_GRAPH_MAX_VERTEX;
-    float i_segment           = ((float) std::rand() / RAND_MAX);
-    SitePolygonGraphArch arch = _arches[i_poi[i_idx]];
-    float x_segment           = arch.getA().getX() + i_segment * (arch.getB().getX() - arch.getA().getX());
-    float y_segment           = arch.getA().getY() + i_segment * (arch.getB().getY() - arch.getA().getY());
+    index_type i_idx            = urand(0, SITE_POLYGON_GRAPH_MAX_VERTEX - 1);
+    float i_segment             = frand(0, 1.0f);
+    SitePolygonGraphArch arch   = _arches[i_poi[i_idx]];
+    float x_segment             = arch.getA().getX() + i_segment * (arch.getB().getX() - arch.getA().getX());
+    float y_segment             = arch.getA().getY() + i_segment * (arch.getB().getY() - arch.getA().getY());
 
     poi_node.setX(x_segment);
     poi_node.setY(y_segment);
