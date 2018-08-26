@@ -24,12 +24,12 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=617299839 WHERE `entry` IN
 DELETE FROM `waypoint_scripts` WHERE `id` IN(2,5);
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (2,0,1,468,1,0,0,0,0,0,1360540),
-(2,11000,1,0,1,0,0,0,0,0,1360541),
+(2,11,1,0,1,0,0,0,0,0,1360541),
 (5,0,1,10,1,0,0,0,0,0,1360542),
-(5,30000,1,0,1,0,0,0,0,0,1360543);
+(5,30,1,0,1,0,0,0,0,0,1360543);
 
 DELETE FROM `waypoint_data` WHERE `id`=1360540;
-INSERT INTO `waypoint_data` VALUES
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (1360540, 1, 862.5053, 7.207682, 409.8612, 0, 0, 0, 0, 100, 0),
 (1360540, 2, 863.4635, 25.65489, 409.8612, 0, 0, 0, 0, 100, 0),
 (1360540, 3, 872.6903, 39.44819, 409.8355, 0, 11000, 0, 2, 100, 0), -- emote 468 11s
