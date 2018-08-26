@@ -17249,7 +17249,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
 {
     ////                                                     0     1        2     3     4      5       6      7   8      9     10    11         12         13           14         15         16
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, skin, face, hairStyle, hairColor, facialStyle, bankSlots, restState, playerFlags, "
-     // 12          13          14          15   16           17        18        19         20         21          22           23                 24
+     // 17         18          19          20   21           22        23         24         25         26          27           28                 29
     //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
     // 30                 31          32       33       34       35       36         37           38            39        40    41      42                 43         44
     //"resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask, "
@@ -17259,6 +17259,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
     //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, exploredZones, equipmentCache, "
     // 62           63          64               65
     //"knownTitles, actionBars, grantableLevels, fishing_steps FROM characters WHERE guid = '%u'", guid);
+
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
     {
