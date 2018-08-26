@@ -175,6 +175,7 @@ struct PositionFullTerrainStatus
         uint32 const mogpFlags;
     };
 
+    PositionFullTerrainStatus() : areaId(0), floorZ(0.0f), outdoors(true) { }
     uint32 areaId;
     float floorZ;
     ZLiquidStatus liquidStatus;
