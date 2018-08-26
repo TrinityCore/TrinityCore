@@ -106,7 +106,9 @@ enum BTCreatureIds
     NPC_GLAIVE_TARGET               = 23448,
     NPC_GLAIVE_WORLD_TRIGGER        = 22515,
     NPC_DEMON_FIRE                  = 23069,
-    NPC_PARASITIC_SHADOWFIEND       = 23498
+    NPC_PARASITIC_SHADOWFIEND       = 23498,
+    NPC_BLAZE                       = 23259,
+    NPC_FLAME_CRASH                 = 23336
 };
 
 enum BTGameObjectIds
