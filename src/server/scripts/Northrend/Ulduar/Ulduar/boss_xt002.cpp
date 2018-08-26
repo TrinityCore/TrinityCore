@@ -727,7 +727,7 @@ class spell_xt002_gravity_bomb_aura : public AuraScript
     {
         Unit* xt002 = GetCaster();
         Unit* owner = GetTarget();
-        if (!xt002 || !xt002->IsAIEnabled)
+        if (!xt002)
             return;
 
         if (aurEff->GetAmount() >= int32(owner->GetHealth()))
@@ -751,8 +751,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScript
     {
         Unit* caster = GetCaster();
         if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
-            if (caster->IsAIEnabled)
-                caster->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
+            caster->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
     }
 
     void Register() override
