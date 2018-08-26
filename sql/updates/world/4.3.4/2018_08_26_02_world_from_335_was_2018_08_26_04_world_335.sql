@@ -1,3 +1,4 @@
+/*
 -- 
 -- Theramore Practicing Guard
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4951;
@@ -6,3 +7,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (4951,0,0,0,25,0,100,0,0,0,0,0,0,49,0,0,0,0,0,0,19,4952,0,0,0,0,0,0,"Theramore Practicing Guard - On Reset - Start Attacking");
 -- Theramore Combat Dummy
 UPDATE `creature_template` SET `ScriptName`="npc_training_dummy" WHERE `entry`=4952;
+*/

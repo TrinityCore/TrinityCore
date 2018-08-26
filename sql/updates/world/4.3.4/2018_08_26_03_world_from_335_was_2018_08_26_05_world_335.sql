@@ -1,3 +1,4 @@
+/*
 -- 
 -- Quest "Deadmire"
 DELETE FROM `quest_details` WHERE `ID`=1205;
@@ -290,3 +291,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (7070,1,1,0,0,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=6, `EmoteOnComplete`=6 WHERE `ID`=7070;
 UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=2 WHERE `ID`=7070;
+*/
