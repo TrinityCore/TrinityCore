@@ -51,11 +51,18 @@ void BuildPartyLockDungeonBlock(WorldPacket& data, lfg::LfgLockPartyMap const& l
     }
 }
 
-void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
+void BuildQuestReward(WorldPacket& data, Quest const* quest, Quest const* bonusQuest, Player* player)
 {
     uint8 rewCount = quest->GetRewItemsCount() + quest->GetRewCurrencyCount();
     uint32 rewMoney = player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? quest->GetRewOrReqMoney() : quest->GetRewMoneyMaxLevel();
     uint32 rewXP = player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? quest->XPValue(player) : 0;
+
+    if (bonusQuest)
+    {
+        rewCount += bonusQuest->GetRewItemsCount() + bonusQuest->GetRewCurrencyCount();
+        rewMoney += player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? bonusQuest->GetRewOrReqMoney() : bonusQuest->GetRewMoneyMaxLevel();
+        rewXP += player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? bonusQuest->XPValue(player) : 0;
+    }
 
     data << uint32(rewMoney);
     data << uint32(rewXP);
@@ -80,6 +87,26 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
             }
         }
 
+        if (bonusQuest)
+        {
+            for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+            {
+                if (uint32 currencyId = bonusQuest->RewardCurrencyId[i])
+                {
+                    uint32 rewardCurrencyCount = bonusQuest->RewardCurrencyCount[i];
+
+                    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
+                    if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                        rewardCurrencyCount = rewardCurrencyCount * CURRENCY_PRECISION;
+
+                    data << uint32(currencyId);
+                    data << uint32(0);
+                    data << uint32(rewardCurrencyCount);
+                    data << uint8(1);                                           // Is currency
+                }
+            }
+        }
+
         for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         {
             if (uint32 itemId = quest->RewardItemId[i])
@@ -89,6 +116,21 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
                 data << uint32(item ? item->DisplayInfoID : 0);
                 data << uint32(quest->RewardItemIdCount[i]);
                 data << uint8(0);                                           // Is currency
+            }
+        }
+
+        if (bonusQuest)
+        {
+            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            {
+                if (uint32 itemId = bonusQuest->RewardItemId[i])
+                {
+                    ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
+                    data << uint32(itemId);
+                    data << uint32(item ? item->DisplayInfoID : 0);
+                    data << uint32(bonusQuest->RewardItemIdCount[i]);
+                    data << uint8(0);                                           // Is currency
+                }
             }
         }
     }
@@ -174,7 +216,7 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
     // Check cheating - only leader can leave the queue
     if (!group || group->GetLeaderGUID() == guid)
     {
-        GetPlayer()->SetTempCallToArmsRoles(0);
+        sLFGMgr->SetCallToArmsRewardEnligible(guid, false);
         sLFGMgr->LeaveLfg(gguid);
     }
 }
@@ -302,8 +344,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
     // Get Random dungeons that can be done at a certain level and expansion
     uint8 level = player->getLevel();
-    lfg::LfgDungeonSet const& randomDungeons =
-        sLFGMgr->GetRandomAndSeasonalDungeons(level, player->GetSession()->Expansion());
+    lfg::LfgDungeonSet const& randomDungeons = sLFGMgr->GetRandomAndSeasonalDungeons(level, player->GetSession()->Expansion());
 
     // Get player locked Dungeons
     lfg::LfgLockMap const& lock = sLFGMgr->GetLockedDungeons(guid);
@@ -404,25 +445,26 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         data << uint32(0);                                              // completedEncounters
 
-        bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEnabled() && sLFGMgr->IsCallToArmsEligible(player, dungeonId & 0x00FFFFFF);
+        bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEnabled() && sLFGMgr->IsCallToArmsEnligible(player, dungeonId & 0x00FFFFFF);
 
         data << uint8(isCallToArmsEligible);                            // Call to Arms eligible
         Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(lfg::LFG_CALL_TO_ARMS_QUEST);
 
         if (isCallToArmsEligible && ctaQuest)
         {
-            uint8 callToArmsRoleMask = sLFGMgr->GetRolesForCallToArms();
-            callToArmsRoleMask |= player->GetCallToArmsTempRoles();
+            uint8 roleMask = sLFGMgr->GetCallToArmsEnligibleRoles();
+            if (sLFGMgr->IsCallToArmsRewardEnligible(guid))
+                roleMask |= sLFGMgr->GetRoles(guid);
 
             bool rewardSent = false;
 
             for (uint8 i = 0; i < 3; i++)
             {
-                data << uint32(callToArmsRoleMask);
+                data << uint32(roleMask);
                 if (!rewardSent)
                 {
                     rewardSent = true;
-                    BuildQuestReward(data, ctaQuest, player);
+                    BuildQuestReward(data, ctaQuest, nullptr, player);
                 }
                 else
                 {
@@ -439,7 +481,7 @@ void WorldSession::SendLfgPlayerLockInfo()
         }
 
         if (currentQuest)
-            BuildQuestReward(data, currentQuest, player);
+            BuildQuestReward(data, currentQuest, nullptr, player);
         else
         {
             data << uint32(0);                                          // Money
@@ -786,10 +828,13 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
         GetPlayerInfo().c_str(), rewardData.rdungeonEntry, rewardData.sdungeonEntry, rewardData.done);
 
     uint8 itemNum = rewardData.quest->GetRewItemsCount() + rewardData.quest->GetRewCurrencyCount();
+    if (rewardData.callToArmsQuest)
+        itemNum += rewardData.callToArmsQuest->GetRewItemsCount() + rewardData.callToArmsQuest->GetRewCurrencyCount();
+
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
     data << uint32(rewardData.rdungeonEntry);                               // Random Dungeon Finished
     data << uint32(rewardData.sdungeonEntry);                               // Dungeon Finished
-    BuildQuestReward(data, rewardData.quest, GetPlayer());
+    BuildQuestReward(data, rewardData.quest, rewardData.callToArmsQuest,GetPlayer());
     SendPacket(&data);
 }
 

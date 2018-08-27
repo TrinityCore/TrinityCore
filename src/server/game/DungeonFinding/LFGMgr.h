@@ -208,13 +208,14 @@ struct LfgQueueStatusData
 
 struct LfgPlayerRewardData
 {
-    LfgPlayerRewardData(uint32 random, uint32 current, bool _done, Quest const* _quest):
-        rdungeonEntry(random), sdungeonEntry(current), done(_done), quest(_quest) { }
+    LfgPlayerRewardData(uint32 random, uint32 current, bool _done, Quest const* _quest, Quest const* _callToArmsQuest):
+        rdungeonEntry(random), sdungeonEntry(current), done(_done), quest(_quest), callToArmsQuest(_callToArmsQuest) { }
 
     uint32 rdungeonEntry;
     uint32 sdungeonEntry;
     bool done;
     Quest const* quest;
+    Quest const* callToArmsQuest;
 };
 
 /// Reward info
@@ -352,12 +353,24 @@ class TC_GAME_API LFGMgr
         void SetupGroupMember(ObjectGuid guid, ObjectGuid gguid);
         /// Return Lfg dungeon entry for given dungeon id
         uint32 GetLFGDungeonEntry(uint32 id);
-        /// Handles Call to Arms bonuses
-        bool IsCallToArmsEligible(Player* player, uint32 dungeonId);
-        uint8 GetRolesForCallToArms() { return _callToArmsRoles; }
-        void AddCallToArmsRole(uint8 role) { _callToArmsRoles |= role; }
-        void RemoveCallToArmsRole(uint8 role) { _callToArmsRoles = _callToArmsRoles & ~role; }
+
+        // Call to Arms
+        /// Returns active state of the Call to Arms system
         bool IsCallToArmsEnabled() const { return _isCallToArmsEnabled; }
+        /// Check if player fulfills criteria for Call to Arms
+        bool IsCallToArmsEnligible(Player* player, uint32 dungeonId);
+        /// Get Call to Arms reward engligible state
+        bool IsCallToArmsRewardEnligible(ObjectGuid guid);
+        /// Set Call to Arms reward engligible state
+        void SetCallToArmsRewardEnligible(ObjectGuid guid, bool apply);
+        /// Returns if player has selected a enligible role
+        bool IsCallToArmsEnligibleRole(uint8 roles);
+        /// Adds a role to the allowed Call to Arms reward roles
+        void AddCallToArmsRole(uint8 role) { _callToArmsRoles |= role; }
+        /// Removes a role to the allowed Call to Arms reward roles
+        void RemoveCallToArmsRole(uint8 role) { _callToArmsRoles = _callToArmsRoles & ~role; }
+        /// Returns all roles that are currently allowed to earn Call to Arms rewards
+        uint8 GetCallToArmsEnligibleRoles() { return _callToArmsRoles; }
 
         // cs_lfg
         /// Get current player roles
@@ -496,6 +509,7 @@ class TC_GAME_API LFGMgr
         LfgPlayerBootContainer BootsStore;                 ///< Current player kicks
         LfgPlayerDataContainer PlayersStore;               ///< Player data
         LfgGroupDataContainer GroupsStore;                 ///< Group data
+
         // Call to Arms System
         bool _isCallToArmsEnabled;
         uint8 _callToArmsRoles;

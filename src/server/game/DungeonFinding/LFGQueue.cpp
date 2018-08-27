@@ -624,7 +624,7 @@ void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime, uint32 &tankCou
 
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
         {
-            if (dungeon->minlevel == DEFAULT_MAX_LEVEL && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
+            if (dungeon->minlevel == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
             {
                 if (role & PLAYER_ROLE_TANK)
                     tankCount++;

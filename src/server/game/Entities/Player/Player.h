@@ -2362,10 +2362,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
-        // LFG Call to Arms
-        void SetTempCallToArmsRoles(uint8 roles) { _tmpLfgRolesCheck = roles; }
-        uint8 GetCallToArmsTempRoles() { return _tmpLfgRolesCheck; }
-
         // Pets
         PlayerPetData* GetPlayerPetDataById(uint32 petId);
         PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
@@ -2752,8 +2748,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 
         Archaeology* _archaeology;
-
-        uint8 _tmpLfgRolesCheck;
 
         std::vector<PlayerPetData*> PlayerPetDataStore;
 };

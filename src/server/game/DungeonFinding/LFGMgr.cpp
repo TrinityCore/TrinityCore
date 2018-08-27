@@ -186,15 +186,6 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return nullptr;
 }
 
-bool LFGMgr::IsCallToArmsEligible(Player* player, uint32 dungeonId)
-{
-    if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-        return (player->getLevel() == DEFAULT_MAX_LEVEL && !player->GetGroup()
-            && dungeon->type == LFG_TYPE_RANDOM && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC);
-
-    return false;
-}
-
 void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 {
     uint32 oldMSTime = getMSTime();
@@ -556,9 +547,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         return;
     }
 
-    if (IsCallToArmsEnabled())
-        player->SetTempCallToArmsRoles(GetRolesForCallToArms());
-
     SetComment(guid, comment);
 
     if (isRaid)
@@ -621,6 +609,10 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
             }
             SetSelectedDungeons(guid, dungeons);
         }
+
+        if (IsCallToArmsEnabled() && IsCallToArmsEnligible(player, rDungeonId) && IsCallToArmsEnligibleRole(roles))
+            SetCallToArmsRewardEnligible(player->GetGUID(), true);
+
         // Send update to player
         player->GetSession()->SendLfgJoinResult(joinData);
         player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment), false);
@@ -990,8 +982,14 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         }
 
         // Add the cooldown spell if queued for a random dungeon
-        if (dungeon->type == LFG_TYPE_RANDOM)
-            player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
+        uint32 rDungeonId = 0;
+        const LfgDungeonSet& dungeons = GetSelectedDungeons(player->GetGUID());
+        if (!dungeons.empty())
+            rDungeonId = (*dungeons.begin());
+
+        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId))
+            if (dungeon->type == LFG_TYPE_RANDOM)
+                player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
     }
 
     ASSERT(grp);
@@ -1535,16 +1533,16 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (Group *group = player->GetGroup())
             tmpRole = group->GetLfgRoles(player->GetGUID());
 
-        if (IsCallToArmsEligible(player, rDungeonId))
-            if (player->GetCallToArmsTempRoles() & tmpRole)
-                if (Quest const* callToArmsQuest = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST))
-                    player->RewardQuest(callToArmsQuest, 0, nullptr, false);
+        Quest const* callToArmsQuest = nullptr;
+        if (IsCallToArmsRewardEnligible(player->GetGUID()))
+            if (callToArmsQuest = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST))
+                player->RewardQuest(callToArmsQuest, 0, nullptr, false);
 
-        player->SetTempCallToArmsRoles(0);
+        SetCallToArmsRewardEnligible(player->GetGUID(), false);
 
         // Give rewards
         TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s done dungeon %u, %s previously done.", gguid.ToString().c_str(), guid.ToString().c_str(), GetDungeon(gguid), !firstReward ? " " : " not");
-        LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), !firstReward, quest);
+        LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), !firstReward, quest, callToArmsQuest);
         player->GetSession()->SendLfgPlayerReward(data);
     }
 }
@@ -1601,6 +1599,48 @@ LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
         return LFG_TYPE_NONE;
 
     return LfgType(dungeon->type);
+}
+
+bool LFGMgr::IsCallToArmsEnligible(Player* player, uint32 dungeonId)
+{
+    // Player has not reached max level
+    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        return false;
+
+    // Player may only get join solo
+    if (player->GetGroup() && player->GetGroup()->GetMembersCount() > 1)
+        return false;
+
+    // Check for valid dungeon
+    LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId);
+    if (!dungeon)
+        return false;
+
+    // Only random heroic dungeons may be used for Call to Arms
+    if (dungeon->type != LFG_TYPE_RANDOM || dungeon->difficulty != DUNGEON_DIFFICULTY_HEROIC)
+        return false;
+
+    // Make sure that we use end game dungeons
+    if (dungeon->minlevel != DEFAULT_MAX_LEVEL)
+        return false;
+
+    return true;
+}
+
+bool LFGMgr::IsCallToArmsEnligibleRole(uint8 roles)
+{
+    uint8 roleSet[] =
+    {
+        lfg::PLAYER_ROLE_TANK,
+        lfg::PLAYER_ROLE_HEALER,
+        lfg::PLAYER_ROLE_DAMAGE
+    };
+
+    for (uint8 i = 0; i < 3; i++)
+        if ((roles & roleSet[i])!= 0 && (_callToArmsRoles & roleSet[i]) != 0)
+            return true;
+
+   return false;
 }
 
 LfgState LFGMgr::GetState(ObjectGuid guid)
@@ -1698,6 +1738,16 @@ LfgDungeonSet const& LFGMgr::GetSelectedDungeons(ObjectGuid guid)
 {
     TC_LOG_TRACE("lfg.data.player.dungeons.selected.get", "Player: %s, Selected Dungeons: %s", guid.ToString().c_str(), ConcatenateDungeons(PlayersStore[guid].GetSelectedDungeons()).c_str());
     return PlayersStore[guid].GetSelectedDungeons();
+}
+
+bool LFGMgr::IsCallToArmsRewardEnligible(ObjectGuid guid)
+{
+    return PlayersStore[guid].IsCallToArmsRewardEnligible();
+}
+
+void LFGMgr::SetCallToArmsRewardEnligible(ObjectGuid guid, bool apply)
+{
+    PlayersStore[guid].SetCallToArmsRewardEnligible(apply);
 }
 
 LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)

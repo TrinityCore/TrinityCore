@@ -54,6 +54,10 @@ class TC_GAME_API LfgPlayerData
         std::string const& GetComment() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
 
+        // Call to Arms
+        void SetCallToArmsRewardEnligible(bool apply);
+        bool IsCallToArmsRewardEnligible() const;
+
     private:
         // General
         LfgState m_State;                                  ///< State if group in LFG
@@ -66,6 +70,9 @@ class TC_GAME_API LfgPlayerData
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
         std::string m_Comment;                             ///< Player comment used when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
+
+        // Call to Arms
+        bool m_CallToArmsRewardEnligible;
 };
 
 } // namespace lfg

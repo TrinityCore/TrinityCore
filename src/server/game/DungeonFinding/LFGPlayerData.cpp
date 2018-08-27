@@ -79,6 +79,11 @@ void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet const& dungeons)
     m_SelectedDungeons = dungeons;
 }
 
+void LfgPlayerData::SetCallToArmsRewardEnligible(bool apply)
+{
+    m_CallToArmsRewardEnligible = apply;
+}
+
 LfgState LfgPlayerData::GetState() const
 {
     return m_State;
@@ -112,6 +117,11 @@ std::string const& LfgPlayerData::GetComment() const
 LfgDungeonSet const& LfgPlayerData::GetSelectedDungeons() const
 {
     return m_SelectedDungeons;
+}
+
+bool LfgPlayerData::IsCallToArmsRewardEnligible() const
+{
+    return m_CallToArmsRewardEnligible;
 }
 
 } // namespace lfg
