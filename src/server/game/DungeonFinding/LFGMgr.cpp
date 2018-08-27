@@ -982,14 +982,14 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         }
 
         // Add the cooldown spell if queued for a random dungeon
-        uint32 rDungeonId = 0;
         const LfgDungeonSet& dungeons = GetSelectedDungeons(player->GetGUID());
         if (!dungeons.empty())
-            rDungeonId = (*dungeons.begin());
-
-        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId))
-            if (dungeon->type == LFG_TYPE_RANDOM)
+        {
+            uint32 rDungeonId = (*dungeons.begin());
+            LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
+            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
+        }
     }
 
     ASSERT(grp);
