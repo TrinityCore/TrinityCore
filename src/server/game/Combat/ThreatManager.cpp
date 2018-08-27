@@ -627,7 +627,7 @@ void ThreatManager::ForwardThreatForAssistingMe(Unit* assistant, float baseAmoun
     for (auto const& pair : _threatenedByMe)
     {
         Creature* owner = pair.second->GetOwner();
-        if (!owner->HasBreakableByDamageCrowdControlAura())
+        if (!owner->HasUnitState(UNIT_STATE_CONTROLLED))
             canBeThreatened.push_back(owner);
         else
             cannotBeThreatened.push_back(owner);
