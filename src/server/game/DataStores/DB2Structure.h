@@ -219,6 +219,26 @@ struct ArtifactQuestXPEntry
     uint32 Difficulty[10];
 };
 
+struct ArtifactTierEntry
+{
+    uint32 ID;
+    uint32 ArtifactTier;
+    uint32 MaxNumTraits;
+    uint32 MaxArtifactKnowledge;
+    uint32 KnowledgePlayerCondition;
+    uint32 MinimumEmpowerKnowledge;
+};
+
+struct ArtifactUnlockEntry
+{
+    uint32 ID;
+    uint16 ItemBonusListID;
+    uint8 PowerRank;
+    uint32 PowerID;
+    uint32 PlayerConditionID;
+    uint8 ArtifactID;
+};
+
 struct AuctionHouseEntry
 {
     uint32 ID;

@@ -17,6 +17,7 @@
  */
 
 #include "Object.h"
+#include "AreaTriggerPackets.h"
 #include "AreaTriggerTemplate.h"
 #include "BattlefieldMgr.h"
 #include "CellImpl.h"
@@ -547,7 +548,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
         bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasAreaTriggerUnkType  = false; // areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
+        bool hasCircularMovement    = areaTrigger->HasCircularMovement();
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -568,7 +569,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(hasAreaTriggerPolygon);
         data->WriteBit(hasAreaTriggerCylinder);
         data->WriteBit(hasAreaTriggerSpline);
-        data->WriteBit(hasAreaTriggerUnkType);
+        data->WriteBit(hasCircularMovement);
 
         if (hasUnk3)
             data->WriteBit(0);
@@ -644,28 +645,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget);
         }
 
-        if (hasAreaTriggerUnkType)
-        {
-            /*packet.ResetBitReader();
-            var unk1 = packet.ReadBit("AreaTriggerUnk1");
-            var hasCenter = packet.ReadBit("HasCenter", index);
-            packet.ReadBit("Unk bit 703 1", index);
-            packet.ReadBit("Unk bit 703 2", index);
-
-            packet.ReadUInt32();
-            packet.ReadInt32();
-            packet.ReadUInt32();
-            packet.ReadSingle("Radius", index);
-            packet.ReadSingle("BlendFromRadius", index);
-            packet.ReadSingle("InitialAngel", index);
-            packet.ReadSingle("ZOffset", index);
-
-            if (unk1)
-                packet.ReadPackedGuid128("AreaTriggerUnkGUID", index);
-
-            if (hasCenter)
-                packet.ReadVector3("Center", index);*/
-        }
+        if (hasCircularMovement)
+            *data << *areaTrigger->GetCircularMovementInfo();
     }
 
     if (HasGameObject)
@@ -1431,6 +1412,17 @@ uint32 Object::GetDynamicValue(uint16 index, uint16 offset) const
     if (offset >= _dynamicValues[index].size())
         return 0;
     return _dynamicValues[index][offset];
+}
+
+bool Object::HasDynamicValue(uint16 index, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    std::vector<uint32>& values = _dynamicValues[index];
+    for (std::size_t i = 0; i < values.size(); ++i)
+        if (values[i] == value)
+            return true;
+
+    return false;
 }
 
 void Object::AddDynamicValue(uint16 index, uint32 value)

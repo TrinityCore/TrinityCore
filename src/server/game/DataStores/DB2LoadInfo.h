@@ -345,6 +345,42 @@ struct ArtifactQuestXpLoadInfo
     }
 };
 
+struct ArtifactTierLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "ArtifactTier" },
+            { false, FT_INT, "MaxNumTraits" },
+            { false, FT_INT, "MaxArtifactKnowledge" },
+            { false, FT_INT, "KnowledgePlayerCondition" },
+            { false, FT_INT, "MinimumEmpowerKnowledge" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactTierMeta::Instance(), HOTFIX_SEL_ARTIFACT_TIER);
+        return &loadInfo;
+    }
+};
+
+struct ArtifactUnlockLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "ItemBonusListID" },
+            { false, FT_BYTE, "PowerRank" },
+            { false, FT_INT, "PowerID" },
+            { false, FT_INT, "PlayerConditionID" },
+            { false, FT_BYTE, "ArtifactID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactUnlockMeta::Instance(), HOTFIX_SEL_ARTIFACT_UNLOCK);
+        return &loadInfo;
+    }
+};
+
 struct AuctionHouseLoadInfo
 {
     static DB2LoadInfo const* Instance()

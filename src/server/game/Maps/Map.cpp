@@ -1442,6 +1442,7 @@ void Map::MoveAllAreaTriggersInMoveList()
         {
             // update pos
             at->Relocate(at->_newPosition);
+            at->UpdateShape();
             at->UpdateObjectVisibility(false);
         }
         else

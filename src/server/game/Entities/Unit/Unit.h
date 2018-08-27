@@ -1592,6 +1592,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsInFeralForm() const;
 
         bool IsInDisallowedMountForm() const;
+        bool IsDisallowedMountForm(uint32 spellId, ShapeshiftForm form, uint32 displayId) const;
 
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
@@ -1676,7 +1677,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetDisplayId() const { return GetUInt32Value(UNIT_FIELD_DISPLAYID); }
         virtual void SetDisplayId(uint32 modelId);
         uint32 GetNativeDisplayId() const { return GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID); }
-        void RestoreDisplayId();
+        void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false);
         void SetNativeDisplayId(uint32 modelId) { SetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID, modelId); }
         void setTransForm(uint32 spellid) { m_transform = spellid;}
         uint32 getTransForm() const { return m_transform;}

@@ -2821,6 +2821,7 @@ CREATE TABLE `item_instance_artifact` (
   `itemGuid` bigint(20) unsigned NOT NULL,
   `xp` bigint(20) unsigned NOT NULL DEFAULT '0',
   `artifactAppearanceId` int(10) unsigned NOT NULL DEFAULT '0',
+  `artifactTierId` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`itemGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3385,17 +3386,17 @@ CREATE TABLE `pvpstats_players` (
   `battleground_id` bigint(20) unsigned NOT NULL,
   `character_guid` bigint(20) unsigned NOT NULL,
   `winner` bit(1) NOT NULL,
-  `score_killing_blows` mediumint(8) unsigned NOT NULL,
-  `score_deaths` mediumint(8) unsigned NOT NULL,
-  `score_honorable_kills` mediumint(8) unsigned NOT NULL,
-  `score_bonus_honor` mediumint(8) unsigned NOT NULL,
-  `score_damage_done` mediumint(8) unsigned NOT NULL,
-  `score_healing_done` mediumint(8) unsigned NOT NULL,
-  `attr_1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_5` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `score_killing_blows` int(10) unsigned NOT NULL,
+  `score_deaths` int(10) unsigned NOT NULL,
+  `score_honorable_kills` int(10) unsigned NOT NULL,
+  `score_bonus_honor` int(10) unsigned NOT NULL,
+  `score_damage_done` int(10) unsigned NOT NULL,
+  `score_healing_done` int(10) unsigned NOT NULL,
+  `attr_1` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_2` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_3` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_4` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_5` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`battleground_id`,`character_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3563,7 +3564,9 @@ INSERT INTO `updates` VALUES
 ('2018_02_08_00_characters.sql','75FA162A9B85D678B26F972371265F1EC2C75187','ARCHIVED','2018-02-08 22:23:28',0),
 ('2018_02_19_00_characters.sql','75A0FFAFD0633921708DB0F72F9CC9796ACB960B','RELEASED','2018-02-19 22:33:32',117),
 ('2018_03_04_00_characters.sql','2A4CD2EE2547E718490706FADC78BF36F0DED8D6','RELEASED','2018-03-04 18:15:24',0),
-('2018_04_28_00_characters.sql','CBD0FDC0F32DE3F456F7CE3D9CAD6933CD6A50F5','RELEASED','2018-04-28 12:44:09',0);
+('2018_04_28_00_characters.sql','CBD0FDC0F32DE3F456F7CE3D9CAD6933CD6A50F5','RELEASED','2018-04-28 12:44:09',0),
+('2018_07_28_00_characters.sql','31F66AE7831251A8915625EC7F10FA138AB8B654','RELEASED','2018-07-28 18:30:19',0),
+('2018_07_31_00_characters.sql','7DA8D4A4534520B23E6F5BBD5B8EE205B799C798','RELEASED','2018-07-31 20:54:39',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

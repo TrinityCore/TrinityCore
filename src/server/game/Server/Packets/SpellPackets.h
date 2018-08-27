@@ -894,6 +894,16 @@ namespace WorldPackets
             RuneData Runes;
         };
 
+        class AddRunePower final : public ServerPacket
+        {
+        public:
+            AddRunePower() : ServerPacket(SMSG_ADD_RUNE_POWER, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 AddedRunesMask = 0;
+        };
+
         class MissileTrajectoryCollision final : public ClientPacket
         {
         public:
