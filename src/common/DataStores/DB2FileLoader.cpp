@@ -1407,7 +1407,7 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.TotalFieldCount);
     EndianConvert(_header.PackedDataOffset);
     EndianConvert(_header.ParentLookupCount);
-    EndianConvert(_header.FieldStorageInfoSize);
+    EndianConvert(_header.ColumnMetaSize);
     EndianConvert(_header.CommonDataSize);
     EndianConvert(_header.PalletDataSize);
     EndianConvert(_header.SectionCount);
@@ -1417,10 +1417,10 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.file_offset);
     EndianConvert(_header.record_count);
     EndianConvert(_header.string_table_size);
-    EndianConvert(_header.copy_table_size);
-    EndianConvert(_header.offset_map_offset);
-    EndianConvert(_header.id_list_size);
-    EndianConvert(_header.relationship_data_size);
+    EndianConvert(_header.CopyTableSize);
+    EndianConvert(_header.CatalogDataOffset);
+    EndianConvert(_header.IdTableSize);
+    EndianConvert(_header.ParentLookupDataSize);
 
    if (_header.Signature != 0x32434457)                        //'WDC2'
         return false;

@@ -44,7 +44,7 @@ struct DB2Header
     uint32 TotalFieldCount;
     uint32 PackedDataOffset;
     uint32 ParentLookupCount;
-    uint32 FieldStorageInfoSize;
+    uint32 ColumnMetaSize;
     uint32 CommonDataSize;
     uint32 PalletDataSize;
     uint32 SectionCount;
@@ -54,10 +54,10 @@ struct DB2Header
     uint32 file_offset;            // absolute position to the beginning of the section
     uint32 record_count;           // 'record_count' for the section
     uint32 string_table_size;      // 'string_table_size' for the section
-    uint32 copy_table_size;
-    uint32 offset_map_offset;      // Offset to array of struct {uint32_t offset; uint16_t size;}[max_id - min_id + 1];
-    uint32 id_list_size;           // List of ids present in the DB file
-    uint32 relationship_data_size;
+    uint32 CopyTableSize;
+    uint32 CatalogDataOffset;      // Offset to array of struct {uint32_t offset; uint16_t size;}[max_id - min_id + 1];
+    uint32 IdTableSize;           // List of ids present in the DB file
+    uint32 ParentLookupDataSize;
 };
 #pragma pack(pop)
 
