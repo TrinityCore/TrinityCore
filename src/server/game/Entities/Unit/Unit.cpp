@@ -8185,16 +8185,11 @@ void Unit::SetImmuneToAll(bool apply, bool keepCombat)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         ValidateAttackersAndOwnTarget();
-        if (keepCombat)
-            m_threatManager.UpdateOnlineStates(true, true);
-        else
+        if (!keepCombat)
             m_combatManager.EndAllCombat();
     }
     else
-    {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-        m_threatManager.UpdateOnlineStates(true, true);
-    }
 }
 
 void Unit::SetImmuneToPC(bool apply, bool keepCombat)
@@ -8203,9 +8198,7 @@ void Unit::SetImmuneToPC(bool apply, bool keepCombat)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         ValidateAttackersAndOwnTarget();
-        if (keepCombat)
-            m_threatManager.UpdateOnlineStates(true, true);
-        else
+        if (!keepCombat)
         {
             std::list<CombatReference*> toEnd;
             for (auto const& pair : m_combatManager.GetPvECombatRefs())
@@ -8219,10 +8212,7 @@ void Unit::SetImmuneToPC(bool apply, bool keepCombat)
         }
     }
     else
-    {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-        m_threatManager.UpdateOnlineStates(true, true);
-    }
 }
 
 void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
@@ -8231,9 +8221,7 @@ void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         ValidateAttackersAndOwnTarget();
-        if (keepCombat)
-            m_threatManager.UpdateOnlineStates(true, true);
-        else
+        if (!keepCombat)
         {
             std::list<CombatReference*> toEnd;
             for (auto const& pair : m_combatManager.GetPvECombatRefs())
@@ -8247,10 +8235,7 @@ void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
         }
     }
     else
-    {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-        m_threatManager.UpdateOnlineStates(true, true);
-    }
 }
 
 bool Unit::IsThreatened() const
@@ -11970,7 +11955,6 @@ void Unit::UpdateObjectVisibility(bool forced)
         AddToNotify(NOTIFY_VISIBILITY_CHANGED);
     else
     {
-        m_threatManager.UpdateOnlineStates(true, true);
         WorldObject::UpdateObjectVisibility(true);
         // call MoveInLineOfSight for nearby creatures
         Trinity::AIRelocationNotifier notifier(*this);
