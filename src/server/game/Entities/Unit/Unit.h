@@ -1149,37 +1149,9 @@ class TC_GAME_API Unit : public WorldObject
         void SetCritterGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
         ObjectGuid GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
 
-        bool SetCharmerData(Unit const* unit)
-        {
-            if (!AddGuidValue(UNIT_FIELD_CHARMEDBY, unit->GetGUID()))
-                return false;
-            m_charmer = const_cast<Unit*>(unit);
-            return true;
-        }
-        bool ClearCharmerData(Unit const* verify)
-        {
-            if (!RemoveGuidValue(UNIT_FIELD_CHARMEDBY, verify->GetGUID()))
-                return false;
-            m_charmer = nullptr;
-            return true;
-        }
         ObjectGuid GetCharmerGUID() const { return GetGuidValue(UNIT_FIELD_CHARMEDBY); }
         Unit* GetCharmer() const { return m_charmer; }
 
-        bool SetCharmedData(Unit const* unit)
-        {
-            if (!AddGuidValue(UNIT_FIELD_CHARM, unit->GetGUID()))
-                return false;
-            m_charmed = const_cast<Unit*>(unit);
-            return true;
-        }
-        bool ClearCharmedData(Unit const* verify)
-        {
-            if (!RemoveGuidValue(UNIT_FIELD_CHARM, verify->GetGUID()))
-                return false;
-            m_charmed = nullptr;
-            return true;
-        }
         ObjectGuid GetCharmedGUID() const { return GetGuidValue(UNIT_FIELD_CHARM); }
         Unit* GetCharmed() const { return m_charmed; }
 
