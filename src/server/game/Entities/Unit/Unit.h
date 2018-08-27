@@ -1242,40 +1242,9 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetDemonCreatorGUID() const { return m_unitData->DemonCreator; }
         void SetDemonCreatorGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DemonCreator), guid); }
 
-        bool SetCharmerData(Unit const* unit)
-        {
-            if (!GetCharmerGUID().IsEmpty())
-                return false;
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), unit->GetGUID());
-            m_charmer = const_cast<Unit*>(unit);
-            return true;
-        }
-        bool ClearCharmerData(Unit const* verify)
-        {
-            if (GetCharmerGUID() != verify->GetGUID())
-                return false;
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), ObjectGuid::Empty);
-            m_charmer = nullptr;
-            return true;
-        }
         ObjectGuid GetCharmerGUID() const { return m_unitData->CharmedBy; }
         Unit* GetCharmer() const { return m_charmer; }
 
-        bool SetCharmedData(Unit const* unit)
-        {
-            if (!GetCharmedGUID().IsEmpty())
-                return false;
-            m_charmed = const_cast<Unit*>(unit);
-            return true;
-        }
-        bool ClearCharmedData(Unit const* verify)
-        {
-            if (GetCharmedGUID() != verify->GetGUID())
-                return false;
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Charm), ObjectGuid::Empty);
-            m_charmed = nullptr;
-            return true;
-        }
         ObjectGuid GetCharmedGUID() const { return m_unitData->Charm; }
         Unit* GetCharmed() const { return m_charmed; }
 
