@@ -75,15 +75,9 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         bool GetResetPos(Creature*, float& x, float& y, float& z);
 
     private:
-        void LoadPath(Creature*);
         void OnArrived(Creature*);
-        bool StartMove(Creature*);
-        bool CanMove(Creature*);
-        bool StartMoveNow(Creature* creature)
-        {
-            _nextMoveTime.Reset(0);
-            return StartMove(creature);
-        }
+        void StartMove(Creature*, bool relaunch = false);
+        static bool CanMove(Creature*);
 
         TimeTrackerSmall _nextMoveTime;
         bool _recalculateSpeed;
