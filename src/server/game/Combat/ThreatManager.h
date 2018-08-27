@@ -203,6 +203,7 @@ class TC_GAME_API ThreatManager
         void PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref);
         void PurgeThreatListRef(ObjectGuid const& guid);
 
+        bool _needClientUpdate;
         uint32 _updateTimer;
         threat_list_heap _sortedThreatList;
         std::unordered_map<ObjectGuid, ThreatReference*> _myThreatListEntries;
