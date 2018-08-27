@@ -39,18 +39,25 @@ struct DB2Header
     uint32 MinId;
     uint32 MaxId;
     uint32 Locale;
-    uint32 CopyTableSize;
     uint16 Flags;
     int16 IndexField;
     uint32 TotalFieldCount;
     uint32 PackedDataOffset;
     uint32 ParentLookupCount;
-    uint32 CatalogDataOffset;
-    uint32 IdTableSize;
-    uint32 ColumnMetaSize;
+    uint32 FieldStorageInfoSize;
     uint32 CommonDataSize;
     uint32 PalletDataSize;
-    uint32 ParentLookupDataSize;
+    uint32 SectionCount;
+    // Section Header
+    uint32 wdc2_unk_header1;       // always 0 in Battle (8.0.1.26231) and unnamed in client binary
+    uint32 wdc2_unk_header2;       // always 0 in Battle (8.0.1.26231) and unnamed in client binary
+    uint32 file_offset;            // absolute position to the beginning of the section
+    uint32 record_count;           // 'record_count' for the section
+    uint32 string_table_size;      // 'string_table_size' for the section
+    uint32 copy_table_size;
+    uint32 offset_map_offset;      // Offset to array of struct {uint32_t offset; uint16_t size;}[max_id - min_id + 1];
+    uint32 id_list_size;           // List of ids present in the DB file
+    uint32 relationship_data_size;
 };
 #pragma pack(pop)
 

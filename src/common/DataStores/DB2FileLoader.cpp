@@ -1402,26 +1402,33 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.MinId);
     EndianConvert(_header.MaxId);
     EndianConvert(_header.Locale);
-    EndianConvert(_header.CopyTableSize);
     EndianConvert(_header.Flags);
     EndianConvert(_header.IndexField);
     EndianConvert(_header.TotalFieldCount);
     EndianConvert(_header.PackedDataOffset);
     EndianConvert(_header.ParentLookupCount);
-    EndianConvert(_header.CatalogDataOffset);
-    EndianConvert(_header.IdTableSize);
-    EndianConvert(_header.ColumnMetaSize);
+    EndianConvert(_header.FieldStorageInfoSize);
     EndianConvert(_header.CommonDataSize);
     EndianConvert(_header.PalletDataSize);
-    EndianConvert(_header.ParentLookupDataSize);
+    EndianConvert(_header.SectionCount);
+    // Section Header
+    EndianConvert(_header.wdc2_unk_header1);
+    EndianConvert(_header.wdc2_unk_header2);
+    EndianConvert(_header.file_offset);
+    EndianConvert(_header.record_count);
+    EndianConvert(_header.string_table_size);
+    EndianConvert(_header.copy_table_size);
+    EndianConvert(_header.offset_map_offset);
+    EndianConvert(_header.id_list_size);
+    EndianConvert(_header.relationship_data_size);
 
-    if (_header.Signature != 0x31434457)                        //'WDC1'
+   if (_header.Signature != 0x32434457)                        //'WDC2'
         return false;
 
     if (_header.LayoutHash != loadInfo->Meta->LayoutHash)
         return false;
-
-    if (!(_header.Flags & 0x1))
+    
+   if (!(_header.Flags & 0x1)) 
     {
         std::size_t expectedFileSize =
             sizeof(DB2Header) +
@@ -1438,6 +1445,9 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
         if (source->GetFileSize() != expectedFileSize)
             return false;
     }
+    
+
+    return true;
 
     if (_header.ParentLookupCount > 1)
         return false;
