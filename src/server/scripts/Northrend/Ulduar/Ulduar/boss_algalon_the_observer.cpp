@@ -570,7 +570,7 @@ struct boss_algalon_the_observer : public BossAI
                     //! for creatures that start combat in REACT_PASSIVE and UNIT_FLAG_NOT_SELECTABLE
                     //! causing them to immediately evade
                     if (!me->GetThreatManager().IsThreatListEmpty())
-                        AttackStart(me->GetThreatManager().SelectVictim());
+                        AttackStart(me->GetThreatManager().GetCurrentVictim());
                     for (uint8 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
                         if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TEMPSUMMON_DEAD_DESPAWN))
                             summon->SetReactState(REACT_PASSIVE);
