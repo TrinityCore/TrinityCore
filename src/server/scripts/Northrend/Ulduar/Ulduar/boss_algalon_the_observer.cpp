@@ -962,7 +962,6 @@ struct npc_brann_bronzebeard_algalon : public CreatureAI
 
 private:
     EventMap _events;
-    uint32 _currentPoint;
 };
 
 struct go_celestial_planetarium_access : public GameObjectAI
