@@ -298,9 +298,9 @@ SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellIn
 }
 
 Unit::Unit(bool isWorldObject) :
-    WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0),
-    LastCharmerGUID(), m_ControlledByPlayer(false),
-    movespline(new Movement::MoveSpline()), m_AutoRepeatFirstCast(false), m_procDeep(0), m_removedAurasCount(0),
+    WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0), LastCharmerGUID(),
+    movespline(new Movement::MoveSpline()), m_ControlledByPlayer(false), m_AutoRepeatFirstCast(false),
+    m_procDeep(0), m_transformSpell(0), m_removedAurasCount(0),
     m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
     m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr),
@@ -339,7 +339,6 @@ Unit::Unit(bool isWorldObject) :
 
     m_auraUpdateIterator = m_ownedAuras.end();
 
-    m_transform = 0;
     m_canModifyStats = false;
 
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
@@ -8440,7 +8439,7 @@ bool Unit::IsInFeralForm() const
 
 bool Unit::IsInDisallowedMountForm() const
 {
-    return IsDisallowedMountForm(getTransForm(), GetShapeshiftForm(), GetDisplayId());
+    return IsDisallowedMountForm(GetTransformSpell(), GetShapeshiftForm(), GetDisplayId());
 }
 
 bool Unit::IsDisallowedMountForm(uint32 spellId, ShapeshiftForm form, uint32 displayId) const
@@ -9495,11 +9494,6 @@ Player* Unit::GetPlayerBeingMoved() const
     return nullptr;
 }
 
-bool Unit::isFrozen() const
-{
-    return HasAuraState(AURA_STATE_FROZEN);
-}
-
 uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
 {
     uint32 hitMask = PROC_HIT_NONE;
@@ -9842,7 +9836,7 @@ void Unit::SetAnimTier(UnitBytes1_Flags animTier, bool notifyClient)
 
 bool Unit::IsPolymorphed() const
 {
-    uint32 transformId = getTransForm();
+    uint32 transformId = GetTransformSpell();
     if (!transformId)
         return false;
 

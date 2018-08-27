@@ -1135,10 +1135,10 @@ class TC_GAME_API Unit : public WorldObject
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
-        bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
+        bool IsFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
+        bool HasRootAura() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
         bool IsPolymorphed() const;
-
-        bool isFrozen() const;
+        bool IsFrozen() const { return HasAuraState(AURA_STATE_FROZEN); }
 
         bool isTargetableForAttack(bool checkFakeDeath = true) const;
 
@@ -1620,8 +1620,8 @@ class TC_GAME_API Unit : public WorldObject
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeDisplayID), displayId);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeXDisplayScale), displayScale);
         }
-        void setTransForm(uint32 spellid) { m_transform = spellid;}
-        uint32 getTransForm() const { return m_transform;}
+        void SetTransformSpell(uint32 spellid) { m_transformSpell = spellid;}
+        uint32 GetTransformSpell() const { return m_transformSpell;}
 
         // DynamicObject management
         void _RegisterDynObject(DynamicObject* dynObj);
@@ -1766,8 +1766,6 @@ class TC_GAME_API Unit : public WorldObject
         /// Returns the transport this unit is on directly (if on vehicle and transport, return vehicle)
         TransportBase* GetDirectTransport() const;
 
-        bool m_ControlledByPlayer;
-
         void HandleSpellClick(Unit* clicker, int8 seatId = -1);
         void EnterVehicle(Unit* base, int8 seatId = -1);
         void ExitVehicle(Position const* exitPosition = nullptr);
@@ -1857,6 +1855,8 @@ class TC_GAME_API Unit : public WorldObject
 
         void _UpdateAutoRepeatSpell();
 
+        bool m_ControlledByPlayer;
+
         bool m_AutoRepeatFirstCast;
 
         float m_createStats[MAX_STATS];
@@ -1879,7 +1879,7 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::vector<AreaTrigger*> AreaTriggerList;
         AreaTriggerList m_areaTrigger;
 
-        uint32 m_transform;
+        uint32 m_transformSpell;
 
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
 

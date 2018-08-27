@@ -22683,7 +22683,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         if (GetDisplayId() != GetNativeDisplayId())
             RestoreDisplayId(true);
 
-        if (IsDisallowedMountForm(getTransForm(), FORM_NONE, GetDisplayId()))
+        if (IsDisallowedMountForm(GetTransformSpell(), FORM_NONE, GetDisplayId()))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERSHAPESHIFTED);
             return false;
