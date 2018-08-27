@@ -1135,8 +1135,8 @@ struct CinematicCameraMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iffi";
-        static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
+        static char const* types = "fifi";
+        static uint8 const arraySizes[4] = { 3, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x0062B0F4, types, arraySizes, -1);
         return &instance;
     }

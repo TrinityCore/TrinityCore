@@ -521,8 +521,8 @@ struct ChrSpecializationEntry
 struct CinematicCameraEntry
 {
     uint32 ID;
-    uint32 SoundID;                                         // Sound ID       (voiceover for cinematic)
     DBCPosition3D Origin;                                   // Position in map used for basis for M2 co-ordinates
+    uint32 SoundID;                                         // Sound ID       (voiceover for cinematic)
     float OriginFacing;                                     // Orientation in map used for basis for M2 co-
     uint32 FileDataID;                                      // Model
 };
