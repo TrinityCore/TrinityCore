@@ -3493,7 +3493,7 @@ void Spell::EffectSanctuary()
     {
         // in dungeons (or for nonplayers), reset this unit on all enemies' threat lists
         for (auto const& pair : unitTarget->GetThreatManager().GetThreatenedByMeList())
-            pair.second->SetThreat(0.0f);
+            pair.second->ScaleThreat(0.0f);
     }
 
     // makes spells cast before this time fizzle

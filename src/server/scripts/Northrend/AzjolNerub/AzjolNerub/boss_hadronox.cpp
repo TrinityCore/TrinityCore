@@ -295,9 +295,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!_lastPlayerCombatState && me->IsEngaged())
-                me->GetThreatManager().UpdateOnlineStates(false, true);
-
             if (!UpdateVictim())
                 return;
 
