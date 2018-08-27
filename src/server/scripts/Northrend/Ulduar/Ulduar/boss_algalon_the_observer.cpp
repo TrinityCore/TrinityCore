@@ -370,7 +370,7 @@ struct boss_algalon_the_observer : public BossAI
         if (!_firstPull)
         {
             Talk(SAY_ALGALON_AGGRO);
-            me->PlayDirectMusic(AGRO_MUSIC_ID);
+            me->PlayDirectMusic(ENGAGE_MUSIC_ID);
             _JustEngagedWith();
             introDelay = 8000;
         }
@@ -555,7 +555,7 @@ struct boss_algalon_the_observer : public BossAI
                     break;
                 case EVENT_START_COMBAT:
                     Talk(SAY_ALGALON_AGGRO);
-                    me->PlayDirectMusic(AGRO_MUSIC_ID);
+                    me->PlayDirectMusic(ENGAGE_MUSIC_ID);
                     instance->SetBossState(BOSS_ALGALON, IN_PROGRESS);
                     break;
                 case EVENT_INTRO_TIMER_DONE:
