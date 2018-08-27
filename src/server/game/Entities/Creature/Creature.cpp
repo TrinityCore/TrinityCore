@@ -1933,20 +1933,15 @@ void Creature::setDeathState(DeathState s)
         if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
             GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
         // @todo remove the boss respawn time hack in a dynspawn follow-up once we have creature groups in instances
-        if (m_respawnCompatibilityMode)
-        {
-            if (IsDungeonBoss() && !m_respawnDelay)
-                m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
-            else
-                m_respawnTime = GameTime::GetGameTime() + respawnDelay + m_corpseDelay;
-        }
+
+        uint32 corpseDelay = (m_respawnCompatibilityMode) ? m_corpseDelay : 0;
+
+        if (IsDungeonBoss() && !m_respawnDelay)
+            m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
         else
-        {
-            if (IsDungeonBoss() && !m_respawnDelay)
-                m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
-            else
-                m_respawnTime = GameTime::GetGameTime() + respawnDelay;
-        }
+            m_respawnTime = GameTime::GetGameTime() + respawnDelay + corpseDelay;
+        printf("Respawn tim = %u", (unsigned int)m_respawnTime);
+
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
