@@ -1249,7 +1249,7 @@ class spell_algalon_black_hole_phase_shifts : public AuraScript
         return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLACK_HOLE_DOT });
     }
