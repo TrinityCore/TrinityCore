@@ -114,6 +114,7 @@ ObjectData const creatureData[] =
     { NPC_LORE_KEEPER_OF_NORGANNON, DATA_LORE_KEEPER_OF_NORGANNON },
     { NPC_HIGH_EXPLORER_DELLORAH,   DATA_DELLORAH                 },
     { NPC_BRONZEBEARD_RADIO,        DATA_BRONZEBEARD_RADIO        },
+    { NPC_HEART_OF_DECONSTRUCTOR,   DATA_XT002_HEART              },
     { 0,                            0,                            }
 };
 

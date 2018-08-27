@@ -189,7 +189,16 @@ enum IllidanSpells
     SPELL_CAGED_TRAP_TELEPORT           = 40693,
     SPELL_CAGE_TRAP                     = 40760,
     SPELL_CAGED_DEBUFF                  = 40695,
-    SPELL_EYE_BLAST                     = 39908
+    SPELL_EYE_BLAST                     = 39908,
+
+    // Blaze
+    SPELL_BLAZE                         = 40610,
+
+    // Demon Fire
+    SPELL_DEMON_FIRE                    = 40029,
+
+    // Flame Crash
+     SPELL_FLAME_CRASH_GROUND           = 40836
 };
 
 enum IllidanMisc
@@ -1375,7 +1384,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
 
         if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
             illidan->AI()->JustSummoned(me);
-        me->SetReactState(REACT_DEFENSIVE);
+        me->SetReactState(REACT_PASSIVE);
         _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
@@ -1792,6 +1801,42 @@ struct npc_illidari_elite : public ScriptedAI
             return true;
         return false;
     }
+
+private:
+    InstanceScript* _instance;
+};
+
+struct npc_illidan_generic_fire : public ScriptedAI
+{
+    npc_illidan_generic_fire(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        SetCombatMovement(false);
+    }
+
+    void Reset() override
+    {
+        if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
+            illidan->AI()->JustSummoned(me);
+
+        me->SetReactState(REACT_PASSIVE);
+        switch (me->GetEntry())
+        {
+            case NPC_DEMON_FIRE:
+                DoCastSelf(SPELL_DEMON_FIRE, true);
+                break;
+            case NPC_BLAZE:
+                DoCastSelf(SPELL_BLAZE, true);
+                DoCastSelf(SPELL_BIRTH, true);
+                break;
+            case NPC_FLAME_CRASH:
+                DoCastSelf(SPELL_FLAME_CRASH_GROUND, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override { }
 
 private:
     InstanceScript* _instance;
@@ -2299,6 +2344,7 @@ void AddSC_boss_illidan()
     RegisterBlackTempleCreatureAI(npc_shadow_demon);
     RegisterBlackTempleCreatureAI(npc_cage_trap_trigger);
     RegisterBlackTempleCreatureAI(npc_illidari_elite);
+    RegisterBlackTempleCreatureAI(npc_illidan_generic_fire);
     RegisterSpellScript(spell_illidan_akama_teleport);
     RegisterAuraScript(spell_illidan_akama_door_channel);
     RegisterSpellScript(spell_illidan_draw_soul);
