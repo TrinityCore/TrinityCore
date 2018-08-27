@@ -12,7 +12,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 UPDATE `creature_template` SET `ScriptName`='npc_black_hole' WHERE `entry`=32953;
 UPDATE `creature` SET `spawntimesecs`=15 WHERE `id`=33089; -- Dark Matters should respawn faster  (is always full present in each black hole travel)
 
-DELETE FROM `creature_template_movement` WHERE `CreatureId`=34131; -- 
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=34131; -- Stalker Asteroid Target 2 (25 man)
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
 (34131,0,0,1,0);
 

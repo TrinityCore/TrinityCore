@@ -826,7 +826,7 @@ struct npc_black_hole : public ScriptedAI
         _summons.Summon(summon);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_DESPAWN_BLACK_HOLE)
         {
@@ -915,7 +915,6 @@ struct npc_brann_bronzebeard_algalon : public CreatureAI
                 _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 4s);
                 break;
             case POINT_ALGALON_ROOM:
-                // Blizzard break Brann orientation after wotlk. This value is based in orientation used in "Outro"
                 me->SetFacingTo(4.714909f);
                 _events.ScheduleEvent(EVENT_BRANN_SAY_INTRO_1, 500ms);
                 break;
