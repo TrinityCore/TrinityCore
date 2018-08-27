@@ -61,7 +61,7 @@ enum Texts
     SAY_ALGALON_KILL                = 20,
 
     // Direct Sound
-    AGRO_MUSIC_ID                   = 15878
+    ENGAGE_MUSIC_ID                 = 15878
 };
 
 enum Spells
