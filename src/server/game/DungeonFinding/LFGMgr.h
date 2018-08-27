@@ -459,6 +459,7 @@ class TC_GAME_API LFGMgr
         void RemovePlayerData(ObjectGuid guid);
         void GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& players, LfgLockPartyMap& lockMap, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
+        void AddDungeonsFromGroupingMap(LfgCachedDungeonContainer& container, uint32 groupId, uint32 dungeonId);
 
         // Proposals
         void RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdateType type);

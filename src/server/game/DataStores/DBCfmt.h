@@ -102,6 +102,7 @@ char const ItemRandomPropertiesfmt[] = "nxiiixxs";
 char const ItemRandomSuffixfmt[] = "nsxiiiiiiiiii";
 char const ItemSetEntryfmt[] = "dsiiiiiiiiiixxxxxxxiiiiiiiiiiiiiiiiii";
 char const LFGDungeonEntryfmt[] = "nsiiiiiiiiixxixixiiii";
+char const LFGDungeonsGroupingMapfmt[] = "niii";
 char const LightEntryfmt[] = "nifffxxxxxxxxxx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";

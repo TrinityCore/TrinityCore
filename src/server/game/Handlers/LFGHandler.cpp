@@ -412,31 +412,23 @@ void WorldSession::SendLfgPlayerLockInfo()
         if (isCallToArmsEligible && ctaQuest)
         {
             uint8 callToArmsRoleMask = sLFGMgr->GetRolesForCallToArms();
-            bool rewardSent = false;
+            callToArmsRoleMask |= player->GetCallToArmsTempRoles();
 
-            uint8 roleSet[] =
-            {
-                lfg::PLAYER_ROLE_TANK,
-                lfg::PLAYER_ROLE_HEALER,
-                lfg::PLAYER_ROLE_DAMAGE
-            };
+            bool rewardSent = false;
 
             for (uint8 i = 0; i < 3; i++)
             {
                 data << uint32(callToArmsRoleMask);
-                if (callToArmsRoleMask & roleSet[i])
+                if (!rewardSent)
                 {
-                    if (!rewardSent)
-                    {
-                        BuildQuestReward(data, ctaQuest, player);
-                        rewardSent = true;
-                    }
-                    else
-                    {
-                        data << uint32(0);
-                        data << uint32(0);
-                        data << uint8(0);
-                    }
+                    rewardSent = true;
+                    BuildQuestReward(data, ctaQuest, player);
+                }
+                else
+                {
+                    data << uint32(0);
+                    data << uint32(0);
+                    data << uint8(0);
                 }
             }
         }

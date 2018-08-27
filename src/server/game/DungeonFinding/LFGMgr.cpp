@@ -275,8 +275,11 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             dungeon.o = at->target_Orientation;
         }
 
-        if (dungeon.type != LFG_TYPE_RANDOM)
+        if (dungeon.type == LFG_TYPE_RANDOM)
+            AddDungeonsFromGroupingMap(CachedDungeonMapStore, dungeon.group, dungeon.id);
+        else
             CachedDungeonMapStore[dungeon.group].insert(dungeon.id);
+
         CachedDungeonMapStore[0].insert(dungeon.id);
     }
 
@@ -2175,6 +2178,19 @@ bool LFGDungeonData::IsRaid() const
     if (MapEntry const* mapInfo = sMapStore.LookupEntry(map))
         return mapInfo->IsRaid();
     return false;
+}
+
+void LFGMgr::AddDungeonsFromGroupingMap(LfgCachedDungeonContainer& container, uint32 groupId, uint32 dungeonId)
+{
+    // Check for grouped dungeons from grouping map
+    for (auto itr : sLFGDungeonsGroupingMapStore)
+    {
+        if (itr->randomLfgDungeonId == dungeonId)
+        {
+            if (container[groupId].find(itr->dungeonId) == container[groupId].end())
+                container[groupId].insert(itr->dungeonId);
+        }
+    }
 }
 
 } // namespace lfg

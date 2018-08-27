@@ -1549,6 +1549,14 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
+struct LFGDungeonsGroupingMapEntry
+{
+    uint32 ID;                                              // 0
+    uint32 dungeonId;                                       // 1
+    uint32 randomLfgDungeonId;                              // 2
+    uint32 groupId;                                         // 3
+};
+
 struct LightEntry
 {
     uint32 Id;
