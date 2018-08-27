@@ -1061,11 +1061,10 @@ class TC_GAME_API Unit : public WorldObject
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
-        bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
-        bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
+        bool IsFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
+        bool IsRooted() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
         bool IsPolymorphed() const;
-
-        bool isFrozen() const;
+        bool IsFrozen() const { return HasAuraState(AURA_STATE_FROZEN); }
 
         bool isTargetableForAttack(bool checkFakeDeath = true) const;
 
@@ -1460,8 +1459,8 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetNativeDisplayId() const { return GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID); }
         void RestoreDisplayId();
         void SetNativeDisplayId(uint32 modelId) { SetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID, modelId); }
-        void setTransForm(uint32 spellid) { m_transform = spellid;}
-        uint32 getTransForm() const { return m_transform;}
+        void SetTransformSpell(uint32 spellid) { m_transformSpell = spellid;}
+        uint32 GetTransformSpell() const { return m_transformSpell;}
 
         // DynamicObject management
         void _RegisterDynObject(DynamicObject* dynObj);
@@ -1612,8 +1611,6 @@ class TC_GAME_API Unit : public WorldObject
         /// Returns the transport this unit is on directly (if on vehicle and transport, return vehicle)
         TransportBase* GetDirectTransport() const;
 
-        bool m_ControlledByPlayer;
-
         void HandleSpellClick(Unit* clicker, int8 seatId = -1);
         void EnterVehicle(Unit* base, int8 seatId = -1);
         void ExitVehicle(Position const* exitPosition = nullptr);
@@ -1689,6 +1686,8 @@ class TC_GAME_API Unit : public WorldObject
 
         void _UpdateAutoRepeatSpell();
 
+        bool m_ControlledByPlayer;
+
         bool m_AutoRepeatFirstCast;
 
         uint32 m_attackTimer[MAX_ATTACK];
@@ -1708,7 +1707,7 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::list<GameObject*> GameObjectList;
         GameObjectList m_gameObj;
 
-        uint32 m_transform;
+        uint32 m_transformSpell;
 
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
 

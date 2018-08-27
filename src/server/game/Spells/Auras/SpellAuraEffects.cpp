@@ -1705,7 +1705,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
                 // and polymorphic affects
                 if (target->IsPolymorphed())
-                    target->RemoveAurasDueToSpell(target->getTransForm());
+                    target->RemoveAurasDueToSpell(target->GetTransformSpell());
                 break;
             }
             default:
@@ -1777,7 +1777,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
         if (modelid > 0)
         {
-            SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(target->getTransForm());
+            SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(target->GetTransformSpell());
             if (!transformSpellInfo || !GetSpellInfo()->IsPositive())
                 target->SetDisplayId(modelid);
         }
@@ -1902,10 +1902,10 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
     if (apply)
     {
         // update active transform spell only when transform not set or not overwriting negative by positive case
-        SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(target->getTransForm());
+        SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(target->GetTransformSpell());
         if (!transformSpellInfo || !GetSpellInfo()->IsPositive() || transformSpellInfo->IsPositive())
         {
-            target->setTransForm(GetId());
+            target->SetTransformSpell(GetId());
             // special case (spell specific functionality)
             if (GetMiscValue() == 0)
             {
@@ -2091,8 +2091,8 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
     else
     {
         // HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true) will reapply it if need
-        if (target->getTransForm() == GetId())
-            target->setTransForm(0);
+        if (target->GetTransformSpell() == GetId())
+            target->SetTransformSpell(0);
 
         target->RestoreDisplayId();
 

@@ -288,10 +288,9 @@ bool DispelableAura::RollDispel() const
 }
 
 Unit::Unit(bool isWorldObject) :
-    WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0),
-    LastCharmerGUID(), m_ControlledByPlayer(false),
-    movespline(new Movement::MoveSpline()), m_AutoRepeatFirstCast(false), m_procDeep(0), m_removedAurasCount(0),
-    m_charmer(nullptr), m_charmed(nullptr),
+    WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0), LastCharmerGUID(),
+    movespline(new Movement::MoveSpline()), m_ControlledByPlayer(false), m_AutoRepeatFirstCast(false),
+    m_procDeep(0), m_transformSpell(0), m_removedAurasCount(0), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr), m_vehicleKit(nullptr),
     m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this), m_threatManager(this),
     m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
@@ -328,7 +327,6 @@ Unit::Unit(bool isWorldObject) :
     m_auraUpdateIterator = m_ownedAuras.end();
 
     m_interruptMask = 0;
-    m_transform = 0;
     m_canModifyStats = false;
 
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
@@ -8858,7 +8856,7 @@ bool Unit::IsInFeralForm() const
 
 bool Unit::IsInDisallowedMountForm() const
 {
-    if (SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(getTransForm()))
+    if (SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(GetTransformSpell()))
         if (transformSpellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED))
             return false;
 
@@ -9835,11 +9833,6 @@ Player* Unit::GetPlayerBeingMoved() const
     return nullptr;
 }
 
-bool Unit::isFrozen() const
-{
-    return HasAuraState(AURA_STATE_FROZEN);
-}
-
 uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
 {
     uint32 hitMask = PROC_HIT_NONE;
@@ -10211,7 +10204,7 @@ void Unit::SetStandState(uint8 state)
 
 bool Unit::IsPolymorphed() const
 {
-    uint32 transformId = getTransForm();
+    uint32 transformId = GetTransformSpell();
     if (!transformId)
         return false;
 
@@ -13208,7 +13201,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                     CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
 
                     // this also applies for transform auras
-                    if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(getTransForm()))
+                    if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(GetTransformSpell()))
                         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                             if (transform->Effects[i].IsAura(SPELL_AURA_TRANSFORM))
                                 if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(transform->Effects[i].MiscValue))
