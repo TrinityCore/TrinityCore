@@ -745,8 +745,6 @@ class npc_brazie_fertilitize_o_tron_2000 : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-                me->m_CombatDistance = 3.0f;
-                me->SetNoCallAssistance(true);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
 
                 if (Creature* vehicle = summoner->GetVehicleCreatureBase())
@@ -754,7 +752,7 @@ class npc_brazie_fertilitize_o_tron_2000 : public CreatureScript
                         vehicle->AI()->JustSummoned(me);
             }
 
-             void AttackStart(Unit* who) override
+            void AttackStart(Unit* who) override
             {
                  if (me->GetPosition().GetExactDist(who->GetPosition()) > 3.0f)
                      return;
@@ -834,7 +832,6 @@ class npc_brazie_spot : public CreatureScript
 
             void Initialize()
             {
-                me->SetNoCallAssistance(true);
                 _currentEntry = me->GetEntry();
             }
 
@@ -882,6 +879,7 @@ class npc_brazie_spot : public CreatureScript
                     if (pos.HasInLine(who, 5.0f))
                     {
                         me->SetFacingToObject(spitterTarget);
+                        me->SetNoCallAssistance(true);
                         CreatureAI::AttackStart(who);
                     }
                 }
@@ -1039,6 +1037,7 @@ class npc_brazie_zombie : public CreatureScript
                         {
                             if (target->AI()->GetData(DATA_CURRENT_ENTRY) != NPC_EMPTY_SPOT || target->GetEntry() == NPC_FERTILITIZE_O_TRON_2000)
                             {
+                                me->SetNoCallAssistance(true);
                                 me->StopMoving();
                                 CreatureAI::AttackStart(who);
                             }
