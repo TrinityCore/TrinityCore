@@ -1,0 +1,10 @@
+--Creature template
+
+/*
+SQLyog Community v13.0.1 (64 bit)
+MySQL - 10.1.26-MariaDB-0+deb9u1 
+*********************************************************************
+*/
+/*!40101 SET NAMES utf8 */;
+
+insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) values('119484','29334','571','66','4375','1','0','0','0','-1','0','0','7208.18','-4500.84','451.828','2.16436','600','10','0','11379','0','1','0','0','0','0','0','','0');
