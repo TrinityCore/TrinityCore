@@ -882,10 +882,10 @@ struct CinematicCameraLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_INT, "SoundID" },
             { false, FT_FLOAT, "OriginX" },
             { false, FT_FLOAT, "OriginY" },
             { false, FT_FLOAT, "OriginZ" },
+            { false, FT_INT, "SoundID" },
             { false, FT_FLOAT, "OriginFacing" },
             { false, FT_INT, "FileDataID" },
         };

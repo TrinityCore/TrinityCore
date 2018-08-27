@@ -29,15 +29,15 @@ struct CinematicCameraLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_INT, "SoundID" },
             { false, FT_FLOAT, "OriginX" },
             { false, FT_FLOAT, "OriginY" },
             { false, FT_FLOAT, "OriginZ" },
+            { false, FT_INT, "SoundID" },
             { false, FT_FLOAT, "OriginFacing" },
             { false, FT_INT, "FileDataID" },
         };
-        static char const* types = "iffi";
-        static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
+        static char const* types = "fifi";
+        static uint8 const arraySizes[4] = { 3, 1, 1, 1 };
         static DB2Meta const meta(-1, 4, 0x0062B0F4, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
@@ -188,11 +188,11 @@ struct MapLoadInfo
             { false, FT_STRING, "MapDescription1" },
             { false, FT_STRING, "PvpShortDescription" },
             { false, FT_STRING, "PvpLongDescription" },
-            { true, FT_INT, "Flags1" },
-            { true, FT_INT, "Flags2" },
-            { false, FT_FLOAT, "MinimapIconScale" },
+           // false, FT_FLOAT, "MinimapIconScale" },
             { false, FT_FLOAT, "CorpseX" },
             { false, FT_FLOAT, "CorpseY" },
+            { true, FT_INT, "Flags1" },
+            { true, FT_INT, "Flags2" },
             { false, FT_SHORT, "AreaTableID" },
             { true, FT_SHORT, "LoadingScreenID" },
             { true, FT_SHORT, "CorpseMapID" },
