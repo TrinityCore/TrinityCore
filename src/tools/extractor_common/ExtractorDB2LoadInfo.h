@@ -38,7 +38,7 @@ struct CinematicCameraLoadInfo
         };
         static char const* types = "fifi";
         static uint8 const arraySizes[4] = { 3, 1, 1, 1 };
-        static DB2Meta const meta(-1, 4, 0x0062B0F4, types, arraySizes, -1);
+        static DB2Meta const meta(-1, 4, 0x20C5E540, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }

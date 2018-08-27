@@ -1422,7 +1422,10 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.IdTableSize);
     EndianConvert(_header.ParentLookupDataSize);
 
-   if (_header.Signature != 0x32434457)                        //'WDC2'
+
+    //ASSERT(false, "Wrong layoutHash %i found in", _header.LayoutHash);
+
+    if (_header.Signature != 0x32434457)                            //'WDC2'
         return false;
 
     if (_header.LayoutHash != loadInfo->Meta->LayoutHash)
@@ -1447,8 +1450,7 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     }
     
 
-    return true;
-
+ 
     if (_header.ParentLookupCount > 1)
         return false;
 
