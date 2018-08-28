@@ -18,11 +18,10 @@
 #include "ScriptMgr.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
+#include "MoveSpline.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
+#include "Spell.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -42,6 +41,9 @@ enum Spells
     // Orb of the Sun
     SPELL_SUMMON_METEOR         = 76375,
     SPELL_RIDE_VEHICLE          = 43671,
+
+    // Blazing Inferno
+    SPELL_BLAZING_INFERNO       = 76195
 };
 
 enum Texts
@@ -49,7 +51,7 @@ enum Texts
     SAY_AGGRO               = 0,
     SAY_BLESSING_OF_THE_SUN = 1,
     SAY_SLAY                = 2,
-    SAY_DEATH               = 3,
+    SAY_DEATH               = 3
 };
 
 enum Events
@@ -59,13 +61,12 @@ enum Events
     EVENT_SUMMON_SOLAR_WINDS,
     EVENT_SUMMON_SUN_ORB,
     EVENT_SUN_STRIKE,
-    EVENT_SUMMON_INFERNO_LEAP,
     EVENT_INFERNO_LEAP,
-    EVENT_APPLY_IMMUNITY,
+    EVENT_INFERNO_LEAP_CAST,
     EVENT_MOVE_TO_MIDDLE,
     EVENT_BLESSING_OF_THE_SUN,
     EVENT_TALK_BLESSING,
-    EVENT_ATTACK,
+    EVENT_REENGAGE,
 
     // Solar Winds
     EVENT_GROW,
@@ -75,439 +76,379 @@ enum Events
     // Orb of the Sun
     EVENT_SUMMON_BLAZING_INFERNO,
     EVENT_RIDE_VEHICLE,
+    EVENT_BLAZING_INFERNO
 };
 
-enum Points
+enum MovePoints
 {
-    POINT_RAJH_CENTER = 1,
+    POINT_NONE,
+    POINT_RAJH_CENTER
 };
 
 enum AchievementData
 {
-    DATA_SUN_OF_A = 1,
+    DATA_SUN_OF_A = 1
 };
 
 Position const RajhMiddlePos = { -318.5936f, 192.8621f, 343.9443f };
 
-class boss_rajh : public CreatureScript
+struct boss_rajh : public BossAI
 {
-public:
-    boss_rajh() : CreatureScript("boss_rajh") { }
-
-    struct boss_rajhAI : public BossAI
+    boss_rajh(Creature* creature) : BossAI(creature, DATA_RAJH)
     {
-        boss_rajhAI(Creature* creature) : BossAI(creature, DATA_RAJH) { }
+        Initialize();
+    }
 
-        void Reset() override
+    void Initialize()
+    {
+        _energized = true;
+        _achievementEnabled = true;
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+        me->MakeInterruptable(false);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->SetReactState(REACT_AGGRESSIVE);
+        _randomTimerCase = RAND(0, 1);
+        events.ScheduleEvent(EVENT_SOLAR_WINDS, 5s);
+        events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? 10s : 25s);
+        events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? 20s : 8s);
+        events.ScheduleEvent(EVENT_INFERNO_LEAP, 14s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _DespawnAtEvade();
+    }
+
+    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SUMMON_SUN_ORB || spell->Id == SPELL_INFERNO_LEAP_VEHICLE)
+            me->MakeInterruptable(false);
+    }
+
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SUMMON_SUN_ORB || spell->Id == SPELL_INFERNO_LEAP_VEHICLE)
+            me->MakeInterruptable(false);
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_SUN_OF_A)
+            return _achievementEnabled;
+
+        return 0;
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (pointId == POINT_RAJH_CENTER)
+            events.ScheduleEvent(EVENT_BLESSING_OF_THE_SUN, 1);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+
+        if (summon->GetEntry() == NPC_INFERNO_LEAP)
+            events.ScheduleEvent(EVENT_INFERNO_LEAP_CAST, 1ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (me->GetPower(POWER_ENERGY) <= 10 && _energized)
         {
-            _Reset();
-            _energized = true;
-            _achievementEnabled = true;
             me->SetReactState(REACT_PASSIVE);
-            me->SetPower(POWER_ENERGY, 100);
-            me->MakeInterruptable(false);
+            me->AttackStop();
+            events.CancelEvent(EVENT_SOLAR_WINDS);
+            events.CancelEvent(EVENT_SUMMON_SUN_ORB);
+            events.CancelEvent(EVENT_SUN_STRIKE);
+            events.CancelEvent(EVENT_INFERNO_LEAP);
+            events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(2));
+            _energized = false;
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _JustEngagedWith();
-            Talk(SAY_AGGRO);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            me->SetReactState(REACT_AGGRESSIVE);
-            _randomTimerCase = RAND(0, 1);
-            events.ScheduleEvent(EVENT_SOLAR_WINDS, Seconds(5));
-            events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? Seconds(10) : Seconds(25));
-            events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? Seconds(20) : Seconds(8));
-            events.ScheduleEvent(EVENT_SUMMON_INFERNO_LEAP, Seconds(14));
-        }
+        events.Update(diff);
 
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
-            if (summon->GetEntry() == NPC_INFERNO_LEAP)
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                me->MakeInterruptable(true);
-                events.ScheduleEvent(EVENT_INFERNO_LEAP, 1);
-                events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(1) + Milliseconds(500));
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            Talk(SAY_DEATH);
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            summons.DespawnAll();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            _DespawnAtEvade();
-        }
-
-        void OnSpellCastInterrupt(SpellInfo const* /*spell*/) override
-        {
-            me->MakeInterruptable(false);
-            events.CancelEvent(EVENT_APPLY_IMMUNITY);
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_SUN_OF_A:
-                    return _achievementEnabled;
-                default:
-                    break;
-            }
-            return 0;
-        }
-
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            switch (pointId)
-            {
-                case POINT_RAJH_CENTER:
-                    events.ScheduleEvent(EVENT_BLESSING_OF_THE_SUN, 1);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (me->GetPower(POWER_ENERGY) <= 10 && _energized)
-            {
-                events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(1));
-                _energized = false;
-            }
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SOLAR_WINDS:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        {
-                            DoCast(target, SPELL_SOLAR_WINDS_DUMMY);
-                            events.Repeat(Seconds(15), Seconds(23));
-                            events.ScheduleEvent(EVENT_SUMMON_SOLAR_WINDS, Seconds(1));
-                        }
-                        break;
-                    case EVENT_SUMMON_SOLAR_WINDS:
-                        DoCastSelf(SPELL_SOLAR_WINDS_SUMMON);
-                        break;
-                    case EVENT_SUMMON_SUN_ORB:
-                        me->MakeInterruptable(true);
-                        me->StopMoving();
-                        DoCastSelf(SPELL_SUMMON_SUN_ORB);
-                        events.Repeat(_randomTimerCase == 0 ? Seconds(35), Seconds(36) : Seconds(31), Seconds(37));
-                        events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(3));
-                        break;
-                    case EVENT_SUN_STRIKE:
-                        if (Unit* target = me->GetVictim())
-                            me->CastSpell(target, SPELL_SUN_STRIKE, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
-                        events.Repeat(_randomTimerCase == 0 ? Seconds(35) : Seconds(27));
-                        break;
-                    case EVENT_APPLY_IMMUNITY:
-                        me->MakeInterruptable(false);
-                        break;
-                    case EVENT_MOVE_TO_MIDDLE:
-                        events.Reset();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->AttackStop();
-                        me->ExitVehicle();
-                        me->GetMotionMaster()->MovePoint(POINT_RAJH_CENTER, RajhMiddlePos, true);
-                        break;
-                    case EVENT_BLESSING_OF_THE_SUN:
-                        DoCastSelf(SPELL_BLESSING_OF_THE_SUN);
-                        events.ScheduleEvent(EVENT_TALK_BLESSING, Seconds(1) + Milliseconds(500));
-                        events.ScheduleEvent(EVENT_ATTACK, Seconds(20));
-                        me->SetFacingTo(3.124139f);
-                        break;
-                    case EVENT_TALK_BLESSING:
-                        Talk(SAY_BLESSING_OF_THE_SUN);
-                        me->HandleEmoteCommand(EMOTE_STATE_READY_SPELL_OMNI);
-                        break;
-                    case EVENT_ATTACK:
-                        _achievementEnabled = false;
-                        _energized = true;
-                        _randomTimerCase = RAND(0, 1);
-                        events.ScheduleEvent(EVENT_SOLAR_WINDS, Seconds(5));
-                        events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? Seconds(10) : Seconds(25));
-                        events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? Seconds(20) : Seconds(8));
-                        events.ScheduleEvent(EVENT_SUMMON_INFERNO_LEAP, Seconds(14));
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        break;
-                    case EVENT_SUMMON_INFERNO_LEAP:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_INFERNO_LEAP_DUMMY, true);
-                        events.Repeat(Seconds(59), Seconds(60));
-                        break;
-                    case EVENT_INFERNO_LEAP:
-                        DoCastAOE(SPELL_INFERNO_LEAP_VEHICLE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-        private:
-            bool _energized;
-            bool _achievementEnabled;
-            uint8 _randomTimerCase;
-    };
-    CreatureAI* GetAI(Creature *creature) const override
-    {
-        return GetHallsOfOriginationAI<boss_rajhAI>(creature);
-    }
-};
-
-class npc_solar_winds : public CreatureScript
-{
-public:
-    npc_solar_winds() : CreatureScript("npc_solar_winds") { }
-
-    struct npc_solar_windsAI : public ScriptedAI
-    {
-        npc_solar_windsAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-        void IsSummonedBy(Unit* /*summoner*/) override
-        {
-            me->SetWalk(true);
-            _events.ScheduleEvent(EVENT_GROW, Seconds(1));
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            if (Creature* rajh = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAJH)))
-                rajh->AI()->JustSummoned(summon);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_GROW:
-                        me->SetObjectScale(1.0f);
-                        _events.ScheduleEvent(EVENT_START_MOVING, Seconds(2));
-                        break;
-                    case EVENT_START_MOVING:
-                        DoCastSelf(SPELL_SOLAR_WINDS_PERIODIC, true);
-                        _events.ScheduleEvent(EVENT_MOVE_ARROUND, 1);
-                        break;
-                    case EVENT_MOVE_ARROUND:
+                case EVENT_SOLAR_WINDS:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
-                        float o = me->GetOrientation() + frand(0.0f, float(M_PI * 2));
-                        float x = me->GetPositionX() + cos(o) * 20.0f;
-                        float y = me->GetPositionY() + sin(o) * 20.0f;
-                        float z = me->GetPositionZ();
-                        me->GetMotionMaster()->MovePoint(0, x, y, z, true);
-                        _events.Repeat(Seconds(7));
-                        break;
+                        me->StopMoving();
+                        DoCast(target, SPELL_SOLAR_WINDS_DUMMY);
+                        events.Repeat(15s, 23s);
+                        events.ScheduleEvent(EVENT_SUMMON_SOLAR_WINDS, 1s);
                     }
-                    default:
-                        break;
-                }
+                    break;
+                case EVENT_SUMMON_SOLAR_WINDS:
+                    DoCastSelf(SPELL_SOLAR_WINDS_SUMMON);
+                    break;
+                case EVENT_SUMMON_SUN_ORB:
+                    me->StopMoving();
+                    me->MakeInterruptable(true);
+                    DoCastSelf(SPELL_SUMMON_SUN_ORB);
+                    events.Repeat(_randomTimerCase == 0 ? 35s, 36s : 31s, 37s);
+                    break;
+                case EVENT_SUN_STRIKE:
+                    if (Unit* target = me->GetVictim())
+                        me->CastSpell(target, SPELL_SUN_STRIKE, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                    events.Repeat(_randomTimerCase == 0 ? 35s : 27s);
+                    break;
+                case EVENT_MOVE_TO_MIDDLE:
+                    if (me->GetVehicle())
+                        events.Repeat(1s);
+                    else
+                        me->GetMotionMaster()->MovePoint(POINT_RAJH_CENTER, RajhMiddlePos, true);
+                    break;
+                case EVENT_BLESSING_OF_THE_SUN:
+                    DoCastSelf(SPELL_BLESSING_OF_THE_SUN);
+                    events.ScheduleEvent(EVENT_TALK_BLESSING, 1s + 500ms);
+                    events.ScheduleEvent(EVENT_REENGAGE, 20s);
+                    me->SetFacingTo(3.124139f);
+                    break;
+                case EVENT_TALK_BLESSING:
+                    Talk(SAY_BLESSING_OF_THE_SUN);
+                    me->HandleEmoteCommand(EMOTE_STATE_READY_SPELL_OMNI);
+                    break;
+                case EVENT_REENGAGE:
+                    _achievementEnabled = false;
+                    _energized = true;
+                    _randomTimerCase = RAND(0, 1);
+                    events.ScheduleEvent(EVENT_SOLAR_WINDS, 5s);
+                    events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? 10s : 25s);
+                    events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? 20s : 8s);
+                    events.ScheduleEvent(EVENT_INFERNO_LEAP, 14s);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_INFERNO_LEAP:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        DoCast(target, SPELL_INFERNO_LEAP_DUMMY, true);
+                    events.Repeat(59s, 1min);
+                    break;
+                case EVENT_INFERNO_LEAP_CAST:
+                    me->MakeInterruptable(true);
+                    DoCastAOE(SPELL_INFERNO_LEAP_VEHICLE);
+                    break;
+                default:
+                    break;
             }
         }
-
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetHallsOfOriginationAI<npc_solar_windsAI>(creature);
+        DoMeleeAttackIfReady();
     }
+private:
+    bool _energized;
+    bool _achievementEnabled;
+    uint8 _randomTimerCase;
 };
 
-class npc_orb_of_the_sun : public CreatureScript
+struct npc_rajh_solar_winds : public ScriptedAI
 {
-public:
-    npc_orb_of_the_sun() : CreatureScript("npc_orb_of_the_sun") { }
+    npc_rajh_solar_winds(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-    struct npc_orb_of_the_sunAI : public ScriptedAI
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
-        npc_orb_of_the_sunAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+        me->SetWalk(true);
+        _events.ScheduleEvent(EVENT_GROW, Seconds(1));
+    }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+    void JustSummoned(Creature* summon) override
+    {
+        if (Creature* rajh = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAJH)))
+            rajh->AI()->JustSummoned(summon);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            _events.ScheduleEvent(EVENT_GROW, Seconds(1));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
+                case EVENT_GROW:
+                    me->SetObjectScale(1.0f);
+                    _events.ScheduleEvent(EVENT_START_MOVING, Seconds(2));
+                    break;
+                case EVENT_START_MOVING:
+                    DoCastSelf(SPELL_SOLAR_WINDS_PERIODIC, true);
+                    _events.ScheduleEvent(EVENT_MOVE_ARROUND, 1);
+                    break;
+                case EVENT_MOVE_ARROUND:
                 {
-                    case EVENT_GROW:
-                        me->SetObjectScale(1.0f);
-                        _events.ScheduleEvent(EVENT_SUMMON_BLAZING_INFERNO, Seconds(1));
-                        break;
-                    case EVENT_SUMMON_BLAZING_INFERNO:
-                        DoCastSelf(SPELL_SUMMON_METEOR);
-                        _events.ScheduleEvent(EVENT_RIDE_VEHICLE, Seconds(2));
-                        break;
-                    case EVENT_RIDE_VEHICLE:
-                        if (Creature* inferno = me->FindNearestCreature(NPC_BLAZING_INFERNO, 100.0f, true))
-                            DoCast(inferno, SPELL_RIDE_VEHICLE, true);
-                        break;
-                    default:
-                        break;
+                    float o = frand(0.0f, float(M_PI * 2));
+                    Position pos = RajhMiddlePos;
+                    pos.m_positionZ += 5.0f;
+                    me->MovePositionToFirstCollision(pos, 60.0f, o);
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, pos, true);
+                    _events.Repeat(Seconds(7));
+                    break;
                 }
+                default:
+                    break;
             }
         }
+    }
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
 
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-    };
+struct npc_rajh_orb_of_the_sun : public ScriptedAI
+{
+    npc_rajh_orb_of_the_sun(Creature* creature) : ScriptedAI(creature) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
-        return GetHallsOfOriginationAI<npc_orb_of_the_sunAI>(creature);
+        _events.ScheduleEvent(EVENT_GROW, Seconds(1));
+    }
+
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_RIDE_VEHICLE)
+            _events.ScheduleEvent(EVENT_BLAZING_INFERNO, 500ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GROW:
+                    me->SetObjectScale(1.0f);
+                    _events.ScheduleEvent(EVENT_SUMMON_BLAZING_INFERNO, Seconds(1));
+                    break;
+                case EVENT_SUMMON_BLAZING_INFERNO:
+                    DoCastSelf(SPELL_SUMMON_METEOR);
+                    _events.ScheduleEvent(EVENT_RIDE_VEHICLE, Seconds(2));
+                    break;
+                case EVENT_RIDE_VEHICLE:
+                    if (Creature* inferno = me->FindNearestCreature(NPC_BLAZING_INFERNO, 200.0f, true))
+                        DoCast(inferno, SPELL_RIDE_VEHICLE, true);
+                    break;
+                case EVENT_BLAZING_INFERNO:
+                    if (Creature* inferno = me->GetVehicleCreatureBase())
+                        inferno->CastSpell(me, SPELL_BLAZING_INFERNO);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+class spell_rajh_summon_meteor : public SpellScript
+{
+    PrepareSpellScript(spell_rajh_summon_meteor);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rajh_summon_meteor::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
-class spell_rajh_summon_meteor : public SpellScriptLoader
+class spell_rajh_summon_sun_orb : public SpellScript
 {
-public:
-    spell_rajh_summon_meteor() : SpellScriptLoader("spell_rajh_summon_meteor") { }
+    PrepareSpellScript(spell_rajh_summon_sun_orb);
 
-    class spell_rajh_summon_meteor_SpellScript : public SpellScript
+    void SetDest(SpellDestination& dest)
     {
-        PrepareSpellScript(spell_rajh_summon_meteor_SpellScript);
+        dest.RelocateOffset({ 0.0f, 0.0f, 15.0f, 0.0f });
+    }
 
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            Trinity::Containers::RandomResize(targets, 1);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rajh_summon_meteor_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register()
     {
-        return new spell_rajh_summon_meteor_SpellScript();
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_rajh_summon_sun_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT_RIGHT);
     }
 };
 
-class spell_rajh_summon_sun_orb : public SpellScriptLoader
+class spell_rajh_summon_sun_orb_power_cost : public AuraScript
 {
-public:
-    spell_rajh_summon_sun_orb() : SpellScriptLoader("spell_rajh_summon_sun_orb") { }
+    PrepareAuraScript(spell_rajh_summon_sun_orb_power_cost);
 
-    class spell_rajh_summon_sun_orb_SpellScript : public SpellScript
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        PrepareSpellScript(spell_rajh_summon_sun_orb_SpellScript);
-
-        void SetDestPosition(SpellEffIndex /*effIndex*/)
-        {
-            float x = GetExplTargetDest()->GetPositionX();
-            float y = GetExplTargetDest()->GetPositionY();
-            float z = 358.0276f;
-
-            const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(x, y, z);
-            GetHitDest()->Relocate(x, y, z);
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(spell_rajh_summon_sun_orb_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rajh_summon_sun_orb_SpellScript();
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
     }
-};
 
-class spell_rajh_summon_sun_orb_power_cost : public SpellScriptLoader
-{
-public:
-    spell_rajh_summon_sun_orb_power_cost() : SpellScriptLoader("spell_rajh_summon_sun_orb_power_cost") { }
-
-    class spell_rajh_summon_sun_orb_power_cost_AuraScript : public AuraScript
+    void Register() override
     {
-        PrepareAuraScript(spell_rajh_summon_sun_orb_power_cost_AuraScript);
-
-        void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
-        {
-            PreventDefaultAction();
-            GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rajh_summon_sun_orb_power_cost_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_rajh_summon_sun_orb_power_cost_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rajh_summon_sun_orb_power_cost::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 class achievement_sun_of_a : public AchievementCriteriaScript
 {
-public:
-    achievement_sun_of_a() : AchievementCriteriaScript("achievement_sun_of_a") { }
+    public:
+        achievement_sun_of_a() : AchievementCriteriaScript("achievement_sun_of_a") { }
 
-    bool OnCheck(Player* /*source*/, Unit* target)
-    {
-        if (!target)
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (target->GetMap()->IsHeroic())
+                return target->GetAI()->GetData(DATA_SUN_OF_A);
+
             return false;
-
-        if (target->GetMap()->IsHeroic())
-            return target->GetAI()->GetData(DATA_SUN_OF_A);
-
-        return false;
-    }
+        }
 };
 
 void AddSC_boss_rajh()
 {
-    new boss_rajh();
-    new npc_solar_winds();
-    new npc_orb_of_the_sun();
-    new spell_rajh_summon_meteor();
-    new spell_rajh_summon_sun_orb();
-    new spell_rajh_summon_sun_orb_power_cost();
+    RegisterHallsOfOriginationCreatureAI(boss_rajh);
+    RegisterHallsOfOriginationCreatureAI(npc_rajh_solar_winds);
+    RegisterHallsOfOriginationCreatureAI(npc_rajh_orb_of_the_sun);
+    RegisterSpellScript(spell_rajh_summon_meteor);
+    RegisterSpellScript(spell_rajh_summon_sun_orb);
+    RegisterAuraScript(spell_rajh_summon_sun_orb_power_cost);
     new achievement_sun_of_a();
 }
