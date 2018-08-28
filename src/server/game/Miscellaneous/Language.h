@@ -996,7 +996,7 @@ enum TrinityStrings
     LANG_BATTLEGROUND                     = 5015,
     LANG_ARENA                            = 5016,
     LANG_RAID                             = 5017,
-    LANG_NPCINFO_PHASE_IDS                = 5018,
+    LANG_NPCINFO_REACTSTATE               = 5018,
     LANG_COMMAND_TEMP_FROZEN_PLAYER       = 5019,
     LANG_NPCINFO_PHASES                   = 5020,
     LANG_NPCINFO_ARMOR                    = 5021,
@@ -1074,8 +1074,9 @@ enum TrinityStrings
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2       = 5084,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085,
     LANG_NPCINFO_NPC_FLAGS                = 5086,
+    LANG_NPCINFO_PHASE_IDS                = 5087,
 
-    // Room for more Trinity strings        5087-6603
+    // Room for more Trinity strings        5088-6603
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,
     LANG_WHISPER_REQ                      = 6605,

@@ -373,6 +373,18 @@ enum ReactStates
     REACT_ASSIST     = 3
 };
 
+static char const* DescribeReactState(ReactStates state)
+{
+    switch (state)
+    {
+        case REACT_PASSIVE:     return "PASSIVE";
+        case REACT_DEFENSIVE:   return "DEFENSIVE";
+        case REACT_AGGRESSIVE:  return "AGGRESSIVE";
+        case REACT_ASSIST:      return "ASSIST";
+        default:                return "<Invalid react state>";
+    }
+}
+
 enum CommandStates : uint8
 {
     COMMAND_STAY    = 0,
