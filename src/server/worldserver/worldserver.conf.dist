@@ -1861,6 +1861,18 @@ Respawn.DynamicRateGameObject = 10
 Respawn.DynamicMinimumGameObject = 10
 
 #
+# Respown multiplier for creature spawntimesecs < Respawn.MinSpawnTimeSecs
+# default 1.0
+#
+Respawn.Multiplier = 1.0
+
+#
+# Min timesecs where respawn multiplier is applied
+# default 150
+#
+Respawn.MinSpawnTimeSecsMultiplierApply = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
