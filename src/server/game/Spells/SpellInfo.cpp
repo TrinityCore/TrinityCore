@@ -3430,6 +3430,9 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Arcane Missiles
             if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
                 return false;
+            // Mage Slow
+            if (spellInfo->Id == 31589)
+                return false;
             break;
         case SPELLFAMILY_WARRIOR:
             // Slam, Execute
