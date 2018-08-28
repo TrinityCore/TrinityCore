@@ -17,6 +17,7 @@
 
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CreatureGroups.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ThreatManager.h"
@@ -383,6 +384,8 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         SaveCreatureHomePositionIfNeed(cOwner);
         if (CreatureAI* ownerAI = cOwner->AI())
             ownerAI->JustEngagedWith(target);
+        if (CreatureGroup* formation = cOwner->GetFormation())
+            formation->MemberEngagingTarget(cOwner, target);
     }
 }
 
