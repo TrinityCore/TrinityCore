@@ -17,10 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "halls_of_origination.h"
-#include "InstanceScript.h"
-#include "MotionMaster.h"
-#include "MoveSpline.h"
 #include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "Spell.h"
 #include "SpellScript.h"
 
