@@ -518,6 +518,11 @@ class instance_ulduar : public InstanceMapScript
                         if (_algalonSummoned)
                             gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         break;
+                    case GO_DOODAD_UL_SIGILDOOR_01:
+                    case GO_DOODAD_UL_SIGILDOOR_02:
+                        if (_algalonSummoned)
+                            gameObject->SetGoState(GO_STATE_ACTIVE);
+                        break;
                     default:
                         break;
                 }
