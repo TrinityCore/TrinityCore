@@ -340,7 +340,8 @@ enum ReactStates
     REACT_DEFENSIVE  = 1,
     REACT_AGGRESSIVE = 2
 };
-inline char const* DescribeReactState(ReactStates state) {
+inline char const* DescribeReactState(ReactStates state)
+{
     switch (state)
     {
         case REACT_PASSIVE:     return "PASSIVE";
