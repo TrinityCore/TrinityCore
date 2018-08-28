@@ -342,40 +342,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage /= count;
                 }
 
-                ///@todo: move those to scripts
-                switch (m_spellInfo->Id)                     // better way to check unknown
-                {
-                    // Consumption
-                    case 28865:
-                        damage = 2750;
-                        if (m_caster->GetMap()->IsHeroic())
-                            damage = 4250;
-                        break;
-                    // percent from health with min
-                    case 25599:                             // Thundercrash
-                    {
-                        damage = unitTarget->GetHealth() / 2;
-                        if (damage < 200)
-                            damage = 200;
-                        break;
-                    }
-                    // arcane charge. must only affect demons (also undead?)
-                    case 45072:
-                    {
-                        if (!(unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD))
-                            return;
-                        break;
-                    }
-                    // Gargoyle Strike
-                    case 51963:
-                    {
-                        damage = 60;
-                        // about +4 base spell dmg per level
-                        if (unitCaster && unitCaster->getLevel() >= 60)
-                            damage += (unitCaster->getLevel() - 60) * 4;
-                        break;
-                    }
-                }
                 break;
             }
             case SPELLFAMILY_WARRIOR:
