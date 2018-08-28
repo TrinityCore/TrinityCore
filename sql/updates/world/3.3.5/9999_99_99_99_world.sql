@@ -9,3 +9,4 @@ INSERT INTO `spell_script_names` VALUES
 (25599, 'spell_rajaxx_thundercrash'),
 (45072, 'spell_gen_arcane_charge'),
 (51963, 'spell_pet_dk_gargoyle_strike');
+
