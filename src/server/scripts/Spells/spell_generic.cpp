@@ -212,6 +212,7 @@ class spell_gen_arcane_charge : public SpellScript
             if (!(target->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD))
                 return SPELL_FAILED_DONT_REPORT;
         }
+
         return SPELL_CAST_OK;
     }
 
