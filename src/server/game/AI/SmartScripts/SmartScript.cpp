@@ -588,6 +588,39 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_SELF_CAST:
+        {
+            if (targets.empty())
+                break;
+
+            if (e.action.cast.targetsLimit)
+                Trinity::Containers::RandomResize(targets, e.action.cast.targetsLimit);
+
+            TriggerCastFlags triggerFlags = TRIGGERED_NONE;
+            if (e.action.cast.castFlags & SMARTCAST_TRIGGERED)
+            {
+                if (e.action.cast.triggerFlags)
+                    triggerFlags = TriggerCastFlags(e.action.cast.triggerFlags);
+                else
+                    triggerFlags = TRIGGERED_FULL_MASK;
+            }
+
+            for (WorldObject* target : targets)
+            {
+                Unit* uTarget = target->ToUnit();
+                if (!uTarget)
+                    continue;
+
+                if (!(e.action.cast.castFlags & SMARTCAST_AURA_NOT_PRESENT) || !uTarget->HasAura(e.action.cast.spell))
+                {
+                    if (e.action.cast.castFlags & SMARTCAST_INTERRUPT_PREVIOUS)
+                        uTarget->InterruptNonMeleeSpells(false);
+
+                    uTarget->CastSpell(uTarget, e.action.cast.spell, triggerFlags);
+                }
+            }
+            break;
+        }
         case SMART_ACTION_INVOKER_CAST:
         {
             Unit* tempLastInvoker = GetLastInvoker(unit);
@@ -597,7 +630,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (targets.empty())
                 break;
 
-            if (e.action.cast.targetsLimit > 0 && targets.size() > e.action.cast.targetsLimit)
+            if (e.action.cast.targetsLimit)
                 Trinity::Containers::RandomResize(targets, e.action.cast.targetsLimit);
 
             for (WorldObject* target : targets)

@@ -2307,11 +2307,7 @@ public:
         if (!target->IsAlive())
             return true;
 
-        char* damageStr = strtok((char*)args, " ");
-        if (!damageStr)
-            return false;
-
-        int32 damage_int = atoi((char*)damageStr);
+        int32 damage_int = atoi((char*)str);
         if (damage_int <= 0)
             return true;
 
