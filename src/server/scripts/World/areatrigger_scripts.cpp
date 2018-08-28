@@ -291,38 +291,6 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
 };
 
 /*######
-## at_sentry_point
-######*/
-
-enum SentryPoint
-{
-    SPELL_TELEPORT_VISUAL = 799,  // TODO Find the correct spell
-    QUEST_MISSING_DIPLO_PT14 = 1265,
-    NPC_TERVOSH = 4967
-};
-
-class AreaTrigger_at_sentry_point : public AreaTriggerScript
-{
-public:
-    AreaTrigger_at_sentry_point() : AreaTriggerScript("at_sentry_point") { }
-
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
-    {
-        QuestStatus quest_status = player->GetQuestStatus(QUEST_MISSING_DIPLO_PT14);
-        if (!player->IsAlive() || quest_status == QUEST_STATUS_NONE || quest_status == QUEST_STATUS_REWARDED)
-            return false;
-
-        if (!player->FindNearestCreature(NPC_TERVOSH, 100.0f))
-        {
-            if (Creature* tervosh = player->SummonCreature(NPC_TERVOSH, -3476.51f, -4105.94f, 17.1f, 5.3816f, TEMPSUMMON_TIMED_DESPAWN, 60000))
-                tervosh->CastSpell(tervosh, SPELL_TELEPORT_VISUAL, true);
-        }
-
-        return true;
-    }
-};
-
-/*######
 ## at_brewfest
 ######*/
 
@@ -520,7 +488,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_last_rites();
     new AreaTrigger_at_sholazar_waygate();
     new AreaTrigger_at_nats_landing();
-    new AreaTrigger_at_sentry_point();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();
