@@ -3031,7 +3031,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
     ObjectGuid thisGUID = ObjectGuid((info->type == SPAWN_TYPE_GAMEOBJECT) ? HighGuid::GameObject : HighGuid::Unit, info->entry, info->spawnId);
     if (time_t linkedTime = GetLinkedRespawnTime(thisGUID))
     {
-        time_t now = time(NULL);
+        time_t now = GameTime::GetGameTime();
         time_t respawnTime;
         if (linkedTime == std::numeric_limits<time_t>::max())
             respawnTime = linkedTime;

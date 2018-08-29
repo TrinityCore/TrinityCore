@@ -1998,7 +1998,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
 
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds forceRespawnTimer /*= 0*/)
 {
-    if (TempSummon* summon = this->ToTempSummon())
+    if (TempSummon* summon = ToTempSummon())
         summon->UnSummon(msTimeToDespawn);
     else
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
