@@ -106,8 +106,7 @@ enum DruidSpellIconIds
     SPELL_ICON_ID_DREAMSTATE            = 2255,
     SPELL_ICON_ID_GLYPH_OF_INNERVATE    = 62,
     SPELL_ICON_ID_EUPHORIA              = 4431,
-    SPELL_ICON_ID_SAVAGE_DEFENDER       = 146,
-    SPELL_ICON_ID_FUROR                 = 238
+    SPELL_ICON_ID_SAVAGE_DEFENDER       = 146
 };
 
 enum MiscSpells
