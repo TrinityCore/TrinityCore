@@ -145,8 +145,8 @@ class spell_pet_dk_gargoyle_strike : public SpellScript
         int32 damage = 60;
         if (Unit* caster = GetCaster())
         {
-            if (GetCaster()->getLevel() >= 60)
-                damage += (GetCaster()->getLevel() - 60) * 4;
+            if (caster->getLevel() >= 60)
+                damage += (caster->getLevel() - 60) * 4;
         }
 
         SetHitDamage(damage);

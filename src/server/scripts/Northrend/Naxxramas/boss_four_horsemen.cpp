@@ -696,7 +696,7 @@ class boss_four_horsemen_sir : public CreatureScript
 
      void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
      {
-         if (Unit *caster = GetCaster())
+         if (Unit* caster = GetCaster())
          {
              int32 damage;
              switch (GetStackAmount())
