@@ -46,6 +46,10 @@ namespace Trinity
 #define ASSERT_END
 #endif
 
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
+#endif
+
 #define WPAssert(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, #cond, ##__VA_ARGS__); } while(0) ASSERT_END
 #define WPFatal(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Fatal(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0) ASSERT_END
 #define WPError(cond, msg) ASSERT_BEGIN do { if (!(cond)) Trinity::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
