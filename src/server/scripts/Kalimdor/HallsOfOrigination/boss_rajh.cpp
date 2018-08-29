@@ -65,6 +65,7 @@ enum Events
     EVENT_BLESSING_OF_THE_SUN,
     EVENT_TALK_BLESSING,
     EVENT_REENGAGE,
+    EVENT_APPLY_INTERRUPT_IMMUNITY,
 
     // Solar Winds
     EVENT_GROW,
@@ -147,13 +148,10 @@ struct boss_rajh : public BossAI
     void OnSpellCastInterrupt(SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_SUMMON_SUN_ORB || spell->Id == SPELL_INFERNO_LEAP_VEHICLE)
+        {
             me->MakeInterruptable(false);
-    }
-
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_SUMMON_SUN_ORB || spell->Id == SPELL_INFERNO_LEAP_VEHICLE)
-            me->MakeInterruptable(false);
+            events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
+        }
     }
 
     uint32 GetData(uint32 type) const override
@@ -170,7 +168,7 @@ struct boss_rajh : public BossAI
             return;
 
         if (pointId == POINT_RAJH_CENTER)
-            events.ScheduleEvent(EVENT_BLESSING_OF_THE_SUN, 1);
+            events.ScheduleEvent(EVENT_BLESSING_OF_THE_SUN, 1ms);
     }
 
     void JustSummoned(Creature* summon) override
@@ -223,6 +221,7 @@ struct boss_rajh : public BossAI
                     me->StopMoving();
                     me->MakeInterruptable(true);
                     DoCastSelf(SPELL_SUMMON_SUN_ORB);
+                    events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 3s);
                     events.Repeat(_randomTimerCase == 0 ? 35s, 36s : 31s, 37s);
                     break;
                 case EVENT_SUN_STRIKE:
@@ -239,12 +238,12 @@ struct boss_rajh : public BossAI
                 case EVENT_BLESSING_OF_THE_SUN:
                     DoCastSelf(SPELL_BLESSING_OF_THE_SUN);
                     events.ScheduleEvent(EVENT_TALK_BLESSING, 1s + 500ms);
-                    events.ScheduleEvent(EVENT_REENGAGE, 20s);
+                    events.ScheduleEvent(EVENT_REENGAGE, 21s);
                     me->SetFacingTo(3.124139f);
                     break;
                 case EVENT_TALK_BLESSING:
                     Talk(SAY_BLESSING_OF_THE_SUN);
-                    me->HandleEmoteCommand(EMOTE_STATE_READY_SPELL_OMNI);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY_SPELL_OMNI);
                     break;
                 case EVENT_REENGAGE:
                     _achievementEnabled = false;
@@ -254,6 +253,7 @@ struct boss_rajh : public BossAI
                     events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? 10s : 25s);
                     events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? 20s : 8s);
                     events.ScheduleEvent(EVENT_INFERNO_LEAP, 14s);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                     me->SetReactState(REACT_AGGRESSIVE);
                     break;
                 case EVENT_INFERNO_LEAP:
@@ -263,7 +263,11 @@ struct boss_rajh : public BossAI
                     break;
                 case EVENT_INFERNO_LEAP_CAST:
                     me->MakeInterruptable(true);
+                    events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 1s + 500ms);
                     DoCastAOE(SPELL_INFERNO_LEAP_VEHICLE);
+                    break;
+                case EVENT_APPLY_INTERRUPT_IMMUNITY:
+                    me->MakeInterruptable(false);
                     break;
                 default:
                     break;
