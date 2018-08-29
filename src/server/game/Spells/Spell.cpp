@@ -806,17 +806,18 @@ uint64 Spell::CalculateDelayMomentForDst() const
         {
             float speed = m_targets.GetSpeedXY();
             if (speed > 0.0f)
-                return (uint64)floor(m_targets.GetDist2d() / speed * 1000.0f);
+                return uint64(std::floor((m_targets.GetDist2d() / speed + m_spellInfo->LaunchDelay) * 1000.0f));
         }
+        else if (m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            return uint64(std::floor((m_spellInfo->Speed + m_spellInfo->LaunchDelay) * 1000.0f));
         else if (m_spellInfo->Speed > 0.0f)
         {
             // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
             float dist = m_caster->GetExactDist(*m_targets.GetDstPos());
-            if (!m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-                return (uint64)std::floor(dist / m_spellInfo->Speed * 1000.0f);
-            else
-                return (uint64)std::floor(m_spellInfo->Speed * 1000.0f);
+            return uint64(std::floor((dist / m_spellInfo->Speed + m_spellInfo->LaunchDelay) * 1000.0f));
         }
+
+        return uint64(std::floor(m_spellInfo->LaunchDelay * 1000.0f));
     }
 
     return 0;
@@ -2082,19 +2083,20 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
-    if (m_spellInfo->Speed > 0.0f && m_caster != target)
+    if (m_caster != target)
     {
-        // calculate spell incoming interval
-        /// @todo this is a hack
-        float dist = m_caster->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+        float hitDelay = m_spellInfo->LaunchDelay;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            hitDelay += m_spellInfo->Speed;
+        else if (m_spellInfo->Speed > 0.0f)
+        {
+            // calculate spell incoming interval
+            /// @todo this is a hack
+            float dist = std::max(m_caster->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()), 5.0f);
+            hitDelay += dist / m_spellInfo->Speed;
+        }
 
-        if (dist < 5.0f)
-            dist = 5.0f;
-
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-            targetInfo.timeDelay = uint64(std::floor(dist / m_spellInfo->Speed * 1000.0f));
-        else
-            targetInfo.timeDelay = uint64(m_spellInfo->Speed * 1000.0f);
+        targetInfo.timeDelay = uint64(std::floor(hitDelay * 1000.0f));
     }
     else
         targetInfo.timeDelay = 0ULL;
@@ -2155,23 +2157,22 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
     target.processed  = false;                              // Effects not apply on target
 
     // Spell have speed - need calculate incoming time
-    if (m_spellInfo->Speed > 0.0f)
+    if (static_cast<WorldObject*>(m_caster) != go)
     {
-        // calculate spell incoming interval
-        float dist = m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
-        if (dist < 5.0f)
-            dist = 5.0f;
+        float hitDelay = m_spellInfo->LaunchDelay;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            hitDelay += m_spellInfo->Speed;
+        else if (m_spellInfo->Speed > 0.0f)
+        {
+            // calculate spell incoming interval
+            float dist = std::max(m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ()), 5.0f);
+            hitDelay += dist / m_spellInfo->Speed;
+        }
 
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-            target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1000.0f));
-        else
-            target.timeDelay = uint64(m_spellInfo->Speed * 1000.0f);
-
-        if (!m_delayMoment || m_delayMoment > target.timeDelay)
-            m_delayMoment = target.timeDelay;
+        target.timeDelay = uint64(std::floor(hitDelay * 1000.0f));
     }
     else
-        target.timeDelay = 0LL;
+        target.timeDelay = 0ULL;
 
     // Add target to list
     m_UniqueGOTargetInfo.push_back(target);
@@ -2510,7 +2511,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
         return SPELL_MISS_EVADE;
 
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
-    if (m_spellInfo->Speed && unit->IsImmunedToSpell(m_spellInfo, m_caster))
+    if (m_spellInfo->HasHitDelay() && unit->IsImmunedToSpell(m_spellInfo, m_caster))
         return SPELL_MISS_IMMUNE;
 
     // disable effects to which unit is immune
@@ -2539,7 +2540,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
     if (m_caster != unit)
     {
         // Recheck  UNIT_FLAG_NON_ATTACKABLE for delayed spells
-        if (m_spellInfo->Speed > 0.0f && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
+        if (m_spellInfo->HasHitDelay() && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
@@ -2549,7 +2550,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
             // for delayed spells ignore negative spells (after duel end) for friendly targets
             /// @todo this cause soul transfer bugged
             // 63881 - Malady of the Mind jump spell (Yogg-Saron)
-            if (m_spellInfo->Speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->IsPositive() && m_spellInfo->Id != 63881)
+            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->IsPositive() && m_spellInfo->Id != 63881)
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -3229,7 +3230,7 @@ void Spell::_cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
+    if ((m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -6923,23 +6924,23 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect,
             {
                 if (target->IsWithinLOSInMap(m_caster, VMAP::ModelIgnoreFlags::M2) && target->HasUnitFlag(UNIT_FLAG_SKINNABLE))
                     return true;
-        
+
                 return false;
             }
-        
+
             Corpse* corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
             if (!corpse)
                 return false;
-        
+
             if (target->GetGUID() != corpse->GetOwnerGUID())
                 return false;
-        
+
             if (!corpse->HasDynamicFlag(CORPSE_DYNFLAG_LOOTABLE))
                 return false;
-        
+
             if (!corpse->IsWithinLOSInMap(m_caster, VMAP::ModelIgnoreFlags::M2))
                 return false;
-        
+
             break;
         }
         default:
@@ -7026,7 +7027,7 @@ bool Spell::IsAutoActionResetSpell() const
 bool Spell::IsNeedSendToClient() const
 {
     return m_SpellVisual || m_spellInfo->IsChanneled() ||
-        (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)) || m_spellInfo->Speed > 0.0f || (!m_triggeredByAuraSpell && !IsTriggered());
+        (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered());
 }
 
 bool Spell::HaveTargetsForEffect(uint8 effect) const
