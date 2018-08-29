@@ -679,8 +679,13 @@ void SmartAI::OnCharmed(bool /*isNew*/)
         else
             me->SetWalk(!mRun);
 
-        if (Unit* charmer = me->GetCharmer())
-            AttackStart(charmer);
+        if (me->LastCharmerGUID)
+        {
+            if (!me->HasReactState(REACT_PASSIVE))
+                if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                    me->EngageWithTarget(lastCharmer);
+            me->LastCharmerGUID.Clear();
+        }
     }
 
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, charmed);
