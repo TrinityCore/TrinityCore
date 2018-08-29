@@ -57,6 +57,8 @@ enum DruidSpells
     SPELL_DRUID_FUNGAL_GROWTH_R2            = 78789,
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R1     = 81291,
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2     = 81283,
+    SPELL_DRUID_FUROR_ENERGIZE_RAGE         = 17057,
+    SPELL_DRUID_FUROR_ENERGIZE_ENERGY       = 17099,
     SPELL_DRUID_FURY_OF_STORMRAGE           = 81093,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
@@ -105,6 +107,7 @@ enum DruidSpellIconIds
     SPELL_ICON_ID_GLYPH_OF_INNERVATE    = 62,
     SPELL_ICON_ID_EUPHORIA              = 4431,
     SPELL_ICON_ID_SAVAGE_DEFENDER       = 146,
+    SPELL_ICON_ID_FUROR                 = 238
 };
 
 enum MiscSpells
@@ -1833,6 +1836,45 @@ class spell_dru_moonfire : public AuraScript
     }
 };
 
+class spell_dru_furor : public AuraScript
+{
+    PrepareAuraScript(spell_dru_furor);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_FUROR_ENERGIZE_ENERGY,
+                SPELL_DRUID_FUROR_ENERGIZE_RAGE
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+
+        if (target->GetShapeshiftForm() == FORM_BEAR)
+            target->CastSpell(target, SPELL_DRUID_FUROR_ENERGIZE_RAGE, true, nullptr, aurEff);
+        else if (target->GetShapeshiftForm() == FORM_CAT)
+        {
+            int32 amount = CalculatePct(100, aurEff->GetAmount());
+            target->CastCustomSpell(SPELL_DRUID_FUROR_ENERGIZE_ENERGY, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_furor::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dru_furor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1844,6 +1886,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_effloresence_aoe();
     new spell_dru_effloresence_heal();
     new spell_dru_enrage();
+    RegisterAuraScript(spell_dru_furor);
     new spell_dru_glyph_of_starfire();
     new spell_dru_glyph_of_starfire_proc();
     RegisterAuraScript(spell_dru_harmony);
