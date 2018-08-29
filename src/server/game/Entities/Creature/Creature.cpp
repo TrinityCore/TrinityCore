@@ -1988,7 +1988,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
             uint32 respawnDelay = m_respawnDelay;
             if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
                 GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
-            m_respawnTime = time(NULL) + respawnDelay;
+            m_respawnTime = GameTime::GetGameTime() + respawnDelay;
             SaveRespawnTime();
         }
 
@@ -2353,7 +2353,7 @@ void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
         return;
     }
 
-    time_t thisRespawnTime = forceDelay ? time(NULL) + forceDelay : m_respawnTime;
+    time_t thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
     GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetPhaseShift(), GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId(), savetodb && m_creatureData && m_creatureData->dbData);
 }
 
@@ -2541,6 +2541,11 @@ time_t Creature::GetRespawnTimeEx() const
         return m_respawnTime;
     else
         return now;
+}
+
+void Creature::SetRespawnTime(uint32 respawn)
+{
+    m_respawnTime = respawn ? GameTime::GetGameTime() + respawn : 0;
 }
 
 void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, float* dist) const
