@@ -283,7 +283,9 @@ INSERT INTO `conditions` (`sourcetypeorreferenceid`,`sourcegroup`,`sourceentry`,
 DELETE FROM `creature_template_addon` WHERE `entry`=30997;
 INSERT INTO `creature_template_addon` (`entry`,`bytes1`) VALUES
 (30997,50331648);
-UPDATE `creature_template` SET `inhabittype`=5,`npcflag`=0 WHERE `entry`=30997;
+UPDATE `creature_template` SET `npcflag`=0 WHERE `entry`=30997;
+DELETE FROM `creature_template_movement` WHERE `creatureid`=30997;
+INSERT INTO `creature_template_movement` (`creatureid`,`ground`,`flight`) VALUES (30997,1,2);
 DELETE FROM `creature_text` WHERE `creatureid`=30997;
 INSERT INTO `creature_text` (`creatureid`,`groupid`,`text`,`type`,`probability`,`BroadcastTextId`,`comment`) VALUES
 (30997,0,"Why, hello again!",12,100,32022,"Chromie #3 RP5_LINE_CHROMIE0");

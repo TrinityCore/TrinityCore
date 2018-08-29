@@ -779,7 +779,7 @@ class npc_arthas_stratholme : public CreatureScript
         {
             if (me->HasReactState(REACT_AGGRESSIVE))
             {
-                Position const& relativePos = me->IsInCombat() ? me->GetHomePosition() : me->GetPosition();
+                Position const& relativePos = me->IsEngaged() ? me->GetHomePosition() : me->GetPosition();
                 // Don't let us chase too far from home
                 if (relativePos.GetExactDist2d(who) > 30.0f)
                     return false;
@@ -815,7 +815,7 @@ class npc_arthas_stratholme : public CreatureScript
 
         void UpdateAI(uint32 diff) override
         {
-            if (me->IsInCombat())
+            if (me->IsEngaged())
             {
                 UpdateAICombat(diff);
                 return;
@@ -1264,6 +1264,7 @@ class npc_arthas_stratholme : public CreatureScript
                         if (Creature* epoch = me->FindNearestCreature(NPC_EPOCH, 100.0f, true))
                         {
                             epoch->SetImmuneToAll(false);
+                            me->EngageWithTarget(epoch);
                             epoch->EngageWithTarget(me);
                         }
                         ScheduleActionOOC(RP3_ACTION_AFTER_EPOCH);
@@ -1317,6 +1318,7 @@ class npc_arthas_stratholme : public CreatureScript
                         {
                             malganis->AI()->Talk(RP5_LINE_MALGANIS1, ObjectAccessor::GetPlayer(*malganis, _eventStarterGuid));
                             malganis->SetImmuneToAll(false);
+                            me->EngageWithTarget(malganis);
                             malganis->EngageWithTarget(me);
                         }
                         ScheduleActionOOC(RP5_ACTION_AFTER_MALGANIS);
@@ -1423,6 +1425,7 @@ class npc_arthas_stratholme : public CreatureScript
             {
                 target->SetImmuneToAll(false);
                 me->EngageWithTarget(target);
+                target->EngageWithTarget(me);
             }
         }
 
@@ -1440,7 +1443,7 @@ class npc_arthas_stratholme : public CreatureScript
 
         void JustEngagedWith(Unit* who) override
         {
-            std::cout << "EnterCombat " << _progressRP << std::endl;
+            std::cout << "Arthas AI: JustEngagedWith - RP in progress? " << _progressRP << std::endl;
             if (_progressRP)
             {
                 _progressRP = false;
@@ -1457,7 +1460,7 @@ class npc_arthas_stratholme : public CreatureScript
 
         void EnterEvadeMode(EvadeReason why) override
         {
-            std::cout << "EnterEvadeMode " << why << std::endl;
+            std::cout << "Arthas AI: EnterEvadeMode " << why << std::endl;
             ScriptedAI::EnterEvadeMode(why);
         }
 
