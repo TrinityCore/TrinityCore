@@ -82,4 +82,6 @@ inline AI* GetVortexPinnacleAI(T* obj)
     return GetInstanceAI<AI>(obj, VPScriptName);
 }
 
+#define RegisterVortexPinnacleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetVortexPinnacleAI)
+
 #endif // DEF_VORTEX_PINNACLE_H

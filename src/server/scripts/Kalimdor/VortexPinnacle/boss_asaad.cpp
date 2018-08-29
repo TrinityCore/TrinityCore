@@ -21,6 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -53,14 +54,14 @@ enum Spells
     SPELL_STORM_SUMMON_GROUNDING_FIELD      = 87518,
 
     // Grounding Field
-    SPELL_GROUNDING_FIELD_VISUAL_BEAMS      = 87517,
+    SPELL_GROUNDING_FIELD_VISUAL_BEAMS      = 87517
 };
 
 enum NPCs
 {
     NPC_SKYFALL_STAR                = 52019,
     NPC_STORM_TARGET                = 46387,
-    NPC_UNSTABLE_GROUNDING_FIELD    = 46492,
+    NPC_UNSTABLE_GROUNDING_FIELD    = 46492
 };
 
 enum Texts
@@ -68,14 +69,14 @@ enum Texts
     SAY_AGGRO       = 0,
     SAY_SOTS_EMOTE  = 1,
     SAY_SOTS        = 2,
-    SAY_DEATH       = 3,
+    SAY_DEATH       = 3
 };
 
 enum Actions
 {
     ACTION_NONE,
     ACTION_SOTS_TARGET,
-    ACTION_SUPREMACY_OF_THE_STORM,
+    ACTION_SUPREMACY_OF_THE_STORM
 };
 
 enum Events
@@ -101,14 +102,14 @@ enum Events
     EVENT_STORM_ASAAD_TELEPORT,
 
     // Grounding Field npc
-    EVENT_GROUNDING_FIELD_VISUAL_BEAMS,
+    EVENT_GROUNDING_FIELD_VISUAL_BEAMS
 };
 
 enum Points
 {
-    POINT_STORM_A   = 1,
+    POINT_STORM_A = 1,
     POINT_STORM_B,
-    POINT_STORM_C,
+    POINT_STORM_C
 };
 
 float const TRIANGLE_Z = 646.7143f;
@@ -169,497 +170,433 @@ Position const StormTargetPositionData[StormTargetPositions] =
     { -623.059f, 476.104f, TRIANGLE_Z, 3.141593f }, // 56927
 };
 
-class boss_asaad : public CreatureScript
+struct boss_asaad : public BossAI
 {
-    public:
-        boss_asaad() : CreatureScript("boss_asaad") { }
-
-        struct boss_asaadAI : public BossAI
-        {
-            boss_asaadAI(Creature* creature) : BossAI(creature, DATA_ASAAD)
-            {
-                stormTargetGUIDs.reserve(StormTargetPositions);
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                stormTargetGUIDs.clear();
-
-                me->SetReactState(REACT_AGGRESSIVE);
-            }
-
-            void JustEngagedWith(Unit* /*target*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_SUMMON_SKYFALL_STAR, 11000);
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
-                events.ScheduleEvent(EVENT_SOTS, 18000);
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_STATIC_CLING, 10800);
-
-                // Spawn Storm Targets
-                for (uint32 i = 0; i < StormTargetPositions; ++i)
-                    if (Creature* stormTarget = me->SummonCreature(NPC_STORM_TARGET, StormTargetPositionData[i]))
-                        stormTargetGUIDs.push_back(stormTarget->GetGUID());
-            }
-
-            void JustSummoned(Creature* creature) override
-            {
-                if (creature->GetEntry() == NPC_SKYFALL_STAR)
-                {
-                    creature->SetReactState(REACT_PASSIVE);
-                    creature->SetInCombatWithZone();
-                    creature->CastSpell(creature, SPELL_ARCANE_BARRAGE_AURA);
-                }
-
-                BossAI::JustSummoned(creature);
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id != SPELL_SOTS_TARGETING || target->GetEntry() != NPC_STORM_TARGET)
-                    return;
-
-                selectedStormTargets[0] = target->GetGUID();
-                auto itr = std::find(stormTargetGUIDs.begin(), stormTargetGUIDs.end(), target->GetGUID());
-                ASSERT(itr != stormTargetGUIDs.end());
-
-                uint8 index = uint8(std::distance(stormTargetGUIDs.begin(), itr));
-                switch (index % 3)
-                {
-                    case 0:
-                        selectedStormTargets[1] = stormTargetGUIDs.at(index + 1);
-                        selectedStormTargets[2] = stormTargetGUIDs.at(index + 2);
-                        break;
-                    case 1:
-                        selectedStormTargets[1] = stormTargetGUIDs.at(index - 1);
-                        selectedStormTargets[2] = stormTargetGUIDs.at(index + 1);
-                        break;
-                    case 2:
-                        selectedStormTargets[1] = stormTargetGUIDs.at(index - 2);
-                        selectedStormTargets[2] = stormTargetGUIDs.at(index - 1);
-                        break;
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action != ACTION_SUPREMACY_OF_THE_STORM)
-                    return;
-
-                me->CastStop();
-                me->SetDisableGravity(true);
-                DoCast(me, SPELL_SUPREMACY_OF_THE_STORM_TELEPORT);
-                DoCast(me, SPELL_SUPREMACY_OF_THE_STORM);
-                events.ScheduleEvent(EVENT_SOTS_END, 6000);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                Talk(SAY_DEATH);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _JustDied();
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                summons.DespawnAll();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _EnterEvadeMode();
-                _DespawnAtEvade();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_STATIC_CLING:
-                            DoCast(me, SPELL_STATIC_CLING);
-                            events.ScheduleEvent(EVENT_STATIC_CLING, 16000);
-                            break;
-                        case EVENT_SUMMON_SKYFALL_STAR:
-                            DoCast(me, SPELL_SUMMON_SKYFALL_STAR, true);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
-                            break;
-                        case EVENT_CHAIN_LIGHTNING:
-                            DoCast(me, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
-                            break;
-                        case EVENT_SOTS:
-                            Talk(SAY_SOTS_EMOTE);
-                            events.Reset();
-                            events.ScheduleEvent(EVENT_SOTS_START, 200);
-                            events.ScheduleEvent(EVENT_SOTS, 45800);
-                            break;
-                        case EVENT_SOTS_START:
-                            me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
-                            Talk(SAY_SOTS);
-                            DoCast(me, SPELL_SOTS_TARGETING);
-                            break;
-                        case EVENT_SOTS_END:
-                            ResetStormTargets();
-                            me->SetDisableGravity(false);
-                            events.ScheduleEvent(EVENT_ATTACK, 2000);
-                            break;
-                        case EVENT_ATTACK:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 100);
-                            events.ScheduleEvent(EVENT_STATIC_CLING, 2000);
-                            events.ScheduleEvent(EVENT_SUMMON_SKYFALL_STAR, 3500);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            ObjectGuid GetGUID(int32 type) const override
-            {
-                switch (type)
-                {
-                    case POINT_STORM_A:
-                    case POINT_STORM_B:
-                    case POINT_STORM_C:
-                        return selectedStormTargets[type - POINT_STORM_A];
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
-            }
-
-            Position GetTriangleCenterPosition() const
-            {
-                Position pos;
-                pos.m_positionZ = TRIANGLE_Z + 8.f;
-
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    if (Creature* stormTarget = ObjectAccessor::GetCreature(*me, selectedStormTargets[i]))
-                    {
-                        pos.m_positionX += stormTarget->m_positionX;
-                        pos.m_positionY += stormTarget->m_positionY;
-                    }
-                }
-
-                pos.m_positionX /= 3.f;
-                pos.m_positionY /= 3.f;
-                return pos;
-            }
-
-            void ResetStormTargets()
-            {
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    if (Creature* stormTarget = ObjectAccessor::GetCreature(*me, selectedStormTargets[i]))
-                        stormTarget->CastStop();
-
-                    selectedStormTargets[i].Clear();
-                }
-            }
-
-        private:
-
-            GuidVector stormTargetGUIDs;
-            std::array<ObjectGuid, 3> selectedStormTargets;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVortexPinnacleAI<boss_asaadAI>(creature);
-        }
-};
-
-typedef boss_asaad::boss_asaadAI AsaadAI;
-
-// 46387 - Storm Target
-class npc_storm_target : public CreatureScript
-{
-public:
-    npc_storm_target() : CreatureScript("npc_storm_target") { }
-
-    struct npc_storm_targetAI : public ScriptedAI
+    boss_asaad(Creature* creature) : BossAI(creature, DATA_ASAAD)
     {
-        npc_storm_targetAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-        void DoAction(int32 action) override
-        {
-            if (action == ACTION_SOTS_TARGET)
-                _events.ScheduleEvent(EVENT_SOTS_SUMMON, 400);
-        }
-
-        void JustSummoned(Creature* creature) override
-        {
-            if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-                asaad->AI()->JustSummoned(creature);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (_events.Empty())
-                return;
-
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SOTS_SUMMON:
-                        DoCast(me, SPELL_SOTS_SUMMON);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_storm_targetAI>(creature);
+        stormTargetGUIDs.reserve(StormTargetPositions);
     }
-};
 
-// 46492 - Unstable Grounding Field
-class npc_unstable_grounding_field : public CreatureScript
-{
-public:
-    npc_unstable_grounding_field() : CreatureScript("npc_unstable_grounding_field") { }
-
-    struct npc_unstable_grounding_fieldAI : public ScriptedAI
+    void Reset() override
     {
-        npc_unstable_grounding_fieldAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+        _Reset();
+        stormTargetGUIDs.clear();
+
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void JustEngagedWith(Unit* /*target*/) override
+    {
+        _JustEngagedWith();
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_SUMMON_SKYFALL_STAR, 11000);
+        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
+        events.ScheduleEvent(EVENT_SOTS, 18000);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_STATIC_CLING, 10800);
+
+        // Spawn Storm Targets
+        for (uint32 i = 0; i < StormTargetPositions; ++i)
+            if (Creature* stormTarget = me->SummonCreature(NPC_STORM_TARGET, StormTargetPositionData[i]))
+                stormTargetGUIDs.push_back(stormTarget->GetGUID());
+    }
+
+    void JustSummoned(Creature* creature) override
+    {
+        if (creature->GetEntry() == NPC_SKYFALL_STAR)
         {
-            me->SetWalk(true);
-            _events.ScheduleEvent(EVENT_STORM_ASSAD_CHANNEL, 400);
+            creature->SetReactState(REACT_PASSIVE);
+            creature->SetInCombatWithZone();
+            creature->CastSpell(creature, SPELL_ARCANE_BARRAGE_AURA);
+            Position const pos = me->GetHomePosition();
+            creature->GetMotionMaster()->MoveCirclePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 40.0f, false, 8);
         }
 
-        void MovementInform(uint32 movementType, uint32 pointId) override
+        BossAI::JustSummoned(creature);
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_SOTS_TARGETING || target->GetEntry() != NPC_STORM_TARGET)
+            return;
+
+        selectedStormTargets[0] = target->GetGUID();
+        auto itr = std::find(stormTargetGUIDs.begin(), stormTargetGUIDs.end(), target->GetGUID());
+        ASSERT(itr != stormTargetGUIDs.end());
+
+        uint8 index = uint8(std::distance(stormTargetGUIDs.begin(), itr));
+        switch (index % 3)
         {
-            if (movementType != POINT_MOTION_TYPE)
-                return;
+            case 0:
+                selectedStormTargets[1] = stormTargetGUIDs.at(index + 1);
+                selectedStormTargets[2] = stormTargetGUIDs.at(index + 2);
+                break;
+            case 1:
+                selectedStormTargets[1] = stormTargetGUIDs.at(index - 1);
+                selectedStormTargets[2] = stormTargetGUIDs.at(index + 1);
+                break;
+            case 2:
+                selectedStormTargets[1] = stormTargetGUIDs.at(index - 2);
+                selectedStormTargets[2] = stormTargetGUIDs.at(index - 1);
+                break;
+        }
+    }
 
-            Creature* asaad = _instance->GetCreature(DATA_ASAAD);
-            if (!asaad)
-                return;
+    void DoAction(int32 action) override
+    {
+        if (action != ACTION_SUPREMACY_OF_THE_STORM)
+            return;
 
-            switch (pointId)
+        me->CastStop();
+        me->SetDisableGravity(true);
+        DoCast(me, SPELL_SUPREMACY_OF_THE_STORM_TELEPORT);
+        DoCast(me, SPELL_SUPREMACY_OF_THE_STORM);
+        events.ScheduleEvent(EVENT_SOTS_END, 6000);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustDied();
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                case POINT_STORM_B:
-                    if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
-                        stormTargetB->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_A);
-                    _events.ScheduleEvent(EVENT_STORM_MOVE_C, 1200);
+                case EVENT_STATIC_CLING:
+                    DoCast(me, SPELL_STATIC_CLING);
+                    events.ScheduleEvent(EVENT_STATIC_CLING, 16000);
                     break;
-                case POINT_STORM_C:
-                    if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
-                        stormTargetC->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_B);
-                    _events.ScheduleEvent(EVENT_STORM_MOVE_A, 1200);
+                case EVENT_SUMMON_SKYFALL_STAR:
+                    DoCast(me, SPELL_SUMMON_SKYFALL_STAR, true);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
                     break;
-                case POINT_STORM_A:
-                {
-                    if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
-                        stormTargetA->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_C);
-
-                    DoCast(me, SPELL_STORM_SUMMON_GROUNDING_FIELD);
-
-                    Position pos = ENSURE_AI(AsaadAI, asaad->AI())->GetTriangleCenterPosition();
-                    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_STORM_SUMMON_GROUNDING_FIELD, true);
-                    _events.ScheduleEvent(EVENT_STORM_ASAAD_TELEPORT, 500);
+                case EVENT_CHAIN_LIGHTNING:
+                    DoCast(me, SPELL_CHAIN_LIGHTNING);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 14500);
                     break;
-                }
+                case EVENT_SOTS:
+                    Talk(SAY_SOTS_EMOTE);
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_SOTS_START, 200);
+                    events.ScheduleEvent(EVENT_SOTS, 45800);
+                    break;
+                case EVENT_SOTS_START:
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    Talk(SAY_SOTS);
+                    DoCast(me, SPELL_SOTS_TARGETING);
+                    break;
+                case EVENT_SOTS_END:
+                    ResetStormTargets();
+                    me->SetDisableGravity(false);
+                    events.ScheduleEvent(EVENT_ATTACK, 2000);
+                    break;
+                case EVENT_ATTACK:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 100);
+                    events.ScheduleEvent(EVENT_STATIC_CLING, 2000);
+                    events.ScheduleEvent(EVENT_SUMMON_SKYFALL_STAR, 3500);
+                    break;
                 default:
                     break;
             }
-        };
+        }
 
-        void UpdateAI(uint32 diff) override
+        DoMeleeAttackIfReady();
+    }
+
+    ObjectGuid GetGUID(int32 type) const override
+    {
+        switch (type)
         {
-            if (_events.Empty())
-                return;
+            case POINT_STORM_A:
+            case POINT_STORM_B:
+            case POINT_STORM_C:
+                return selectedStormTargets[type - POINT_STORM_A];
+            default:
+                break;
+        }
 
-            _events.Update(diff);
+        return ObjectGuid::Empty;
+    }
 
-            while (uint32 eventId = _events.ExecuteEvent())
+    Position GetTriangleCenterPosition() const
+    {
+        Position pos;
+        pos.m_positionZ = TRIANGLE_Z + 8.f;
+
+        for (uint8 i = 0; i < 3; ++i)
+        {
+            if (Creature* stormTarget = ObjectAccessor::GetCreature(*me, selectedStormTargets[i]))
             {
-                switch (eventId)
-                {
-                    case EVENT_STORM_ASSAD_CHANNEL:
-                        DoCast(me, SPELL_SOTS_TRIGGER);
-                        _events.ScheduleEvent(EVENT_STORM_RUNE_BEAM_AA, 400);
-                        break;
-                    case EVENT_STORM_RUNE_BEAM_AA:
-                        DoCast(me, SPELL_STORM_RUNE_BEAM_AA);
-                        _events.ScheduleEvent(EVENT_STORM_MOVE_B, 800);
-                        break;
-                    case EVENT_STORM_MOVE_B:
-                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-                            if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
-                                me->GetMotionMaster()->MovePoint(POINT_STORM_B, stormTargetB->GetPosition());
-                        break;
-                    case EVENT_STORM_MOVE_C:
-                        DoCast(me, SPELL_STORM_RUNE_BEAM_B);
-                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-                            if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
-                                me->GetMotionMaster()->MovePoint(POINT_STORM_C, stormTargetC->GetPosition());
-                        break;
-                    case EVENT_STORM_MOVE_A:
-                        me->CastStop();
-                        DoCast(me, SPELL_STORM_RUNE_BEAM_C);
-                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-                            if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
-                                me->GetMotionMaster()->MovePoint(POINT_STORM_A, stormTargetA->GetPosition());
-                        break;
-                    case EVENT_STORM_ASAAD_TELEPORT:
-                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-                            asaad->AI()->DoAction(ACTION_SUPREMACY_OF_THE_STORM);
-                        me->DespawnOrUnsummon(700);
-                        break;
-                    default:
-                        break;
-                }
+                pos.m_positionX += stormTarget->m_positionX;
+                pos.m_positionY += stormTarget->m_positionY;
             }
         }
 
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
+        pos.m_positionX /= 3.f;
+        pos.m_positionY /= 3.f;
+        return pos;
+    }
+
+    void ResetStormTargets()
+    {
+        for (uint8 i = 0; i < 3; ++i)
+        {
+            if (Creature* stormTarget = ObjectAccessor::GetCreature(*me, selectedStormTargets[i]))
+                stormTarget->CastStop();
+
+            selectedStormTargets[i].Clear();
+        }
+    }
+
+private:
+
+    GuidVector stormTargetGUIDs;
+    std::array<ObjectGuid, 3> selectedStormTargets;
+};
+
+typedef boss_asaad AsaadAI;
+
+// 46387 - Storm Target
+struct npc_asaad_storm_target : public ScriptedAI
+{
+    npc_asaad_storm_target(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_SOTS_TARGET)
+            _events.ScheduleEvent(EVENT_SOTS_SUMMON, 400);
+    }
+
+    void JustSummoned(Creature* creature) override
+    {
+        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+            asaad->AI()->JustSummoned(creature);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_events.Empty())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SOTS_SUMMON:
+                    DoCast(me, SPELL_SOTS_SUMMON);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+// 46492 - Unstable Grounding Field
+struct npc_asaad_unstable_grounding_field : public ScriptedAI
+{
+    npc_asaad_unstable_grounding_field(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        me->SetWalk(true);
+        _events.ScheduleEvent(EVENT_STORM_ASSAD_CHANNEL, 400);
+    }
+
+    void MovementInform(uint32 movementType, uint32 pointId) override
+    {
+        if (movementType != POINT_MOTION_TYPE)
+            return;
+
+        Creature* asaad = _instance->GetCreature(DATA_ASAAD);
+        if (!asaad)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_STORM_B:
+                if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
+                    stormTargetB->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_A);
+                _events.ScheduleEvent(EVENT_STORM_MOVE_C, 1200);
+                break;
+            case POINT_STORM_C:
+                if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
+                    stormTargetC->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_B);
+                _events.ScheduleEvent(EVENT_STORM_MOVE_A, 1200);
+                break;
+            case POINT_STORM_A:
+            {
+                if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
+                    stormTargetA->CastSpell((Unit*)nullptr, SPELL_STORM_RUNE_BEAM_C);
+
+                DoCast(me, SPELL_STORM_SUMMON_GROUNDING_FIELD);
+
+                Position pos = ENSURE_AI(AsaadAI, asaad->AI())->GetTriangleCenterPosition();
+                me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_STORM_SUMMON_GROUNDING_FIELD, true);
+                _events.ScheduleEvent(EVENT_STORM_ASAAD_TELEPORT, 500);
+                break;
+            }
+            default:
+                break;
+        }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetVortexPinnacleAI<npc_unstable_grounding_fieldAI>(creature);
+        if (_events.Empty())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_STORM_ASSAD_CHANNEL:
+                    DoCast(me, SPELL_SOTS_TRIGGER);
+                    _events.ScheduleEvent(EVENT_STORM_RUNE_BEAM_AA, 400);
+                    break;
+                case EVENT_STORM_RUNE_BEAM_AA:
+                    DoCast(me, SPELL_STORM_RUNE_BEAM_AA);
+                    _events.ScheduleEvent(EVENT_STORM_MOVE_B, 800);
+                    break;
+                case EVENT_STORM_MOVE_B:
+                    if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                        if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
+                            me->GetMotionMaster()->MovePoint(POINT_STORM_B, stormTargetB->GetPosition());
+                    break;
+                case EVENT_STORM_MOVE_C:
+                    DoCast(me, SPELL_STORM_RUNE_BEAM_B);
+                    if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                        if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
+                            me->GetMotionMaster()->MovePoint(POINT_STORM_C, stormTargetC->GetPosition());
+                    break;
+                case EVENT_STORM_MOVE_A:
+                    me->CastStop();
+                    DoCast(me, SPELL_STORM_RUNE_BEAM_C);
+                    if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                        if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
+                            me->GetMotionMaster()->MovePoint(POINT_STORM_A, stormTargetA->GetPosition());
+                    break;
+                case EVENT_STORM_ASAAD_TELEPORT:
+                    if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                        asaad->AI()->DoAction(ACTION_SUPREMACY_OF_THE_STORM);
+                    me->DespawnOrUnsummon(700);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
 // 47000 - Grounding Field
-class npc_asaad_grounding_field : public CreatureScript
+struct npc_asaad_grounding_field : public ScriptedAI
 {
-public:
-    npc_asaad_grounding_field() : CreatureScript("npc_asaad_grounding_field") { }
-
-    struct npc_asaad_grounding_fieldAI : public ScriptedAI
+    npc_asaad_grounding_field(Creature* creature) : ScriptedAI(creature)
     {
-        npc_asaad_grounding_fieldAI(Creature* creature) : ScriptedAI(creature)
+        me->SetDisableGravity(true);
+        events.ScheduleEvent(EVENT_GROUNDING_FIELD_VISUAL_BEAMS, 500);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (events.Empty())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            me->SetDisableGravity(true);
-            events.ScheduleEvent(EVENT_GROUNDING_FIELD_VISUAL_BEAMS, 500);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (events.Empty())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    case EVENT_GROUNDING_FIELD_VISUAL_BEAMS:
-                        DoCast(me, SPELL_GROUNDING_FIELD_VISUAL_BEAMS);
-                        me->DespawnOrUnsummon(6000);
-                        break;
-                    default:
-                        break;
-                }
+                case EVENT_GROUNDING_FIELD_VISUAL_BEAMS:
+                    DoCast(me, SPELL_GROUNDING_FIELD_VISUAL_BEAMS);
+                    me->DespawnOrUnsummon(6000);
+                    break;
+                default:
+                    break;
             }
         }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_asaad_grounding_fieldAI>(creature);
     }
+
+private:
+    EventMap events;
 };
 
 // 86632 - SOTS Targeting
-class spell_sots_targeting : public SpellScriptLoader
+class spell_asaad_sots_targeting : public SpellScript
 {
-public:
-    spell_sots_targeting() : SpellScriptLoader("spell_sots_targeting") { }
+    PrepareSpellScript(spell_asaad_sots_targeting);
 
-    class spell_sots_targeting_SpellScript : public SpellScript
+    void SelectRandom(std::list<WorldObject*>& targets)
     {
-        PrepareSpellScript(spell_sots_targeting_SpellScript);
+        Trinity::Containers::RandomResize(targets, 1);
+    }
 
-        void SelectRandom(std::list<WorldObject*>& targets)
-        {
-            Trinity::Containers::RandomResize(targets, 1);
-        }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Creature* creature = GetHitCreature())
-                creature->GetAI()->DoAction(ACTION_SOTS_TARGET);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sots_targeting_SpellScript::SelectRandom, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
-            OnEffectHitTarget += SpellEffectFn(spell_sots_targeting_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        return new spell_sots_targeting_SpellScript();
+        if (Creature* creature = GetHitCreature())
+            creature->GetAI()->DoAction(ACTION_SOTS_TARGET);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_sots_targeting::SelectRandom, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_asaad_sots_targeting::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 86926  - SOTS Trigger (makes Asaad channel Unstable Grounding Field)
-class spell_sots_trigger : public SpellScriptLoader
+class spell_asaad_sots_trigger : public SpellScript
 {
-public:
-    spell_sots_trigger() : SpellScriptLoader("spell_sots_trigger") { }
+    PrepareSpellScript(spell_asaad_sots_trigger);
 
-    class spell_sots_trigger_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_sots_trigger_SpellScript);
+        return ValidateSpellInfo({ SPELL_UNSTABLE_GROUNDING_FIELD });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_UNSTABLE_GROUNDING_FIELD });
-        }
-
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_UNSTABLE_GROUNDING_FIELD, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_sots_trigger_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        return new spell_sots_trigger_SpellScript();
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_UNSTABLE_GROUNDING_FIELD, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_asaad_sots_trigger::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -667,147 +604,112 @@ public:
 // 86921 - Storm Rune Beam A
 // 86923 - Storm Rune Beam B
 // 86925 - Storm Rune Beam C
-class spell_storm_rune_beam : public SpellScriptLoader
+class spell_asaad_storm_rune_beam : public SpellScript
 {
-public:
-    spell_storm_rune_beam() : SpellScriptLoader("spell_storm_rune_beam") { }
+    PrepareSpellScript(spell_asaad_storm_rune_beam);
 
-    class spell_storm_rune_beam_SpellScript : public SpellScript
+    void SetTarget(WorldObject*& target)
     {
-        PrepareSpellScript(spell_storm_rune_beam_SpellScript);
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
 
-        void SetTarget(WorldObject*& target)
+        Creature* asaad = instance->GetCreature(DATA_ASAAD);
+        if (!asaad)
+            return;
+
+        switch (GetSpellInfo()->Id)
         {
-            InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance)
-                return;
-
-            Creature* asaad = instance->GetCreature(DATA_ASAAD);
-            if (!asaad)
-                return;
-
-            switch (GetSpellInfo()->Id)
-            {
-                case SPELL_STORM_RUNE_BEAM_AA:
-                case SPELL_STORM_RUNE_BEAM_A:
-                    target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
-                    break;
-                case SPELL_STORM_RUNE_BEAM_B:
-                    target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
-                    break;
-                case SPELL_STORM_RUNE_BEAM_C:
-                    target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
-                    break;
-                default:
-                    break;
-            }
+            case SPELL_STORM_RUNE_BEAM_AA:
+            case SPELL_STORM_RUNE_BEAM_A:
+                target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
+                break;
+            case SPELL_STORM_RUNE_BEAM_B:
+                target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
+                break;
+            case SPELL_STORM_RUNE_BEAM_C:
+                target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
+                break;
+            default:
+                break;
         }
+    }
 
-        void Register() override
-        {
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_storm_rune_beam_SpellScript::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_storm_rune_beam_SpellScript();
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_storm_rune_beam::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
     }
 };
 
 // 87517 - Grounding Field Visual Beams
-class spell_grounding_field_visual_beams : public SpellScriptLoader
+class spell_asaad_grounding_field_visual_beams : public SpellScript
 {
-public:
-    spell_grounding_field_visual_beams() : SpellScriptLoader("spell_grounding_field_visual_beams") { }
+    PrepareSpellScript(spell_asaad_grounding_field_visual_beams);
 
-    class spell_grounding_field_visual_beams_SpellScript : public SpellScript
+    void SetTargetA(WorldObject*& target)
     {
-        PrepareSpellScript(spell_grounding_field_visual_beams_SpellScript);
+        target = GetStormTarget(POINT_STORM_A);
+    }
 
-        void SetTargetA(WorldObject*& target)
-        {
-            target = GetStormTarget(POINT_STORM_A);
-        }
-
-        void SetTargetB(WorldObject*& target)
-        {
-            target = GetStormTarget(POINT_STORM_B);
-        }
-
-        void SetTargetC(WorldObject*& target)
-        {
-            target = GetStormTarget(POINT_STORM_C);
-        }
-
-        void Register() override
-        {
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_grounding_field_visual_beams_SpellScript::SetTargetA, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_grounding_field_visual_beams_SpellScript::SetTargetB, EFFECT_1, TARGET_UNIT_NEARBY_ENTRY);
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_grounding_field_visual_beams_SpellScript::SetTargetC, EFFECT_2, TARGET_UNIT_NEARBY_ENTRY);
-        }
-
-    private:
-
-        Creature* GetStormTarget(uint32 point)
-        {
-            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                if (Creature* asaad = instance->GetCreature(DATA_ASAAD))
-                    ObjectAccessor::GetCreature(*GetCaster(), asaad->AI()->GetGUID(point));
-
-            return nullptr;
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void SetTargetB(WorldObject*& target)
     {
-        return new spell_grounding_field_visual_beams_SpellScript();
+        target = GetStormTarget(POINT_STORM_B);
+    }
+
+    void SetTargetC(WorldObject*& target)
+    {
+        target = GetStormTarget(POINT_STORM_C);
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_grounding_field_visual_beams::SetTargetA, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_grounding_field_visual_beams::SetTargetB, EFFECT_1, TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_asaad_grounding_field_visual_beams::SetTargetC, EFFECT_2, TARGET_UNIT_NEARBY_ENTRY);
+    }
+private:
+    Creature * GetStormTarget(uint32 point)
+    {
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+            if (Creature* asaad = instance->GetCreature(DATA_ASAAD))
+                ObjectAccessor::GetCreature(*GetCaster(), asaad->AI()->GetGUID(point));
+
+        return nullptr;
     }
 };
 
 // 87553/93994 - Supremacy of the Storm (massive aoe damage)
-class spell_supremacy_of_the_storm : public SpellScriptLoader
+class spell_asaad_supremacy_of_the_storm : public SpellScript
 {
-public:
-    spell_supremacy_of_the_storm() : SpellScriptLoader("spell_supremacy_of_the_storm") { }
+    PrepareSpellScript(spell_asaad_supremacy_of_the_storm);
 
-    class spell_supremacy_of_the_storm_SpellScript : public SpellScript
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        PrepareSpellScript(spell_supremacy_of_the_storm_SpellScript);
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
 
-        void FilterTargets(std::list<WorldObject*>& targets)
+        Creature* asaad = instance->GetCreature(DATA_ASAAD);
+        if (!asaad)
+            return;
+
+        Creature* stormTargetA = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
+        Creature* stormTargetB = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
+        Creature* stormTargetC = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
+
+        if (!stormTargetA || !stormTargetB || !stormTargetC)
+            return;
+
+        TriangleBoundary triangle(*stormTargetA, *stormTargetB, *stormTargetC);
+        targets.remove_if([&](WorldObject* target)
         {
-            InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance)
-                return;
+            return triangle.IsWithinBoundary(target);
+        });
+    }
 
-            Creature* asaad = instance->GetCreature(DATA_ASAAD);
-            if (!asaad)
-                return;
-
-            Creature* stormTargetA = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
-            Creature* stormTargetB = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
-            Creature* stormTargetC = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
-
-            if (!stormTargetA || !stormTargetB || !stormTargetC)
-                return;
-
-            TriangleBoundary triangle(*stormTargetA, *stormTargetB, *stormTargetC);
-            targets.remove_if([&](WorldObject* target)
-            {
-                return triangle.IsWithinBoundary(target);
-            });
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_supremacy_of_the_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_supremacy_of_the_storm_SpellScript();
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_supremacy_of_the_storm::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
@@ -827,93 +729,98 @@ class AboveGroundCheck
         }
 };
 
-class spell_supremacy_of_the_storm_visual : public SpellScriptLoader
+class spell_asaad_supremacy_of_the_storm_visual : public SpellScript
 {
-public:
-    spell_supremacy_of_the_storm_visual() : SpellScriptLoader("spell_supremacy_of_the_storm_visual") { }
+    PrepareSpellScript(spell_asaad_supremacy_of_the_storm_visual);
 
-    class spell_supremacy_of_the_storm_visual_SpellScript : public SpellScript
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        PrepareSpellScript(spell_supremacy_of_the_storm_visual_SpellScript);
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
 
-        void FilterTargets(std::list<WorldObject*>& targets)
+        Creature* asaad = instance->GetCreature(DATA_ASAAD);
+        if (!asaad)
+            return;
+
+        Creature* stormTargetA = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
+        Creature* stormTargetB = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
+        Creature* stormTargetC = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
+
+        if (!stormTargetA || !stormTargetB || !stormTargetC)
+            return;
+
+        TriangleBoundary triangle(*stormTargetA, *stormTargetB, *stormTargetC);
+        targets.remove_if([&](WorldObject* target)
         {
-            InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance)
-                return;
+            return triangle.IsWithinBoundary(target);
+        });
 
-            Creature* asaad = instance->GetCreature(DATA_ASAAD);
-            if (!asaad)
-                return;
+        // Hitting 5 dummy npc's per hit
+        if (!targets.empty() && targets.size() > 5)
+            Trinity::Containers::RandomResize(targets, 5);
+    }
 
-            Creature* stormTargetA = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
-            Creature* stormTargetB = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
-            Creature* stormTargetC = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
-
-            if (!stormTargetA || !stormTargetB || !stormTargetC)
-                return;
-
-            TriangleBoundary triangle(*stormTargetA, *stormTargetB, *stormTargetC);
-            targets.remove_if([&](WorldObject* target)
-            {
-                return triangle.IsWithinBoundary(target);
-            });
-
-            // Hitting 5 dummy npc's per hit
-            if (!targets.empty() && targets.size() > 5)
-                Trinity::Containers::RandomResize(targets, 5);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_supremacy_of_the_storm_visual_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_supremacy_of_the_storm_visual_SpellScript();
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_supremacy_of_the_storm_visual::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
-class spell_static_cling : public SpellScriptLoader
+class spell_asaad_static_cling : public SpellScript
 {
-public:
-    spell_static_cling() : SpellScriptLoader("spell_static_cling") { }
+    PrepareSpellScript(spell_asaad_static_cling);
 
-    class spell_static_cling_SpellScript : public SpellScript
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        PrepareSpellScript(spell_static_cling_SpellScript);
+        targets.remove_if(AboveGroundCheck());
+    }
 
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            targets.remove_if(AboveGroundCheck());
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_static_cling_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_static_cling_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_static_cling_SpellScript();
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_static_cling::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_static_cling::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+class spell_asaad_summon_skyfall_star : public SpellScript
+{
+    PrepareSpellScript(spell_asaad_summon_skyfall_star);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        Position const homePos = caster->GetHomePosition();
+        float radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius();
+        float o = frand(0.0f, float(M_PI * 2));
+        float x = homePos.GetPositionX() + cos(o) * radius;
+        float y = homePos.GetPositionY() + sin(o) * radius;
+        float z = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ() + 2.0f);
+
+        dest.Relocate({ x, y, z });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_asaad_summon_skyfall_star::SetDest, EFFECT_0, TARGET_DEST_DEST_RADIUS);
     }
 };
 
 void AddSC_boss_asaad()
 {
-    new boss_asaad();
-    new npc_storm_target();
-    new npc_unstable_grounding_field();
-    new npc_asaad_grounding_field();
-    new spell_sots_targeting();
-    new spell_sots_trigger();
-    new spell_storm_rune_beam();
-    new spell_grounding_field_visual_beams();
-    new spell_supremacy_of_the_storm();
-    new spell_supremacy_of_the_storm_visual();
-    new spell_static_cling();
+    RegisterVortexPinnacleCreatureAI(boss_asaad);
+    RegisterVortexPinnacleCreatureAI(npc_asaad_storm_target);
+    RegisterVortexPinnacleCreatureAI(npc_asaad_unstable_grounding_field);
+    RegisterVortexPinnacleCreatureAI(npc_asaad_grounding_field);
+    RegisterSpellScript(spell_asaad_sots_targeting);
+    RegisterSpellScript(spell_asaad_sots_trigger);
+    RegisterSpellScript(spell_asaad_storm_rune_beam);
+    RegisterSpellScript(spell_asaad_grounding_field_visual_beams);
+    RegisterSpellScript(spell_asaad_supremacy_of_the_storm);
+    RegisterSpellScript(spell_asaad_supremacy_of_the_storm_visual);
+    RegisterSpellScript(spell_asaad_static_cling);
+    RegisterSpellScript(spell_asaad_summon_skyfall_star);
 }
