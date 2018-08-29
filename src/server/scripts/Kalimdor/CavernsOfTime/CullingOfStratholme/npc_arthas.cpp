@@ -795,8 +795,6 @@ class npc_arthas_stratholme : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            me->GetThreatManager().UpdateOnlineStates();
-
             if (HealthBelowPct(40))
                 DoCastSelf(SPELL_HOLY_LIGHT);
             if (_exorcismCooldown <= diff)
@@ -1447,7 +1445,8 @@ class npc_arthas_stratholme : public CreatureScript
             {
                 _progressRP = false;
                 me->SetHomePosition(me->GetPosition());
-                SplineChainMovementGenerator::GetResumeInfo(me, _resumeMovement);
+
+                SplineChainMovementGenerator::GetResumeInfo(_resumeMovement, me);
                 if (!_resumeMovement.Empty())
                     std::cout << "Arthas AI: spline chain motion paused" << std::endl;
                 else

@@ -593,7 +593,7 @@ struct npc_martha_goslin : public CreatureScript
         void DoAction(int32 /*action*/) override
         {
             _interruptTimer = 12000;
-            SplineChainMovementGenerator::GetResumeInfo(me, _resumeInfo);
+            SplineChainMovementGenerator::GetResumeInfo(_resumeInfo, me);
             me->GetMotionMaster()->Clear();
             me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
         }
