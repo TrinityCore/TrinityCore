@@ -439,8 +439,7 @@ struct boss_algalon_the_observer : public BossAI
                 summon->CastSpell(summon, SPELL_SUMMON_VOID_ZONE_VISUAL, TRIGGERED_FULL_MASK);
                 break;
             case NPC_UNLEASHED_DARK_MATTER:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    summon->GetAI()->AttackStart(target);
+                DoZoneInCombat(summon);
                 break;
             default:
                 break;
