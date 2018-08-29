@@ -193,7 +193,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_STONE_TROGG_PILLAGER:
                     case NPC_STONE_TROGG_BRUTE:
                     case NPC_STONE_TROGG_ROCK_FLINGER:
-                        if (GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
+                        if (GetData(DATA_VAULT_OF_LIGHTS) == DONE)
                             creature->DespawnOrUnsummon(0, Seconds(DAY));
                         creature->SetFarVisible(true);
                         break;
