@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (12605,12606,51692,51697,51699,51704,84509,84510,84511,84604,84609,84610,84611,84629,84630,84646,84647,84663,84716,84743,84744,84851,84862,84863,84900,84902,84939);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -42,3 +43,4 @@ INSERT INTO `creature_template_addon` (`entry`, `bytes2`, `auras`) VALUES
 (29867, 0, 34712),
 (29868, 1, 34712),
 (29873, 1, 34712);
+*/
