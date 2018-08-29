@@ -174,6 +174,9 @@ class boss_earthrager_ptah : public CreatureScript
                 {
                     case NPC_DUSTBONE_HORROR:
                     case NPC_JEWELED_SCARAB:
+                        summon->SetReactState(REACT_PASSIVE);
+                        summon->SetInCombatWithZone();
+                        _addGUIDs.push_back(summon->GetGUID());
                         _summonCount++;
                         break;
                     default:
@@ -213,6 +216,17 @@ class boss_earthrager_ptah : public CreatureScript
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
                             Talk(SAY_SPECIAL);
                             DoCast(me, SPELL_PTAH_EXPLOSION);
+
+                            for (ObjectGuid guid : _addGUIDs)
+                            {
+                                if (Creature* add = ObjectAccessor::GetCreature(*me, guid))
+                                {
+                                    add->SetReactState(REACT_AGGRESSIVE);
+                                    if (add->IsAIEnabled)
+                                        add->AI()->DoZoneInCombat();
+                                }
+                            }
+
                             if (IsHeroic())
                                 events.ScheduleEvent(EVENT_TUMULTUOUS_SAND_STORM, Seconds(2) + Milliseconds(500), 0, PHASE_EARTHSTORM);
                             break;
@@ -264,6 +278,7 @@ class boss_earthrager_ptah : public CreatureScript
             bool _hasDispersed;
             uint8 _summonCount;
             uint8 _summonsDeadCount;
+            GuidVector _addGUIDs;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -272,21 +287,6 @@ class boss_earthrager_ptah : public CreatureScript
         }
 };
 
-// 15989 (criteria ID) Straw That Broke the Camel's Back
-class achievement_straw_broke_camels_back : public AchievementCriteriaScript
-{
-    public:
-        achievement_straw_broke_camels_back() : AchievementCriteriaScript("achievement_straw_broke_camels_back") { }
-
-        bool OnCheck(Player* player, Unit* /*target*/) override
-        {
-            if (Unit* vehicle = player->GetVehicleBase())
-                return vehicle->GetEntry() == NPC_HOO_CAMEL;
-            return false;
-        }
-};
-
-// 40459 Beetle Stalker
 class npc_ptah_beetle_stalker : public CreatureScript
 {
     public:
@@ -422,7 +422,6 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
         }
 };
 
-// 75491 Sandstorm spell_earthrager_ptah_sandstorm
 class spell_earthrager_ptah_sandstorm : public SpellScriptLoader
 {
     public:
@@ -575,14 +574,28 @@ class spell_earthrager_ptah_consume: public SpellScriptLoader
         }
 };
 
+class achievement_straw_broke_camels_back : public AchievementCriteriaScript
+{
+    public:
+        achievement_straw_broke_camels_back() : AchievementCriteriaScript("achievement_straw_broke_camels_back") { }
+
+        bool OnCheck(Player* player, Unit* /*target*/) override
+        {
+            if (Unit* vehicle = player->GetVehicleBase())
+                return vehicle->GetEntry() == NPC_HOO_CAMEL;
+
+            return false;
+        }
+};
+
 void AddSC_boss_earthrager_ptah()
 {
     new boss_earthrager_ptah();
-    new achievement_straw_broke_camels_back();
     new npc_ptah_beetle_stalker();
     new npc_ptah_tumultuous_earthstorm();
     new spell_earthrager_ptah_flame_bolt();
     new spell_earthrager_ptah_sandstorm();
     new spell_earthrager_ptah_explosion();
     new spell_earthrager_ptah_consume();
+    new achievement_straw_broke_camels_back();
 }

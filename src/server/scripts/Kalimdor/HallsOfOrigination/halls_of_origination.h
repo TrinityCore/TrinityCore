@@ -123,6 +123,7 @@ enum HOOCreatures
     BOSS_RAJH                       = 39378,
     NPC_INFERNO_LEAP                = 47040,
     NPC_BLAZING_INFERNO             = 40927,
+    NPC_SUN_TOUCHED_SERVANT         = 39366,
 };
 
 enum HOOGameObjects
@@ -237,5 +238,6 @@ inline AI* GetHallsOfOriginationAI(GameObject* go)
 {
     return GetInstanceAI<AI>(go, HoOScriptName);
 }
+
 
 #endif // HALLS_OF_ORIGINATION_H

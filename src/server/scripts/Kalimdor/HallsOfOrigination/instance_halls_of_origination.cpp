@@ -107,7 +107,7 @@ class instance_halls_of_origination : public InstanceMapScript
                             anraphet->SetReactState(REACT_PASSIVE);
                         }
                     }
-                    else
+                    else if (GetBossState(DATA_ANRAPHET) != DONE)
                         instance->SummonCreature(BOSS_ANRAPHET, AnraphetRespawnPos);
 
                     _anraphetInitialized = true;
@@ -176,7 +176,6 @@ class instance_halls_of_origination : public InstanceMapScript
                         break;
                     case NPC_DUSTBONE_HORROR:
                     case NPC_JEWELED_SCARAB:
-                        creature->SetInCombatWithZone();
                         if (Creature* ptah = GetCreature(DATA_EARTHRAGER_PTAH))
                             ptah->AI()->JustSummoned(creature);
                         break;

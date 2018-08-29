@@ -532,21 +532,24 @@ class spell_anraphet_destruction_protocol : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* trogg = GetHitUnit()->ToCreature())
-            trogg->SetRespawnTime(DAY);
+        if (Creature* trogg = GetHitCreature())
+        {
+            trogg->SetCorpseDelay(4);
+            trogg->SetRespawnDelay(DAY);
+        }
     }
 
     void HandlePlayerDamage(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitPlayer())
-            SetHitDamage(CalculatePct(player->GetHealth(), 90));
+            SetHitDamage(CalculatePct(player->GetHealth(), 50));
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anraphet_destruction_protocol::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_anraphet_destruction_protocol::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
         OnEffectHitTarget += SpellEffectFn(spell_anraphet_destruction_protocol::HandlePlayerDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_anraphet_destruction_protocol::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 

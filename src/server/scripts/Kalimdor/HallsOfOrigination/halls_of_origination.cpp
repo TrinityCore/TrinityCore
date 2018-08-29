@@ -65,359 +65,322 @@ enum ElevatorMisc
 };
 
 // 207669 - The Maker's Lift Controller
-class go_hoo_the_makers_lift_controller : public GameObjectScript
+struct go_hoo_the_makers_lift_controller : public GameObjectAI
 {
-public:
-    go_hoo_the_makers_lift_controller() : GameObjectScript("go_hoo_the_makers_lift_controller") { }
+    go_hoo_the_makers_lift_controller(GameObject* go) : GameObjectAI(go) { }
 
-    struct go_hoo_the_makers_lift_controllerAI : public GameObjectAI
+    bool GossipHello(Player* player) override
     {
-        go_hoo_the_makers_lift_controllerAI(GameObject* go) : GameObjectAI(go) { }
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance)
+            return false;
 
-        bool GossipHello(Player* player) override
-        {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
-                return false;
+        // Build menu.
+        // First floor: Option available from start.
+        AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_FIRST_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 0);
 
-            // Build menu.
-            // First floor: Option available from start.
-            AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_FIRST_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 0);
+        // Second floor: Anraphet must be defeated first.
+        if (instance->GetBossState(DATA_ANRAPHET) == DONE || instance->GetBossState(DATA_EARTHRAGER_PTAH) == DONE)
+            AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_SECOND_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-            // Second floor: Anraphet must be defeated first.
-            if (instance->GetBossState(DATA_ANRAPHET) == DONE || instance->GetBossState(DATA_EARTHRAGER_PTAH) == DONE)
-                AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_SECOND_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        // Third floor: Constructs of The Four Seats must be defeated first.
+        if (instance->GetBossState(DATA_ISISET) == DONE && instance->GetBossState(DATA_AMMUNAE) == DONE &&
+            instance->GetBossState(DATA_SETESH) == DONE && instance->GetBossState(DATA_RAJH) == DONE)
+            AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_THIRD_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-            // Third floor: Constructs of The Four Seats must be defeated first.
-            if (instance->GetBossState(DATA_ISISET) == DONE && instance->GetBossState(DATA_AMMUNAE) == DONE &&
-                instance->GetBossState(DATA_SETESH) == DONE && instance->GetBossState(DATA_RAJH) == DONE)
-                AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_THIRD_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        SendGossipMenuFor(player, GOSSIP_NPC_TEXT_CHOOSE_A_DESTINATION, me->GetGUID());
+        return true;
+    }
 
-            SendGossipMenuFor(player, GOSSIP_NPC_TEXT_CHOOSE_A_DESTINATION, me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
-        {
-
-            ClearGossipMenuFor(player);
-            player->PlayerTalkClass->SendCloseGossip();
-
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            // Handle elevator: gossip item index => stopFrame (floor index).
-            GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
-            if (!elevator)
-                return true;
-
-            elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, action);
-            elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, action);
-
-            return true;
-        }
-    };
-    GameObjectAI* GetAI(GameObject* go) const override
+    bool GossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
     {
-        return GetHallsOfOriginationAI<go_hoo_the_makers_lift_controllerAI>(go);
+
+        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->SendCloseGossip();
+
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance)
+            return true;
+
+        // Handle elevator: gossip item index => stopFrame (floor index).
+        GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
+        if (!elevator)
+            return true;
+
+        elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, action);
+        elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, action);
+
+        return true;
     }
 };
 
 // 40790 Aggro Stalker
-class npc_hoo_aggro_stalker : public CreatureScript
+struct npc_hoo_aggro_stalker : public PassiveAI
 {
-public:
-    npc_hoo_aggro_stalker() : CreatureScript("npc_hoo_aggro_stalker") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    npc_hoo_aggro_stalker(Creature* creature) : PassiveAI(creature)
     {
-        return new npc_hoo_aggro_stalkerAI(creature);
+        me->SearchFormation();
     }
 
-    struct npc_hoo_aggro_stalkerAI : public PassiveAI
+    void MoveInLineOfSight(Unit* who) override
     {
-        npc_hoo_aggro_stalkerAI(Creature* creature) : PassiveAI(creature)
-        {
-            me->SearchFormation();
-        }
+        if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 30.f))
+            if (CreatureGroup* formation = me->GetFormation())
+                formation->MemberAttackStart(me, who);
 
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 30.f))
-                if (CreatureGroup* formation = me->GetFormation())
-                    formation->MemberAttackStart(me, who);
-
-            me->CombatStop();
-        }
-    };
+        me->CombatStop();
+    }
 };
 
 // 39612 - Spatial Flux (trash)
 // 48707 - Spatial Flux (Isiset)
-class npc_hoo_spatial_flux : public CreatureScript
+struct npc_hoo_spatial_flux : public ScriptedAI
 {
-public:
-    npc_hoo_spatial_flux() : CreatureScript("npc_hoo_spatial_flux") { }
+    npc_hoo_spatial_flux(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_hoo_spatial_fluxAI : public ScriptedAI
+    void Reset() override
     {
-        npc_hoo_spatial_fluxAI(Creature* creature) : ScriptedAI(creature) { }
+        events.Reset();
+        events.ScheduleEvent(EVENT_DUMMY_NUKE, Seconds(0));
+        events.ScheduleEvent(EVENT_SPAWN_ENERGY_FLUX, Seconds(3));
+    }
 
-        void Reset() override
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (summoner->GetEntry() == BOSS_ISISET)
+            me->SetInCombatWithZone();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_DUMMY_NUKE, Seconds(0));
-            events.ScheduleEvent(EVENT_SPAWN_ENERGY_FLUX, Seconds(3));
-        }
-
-        void IsSummonedBy(Unit* summoner) override
-        {
-            if (summoner->GetEntry() == BOSS_ISISET)
-                me->SetInCombatWithZone();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-            
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    
-                    case EVENT_SPAWN_ENERGY_FLUX:
-                        DoCastSelf(me->GetEntry() == NPC_SPATIAL_FLUX_TRASH ? SPELL_SPAWN_ENERGY_FLUX_TRASH : SPELL_SPAWN_ENERGY_FLUX_ISISET);
-                        events.Repeat(Seconds(12));
-                        break;
-                    case EVENT_DUMMY_NUKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                            DoCast(target, SPELL_DUMMY_NUKE);
-                        events.Repeat(Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
+                case EVENT_SPAWN_ENERGY_FLUX:
+                    DoCastSelf(me->GetEntry() == NPC_SPATIAL_FLUX_TRASH ? SPELL_SPAWN_ENERGY_FLUX_TRASH : SPELL_SPAWN_ENERGY_FLUX_ISISET);
+                    events.Repeat(Seconds(12));
+                    break;
+                case EVENT_DUMMY_NUKE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                        DoCast(target, SPELL_DUMMY_NUKE);
+                    events.Repeat(Seconds(1));
+                    break;
+                default:
+                    break;
             }
         }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetHallsOfOriginationAI<npc_hoo_spatial_fluxAI>(creature);
     }
+
+private:
+    EventMap events;
 };
 
 // 44015 - Energy flux (trash)
 // 48709 - Energy flux (Isiset)
-class npc_hoo_energy_flux : public CreatureScript
+struct npc_hoo_energy_flux : public ScriptedAI
 {
-public:
-    npc_hoo_energy_flux() : CreatureScript("npc_hoo_energy_flux") { }
-
-    struct npc_hoo_energy_fluxAI : public ScriptedAI
+    npc_hoo_energy_flux(Creature* creature) : ScriptedAI(creature)
     {
-        npc_hoo_energy_fluxAI(Creature* creature) : ScriptedAI(creature)
+        me->SetReactState(REACT_PASSIVE);
+        DoCastSelf(SPELL_ENERGY_FLUX_PERIODIC);
+        DoCastSelf(me->GetEntry() == NPC_ENERGY_FLUX_TRASH ? SPELL_ENERGY_FLUX_BEAM_TRASH : SPELL_ENERGY_FLUX_BEAM_ISISET);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        me->SetWalk(true);
+        events.ScheduleEvent(EVENT_FOLLOW_SUMMONER, Seconds(1));
+        me->DespawnOrUnsummon(Seconds(6));
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (events.Empty())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            me->SetReactState(REACT_PASSIVE);
-            DoCastSelf(SPELL_ENERGY_FLUX_PERIODIC);
-            DoCastSelf(me->GetEntry() == NPC_ENERGY_FLUX_TRASH ? SPELL_ENERGY_FLUX_BEAM_TRASH : SPELL_ENERGY_FLUX_BEAM_ISISET);
-        }
-
-        void IsSummonedBy(Unit* /*summoner*/) override
-        {
-            me->SetWalk(true);
-            events.ScheduleEvent(EVENT_FOLLOW_SUMMONER, Seconds(1));
-            me->DespawnOrUnsummon(Seconds(6));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (events.Empty())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    case EVENT_FOLLOW_SUMMONER:
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                            me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
-                        events.Repeat(Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
+            case EVENT_FOLLOW_SUMMONER:
+                if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                    me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
+                events.Repeat(Seconds(1));
+                break;
+            default:
+                break;
             }
         }
-        
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetHallsOfOriginationAI<npc_hoo_energy_fluxAI>(creature);
     }
+
+private:
+    EventMap events;
 };
 
 // 75764 - Emerge
-class spell_hoo_emerge : public SpellScriptLoader
+class spell_hoo_emerge : public SpellScript
 {
-public:
-    spell_hoo_emerge() : SpellScriptLoader("spell_hoo_emerge") { }
+    PrepareSpellScript(spell_hoo_emerge);
 
-    class spell_hoo_emerge_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        PrepareSpellScript(spell_hoo_emerge_SpellScript);
+        return ValidateSpellInfo({ SPELL_SUBMERGE });
+    }
 
-        void RemoveSubmergeAura(SpellEffIndex /*effIndex*/)
-        {
-            GetHitUnit()->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_hoo_emerge_SpellScript::RemoveSubmergeAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void RemoveSubmergeAura(SpellEffIndex /*effIndex*/)
     {
-        return new spell_hoo_emerge_SpellScript();
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hoo_emerge::RemoveSubmergeAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 // 82382 - Energy Flux (cast by trash Spatial Flux)
 // 90735 - Energy Flux (cast by Isiset's Spatial Flux)
-class spell_hoo_energy_flux_target_selector : public SpellScriptLoader
+class spell_hoo_energy_flux_target_selector : public SpellScript
 {
-public:
-    spell_hoo_energy_flux_target_selector() : SpellScriptLoader("spell_hoo_energy_flux_target_selector") { }
+    PrepareSpellScript(spell_hoo_energy_flux_target_selector);
 
-    class spell_hoo_energy_flux_target_selector_SpellScript : public SpellScript
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        PrepareSpellScript(spell_hoo_energy_flux_target_selector_SpellScript);
+        // Remove tank
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+            if (Creature* Isiset = instance->GetCreature(DATA_ISISET))
+                if (WorldObject* tank = Isiset->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    targets.remove(tank);
 
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            // Remove tank
-            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                if (Creature* Isiset = instance->GetCreature(DATA_ISISET))
-                    if (WorldObject* tank = Isiset->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
-                        targets.remove(tank);
+        targets.remove_if(Trinity::ObjectTypeIdCheck(TYPEID_PLAYER, false));
+        if (targets.empty())
+            return;
 
-            targets.remove_if(Trinity::ObjectTypeIdCheck(TYPEID_PLAYER, false));
-            if (targets.empty())
-                return;
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        targets.clear();
+        targets.push_back(target);
+    }
 
-            WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-            targets.clear();
-            targets.push_back(target);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hoo_energy_flux_target_selector_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_hoo_energy_flux_target_selector_SpellScript();
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hoo_energy_flux_target_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 // 74880 - Arcane Energy
-class spell_hoo_arcane_energy_check : public SpellScriptLoader
+class spell_hoo_arcane_energy_check : public AuraScript
 {
-public:
-    spell_hoo_arcane_energy_check() : SpellScriptLoader("spell_hoo_arcane_energy_check") { }
+    PrepareAuraScript(spell_hoo_arcane_energy_check);
 
-    class spell_hoo_arcane_energy_check_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_hoo_arcane_energy_check_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_ARCANE_BURST, SPELL_ARCANE_ENERGY });
-        }
-
-        void AfterProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-        {
-            if (GetTarget()->GetPower(POWER_ENERGY) == 100)
+        return ValidateSpellInfo(
             {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_ARCANE_BURST);
+                SPELL_ARCANE_BURST,
+                SPELL_ARCANE_ENERGY
+            });
+    }
 
-                // Stacks should probably be consumed, right? (note: this ability doesn't work on retail)
-                GetTarget()->RemoveAurasDueToSpell(SPELL_ARCANE_ENERGY);
-                GetTarget()->SetPower(POWER_ENERGY, 0);
-            }
-        }
-
-        void Register() override
-        {
-            AfterEffectProc += AuraEffectProcFn(spell_hoo_arcane_energy_check_AuraScript::AfterProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void AfterProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        return new spell_hoo_arcane_energy_check_AuraScript();
+        if (GetTarget()->GetPower(POWER_ENERGY) == 100)
+        {
+            GetTarget()->CastSpell((Unit*)nullptr, SPELL_ARCANE_BURST);
+
+            // Stacks should probably be consumed, right? (note: this ability doesn't work on retail)
+            GetTarget()->RemoveAurasDueToSpell(SPELL_ARCANE_ENERGY);
+            GetTarget()->SetPower(POWER_ENERGY, 0);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectProc += AuraEffectProcFn(spell_hoo_arcane_energy_check::AfterProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
 // 73686 Fixate
-class spell_hoo_fixate : public SpellScriptLoader
+class spell_hoo_fixate : public SpellScript
 {
-public:
-    spell_hoo_fixate() : SpellScriptLoader("spell_hoo_fixate") { }
+    PrepareSpellScript(spell_hoo_fixate);
 
-    class spell_hoo_fixate_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        PrepareSpellScript(spell_hoo_fixate_SpellScript);
+        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].BasePoints) });
+    }
 
-        bool Validate(SpellInfo const* spellInfo) override
-        {
-            return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].BasePoints) });
-        }
-
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        { 
-            GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()));
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_hoo_fixate_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        return new spell_hoo_fixate_SpellScript();
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hoo_fixate::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class SunTouchedServantCheck
+{
+    public:
+        SunTouchedServantCheck() { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (object->GetEntry() != NPC_SUN_TOUCHED_SERVANT);
+        }
+};
+
+class spell_hoo_flame_ring_visual : public SpellScript
+{
+    PrepareSpellScript(spell_hoo_flame_ring_visual);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(SunTouchedServantCheck());
+
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hoo_flame_ring_visual::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_hoo_flame_ring_visual::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 void AddSC_halls_of_origination()
 {
-    new go_hoo_the_makers_lift_controller();
-    new npc_hoo_aggro_stalker();
-    new npc_hoo_spatial_flux();
-    new npc_hoo_energy_flux();
-    new spell_hoo_emerge();
-    new spell_hoo_energy_flux_target_selector();
-    new spell_hoo_arcane_energy_check();
-    new spell_hoo_fixate();
+    RegisterGameObjectAI(go_hoo_the_makers_lift_controller);
+    RegisterHallsOfOriginationCreatureAI(npc_hoo_aggro_stalker);
+    RegisterHallsOfOriginationCreatureAI(npc_hoo_spatial_flux);
+    RegisterHallsOfOriginationCreatureAI(npc_hoo_energy_flux);
+    RegisterSpellScript(spell_hoo_emerge);
+    RegisterSpellScript(spell_hoo_energy_flux_target_selector);
+    RegisterAuraScript(spell_hoo_arcane_energy_check);
+    RegisterSpellScript(spell_hoo_fixate);
+    RegisterSpellScript(spell_hoo_flame_ring_visual);
 }
