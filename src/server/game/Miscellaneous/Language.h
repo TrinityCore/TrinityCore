@@ -991,7 +991,7 @@ enum TrinityStrings
     LANG_BATTLEGROUND                     = 5015,
     LANG_ARENA                            = 5016,
     LANG_RAID                             = 5017,
-    //                                    = 5018, unused
+    LANG_NPCINFO_REACTSTATE               = 5018,
     LANG_COMMAND_TEMP_FROZEN_PLAYER       = 5019,
     LANG_NPCINFO_PHASEMASK                = 5020,
     LANG_NPCINFO_ARMOR                    = 5021,
