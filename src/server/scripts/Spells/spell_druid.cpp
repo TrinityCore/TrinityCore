@@ -818,51 +818,44 @@ class spell_dru_living_seed_proc : public SpellScriptLoader
 };
 
 // 1079 - Rip
-class spell_dru_rip : public SpellScriptLoader
+// Updated 4.3.4
+class spell_dru_rip : public AuraScript
 {
-    public:
-        spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+    PrepareAuraScript(spell_dru_rip);
 
-        class spell_dru_rip_AuraScript : public AuraScript
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        return caster && caster->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_dru_rip_AuraScript);
+            // Formular: bp + 0.0207 * ap
+            uint8 cp = caster->ToPlayer()->GetComboPoints();
+            float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0207f;
 
-            bool Load() override
-            {
-                Unit* caster = GetCaster();
-                return caster && caster->GetTypeId() == TYPEID_PLAYER;
-            }
+            float bonus = ap * cp;
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                canBeRecalculated = false;
+            // Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
+            if (AuraEffect const* auraEffIdolOfFeralShadows = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_FERAL_SHADOWS, EFFECT_0))
+                amount += cp * auraEffIdolOfFeralShadows->GetAmount();
+            // Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
+            else if (AuraEffect const* auraEffIdolOfWorship = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_WORSHIP, EFFECT_0))
+                amount += cp * auraEffIdolOfWorship->GetAmount();
 
-                if (Unit* caster = GetCaster())
-                {
-                    // 0.01 * $AP * cp
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
-
-                    // Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
-                    if (AuraEffect const* auraEffIdolOfFeralShadows = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_FERAL_SHADOWS, EFFECT_0))
-                        amount += cp * auraEffIdolOfFeralShadows->GetAmount();
-                    // Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
-                    else if (AuraEffect const* auraEffIdolOfWorship = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_WORSHIP, EFFECT_0))
-                        amount += cp * auraEffIdolOfWorship->GetAmount();
-
-                    amount += int32(CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), cp));
-                }
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dru_rip_AuraScript();
+            amount += int32(bonus);
         }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
 };
 
 // 62606 - Savage Defense
@@ -1898,7 +1891,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_living_seed_proc();
     RegisterAuraScript(spell_dru_moonfire);
     new spell_dru_rejuvenation();
-    new spell_dru_rip();
+    RegisterAuraScript(spell_dru_rip);
     RegisterAuraScript(spell_dru_savage_defense);
     new spell_dru_savage_roar();
     new spell_dru_starfall_dummy();
