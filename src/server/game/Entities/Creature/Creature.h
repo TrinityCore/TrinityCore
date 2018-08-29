@@ -229,7 +229,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
-        void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(nullptr) + respawn : 0; }
+        void SetRespawnTime(uint32 respawn);
         void Respawn(bool force = false);
         void SaveRespawnTime(uint32 forceDelay = 0, bool savetodb = true) override;
 
