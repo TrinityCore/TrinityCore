@@ -965,6 +965,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,760),
 (198,852),
 (198,855),
+(198,874),
 (199,217),
 (199,221),
 (199,222),
@@ -1664,7 +1665,8 @@ INSERT INTO `rbac_permissions` VALUES
 (870,'Command: debug threatinfo'),
 (871,'Command: debug instancespawn'),
 (872,'Command: server debug'),
-(873,'Command: reload creature_movement_override');
+(873,'Command: reload creature_movement_override'),
+(874,'Command: go instance');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 

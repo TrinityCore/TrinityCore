@@ -53,6 +53,7 @@ public:
             { "xyz",                rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "" },
             { "ticket",             rbac::RBAC_PERM_COMMAND_GO_TICKET,              false, &HandleGoTicketCommand,                      "" },
             { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
+            { "instance",           rbac::RBAC_PERM_COMMAND_GO_INSTANCE,                 false, &HandleGoInstanceCommand,                    "" }
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -554,6 +555,122 @@ public:
             player->SaveRecallPosition(); // save only in non-flight case
 
         player->TeleportTo(player->GetMapId(), x, y, z, o);
+        return true;
+    }
+
+    static bool HandleGoInstanceCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::vector<std::string> labels;
+
+        // tokenize and convert to lowercase
+        char* pos = const_cast<char*>(args);
+        char* last = nullptr;
+        do
+        {
+            if (*pos == ' ')
+            {
+                if (last)
+                {
+                    *pos = '\0';
+                    labels.emplace_back(last);
+                    last = nullptr;
+                }
+            }
+            else
+            {
+                if (!last)
+                    last = pos;
+                *pos = tolower(*pos);
+            }
+        } while (*++pos);
+        if (last)
+            labels.emplace_back(last);
+        // tokenizing done
+
+        uint32 mapid = 0;
+        if (labels.size() == 1)
+        {
+            try { mapid = std::stoi(labels[0]); }
+            catch (...) {}
+        }
+
+        if (!mapid)
+        {
+            std::multimap<uint32, std::pair<uint16, std::string>> matches;
+            for (auto const& pair : sObjectMgr->GetInstanceTemplates())
+            {
+                uint32 count = 0;
+                std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
+                for (std::string const& label : labels)
+                    if (scriptName.find(label) != std::string::npos)
+                        ++count;
+
+                if (count)
+                    matches.emplace(count, decltype(matches)::mapped_type({ pair.first, scriptName }));
+            }
+            if (matches.empty())
+            {
+                handler->SendSysMessage("No matches found for your input");
+                return false;
+            }
+            auto it = matches.rbegin();
+            uint32 maxCount = it->first;
+            mapid = it->second.first;
+            if (++it != matches.rend() && it->first == maxCount)
+            {
+                handler->SendSysMessage("Multiple matches found for your input - please specify:");
+                --it;
+                do
+                    handler->PSendSysMessage("* Map %03u: '%s'", it->second.first, it->second.second);
+                while (++it != matches.rend() && it->first == maxCount);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        ASSERT(mapid);
+
+        InstanceTemplate const* temp = sObjectMgr->GetInstanceTemplate(mapid);
+        if (!temp)
+        {
+            handler->PSendSysMessage("Map %u is not instanced", mapid);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        std::string const& scriptname = sObjectMgr->GetScriptName(temp->ScriptId);
+        
+        AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
+        if (!entrance)
+        {
+            handler->PSendSysMessage("Could not find entrance for instance %u (%s)", mapid, scriptname);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        if (player->IsInFlight())
+            player->FinishTaxiFlight();
+        else
+            player->SaveRecallPosition();
+
+        if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+            handler->PSendSysMessage("Teleported you to entrance of mapid %u (%s)", mapid, scriptname);
+        else
+        {
+            AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapid);
+            if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+                handler->PSendSysMessage("Teleported you in front of entrance to mapid %u (%s)", mapid, scriptname);
+            else
+            {
+                handler->PSendSysMessage("Failed to teleport you to entrance of mapid %u (%s) - missing attunement/expansion for parent map?", mapid, scriptname);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
         return true;
     }
 };
