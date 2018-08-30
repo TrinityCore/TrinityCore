@@ -63,6 +63,7 @@ enum PriestSpells
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY                = 88686,
+    SPELL_PRIEST_INNER_FOCUS                        = 89485,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH                      = 73325,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
@@ -82,10 +83,14 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    SPELL_PRIEST_STRENGTH_OF_SOUL_R1                = 89488,
+    SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R1      = 96266,
+    SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R2      = 96267,
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_WEAKENED_SOUL                      = 6788
 };
 
 enum PriestSpellIcons
@@ -1440,6 +1445,69 @@ private:
     bool _glyphEnabled;
 };
 
+// -89488 - Strength of Soul
+class spell_pri_strength_of_soul : public AuraScript
+{
+    PrepareAuraScript(spell_pri_strength_of_soul);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_INNER_FOCUS,
+                SPELL_PRIEST_STRENGTH_OF_SOUL_R1,
+                SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R1,
+                SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R2
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+
+        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_INNER_FOCUS)
+        {
+            if (aurEff->GetId() == SPELL_PRIEST_STRENGTH_OF_SOUL_R1)
+                target->CastSpell(target, SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R1, true, nullptr, aurEff);
+            else
+                target->CastSpell(target, SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R2, true, nullptr, aurEff);
+        }
+        else
+        {
+            uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
+            int32 bp = aurEff->GetAmount() * IN_MILLISECONDS;
+            target->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_strength_of_soul::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+class spell_pri_strength_of_soul_script : public SpellScript
+{
+    PrepareSpellScript(spell_pri_strength_of_soul_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_WEAKENED_SOUL });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Aura* aura = GetHitUnit()->GetAura(SPELL_PRIEST_WEAKENED_SOUL))
+            aura->SetDuration(std::max(0, aura->GetDuration() - GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_strength_of_soul_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1474,6 +1542,8 @@ void AddSC_priest_spell_scripts()
     RegisterAuraScript(spell_pri_shadow_orb);
     RegisterAuraScript(spell_pri_shadow_orbs);
     RegisterAuraScript(spell_pri_shadow_orb_power);
+    RegisterAuraScript(spell_pri_strength_of_soul);
+    RegisterSpellScript(spell_pri_strength_of_soul_script);
     RegisterAuraScript(spell_pri_renew);
     RegisterSpellScript(spell_pri_shadow_word_death);
     RegisterAuraScript(spell_pri_shadowform);
