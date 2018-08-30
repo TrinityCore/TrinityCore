@@ -364,34 +364,24 @@ class instance_icecrown_citadel : public InstanceMapScript
                             return entry;
                         return 0;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
-                    case NPC_SE_MURADIN_BRONZEBEARD:
                         return TeamInInstance == ALLIANCE ? NPC_SE_MURADIN_BRONZEBEARD : NPC_SE_HIGH_OVERLORD_SAURFANG;
                     case NPC_KOR_KRON_GENERAL:
-                    case NPC_ALLIANCE_COMMANDER:
                         return TeamInInstance == ALLIANCE ? NPC_ALLIANCE_COMMANDER : NPC_KOR_KRON_GENERAL;
                     case NPC_TORTUNOK:
-                    case NPC_ALANA_MOONSTRIKE:
                         return TeamInInstance == ALLIANCE ? NPC_ALANA_MOONSTRIKE : NPC_TORTUNOK;
                     case NPC_GERARDO_THE_SUAVE:
-                    case NPC_TALAN_MOONSTRIKE:
                         return TeamInInstance == ALLIANCE ? NPC_TALAN_MOONSTRIKE : NPC_GERARDO_THE_SUAVE;
                     case NPC_UVLUS_BANEFIRE:
-                    case NPC_MALFUS_GRIMFROST:
                         return TeamInInstance == ALLIANCE ? NPC_MALFUS_GRIMFROST : NPC_UVLUS_BANEFIRE;
                     case NPC_IKFIRUS_THE_VILE:
-                    case NPC_YILI:
                         return TeamInInstance == ALLIANCE ? NPC_YILI : NPC_IKFIRUS_THE_VILE;
                     case NPC_VOL_GUK:
-                    case NPC_JEDEBIA:
                         return TeamInInstance == ALLIANCE ? NPC_JEDEBIA : NPC_VOL_GUK;
                     case NPC_HARAGG_THE_UNSEEN:
-                    case NPC_NIBY_THE_ALMIGHTY:
                         return TeamInInstance == ALLIANCE ? NPC_NIBY_THE_ALMIGHTY : NPC_HARAGG_THE_UNSEEN;
                     case NPC_GARROSH_HELLSCREAM:
-                    case NPC_KING_VARIAN_WRYNN:
                         return TeamInInstance == ALLIANCE ? NPC_KING_VARIAN_WRYNN : NPC_GARROSH_HELLSCREAM;
                     case NPC_SE_KOR_KRON_REAVER:
-                    case NPC_SE_SKYBREAKER_MARINE:
                         return TeamInInstance == ALLIANCE ? NPC_SE_SKYBREAKER_MARINE : NPC_SE_KOR_KRON_REAVER;
                     default:
                         break;
