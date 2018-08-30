@@ -598,70 +598,82 @@ class spell_mage_focus_magic : public SpellScriptLoader
 
 // 116 - Frostbolt
 /// Updated 4.3.4
-class spell_mage_frostbolt : public SpellScriptLoader
+class spell_mage_frostbolt : public SpellScript
 {
-   public:
-       spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
+    PrepareSpellScript(spell_mage_frostbolt);
 
-       class spell_mage_frostbolt_SpellScript : public SpellScript
-       {
-           PrepareSpellScript(spell_mage_frostbolt_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                 SPELL_MAGE_EARLY_FROST_R1,
+                 SPELL_MAGE_EARLY_FROST_R2,
+                 SPELL_MAGE_EARLY_FROST_TRIGGERED_R1,
+                 SPELL_MAGE_EARLY_FROST_TRIGGERED_R2,
+                 SPELL_MAGE_EARLY_FROST_VISUAL
+            });
+    }
 
-           bool Validate(SpellInfo const* /*spellInfo*/) override
-           {
-               return ValidateSpellInfo(
-               {
-                    SPELL_MAGE_EARLY_FROST_R1,
-                    SPELL_MAGE_EARLY_FROST_R2,
-                    SPELL_MAGE_EARLY_FROST_TRIGGERED_R1,
-                    SPELL_MAGE_EARLY_FROST_TRIGGERED_R2,
-                    SPELL_MAGE_EARLY_FROST_VISUAL
-               });
-           }
+    bool Load() override
+    {
+        _earlyFrostActive = false;
+        _earlyFrostSpellId = 0;
 
-           void HandleEarlyFrost()
-           {
-               if (Unit* caster = GetCaster())
-               {
-                   if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_MAGE, ICON_MAGE_EARLY_FROST_SKILL, 0))
-                   {
-                       if (!caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_MAGE, ICON_MAGE_EARLY_FROST, 0))
-                       {
-                           if (aurEff->GetId() == SPELL_MAGE_EARLY_FROST_R1)
-                               caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_TRIGGERED_R1, true);
-                           else if (aurEff->GetId() == SPELL_MAGE_EARLY_FROST_R2)
-                               caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_TRIGGERED_R2, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return false;
 
-                           caster->RemoveAurasDueToSpell(SPELL_MAGE_EARLY_FROST_VISUAL);
-                       }
-                   }
-               }
-           }
+        // Check Early Frost state
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_MAGE, ICON_MAGE_EARLY_FROST_SKILL, 0))
+        {
+            // Check if the cooldown effect is inactive
+            if (!caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_MAGE, ICON_MAGE_EARLY_FROST, EFFECT_0))
+            {
+                _earlyFrostActive = true;
+                if (aurEff->GetId() == SPELL_MAGE_EARLY_FROST_R1)
+                    _earlyFrostSpellId = SPELL_MAGE_EARLY_FROST_TRIGGERED_R1;
+                else if (aurEff->GetId() == SPELL_MAGE_EARLY_FROST_R2)
+                    _earlyFrostSpellId = SPELL_MAGE_EARLY_FROST_TRIGGERED_R2;
+            }
+        }
 
-           void RecalculateDamage(SpellEffIndex /*effIndex*/)
-           {
-               if (GetHitUnit() && GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()))
-               {
-                   if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_SHATTER, EFFECT_1))
-                   {
-                       int32 damage = GetHitDamage();
-                       AddPct(damage, aurEff->GetAmount());
-                       SetHitDamage(damage);
-                   }
-               }
-           }
+        return true;
+    }
 
-           void Register() override
-           {
-               OnCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleEarlyFrost);
-               OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-           }
-       };
+    void HandleEarlyFrost()
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (_earlyFrostActive)
+            {
+                caster->CastSpell(caster, _earlyFrostSpellId, true);
+                caster->RemoveAurasDueToSpell(SPELL_MAGE_EARLY_FROST_VISUAL);
+            }
+        }
+    }
 
-       SpellScript* GetSpellScript() const
-       {
-           return new spell_mage_frostbolt_SpellScript();
-       }
+    void RecalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit() && GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()))
+        {
+            if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_SHATTER, EFFECT_1))
+            {
+                int32 damage = GetHitDamage();
+                AddPct(damage, aurEff->GetAmount());
+                SetHitDamage(damage);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        BeforeCast += SpellCastFn(spell_mage_frostbolt::HandleEarlyFrost);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    bool _earlyFrostActive;
+    uint32 _earlyFrostSpellId;
 };
 
 // 56372 - Glyph of Ice Block
@@ -2122,7 +2134,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_flame_orb();
     new spell_mage_flame_orb_aoe_dummy();
     new spell_mage_focus_magic();
-    new spell_mage_frostbolt();
+    RegisterSpellScript(spell_mage_frostbolt);
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
