@@ -152,25 +152,60 @@ class TC_GAME_API ChatHandler
         bool sentErrorMessage;
 };
 
-class TC_GAME_API CliHandler : public ChatHandler
+class TC_GAME_API CommandArgs
 {
-    public:
-        typedef void Print(void*, char const*);
-        explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
+public:
+    enum CommandArgsType
+    {
+        ARG_INT,
+        ARG_UINT,
+        ARG_FLOAT,
+        ARG_STRING,
+        ARG_PLAYER,
 
-        // overwrite functions
-        char const* GetTrinityString(uint32 entry) const override;
-        bool isAvailable(ChatCommand const& cmd) const override;
-        bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str, bool escapeCharacters) override;
-        std::string GetNameLink() const override;
-        bool needReportToTarget(Player* chr) const override;
-        LocaleConstant GetSessionDbcLocale() const override;
-        LocaleConstant GetSessionDbLocaleIndex() const override;
+        ARG_OPTIONAL_BEGIN,
 
-    private:
-        void* m_callbackArg;
-        Print* m_print;
+        ARG_INT_OPTIONAL,
+        ARG_UINT_OPTIONAL,
+        ARG_FLOAT_OPTIONAL,
+        ARG_STRING_OPTIONAL,
+        ARG_PLAYER_OPTIONAL,
+    };
+
+    struct PlayerResult
+    {
+        Player* PlayerPtr = nullptr;
+        ObjectGuid Guid;
+        std::string Name;
+    };
+
+    CommandArgs(ChatHandler* handler, char const* args) : _validArgs(false), _handler(handler), _charArgs(args) { }
+    CommandArgs(ChatHandler* handler, char const* args, std::initializer_list<CommandArgsType> argsType) : _validArgs(false), _handler(handler), _charArgs(args), _pos(0)
+    {
+        Initialize(argsType);
+    }
+
+    bool ValidArgs() const { return _validArgs; }
+    void Initialize(std::initializer_list<CommandArgsType> argsType);
+
+    void InitializeArgsVector(std::vector<std::string>& argsVector);
+    void CheckOptionalArgs(std::vector<CommandArgsType>& argsTypeVector, uint8 argsVectorSize);
+
+    uint32 Count() { return _args.size(); }
+
+    template<typename T>
+    T GetNextArg() { return GetArg<T>(_pos++); }
+
+    template<typename T>
+    T GetArg(uint8 index, T defaultValue = T());
+
+private:
+    bool _validArgs;
+    ChatHandler* _handler;
+    char const* _charArgs;
+    std::vector<CommandArgsType> _argsTypeVector;
+    std::vector<boost::any> _args;
+    uint8 _pos;
 };
 
 #endif

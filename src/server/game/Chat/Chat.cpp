@@ -1187,3 +1187,161 @@ LocaleConstant CliHandler::GetSessionDbLocaleIndex() const
 {
     return sObjectMgr->GetDBCLocaleIndex();
 }
+
+void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
+{
+    try
+    {
+        std::vector<CommandArgsType> argsTypeVector = std::vector<CommandArgsType>(argsType);
+        _argsTypeVector = argsTypeVector;
+
+        if (!_charArgs || !*_charArgs)
+        {
+            if (argsTypeVector.size())
+                throw std::invalid_argument("");
+
+            _validArgs = true;
+            return;
+        }
+
+        std::vector<std::string> argsVector;
+        InitializeArgsVector(argsVector);
+        CheckOptionalArgs(argsTypeVector, argsVector.size());
+
+        // Finally, we cast all our args to their types
+        for (uint8 i = 0; i < argsTypeVector.size(); ++i)
+        {
+            switch (argsTypeVector[i])
+            {
+                case ARG_INT:
+                case ARG_INT_OPTIONAL:
+                    _args.push_back(int32(atoi(argsVector[i].c_str())));
+                    break;
+                case ARG_UINT:
+                case ARG_UINT_OPTIONAL:
+                {
+                    int value = atoi(argsVector[i].c_str());
+                    if (value < 0)
+                        return;
+
+                    _args.push_back(uint32(value));
+                    break;
+                }
+                case ARG_FLOAT:
+                case ARG_FLOAT_OPTIONAL:
+                    _args.push_back(float(atof(argsVector[i].c_str())));
+                    break;
+                case ARG_STRING:
+                case ARG_STRING_OPTIONAL:
+                    _args.push_back(argsVector[i]);
+                    break;
+                case ARG_PLAYER:
+                case ARG_PLAYER_OPTIONAL:
+                {
+                    PlayerResult result;
+                    _handler->extractPlayerTarget((char*)argsVector[i].c_str(), &result.PlayerPtr, &result.Guid, &result.Name);
+                    _args.push_back(result);
+                    break;
+                }
+                case ARG_OPTIONAL_BEGIN:
+                    ASSERT(false, "Cannot use ARG_OPTIONAL_BEGIN as arg type");
+                default:
+                    break;
+            }
+        }
+
+        _validArgs = true;
+    }
+    // Catch potential boost exception
+    catch (std::exception e)
+    {
+        _validArgs = false;
+    }
+}
+
+// Split args by spaces, expect for quoted args
+void CommandArgs::InitializeArgsVector(std::vector<std::string>& argsVector)
+{
+    std::ostringstream arg;
+    uint32 argsLength = strlen(_charArgs);
+
+    for (size_t i = 0; i < argsLength; i++)
+    {
+        char c = _charArgs[i];
+        if (c == ' ')
+        {
+            argsVector.push_back(arg.str());
+            arg.str("");
+            arg.clear();
+        }
+        else if (c == '\"')
+        {
+            ++i;
+            while (i < argsLength && _charArgs[i] != '\"')
+                arg << _charArgs[i++];
+        }
+        else if (c == '|')
+        {
+            while (i < argsLength && (i <= 1 || _charArgs[i - 1] != '|' || _charArgs[i] != 'r'))
+                arg << _charArgs[i++];
+
+            arg << 'r';
+        }
+        else
+            arg << _charArgs[i];
+    }
+
+    if (arg.str().size() != 0)
+        argsVector.push_back(arg.str());
+}
+
+// If we have less parameter than expected, check if any of them is optional
+// and reduce argsTypeVector accordingly
+void CommandArgs::CheckOptionalArgs(std::vector<CommandArgsType>& argsTypeVector, uint8 argsVectorSize)
+{
+    uint8 argsTypeVectorSize = argsTypeVector.size();
+
+    // Check if any parameter is optionnal
+    if (argsVectorSize == argsTypeVectorSize)
+        return;
+
+    if (argsVectorSize > argsTypeVectorSize)
+        throw std::invalid_argument("");
+
+    uint8 optionalCount = uint8(std::count_if(argsTypeVector.begin(), argsTypeVector.end(), [](CommandArgsType const& type)
+    {
+        return type > ARG_OPTIONAL_BEGIN;
+    }));
+
+    int8 argsDiff = argsTypeVectorSize - argsVectorSize;
+
+    if (optionalCount < argsDiff)
+        throw std::invalid_argument("");
+
+    for (uint8 i = argsTypeVectorSize; i != 0; --i)
+    {
+        auto itr = argsTypeVector.begin();
+        std::advance(itr, i - 1);
+
+        if (*itr > ARG_OPTIONAL_BEGIN)
+        {
+            argsTypeVector.erase(itr);
+
+            if (--argsDiff <= 0)
+                break;
+        }
+    }
+}
+
+template<typename T>
+T CommandArgs::GetArg(uint8 index, T defaultValue /*= T()*/)
+{
+    ASSERT(index < _argsTypeVector.size());
+
+    if (_argsTypeVector[index] <= ARG_OPTIONAL_BEGIN)
+        ASSERT(index < _args.size());
+    else if (index >= _args.size())
+        return defaultValue;
+
+    return boost::any_cast<T>(_args[index]);
+}
