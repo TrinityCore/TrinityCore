@@ -211,23 +211,18 @@ SplineChainResumeInfo SplineChainMovementGenerator::GetResumeInfo(Unit const* ow
     return SplineChainResumeInfo(_id, &_chain, _walk, uint8(_nextIndex - 1), uint8(owner->movespline->_currentSplineIdx()), _msToNext);
 }
 
-/* static */ void SplineChainMovementGenerator::GetResumeInfo(Unit const* owner, uint32 id, SplineChainResumeInfo& info)
+/* static */ void SplineChainMovementGenerator::GetResumeInfo(SplineChainResumeInfo& info, Unit const* owner, Optional<uint32> id)
 {
     std::function<bool(MovementGenerator const*)> criteria = [id](MovementGenerator const* movement) -> bool
     {
         if (movement->GetMovementGeneratorType() == SPLINE_CHAIN_MOTION_TYPE)
-        {
-            SplineChainMovementGenerator const* splineChainMovement = dynamic_cast<SplineChainMovementGenerator const*>(movement);
-            return splineChainMovement && splineChainMovement->GetId() == id;
-        }
+            return (!id || static_cast<SplineChainMovementGenerator const*>(movement)->GetId() == *id);
+
         return false;
     };
 
     if (MovementGenerator const* activeGenerator = owner->GetMotionMaster()->GetMovementGenerator(criteria))
-    {
-        if (activeGenerator->GetMovementGeneratorType() == SPLINE_CHAIN_MOTION_TYPE)
-            info = reinterpret_cast<SplineChainMovementGenerator const*>(activeGenerator)->GetResumeInfo(owner);
-    }
+        info = static_cast<SplineChainMovementGenerator const*>(activeGenerator)->GetResumeInfo(owner);
     else
-        info.Chain = nullptr;
+        info.Clear();
 }
