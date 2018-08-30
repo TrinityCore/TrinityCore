@@ -47,7 +47,7 @@ class boss_venoxis : public CreatureScript
 
         struct boss_venoxisAI : public BossAI
         {
-            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS) { }
+            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_HIGH_PRIEST_VENOXIS) { }
 
             void Reset() override
             {

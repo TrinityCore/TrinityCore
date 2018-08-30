@@ -55,7 +55,7 @@ class boss_jindo_the_godbreaker : public CreatureScript
 
         struct boss_jindo_the_godbreakerAI : public BossAI
         {
-            boss_jindo_the_godbreakerAI(Creature* creature) : BossAI(creature, DATA_JINDO) { }
+            boss_jindo_the_godbreakerAI(Creature* creature) : BossAI(creature, DATA_JINDO_THE_GODBREAKER) { }
 
             void Reset() override
             {

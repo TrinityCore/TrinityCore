@@ -28,11 +28,11 @@ uint32 const EncounterCount = 5;
 
 enum ZGDataTypes
 {
-    DATA_VENOXIS                    = 0,
-    DATA_MANDOKIR                   = 1,
+    DATA_HIGH_PRIEST_VENOXIS        = 0,
+    DATA_BLOODLORD_MANDOKIR         = 1,
     DATA_KILNARA                    = 2,
     DATA_ZANZIL                     = 3,
-    DATA_JINDO                      = 4,
+    DATA_JINDO_THE_GODBREAKER       = 4,
 
     // Cache of Madness
     DATA_HAZZARAH                   = 5,
@@ -46,11 +46,11 @@ enum ZGDataTypes
 
 enum ZGCreatureIds
 {
-    NPC_VENOXIS                     = 52155,
-    NPC_MANDOKIR                    = 52151,
-    NPC_KILNARA                     = 52059,
-    NPC_ZANZIL                      = 52053,
-    NPC_JINDO                       = 52148,
+    BOSS_HIGH_PRIEST_VENOXIS        = 52155,
+    BOSS_BLOODLORD_MANDOKIR         = 52151,
+    BOSS_KILNARA                    = 52059,
+    BOSS_ZANZIL                     = 52053,
+    BOSS_JINDO_THE_GODBREAKER       = 52148,
 
     // Cache of Madness
     NPC_HAZZARAH                    = 52271,
