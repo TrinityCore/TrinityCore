@@ -6231,4 +6231,26 @@ enum class GameError : uint32
     ERR_GLYPH_TARGET_NOT_AVAILABLE                          = 987,
 };
 
+enum Maps : uint32
+{
+    MAP_EASTERN_KINGDOMS        = 0,
+    MAP_KALIMDOR                = 1,
+    MAP_OUTLAND                 = 530,
+    MAP_NORTHREND               = 571,
+    MAP_EBON_HOLD_DK_START_ZONE = 609,
+    MAP_PANDARIA                = 870,
+    MAP_DRAENOR                 = 1116,
+    MAP_WOD_BLASTED_LANDS_PHASE = 1190,
+    MAP_BROKEN_ISLANDS          = 1220,
+    MAP_TANAAN_JUNGLE_INTRO     = 1265,
+    MAP_TANAAN_JUNGLE           = 1464,
+    MAP_DALARAN_UNDERBELLY      = 1502,
+};
+
+enum SpecialSpells : uint32
+{
+    SPELL_MERCENARY_CONTRACT_HORDE      = 193472,
+    SPELL_MERCENARY_CONTRACT_ALLIANCE   = 193475,
+};
+
 #endif
