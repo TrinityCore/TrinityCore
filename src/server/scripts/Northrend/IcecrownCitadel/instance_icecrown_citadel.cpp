@@ -187,14 +187,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                if (!TeamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            TeamInInstance = player->GetTeam();
-                }
-
                 switch (creature->GetEntry())
                 {
                     case NPC_LORD_MARROWGAR:
@@ -314,6 +306,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             // Weekly quest spawn prevention
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
+                if (!TeamInInstance)
+                {
+                    Map::PlayerList const& players = instance->GetPlayers();
+                    if (!players.isEmpty())
+                        if (Player* player = players.begin()->GetSource())
+                            TeamInInstance = player->GetTeam();
+                }
+
                 uint32 entry = data->id;
                 switch (entry)
                 {
