@@ -54,39 +54,44 @@ class instance_nexus : public InstanceMapScript
                     case NPC_KERISTRASZA:
                         KeristraszaGUID = creature->GetGUID();
                         break;
-                    // Alliance npcs are spawned by default, if you are alliance, you will fight against horde npcs.
                     case NPC_ALLIANCE_BERSERKER:
-                        if (ServerAllowsTwoSideGroups())
-                            creature->SetFaction(FACTION_MONSTER_2);
-                        if (_teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_HORDE_BERSERKER);
-                        break;
                     case NPC_ALLIANCE_RANGER:
-                        if (ServerAllowsTwoSideGroups())
-                            creature->SetFaction(FACTION_MONSTER_2);
-                        if (_teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_HORDE_RANGER);
-                        break;
                     case NPC_ALLIANCE_CLERIC:
-                        if (ServerAllowsTwoSideGroups())
-                            creature->SetFaction(FACTION_MONSTER_2);
-                        if (_teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_HORDE_CLERIC);
-                        break;
                     case NPC_ALLIANCE_COMMANDER:
-                        if (ServerAllowsTwoSideGroups())
-                            creature->SetFaction(FACTION_MONSTER_2);
-                        if (_teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_HORDE_COMMANDER);
-                        break;
                     case NPC_COMMANDER_STOUTBEARD:
                         if (ServerAllowsTwoSideGroups())
                             creature->SetFaction(FACTION_MONSTER_2);
-                        if (_teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_COMMANDER_KOLURG);
                         break;
                     default:
                         break;
+                }
+            }
+
+            uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
+            {
+                if (!_teamInInstance)
+                {
+                    Map::PlayerList const& players = instance->GetPlayers();
+                    if (!players.isEmpty())
+                        if (Player* player = players.begin()->GetSource())
+                            _teamInInstance = player->GetTeam();
+                }
+
+                uint32 entry = data->id;
+                switch (entry)
+                {
+                    case NPC_ALLIANCE_BERSERKER:
+                        return _teamInInstance == ALLIANCE ? NPC_HORDE_BERSERKER : NPC_ALLIANCE_BERSERKER;
+                    case NPC_ALLIANCE_RANGER:
+                        return _teamInInstance == ALLIANCE ? NPC_HORDE_RANGER : NPC_ALLIANCE_RANGER;
+                    case NPC_ALLIANCE_CLERIC:
+                        return _teamInInstance == ALLIANCE ? NPC_HORDE_CLERIC : NPC_ALLIANCE_CLERIC;
+                    case NPC_ALLIANCE_COMMANDER:
+                        return _teamInInstance == ALLIANCE ? NPC_HORDE_COMMANDER : NPC_ALLIANCE_COMMANDER;
+                    case NPC_COMMANDER_STOUTBEARD:
+                        return _teamInInstance == ALLIANCE ? NPC_COMMANDER_KOLURG : NPC_COMMANDER_STOUTBEARD;
+                    default:
+                        return entry;
                 }
             }
 
