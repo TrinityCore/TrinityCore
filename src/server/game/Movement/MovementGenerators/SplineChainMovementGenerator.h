@@ -20,6 +20,7 @@
 
 #include "SplineChain.h"
 #include "MovementGenerator.h"
+#include "Optional.h"
 #include <vector>
 
 class Unit;
@@ -38,7 +39,7 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
         MovementGeneratorType GetMovementGeneratorType() const override;
 
         // Builds info that can later be used to resume this spline chain movement at the current position
-        static void GetResumeInfo(Unit const* owner, uint32 id, SplineChainResumeInfo& info);
+        static void GetResumeInfo(SplineChainResumeInfo& info, Unit const* owner, Optional<uint32> id = {});
         // Leaving the object method public for people that know what they're doing to use
         // But really, 99% of the time you should be using the static one instead
         SplineChainResumeInfo GetResumeInfo(Unit const* owner) const;

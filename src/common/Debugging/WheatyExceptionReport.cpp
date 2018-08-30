@@ -22,6 +22,7 @@
 #include "WheatyExceptionReport.h"
 
 #include "Common.h"
+#include "Errors.h"
 #include "GitRevision.h"
 #include <algorithm>
 
@@ -168,8 +169,21 @@ PEXCEPTION_POINTERS pExceptionInfo)
         info.ExceptionPointers = pExceptionInfo;
         info.ThreadId = GetCurrentThreadId();
 
+        MINIDUMP_USER_STREAM additionalStream = {};
+        MINIDUMP_USER_STREAM_INFORMATION additionalStreamInfo = {};
+
+        if (pExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionInfo->ExceptionRecord->NumberParameters > 0)
+        {
+            additionalStream.Type = CommentStreamA;
+            additionalStream.Buffer = reinterpret_cast<PVOID>(pExceptionInfo->ExceptionRecord->ExceptionInformation[0]);
+            additionalStream.BufferSize = strlen(reinterpret_cast<char const*>(pExceptionInfo->ExceptionRecord->ExceptionInformation[0])) + 1;
+
+            additionalStreamInfo.UserStreamArray = &additionalStream;
+            additionalStreamInfo.UserStreamCount = 1;
+        }
+
         MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
-            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, 0, 0);
+            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, &additionalStreamInfo, 0);
 
         CloseHandle(m_hDumpFile);
     }
@@ -501,6 +515,11 @@ PEXCEPTION_POINTERS pExceptionInfo)
         Log(_T("Exception code: %08X %s\r\n"),
             pExceptionRecord->ExceptionCode,
             GetExceptionString(pExceptionRecord->ExceptionCode));
+        if (pExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionRecord->NumberParameters >= 2)
+        {
+            pExceptionRecord->ExceptionAddress = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
+            Log(_T("Assertion message: %s\r\n"), pExceptionRecord->ExceptionInformation[0]);
+        }
 
         // Now print information about where the fault occured
         TCHAR szFaultingModule[MAX_PATH];

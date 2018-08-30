@@ -108,7 +108,9 @@ bool ThreatReference::ShouldBeSuppressed() const
 {
     if (_victim->IsImmunedToDamage(_owner->GetMeleeDamageSchoolMask()))
         return true;
-    if (_victim->HasBreakableByDamageCrowdControlAura())
+    if (_victim->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+        return true;
+    if (_victim->HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN))
         return true;
     return false;
 }
