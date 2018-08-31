@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ArgsParser.hpp"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -79,46 +80,28 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-
-        // "id" or number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-        char* param1 = handler->extractKeyFromLink((char*)args, "Hcreature");
-        if (!param1)
+        ArgsParser parser(args);
+        auto parsedArgs = parser.tryConsume<OneOf<IntegerArg, StringArg>, OptionalArg<IntegerArg>>();
+        if (!parsedArgs)
             return false;
 
         std::ostringstream whereClause;
-
-        // User wants to teleport to the NPC's template entry
-        if (strcmp(param1, "id") == 0)
-        {
-            // Get the "creature_template.entry"
-            // number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-            char* tail = strtok(nullptr, "");
-            if (!tail)
-                return false;
-            char* id = handler->extractKeyFromLink(tail, "Hcreature_entry");
-            if (!id)
-                return false;
-
-            uint32 entry = atoul(id);
-            if (!entry)
-                return false;
-
-            whereClause << "WHERE id = '" << entry << '\'';
-        }
+        if (parsedArgs->is<0, IntegerArg>()) // to creature guid
+            whereClause << "WHERE guid = '" << parsedArgs->get<0, IntegerArg>() << '\'';
         else
         {
-            ObjectGuid::LowType guidLow = atoul(param1);
-
-            // Number is invalid - maybe the user specified the mob's name
-            if (!guidLow)
+            std::string arg0 = parsedArgs->get<0, StringArg>();
+            if (arg0 == "id") // to creature entry
             {
-                std::string name = param1;
-                WorldDatabase.EscapeString(name);
-                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
+                if (!parsedArgs->is<1, IntegerArg>())
+                    return false;
+                whereClause << "WHERE id = '" << parsedArgs->get<1, IntegerArg>() << '\'';
             }
-            else
-                whereClause <<  "WHERE guid = '" << guidLow << '\'';
+            else // to creature name
+            {
+                WorldDatabase.EscapeString(arg0);
+                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << arg0 << '\'';
+            }
         }
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
@@ -146,6 +129,7 @@ public:
         }
 
         // stop flight if need
+        Player* player = handler->GetSession()->GetPlayer();
         if (player->IsInFlight())
             player->FinishTaxiFlight();
         else
@@ -567,22 +551,24 @@ public:
         do *pos = tolower(*pos);
         while (*(++pos));
 
-        Tokenizer labels(args, ' ');
         uint32 mapid = 0;
-        if (labels.size() == 1)
+        ArgsParser parser(args);
+        if (auto arg = parser.tryConsume<IntegerArg>())
         {
-            try { mapid = std::stoi(labels[0]); }
-            catch (...) {}
+            printf("integer arg is %u\n", mapid = arg->get<0, IntegerArg>());
         }
-
-        if (!mapid)
+        else if (auto arg = parser.tryConsume<StringArg>())
         {
+            std::vector<std::string> labels;
+            do labels.push_back(*arg);
+            while ((arg = parser.tryConsume<StringArg>()));
+
             std::multimap<uint32, std::pair<uint16, std::string>> matches;
             for (auto const& pair : sObjectMgr->GetInstanceTemplates())
             {
                 uint32 count = 0;
                 std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
-                for (char const* label : labels)
+                for (auto const& label : labels)
                     if (scriptName.find(label) != std::string::npos)
                         ++count;
 
