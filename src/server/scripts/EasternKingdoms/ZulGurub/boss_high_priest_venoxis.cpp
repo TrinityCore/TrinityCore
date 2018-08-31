@@ -320,13 +320,7 @@ struct boss_high_priest_venoxis : public BossAI
                     }
                     break;
                 case EVENT_WHISPERS_OF_HETHISS:
-                {
-                    Unit* target = nullptr;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
-                    if (!target)
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0);
-
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
                     {
                         me->StopMoving();
                         DoCast(target, SPELL_WHISPERS_OF_HETHISS);
@@ -335,7 +329,6 @@ struct boss_high_priest_venoxis : public BossAI
                     if (events.GetTimeUntilEvent(EVENT_BLESSING_OF_THE_SNAKE_GOD) > 8000) // Avoid some conflicts with phase 2
                         events.Repeat(8s + 500ms, 9s);
                     break;
-                }
                 case EVENT_TOXIC_LINK:
                     DoCastAOE(SPELL_TOXIC_LINK);
                     break;
@@ -466,31 +459,12 @@ class spell_venoxis_whispers_of_hethiss : public AuraScript
     }
 };
 
-class VictimCheck
-{
-    public:
-        VictimCheck(Unit* _caster) : caster(_caster)  { }
-
-        bool operator()(WorldObject* object)
-        {
-            return (caster->GetVictim() && caster->GetVictim() == object->ToUnit());
-        }
-    private:
-        Unit* caster;
-};
-
 class spell_venoxis_toxic_link_targeting : public SpellScript
 {
     PrepareSpellScript(spell_venoxis_toxic_link_targeting);
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (targets.empty())
-            return;
-
-        if (Unit* caster = GetCaster())
-            targets.remove_if(VictimCheck(caster));
-
         if (targets.size() > 2)
             Trinity::Containers::RandomResize(targets, 2);
     }
