@@ -59,6 +59,17 @@ class instance_zulgurub : public InstanceMapScript
             void OnCreatureCreate(Creature* creature) override
             {
                 InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_VENOMOUS_EFFUSION:
+                    case NPC_BLOODVENOM:
+                        if (Creature* venoxis = GetCreature(DATA_HIGH_PRIEST_VENOXIS))
+                            venoxis->AI()->JustSummoned(creature);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) override

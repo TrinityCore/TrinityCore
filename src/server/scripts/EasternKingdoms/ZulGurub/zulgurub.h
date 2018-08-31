@@ -52,6 +52,13 @@ enum ZGCreatureIds
     BOSS_ZANZIL                     = 52053,
     BOSS_JINDO_THE_GODBREAKER       = 52148,
 
+    // High Priest Venoxis
+    NPC_GENERAL_PURPOSE_DUMMY_JMF   = 45979,
+    NPC_VENOMOUS_EFFUSION_STALKER   = 52302,
+    NPC_VENOMOUS_EFFUSION           = 52288,
+    NPC_POOL_OF_ACRID_TEARS         = 52197,
+    NPC_BLOODVENOM                  = 52525,
+
     // Cache of Madness
     NPC_HAZZARAH                    = 52271,
     NPC_RENATAKI                    = 52269,
@@ -95,5 +102,7 @@ inline AI* GetZulGurubAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ZGScriptName);
 }
+
+#define RegisterZulGurubCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetZulGurubAI)
 
 #endif
