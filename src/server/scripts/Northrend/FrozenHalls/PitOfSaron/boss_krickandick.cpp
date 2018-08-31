@@ -221,14 +221,8 @@ class boss_ick : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsEngaged())
+                if (!UpdateVictim())
                     return;
-
-                if (!me->GetVictim() && me->GetThreatManager().IsThreatListEmpty())
-                {
-                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                    return;
-                }
 
                 events.Update(diff);
 

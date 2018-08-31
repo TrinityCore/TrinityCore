@@ -660,7 +660,7 @@ class boss_thorim : public CreatureScript
 
                         Movement::MoveSplineInit init(summon);
                         init.MovebyPath(path);
-                        summon->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+                        summon->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         break;
                     }
                     case NPC_DARK_RUNE_CHAMPION:
@@ -1610,7 +1610,7 @@ class npc_sif : public CreatureScript
                 if (action == ACTION_START_HARD_MODE)
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
-                    DoZoneInCombat(me, 250.0f);
+                    DoZoneInCombat(me);
                     Talk(SAY_SIF_EVENT);
                     _events.Reset();
                     _events.ScheduleEvent(EVENT_FROSTBOLT, 2000);

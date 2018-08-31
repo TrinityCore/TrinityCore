@@ -377,7 +377,7 @@ class npc_zulian_prowler : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->Clear();
                 me->RemoveAura(SPELL_SNEAK_RANK_1_1);
                 me->RemoveAura(SPELL_SNEAK_RANK_1_2);
             }

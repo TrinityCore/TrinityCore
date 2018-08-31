@@ -195,7 +195,9 @@ public:
                 {
                     me->DespawnOrUnsummon();
                     return;
-                } else MustDieTimer -= diff;
+                }
+                else
+                    MustDieTimer -= diff;
             }
 
             if (!Escape)
@@ -207,7 +209,9 @@ public:
                 {
                     DoCast(me, SPELL_RIZZLE_ESCAPE, false);
                     SpellEscapeTimer = 10000;
-                } else SpellEscapeTimer -= diff;
+                }
+                else
+                    SpellEscapeTimer -= diff;
 
                 if (TeleportTimer <= diff)
                 {
@@ -224,10 +228,12 @@ public:
                     me->SetHover(true);
                     me->SetSwim(true);
                     me->SetSpeedRate(MOVE_RUN, 0.85f);
-                    me->GetMotionMaster()->MovementExpired();
+                    me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
                     me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
                     Escape = true;
-                } else TeleportTimer -= diff;
+                }
+                else
+                    TeleportTimer -= diff;
 
                 return;
             }
@@ -246,7 +252,9 @@ public:
                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 GrenadeTimer = 30000;
-            } else GrenadeTimer -= diff;
+            }
+            else
+                GrenadeTimer -= diff;
 
             if (CheckTimer <= diff)
             {
@@ -268,7 +276,9 @@ public:
                 }
 
                 CheckTimer = 1000;
-            } else CheckTimer -= diff;
+            }
+            else
+                CheckTimer -= diff;
         }
 
         bool GossipHello(Player* player) override

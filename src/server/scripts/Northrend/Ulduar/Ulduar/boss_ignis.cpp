@@ -495,8 +495,8 @@ class achievement_ignis_shattered : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            if (target && target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_SHATTERED) != 0;
+            if (UnitAI* ai = target ? target->GetAI() : nullptr)
+                return ai->GetData(DATA_SHATTERED) != 0;
 
             return false;
         }

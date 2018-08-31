@@ -357,7 +357,7 @@ class boss_algalon_the_observer : public CreatureScript
                         Movement::MoveSplineInit init(me);
                         init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
                         init.SetOrientationFixed(true);
-                        me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_ALGALON_LAND, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+                        me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_ALGALON_LAND, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);
@@ -600,7 +600,7 @@ class boss_algalon_the_observer : public CreatureScript
                             //! for creatures that start combat in REACT_PASSIVE and UNIT_FLAG_NOT_SELECTABLE
                             //! causing them to immediately evade
                             if (!me->GetThreatManager().IsThreatListEmpty())
-                                AttackStart(me->GetThreatManager().SelectVictim());
+                                AttackStart(me->GetThreatManager().GetCurrentVictim());
                             for (uint32 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
                                 if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TEMPSUMMON_DEAD_DESPAWN))
                                     summon->SetReactState(REACT_PASSIVE);
@@ -1232,7 +1232,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
         private:
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled;
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
             void CountTargets(std::list<WorldObject*>& targets)

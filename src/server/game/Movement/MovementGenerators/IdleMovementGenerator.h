@@ -27,51 +27,57 @@ enum RotateDirection : uint8;
 class IdleMovementGenerator : public MovementGenerator
 {
     public:
+        explicit IdleMovementGenerator();
+
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override {  }
         void Reset(Unit*) override;
         bool Update(Unit*, uint32) override { return true; }
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
 };
 
 class RotateMovementGenerator : public MovementGenerator
 {
     public:
-        explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : _duration(time), _maxDuration(time), _direction(direction) { }
+        explicit RotateMovementGenerator(uint32 id, uint32 time, RotateDirection direction);
 
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit* owner) override { Initialize(owner); }
+        void Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
-        uint32 _duration, _maxDuration;
+        uint32 _id, _duration, _maxDuration;
         RotateDirection _direction;
 };
 
 class DistractMovementGenerator : public MovementGenerator
 {
     public:
-        explicit DistractMovementGenerator(uint32 timer) : _timer(timer) { }
+        explicit DistractMovementGenerator(uint32 timer, float orientation);
 
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit* owner) override { Initialize(owner); }
+        void Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
         uint32 _timer;
+        float _orientation;
 };
 
 class AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
     public:
-        explicit AssistanceDistractMovementGenerator(uint32 timer) : DistractMovementGenerator(timer) { }
+        explicit AssistanceDistractMovementGenerator(uint32 timer, float orientation);
 
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
-        void Finalize(Unit*) override;
 };
 
 #endif

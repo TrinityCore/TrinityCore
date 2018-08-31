@@ -826,7 +826,7 @@ class npc_anubarak_spike : public CreatureScript
                 me->GetThreatManager().ResetAllThreat();
                 DoZoneInCombat();
                 AddThreat(who, 1000000.0f);
-                me->GetMotionMaster()->Clear(true);
+                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveChase(who);
             }
 
@@ -860,18 +860,18 @@ class spell_pursuing_spikes : public AuraScript
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        PreventDefaultAction();
-
         Unit* permafrostCaster = nullptr;
         if (Aura* permafrostAura = GetTarget()->GetAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, GetTarget())))
             permafrostCaster = permafrostAura->GetCaster();
 
         if (permafrostCaster)
         {
+            PreventDefaultAction();
+
             if (Creature* permafrostCasterCreature = permafrostCaster->ToCreature())
                 permafrostCasterCreature->DespawnOrUnsummon(3000);
 
-            GetTarget()->CastSpell(nullptr, SPELL_SPIKE_FAIL, false);
+            GetTarget()->CastSpell(nullptr, SPELL_SPIKE_FAIL);
             GetTarget()->RemoveAllAuras();
             if (Creature* targetCreature = GetTarget()->ToCreature())
                 targetCreature->DisappearAndDie();

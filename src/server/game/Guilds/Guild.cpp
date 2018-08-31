@@ -497,18 +497,18 @@ bool Guild::BankTab::WriteSlotPacket(WorldPacket& data, uint8 slotId, bool ignor
             data << uint32(0);
 
         data << uint32(pItem->GetCount());                  // ITEM_FIELD_STACK_COUNT
-        data << uint32(0);
+        data << uint32(pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)); // Permanent enchantment
         data << uint8(abs(pItem->GetSpellCharges()));       // Spell charges
 
         uint8 enchCount = 0;
         size_t enchCountPos = data.wpos();
 
         data << uint8(enchCount);                           // Number of enchantments
-        for (uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
+        for (uint32 socketSlot = SOCK_ENCHANTMENT_SLOT; socketSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++socketSlot)
         {
-            if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(i)))
+            if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(socketSlot)))
             {
-                data << uint8(i);
+                data << uint8(socketSlot - SOCK_ENCHANTMENT_SLOT);
                 data << uint32(enchId);
                 ++enchCount;
             }

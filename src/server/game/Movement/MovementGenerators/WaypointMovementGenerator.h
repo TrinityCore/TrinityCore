@@ -19,18 +19,12 @@
 #ifndef TRINITY_WAYPOINTMOVEMENTGENERATOR_H
 #define TRINITY_WAYPOINTMOVEMENTGENERATOR_H
 
-/**
- * @page PathMovementGenerator is used to generate movements
- * of waypoints and flight paths.  Each serves the purpose
- * of generate activities so that it generates updated
- * packets for the players.
- */
-
 #include "MovementGenerator.h"
 #include "PathMovementBase.h"
 #include "Timer.h"
 
 class Creature;
+class Unit;
 struct WaypointPath;
 
 template<class T>
@@ -42,36 +36,42 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
     public:
         explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true);
         explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true);
-
         ~WaypointMovementGenerator() { _path = nullptr; }
 
-        void DoInitialize(Creature*);
-        void DoFinalize(Creature*);
-        void DoReset(Creature*);
-        bool DoUpdate(Creature*, uint32 diff);
-
         MovementGeneratorType GetMovementGeneratorType() const override;
-        void UnitSpeedChanged() override { _recalculateSpeed = true; }
+
+        void UnitSpeedChanged() override { AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
         void Pause(uint32 timer = 0) override;
         void Resume(uint32 overrideTimer = 0) override;
+        bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
-        void MovementInform(Creature*);
-
-        bool GetResetPos(Creature*, float& x, float& y, float& z);
+        void DoInitialize(Creature*);
+        void DoReset(Creature*);
+        bool DoUpdate(Creature*, uint32);
+        void DoDeactivate(Creature*);
+        void DoFinalize(Creature*, bool, bool);
 
     private:
+        void MovementInform(Creature*);
         void OnArrived(Creature*);
         void StartMove(Creature*, bool relaunch = false);
+        bool ComputeNextNode();
+        bool UpdateTimer(uint32 diff)
+        {
+            _nextMoveTime.Update(diff);
+            if (_nextMoveTime.Passed())
+            {
+                _nextMoveTime.Reset(0);
+                return true;
+            }
+            return false;
+        }
         static bool CanMove(Creature*);
 
         TimeTrackerSmall _nextMoveTime;
-        bool _recalculateSpeed;
-        bool _isArrivalDone;
         uint32 _pathId;
         bool _repeating;
         bool _loadedFromDB;
-        bool _stalled;
-        bool _done;
 };
 
 #endif

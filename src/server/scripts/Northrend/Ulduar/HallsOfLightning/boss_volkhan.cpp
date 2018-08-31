@@ -419,21 +419,21 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (uiDamage > me->GetHealth())
+            if (damage >= me->GetHealth())
             {
                 me->UpdateEntry(NPC_BRITTLE_GOLEM);
                 me->SetHealth(1);
-                uiDamage = 0;
+                damage = 0;
                 me->RemoveAllAuras();
                 me->AttackStop();
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-                    me->GetMotionMaster()->MovementExpired();
+
+                me->GetMotionMaster()->Clear();
                 m_bIsFrozen = true;
             }
         }

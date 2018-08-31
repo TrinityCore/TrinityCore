@@ -256,7 +256,7 @@ class npc_vrykul_skeleton : public CreatureScript
                 events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -273,7 +273,7 @@ class npc_vrykul_skeleton : public CreatureScript
                         events.Reset();
                         events.ScheduleEvent(EVENT_RESURRECT, urand(18, 22) * IN_MILLISECONDS);
 
-                        me->GetMotionMaster()->MovementExpired(false);
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveIdle();
                     }
                 }
@@ -373,7 +373,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
+            return target && target->GetAI() && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
         }
 };
 

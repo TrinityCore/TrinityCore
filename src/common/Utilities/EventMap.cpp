@@ -33,7 +33,7 @@ void EventMap::SetPhase(uint8 phase)
         _phase = uint8(1 << (phase - 1));
 }
 
-void EventMap::ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
+void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
 {
     ScheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
 }
@@ -49,7 +49,7 @@ void EventMap::ScheduleEvent(uint32 eventId, uint32 time, uint32 group /*= 0*/, 
     _eventMap.insert(EventStore::value_type(_time + time, eventId));
 }
 
-void EventMap::RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
+void EventMap::RescheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
 {
     RescheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
 }

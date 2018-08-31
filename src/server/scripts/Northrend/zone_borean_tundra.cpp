@@ -721,7 +721,7 @@ public:
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
             owner->GetThreatManager().ClearAllThreat();
-            owner->GetMotionMaster()->Clear(false);
+            owner->GetMotionMaster()->Clear();
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);

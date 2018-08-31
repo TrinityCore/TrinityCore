@@ -189,7 +189,7 @@ class npc_dk_understudy : public CreatureScript
             {
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                 if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
-                    razuvious->AI()->DoZoneInCombat(nullptr, 250.0f);
+                    razuvious->AI()->DoZoneInCombat();
             }
 
             void JustReachedHome() override
@@ -216,24 +216,11 @@ class npc_dk_understudy : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void OnCharmed(bool apply) override
+            void OnCharmed(bool isNew) override
             {
-                ScriptedAI::OnCharmed(apply);
-                if (apply)
-                {
-                    if (!me->IsInCombat())
-                        JustEngagedWith(nullptr);
-                    me->StopMoving();
-                    me->SetReactState(REACT_PASSIVE);
-                    _charmer = me->GetCharmerGUID();
-                }
-                else
-                {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    if (Unit* charmer = ObjectAccessor::GetUnit(*me, _charmer))
-                        AddThreat(charmer, 100000.0f);
-                    DoZoneInCombat(nullptr, 250.0f);
-                }
+                if (me->IsCharmed() && !me->IsEngaged())
+                    JustEngagedWith(nullptr);
+                ScriptedAI::OnCharmed(isNew);
             }
         private:
             InstanceScript* const _instance;

@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
+#include "IPLocation.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
@@ -290,30 +291,23 @@ public:
         {
             if (param == "on")
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
-                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(handler->GetSession()->GetRemoteAddress()));
-                EndianConvertReverse(ip);
-                stmt->setUInt32(0, ip);
-                PreparedQueryResult result = LoginDatabase.Query(stmt);
-                if (result)
+                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
                 {
-                    Field* fields = result->Fetch();
-                    std::string country = fields[0].GetString();
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
-                    stmt->setString(0, country);
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+                    stmt->setString(0, location->CountryCode);
                     stmt->setUInt32(1, handler->GetSession()->GetAccountId());
                     LoginDatabase.Execute(stmt);
                     handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
                 }
                 else
                 {
-                    handler->PSendSysMessage("[IP2NATION] Table empty");
-                    TC_LOG_DEBUG("server.authserver", "[IP2NATION] Table empty");
+                    handler->PSendSysMessage("IP2Location] No information");
+                    TC_LOG_DEBUG("server.authserver", "IP2Location] No information");
                 }
             }
             else if (param == "off")
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
                 stmt->setString(0, "00");
                 stmt->setUInt32(1, handler->GetSession()->GetAccountId());
                 LoginDatabase.Execute(stmt);

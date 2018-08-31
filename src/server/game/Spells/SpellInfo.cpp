@@ -3398,8 +3398,11 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
         case SPELLFAMILY_GENERIC:
             switch (spellInfo->Id)
             {
+                case 40268: // Spiritual Vengeance, Teron Gorefiend, Black Temple
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
+                case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
+                case 71204: // Touch of Insignificance, Lady Deathwhisper, Icecrown Citadel
                     return false;
                 case 30877: // Tag Murloc
                 case 61716: // Rabbit Costume
@@ -3412,6 +3415,11 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                     break;
             }
             break;
+        case SPELLFAMILY_ROGUE:
+            // Shadow of Death, Teron Gorefiend, Black Temple
+            if (spellInfo->Id == 40251)
+                return false;
+            break;
         case SPELLFAMILY_MAGE:
             // Amplify Magic, Dampen Magic
             if (spellInfo->SpellFamilyFlags[0] == 0x00002000)
@@ -3421,6 +3429,9 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 return false;
             // Arcane Missiles
             if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
+                return false;
+            // Mage Slow
+            if (spellInfo->Id == 31589)
                 return false;
             break;
         case SPELLFAMILY_WARRIOR:
@@ -3437,11 +3448,19 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Aspect of the Viper
             if (spellInfo->Id == 34074)
                 return true;
+            // Explosive Shot
+            if (spellInfo->SpellFamilyFlags[1] == SPELLFAMILYFLAG1_HUNTER_EXPLOSIVE_SHOT)
+                return false;
             break;
         case SPELLFAMILY_DRUID:
             // Starfall
             if (spellInfo->SpellFamilyFlags[2] == 0x00000100)
                 return false;
+            break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            if (spellInfo->SpellFamilyFlags[2] == 0x00000010) // Ebon Plague
+                return false;
+            break;
         default:
             break;
     }
@@ -3493,6 +3512,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 case SPELL_AURA_SCHOOL_HEAL_ABSORB:
                 case SPELL_AURA_CHANNEL_DEATH_ITEM:
                 case SPELL_AURA_EMPATHY:
+                case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:
+                case SPELL_AURA_PREVENTS_FLEEING:
                     return false;
                 default:
                     break;
@@ -3625,6 +3646,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:
             case SPELL_AURA_MOD_POWER_COST_SCHOOL:
             case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
+            case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:
                 if (bp > 0)
                     return false;
                 break;

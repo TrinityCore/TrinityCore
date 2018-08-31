@@ -1133,7 +1133,7 @@ class boss_aerial_command_unit : public CreatureScript
 
                     if (events.IsInPhase(PHASE_AERIAL_COMMAND_UNIT))
                     {
-                        me->GetMotionMaster()->Clear(true);
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(WP_AERIAL_P4_POS, VehicleRelocation[WP_AERIAL_P4_POS]);
                     }
                     else if (events.IsInPhase(PHASE_VOL7RON))

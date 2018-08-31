@@ -29,36 +29,41 @@ enum MovementGeneratorType : uint8
     WAYPOINT_MOTION_TYPE            = 2,     // WaypointMovementGenerator.h
     MAX_DB_MOTION_TYPE              = 3,     // Below motion types can't be set in DB.
     CONFUSED_MOTION_TYPE            = 4,     // ConfusedMovementGenerator.h
-    CHASE_MOTION_TYPE               = 5,     // TargetedMovementGenerator.h
+    CHASE_MOTION_TYPE               = 5,     // ChaseMovementGenerator.h
     HOME_MOTION_TYPE                = 6,     // HomeMovementGenerator.h
-    FLIGHT_MOTION_TYPE              = 7,     // WaypointMovementGenerator.h
+    FLIGHT_MOTION_TYPE              = 7,     // FlightPathMovementGenerator.h
     POINT_MOTION_TYPE               = 8,     // PointMovementGenerator.h
     FLEEING_MOTION_TYPE             = 9,     // FleeingMovementGenerator.h
     DISTRACT_MOTION_TYPE            = 10,    // IdleMovementGenerator.h
     ASSISTANCE_MOTION_TYPE          = 11,    // PointMovementGenerator.h
     ASSISTANCE_DISTRACT_MOTION_TYPE = 12,    // IdleMovementGenerator.h
     TIMED_FLEEING_MOTION_TYPE       = 13,    // FleeingMovementGenerator.h
-    FOLLOW_MOTION_TYPE              = 14,
-    ROTATE_MOTION_TYPE              = 15,
+    FOLLOW_MOTION_TYPE              = 14,    // FollowMovementGenerator.h
+    ROTATE_MOTION_TYPE              = 15,    // IdleMovementGenerator.h
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
     MAX_MOTION_TYPE                          // limit
 };
 
-enum MovementSlot : uint8
+enum MovementGeneratorMode : uint8
 {
-    MOTION_SLOT_IDLE = 0,
-    MOTION_SLOT_ACTIVE,
-    MOTION_SLOT_CONTROLLED,
-    MAX_MOTION_SLOT
+    MOTION_MODE_DEFAULT = 0,
+    MOTION_MODE_OVERRIDE
 };
 
-enum MotionMasterCleanFlags
+enum MovementGeneratorPriority : uint8
 {
-    MOTIONMMASTER_CLEANFLAG_NONE   = 0,
-    MOTIONMMASTER_CLEANFLAG_UPDATE = 1, // Clear or Expire called from update
-    MOTIONMMASTER_CLEANFLAG_RESET  = 2  // Flag if need top()->Reset()
+    MOTION_PRIORITY_NONE = 0,
+    MOTION_PRIORITY_NORMAL,
+    MOTION_PRIORITY_HIGHEST
+};
+
+enum MovementSlot : uint8
+{
+    MOTION_SLOT_DEFAULT = 0,
+    MOTION_SLOT_ACTIVE,
+    MAX_MOTION_SLOT
 };
 
 enum RotateDirection : uint8

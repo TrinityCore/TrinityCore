@@ -900,7 +900,7 @@ public:
         {
             _finished = false;
             me->SetVisible(true);
-            me->GetMotionMaster()->Clear(true);
+            me->GetMotionMaster()->Clear();
         }
 
         void DoAction(int32 /*action*/) override

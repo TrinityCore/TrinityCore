@@ -143,8 +143,11 @@ class TC_GAME_API UnitAI
 
         virtual void Reset() { }
 
-        // Called when unit is charmed
-        virtual void OnCharmed(bool apply) = 0;
+        // Called when unit's charm state changes with isNew = false
+        // Implementation should call me->ScheduleAIChange() if AI replacement is desired
+        // If this call is made, AI will be replaced on the next tick
+        // When replacement is made, OnCharmed is called with isNew = true
+        virtual void OnCharmed(bool isNew);
 
         // Pass parameters between AI
         virtual void DoAction(int32 /*param*/) { }
@@ -282,6 +285,9 @@ class TC_GAME_API UnitAI
 
         // Called when the unit leaves combat
         virtual void JustExitedCombat() { }
+
+        // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing, player logging out etc.)
+        virtual void LeavingWorld() { }
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }

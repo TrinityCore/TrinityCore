@@ -26,6 +26,7 @@
 #include "Map.h"
 #include "MapReference.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
@@ -33,13 +34,16 @@
 #include "World.h"
 
 //Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool apply)
+void CreatureAI::OnCharmed(bool isNew)
 {
-    if (apply)
+    if (isNew && !me->IsCharmed() && me->LastCharmerGUID)
     {
-        me->NeedChangeAI = true;
-        me->IsAIEnabled = false;
+        if (!me->HasReactState(REACT_PASSIVE))
+            if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                me->EngageWithTarget(lastCharmer);
+        me->LastCharmerGUID.Clear();
     }
+    UnitAI::OnCharmed(isNew);
 }
 
 AISpellInfoType* UnitAI::AISpellInfo;
@@ -58,55 +62,34 @@ void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRangeToNearestTarget /* = 250.0f*/)
+void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 {
     if (!creature)
         creature = me;
 
     Map* map = creature->GetMap();
-    if (creature->CanHaveThreatList())
+    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
-        {
-            TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
-            return;
-        }
-
-        if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
-        {
-            if (Unit* nearTarget = creature->SelectNearestTarget(maxRangeToNearestTarget))
-                creature->AI()->AttackStart(nearTarget);
-            else if (creature->IsSummon())
-            {
-                if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
-                {
-                    if (creature->IsFriendlyTo(summoner))
-                    {
-                        Unit* target = summoner->getAttackerForHelper();
-                        if (target && creature->IsHostileTo(target))
-                            creature->AI()->AttackStart(target);
-                    }
-                }
-            }
-        }
-
-        // Intended duplicated check, the code above this should select a victim
-        // If it can't find a suitable attack target then we should error out.
-        if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
-        {
-            TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
-            return;
-        }
+        TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+        return;
     }
 
     Map::PlayerList const& playerList = map->GetPlayers();
     if (playerList.isEmpty())
         return;
 
-    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-        if (Player* player = itr->GetSource())
-            if (player->IsAlive())
-                creature->EngageWithTarget(player);
+    for (auto const& ref : playerList)
+        if (Player* player = ref.GetSource())
+        {
+            if (!player->IsAlive() || !CombatManager::CanBeginCombat(creature, player))
+                continue;
+
+            creature->EngageWithTarget(player);
+            for (Unit* pet : player->m_Controlled)
+                creature->EngageWithTarget(pet);
+            if (Unit* vehicle = player->GetVehicleBase())
+                creature->EngageWithTarget(vehicle);
+        }
 }
 
 // scripts does not take care about MoveInLineOfSight loops
@@ -157,9 +140,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->SendAIReaction(AI_REACTION_ALERT);
 
     // Face the unit (stealthed player) and set distracted state for 5 seconds
-    me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS);
-    me->StopMoving();
-    me->SetFacingTo(me->GetAbsoluteAngle(who));
+    me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
 void CreatureAI::EnterEvadeMode(EvadeReason why)
@@ -173,8 +154,8 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     {
         if (Unit* owner = me->GetCharmerOrOwner())
         {
-            me->GetMotionMaster()->Clear(false);
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
         }
         else
         {

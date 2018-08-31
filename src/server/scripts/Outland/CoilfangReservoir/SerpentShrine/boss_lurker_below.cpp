@@ -250,7 +250,7 @@ public:
                 {
                     Talk(EMOTE_SPOUT);
                     me->SetReactState(REACT_PASSIVE);
-                    me->GetMotionMaster()->MoveRotate(20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
+                    me->GetMotionMaster()->MoveRotate(0, 20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                     SpoutTimer = 45000;
                     WhirlTimer = 20000; // whirl directly after spout
                     RotTimer = 20000;
@@ -268,7 +268,7 @@ public:
                 else
                     WhirlTimer -= diff;
 
-                if (CheckTimer <= diff)//check if there are players in melee range
+                if (CheckTimer <= diff) // check if there are players in melee range
                 {
                     InRange = false;
                     Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();

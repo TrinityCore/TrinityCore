@@ -28,28 +28,28 @@ class PathGenerator;
 struct Position;
 
 template<class T>
-class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovementGenerator<T> >
+class FleeingMovementGenerator : public MovementGeneratorMedium<T, FleeingMovementGenerator<T>>
 {
     public:
-        explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID) : _fleeTargetGUID(fleeTargetGUID), _timer(0), _interrupt(false) { }
-        ~FleeingMovementGenerator();
+        explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
-        void UnitSpeedChanged() override { } //TODO
 
         void DoInitialize(T*);
-        void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*);
+        void DoFinalize(T*, bool, bool);
+
+        void UnitSpeedChanged() override { FleeingMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
 
     private:
         void SetTargetLocation(T*);
-        void GetPoint(T*, Position &position);
+        void GetPoint(T*, Position& position);
 
         std::unique_ptr<PathGenerator> _path;
         ObjectGuid _fleeTargetGUID;
         TimeTracker _timer;
-        bool _interrupt;
 };
 
 class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
@@ -57,9 +57,9 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
     public:
         explicit TimedFleeingMovementGenerator(ObjectGuid fleeTargetGUID, uint32 time) : FleeingMovementGenerator<Creature>(fleeTargetGUID), _totalFleeTime(time) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override;
         bool Update(Unit*, uint32) override;
-        void Finalize(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
         TimeTracker _totalFleeTime;

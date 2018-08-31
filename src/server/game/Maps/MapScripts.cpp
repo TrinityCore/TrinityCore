@@ -880,7 +880,6 @@ void Map::ScriptsProcess()
                     if (!cSource->IsAlive())
                         return;
 
-                    cSource->GetMotionMaster()->MovementExpired();
                     cSource->GetMotionMaster()->MoveIdle();
 
                     switch (step.script->Movement.MovementType)

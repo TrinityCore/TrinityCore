@@ -611,7 +611,10 @@ struct boss_faction_championsAI : public BossAI
     {
         for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
             if (Player* victim = ref->GetVictim()->ToPlayer())
-                ref->SetThreat(1000000.0f * CalculateThreat(me->GetDistance2d(victim), victim->GetArmor(), victim->GetHealth()));
+            {
+                ref->ScaleThreat(0.0f);
+                ref->AddThreat(1000000.0f * CalculateThreat(me->GetDistance2d(victim), victim->GetArmor(), victim->GetHealth()));
+            }
     }
 
     void UpdatePower()

@@ -39,6 +39,11 @@ enum Events
     EVENT_AVATAROFFLAME                                    = 2
 };
 
+enum Emotes
+{
+    EMOTE_SHAKEN                                           = 0
+};
+
 class boss_emperor_dagran_thaurissan : public CreatureScript
 {
     public:
@@ -76,6 +81,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                 {
                     moira->AI()->EnterEvadeMode();
                     moira->SetFaction(FACTION_FRIENDLY);
+                    moira->AI()->Talk(EMOTE_SHAKEN);
                 }
             }
 
