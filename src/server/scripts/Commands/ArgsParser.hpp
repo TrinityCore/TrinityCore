@@ -16,8 +16,10 @@
  */
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
 #include <boost/variant.hpp>
+#include <cstring>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -33,10 +35,12 @@ inline size_t tokenize(char const*& end)
 }
 
 // a base 10 integer
-struct IntegerArg
+struct PlainInteger
 {
-    typedef int32 type;
-    static char const* tryConsume(char const* args, type& val)
+    typedef int64 type;
+
+    template <typename T>
+    static char const* tryConsume(char const* args, T& val)
     {
         char const* next = args;
         std::string token(args, tokenize(next));
@@ -47,7 +51,7 @@ struct IntegerArg
 };
 
 // a string
-struct StringArg
+struct PlainString
 {
     typedef std::string type;
     static char const* tryConsume(char const* args, type& val)
@@ -60,6 +64,92 @@ struct StringArg
         }
         else
             return nullptr;
+    }
+};
+
+// links always have the following format:
+// |cxxxxxxxx   8 digit argb hex color
+// |H           link data start tag
+// link tag (e.g. item, itemset, quest, player etc.)
+// :            separator
+// link data (arbitrary string, must not contain |)
+// |h           link data end tag
+// actual visible link text (usually wrapped in braces)
+// |h           link end tag
+// |r           color return instruction
+inline std::pair<char const*, size_t> findlinktag(char const*& args, char const* linktag)
+{
+    char const* pos = args;
+    //color tag
+    if (*(pos++) != '|' || *(pos++) != 'c')
+        return {};
+    for (uint8 i = 0; i < 8; ++i)
+        if (!*(pos++)) // make sure we don't overrun a terminator
+            return {};
+    // link data start tag
+    if (*(pos++) != '|' || *(pos++) != 'H')
+        return {};
+    // link tag, should match argument
+    for (; *linktag; ++pos, ++linktag)
+        if (*pos != *linktag)
+            return {};
+    // separator
+    if (*(pos++) != ':')
+        return {};
+    // ok, link data, let's figure out how long it is
+    char const* datastart = pos;
+    size_t datalength = 0;
+    while (*pos && *(pos++) != '|')
+        ++datalength;
+    // ok, next should be link data end tag...
+    if (*(pos++) != 'h')
+        return {};
+    // then visible link text, skip to next '|', should be '|h|r' terminator
+    while (*pos && *(pos++) != '|');
+    if (*(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
+        return {};
+    // finally, skip to end of token
+    tokenize(pos);
+    // set args to end of token and return link data start + length
+    args = pos;
+    return { datastart, datalength };
+}
+
+// creature DBGUID, either from link or as plain guidlow
+// link format: |Hcreature:<guid>|h
+struct CreatureDBGUID
+{
+    typedef ObjectGuid::LowType type;
+    static char const* tryConsume(char const* args, type& val)
+    {
+        char const* pos = args;
+        auto linkdata = findlinktag(pos, "creature");
+        while (linkdata.first)
+        {
+            try { val = std::stoi({ linkdata.first, linkdata.second }); }
+            catch (...) { break; }
+            return pos;
+        }
+        return PlainInteger::tryConsume(args, val);
+    }
+};
+
+// creature entry, either from link or as plain guidlow
+// link format: |Hcreature_entry:<entry>|h
+struct CreatureEntry
+{
+    typedef uint32 type;
+    static char const* tryConsume(char const* args, type& val)
+    {
+        char const* pos = args;
+        auto linkdata = findlinktag(pos, "creature_entry");
+        while (linkdata.first)
+        {
+            try { val = std::stoi({ linkdata.first, linkdata.second }); }
+            catch (...) { break; }
+            return pos;
+        }
+        return PlainInteger::tryConsume(args, val);
     }
 };
 

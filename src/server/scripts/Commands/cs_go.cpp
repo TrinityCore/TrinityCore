@@ -81,21 +81,21 @@ public:
             return false;
 
         ArgsParser parser(args);
-        auto parsedArgs = parser.tryConsume<OneOf<IntegerArg, StringArg>, OptionalArg<IntegerArg>>();
+        auto parsedArgs = parser.tryConsume<OneOf<CreatureDBGUID, PlainString>, OptionalArg<CreatureEntry>>();
         if (!parsedArgs)
             return false;
 
         std::ostringstream whereClause;
-        if (parsedArgs->is<0, IntegerArg>()) // to creature guid
-            whereClause << "WHERE guid = '" << parsedArgs->get<0, IntegerArg>() << '\'';
+        if (parsedArgs->is<0, CreatureDBGUID>()) // to creature guid
+            whereClause << "WHERE guid = '" << parsedArgs->get<0, CreatureDBGUID>() << '\'';
         else
         {
-            std::string arg0 = parsedArgs->get<0, StringArg>();
+            std::string arg0 = parsedArgs->get<0, PlainString>();
             if (arg0 == "id") // to creature entry
             {
-                if (!parsedArgs->is<1, IntegerArg>())
+                if (!parsedArgs->is<1, CreatureEntry>())
                     return false;
-                whereClause << "WHERE id = '" << parsedArgs->get<1, IntegerArg>() << '\'';
+                whereClause << "WHERE id = '" << parsedArgs->get<1, CreatureEntry>() << '\'';
             }
             else // to creature name
             {
@@ -553,15 +553,15 @@ public:
 
         uint32 mapid = 0;
         ArgsParser parser(args);
-        if (auto arg = parser.tryConsume<IntegerArg>())
+        if (auto arg = parser.tryConsume<PlainInteger>())
         {
-            printf("integer arg is %u\n", mapid = arg->get<0, IntegerArg>());
+            printf("integer arg is %u\n", mapid = arg->get<0, PlainInteger>());
         }
-        else if (auto arg = parser.tryConsume<StringArg>())
+        else if (auto arg = parser.tryConsume<PlainString>())
         {
             std::vector<std::string> labels;
             do labels.push_back(*arg);
-            while ((arg = parser.tryConsume<StringArg>()));
+            while ((arg = parser.tryConsume<PlainString>()));
 
             std::multimap<uint32, std::pair<uint16, std::string>> matches;
             for (auto const& pair : sObjectMgr->GetInstanceTemplates())
