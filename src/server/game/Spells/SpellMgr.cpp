@@ -4150,6 +4150,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
     });
 
+    // Rupture
+   ApplySpellFix({ 95669 }, [](SpellInfo* spellInfo)
+   {
+        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_8_YARDS);
+   });
+
     // ENDOF STONECORE SPELLS
 
     //

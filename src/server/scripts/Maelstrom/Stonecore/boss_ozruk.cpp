@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "stonecore.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "Spell.h"
 #include "SpellScript.h"
-#include "stonecore.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
@@ -190,20 +191,47 @@ class spell_ozruk_rupture : public AuraScript
         Unit* caster = GetTarget();
 
         float dist = aurEff->GetTickNumber() * 8.0f;
+        float angle = caster->GetOrientation() -0.2f;
 
-        Position pos = caster->GetNearPosition(dist, 0.0f);
-        caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RUPTURE_SUMMON, true);
-
-        pos = caster->GetNearPosition(dist, 0.2f);
-        caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RUPTURE_SUMMON, true);
-
-        pos = caster->GetNearPosition(dist, -0.2f);
-        caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RUPTURE_SUMMON, true);
+        for (uint8 i = 0; i < 3; i++)
+        {
+            float x = caster->GetPositionX() + cos(angle) * dist;
+            float y = caster->GetPositionY() + sin(angle) * dist;
+            float z = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ() + 3.0f);
+            caster->CastSpell(x, y, z, SPELL_RUPTURE_SUMMON, true);
+            angle += 0.2f;
+        }
     }
 
     void Register()
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_ozruk_rupture::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+class spell_ozuruk_rupture_summon : public SpellScript
+{
+    PrepareSpellScript(spell_ozuruk_rupture_summon);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Position pos = caster->GetPosition();
+        float x = pos.GetPositionX() + cos(pos.GetOrientation()) * 8.0f;
+        float y = pos.GetPositionY() + sin(pos.GetOrientation()) * 8.0f;
+        float z = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ() + 3.0f);
+        if (std::abs(z) > 5.0f)
+            z = caster->GetPositionZ();
+
+        dest.Relocate({ x, y, z, pos.GetOrientation() });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_ozuruk_rupture_summon::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
     }
 };
 
@@ -277,6 +305,7 @@ void AddSC_boss_ozruk()
 {
     new boss_ozruk();
     RegisterAuraScript(spell_ozruk_rupture);
+    RegisterSpellScript(spell_ozuruk_rupture_summon);
     RegisterSpellScript(spell_ozruk_elementium_spike_shield);
     RegisterSpellScript(spell_ozruk_paralyze);
     RegisterAuraScript(spell_ozruk_paralyze_stun);
