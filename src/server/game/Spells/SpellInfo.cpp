@@ -4351,6 +4351,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
                 case 40268: // Spiritual Vengeance, Teron Gorefiend, Black Temple
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
+                case 64412: // Phase Punch, Algalon the Observer, Ulduar
                 case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
                 case 71204: // Touch of Insignificance, Lady Deathwhisper, Icecrown Citadel
                     return false;
