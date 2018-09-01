@@ -4,4 +4,6 @@ DELETE FROM `conditions` WHERE `SourceEntry` = 59576 AND `SourceTypeOrReferenceI
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 2, 59576, 0, 0, 31, 0, 3, 31142, 0, 0, 0, 0, "", "Spell 'Burst at the Seams' targets Icy Ghoul"),
 (13, 2, 59576, 0, 1, 31, 0, 3, 31147, 0, 0, 0, 0, "", "Spell 'Burst at the Seams' targets Vicious Geist"),
-(13, 2, 59576, 0, 2, 31, 0, 3, 31205, 0, 0, 0, 0, "", "Spell 'Burst at the Seams' targets Risen Alliance Soldier");
+(13, 2, 59576, 0, 2, 31, 0, 3, 31205, 0, 0, 0, 0, "", "Spell 'Burst at the Seams' targets Risen Alliance Soldier"),
+(13, 2, 59576, 0, 3, 31, 0, 4,     0, 0, 0, 0, 0, "", "Spell 'Burst at the Seams' targets Players");
+
