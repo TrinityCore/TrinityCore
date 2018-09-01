@@ -168,14 +168,12 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        if (!*args)
+        CommandArgs commandArgs = CommandArgs(handler, args, { COMMAND_ARG_UINT });
+
+        if (commandArgs.ValidArgs())
             return false;
 
-        char* gyId = strtok((char*)args, " ");
-        if (!gyId)
-            return false;
-
-        uint32 graveyardId = atoul(gyId);
+        uint32 graveyardId = commandArgs.GetNextArg<uint32>();
 
         if (!graveyardId)
             return false;

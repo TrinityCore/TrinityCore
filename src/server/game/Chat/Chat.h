@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
+#include <boost/any.hpp>
 #include <vector>
 
 class ChatHandler;
@@ -171,6 +172,80 @@ class TC_GAME_API CliHandler : public ChatHandler
     private:
         void* m_callbackArg;
         Print* m_print;
+};
+
+enum CommandArgsType : int32
+{
+    COMMAND_ARG_NONE        = 0x00,
+    COMMAND_ARG_INT         = 0x01,
+    COMMAND_ARG_UINT        = 0x02,
+    COMMAND_ARG_FLOAT       = 0x04,
+    COMMAND_ARG_STRING      = 0x08,
+    COMMAND_ARG_BOOL        = 0x10,
+    COMMAND_ARG_PLAYER      = 0x20,
+
+    COMMAND_ARG_OPTIONAL    = 0x20,
+
+    COMMAND_ARG_ALL_TYPES = COMMAND_ARG_INT | COMMAND_ARG_UINT | COMMAND_ARG_FLOAT | COMMAND_ARG_STRING | COMMAND_ARG_BOOL | COMMAND_ARG_PLAYER,
+};
+
+class TC_GAME_API CommandArgs
+{
+public:
+    struct PlayerResult
+    {
+        Player* PlayerPtr = nullptr;
+        ObjectGuid Guid;
+        std::string Name;
+    };
+
+    CommandArgs(ChatHandler* handler, char const* args) : _validArgs(false), _handler(handler), _charArgs(args) { }
+    CommandArgs(ChatHandler* handler, char const* args, std::initializer_list<CommandArgsType> argsType) : _validArgs(false), _handler(handler), _charArgs(args), _pos(0)
+    {
+        Initialize(argsType);
+    }
+
+    bool ValidArgs() const { return _validArgs; }
+    void Initialize(std::initializer_list<CommandArgsType> argsType);
+
+    void InitializeArgsVector(std::vector<std::string>& argsVector);
+    void CheckOptionalArgs(std::vector<CommandArgsType>& argsTypeVector, uint8 argsVectorSize);
+
+    uint32 Count() { return _args.size(); }
+
+    CommandArgsType GetArgType(uint8 index)
+    {
+        return index < _argsTypeVector.size() ? _argsTypeVector[index] : COMMAND_ARG_NONE;
+    }
+
+    void SetArgType(uint8 index, CommandArgsType type)
+    {
+        _argsTypeVector[index] = CommandArgsType((_argsTypeVector[index] & ~COMMAND_ARG_ALL_TYPES) | type);
+    }
+
+    template<typename T>
+    T GetNextArg() { return GetArg<T>(_pos++); }
+
+    template<typename T>
+    T GetArg(uint8 index, T defaultValue = T())
+    {
+        ASSERT(index < _argsTypeVector.size());
+
+        if (!(_argsTypeVector[index] & COMMAND_ARG_OPTIONAL))
+            ASSERT(index < _args.size());
+        else if (index >= _args.size())
+            return defaultValue;
+
+        return boost::any_cast<T>(_args[index]);
+    }
+
+private:
+    bool _validArgs;
+    ChatHandler* _handler;
+    char const* _charArgs;
+    std::vector<CommandArgsType> _argsTypeVector;
+    std::vector<boost::any> _args;
+    uint8 _pos;
 };
 
 #endif

@@ -193,6 +193,24 @@ inline bool isNumeric(char const* str)
     return true;
 }
 
+inline bool isSignedNumeric(char const* str)
+{
+    for (char const* c = str; *c; ++c)
+        if (!isNumeric(*c) && *c != '-' && *c != '+')
+            return false;
+
+    return true;
+}
+
+inline bool isDecimal(char const* str)
+{
+    for (char const* c = str; *c; ++c)
+        if (!isNumeric(*c) && *c != '-' && *c != '+' && *c != '.')
+            return false;
+
+    return true;
+}
+
 inline bool isNumericOrSpace(wchar_t wchar)
 {
     return isNumeric(wchar) || wchar == L' ';
