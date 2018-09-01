@@ -546,7 +546,7 @@ public:
         ArgsParser parser(args);
         if (auto arg = parser.tryConsume<PlainInteger>())
         {
-            printf("integer arg is %u\n", mapid = arg->get<0, PlainInteger>());
+            printf("integer arg is %u\n", mapid = *arg);
         }
         else if (auto arg = parser.tryConsume<PlainString>())
         {
