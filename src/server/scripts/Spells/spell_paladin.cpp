@@ -96,7 +96,7 @@ enum PaladinSpellIcons
 {
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
     PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
-    PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
+    PALADIN_ICON_ID_ETERNAL_GLORY                = 2944
 };
 
 enum PaladinCreatures
@@ -1734,6 +1734,10 @@ class spell_pal_divine_purpose : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
+        if (AuraEffect* divineEff = GetTarget()->GetAuraEffect(SPELL_PALADIN_DIVINE_PURPOSE_PROC, EFFECT_0))
+            if (divineEff->IsAffectingSpell(eventInfo.GetSpellInfo()))
+                return false;
+
         if (AuraEffect* aurEff = GetEffect(EFFECT_0))
             return roll_chance_i(aurEff->GetAmount());
 
