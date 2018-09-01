@@ -198,7 +198,8 @@ class spell_ozruk_rupture : public AuraScript
             float x = caster->GetPositionX() + cos(angle) * dist;
             float y = caster->GetPositionY() + sin(angle) * dist;
             float z = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ() + 3.0f);
-            caster->CastSpell(x, y, z, SPELL_RUPTURE_SUMMON, true);
+            if (std::abs(z) < caster->GetPositionZ() + 5.0f)
+                caster->CastSpell(x, y, z, SPELL_RUPTURE_SUMMON, true);
             angle += 0.2f;
         }
     }
@@ -223,7 +224,7 @@ class spell_ozuruk_rupture_summon : public SpellScript
         float x = pos.GetPositionX() + cos(pos.GetOrientation()) * 8.0f;
         float y = pos.GetPositionY() + sin(pos.GetOrientation()) * 8.0f;
         float z = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ() + 3.0f);
-        if (std::abs(z) > 5.0f)
+        if (std::abs(z) > caster->GetPositionZ() + 5.0f)
             z = caster->GetPositionZ();
 
         dest.Relocate({ x, y, z, pos.GetOrientation() });
