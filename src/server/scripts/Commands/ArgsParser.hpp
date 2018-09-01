@@ -76,13 +76,13 @@ struct PlainString
 // actual visible link text (usually wrapped in braces)
 // |h           link end tag
 // |r           color return instruction
-#define makelinktag(s) struct s { static constexpr char const* tag() { return #s; }}
-makelinktag(creature);
-makelinktag(creature_entry);
-template <typename linktag, typename T = PlainInteger::type>
+#define makelinktag(s,t) struct s { typedef t type; static constexpr char const* tag() { return #s; }}
+makelinktag(creature, int64);
+makelinktag(creature_entry, int64);
+template <typename linktag>
 struct Hyperlink
 {
-    typedef T type;
+    typedef typename linktag::type type;
     static char const* tryConsume(char const* pos, type& val)
     {
         //color tag
@@ -124,6 +124,7 @@ struct Hyperlink
         return pos;
     }
 
+    template <typename T>
     static std::enable_if_t<std::is_integral<T>::value, bool> store(T& val, char const* pos, size_t len)
     {
         try { val = std::stoi({ pos, len }); }
