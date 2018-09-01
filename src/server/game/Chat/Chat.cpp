@@ -1211,43 +1211,54 @@ void CommandArgs::Initialize(std::initializer_list<CommandArgsType> argsType)
         // Finally, we cast all our args to their types
         for (uint8 i = 0; i < argsTypeVector.size(); ++i)
         {
-            switch (argsTypeVector[i])
+            if ((argsTypeVector[i] & COMMAND_ARG_INT) && isSignedNumeric(argsVector[i].c_str()))
             {
-                case ARG_INT:
-                case ARG_INT_OPTIONAL:
-                    _args.push_back(int32(atoi(argsVector[i].c_str())));
-                    break;
-                case ARG_UINT:
-                case ARG_UINT_OPTIONAL:
-                {
-                    int value = atoi(argsVector[i].c_str());
-                    if (value < 0)
-                        return;
-
-                    _args.push_back(uint32(value));
-                    break;
-                }
-                case ARG_FLOAT:
-                case ARG_FLOAT_OPTIONAL:
-                    _args.push_back(float(atof(argsVector[i].c_str())));
-                    break;
-                case ARG_STRING:
-                case ARG_STRING_OPTIONAL:
-                    _args.push_back(argsVector[i]);
-                    break;
-                case ARG_PLAYER:
-                case ARG_PLAYER_OPTIONAL:
-                {
-                    PlayerResult result;
-                    _handler->extractPlayerTarget((char*)argsVector[i].c_str(), &result.PlayerPtr, &result.Guid, &result.Name);
-                    _args.push_back(result);
-                    break;
-                }
-                case ARG_OPTIONAL_BEGIN:
-                    ASSERT(false, "Cannot use ARG_OPTIONAL_BEGIN as arg type");
-                default:
-                    break;
+                _args.push_back(int32(atoi(argsVector[i].c_str())));
+                SetArgType(i, COMMAND_ARG_INT);
+                continue;
             }
+
+            if ((argsTypeVector[i] & COMMAND_ARG_UINT) && isNumeric(argsVector[i].c_str()))
+            {
+                _args.push_back(uint32(atoi(argsVector[i].c_str())));
+                SetArgType(i, COMMAND_ARG_UINT);
+                continue;
+            }
+
+            if ((argsTypeVector[i] & COMMAND_ARG_FLOAT) && isDecimal(argsVector[i].c_str()))
+            {
+                _args.push_back(float(atof(argsVector[i].c_str())));
+                SetArgType(i, COMMAND_ARG_FLOAT);
+                continue;
+            }
+
+            if (argsTypeVector[i] & COMMAND_ARG_STRING)
+            {
+                _args.push_back(argsVector[i]);
+                SetArgType(i, COMMAND_ARG_STRING);
+                continue;
+            }
+
+            if ((argsTypeVector[i] & COMMAND_ARG_BOOL) && (argsVector[i] == "on" || argsVector[i] == "off"))
+            {
+                _args.push_back(bool(argsVector[i] == "on"));
+                SetArgType(i, COMMAND_ARG_BOOL);
+                continue;
+            }
+
+            if (argsTypeVector[i] & COMMAND_ARG_PLAYER)
+            {
+                PlayerResult result;
+                if (_handler->extractPlayerTarget((char*)argsVector[i].c_str(), &result.PlayerPtr, &result.Guid, &result.Name))
+                {
+                    _args.push_back(result);
+                    SetArgType(i, COMMAND_ARG_PLAYER);
+                    continue;
+                }
+            }
+
+            // If our value hasn't been handled before, it's a wrong value
+            throw std::invalid_argument("");
         }
 
         _validArgs = true;
@@ -1310,7 +1321,7 @@ void CommandArgs::CheckOptionalArgs(std::vector<CommandArgsType>& argsTypeVector
 
     uint8 optionalCount = uint8(std::count_if(argsTypeVector.begin(), argsTypeVector.end(), [](CommandArgsType const& type)
     {
-        return type > ARG_OPTIONAL_BEGIN;
+        return type & COMMAND_ARG_OPTIONAL;
     }));
 
     int8 argsDiff = argsTypeVectorSize - argsVectorSize;
@@ -1323,7 +1334,7 @@ void CommandArgs::CheckOptionalArgs(std::vector<CommandArgsType>& argsTypeVector
         auto itr = argsTypeVector.begin();
         std::advance(itr, i - 1);
 
-        if (*itr > ARG_OPTIONAL_BEGIN)
+        if (*itr & COMMAND_ARG_OPTIONAL)
         {
             argsTypeVector.erase(itr);
 
@@ -1331,17 +1342,4 @@ void CommandArgs::CheckOptionalArgs(std::vector<CommandArgsType>& argsTypeVector
                 break;
         }
     }
-}
-
-template<typename T>
-T CommandArgs::GetArg(uint8 index, T defaultValue /*= T()*/)
-{
-    ASSERT(index < _argsTypeVector.size());
-
-    if (_argsTypeVector[index] <= ARG_OPTIONAL_BEGIN)
-        ASSERT(index < _args.size());
-    else if (index >= _args.size())
-        return defaultValue;
-
-    return boost::any_cast<T>(_args[index]);
 }

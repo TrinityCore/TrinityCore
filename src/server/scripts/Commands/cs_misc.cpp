@@ -2513,8 +2513,17 @@ public:
             case 4 - .freeze player (without specifying duration)
         */
 
+        CommandArgs commandArgs = CommandArgs(handler, args,
+        {
+            CommandArgsType(COMMAND_ARG_PLAYER | COMMAND_ARG_UINT | COMMAND_ARG_OPTIONAL),
+            CommandArgsType(COMMAND_ARG_UINT | COMMAND_ARG_OPTIONAL)
+        });
+
+        if (!commandArgs.ValidArgs())
+            return false;
+
         // case 1: .freeze
-        if (!*args)
+        if (!commandArgs.Count())
         {
             // Might have a selected player. We'll check it later
             // Get the duration from world cfg
@@ -2522,36 +2531,28 @@ public:
         }
         else
         {
-            // Get the args that we might have (up to 2)
-            char const* arg1 = strtok((char*)args, " ");
-            char const* arg2 = strtok(NULL, " ");
-
             // Analyze them to see if we got either a playerName or duration or both
-            if (arg1)
+            if (commandArgs.GetArgType(0) == COMMAND_ARG_UINT)
             {
-                if (isNumeric(arg1))
+                // case 2: .freeze duration
+                // We have a selected player. We'll check him later
+                freezeDuration = commandArgs.GetArg<uint32>(0);
+                canApplyFreeze = true;
+            }
+            else
+            {
+                // case 3 or 4: .freeze player duration | .freeze player
+                // find the player
+                CommandArgs::PlayerResult playerResult = commandArgs.GetArg<CommandArgs::PlayerResult>(0);
+                player = playerResult.PlayerPtr;
+                // Check if we have duration set
+                if (commandArgs.GetArgType(1) == COMMAND_ARG_UINT)
                 {
-                    // case 2: .freeze duration
-                    // We have a selected player. We'll check him later
-                    freezeDuration = uint32(atoi(arg1));
+                    freezeDuration = commandArgs.GetArg<uint32>(1);
                     canApplyFreeze = true;
                 }
                 else
-                {
-                    // case 3 or 4: .freeze player duration | .freeze player
-                    // find the player
-                    std::string name = arg1;
-                    normalizePlayerName(name);
-                    player = ObjectAccessor::FindPlayerByName(name);
-                    // Check if we have duration set
-                    if (arg2 && isNumeric(arg2))
-                    {
-                        freezeDuration = uint32(atoi(arg2));
-                        canApplyFreeze = true;
-                    }
-                    else
-                        getDurationFromConfig = true;
-                }
+                    getDurationFromConfig = true;
             }
         }
 

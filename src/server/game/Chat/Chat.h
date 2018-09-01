@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
+#include <boost/any.hpp>
 #include <vector>
 
 class ChatHandler;
@@ -152,26 +153,45 @@ class TC_GAME_API ChatHandler
         bool sentErrorMessage;
 };
 
+class TC_GAME_API CliHandler : public ChatHandler
+{
+    public:
+        typedef void Print(void*, char const*);
+        explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
+
+        // overwrite functions
+        char const* GetTrinityString(uint32 entry) const override;
+        bool isAvailable(ChatCommand const& cmd) const override;
+        bool HasPermission(uint32 /*permission*/) const override { return true; }
+        void SendSysMessage(const char *str, bool escapeCharacters) override;
+        std::string GetNameLink() const override;
+        bool needReportToTarget(Player* chr) const override;
+        LocaleConstant GetSessionDbcLocale() const override;
+        LocaleConstant GetSessionDbLocaleIndex() const override;
+
+    private:
+        void* m_callbackArg;
+        Print* m_print;
+};
+
+enum CommandArgsType : int32
+{
+    COMMAND_ARG_NONE        = 0x00,
+    COMMAND_ARG_INT         = 0x01,
+    COMMAND_ARG_UINT        = 0x02,
+    COMMAND_ARG_FLOAT       = 0x04,
+    COMMAND_ARG_STRING      = 0x08,
+    COMMAND_ARG_BOOL        = 0x10,
+    COMMAND_ARG_PLAYER      = 0x20,
+
+    COMMAND_ARG_OPTIONAL    = 0x20,
+
+    COMMAND_ARG_ALL_TYPES = COMMAND_ARG_INT | COMMAND_ARG_UINT | COMMAND_ARG_FLOAT | COMMAND_ARG_STRING | COMMAND_ARG_BOOL | COMMAND_ARG_PLAYER,
+};
+
 class TC_GAME_API CommandArgs
 {
 public:
-    enum CommandArgsType
-    {
-        ARG_INT,
-        ARG_UINT,
-        ARG_FLOAT,
-        ARG_STRING,
-        ARG_PLAYER,
-
-        ARG_OPTIONAL_BEGIN,
-
-        ARG_INT_OPTIONAL,
-        ARG_UINT_OPTIONAL,
-        ARG_FLOAT_OPTIONAL,
-        ARG_STRING_OPTIONAL,
-        ARG_PLAYER_OPTIONAL,
-    };
-
     struct PlayerResult
     {
         Player* PlayerPtr = nullptr;
@@ -193,11 +213,31 @@ public:
 
     uint32 Count() { return _args.size(); }
 
+    CommandArgsType GetArgType(uint8 index)
+    {
+        return index < _argsTypeVector.size() ? _argsTypeVector[index] : COMMAND_ARG_NONE;
+    }
+
+    void SetArgType(uint8 index, CommandArgsType type)
+    {
+        _argsTypeVector[index] = CommandArgsType((_argsTypeVector[index] & ~COMMAND_ARG_ALL_TYPES) | type);
+    }
+
     template<typename T>
     T GetNextArg() { return GetArg<T>(_pos++); }
 
     template<typename T>
-    T GetArg(uint8 index, T defaultValue = T());
+    T GetArg(uint8 index, T defaultValue = T())
+    {
+        ASSERT(index < _argsTypeVector.size());
+
+        if (!(_argsTypeVector[index] & COMMAND_ARG_OPTIONAL))
+            ASSERT(index < _args.size());
+        else if (index >= _args.size())
+            return defaultValue;
+
+        return boost::any_cast<T>(_args[index]);
+    }
 
 private:
     bool _validArgs;

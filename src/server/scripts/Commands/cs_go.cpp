@@ -168,7 +168,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        CommandArgs commandArgs = CommandArgs(handler, args, { CommandArgs::ARG_UINT });
+        CommandArgs commandArgs = CommandArgs(handler, args, { COMMAND_ARG_UINT });
 
         if (commandArgs.ValidArgs())
             return false;
