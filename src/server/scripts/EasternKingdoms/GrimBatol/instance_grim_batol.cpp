@@ -87,6 +87,7 @@ class instance_grim_batol : public InstanceMapScript
                         }
                         break;
                     case NPC_ALEXSTRASZAS_EGG:
+                        creature->SetCorpseDelay(DAY);
                         creature->SetHealth(creature->GetMaxHealth());
                         alexstraszasEggGuidList.insert(creature->GetGUID());
                         break;
@@ -112,15 +113,16 @@ class instance_grim_batol : public InstanceMapScript
                         }
                         if (state == FAIL)
                         {
-                            for (auto itr = alexstraszasEggGuidList.begin(); itr != alexstraszasEggGuidList.end(); itr++)
-                            {
-                                if (Creature* egg = instance->GetCreature((*itr)))
-                                {
-                                    egg->Respawn();
-                                    egg->SetHealth(egg->GetMaxHealth());
-                                }
-                            }
+                            for (ObjectGuid guid : alexstraszasEggGuidList)
+                                if (Creature* egg = instance->GetCreature(guid))
+                                    egg->DespawnOrUnsummon(0, 30s);
+
+                            alexstraszasEggGuidList.clear();
                         }
+                        else if (state == DONE)
+                            for (ObjectGuid guid : alexstraszasEggGuidList)
+                                if (Creature* egg = instance->GetCreature(guid))
+                                    egg->DespawnOrUnsummon();
                         break;
                     default:
                         break;
