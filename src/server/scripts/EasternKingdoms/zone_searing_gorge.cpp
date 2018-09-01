@@ -86,7 +86,7 @@ public:
                     }
                     break;
                 case EVENT_CHAMBERMAID:
-                    TempSummon* summon = owner->SummonCreature(NPC_CHAMBERMAID_PILLACLENCHER, -6545.88f, -1345.29f, 208.89f,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+                    owner->SummonCreature(NPC_CHAMBERMAID_PILLACLENCHER, -6545.88f, -1345.29f, 208.89f,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
                     break;
                 }
             }
