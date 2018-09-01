@@ -1989,7 +1989,7 @@ class spell_q13264_q13276_q13288_q13289_burst_at_the_seams : public SpellScriptL
                 });
             }
 
-            void HandleKnockBack(SpellEffIndex effIndex)
+            void HandleKnockBack(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* creature = GetHitCreature())
                     if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
