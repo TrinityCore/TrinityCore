@@ -1970,14 +1970,14 @@ enum ThatsAbominable
     SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT  = 60040, // Credit for Risen Alliance Soldiers
 };
 
-class spell_q13264_thats_abominable : public SpellScriptLoader
+class spell_q13264_q13276_q13288_q13289_burst_at_the_seams : public SpellScriptLoader
 {
     public:
-        spell_q13264_thats_abominable() : SpellScriptLoader("spell_q13264_thats_abominable") { }
+        spell_q13264_q13276_q13288_q13289_burst_at_the_seams() : SpellScriptLoader("spell_q13264_q13276_q13288_q13289_burst_at_the_seams") { }
 
-        class spell_q13264_thats_abominable_SpellScript : public SpellScript
+        class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13264_thats_abominable_SpellScript);
+            PrepareSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1995,12 +1995,7 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
                     if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
                         if (Player* player = charmer->ToPlayer())
                             if (GiveCreditIfValid(player, creature))
-                            {
                                 creature->KillSelf();
-                                return;
-                            }
-                //Hit some quest-unrelated npc/player, don't knockback those.
-                PreventHitDefaultEffect(effIndex);
             }
 
             bool GiveCreditIfValid(Player* player, Creature* creature)
@@ -2033,14 +2028,14 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
-                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_q13264_thats_abominable_SpellScript();
+            return new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript();
         }
 };
 
@@ -2837,7 +2832,7 @@ void AddSC_quest_spell_scripts()
     new spell_q12847_summon_soul_moveto_bunny();
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
-    new spell_q13264_thats_abominable();
+    new spell_q13264_q13276_q13288_q13289_burst_at_the_seams();
     new spell_q12690_burst_at_the_seams();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
