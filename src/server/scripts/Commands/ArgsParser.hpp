@@ -39,12 +39,11 @@ struct PlainInteger
 {
     typedef int64 type;
 
-    template <typename T>
-    static char const* tryConsume(char const* args, T& val)
+    static char const* tryConsume(char const* args, type& val)
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stoi(token); }
+        try { val = std::stoll(token); }
         catch (...) { return nullptr; }
         return next;
     }
@@ -77,79 +76,91 @@ struct PlainString
 // actual visible link text (usually wrapped in braces)
 // |h           link end tag
 // |r           color return instruction
-inline std::pair<char const*, size_t> findlinktag(char const*& args, char const* linktag)
+#define makelinktag(s) struct s { static constexpr char const* tag() { return #s; }}
+makelinktag(creature);
+makelinktag(creature_entry);
+template <typename linktag, typename T = PlainInteger::type>
+struct Hyperlink
 {
-    char const* pos = args;
-    //color tag
-    if (*(pos++) != '|' || *(pos++) != 'c')
-        return {};
-    for (uint8 i = 0; i < 8; ++i)
-        if (!*(pos++)) // make sure we don't overrun a terminator
-            return {};
-    // link data start tag
-    if (*(pos++) != '|' || *(pos++) != 'H')
-        return {};
-    // link tag, should match argument
-    for (; *linktag; ++pos, ++linktag)
-        if (*pos != *linktag)
-            return {};
-    // separator
-    if (*(pos++) != ':')
-        return {};
-    // ok, link data, let's figure out how long it is
-    char const* datastart = pos;
-    size_t datalength = 0;
-    while (*pos && *(pos++) != '|')
-        ++datalength;
-    // ok, next should be link data end tag...
-    if (*(pos++) != 'h')
-        return {};
-    // then visible link text, skip to next '|', should be '|h|r' terminator
-    while (*pos && *(pos++) != '|');
-    if (*(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
-        return {};
-    // finally, skip to end of token
-    tokenize(pos);
-    // set args to end of token and return link data start + length
-    args = pos;
-    return { datastart, datalength };
-}
-
-// creature DBGUID, either from link or as plain guidlow
-// link format: |Hcreature:<guid>|h
-struct CreatureDBGUID
-{
-    typedef ObjectGuid::LowType type;
-    static char const* tryConsume(char const* args, type& val)
+    typedef T type;
+    static char const* tryConsume(char const* pos, type& val)
     {
-        char const* pos = args;
-        auto linkdata = findlinktag(pos, "creature");
-        while (linkdata.first)
-        {
-            try { val = std::stoi({ linkdata.first, linkdata.second }); }
-            catch (...) { break; }
-            return pos;
-        }
-        return PlainInteger::tryConsume(args, val);
+        //color tag
+        if (*(pos++) != '|' || *(pos++) != 'c')
+            return nullptr;
+        for (uint8 i = 0; i < 8; ++i)
+            if (!*(pos++)) // make sure we don't overrun a terminator
+                return nullptr;
+        // link data start tag
+        if (*(pos++) != '|' || *(pos++) != 'H')
+            return nullptr;
+        // link tag, should match argument
+        char const* tag = linktag::tag();
+        while (*tag)
+            if (*(pos++) != *(tag++))
+                return nullptr;
+        // separator
+        if (*(pos++) != ':')
+            return nullptr;
+        // ok, link data, let's figure out how long it is
+        char const* datastart = pos;
+        size_t datalength = 0;
+        while (*pos && *(pos++) != '|')
+            ++datalength;
+        // ok, next should be link data end tag...
+        if (*(pos++) != 'h')
+            return nullptr;
+        // then visible link text, skip to next '|', should be '|h|r' terminator
+        while (*pos && *(pos++) != '|');
+        if (*(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
+            return nullptr;
+        // finally, skip to end of token
+        tokenize(pos);
+        // store value
+        if (!store(val, datastart, datalength))
+            return nullptr;
+
+        // return final pos
+        return pos;
+    }
+
+    static std::enable_if_t<std::is_integral<T>::value, bool> store(T& val, char const* pos, size_t len)
+    {
+        try { val = std::stoi({ pos, len }); }
+        catch (...) { return false; }
+        return true;
+    }
+
+    static bool store(std::string& val, char const* pos, size_t len)
+    {
+        val.assign(pos, len);
+        return true;
     }
 };
 
-// creature entry, either from link or as plain guidlow
-// link format: |Hcreature_entry:<entry>|h
-struct CreatureEntry
+template <char c1, char... chars>
+struct ExactSequence
 {
-    typedef uint32 type;
-    static char const* tryConsume(char const* args, type& val)
+    typedef ExactSequence<c1> type; // zero size type
+    static char const* tryConsume(char const* pos, type& = type())
     {
-        char const* pos = args;
-        auto linkdata = findlinktag(pos, "creature_entry");
-        while (linkdata.first)
-        {
-            try { val = std::stoi({ linkdata.first, linkdata.second }); }
-            catch (...) { break; }
-            return pos;
-        }
-        return PlainInteger::tryConsume(args, val);
+        if ((*pos++) == c1)
+            return ExactSequence<chars...>::tryConsume(pos);
+        else
+            return nullptr;
+    }
+};
+
+template <char c1>
+struct ExactSequence<c1>
+{
+    typedef ExactSequence<c1> type;
+    static char const* tryConsume(char const* pos, type& = type())
+    {
+        if ((*pos++) != c1)
+            return nullptr;
+        // if tokenize size > 0, then we didn't reach delimiter yet
+        return *pos && tokenize(pos) ? nullptr : pos;
     }
 };
 
@@ -195,18 +206,26 @@ template <int i, typename Tag>
 struct ArgsTupleForwarder
 {
     template <typename T1, typename T2>
-    static auto get(T1, T2 v2) { return v2.get<i - 1, Tag>(); }
+    static auto get_tagged(T1, T2 v2) { return v2.get<i - 1, Tag>(); }
     template <typename T1, typename T2>
-    static bool is(T1, T2 v2) { return v2.is<i - 1, Tag>(); }
+    static auto get_untagged(T1, T2 v2) { return v2.get<i - 1>(); }
+    template <typename T1, typename T2>
+    static bool is_tagged(T1, T2 v2) { return v2.is<i - 1, Tag>(); }
+    template <typename T1, typename T2>
+    static bool is_untagged(T1, T2 v2) { return v2.is<i - 1>(); }
 };
 
 template <typename Tag>
 struct ArgsTupleForwarder<0, Tag>
 {
     template <typename T1, typename T2>
-    static auto get(T1 v1, T2) { return v1.get<0, Tag>(); }
+    static auto get_tagged(T1 v1, T2) { return v1.get<0, Tag>(); }
     template <typename T1, typename T2>
-    static bool is(T1 v1, T2) { return v1.is<0, Tag>(); }
+    static auto get_untagged(T1 v1, T2) { return v1.get<0>(); }
+    template <typename T1, typename T2>
+    static bool is_tagged(T1 v1, T2) { return v1.is<0, Tag>(); }
+    template <typename T1, typename T2>
+    static bool is_untagged(T1 v1, T2) { return v1.is<0>(); }
 };
 
 // helper struct, i don't want everything as public but otherwise friend declarations become messy
@@ -245,13 +264,25 @@ class ArgsTuple
         template <int i, typename ArgTag>
         auto get() const
         {
-            return ArgsTupleForwarder<i, ArgTag>::get(first, rest);
+            return ArgsTupleForwarder<i, ArgTag>::get_tagged(first, rest);
+        }
+
+        template <int i>
+        auto get() const
+        {
+            return ArgsTupleForwarder<i, nullptr_t>::get_untagged(first, rest);
         }
 
         template <int i, typename ArgTag>
         bool is() const
         {
-            return ArgsTupleForwarder<i, ArgTag>::is(first, rest);
+            return ArgsTupleForwarder<i, ArgTag>::is_tagged(first, rest);
+        }
+
+        template <int i>
+        bool is() const
+        {
+            return ArgsTupleForwarder<i, nullptr_t>::is_untagged(first, rest);
         }
 
     private:
@@ -285,6 +316,21 @@ class ArgsTuple<OneOf<Arg1, Arg2>>
             return boost::get<TaggedStorage<ArgTag>>(vals).value;
         }
 
+        template <int i>
+        auto get() const
+        {
+            static_assert(!i && std::is_same<typename Arg1::type, typename Arg2::type>::value, "Invalid parameter extraction");
+            if (vals.which())
+                return boost::get<TaggedStorage<Arg2>>(vals).value;
+            else
+                return boost::get<TaggedStorage<Arg1>>(vals).value;
+        }
+
+        operator typename Arg1::type() const
+        {
+            return get<0>();
+        }
+
         template <int i, typename ArgTag>
         bool is() const
         {
@@ -294,6 +340,9 @@ class ArgsTuple<OneOf<Arg1, Arg2>>
             else // first type
                 return std::is_same<Arg1, ArgTag>::value;
         }
+
+        template <int i>
+        bool is() const { return true; }
 
     private:
         boost::variant<TaggedStorage<Arg1>, TaggedStorage<Arg2>> vals;
@@ -322,11 +371,26 @@ class ArgsTuple<OptionalArg<Arg>>
             return val->get<i, ArgTag>();
         }
 
+        template <int i>
+        auto get() const
+        {
+            return val->get<i>();
+        }
+
+        template <typename U = Arg, typename = std::enable_if_t<std::is_convertible<ArgsTuple<Arg>, typename Arg::type>::value>>
+        operator typename Arg::type() const
+        {
+            return *val;
+        }
+
         template <int i, typename ArgTag>
         bool is() const
         {
             return val && val->is<i, ArgTag>();
         }
+
+        template <int i>
+        bool is() const { return !!val; }
 
     private:
         Optional<ArgsTuple<Arg>> val;
@@ -356,6 +420,13 @@ class ArgsTuple<Arg>
         auto get() const
         {
             static_assert(!i && std::is_same<Arg, ArgTag>::value, "Invalid parameter extraction");
+            return val;
+        }
+
+        template<int i>
+        auto get() const
+        {
+            static_assert(!i, "Invalid parameter extraction");
             return val;
         }
 

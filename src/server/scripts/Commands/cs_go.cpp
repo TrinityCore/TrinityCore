@@ -81,28 +81,19 @@ public:
             return false;
 
         ArgsParser parser(args);
-        auto parsedArgs = parser.tryConsume<OneOf<CreatureDBGUID, PlainString>, OptionalArg<CreatureEntry>>();
-        if (!parsedArgs)
-            return false;
-
         std::ostringstream whereClause;
-        if (parsedArgs->is<0, CreatureDBGUID>()) // to creature guid
-            whereClause << "WHERE guid = '" << parsedArgs->get<0, CreatureDBGUID>() << '\'';
-        else
+        if (auto guidArg = parser.tryConsume<OneOf<Hyperlink<creature>, PlainInteger>>())
+            whereClause << "WHERE guid = '" << *guidArg << '\'';
+        else if (auto entryArg = parser.tryConsume<OptionalArg<ExactSequence<'i', 'd'>>, OneOf<Hyperlink<creature_entry>, PlainInteger>>())
+            whereClause << "WHERE id = '" << entryArg->get<1>() << '\'';
+        else if (auto nameArg = parser.tryConsume<PlainString>())
         {
-            std::string arg0 = parsedArgs->get<0, PlainString>();
-            if (arg0 == "id") // to creature entry
-            {
-                if (!parsedArgs->is<1, CreatureEntry>())
-                    return false;
-                whereClause << "WHERE id = '" << parsedArgs->get<1, CreatureEntry>() << '\'';
-            }
-            else // to creature name
-            {
-                WorldDatabase.EscapeString(arg0);
-                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << arg0 << '\'';
-            }
+            std::string name = *nameArg;
+            WorldDatabase.EscapeString(name);
+            whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
         }
+        else
+            return false;
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
         if (!result)
