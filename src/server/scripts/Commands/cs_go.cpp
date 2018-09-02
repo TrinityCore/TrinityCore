@@ -603,33 +603,11 @@ public:
         if (!*args)
             return false;
 
-        std::vector<std::string> labels;
-
-        // tokenize and convert to lowercase
         char* pos = const_cast<char*>(args);
-        char* last = nullptr;
-        do
-        {
-            if (*pos == ' ')
-            {
-                if (last)
-                {
-                    *pos = '\0';
-                    labels.emplace_back(last);
-                    last = nullptr;
-                }
-            }
-            else
-            {
-                if (!last)
-                    last = pos;
-                *pos = tolower(*pos);
-            }
-        } while (*++pos);
-        if (last)
-            labels.emplace_back(last);
-        // tokenizing done
+        do *pos = tolower(*pos);
+        while (*(++pos));
 
+        Tokenizer labels(args, ' ');
         uint32 mapid = 0;
         if (labels.size() == 1)
         {
@@ -644,7 +622,7 @@ public:
             {
                 uint32 count = 0;
                 std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
-                for (std::string const& label : labels)
+                for (char const* label : labels)
                     if (scriptName.find(label) != std::string::npos)
                         ++count;
 
@@ -653,7 +631,7 @@ public:
             }
             if (matches.empty())
             {
-                handler->SendSysMessage("No matches found for your input");
+                handler->SendSysMessage(LANG_COMMAND_NO_INSTANCES_MATCH);
                 return false;
             }
             auto it = matches.rbegin();
@@ -661,10 +639,10 @@ public:
             mapid = it->second.first;
             if (++it != matches.rend() && it->first == maxCount)
             {
-                handler->SendSysMessage("Multiple matches found for your input - please specify:");
+                handler->SendSysMessage(LANG_COMMAND_MULTIPLE_INSTANCES_MATCH);
                 --it;
                 do
-                    handler->PSendSysMessage("* Map %03u: '%s'", it->second.first, it->second.second);
+                    handler->PSendSysMessage(LANG_COMMAND_MULTIPLE_INSTANCES_ENTRY, it->second.first, it->second.second);
                 while (++it != matches.rend() && it->first == maxCount);
                 handler->SetSentErrorMessage(true);
                 return false;
@@ -676,19 +654,11 @@ public:
         InstanceTemplate const* temp = sObjectMgr->GetInstanceTemplate(mapid);
         if (!temp)
         {
-            handler->PSendSysMessage("Map %u is not instanced", mapid);
+            handler->PSendSysMessage(LANG_COMMAND_MAP_NOT_INSTANCE, mapid);
             handler->SetSentErrorMessage(true);
             return false;
         }
         std::string const& scriptname = sObjectMgr->GetScriptName(temp->ScriptId);
-
-        AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
-        if (!entrance)
-        {
-            handler->PSendSysMessage("Could not find entrance for instance %u (%s)", mapid, scriptname);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         Player* player = handler->GetSession()->GetPlayer();
         if (player->IsInFlight())
@@ -696,22 +666,31 @@ public:
         else
             player->SaveRecallPosition();
 
-        if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
-            handler->PSendSysMessage("Teleported you to entrance of mapid %u (%s)", mapid, scriptname);
-        else
+        // try going to entrance
+        AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapid);
+        if (!exit)
+            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapid, scriptname);
+
+        if (exit && player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
         {
-            AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapid);
-            if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
-                handler->PSendSysMessage("Teleported you in front of entrance to mapid %u (%s)", mapid, scriptname);
-            else
-            {
-                handler->PSendSysMessage("Failed to teleport you to entrance of mapid %u (%s) - missing attunement/expansion for parent map?", mapid, scriptname);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
+            handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapid, scriptname);
+            return true;
         }
 
-        return true;
+        // try going to start
+        AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
+        if (!entrance)
+            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_ENTRANCE, mapid, scriptname);
+
+        if (entrance && player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapid, scriptname);
+            return true;
+        }
+
+        handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_FAILED, mapid, scriptname, exit->target_mapId);
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 };
 
