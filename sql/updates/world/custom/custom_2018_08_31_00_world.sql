@@ -59,7 +59,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Waypoints
 SET @NPC := 52302;
 SET @PATH := @NPC * 10 + 1;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-12017.63,`position_y`=-1661.311,`position_z`=34.088 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-12026.56,-1670.935,33.5924,0,0,0,0,100,0),
@@ -80,7 +79,6 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 SET @NPC := 52302;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-11991.27,`position_y`=-1723.13,`position_z`=32.76447 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-11998.44,-1710.416,32.30133,0,0,0,0,100,0),
