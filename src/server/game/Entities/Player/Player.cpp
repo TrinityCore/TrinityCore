@@ -23307,7 +23307,7 @@ void Player::UpdateForQuestWorldObjects()
                 {
                     bool buildUpdateBlock = false;
                     for (ConditionContainer::const_iterator jtr = conds->begin(); jtr != conds->end() && !buildUpdateBlock; ++jtr)
-                        if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN)
+                        if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN || (*jtr)->ConditionType == CONDITION_QUEST_COMPLETE)
                             buildUpdateBlock = true;
 
                     if (buildUpdateBlock)
