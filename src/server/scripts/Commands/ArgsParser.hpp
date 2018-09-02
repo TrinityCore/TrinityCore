@@ -15,17 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TRINITY_ARGSPARSER_HPP
+#define TRINITY_ARGSPARSER_HPP
+
 #include "Define.h"
+#include "Errors.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include <boost/variant.hpp>
 #include <cstring>
 #include <string>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
+namespace Trinity {
+namespace CommandArgs {
+
 static const char COMMAND_DELIMITER = ' ';
 
+/***************** HELPERS *************************\
+|* These really aren't for outside use...          *|
+\***************************************************/
 inline size_t tokenize(char const*& end)
 {
     size_t len = 0;
@@ -34,435 +45,327 @@ inline size_t tokenize(char const*& end)
     return len;
 }
 
-// a base 10 integer
-struct PlainInteger
+/************************** TAGS ********************************************************\
+|* Tags must implement the following methods:                                           *|
+|* - tryConsume: char const* -> char const*                                             *|
+|*   returns nullptr if no match, otherwise pointer to first character of next token    *|
+|* - get<T = value_type>: void -> value_type                                            *|
+|*   returns value                                                                      *|
+|* - is<T>: void -> bool                                                                *|
+|*   returns true iff value is present and of specified type                            *|
+|*                                                                                      *|
+\****************************************************************************************/
+class PlainInteger
 {
-    typedef int64 type;
-
-    static char const* tryConsume(char const* args, type& val)
-    {
-        char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stoll(token); }
-        catch (...) { return nullptr; }
-        return next;
-    }
-};
-
-// a string
-struct PlainString
-{
-    typedef std::string type;
-    static char const* tryConsume(char const* args, type& val)
-    {
-        char const* next = args;
-        if (size_t len = tokenize(next))
+    public:
+        template<typename T = int64>
+        T get() const
         {
-            val.assign(args, len);
+            static_assert(std::is_integral_v<T>, "Attempt to extract PlainInteger using non-integral type");
+            return val;
+        }
+
+        template<typename T = PlainInteger>
+        static constexpr bool is()
+        {
+            return std::is_same_v<T, PlainInteger>;
+        }
+
+        char const* tryConsume(char const* args)
+        {
+            char const* next = args;
+            std::string token(args, tokenize(next));
+            try { val = std::stoll(token); }
+            catch (...) { return nullptr; }
             return next;
         }
-        else
-            return nullptr;
-    }
+
+    private:
+        int64 val;
+    
 };
 
-// links always have the following format:
-// |cxxxxxxxx   8 digit argb hex color
-// |H           link data start tag
-// link tag (e.g. item, itemset, quest, player etc.)
-// :            separator
-// link data (arbitrary string, must not contain |)
-// |h           link data end tag
-// actual visible link text (usually wrapped in braces)
-// |h           link end tag
-// |r           color return instruction
-#define makelinktag(s,t) struct s { typedef t type; static constexpr char const* tag() { return #s; }}
-makelinktag(creature, int64);
-makelinktag(creature_entry, int64);
-template <typename linktag>
-struct Hyperlink
+class PlainString
 {
-    typedef typename linktag::type type;
-    static char const* tryConsume(char const* pos, type& val)
-    {
-        //color tag
-        if (*(pos++) != '|' || *(pos++) != 'c')
-            return nullptr;
-        for (uint8 i = 0; i < 8; ++i)
-            if (!*(pos++)) // make sure we don't overrun a terminator
+    public:
+        template<typename T = std::string>
+        std::string const& get() const
+        {
+            static_assert(std::is_same_v<std::string, std::remove_const_t<std::remove_reference_t<T>>>, "Attempt to extract PlainString as non-string type");
+            return val;
+        }
+
+        template<typename T = PlainString>
+        static constexpr bool is()
+        {
+            return std::is_same_v<PlainString, T>;
+        }
+
+        char const* tryConsume(char const* args)
+        {
+            char const* next = args;
+            if (size_t len = tokenize(next))
+            {
+                val.assign(args, len);
+                return next;
+            }
+            else
                 return nullptr;
-        // link data start tag
-        if (*(pos++) != '|' || *(pos++) != 'H')
-            return nullptr;
-        // link tag, should match argument
-        char const* tag = linktag::tag();
-        while (*tag)
-            if (*(pos++) != *(tag++))
-                return nullptr;
-        // separator
-        if (*(pos++) != ':')
-            return nullptr;
-        // ok, link data, let's figure out how long it is
-        char const* datastart = pos;
-        size_t datalength = 0;
-        while (*pos && *(pos++) != '|')
-            ++datalength;
-        // ok, next should be link data end tag...
-        if (*(pos++) != 'h')
-            return nullptr;
-        // then visible link text, skip to next '|', should be '|h|r' terminator
-        while (*pos && *(pos++) != '|');
-        if (*(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
-            return nullptr;
-        // finally, skip to end of token
-        tokenize(pos);
-        // store value
-        if (!store(val, datastart, datalength))
-            return nullptr;
+        }
 
-        // return final pos
-        return pos;
-    }
-
-    template <typename T>
-    static std::enable_if_t<std::is_integral<T>::value, bool> store(T& val, char const* pos, size_t len)
-    {
-        try { val = std::stoi({ pos, len }); }
-        catch (...) { return false; }
-        return true;
-    }
-
-    static bool store(std::string& val, char const* pos, size_t len)
-    {
-        val.assign(pos, len);
-        return true;
-    }
+    private:
+        std::string val;
 };
 
 template <char c1, char... chars>
 struct ExactSequence
 {
-    typedef ExactSequence<c1> type; // zero size type
-    static char const* tryConsume(char const* pos, type& = type())
+    template <typename T = void> static constexpr void get() {}
+    template <typename T = ExactSequence> static constexpr bool is() { return std::is_same_v<ExactSequence, T>; }
+
+    template <size_t U = sizeof...(chars)>
+    static typename std::enable_if_t<U, char const*> tryConsume(char const* pos)
     {
-        if ((*pos++) == c1)
+        if (*(pos++) == c1)
             return ExactSequence<chars...>::tryConsume(pos);
         else
             return nullptr;
     }
-};
 
-template <char c1>
-struct ExactSequence<c1>
-{
-    typedef ExactSequence<c1> type;
-    static char const* tryConsume(char const* pos, type& = type())
+    template <size_t U = sizeof...(chars)>
+    static typename std::enable_if_t<!U, char const*> tryConsume(char const* pos)
     {
-        if ((*pos++) != c1)
+        if (*(pos++) != c1)
             return nullptr;
-        // if tokenize size > 0, then we didn't reach delimiter yet
+        // if more of string is left, tokenize should return 0 (otherwise we didn't reach end of token yet)
         return *pos && tokenize(pos) ? nullptr : pos;
     }
 };
 
-// returns Optional<Arg::type>, handled entirely within the ArgsTuple partial spec
-template <typename Arg>
-struct OptionalArg {};
-
-// internal type to differentiate between different tags with the same value type within boost::variant
-template <typename ArgTag>
-struct TaggedStorage
+/// specialty tags that enable nesting
+/// === OneOf ===
+template <typename Tag1, typename... Tags>
+class OneOf
 {
-    typedef typename ArgTag::type inner_type;
-    typename ArgTag::type value;
+    using first_type = decltype(std::declval<Tag1>().get());
+    public:
+        template <typename Type = first_type>
+        auto get() const
+        {
+            return OneOfExtractor<Type>::get<decltype(storage), Tag1, Tags...>(storage, storage.which());
+        }
+
+        template <typename Tag>
+        bool is() const
+        {
+            return OneOfExtractor<Type>::is<Tag, Tag1, Tags...>(storage.which());
+        }
+
+        bool is() const { return true; }
+
+        char const* tryConsume(char const* args)
+        {
+            return OneOfConsumer<Tag1, Tags...>::tryConsume(storage, args);
+        }
+
+    private:
+        boost::variant<Tag1, Tags...> storage;
 };
 
-// either one or the other - lowest level only! no nesting below this (would be a clusterfuck to code)
-template <typename Arg1, typename Arg2>
-struct OneOf {
-    typedef TaggedStorage<Arg1> first_storage;
-    typedef typename Arg1::type first_type;
-    typedef TaggedStorage<Arg2> second_storage;
-    typedef typename Arg2::type second_type;
-    static char const* tryConsume(char const* args, boost::variant<first_storage, second_storage>& val)
+template <typename WantedType>
+struct OneOfExtractor
+{
+    template <typename OtherTag>
+    static constexpr bool can_assign_from = std::is_assignable_v<WantedType&, decltype(std::declval<OtherTag>().get<WantedType>()) const&>;
+
+    template <typename StorageType, typename CurrentTag, typename... OtherTags>
+    static std::enable_if_t<can_assign_from<CurrentTag> && sizeof...(OtherTags), WantedType> get(StorageType const& storage, size_t index)
     {
-        first_storage v1;
-        if (char const* next = Arg1::tryConsume(args, v1.value))
+        if (index)
+            return OneOfExtractor<WantedType>::get<StorageType, OtherTags...>(storage, index - 1);
+        else
+            return boost::get<CurrentTag>(storage).get<WantedType>();
+    }
+
+    template <typename StorageType, typename CurrentTag, typename... OtherTags>
+    static std::enable_if_t<can_assign_from<CurrentTag> && !sizeof...(OtherTags), WantedType> get(StorageType const& storage, size_t index)
+    {
+        ASSERT(!index, "OneOf extraction index out of bounds - data corruption?");
+        return boost::get<CurrentTag>(storage).get<WantedType>();
+    }
+
+    template <typename StorageType, typename CurrentTag, typename... OtherTags>
+    static std::enable_if_t<!can_assign_from<CurrentTag> && sizeof...(OtherTags), WantedType> get(StorageType const& storage, size_t index)
+    {
+        ASSERT(index, "Invalid OneOf extraction - make sure you check ->is first!");
+        return OneOfExtractor<WantedType>::get<StorageType, OtherTags...>(storage, index - 1);
+    }
+
+    template <typename StorageType, typename CurrentTag, typename... OtherTags>
+    static std::enable_if_t<!can_assign_from<CurrentTag> && !sizeof...(OtherTags), WantedType> get(StorageType const& storage, size_t index)
+    {
+        if (index)
+            ASSERT(false, "OneOf extraction index out of bounds - data corruption?");
+        else
+            ASSERT(false, "Invalid OneOf extraction - make sure you check ->is first!");
+        return WantedType();
+    }
+
+    template <typename WantedTag, typename CurrentTag, typename... OtherTags>
+    static std::enable_if_t<sizeof...(OtherTags), bool> is(size_t index)
+    {
+        if (!index)
+            return std::is_same_v<WantedTag, CurrentTag>;
+        else
+            return OneOfExtractor<WantedType>::is<WantedTag, OtherTags...>(index - 1);
+    }
+
+    template <typename WantedTag, typename CurrentTag, typename... OtherTags>
+    static std::enable_if_t<!sizeof...(OtherTags), bool> is(size_t index)
+    {
+        ASSERT(!index, "OneOf extraction index out of bounds - data corruption?");
+        return std::is_same_v<WantedTag, CurrentTag>;
+    }
+};
+
+template <typename Tag1, typename... Tags>
+struct OneOfConsumer
+{
+    template <typename T>
+    static char const* tryConsume(T& storage, char const* args)
+    {
+        Tag1 t;
+        if (char const* next = t.tryConsume(args))
         {
-            val = v1;
+            storage = t;
             return next;
         }
-        second_storage v2;
-        if (char const* next = Arg2::tryConsume(args, v2.value))
-        {
-            val = v2;
-            return next;
-        }
+        else
+            return OneOfConsumerNext<Tag1, Tags...>::tryConsume(storage, args);
+    }
+};
+
+// extra level of indirection to avoid if constexpr :(
+template <typename Tag1, typename... Tags>
+struct OneOfConsumerNext
+{
+    template <typename T>
+    static char const* tryConsume(T& storage, char const* args)
+    {
+        return OneOfConsumer<Tags...>::tryConsume(storage, args);
+    }
+};
+template <typename Tag1>
+struct OneOfConsumerNext<Tag1>
+{
+    template <typename T>
+    static char const* tryConsume(T&, char const*)
+    {
         return nullptr;
     }
 };
 
-// recursion helper struct, because we can't partially specialize member functions for some reason
-template <int i, typename Tag>
-struct ArgsTupleForwarder
-{
-    template <typename T1, typename T2>
-    static auto get_tagged(T1, T2 v2) { return v2.get<i - 1, Tag>(); }
-    template <typename T1, typename T2>
-    static auto get_untagged(T1, T2 v2) { return v2.get<i - 1>(); }
-    template <typename T1, typename T2>
-    static bool is_tagged(T1, T2 v2) { return v2.is<i - 1, Tag>(); }
-    template <typename T1, typename T2>
-    static bool is_untagged(T1, T2 v2) { return v2.is<i - 1>(); }
-};
-
+/// === OptionalArg ===
 template <typename Tag>
-struct ArgsTupleForwarder<0, Tag>
-{
-    template <typename T1, typename T2>
-    static auto get_tagged(T1 v1, T2) { return v1.get<0, Tag>(); }
-    template <typename T1, typename T2>
-    static auto get_untagged(T1 v1, T2) { return v1.get<0>(); }
-    template <typename T1, typename T2>
-    static bool is_tagged(T1 v1, T2) { return v1.is<0, Tag>(); }
-    template <typename T1, typename T2>
-    static bool is_untagged(T1 v1, T2) { return v1.is<0>(); }
-};
-
-// helper struct, i don't want everything as public but otherwise friend declarations become messy
-struct FillForwarder
-{
-    template <typename T1>
-    static bool fillMe(T1& v1, char const*& arg)
-    {
-        return v1.fill(arg);
-    }
-
-    template <typename T1, typename T2>
-    static bool fillBoth(T1& v1, T2& v2, char const*& arg)
-    {
-        char const* next = arg;
-        if (v1.fill(next) && v2.fill(next))
-        {
-            arg = next;
-            return true;
-        }
-        else
-            return false;
-    }
-};
-
-template <typename Arg1, typename... Args>
-class ArgsTuple
-{
-    private:
-        bool fill(char const*& arg)
-        {
-            return FillForwarder::fillBoth(first, rest, arg);
-        }
-
-    public:
-        template <int i, typename ArgTag>
-        auto get() const
-        {
-            return ArgsTupleForwarder<i, ArgTag>::get_tagged(first, rest);
-        }
-
-        template <int i>
-        auto get() const
-        {
-            return ArgsTupleForwarder<i, nullptr_t>::get_untagged(first, rest);
-        }
-
-        template <int i, typename ArgTag>
-        bool is() const
-        {
-            return ArgsTupleForwarder<i, ArgTag>::is_tagged(first, rest);
-        }
-
-        template <int i>
-        bool is() const
-        {
-            return ArgsTupleForwarder<i, nullptr_t>::is_untagged(first, rest);
-        }
-
-    private:
-        ArgsTuple<Arg1> first;
-        ArgsTuple<Args...> rest;
-
-    friend struct FillForwarder;
-};
-
-template <typename Arg1, typename Arg2>
-class ArgsTuple<OneOf<Arg1, Arg2>>
-{
-    private:
-        bool fill(char const*& arg)
-        {
-            char const* next = OneOf<Arg1, Arg2>::tryConsume(arg, vals);
-            if (next)
-            {
-                arg = next;
-                return true;
-            }
-            else
-                return false;
-        }
-
-    public:
-        template <int i, typename ArgTag>
-        typename ArgTag::type get() const
-        {
-            static_assert(!i, "Invalid parameter extraction");
-            return boost::get<TaggedStorage<ArgTag>>(vals).value;
-        }
-
-        template <int i>
-        auto get() const
-        {
-            static_assert(!i && std::is_same<typename Arg1::type, typename Arg2::type>::value, "Invalid parameter extraction");
-            if (vals.which())
-                return boost::get<TaggedStorage<Arg2>>(vals).value;
-            else
-                return boost::get<TaggedStorage<Arg1>>(vals).value;
-        }
-
-        operator typename Arg1::type() const
-        {
-            return get<0>();
-        }
-
-        template <int i, typename ArgTag>
-        bool is() const
-        {
-            static_assert(!i, "Invalid parameter extraction");
-            if (vals.which()) // second type
-                return std::is_same<Arg2, ArgTag>::value;
-            else // first type
-                return std::is_same<Arg1, ArgTag>::value;
-        }
-
-        template <int i>
-        bool is() const { return true; }
-
-    private:
-        boost::variant<TaggedStorage<Arg1>, TaggedStorage<Arg2>> vals;
-
-    friend struct FillForwarder;
-};
-
-template <typename Arg>
-class ArgsTuple<OptionalArg<Arg>>
-{
-    private:
-        bool fill(char const*& arg)
-        {
-            ArgsTuple<Arg> v;
-            if (FillForwarder::fillMe(v, arg))
-                val = v;
-            else
-                val = boost::none;
-            return true;
-        }
-
-    public:
-        template <int i, typename ArgTag>
-        auto get() const
-        {
-            return val->get<i, ArgTag>();
-        }
-
-        template <int i>
-        auto get() const
-        {
-            return val->get<i>();
-        }
-
-        template <typename U = Arg, typename = std::enable_if_t<std::is_convertible<ArgsTuple<Arg>, typename Arg::type>::value>>
-        operator typename Arg::type() const
-        {
-            return *val;
-        }
-
-        template <int i, typename ArgTag>
-        bool is() const
-        {
-            return val && val->is<i, ArgTag>();
-        }
-
-        template <int i>
-        bool is() const { return !!val; }
-
-    private:
-        Optional<ArgsTuple<Arg>> val;
-
-    friend struct FillForwarder;
-};
-
-template <typename Arg>
-class ArgsTuple<Arg>
-{
-    private:
-        bool fill(char const*& arg)
-        {
-            char const* next = Arg::tryConsume(arg, val);
-            if (next)
-            {
-                arg = next;
-                return true;
-            }
-            else
-                return false;
-        }
-
-    public:
-        ArgsTuple() : val() {}
-        template <int i, typename ArgTag>
-        auto get() const
-        {
-            static_assert(!i && std::is_same<Arg, ArgTag>::value, "Invalid parameter extraction");
-            return val;
-        }
-
-        template<int i>
-        auto get() const
-        {
-            static_assert(!i, "Invalid parameter extraction");
-            return val;
-        }
-
-        // for convenience on single args
-        operator typename Arg::type() const
-        {
-            return val;
-        }
-
-        template <int i, typename ArgTag>
-        bool is() const
-        {
-            static_assert(!i, "Invalid parameter extraction");
-            return std::is_same<Arg, ArgTag>::value;
-        }
-
-    private:
-        typename Arg::type val;
-
-    friend struct FillForwarder;
-};
-
-class ArgsParser
+class OptionalArg
 {
     public:
-        ArgsParser(char const* args) : _original(args), _args(args) {}
-
-        template<typename... Args>
-        Optional<ArgsTuple<Args...>> tryConsume()
+        template <typename T>
+        auto get() const
         {
-            ArgsTuple<Args...> tuple;
-            if (FillForwarder::fillMe(tuple, _args))
-                return tuple;
+            return val->get<T>();
+        }
+
+        auto get() const
+        {
+            return val->get<>();
+        }
+
+        template <typename T>
+        bool is() const
+        {
+            return val && val->is<T>();
+        }
+
+        template <int = 0>
+        bool is() const
+        {
+            return val && val->is<>();
+        }
+
+        char const* tryConsume(char const* args)
+        {
+            val.emplace();
+            if (char const* next = val->tryConsume(args))
+                return next;
+            val = boost::none;
+            return args;
+        }
+    private:
+        Optional<Tag> val;
+};
+
+/****** INTERFACING CLASSES *****************************************\
+|* These are what the caller code gets to see                       *|
+|* - Construct your Parser with char const* to first token          *|
+|* - Call tryConsume<Tag1, Tag2, ...>()                             *|
+|* - Get Optional<Tuple<Tag1, Tag2, ...>>() back                    *|
+|* - If the Optional contains a value, the Parser consumed input    *|
+\********************************************************************/
+template <typename... Tags>
+class Tuple
+{
+    private:
+        std::tuple<Tags...> values;
+    public:
+        template <size_t i>
+        auto get() const { return std::get<i>(values).get(); }
+
+        template <size_t i, typename T>
+        auto get() const { return std::get<i>(values).get<T>(); }
+
+        template <size_t i>
+        auto is() const { return std::get<i>(values).is(); }
+
+        template <size_t i, typename T>
+        auto is() const { return std::get<i>(values).is<T>(); }
+
+        operator auto() const -> decltype(get<0>()) { return get<0>(); }
+
+    private:
+        template <size_t i = 0>
+        std::enable_if_t <(i < sizeof...(Tags)), char const*> fill(char const* arg)
+        {
+            if (char const* next = std::get<i>(values).tryConsume(arg))
+                return fill<i + 1>(next);
             else
-                return boost::none;
+                return nullptr;
+        }
+
+        template <size_t i>
+        std::enable_if_t <(i == sizeof...(Tags)), char const*> fill(char const* arg)
+        {
+            return arg;
+        }
+
+    friend class Parser;
+};
+
+class Parser
+{
+    public:
+        Parser(char const* args) : _original(args), _args(args) {}
+
+        template <typename... Args>
+        Optional<Tuple<Args...>> tryConsume()
+        {
+            Optional<Tuple<Args...>> ret;
+            ret.emplace();
+            if (char const* next = ret->fill(_args))
+                _args = next;
+            else
+                ret = boost::none;
+            return ret;
         }
 
         void reset() { _args = _original; }
@@ -471,3 +374,8 @@ class ArgsParser
         char const* const _original;
         char const* _args;
 };
+
+}
+}
+
+#endif

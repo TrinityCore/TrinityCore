@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ArgsParser.hpp"
+#include "ArgsParserHyperlinks.hpp"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -35,6 +36,7 @@ EndScriptData */
 #include "Transport.h"
 #include "WorldSession.h"
 
+using namespace Trinity::CommandArgs;
 class go_commandscript : public CommandScript
 {
 public:
@@ -80,7 +82,7 @@ public:
         if (!*args)
             return false;
 
-        ArgsParser parser(args);
+        Parser parser(args);
         std::ostringstream whereClause;
         if (auto guidArg = parser.tryConsume<OneOf<Hyperlink<creature>, PlainInteger>>())
             whereClause << "WHERE guid = '" << *guidArg << '\'';
@@ -94,6 +96,8 @@ public:
         }
         else
             return false;
+
+        printf("where clause '%s'\n", whereClause.str().c_str());
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
         if (!result)
@@ -543,7 +547,7 @@ public:
         while (*(++pos));
 
         uint32 mapid = 0;
-        ArgsParser parser(args);
+        Parser parser(args);
         if (auto arg = parser.tryConsume<PlainInteger>())
         {
             printf("integer arg is %u\n", mapid = *arg);
