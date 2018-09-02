@@ -99,7 +99,6 @@ class Hyperlink
 |*   - return value indicates success/failure                                           *|
 |*   - for integral/string types this can be achieved by extending base_tag             *|
 \****************************************************************************************/
-#define make_base_tag(ltag, type) struct ltag : public base_tag { typedef type value_type; static constexpr char const* tag() { return #ltag; } }
 struct base_tag
 {
     static bool store(std::string& val, char const* pos, size_t len)
@@ -125,8 +124,10 @@ struct base_tag
     }
 };
 
+#define make_base_tag(ltag, type) struct ltag : public base_tag { typedef type value_type; static constexpr char const* tag() { return #ltag; } }
 make_base_tag(creature, uint32);
 make_base_tag(creature_entry, uint32);
+#undef make_base_tag
 }
 }
 
