@@ -1036,6 +1036,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,317),
 (198,318),
 (198,855),
+(198,874),
 (198,367),
 (198,368),
 (198,369),
@@ -1831,7 +1832,8 @@ INSERT INTO `rbac_permissions` VALUES
 (865,'Command: npc showloot'),
 (866,'Command: list spawnpoints'),
 (867,'Command: reload quest_greeting_locale'),
-(872,'Command: server debug');
+(872,'Command: server debug'),
+(874,'Command: go instance');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
