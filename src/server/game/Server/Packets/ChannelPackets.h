@@ -48,7 +48,7 @@ namespace WorldPackets
             bool _Display = false;
         };
 
-        class ChannelNotify final : public ServerPacket
+        class TC_GAME_API ChannelNotify final : public ServerPacket
         {
         public:
             ChannelNotify() : ServerPacket(SMSG_CHANNEL_NOTIFY, 80) { }
