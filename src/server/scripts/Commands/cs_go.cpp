@@ -662,12 +662,15 @@ public:
 
         Player* player = handler->GetSession()->GetPlayer();
         if (player->IsInFlight())
-            player->FinishTaxiFlight();
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
         else
             player->SaveRecallPosition();
 
         // try going to entrance
-        AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapid);
+        AreaTriggerStruct const* exit = sObjectMgr->GetGoBackTrigger(mapid);
         if (!exit)
             handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapid, scriptname);
 
@@ -678,7 +681,7 @@ public:
         }
 
         // try going to start
-        AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
+        AreaTriggerStruct const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
         if (!entrance)
             handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_ENTRANCE, mapid, scriptname);
 
