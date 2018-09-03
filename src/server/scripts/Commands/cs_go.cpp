@@ -23,9 +23,8 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ArgsParser.hpp"
-#include "ArgsParserHyperlinks.hpp"
 #include "Chat.h"
+#include "ChatCommand.hpp"
 #include "DatabaseEnv.h"
 #include "Language.h"
 #include "MapManager.h"
@@ -36,7 +35,7 @@ EndScriptData */
 #include "Transport.h"
 #include "WorldSession.h"
 
-using namespace Trinity::CommandArgs;
+using namespace Trinity::ChatCommandArgs;
 class go_commandscript : public CommandScript
 {
 public:
@@ -77,18 +76,17 @@ public:
     *                                      you will be teleported to the first one that is found.
     */
     //teleport to creature
-    static bool HandleGoCreatureCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoCreatureCommand(ChatHandler* handler, CommandArgs* args)
     {
-        if (!*args)
+        if (!args)
             return false;
 
-        Parser parser(args);
         std::ostringstream whereClause;
-        if (auto guidArg = parser.tryConsume<OneOf<Hyperlink<creature>, PlainInteger>>())
-            whereClause << "WHERE guid = '" << *guidArg << '\'';
-        else if (auto entryArg = parser.tryConsume<OptionalArg<ExactSequence<'i', 'd'>>, OneOf<Hyperlink<creature_entry>, PlainInteger>>())
+        if (auto guidArg = args->tryConsume<OneOf<Hyperlink<creature>, PlainInteger>>())
+            whereClause << "WHERE guid = '" << guidArg->get<0>() << '\'';
+        else if (auto entryArg = args->tryConsume<OptionalArg<ExactSequence<'i', 'd'>>, OneOf<Hyperlink<creature_entry>, PlainInteger>>())
             whereClause << "WHERE id = '" << entryArg->get<1>() << '\'';
-        else if (auto nameArg = parser.tryConsume<PlainString>())
+        else if (auto nameArg = args->tryConsume<PlainString>())
         {
             std::string name = *nameArg;
             WorldDatabase.EscapeString(name);
@@ -547,7 +545,7 @@ public:
         while (*(++pos));
 
         uint32 mapid = 0;
-        Parser parser(args);
+        CommandArgs parser(args);
         if (auto arg = parser.tryConsume<PlainInteger>())
         {
             printf("integer arg is %u\n", mapid = *arg);
