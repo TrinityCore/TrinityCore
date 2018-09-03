@@ -36,15 +36,15 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POTENCY_RANK_2             = 31572,
     SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1     = 57529,
     SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2     = 57531,
-
     SPELL_MAGE_ARCANE_BLAST                      = 30451,
     SPELL_MAGE_ARCANE_MISSILES                   = 5143,
     SPELL_MAGE_ARCANE_MISSILES_DAMAGE            = 7268,
     SPELL_MAGE_ARCANE_MISSILES_AURASTATE         = 79808,
-
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
+    SPELL_MAGE_BRAIN_FREEZE_R1                   = 44546,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
+    SPELL_MAGE_DEEP_FREEZE_DAMAGE                = 71757,
     SPELL_MAGE_EARLY_FROST_R1                    = 83049,
     SPELL_MAGE_EARLY_FROST_R2                    = 83050,
     SPELL_MAGE_EARLY_FROST_TRIGGERED_R1          = 83162,
@@ -56,7 +56,6 @@ enum MageSpells
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
-
     SPELL_MAGE_FLAME_ORB_DUMMY                   = 82731,
     SPELL_MAGE_FLAME_ORB_SUMMON                  = 84765,
     SPELL_MAGE_FLAME_ORB_AOE                     = 82734,
@@ -67,12 +66,10 @@ enum MageSpells
     SPELL_MAGE_FROSTFIRE_ORB_DUMMY               = 92283,
     SPELL_MAGE_FROSTFIRE_ORB_SUMMON              = 84714,
     SPELL_MAGE_FROSTFIRE_ORB_AOE                 = 84718,
-
     SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1          = 95969,
     SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2          = 84721,
     SPELL_MAGE_FROSTFIRE_ORB_RANK_R2            = 84727,
     SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT      = 44614,
-
     SPELL_MAGE_HOT_STREAK                        = 44445,
     SPELL_MAGE_HOT_STREAK_TRIGGERED              = 48108,
     SPELL_MAGE_IMPROVED_HOT_STREAK_R1            = 44446,
@@ -1592,58 +1589,55 @@ public:
 };
 
 // 79684 Offensive State (DND)
-class spell_mage_offensive_state_dnd : public SpellScriptLoader
+class spell_mage_offensive_state_dnd : public AuraScript
 {
-public:
-    spell_mage_offensive_state_dnd() : SpellScriptLoader("spell_mage_offensive_state_dnd") { }
+    PrepareAuraScript(spell_mage_offensive_state_dnd);
 
-    class spell_mage_offensive_state_dnd_AuraScript : public AuraScript
+    bool Load() override
     {
-        PrepareAuraScript(spell_mage_offensive_state_dnd_AuraScript);
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-        bool Load() override
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-                {
-                    SPELL_MAGE_ARCANE_MISSILES,
-                    SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
-                    SPELL_MAGE_ARCANE_BLAST,
-                    SPELL_MAGE_HOT_STREAK
-                });
-        }
-
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            // Hot Streak will no longer allow Arcane Missiles to proc
-            if (GetCaster()->HasAura(SPELL_MAGE_HOT_STREAK))
-                return false;
-
-            // Don't proc when caster does not know Arcane Missiles
-            if (Player* playerCaster = GetCaster()->ToPlayer())
-                if (!playerCaster->HasSpell(SPELL_MAGE_ARCANE_MISSILES))
-                    return false;
-
-            // Don't proc Arcane Missiles from triggered Missiles
-            if (eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
-                return false;
-
-            return roll_chance_i(40);
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_mage_offensive_state_dnd_AuraScript::CheckProc);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return new spell_mage_offensive_state_dnd_AuraScript();
+        return ValidateSpellInfo(
+            {
+                SPELL_MAGE_ARCANE_MISSILES,
+                SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
+                SPELL_MAGE_ARCANE_BLAST,
+                SPELL_MAGE_HOT_STREAK,
+                SPELL_MAGE_BRAIN_FREEZE_R1
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return false;
+
+        // Don't proc when caster does not know Arcane Missiles
+        if (!player->HasSpell(SPELL_MAGE_ARCANE_MISSILES))
+            return false;
+
+        // Hot Streak will no longer allow Arcane Missiles to proc
+        if (player->HasAura(SPELL_MAGE_HOT_STREAK))
+            return false;
+
+        // Brain Freeze will no longer allow Arcane Missiles to proc
+        if (player->GetAuraOfRankedSpell(SPELL_MAGE_BRAIN_FREEZE_R1))
+            return false;
+
+        // Don't proc Arcane Missiles from triggered Missiles
+        if (eventInfo.GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
+            return false;
+
+        return roll_chance_i(40);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_offensive_state_dnd::CheckProc);
     }
 };
 
@@ -2119,6 +2113,33 @@ class spell_mage_initialize_images : public SpellScript
     }
 };
 
+class spell_mage_deep_freeze : public SpellScript
+{
+    PrepareSpellScript(spell_mage_deep_freeze);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_DEEP_FREEZE_DAMAGE });
+    }
+
+    void HandleDamage(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return;
+
+        if (target->GetTypeId() == TYPEID_UNIT)
+            if (target->IsImmunedToSpell(GetSpellInfo(), caster))
+                caster->CastSpell(target, SPELL_MAGE_DEEP_FREEZE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_mage_deep_freeze::HandleDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -2128,6 +2149,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
+    RegisterSpellScript(spell_mage_deep_freeze);
     RegisterAuraScript(spell_mage_dragon_breath);
     new spell_mage_early_frost();
     new spell_mage_fire_frost_ward();
@@ -2149,6 +2171,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_master_of_elements();
     RegisterSpellAndAuraScriptPair(spell_mage_mirror_image, spell_mage_mirror_image_AurasScript);
     new spell_mage_nether_vortex();
+    RegisterAuraScript(spell_mage_offensive_state_dnd);
     new spell_mage_permafrost();
     new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
@@ -2159,5 +2182,4 @@ void AddSC_mage_spell_scripts()
     new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
     new spell_mage_arcane_missiles_trigger();
-    new spell_mage_offensive_state_dnd();
 }

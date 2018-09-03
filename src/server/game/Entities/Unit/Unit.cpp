@@ -6791,8 +6791,16 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
             // Ice Lance
             if (spellProto->SpellIconID == 186)
-                if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+            {
+                if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)
+                    || GetAuraEffect(SPELL_AURA_ABILITY_IGNORE_AURASTATE, SPELLFAMILY_MAGE, 0, 0, 0x0000000A, GetGUID()))
                     DoneTotalMod *= 2.0f;
+            }
+
+            // Fingers of Frost
+            if (spellProto->SpellFamilyFlags[0] & 0x00020000)
+                if (GetAuraEffect(SPELL_AURA_ABILITY_IGNORE_AURASTATE, SPELLFAMILY_MAGE, 0, 0, 0x0000000A, GetGUID()))
+                    AddPct(DoneTotalMod, 25.0f);
 
             // Torment the weak
             if (spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
@@ -7102,6 +7110,9 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         case 12982:
                             if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
                                 crit_chance *= 2;
+                            else if (spellProto->SpellFamilyFlags[0] & 0x00020000 || spellProto->SpellFamilyFlags[1] & 0x00100000)
+                                if (GetAuraEffect(SPELL_AURA_ABILITY_IGNORE_AURASTATE, SPELLFAMILY_MAGE, 0, 0, 0x0000000A, GetGUID()))
+                                    crit_chance *= 2;
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
