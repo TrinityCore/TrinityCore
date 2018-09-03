@@ -15,7 +15,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (73803,9,1,0,0,0,100,0,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - Add Npc Flag Questgiver"),
 (73803,9,3,0,0,0,100,0,120000,120000,0,0,0,1,4,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - Say Line 4"),
 (73803,9,4,0,0,0,100,0,5000,5000,0,0,0,53,0,73801,0,0,0,2,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - Start Waypoint"),
-(73803,9,5,0,0,0,100,0,0,0,0,0,0,83,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - Remove Npc Flag Questgiver");
+(73803,9,5,0,0,0,100,0,0,0,0,0,0,83,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - Remove Npc Flag Questgiver"),
 (73804,9,0,0,0,0,100,0,0,0,0,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,5.5676,"Private Thorsen - On Script - Set Orientation"),
 (73804,9,1,0,0,0,100,0,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - add Npc Flag Questgiver"),
 (73804,9,2,0,0,0,100,0,500,500,0,0,0,1,5,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Thorsen - On Script - Say Line 5"),
