@@ -175,10 +175,9 @@ enum Corruption
 {
     MAX_CORRUPTION                  = 100,
     CORRUPTION_ACHIEVEMENT_CAP      = 30,
-    CORRUPTION_TOLERANCE            = 1,
 
     CORRUPTION_NORMAL               = 1,
-    CORRUPTION_SIGNIFICANT          = 2,
+    CORRUPTION_SIGNIFICANT          = 10,
 
     CORRUPTION_LEVEL_ACCELERATED    = 25,
     CORRUPTION_LEVEL_SICKNESS       = 50,
@@ -206,22 +205,21 @@ namespace CorruptionHandler
             || power == CORRUPTION_LEVEL_ABSOLUTE);
     }
 
-    uint32 GetSpellIdForCorruptionLevel(uint8 power, bool significantStep)
+    uint32 GetSpellIdForCorruptionLevel(uint8 power, uint8 additionalPower)
     {
-        uint8 tolerance = 0;
-        if (!IsCorruptionStage(power) && significantStep && IsCorruptionStage(power - CORRUPTION_TOLERANCE))
-            tolerance += CORRUPTION_TOLERANCE;
-
-        switch (power - tolerance)
+        for (uint8 i = power; i <= (power + additionalPower); i++)
         {
-            case CORRUPTION_LEVEL_ACCELERATED:
-                return SPELL_CORRUPTION_ACCELERATED;
-            case CORRUPTION_LEVEL_SICKNESS:
-                return SPELL_CORRUPTION_SICKNESS;
-            case CORRUPTION_LEVEL_MALFORMATION:
-                return SPELL_CORRUPTION_MALFORMATION;
-            case CORRUPTION_LEVEL_ABSOLUTE:
-                return SPELL_CORRUPTION_ABSOLUTE_1;
+            switch (i)
+            {
+                case CORRUPTION_LEVEL_ACCELERATED:
+                    return SPELL_CORRUPTION_ACCELERATED;
+                case CORRUPTION_LEVEL_SICKNESS:
+                    return SPELL_CORRUPTION_SICKNESS;
+                case CORRUPTION_LEVEL_MALFORMATION:
+                    return SPELL_CORRUPTION_MALFORMATION;
+                case CORRUPTION_LEVEL_ABSOLUTE:
+                    return SPELL_CORRUPTION_ABSOLUTE_1;
+            }
         }
 
         return 0;
@@ -234,19 +232,19 @@ namespace CorruptionHandler
         if (power == MAX_CORRUPTION)
             return;
 
-        // Add power to target
-        power += corruptionAmount;
-        target->SetPower(POWER_ALTERNATE_POWER, std::min(power, uint8(MAX_CORRUPTION)));
-        target->CastCustomSpell(SPELL_CORRUPTED_BLOOD_DAMAGE_INCREASE, SPELLVALUE_AURA_STACK, corruptionAmount, target, true);
-
         // Checking for a corruption spell for current corruption stage and cast it
-        if (uint32 spellId = GetSpellIdForCorruptionLevel(power, corruptionAmount == CORRUPTION_SIGNIFICANT))
+        if (uint32 spellId = GetSpellIdForCorruptionLevel(power, corruptionAmount))
         {
             target->CastSpell(target, spellId, true);
 
             if (spellId == SPELL_CORRUPTION_ABSOLUTE_1)
                 target->CastSpell(target, SPELL_CORRUPTION_ABSOLUTE_2, true);
         }
+
+        // Add power to target
+        power += corruptionAmount;
+        target->SetPower(POWER_ALTERNATE_POWER, std::min(power, uint8(MAX_CORRUPTION)));
+        target->CastCustomSpell(SPELL_CORRUPTED_BLOOD_DAMAGE_INCREASE, SPELLVALUE_AURA_STACK, corruptionAmount, target, true);
 
         // Achievement check
         if (power > CORRUPTION_ACHIEVEMENT_CAP)
