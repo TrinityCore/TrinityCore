@@ -1,0 +1,4 @@
+/*
+-- Haughty Modiste
+UPDATE `quest_template_locale` SET `Title`="Das gestohlene Tagebuch", `Details`="Mein Tagebuch! Sie haben es in die Höhle gebracht. Der, der es hatte, war ein großer Kerl mit seltsamen Zeichen auf der Haut und im Gesicht. Viel mehr konnte ich leider nicht sehen.$B$BIhr hattet ja mit den Trollen Erfolg, vielleicht könntet Ihr es mir wiederbeschaffen?", `Objectives`="Tötet Grik'nir den Kalten.", `OfferRewardText`="Text: Großartig, $N! Vielen Dank, dass Ihr mein Notizbuch zurückgeholt habt. Nun, es scheint, als sei das Trollproblem hier im Eisklammtal unter Kontrolle und als müssten wir uns nicht allzu viele Sorgen machen.$B$BNachdem ich meinem Bericht den letzten Schliff gegeben habe, werde ich jemanden brauchen, der ihn meinem Bruder Senir bringt.", `RequestItemsText`="$N! Glück gehabt?" WHERE `ID`=218 AND `locale`="deDE";
+*/

@@ -929,7 +929,16 @@ enum TrinityStrings
     LANG_GROUP_ROLE_CHANGED             = 1186,
     LANG_LEADER_CANNOT_BE_ASSISTANT     = 1187,
     LANG_BAN_EXISTS                     = 1188,
-    // Room for more level 3              1189-1199 not used
+    LANG_COMMAND_NO_INSTANCES_MATCH       = 1189,
+    LANG_COMMAND_MULTIPLE_INSTANCES_MATCH = 1190,
+    LANG_COMMAND_MULTIPLE_INSTANCES_ENTRY = 1191,
+    LANG_COMMAND_MAP_NOT_INSTANCE         = 1192,
+    LANG_COMMAND_INSTANCE_NO_ENTRANCE     = 1193,
+    LANG_COMMAND_INSTANCE_NO_EXIT         = 1194,
+    LANG_COMMAND_WENT_TO_INSTANCE_GATE    = 1195,
+    LANG_COMMAND_WENT_TO_INSTANCE_START   = 1196,
+    LANG_COMMAND_GO_INSTANCE_FAILED       = 1197,
+    // Room for more level 3                1197-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,

@@ -161,57 +161,6 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
         }
 };
 
-/*#####
-## at_last_rites
-#####*/
-
-enum AtLastRites
-{
-    QUEST_LAST_RITES                          = 12019,
-    QUEST_BREAKING_THROUGH                    = 11898,
-};
-
-class AreaTrigger_at_last_rites : public AreaTriggerScript
-{
-    public:
-        AreaTrigger_at_last_rites() : AreaTriggerScript("at_last_rites") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
-        {
-            if (!(player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
-                player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE ||
-                player->GetQuestStatus(QUEST_BREAKING_THROUGH) == QUEST_STATUS_INCOMPLETE ||
-                player->GetQuestStatus(QUEST_BREAKING_THROUGH) == QUEST_STATUS_COMPLETE))
-                return false;
-
-            WorldLocation pPosition;
-
-            switch (trigger->id)
-            {
-                case 5332:
-                case 5338:
-                    pPosition = WorldLocation(571, 3733.68f, 3563.25f, 290.812f, 3.665192f);
-                    break;
-                case 5334:
-                    pPosition = WorldLocation(571, 3802.38f, 3585.95f, 49.5765f, 0.0f);
-                    break;
-                case 5340:
-                    if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
-                        player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE)
-                        pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f);
-                    else
-                        pPosition = WorldLocation(571, 3739.38f, 3567.09f, 341.58f);
-                    break;
-                default:
-                    return false;
-            }
-
-            player->TeleportTo(pPosition);
-
-            return false;
-        }
-};
-
 /*######
 ## at_sholazar_waygate
 ######*/
@@ -485,7 +434,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_legion_teleporter();
     new AreaTrigger_at_stormwright_shelf();
     new AreaTrigger_at_scent_larkorwi();
-    new AreaTrigger_at_last_rites();
     new AreaTrigger_at_sholazar_waygate();
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_brewfest();
