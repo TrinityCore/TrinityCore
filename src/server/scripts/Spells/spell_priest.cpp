@@ -58,6 +58,7 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL         = 56131,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
+    SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD_HEAL    = 56160,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GLYPH_OF_SHADOW                    = 107906,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -99,7 +100,8 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
     PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566,
-    PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_BARRIER      = 3837
+    PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_BARRIER      = 3837,
+    PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD       = 566
 };
 
 enum MiscSpells
@@ -687,7 +689,8 @@ class spell_pri_power_word_shield : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED,
-                SPELL_PRIEST_REFLECTIVE_SHIELD_R1
+                SPELL_PRIEST_REFLECTIVE_SHIELD_R1,
+                SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD_HEAL
             });
     }
 
@@ -721,6 +724,16 @@ class spell_pri_power_word_shield : public AuraScript
             // Mastery: Shield Discipline
             if (AuraEffect const* shieldDiscipline = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, PRIEST_ICON_ID_SHIELD_DISCIPLINE, EFFECT_0))
                 AddPct(amount, shieldDiscipline->GetAmount());
+
+            // Glyph of Power Word: Shield
+            if (Unit* target = GetUnitOwner())
+            {
+                if (AuraEffect const* glyphEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD, EFFECT_0))
+                {
+                    int32 bp = CalculatePct(amount, glyphEff->GetAmount());
+                    caster->CastCustomSpell(target, SPELL_PRIEST_GLYPH_OF_POWER_WORD_SHIELD_HEAL, &bp, nullptr, nullptr, true, nullptr, aurEff);
+                }
+            }
         }
     }
 
