@@ -50,11 +50,12 @@ inline size_t tokenize(char const*& end)
 |*   returns nullptr if no match, otherwise pointer to first character of next token    *|
 |* - get<T = value_type>: void -> value_type                                            *|
 |*   returns value                                                                      *|
-|* - is<T>: void -> bool                                                                *|
-|*   returns true iff value is present and of specified type                            *|
+|* - is<T = sensible default>: void -> bool                                             *|
+|*   returns true iff value is present and of specified tag                             *|
 |*                                                                                      *|
 \****************************************************************************************/
-class PlainInteger
+struct ArgumentTag {};
+class PlainInteger :  public ArgumentTag
 {
     public:
         template<typename T = int64>
@@ -84,7 +85,7 @@ class PlainInteger
 
 };
 
-class PlainString
+class PlainString : public ArgumentTag
 {
     public:
         template<typename T = std::string>
@@ -116,108 +117,8 @@ class PlainString
         std::string val;
 };
 
-template <typename linktag>
-class Hyperlink
-{
-    typedef typename linktag::value_type value_type;
-
-    public:
-        template <typename T = value_type>
-        T get() const
-        {
-            static_assert(std::is_trivially_assignable_v<T&, value_type>, "Attempt to extract Hyperlink data using invalid type");
-            return val;
-        }
-
-        template <typename T = Hyperlink>
-        static constexpr bool is()
-        {
-            return std::is_same_v<Hyperlink, T>;
-        }
-
-        char const* tryConsume(char const* pos)
-        {
-            //color tag
-            if (*(pos++) != '|' || *(pos++) != 'c')
-                return nullptr;
-            for (uint8 i = 0; i < 8; ++i)
-                if (!*(pos++)) // make sure we don't overrun a terminator
-                    return nullptr;
-            // link data start tag
-            if (*(pos++) != '|' || *(pos++) != 'H')
-                return nullptr;
-            // link tag, should match argument
-            char const* tag = linktag::tag();
-            while (*tag)
-                if (*(pos++) != *(tag++))
-                    return nullptr;
-            // separator
-            if (*(pos++) != ':')
-                return nullptr;
-            // ok, link data, let's figure out how long it is
-            char const* datastart = pos;
-            size_t datalength = 0;
-            while (*pos && *(pos++) != '|')
-                ++datalength;
-            // ok, next should be link data end tag...
-            if (*(pos++) != 'h')
-                return nullptr;
-            // then visible link text, skip to next '|', should be '|h|r' terminator
-            while (*pos && *(pos++) != '|');
-            if (*(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
-                return nullptr;
-            // finally, skip to end of token
-            tokenize(pos);
-            // store value
-            if (!linktag::store(val, datastart, datalength))
-                return nullptr;
-
-            // return final pos
-            return pos;
-        }
-
-    private:
-        value_type val;
-};
-
-/************************** LINK TAGS ***************************************************\
-|* Link tags must abide by the following:                                               *|
-|* - MUST expose ::value_type typedef                                                   *|
-|* - MUST expose static ::tag method, void -> const char*                               *|
-|*   - this method SHOULD be constexpr                                                  *|
-|*   - returns identifier string for the link ("creature", "creature_entry", "item")    *|
-|* - MUST expose static ::store method, (value_type&, char const*, size_t)              *|
-|*   - assign value_type& based on content of std::string(char const*, size_t)          *|
-|*   - return value indicates success/failure                                           *|
-|*   - for integral/string types this can be achieved by extending base_tag             *|
-\****************************************************************************************/
-struct base_tag
-{
-    static bool store(std::string& val, char const* pos, size_t len)
-    {
-        val.assign(pos, len);
-        return true;
-    }
-
-    template <typename T>
-    static std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, bool> store(T& val, char const* pos, size_t len)
-    {
-        try { val = std::stoull(std::string(val, len)); }
-        catch (...) { return false; }
-        return true;
-    }
-
-    template <typename T>
-    static std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, bool> store(T& val, char const* pos, size_t len)
-    {
-        try { val = std::stoll(std::string(val, len)); }
-        catch (...) { return false; }
-        return true;
-    }
-};
-
 template <char c1, char... chars>
-struct ExactSequence
+struct ExactSequence : public ArgumentTag
 {
     template <typename T = void> static constexpr void get() {}
     template <typename T = ExactSequence> static constexpr bool is() { return std::is_same_v<ExactSequence, T>; }
@@ -244,7 +145,7 @@ struct ExactSequence
 /// specialty tags that enable nesting
 /// === OneOf ===
 template <typename Tag1, typename... Tags>
-class OneOf
+class OneOf : public ArgumentTag
 {
     using first_type = decltype(std::declval<Tag1>().get());
     public:
@@ -307,7 +208,7 @@ struct OneOfExtractor
             ASSERT(false, "OneOf extraction index out of bounds - data corruption?");
         else
             ASSERT(false, "Invalid OneOf extraction - make sure you check ->is first!");
-        return WantedType();
+        return std::declval<WantedType>();
     }
 
     template <typename WantedTag, typename CurrentTag, typename... OtherTags>
@@ -366,48 +267,152 @@ struct OneOfConsumerNext<Tag1>
 
 /// === OptionalArg ===
 template <typename Tag>
-class OptionalArg
+class OptionalArg : public ArgumentTag
 {
     public:
-        template <typename T>
-        auto get() const
+    template <typename T>
+    auto get() const
+    {
+        return val->get<T>();
+    }
+
+    auto get() const
+    {
+        return val->get<>();
+    }
+
+    template <typename T>
+    bool is() const
+    {
+        return val && val->is<T>();
+    }
+
+    template <int = 0>
+    bool is() const
+    {
+        return val && val->is<>();
+    }
+
+    char const* tryConsume(char const* args)
+    {
+        val.emplace();
+        if (char const* next = val->tryConsume(args))
+            return next;
+        val = boost::none;
+        return args;
+    }
+
+    private:
+    Optional<Tag> val;
+};
+
+template <typename linktag>
+class Hyperlink : public ArgumentTag
+{
+    typedef typename linktag::value_type value_type;
+    typedef typename linktag::return_type return_type;
+
+    public:
+        template <typename T = return_type>
+        T get() const
         {
-            return val->get<T>();
+            static_assert(std::is_trivially_assignable_v<T&, value_type>, "Attempt to extract Hyperlink data using invalid type");
+            return val;
         }
 
-        auto get() const
+        template <typename T = Hyperlink>
+        static constexpr bool is()
         {
-            return val->get<>();
+            return std::is_same_v<Hyperlink, T>;
         }
 
-        template <typename T>
-        bool is() const
+        char const* tryConsume(char const* pos)
         {
-            return val && val->is<T>();
-        }
+            //color tag
+            if (*(pos++) != '|' || *(pos++) != 'c')
+                return nullptr;
+            for (uint8 i = 0; i < 8; ++i)
+                if (!*(pos++)) // make sure we don't overrun a terminator
+                    return nullptr;
+            // link data start tag
+            if (*(pos++) != '|' || *(pos++) != 'H')
+                return nullptr;
+            // link tag, should match argument
+            char const* tag = linktag::tag();
+            while (*tag)
+                if (*(pos++) != *(tag++))
+                    return nullptr;
+            // separator
+            if (*(pos++) != ':')
+                return nullptr;
+            // ok, link data, let's figure out how long it is
+            char const* datastart = pos;
+            size_t datalength = 0;
+            while (*pos && *(pos++) != '|')
+                ++datalength;
+            // ok, next should be link data end tag...
+            if (*(pos++) != 'h')
+                return nullptr;
+            // then visible link text, skip to next '|', should be '|h|r' terminator
+            while (*pos && *(pos++) != '|');
+            if (*(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
+                return nullptr;
+            // finally, skip to end of token
+            tokenize(pos);
+            // store value
+            if (!linktag::store(val, datastart, datalength))
+                return nullptr;
 
-        template <int = 0>
-        bool is() const
-        {
-            return val && val->is<>();
-        }
-
-        char const* tryConsume(char const* args)
-        {
-            val.emplace();
-            if (char const* next = val->tryConsume(args))
-                return next;
-            val = boost::none;
-            return args;
+            // return final pos
+            return pos;
         }
 
     private:
-        Optional<Tag> val;
+        value_type val;
 };
 
-#define make_base_tag(ltag, type) struct ltag : public base_tag { typedef type value_type; static constexpr char const* tag() { return #ltag; } }
+/************************** LINK TAGS ***************************************************\
+|* Link tags must abide by the following:                                               *|
+|* - MUST expose ::value_type typedef                                                   *|
+|* - MUST expose ::return_type typedef, which must be convertible from value_type       *|
+|* - MUST expose static ::tag method, void -> const char*                               *|
+|*   - this method SHOULD be constexpr                                                  *|
+|*   - returns identifier string for the link ("creature", "creature_entry", "item")    *|
+|* - MUST expose static ::store method, (value_type&, char const*, size_t)              *|
+|*   - assign value_type& based on content of std::string(char const*, size_t)          *|
+|*   - return value indicates success/failure                                           *|
+|*   - for integral/string types this can be achieved by extending base_tag             *|
+\****************************************************************************************/
+struct base_tag
+{
+    static bool store(std::string& val, char const* pos, size_t len)
+    {
+        val.assign(pos, len);
+        return true;
+    }
+
+    template <typename T>
+    static std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, bool> store(T& val, char const* pos, size_t len)
+    {
+        try { val = std::stoull(std::string(val, len)); }
+        catch (...) { return false; }
+        return true;
+    }
+
+    template <typename T>
+    static std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, bool> store(T& val, char const* pos, size_t len)
+    {
+        try { val = std::stoll(std::string(val, len)); }
+        catch (...) { return false; }
+        return true;
+    }
+};
+
+#define make_base_tag2(ltag, vtype, rtype) struct ltag : public base_tag { typedef vtype value_type; typedef rtype return_type; static constexpr char const* tag() { return #ltag; } }
+#define make_base_tag(ltag, type) make_base_tag2(ltag, type, type)
 make_base_tag(creature, uint32);
 make_base_tag(creature_entry, uint32);
+make_base_tag2(tele, std::string, std::string const&);
 #undef make_base_tag
 
 template <typename... Tags>
@@ -427,6 +432,9 @@ class Tuple
 
         template <size_t i, typename T>
         auto is() const { return std::get<i>(values).is<T>(); }
+
+        template <size_t i>
+        auto const& get_tag() const { return std::get<i>(values); }
 
         operator auto() const -> decltype(get<0>()) { return get<0>(); }
 
@@ -485,6 +493,18 @@ struct ArgInfo<boost::optional<T>, void>
         }
         else
             ret = boost::none;
+        return true;
+    }
+};
+
+// any actual tag
+template <typename T>
+struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ArgumentTag, T>>>
+{
+    typedef T tag;
+    static bool assign(tag& ret, tag const& val)
+    {
+        ret = val;
         return true;
     }
 };

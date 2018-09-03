@@ -24,13 +24,13 @@
 
 namespace Trinity {
     template <typename R, typename... Ts, std::size_t... I>
-    R apply_impl(R(*func)(Ts...), std::tuple<Ts...> args, std::index_sequence<I...>)
+    R apply_impl(R(*func)(Ts...), std::tuple<typename std::remove_reference<Ts>::type...> args, std::index_sequence<I...>)
     {
         return func(std::get<I>(args)...);
     }
 
     template <typename R, typename... Ts>
-    R apply(R(*func)(Ts...), std::tuple<Ts...> args)
+    R apply(R(*func)(Ts...), std::tuple<typename std::remove_reference<Ts>::type...> args)
     {
         return apply_impl(func, args, std::index_sequence_for<Ts...>{});
     }

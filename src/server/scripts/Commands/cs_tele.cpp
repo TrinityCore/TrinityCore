@@ -34,6 +34,8 @@ EndScriptData */
 #include "RBAC.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommandArgs;
+
 class tele_commandscript : public CommandScript
 {
 public:
@@ -288,15 +290,12 @@ public:
         return true;
     }
 
-    static bool HandleTeleCommand(ChatHandler* handler, char const* args)
+    static bool HandleTeleCommand(ChatHandler* handler, OneOf<Hyperlink<tele>, PlainString> teleName)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
+        GameTele const* tele = sObjectMgr->GetGameTele(teleName.get());
         if (!tele)
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);

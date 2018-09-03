@@ -61,18 +61,18 @@ class TC_GAME_API CommandArgs
 namespace Trinity {
     namespace ChatCommandHelpers {
         template <typename T> struct HandlerToArgTypes { static_assert(!std::is_same_v<T,T>, "Invalid command handler signature"); };
-        template <typename... Ts> struct HandlerToArgTypes<bool(*)(ChatHandler*, Ts...)> { typedef std::tuple<ChatHandler*, Ts...> type; };
+        template <typename... Ts> struct HandlerToArgTypes<bool(*)(ChatHandler*, Ts...)> { typedef std::tuple<ChatHandler*, typename std::remove_reference<Ts>::type...> type; };
 
         template <typename T, size_t i> struct TupleFiller{ };
         template <size_t i, typename T1, typename... Ts>
         struct TupleFiller<std::tuple<ChatHandler*, T1, Ts...>, i>
         {
-            template <typename U, typename V = T>
+            template <typename U>
             static bool consume(CommandArgs& args, U& tuple)
             {
-                using arginfo = Trinity::ChatCommandArgs::ArgInfo<V>;
+                using arginfo = Trinity::ChatCommandArgs::ArgInfo<T1>;
                 if (auto arg = args.tryConsume<typename arginfo::tag>())
-                    return arginfo::assign(std::get<i>(tuple), arg->get<0, V>());
+                    return arginfo::assign(std::get<i>(tuple), arg->get_tag<0>());
                 else
                     return false;
             }
@@ -120,7 +120,7 @@ class TC_GAME_API ChatCommand
             _wrapper = [](void* handler, ChatHandler* chatHandler, char const* argsStr)
             {
                 typedef typename Trinity::ChatCommandHelpers::HandlerToArgTypes<TypedHandler>::type ArgTuple;
-                ArgTuple arguments;
+                ArgTuple arguments = {};
                 std::get<0>(arguments) = chatHandler;
 
                 CommandArgs args(argsStr);
