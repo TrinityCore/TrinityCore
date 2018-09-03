@@ -176,7 +176,7 @@ template <typename WantedType>
 struct OneOfExtractor
 {
     template <typename OtherTag>
-    static constexpr bool can_assign_from = std::is_assignable_v<WantedType&, decltype(std::declval<OtherTag>().get<WantedType>()) const&>;
+    static constexpr bool can_assign_from = std::is_assignable_v<std::remove_cv_t<std::remove_reference_t<WantedType>>&, decltype(std::declval<OtherTag>().get<WantedType>()) const&>;
 
     template <typename StorageType, typename CurrentTag, typename... OtherTags>
     static std::enable_if_t<can_assign_from<CurrentTag> && sizeof...(OtherTags), WantedType> get(StorageType const& storage, size_t index)
@@ -317,7 +317,7 @@ class Hyperlink : public ArgumentTag
         template <typename T = return_type>
         T get() const
         {
-            static_assert(std::is_trivially_assignable_v<T&, value_type>, "Attempt to extract Hyperlink data using invalid type");
+            static_assert(std::is_assignable_v<std::remove_cv_t<std::remove_reference_t<T>>&, value_type>, "Attempt to extract Hyperlink data using invalid type");
             return val;
         }
 

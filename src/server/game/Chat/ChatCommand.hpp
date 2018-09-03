@@ -61,7 +61,7 @@ class TC_GAME_API CommandArgs
 namespace Trinity {
     namespace ChatCommandHelpers {
         template <typename T> struct HandlerToArgTypes { static_assert(!std::is_same_v<T,T>, "Invalid command handler signature"); };
-        template <typename... Ts> struct HandlerToArgTypes<bool(*)(ChatHandler*, Ts...)> { typedef std::tuple<ChatHandler*, typename std::remove_reference<Ts>::type...> type; };
+        template <typename... Ts> struct HandlerToArgTypes<bool(*)(ChatHandler*, Ts...)> { typedef std::tuple<ChatHandler*, typename std::remove_cv_t<typename std::remove_reference<Ts>::type>...> type; };
 
         template <typename T, size_t i> struct TupleFiller{ };
         template <size_t i, typename T1, typename... Ts>
