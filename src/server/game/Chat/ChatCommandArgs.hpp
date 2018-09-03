@@ -208,7 +208,8 @@ struct OneOfExtractor
             ASSERT(false, "OneOf extraction index out of bounds - data corruption?");
         else
             ASSERT(false, "Invalid OneOf extraction - make sure you check ->is first!");
-        return std::declval<WantedType>();
+        // this is invalid, but also unreachable - just need a valid return statement here
+        return boost::get<CurrentTag>(storage).get<WantedType>();
     }
 
     template <typename WantedTag, typename CurrentTag, typename... OtherTags>
