@@ -28,10 +28,7 @@
 enum CommonDefines
 {
     // Move Points
-    POINT_NONE = 0,
-
-    // Seats
-    SEAT_0 = 0
+    POINT_NONE = 0
 };
 
 enum AsHyjalBurns
