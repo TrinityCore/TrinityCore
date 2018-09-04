@@ -34,7 +34,7 @@ EndScriptData */
 #include "Transport.h"
 #include "WorldSession.h"
 
-using namespace Trinity::ChatCommandArgs;
+using namespace Trinity::ChatCommands;
 class go_commandscript : public CommandScript
 {
 public:
@@ -81,11 +81,11 @@ public:
             return false;
 
         std::ostringstream whereClause;
-        if (auto guidArg = args->tryConsume<OneOf<Hyperlink<creature>, PlainInteger>>())
-            whereClause << "WHERE guid = '" << guidArg->get<0>() << '\'';
-        else if (auto entryArg = args->tryConsume<OptionalArg<ExactSequence<'i', 'd'>>, OneOf<Hyperlink<creature_entry>, PlainInteger>>())
-            whereClause << "WHERE id = '" << entryArg->get<1>() << '\'';
-        else if (auto nameArg = args->tryConsume<PlainString>())
+        if (auto guidArg = args->tryConsume<Variant<Hyperlink<creature>, uint32>>())
+            whereClause << "WHERE guid = '" << **guidArg << '\'';
+        else if (auto entryArg = args->tryConsume<Optional<ExactSequence<'i', 'd'>>, Variant<Hyperlink<creature_entry>, uint32>>())
+            whereClause << "WHERE id = '" << *std::get<1>(*entryArg) << '\'';
+        else if (auto nameArg = args->tryConsume<std::string>())
         {
             std::string name = *nameArg;
             WorldDatabase.EscapeString(name);
@@ -545,15 +545,15 @@ public:
 
         uint32 mapid = 0;
         CommandArgs parser(args);
-        if (auto arg = parser.tryConsume<PlainInteger>())
+        if (auto arg = parser.tryConsume<uint32>())
         {
             printf("integer arg is %u\n", mapid = *arg);
         }
-        else if (auto arg = parser.tryConsume<PlainString>())
+        else if (auto arg = parser.tryConsume<std::string>())
         {
             std::vector<std::string> labels;
             do labels.push_back(*arg);
-            while ((arg = parser.tryConsume<PlainString>()));
+            while ((arg = parser.tryConsume<std::string>()));
 
             std::multimap<uint32, std::pair<uint16, std::string>> matches;
             for (auto const& pair : sObjectMgr->GetInstanceTemplates())
