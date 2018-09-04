@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CHATCOMMAND_HPP
-#define TRINITY_CHATCOMMAND_HPP
+#ifndef TRINITY_CHATCOMMAND_H
+#define TRINITY_CHATCOMMAND_H
 
-#include "apply.hpp"
-#include "ChatCommandArgs.hpp"
+#include "advstd.h"
+#include "ChatCommandArgs.h"
 #include "Define.h"
 #include "Errors.h"
 #include "ObjectGuid.h"
@@ -60,8 +60,8 @@ class TC_GAME_API CommandArgs
 
 namespace Trinity {
     namespace ChatCommandHelpers {
-        template <typename T> struct HandlerToArgTypes { static_assert(!std::is_same_v<T,T>, "Invalid command handler signature"); };
-        template <typename... Ts> struct HandlerToArgTypes<bool(*)(ChatHandler*, Ts...)> { typedef std::tuple<ChatHandler*, typename std::remove_cv_t<typename std::remove_reference<Ts>::type>...> type; };
+        template <typename T> struct HandlerToArgTypes { static_assert(!advstd::is_same_v<T,T>, "Invalid command handler signature"); };
+        template <typename... Ts> struct HandlerToArgTypes<bool(*)(ChatHandler*, Ts...)> { typedef std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...> type; };
 
         template <typename T, size_t i> struct TupleFiller{ };
         template <size_t i, typename T1, typename... Ts>
@@ -84,14 +84,14 @@ namespace Trinity {
             }
 
             template <typename U, typename V = T1, size_t n = sizeof...(Ts)>
-            static std::enable_if_t<(n == 0) && !(std::is_same_v<V, CommandArgs*> || std::is_same_v<V, char const*>), bool> fill(CommandArgs& args, U& tuple)
+            static std::enable_if_t<(n == 0) && !(advstd::is_same_v<V, CommandArgs*> || advstd::is_same_v<V, char const*>), bool> fill(CommandArgs& args, U& tuple)
             {
                 return consume(args, tuple);
             }
 
             // trailing ChatCommandArgs& gets args object
             template <typename U, typename V = T1, size_t n = sizeof...(Ts)>
-            static std::enable_if_t<(n == 0) && std::is_same_v<V, CommandArgs*>, bool> fill(CommandArgs& args, U& tuple)
+            static std::enable_if_t<(n == 0) && advstd::is_same_v<V, CommandArgs*>, bool> fill(CommandArgs& args, U& tuple)
             {
                 std::get<i>(tuple) = &args;
                 return true;
@@ -99,7 +99,7 @@ namespace Trinity {
 
             // trailing char const* gets rest of string
             template <typename U, typename V = T1, size_t n = sizeof...(Ts)>
-            static std::enable_if_t<(n == 0) && std::is_same_v<V, char const*>, bool> fill(CommandArgs& args, U& tuple)
+            static std::enable_if_t<(n == 0) && advstd::is_same_v<V, char const*>, bool> fill(CommandArgs& args, U& tuple)
             {
                 std::get<i>(tuple) = args.remainder();
                 return true;
@@ -119,13 +119,13 @@ class TC_GAME_API ChatCommand
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, char const* argsStr)
             {
-                typedef typename Trinity::ChatCommandHelpers::HandlerToArgTypes<TypedHandler>::type ArgTuple;
+                using ArgTuple = Trinity::ChatCommandHelpers::HandlerToArgTypes<TypedHandler>::type;
                 ArgTuple arguments = {};
                 std::get<0>(arguments) = chatHandler;
 
                 CommandArgs args(argsStr);
                 if (Trinity::ChatCommandHelpers::TupleFiller<ArgTuple, 1>::fill(args, arguments))
-                    return Trinity::apply(reinterpret_cast<TypedHandler>(handler), arguments);
+                    return advstd::apply(reinterpret_cast<TypedHandler>(handler), std::move(arguments));
                 else
                     return false;
             };

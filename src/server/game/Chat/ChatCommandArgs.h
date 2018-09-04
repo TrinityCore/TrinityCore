@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
  
-#ifndef TRINITY_CHATCOMMANDARGS_HPP
-#define TRINITY_CHATCOMMANDARGS_HPP
+#ifndef TRINITY_CHATCOMMANDARGS_H
+#define TRINITY_CHATCOMMANDARGS_H
 
+#include "ObjectMgr.h"
 #include "Optional.h"
 #include <boost/variant.hpp>
 #include <cstring>
@@ -61,14 +62,14 @@ class PlainInteger :  public ArgumentTag
         template<typename T = int64>
         T get() const
         {
-            static_assert(std::is_integral_v<T>, "Attempt to extract PlainInteger using non-integral type");
+            static_assert(advstd::is_integral_v<T>, "Attempt to extract PlainInteger using non-integral type");
             return val;
         }
 
         template<typename T = PlainInteger>
         static constexpr bool is()
         {
-            return std::is_same_v<T, PlainInteger>;
+            return advstd::is_same_v<T, PlainInteger>;
         }
 
         char const* tryConsume(char const* args)
@@ -91,14 +92,14 @@ class PlainString : public ArgumentTag
         template<typename T = std::string>
         std::string const& get() const
         {
-            static_assert(std::is_same_v<std::string, std::remove_const_t<std::remove_reference_t<T>>>, "Attempt to extract PlainString as non-string type");
+            static_assert(advstd::is_same_v<std::string, advstd::remove_cvref_t<T>>, "Attempt to extract PlainString as non-string type");
             return val;
         }
 
         template<typename T = PlainString>
         static constexpr bool is()
         {
-            return std::is_same_v<PlainString, T>;
+            return advstd::is_same_v<PlainString, T>;
         }
 
         char const* tryConsume(char const* args)
@@ -121,7 +122,7 @@ template <char c1, char... chars>
 struct ExactSequence : public ArgumentTag
 {
     template <typename T = void> static constexpr void get() {}
-    template <typename T = ExactSequence> static constexpr bool is() { return std::is_same_v<ExactSequence, T>; }
+    template <typename T = ExactSequence> static constexpr bool is() { return advstd::is_same_v<ExactSequence, T>; }
 
     template <size_t U = sizeof...(chars)>
     static typename std::enable_if_t<U, char const*> tryConsume(char const* pos)
@@ -163,6 +164,20 @@ class OneOf : public ArgumentTag
 
         bool is() const { return true; }
 
+        template <typename T = Tag1>
+        auto get_tag() const
+        {
+            return boost::get<T>(storage);
+        }
+
+        template <typename T = Tag1>
+        bool is_tag() const
+        {
+            return storage.type() == typeid(T);
+        }
+
+        size_t which() const { return storage.which(); }
+
         char const* tryConsume(char const* args)
         {
             return OneOfConsumer<Tag1, Tags...>::tryConsume(storage, args);
@@ -176,7 +191,7 @@ template <typename WantedType>
 struct OneOfExtractor
 {
     template <typename OtherTag>
-    static constexpr bool can_assign_from = std::is_assignable_v<std::remove_cv_t<std::remove_reference_t<WantedType>>&, decltype(std::declval<OtherTag>().get<WantedType>()) const&>;
+    static constexpr bool can_assign_from = advstd::is_assignable_v<advstd::remove_cvref_t<WantedType>&, decltype(std::declval<OtherTag>().get<WantedType>()) const&>;
 
     template <typename StorageType, typename CurrentTag, typename... OtherTags>
     static std::enable_if_t<can_assign_from<CurrentTag> && sizeof...(OtherTags), WantedType> get(StorageType const& storage, size_t index)
@@ -208,15 +223,15 @@ struct OneOfExtractor
             ASSERT(false, "OneOf extraction index out of bounds - data corruption?");
         else
             ASSERT(false, "Invalid OneOf extraction - make sure you check ->is first!");
-        // this is invalid, but also unreachable - just need a valid return statement here
-        return boost::get<CurrentTag>(storage).get<WantedType>();
+        // this is unreachable
+        throw;
     }
 
     template <typename WantedTag, typename CurrentTag, typename... OtherTags>
     static std::enable_if_t<sizeof...(OtherTags), bool> is(size_t index)
     {
         if (!index)
-            return std::is_same_v<WantedTag, CurrentTag>;
+            return advstd::is_same_v<WantedTag, CurrentTag>;
         else
             return OneOfExtractor<WantedType>::is<WantedTag, OtherTags...>(index - 1);
     }
@@ -225,7 +240,7 @@ struct OneOfExtractor
     static std::enable_if_t<!sizeof...(OtherTags), bool> is(size_t index)
     {
         ASSERT(!index, "OneOf extraction index out of bounds - data corruption?");
-        return std::is_same_v<WantedTag, CurrentTag>;
+        return advstd::is_same_v<WantedTag, CurrentTag>;
     }
 };
 
@@ -311,20 +326,20 @@ template <typename linktag>
 class Hyperlink : public ArgumentTag
 {
     typedef typename linktag::value_type value_type;
-    typedef typename linktag::return_type return_type;
+    typedef advstd::remove_cvref_t<value_type> storage_type;
 
     public:
-        template <typename T = return_type>
+        template <typename T = value_type>
         T get() const
         {
-            static_assert(std::is_assignable_v<std::remove_cv_t<std::remove_reference_t<T>>&, value_type>, "Attempt to extract Hyperlink data using invalid type");
+            static_assert(advstd::is_assignable_v<advstd::remove_cvref_t<T>&, value_type>, "Attempt to extract Hyperlink data using invalid type");
             return val;
         }
 
         template <typename T = Hyperlink>
         static constexpr bool is()
         {
-            return std::is_same_v<Hyperlink, T>;
+            return advstd::is_same_v<Hyperlink, T>;
         }
 
         char const* tryConsume(char const* pos)
@@ -369,17 +384,17 @@ class Hyperlink : public ArgumentTag
         }
 
     private:
-        value_type val;
+        storage_type val;
 };
 
 /************************** LINK TAGS ***************************************************\
 |* Link tags must abide by the following:                                               *|
 |* - MUST expose ::value_type typedef                                                   *|
-|* - MUST expose ::return_type typedef, which must be convertible from value_type       *|
+|*   - storage type is remove_cvref_t<value_type>                                       *|
 |* - MUST expose static ::tag method, void -> const char*                               *|
 |*   - this method SHOULD be constexpr                                                  *|
 |*   - returns identifier string for the link ("creature", "creature_entry", "item")    *|
-|* - MUST expose static ::store method, (value_type&, char const*, size_t)              *|
+|* - MUST expose static ::store method, (storage_&, char const*, size_t)                *|
 |*   - assign value_type& based on content of std::string(char const*, size_t)          *|
 |*   - return value indicates success/failure                                           *|
 |*   - for integral/string types this can be achieved by extending base_tag             *|
@@ -393,7 +408,7 @@ struct base_tag
     }
 
     template <typename T>
-    static std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, bool> store(T& val, char const* pos, size_t len)
+    static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>, bool> store(T& val, char const* pos, size_t len)
     {
         try { val = std::stoull(std::string(val, len)); }
         catch (...) { return false; }
@@ -401,7 +416,7 @@ struct base_tag
     }
 
     template <typename T>
-    static std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, bool> store(T& val, char const* pos, size_t len)
+    static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>, bool> store(T& val, char const* pos, size_t len)
     {
         try { val = std::stoll(std::string(val, len)); }
         catch (...) { return false; }
@@ -409,11 +424,10 @@ struct base_tag
     }
 };
 
-#define make_base_tag2(ltag, vtype, rtype) struct ltag : public base_tag { typedef vtype value_type; typedef rtype return_type; static constexpr char const* tag() { return #ltag; } }
-#define make_base_tag(ltag, type) make_base_tag2(ltag, type, type)
+#define make_base_tag(ltag, type) struct ltag : public base_tag { typedef type value_type; static constexpr char const* tag() { return #ltag; } }
 make_base_tag(creature, uint32);
 make_base_tag(creature_entry, uint32);
-make_base_tag2(tele, std::string, std::string const&);
+make_base_tag(tele, uint32);
 #undef make_base_tag
 
 template <typename... Tags>
@@ -460,11 +474,11 @@ class Tuple
 
 /// === ARGINFO STUFF (used for assigning handler arguments directly) ===
 template <typename T, typename = void>
-struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.hpp for possible types"); };
+struct ArgInfo { static_assert(!advstd::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
 // catch-all for integral types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
+struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T>>>
 {
     typedef PlainInteger tag;
     static bool assign(T& ret, tag val) { ret = val.get<T>(); return true; }
@@ -500,12 +514,27 @@ struct ArgInfo<boost::optional<T>, void>
 
 // any actual tag
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ArgumentTag, T>>>
+struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ArgumentTag, T>>>
 {
     typedef T tag;
     static bool assign(tag& ret, tag const& val)
     {
         ret = val;
+        return true;
+    }
+};
+
+// GameTele* from string name or link
+template <>
+struct ArgInfo<GameTele const*>
+{
+    typedef OneOf<Hyperlink<tele>, PlainString> tag;
+    static bool assign(GameTele const*& info, tag const& val)
+    {
+        if (val.is_tag<PlainString>()) // PlainString
+            info = sObjectMgr->GetGameTele(val.get_tag<PlainString>().get());
+        else
+            info = sObjectMgr->GetGameTele(val.get_tag<Hyperlink<tele>>().get());
         return true;
     }
 };

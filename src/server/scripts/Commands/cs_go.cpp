@@ -24,7 +24,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "ChatCommand.hpp"
 #include "DatabaseEnv.h"
 #include "Language.h"
 #include "MapManager.h"
