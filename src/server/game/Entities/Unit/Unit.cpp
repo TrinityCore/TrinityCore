@@ -13660,12 +13660,13 @@ void Unit::ApplyMovementForce(ObjectGuid source, float magnitude, Position direc
     SendMessageToSet(moveApplyMovementForce.Write(), true);
 }
 
-void Unit::RemoveMovementForce(ObjectGuid source)
+void Unit::RemoveMovementForce(ObjectGuid source, bool removeFromMap /*= true*/)
 {
     if (!HasMovementForce(source))
         return;
 
-    _movementForces.erase(source);
+    if (removeFromMap)
+        _movementForces.erase(source);
 
     WorldPackets::Movement::MoveRemoveMovementForce moveRemoveMovementForce;
     moveRemoveMovementForce.MoverGUID = GetGUID();
@@ -13676,11 +13677,12 @@ void Unit::RemoveMovementForce(ObjectGuid source)
 
 void Unit::RemoveAllMovementForces()
 {
-    // We need to copy the map because RemoveMovementForce method will delete from original map
-    std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> movementForcesCopy = _movementForces;
-
-    for (auto itr : movementForcesCopy)
-        RemoveMovementForce(itr.first);
+    while (!_movementForces.empty())
+    {
+        auto beginItr = _movementForces.begin();
+        RemoveMovementForce((*beginItr).first, false);
+        _movementForces.erase(beginItr);
+    }
 }
 
 void Unit::ReApplyAllMovementForces()
@@ -13688,8 +13690,7 @@ void Unit::ReApplyAllMovementForces()
     // We need to copy the map because RemoveMovementForce method will delete from original map
     std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> movementForcesCopy = _movementForces;
 
-    for (auto itr : movementForcesCopy)
-        RemoveMovementForce(itr.first);
+    RemoveAllMovementForces();
 
     for (auto itr : movementForcesCopy)
         ApplyMovementForce(itr.first, itr.second.Magnitude, itr.second.Direction, itr.second.Origin);

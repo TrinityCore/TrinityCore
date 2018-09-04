@@ -1323,7 +1323,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool HasMovementForce(ObjectGuid source);
         void ApplyMovementForce(ObjectGuid source, float magnitude, Position direction, Position origin = Position());
-        void RemoveMovementForce(ObjectGuid source);
+        void RemoveMovementForce(ObjectGuid source, bool removeFromMap = true);
         void RemoveAllMovementForces();
         void ReApplyAllMovementForces();
         std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce>& GetMovementForces() { return _movementForces; }
