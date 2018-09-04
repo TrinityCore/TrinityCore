@@ -40,7 +40,7 @@ struct CommandArgsVariantConsumer
         T1 v;
         if (char const* next = arginfo::tryConsume(v, args))
         {
-            val = v;
+            val = std::move(v);
             return next;
         }
         else
