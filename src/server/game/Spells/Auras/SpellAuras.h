@@ -312,6 +312,7 @@ class TC_GAME_API Aura
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         std::vector<SpellPowerEntry const*> m_periodicCosts;// Periodic costs
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
+        uint32 m_procOnTickTimer;                           // Timer for PROC_FLAG_ON_TICK
 
         uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)

@@ -345,7 +345,7 @@ Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMas
 Aura::Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, ObjectGuid castItemGuid, int32 castItemLevel) :
 m_spellInfo(spellproto), m_castGuid(castId), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : castItemGuid), m_castItemLevel(castItemLevel), m_spellXSpellVisualId(caster ? caster->GetCastSpellXSpellVisualId(spellproto) : spellproto->GetSpellXSpellVisualId()),
-m_applyTime(time(NULL)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
+m_applyTime(time(NULL)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0), m_procOnTickTimer(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
 m_procCooldown(std::chrono::steady_clock::time_point::min()),
@@ -358,6 +358,9 @@ m_lastProcAttemptTime(std::chrono::steady_clock::now() - Seconds(10)), m_lastPro
 
     if (!m_periodicCosts.empty())
         m_timeCla = 1 * IN_MILLISECONDS;
+
+    if (GetSpellInfo()->ProcFlags & PROC_FLAG_ON_TICK)
+        m_procOnTickTimer = 1 * IN_MILLISECONDS;
 
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
@@ -755,6 +758,17 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                 }
             }
+        }
+
+        if (GetSpellInfo()->ProcFlags & PROC_FLAG_ON_TICK)
+        {
+            if (m_procOnTickTimer <= diff)
+            {
+                caster->ProcSkillsAndAuras(nullptr, PROC_FLAG_ON_TICK, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+                m_procOnTickTimer = 1 * IN_MILLISECONDS;
+            }
+            else
+                m_procOnTickTimer -= diff;
         }
     }
 }

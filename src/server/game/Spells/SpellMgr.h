@@ -125,7 +125,8 @@ enum ProcFlags
 {
     PROC_FLAG_NONE                            = 0x00000000,
 
-    PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor - not sure about this flag
+    PROC_FLAG_ON_TICK                         = 0x00000001,    // 00 Every tick
+
     PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
     PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack
