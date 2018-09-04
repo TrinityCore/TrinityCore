@@ -555,7 +555,7 @@ enum AuraType : uint32
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
     SPELL_AURA_484                                          = 484,
-    SPELL_AURA_485                                          = 485,
+    SPELL_AURA_MOD_MOVEMENT_FORCES_SPEED_PCT                = 485,
     SPELL_AURA_486                                          = 486,
     SPELL_AURA_487                                          = 487,
     SPELL_AURA_488                                          = 488,

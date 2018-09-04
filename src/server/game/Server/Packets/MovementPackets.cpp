@@ -725,6 +725,24 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::MoveApplyMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << Force;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
 {
     _worldPacket << *Status;

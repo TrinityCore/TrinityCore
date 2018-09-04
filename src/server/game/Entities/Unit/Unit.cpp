@@ -13632,6 +13632,69 @@ void Unit::SendSetVehicleRecId(uint32 vehicleId)
     SendMessageToSet(setVehicleRec.Write(), true);
 }
 
+bool Unit::HasMovementForce(ObjectGuid source)
+{
+    return _movementForces.find(source) != _movementForces.end();
+}
+
+void Unit::ApplyMovementForce(ObjectGuid source, float magnitude, Position direction, Position origin /*= Position()*/)
+{
+    // Can't have two movement force from same source
+    if (HasMovementForce(source))
+        return;
+
+    WorldPackets::Movement::MoveApplyMovementForce moveApplyMovementForce;
+
+    moveApplyMovementForce.MoverGUID = GetGUID();
+    moveApplyMovementForce.SequenceIndex = m_movementCounter++;
+
+    moveApplyMovementForce.Force.ID = source;
+    moveApplyMovementForce.Force.Magnitude = magnitude * GetTotalAuraMultiplier(SPELL_AURA_MOD_MOVEMENT_FORCES_SPEED_PCT);
+    moveApplyMovementForce.Force.Origin = origin;
+    moveApplyMovementForce.Force.Direction = direction;
+    moveApplyMovementForce.Force.TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
+    moveApplyMovementForce.Force.Type = 1;
+
+    _movementForces[source] = moveApplyMovementForce.Force;
+
+    SendMessageToSet(moveApplyMovementForce.Write(), true);
+}
+
+void Unit::RemoveMovementForce(ObjectGuid source)
+{
+    if (!HasMovementForce(source))
+        return;
+
+    _movementForces.erase(source);
+
+    WorldPackets::Movement::MoveRemoveMovementForce moveRemoveMovementForce;
+    moveRemoveMovementForce.MoverGUID = GetGUID();
+    moveRemoveMovementForce.SequenceIndex = m_movementCounter++;
+    moveRemoveMovementForce.ID = source;
+    SendMessageToSet(moveRemoveMovementForce.Write(), true);
+}
+
+void Unit::RemoveAllMovementForces()
+{
+    // We need to copy the map because RemoveMovementForce method will delete from original map
+    std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> movementForcesCopy = _movementForces;
+
+    for (auto itr : movementForcesCopy)
+        RemoveMovementForce(itr.first);
+}
+
+void Unit::ReApplyAllMovementForces()
+{
+    // We need to copy the map because RemoveMovementForce method will delete from original map
+    std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> movementForcesCopy = _movementForces;
+
+    for (auto itr : movementForcesCopy)
+        RemoveMovementForce(itr.first);
+
+    for (auto itr : movementForcesCopy)
+        ApplyMovementForce(itr.first, itr.second.Magnitude, itr.second.Direction, itr.second.Origin);
+}
+
 void Unit::SendSetPlayHoverAnim(bool enable)
 {
     WorldPackets::Misc::SetPlayHoverAnim data;

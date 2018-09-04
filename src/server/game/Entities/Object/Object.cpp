@@ -445,20 +445,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << float(unit->GetSpeed(MOVE_TURN_RATE));
         *data << float(unit->GetSpeed(MOVE_PITCH_RATE));
 
-        *data << uint32(0);                                                   // unit->m_movementInfo.forces.size()
+        *data << uint32(unit->GetMovementForces().size());
 
         data->WriteBit(HasSpline);
         data->FlushBits();
 
-        //for (std::size_t i = 0; i < unit->m_movementInfo.forces.size(); ++i)
-        //{
-        //    *data << ObjectGuid(ID);
-        //    *data << Vector3(Origin);
-        //    *data << Vector3(Direction);
-        //    *data << uint32(TransportID);
-        //    *data << float(Magnitude);
-        //    data->WriteBits(Type, 2);
-        //}
+        for (auto const& itr : unit->GetMovementForces())
+            *data << itr.second;
 
         if (HasSpline)
             WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, *data);
