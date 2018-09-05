@@ -117,7 +117,7 @@ struct CommandArgsConsumerMulti
     static char const* tryConsumeTo(Tuple& tuple, char const* args)
     {
         if (char const* next = CommandArgsConsumerSingle<NextType>::tryConsumeTo(std::get<offset>(tuple), args))
-            return CommandArgsConsumerNext<Tuple, offset + 1>::goNext(tuple, next);
+            return CommandArgsConsumerNext<Tuple, offset>::goNext(tuple, next);
         else
             return nullptr;
     }
@@ -132,11 +132,11 @@ struct CommandArgsConsumerMulti<Tuple, Optional<NestedNextType>, offset>
         auto& myArg = std::get<offset>(tuple);
         myArg.emplace();
         if (char const* next = CommandArgsConsumerSingle<NestedNextType>::tryConsumeTo(*(myArg.get_ptr()), args))
-            if (next = CommandArgsConsumerNext<Tuple, offset + 1>::goNext(tuple, next))
+            if (next = CommandArgsConsumerNext<Tuple, offset>::goNext(tuple, next))
                 return next;
         // try again omitting the argument
         myArg = boost::none;
-        if (char const* next = CommandArgsConsumerNext<Tuple, offset + 1>::goNext(tuple, args))
+        if (char const* next = CommandArgsConsumerNext<Tuple, offset>::goNext(tuple, args))
             return next;
         return nullptr;
     }
@@ -150,7 +150,7 @@ struct CommandArgsConsumerNext<std::tuple<Ts...>, offset>
     template <bool C = (offset + 1 < sizeof...(Ts))>
     static std::enable_if_t<C, char const*> goNext(tuple_type& tuple, char const* args)
     {
-        return CommandArgsConsumerMulti<Tuple, std::tuple_element_t<offset + 1, tuple_type>, offset + 1>::tryConsumeTo(tuple, args);
+        return CommandArgsConsumerMulti<tuple_type, std::tuple_element_t<offset + 1, tuple_type>, offset + 1>::tryConsumeTo(tuple, args);
     }
 
     template <bool C = (offset + 1 < sizeof...(Ts))>
