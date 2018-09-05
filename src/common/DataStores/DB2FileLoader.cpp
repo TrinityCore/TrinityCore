@@ -699,6 +699,7 @@ char const* DB2FileLoaderRegularImpl::RecordGetString(uint8 const* record, uint3
     uint32 stringOffset = RecordGetVarInt<uint32>(record, field, arrayIndex);
 
     stringOffset += recordIndex * _header->RecordSize;
+    ASSERT(stringOffset > _header->RecordCount * _header->RecordSize);
     stringOffset -= _header->RecordCount * _header->RecordSize;
 
     if(stringOffset > _header->StringTableSize)
