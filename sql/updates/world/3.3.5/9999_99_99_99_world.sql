@@ -12,10 +12,10 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN(32930,33909,32934,32933);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
-(32934,0,0,0,1,0,64651),
-(32933,0,0,0,1,0,64651),
-(32930,0,0,0,1,0,64651),
-(33909,0,0,0,1,0,64651);
+(32934,0,0,0,1,0,"64651"),
+(32933,0,0,0,1,0,"64651"),
+(32930,0,0,0,1,0,"64651"),
+(33909,0,0,0,1,0,"64651");
 
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=33768;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=33768 AND `source_type`=0;

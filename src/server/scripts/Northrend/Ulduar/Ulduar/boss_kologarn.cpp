@@ -201,7 +201,7 @@ struct boss_kologarn : public BossAI
         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_DISARMED);
     }
 
-    void SetData(uint32 type, uint32 data) override
+    void SetData(uint32 type, uint32 /*data*/) override
     {
         if (type == DATA_IF_LOOKS_COULD_KILL)
             _eyebeam = false;
