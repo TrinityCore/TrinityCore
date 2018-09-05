@@ -27,40 +27,10 @@
 #include "Optional.h"
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 class ChatHandler;
 class CommandArgs;
-
-struct CommandArgsVariantConsumer
-{
-    template <typename V, typename T1, typename... Ts>
-    static std::enable_if_t<sizeof...(Ts), char const*> tryConsumeTo(V& val, char const* args)
-    {
-        using arginfo = Trinity::ChatCommands::ArgInfo<T1>;
-        T1 v;
-        if (char const* next = arginfo::tryConsume(v, args))
-        {
-            val = std::move(v);
-            return next;
-        }
-        else
-            return tryConsumeTo<V, Ts...>(val, args);
-    }
-
-    template <typename V, typename T1>
-    static char const* tryConsumeTo(V& val, char const* args)
-    {
-        using arginfo = Trinity::ChatCommands::ArgInfo<T1>;
-        T1 v;
-        if (char const* next = arginfo::tryConsume(v, args))
-        {
-            val = std::move(v);
-            return next;
-        }
-        else
-            return nullptr;
-    }
-};
 
 template <typename T>
 struct CommandArgsConsumerSingle
@@ -72,12 +42,57 @@ struct CommandArgsConsumerSingle
     }
 };
 
+struct CommandArgsVariantConsumer
+{
+    template <typename V, typename T1, typename... Ts>
+    static std::enable_if_t<sizeof...(Ts), char const*> tryConsumeTo(V& val, char const* args)
+    {
+        T1 v;
+        if (char const* next = CommandArgsConsumerSingle<T1>::tryConsumeTo(v, args))
+        {
+            val = std::move(v);
+            return next;
+        }
+        else
+            return tryConsumeTo<V, Ts...>(val, args);
+    }
+
+    template <typename V, typename T1>
+    static char const* tryConsumeTo(V& val, char const* args)
+    {
+        T1 v;
+        if (char const* next = CommandArgsConsumerSingle<T1>::tryConsumeTo(v, args))
+        {
+            val = std::move(v);
+            return next;
+        }
+        else
+            return nullptr;
+    }
+};
+
 template <typename... Ts>
 struct CommandArgsConsumerSingle<Trinity::ChatCommands::Variant<Ts...>>
 {
     static char const* tryConsumeTo(Trinity::ChatCommands::Variant<Ts...>& val, char const* args)
     {
         return CommandArgsVariantConsumer::tryConsumeTo<Trinity::ChatCommands::Variant<Ts...>, Ts...>(val, args);
+    }
+};
+
+template <typename T>
+struct CommandArgsConsumerSingle<std::vector<T>>
+{
+    static char const* tryConsumeTo(std::vector<T>& val, char const* args)
+    {
+        char const* last;
+        val.clear();
+
+        do val.emplace_back();
+        while ((args = CommandArgsConsumerSingle<T>::tryConsumeTo(val.back(), (last = args))));
+
+        val.pop_back();
+        return last;
     }
 };
 

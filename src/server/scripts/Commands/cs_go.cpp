@@ -32,6 +32,7 @@ EndScriptData */
 #include "RBAC.h"
 #include "TicketMgr.h"
 #include "Transport.h"
+#include "Util.h"
 #include "WorldSession.h"
 
 using namespace Trinity::ChatCommands;
@@ -534,26 +535,16 @@ public:
         return true;
     }
 
-    static bool HandleGoInstanceCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoInstanceCommand(ChatHandler* handler, Variant<uint32, std::vector<std::string>> const& instance)
     {
-        if (!*args)
-            return false;
-
-        char* pos = const_cast<char*>(args);
-        do *pos = tolower(*pos);
-        while (*(++pos));
-
         uint32 mapid = 0;
-        CommandArgs parser(args);
-        if (auto arg = parser.tryConsume<uint32>())
+        if (instance.which() == 0) // uint32
         {
-            printf("integer arg is %u\n", mapid = *arg);
+            printf("integer arg is %u\n", mapid = instance.get<0>());
         }
-        else if (auto arg = parser.tryConsume<std::string>())
+        else // std::vector<std::string>
         {
-            std::vector<std::string> labels;
-            do labels.push_back(*arg);
-            while ((arg = parser.tryConsume<std::string>()));
+            std::vector<std::string> const& labels = instance.get<1>();
 
             std::multimap<uint32, std::pair<uint16, std::string>> matches;
             for (auto const& pair : sObjectMgr->GetInstanceTemplates())
@@ -561,7 +552,7 @@ public:
                 uint32 count = 0;
                 std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
                 for (auto const& label : labels)
-                    if (scriptName.find(label) != std::string::npos)
+                    if (StringContainsStringI(scriptName, label))
                         ++count;
 
                 if (count)

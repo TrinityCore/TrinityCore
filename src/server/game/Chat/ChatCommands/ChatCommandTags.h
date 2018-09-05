@@ -103,6 +103,9 @@ struct Variant : public boost::variant<T1, Ts...>
 
     template <typename T>
     Variant& operator=(T arg) { boost::variant<T1, Ts...>::operator=(arg); return *this; }
+
+    template <size_t index>
+    auto get() const { return boost::get<get_nth_t<index, T1, Ts...>>(*this); }
 };
 
 }}

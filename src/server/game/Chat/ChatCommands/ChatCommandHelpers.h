@@ -58,6 +58,18 @@ struct are_all_assignable<T1, T2, Ts...>
     static constexpr bool value = advstd::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
 };
 
-} }
+template <size_t index, typename T1, typename... Ts>
+struct get_nth : get_nth<index-1, Ts...> { };
+
+template <typename T1, typename... Ts>
+struct get_nth<0, T1, Ts...>
+{
+    using type = T1;
+};
+
+template <size_t index, typename... Ts>
+using get_nth_t = typename get_nth<index, Ts...>::type;
+
+}}
 
 #endif
