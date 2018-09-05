@@ -65,7 +65,7 @@ struct GameobjectDisplayInfoLoadInfo
         };
         static char const* types = "ifffh";
         static uint8 const arraySizes[5] = { 1, 6, 1, 1, 1 };
-        static DB2Meta const meta(-1, 5, 0x9F2098D1, types, arraySizes, -1);
+        static DB2Meta const meta(-1, 5, 0x7A816799, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
