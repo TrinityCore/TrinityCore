@@ -106,6 +106,18 @@ struct Variant : public boost::variant<T1, Ts...>
 
     template <size_t index>
     auto get() const { return boost::get<get_nth_t<index, T1, Ts...>>(*this); }
+
+    template <typename T>
+    bool try_get(T& out) const
+    {
+        if (T const* v = boost::get<T>(this))
+        {
+            out = *v;
+            return true;
+        }
+        else
+            return false;
+    }
 };
 
 }}

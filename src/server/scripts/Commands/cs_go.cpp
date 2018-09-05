@@ -435,9 +435,7 @@ public:
     static bool HandleGoInstanceCommand(ChatHandler* handler, Variant<uint32, std::vector<std::string>> const& instance)
     {
         uint32 mapid = 0;
-        if (instance.which() == 0) // uint32
-            mapid = instance.get<0>();
-        else // std::vector<std::string>
+        if (!instance.try_get(mapid))
         {
             std::vector<std::string> const& labels = instance.get<1>();
 
