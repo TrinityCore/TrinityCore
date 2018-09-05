@@ -20,6 +20,7 @@
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
+#include "ObjectGuid.h"
 
 namespace Trinity {
 namespace ChatCommands {
@@ -117,8 +118,11 @@ struct base_tag
 };
 
 #define make_base_tag(ltag, type) struct ltag : public base_tag { typedef type value_type; static constexpr char const* tag() { return #ltag; } }
-make_base_tag(creature, uint32);
+make_base_tag(areatrigger, uint32);
+make_base_tag(creature, ObjectGuid::LowType);
 make_base_tag(creature_entry, uint32);
+make_base_tag(gameobject, ObjectGuid::LowType);
+make_base_tag(taxinode, uint32);
 make_base_tag(tele, uint32);
 #undef make_base_tag
 

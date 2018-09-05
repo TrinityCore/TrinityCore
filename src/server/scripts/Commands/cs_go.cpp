@@ -121,8 +121,8 @@ public:
             return false;
         }
 
-        // stop flight if need
         Player* player = handler->GetSession()->GetPlayer();
+        // stop flight if need
         if (player->IsInFlight())
             player->FinishTaxiFlight();
         else
@@ -132,26 +132,12 @@ public:
         return true;
     }
 
-    static bool HandleGoGraveyardCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoGraveyardCommand(ChatHandler* handler, uint32 gyId)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (!*args)
-            return false;
-
-        char* gyId = strtok((char*)args, " ");
-        if (!gyId)
-            return false;
-
-        uint32 graveyardId = atoul(gyId);
-
-        if (!graveyardId)
-            return false;
-
-        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(graveyardId);
+        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(gyId);
         if (!gy)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, graveyardId);
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, gyId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -163,6 +149,7 @@ public:
             return false;
         }
 
+        Player* player = handler->GetSession()->GetPlayer();
         // stop flight if need
         if (player->IsInFlight())
             player->FinishTaxiFlight();
@@ -174,25 +161,14 @@ public:
     }
 
     //teleport to grid
-    static bool HandleGoGridCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoGridCommand(ChatHandler* handler, float gridX, float gridY, Optional<uint32> oMapId)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
-
-        char* gridX = strtok((char*)args, " ");
-        char* gridY = strtok(nullptr, " ");
-        char* id = strtok(nullptr, " ");
-
-        if (!gridX || !gridY)
-            return false;
-
-        uint32 mapId = id ? atoul(id) : player->GetMapId();
+        uint32 mapId = oMapId.get_value_or(player->GetMapId());
 
         // center of grid
-        float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
-        float y = ((float)atof(gridY) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
+        float x = (gridX - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
+        float y = (gridY - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
 
         if (!MapManager::IsValidMapCoord(mapId, x, y))
         {
@@ -215,24 +191,10 @@ public:
     }
 
     //teleport to gameobject
-    static bool HandleGoObjectCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoObjectCommand(ChatHandler* handler, Variant<Hyperlink<gameobject>, ObjectGuid::LowType> dbguid)
     {
-        if (!*args)
-            return false;
-
-        Player* player = handler->GetSession()->GetPlayer();
-
         // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-        char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
-            return false;
-
-        ObjectGuid::LowType guidLow = atoul(id);
-        if (!guidLow)
-            return false;
-
-        // by DB guid
-        GameObjectData const* goData = sObjectMgr->GetGameObjectData(guidLow);
+        GameObjectData const* goData = sObjectMgr->GetGameObjectData(dbguid);
         if (!goData)
         {
             handler->SendSysMessage(LANG_COMMAND_GOOBJNOTFOUND);
@@ -247,6 +209,7 @@ public:
             return false;
         }
 
+        Player* player = handler->GetSession()->GetPlayer();
         // stop flight if need
         if (player->IsInFlight())
             player->FinishTaxiFlight();
@@ -257,21 +220,8 @@ public:
         return true;
     }
 
-    static bool HandleGoTaxinodeCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoTaxinodeCommand(ChatHandler* handler, Variant<Hyperlink<taxinode>, ObjectGuid::LowType> nodeId)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (!*args)
-            return false;
-
-        char* id = handler->extractKeyFromLink((char*)args, "Htaxinode");
-        if (!id)
-            return false;
-
-        uint32 nodeId = atoul(id);
-        if (!nodeId)
-            return false;
-
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
         if (!node)
         {
@@ -288,6 +238,7 @@ public:
             return false;
         }
 
+        Player* player = handler->GetSession()->GetPlayer();
         // stop flight if need
         if (player->IsInFlight())
             player->FinishTaxiFlight();
@@ -298,22 +249,8 @@ public:
         return true;
     }
 
-    static bool HandleGoTriggerCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoTriggerCommand(ChatHandler* handler, Variant<Hyperlink<areatrigger>, uint32> areaTriggerId)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (!*args)
-            return false;
-
-        char* id = strtok((char*)args, " ");
-        if (!id)
-            return false;
-
-        uint32 areaTriggerId = atoul(id);
-
-        if (!areaTriggerId)
-            return false;
-
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(areaTriggerId);
         if (!at)
         {
@@ -329,6 +266,7 @@ public:
             return false;
         }
 
+        Player* player = handler->GetSession()->GetPlayer();
         // stop flight if need
         if (player->IsInFlight())
             player->FinishTaxiFlight();
@@ -409,32 +347,13 @@ public:
     }
 
     //teleport at coordinates, including Z and orientation
-    static bool HandleGoXYZCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoXYZCommand(ChatHandler* handler, float x, float y, Optional<float> z, Optional<uint32> id, Optional<float> o)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
-
-        char* goX = strtok((char*)args, " ");
-        char* goY = strtok(nullptr, " ");
-        char* goZ = strtok(nullptr, " ");
-        char* id = strtok(nullptr, " ");
-        char* port = strtok(nullptr, " ");
-
-        if (!goX || !goY)
-            return false;
-
-        float x = (float)atof(goX);
-        float y = (float)atof(goY);
-        float z;
-        float ort = port ? (float)atof(port) : player->GetOrientation();
-        uint32 mapId = id ? atoul(id) : player->GetMapId();
-
-        if (goZ)
+        uint32 mapId = id.get_value_or(player->GetMapId());
+        if (z)
         {
-            z = (float)atof(goZ);
-            if (!MapManager::IsValidMapCoord(mapId, x, y, z))
+            if (!MapManager::IsValidMapCoord(mapId, x, y, *z))
             {
                 handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
                 handler->SetSentErrorMessage(true);
@@ -459,23 +378,12 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
-        player->TeleportTo(mapId, x, y, z, ort);
+        player->TeleportTo(mapId, x, y, *z, o.get_value_or(player->GetOrientation()));
         return true;
     }
 
-    static bool HandleGoTicketCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoTicketCommand(ChatHandler* handler, uint32 ticketId)
     {
-        if (!*args)
-            return false;
-
-        char* id = strtok((char*)args, " ");
-        if (!id)
-            return false;
-
-        uint32 ticketId = atoul(id);
-        if (!ticketId)
-            return false;
-
         GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
         if (!ticket)
         {
@@ -495,28 +403,17 @@ public:
         return true;
     }
 
-    static bool HandleGoOffsetCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoOffsetCommand(ChatHandler* handler, float dX, float dY, Optional<float> dZ, Optional<float> dO)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
-
-        char* goX = strtok((char*)args, " ");
-        char* goY = strtok(nullptr, " ");
-        char* goZ = strtok(nullptr, " ");
-        char* port = strtok(nullptr, " ");
-
         float x, y, z, o;
         player->GetPosition(x, y, z, o);
-        if (goX)
-            x += atof(goX);
-        if (goY)
-            y += atof(goY);
-        if (goZ)
-            z += atof(goZ);
-        if (port)
-            o += atof(port);
+        x += dX;
+        y += dY;
+        if (dZ)
+            z += *dZ;
+        if (dO)
+            o += *dO;
 
         if (!Trinity::IsValidMapCoord(x, y, z, o))
         {
@@ -539,9 +436,7 @@ public:
     {
         uint32 mapid = 0;
         if (instance.which() == 0) // uint32
-        {
-            printf("integer arg is %u\n", mapid = instance.get<0>());
-        }
+            mapid = instance.get<0>();
         else // std::vector<std::string>
         {
             std::vector<std::string> const& labels = instance.get<1>();
