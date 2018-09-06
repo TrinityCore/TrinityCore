@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef TRINITY_CHATCOMMANDTAGS_H
 #define TRINITY_CHATCOMMANDTAGS_H
 
@@ -102,10 +102,10 @@ struct Variant : public boost::variant<T1, Ts...>
     }
 
     template <typename T>
-    Variant& operator=(T arg) { boost::variant<T1, Ts...>::operator=(arg); return *this; }
+    Variant& operator=(T&& arg) { boost::variant<T1, Ts...>::operator=(std::forward<T>(arg)); return *this; }
 
     template <size_t index>
-    auto get() const { return boost::get<get_nth_t<index, T1, Ts...>>(*this); }
+    decltype(auto) get() const { return boost::get<get_nth_t<index, T1, Ts...>>(*this); }
 };
 
 }}
