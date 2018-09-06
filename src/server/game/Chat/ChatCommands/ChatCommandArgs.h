@@ -110,7 +110,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
 
 // GameTele* from string name or link
 template <>
-struct ArgInfo<GameTele const*>
+struct TC_GAME_API ArgInfo<GameTele const*>
 {
     static char const* tryConsume(GameTele const*&, char const*);
 };
