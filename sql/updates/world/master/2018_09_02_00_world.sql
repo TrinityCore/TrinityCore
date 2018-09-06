@@ -14260,7 +14260,7 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`,
 (1976, 2, 1902, 0, 2551), -- Stormwind City Patroller
 (68, 2, 2715, 143, 2551), -- Stormwind City Guard
 (24927, 1, 2716, 0, 0), -- Navigator Sparksizzle
-(52809, 1, 0, 0, 2070085633), -- Blax Bottlerocket
+-- (52809, 1, 0, 0, 2070085633), -- Blax Bottlerocket
 (51307, 1, 5292, 0, 0), -- Goblin Construction Worker[DND]
 (3296, 3, 0, 0, 2507), -- Orgrimmar Grunt
 (95928, 1, 1910, 0, 0), -- Rhol Landers
