@@ -42,7 +42,7 @@ namespace ChatCommands {
 \****************************************************************************************/
 struct ContainerTag {};
 template <typename T>
-struct tag_base<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
+struct tag_base<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
 {
     using type = typename T::value_type;
 };
