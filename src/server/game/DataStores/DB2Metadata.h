@@ -79,7 +79,7 @@ struct AlliedRaceRacialAbilityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ssib?";
+        static char const* types = "ssibi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x96902165, types, arraySizes, -1);
         return &instance;
@@ -134,7 +134,7 @@ struct AnimKitConfigBoneSetMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bh?";
+        static char const* types = "bhi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x48518303, types, arraySizes, -1);
         return &instance;
@@ -156,7 +156,7 @@ struct AnimKitReplacementMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ihhh?";
+        static char const* types = "ihhhi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(1, 5, 0xB0BBA55F, types, arraySizes, -1);
         return &instance;
@@ -178,7 +178,7 @@ struct AnimReplacementMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ihhh?";
+        static char const* types = "ihhhi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(1, 5, 0x5D91ABFD, types, arraySizes, -1);
         return &instance;
@@ -211,7 +211,7 @@ struct AoiBoxMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fiii?";
+        static char const* types = "fiiii";
         static uint8 const arraySizes[5] = { 6, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x173154C8, types, arraySizes, -1);
         return &instance;
@@ -222,7 +222,7 @@ struct AreaConditionalDataMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "siii?";
+        static char const* types = "siiii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(2, 5, 0xBE8C656A, types, arraySizes, -1);
         return &instance;
@@ -244,7 +244,7 @@ struct AreaGroupMemberMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x27C84A16, types, arraySizes, -1);
         return &instance;
@@ -266,7 +266,7 @@ struct AreaPOIStateMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sbbi?";
+        static char const* types = "sbbii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xEB8CA12C, types, arraySizes, -1);
         return &instance;
@@ -387,7 +387,7 @@ struct ArtifactAppearanceSetMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ssibhhbb?";
+        static char const* types = "ssibhhbbi";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(3, 9, 0xBB4DB4D3, types, arraySizes, -1);
         return &instance;
@@ -409,7 +409,7 @@ struct ArtifactItemToTransmogMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xD54CBBE1, types, arraySizes, -1);
         return &instance;
@@ -453,7 +453,7 @@ struct ArtifactPowerRankMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bihf?";
+        static char const* types = "bihfi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x7DC78F1E, types, arraySizes, -1);
         return &instance;
@@ -486,7 +486,7 @@ struct ArtifactUnlockMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibhi?";
+        static char const* types = "ibhii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x40C54B9F, types, arraySizes, -1);
         return &instance;
@@ -552,7 +552,7 @@ struct AzeritePowerSetMemberMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hbbb?";
+        static char const* types = "hbbbi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xDB24A281, types, arraySizes, -1);
         return &instance;
@@ -563,7 +563,7 @@ struct AzeriteTierUnlockMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbb?";
+        static char const* types = "bbbi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x2B04F059, types, arraySizes, -1);
         return &instance;
@@ -629,7 +629,7 @@ struct BattlePetAbilityStateMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bi?";
+        static char const* types = "bii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x73DDAA6A, types, arraySizes, -1);
         return &instance;
@@ -662,7 +662,7 @@ struct BattlePetBreedStateMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bh?";
+        static char const* types = "bhi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xC1A59CCF, types, arraySizes, -1);
         return &instance;
@@ -717,7 +717,7 @@ struct BattlePetSpeciesStateMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bi?";
+        static char const* types = "bii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x99EBACAA, types, arraySizes, -1);
         return &instance;
@@ -728,7 +728,7 @@ struct BattlePetSpeciesXAbilityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hbb?";
+        static char const* types = "hbbi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x630BA932, types, arraySizes, -1);
         return &instance;
@@ -816,7 +816,7 @@ struct BountyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hhii?";
+        static char const* types = "hhiii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x797CCAA0, types, arraySizes, -1);
         return &instance;
@@ -882,7 +882,7 @@ struct CameraEffectEntryMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhffffffffbbbbb?";
+        static char const* types = "bhffffffffbbbbbi";
         static uint8 const arraySizes[16] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 16, 0xED27DC2F, types, arraySizes, -1);
         return &instance;
@@ -915,7 +915,7 @@ struct CampaignXConditionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x638FC159, types, arraySizes, -1);
         return &instance;
@@ -937,7 +937,7 @@ struct CastableRaidBuffsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x3B349C01, types, arraySizes, -1);
         return &instance;
@@ -1080,7 +1080,7 @@ struct CharStartOutfitMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbbibi?";
+        static char const* types = "bbbibii";
         static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 24, 1 };
         static DB2Meta instance(-1, 7, 0x0F59DD96, types, arraySizes, -1);
         return &instance;
@@ -1102,7 +1102,7 @@ struct CharacterFaceBoneSetMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bibi?";
+        static char const* types = "bibii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x3C6DE4D7, types, arraySizes, -1);
         return &instance;
@@ -1124,7 +1124,7 @@ struct CharacterLoadoutMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?bb";
+        static char const* types = "lbb";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xA07F9727, types, arraySizes, -1);
         return &instance;
@@ -1234,7 +1234,7 @@ struct ChrClassesXPowerTypesMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "b?";
+        static char const* types = "bi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x6DE888E7, types, arraySizes, -1);
         return &instance;
@@ -1245,7 +1245,7 @@ struct ChrCustomizationMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "siiiii?";
+        static char const* types = "siiiiii";
         static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 3, 1 };
         static DB2Meta instance(-1, 7, 0xC29562A3, types, arraySizes, -1);
         return &instance;
@@ -1278,7 +1278,7 @@ struct ChrUpgradeBucketMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ih?";
+        static char const* types = "ihi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(1, 3, 0x81B7C74C, types, arraySizes, -1);
         return &instance;
@@ -1289,7 +1289,7 @@ struct ChrUpgradeBucketSpellMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xC665F469, types, arraySizes, -1);
         return &instance;
@@ -1388,7 +1388,7 @@ struct CommentatorTrackedCooldownMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibb?";
+        static char const* types = "ibbi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x3A1476FC, types, arraySizes, -1);
         return &instance;
@@ -1520,7 +1520,7 @@ struct CreatureDifficultyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbbhii?";
+        static char const* types = "bbbhiii";
         static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 7, 1 };
         static DB2Meta instance(-1, 7, 0xD344A642, types, arraySizes, -1);
         return &instance;
@@ -1553,7 +1553,7 @@ struct CreatureDisplayInfoCondMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?bbiiiiiiiiiii?";
+        static char const* types = "lbbiiiiiiiiiiii";
         static uint8 const arraySizes[15] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1 };
         static DB2Meta instance(-1, 15, 0x596B4605, types, arraySizes, -1);
         return &instance;
@@ -1564,7 +1564,7 @@ struct CreatureDisplayInfoEvtMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iib?";
+        static char const* types = "iibi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x16C6EC13, types, arraySizes, -1);
         return &instance;
@@ -1586,7 +1586,7 @@ struct CreatureDisplayInfoGeosetDataMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bb?";
+        static char const* types = "bbi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x13350FA0, types, arraySizes, -1);
         return &instance;
@@ -1597,7 +1597,7 @@ struct CreatureDisplayInfoTrnMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iiifi?";
+        static char const* types = "iiifii";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0xC3E28858, types, arraySizes, -1);
         return &instance;
@@ -1674,7 +1674,7 @@ struct CreatureXContributionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(1, 3, 0x2DC69C04, types, arraySizes, -1);
         return &instance;
@@ -1685,7 +1685,7 @@ struct CreatureXDisplayInfoMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iffb?";
+        static char const* types = "iffbi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x44D147A6, types, arraySizes, -1);
         return &instance;
@@ -1718,7 +1718,7 @@ struct CriteriaTreeXEffectMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x80C700F5, types, arraySizes, -1);
         return &instance;
@@ -1740,7 +1740,7 @@ struct CurrencyContainerMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ssiiiii?";
+        static char const* types = "ssiiiiii";
         static uint8 const arraySizes[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 8, 0xAC6030BF, types, arraySizes, -1);
         return &instance;
@@ -1817,7 +1817,7 @@ struct DeclinedWordCasesMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sb?";
+        static char const* types = "sbi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x3E19B9C5, types, arraySizes, -1);
         return &instance;
@@ -1938,7 +1938,7 @@ struct EmotesMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?siibiiii";
+        static char const* types = "lsiibiiii";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 9, 0xA909E182, types, arraySizes, -1);
         return &instance;
@@ -1960,7 +1960,7 @@ struct EmotesTextDataMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sb?";
+        static char const* types = "sbi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x460E8F09, types, arraySizes, -1);
         return &instance;
@@ -1971,7 +1971,7 @@ struct EmotesTextSoundMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbbi?";
+        static char const* types = "bbbii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x3A15105C, types, arraySizes, -1);
         return &instance;
@@ -2004,7 +2004,7 @@ struct ExpectedStatMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ifffffffff?";
+        static char const* types = "ifffffffffi";
         static uint8 const arraySizes[11] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 11, 0xF0E61875, types, arraySizes, -1);
         return &instance;
@@ -2026,7 +2026,7 @@ struct FactionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?ssihhbbbhhhiifb";
+        static char const* types = "lssihhbbbhhhiifb";
         static uint8 const arraySizes[16] = { 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 2, 2 };
         static DB2Meta instance(4, 16, 0x86FE2D69, types, arraySizes, -1);
         return &instance;
@@ -2114,7 +2114,7 @@ struct GMSurveyAnswersMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sb?";
+        static char const* types = "sbi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xDE59EC07, types, arraySizes, -1);
         return &instance;
@@ -2169,7 +2169,7 @@ struct GameObjectDiffAnimMapMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbh?";
+        static char const* types = "bbhi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xDB3508F3, types, arraySizes, -1);
         return &instance;
@@ -2191,7 +2191,7 @@ struct GameObjectDisplayInfoXSoundKitMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ib?";
+        static char const* types = "ibi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x456E4627, types, arraySizes, -1);
         return &instance;
@@ -2323,7 +2323,7 @@ struct GarrEncounterSetXEncounterMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(1, 3, 0xCA7143E7, types, arraySizes, -1);
         return &instance;
@@ -2334,7 +2334,7 @@ struct GarrEncounterXMechanicMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bb?";
+        static char const* types = "bbi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x0960A66B, types, arraySizes, -1);
         return &instance;
@@ -2345,7 +2345,7 @@ struct GarrFollItemSetMemberMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibh?";
+        static char const* types = "ibhi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x9166B16F, types, arraySizes, -1);
         return &instance;
@@ -2356,7 +2356,7 @@ struct GarrFollSupportSpellMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iib?";
+        static char const* types = "iibi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xDB563FC8, types, arraySizes, -1);
         return &instance;
@@ -2400,7 +2400,7 @@ struct GarrFollowerSetXFollowerMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x621C60FF, types, arraySizes, -1);
         return &instance;
@@ -2422,7 +2422,7 @@ struct GarrFollowerUICreatureMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbifb?";
+        static char const* types = "bbifbi";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0x93A1FAA6, types, arraySizes, -1);
         return &instance;
@@ -2433,7 +2433,7 @@ struct GarrFollowerXAbilityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbh?";
+        static char const* types = "bbhi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x590C69F7, types, arraySizes, -1);
         return &instance;
@@ -2466,7 +2466,7 @@ struct GarrMechanicSetXMechanicMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ib?";
+        static char const* types = "ibi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(1, 3, 0xFC7F16A3, types, arraySizes, -1);
         return &instance;
@@ -2488,7 +2488,7 @@ struct GarrMissionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sssffibbbbihbhibibhiiibiibii?";
+        static char const* types = "sssffibbbbihbhibibhiiibiibiii";
         static uint8 const arraySizes[29] = { 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(6, 29, 0x0777205, types, arraySizes, -1);
         return &instance;
@@ -2521,7 +2521,7 @@ struct GarrMissionXEncounterMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iiib?";
+        static char const* types = "iiibi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(1, 5, 0x539B5B1B, types, arraySizes, -1);
         return &instance;
@@ -2532,7 +2532,7 @@ struct GarrMissionXFollowerMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xFB9C7E3D, types, arraySizes, -1);
         return &instance;
@@ -2719,7 +2719,7 @@ struct GlyphBindableSpellMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x03429C72, types, arraySizes, -1);
         return &instance;
@@ -2752,7 +2752,7 @@ struct GlyphRequiredSpecMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x70D4ECC6, types, arraySizes, -1);
         return &instance;
@@ -2873,7 +2873,7 @@ struct HelmetAnimScalingMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "if?";
+        static char const* types = "ifi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xC43CA2FC, types, arraySizes, -1);
         return &instance;
@@ -2994,7 +2994,7 @@ struct InvasionClientDataMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sfiiiiiii?";
+        static char const* types = "sfiiiiiiii";
         static uint8 const arraySizes[10] = { 1, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(3, 10, 0x04FC0B4F, types, arraySizes, -1);
         return &instance;
@@ -3104,7 +3104,7 @@ struct ItemBonusTreeNodeMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhhh?";
+        static char const* types = "bhhhi";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x1DDAA885, types, arraySizes, -1);
         return &instance;
@@ -3115,7 +3115,7 @@ struct ItemChildEquipmentMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ib?";
+        static char const* types = "ibi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x48E64550, types, arraySizes, -1);
         return &instance;
@@ -3137,7 +3137,7 @@ struct ItemContextPickerEntryMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbiii?";
+        static char const* types = "bbiiii";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0x1596EAF3, types, arraySizes, -1);
         return &instance;
@@ -3214,7 +3214,7 @@ struct ItemDisenchantLootMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbhhhb?";
+        static char const* types = "bbhhhbi";
         static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 7, 0x146B9F40, types, arraySizes, -1);
         return &instance;
@@ -3236,7 +3236,7 @@ struct ItemDisplayInfoMaterialResMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bi?";
+        static char const* types = "bii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x936E6A99, types, arraySizes, -1);
         return &instance;
@@ -3258,7 +3258,7 @@ struct ItemEffectMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbhiihih?";
+        static char const* types = "bbhiihihi";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 9, 0x46818AA6, types, arraySizes, -1);
         return &instance;
@@ -3302,7 +3302,7 @@ struct ItemLevelSelectorQualityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ib?";
+        static char const* types = "ibi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xC40169D5, types, arraySizes, -1);
         return &instance;
@@ -3335,7 +3335,7 @@ struct ItemLimitCategoryConditionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bi?";
+        static char const* types = "bii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x7F847085, types, arraySizes, -1);
         return &instance;
@@ -3434,7 +3434,7 @@ struct ItemSearchNameMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?sibbhbibhhihi";
+        static char const* types = "lsibbhbibhhihi";
         static uint8 const arraySizes[14] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4 };
         static DB2Meta instance(3, 14, 0xF0940AFC, types, arraySizes, -1);
         return &instance;
@@ -3456,7 +3456,7 @@ struct ItemSetSpellMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hib?";
+        static char const* types = "hibi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xD6AEEA60, types, arraySizes, -1);
         return &instance;
@@ -3467,7 +3467,7 @@ struct ItemSparseMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?sssssfififfiiiiiiiffiihhhhhhhhhhhhhhhhhhhhhhbbbbbbbbbbbbbbbbbbb";
+        static char const* types = "lsssssfififfiiiiiiiffiihhhhhhhhhhhhhhhhhhhhhhbbbbbbbbbbbbbbbbbbb";
         static uint8 const arraySizes[64] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 10, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 10, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 64, 0xF9021F01, types, arraySizes, -1);
         return &instance;
@@ -3489,7 +3489,7 @@ struct ItemSpecOverrideMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xB235D33A, types, arraySizes, -1);
         return &instance;
@@ -3544,7 +3544,7 @@ struct ItemXBonusTreeMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x57244BD5, types, arraySizes, -1);
         return &instance;
@@ -3599,7 +3599,7 @@ struct JournalEncounterXDifficultyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "b?";
+        static char const* types = "bi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x436676BA, types, arraySizes, -1);
         return &instance;
@@ -3610,7 +3610,7 @@ struct JournalEncounterXMapLocMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fiib?";
+        static char const* types = "fiibi";
         static uint8 const arraySizes[5] = { 2, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xBCE56697, types, arraySizes, -1);
         return &instance;
@@ -3632,7 +3632,7 @@ struct JournalItemXDifficultyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "b?";
+        static char const* types = "bi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xF938F4BD, types, arraySizes, -1);
         return &instance;
@@ -3643,7 +3643,7 @@ struct JournalSectionXDifficultyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "b?";
+        static char const* types = "bi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xE02C355F, types, arraySizes, -1);
         return &instance;
@@ -3720,7 +3720,7 @@ struct LfgDungeonExpansionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhbbii?";
+        static char const* types = "bhbbiii";
         static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 7, 0x6754EDAB, types, arraySizes, -1);
         return &instance;
@@ -3753,7 +3753,7 @@ struct LfgDungeonsGroupingMapMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hb?";
+        static char const* types = "hbi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xD50B89E4, types, arraySizes, -1);
         return &instance;
@@ -3764,7 +3764,7 @@ struct LfgRoleRequirementMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bi?";
+        static char const* types = "bii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x35B34A59, types, arraySizes, -1);
         return &instance;
@@ -3962,7 +3962,7 @@ struct ManagedWorldStateBuffMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iii?";
+        static char const* types = "iiii";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x049B986F, types, arraySizes, -1);
         return &instance;
@@ -4050,7 +4050,7 @@ struct MapCelestialBodyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hi?";
+        static char const* types = "hii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x14543648, types, arraySizes, -1);
         return &instance;
@@ -4072,7 +4072,7 @@ struct MapDifficultyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "siibbbbbb?";
+        static char const* types = "siibbbbbbi";
         static uint8 const arraySizes[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 10, 0xF876E8BA, types, arraySizes, -1);
         return &instance;
@@ -4083,7 +4083,7 @@ struct MapDifficultyXConditionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sii?";
+        static char const* types = "siii";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x8DBA5D16, types, arraySizes, -1);
         return &instance;
@@ -4094,7 +4094,7 @@ struct MapLoadingScreenMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ffii?";
+        static char const* types = "ffiii";
         static uint8 const arraySizes[5] = { 2, 2, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xC4CFD9A8, types, arraySizes, -1);
         return &instance;
@@ -4127,7 +4127,7 @@ struct MinorTalentMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x09F57B9C, types, arraySizes, -1);
         return &instance;
@@ -4149,7 +4149,7 @@ struct ModelAnimCloakDampeningMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xAA668B4F, types, arraySizes, -1);
         return &instance;
@@ -4171,7 +4171,7 @@ struct ModelRibbonQualityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "b?";
+        static char const* types = "bi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xA26E8DD1, types, arraySizes, -1);
         return &instance;
@@ -4226,7 +4226,7 @@ struct MountXDisplayMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x2D4F3D78, types, arraySizes, -1);
         return &instance;
@@ -4259,7 +4259,7 @@ struct MovieVariationMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xAEA671AA, types, arraySizes, -1);
         return &instance;
@@ -4270,7 +4270,7 @@ struct MultiStatePropertiesMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fibifiiiii?";
+        static char const* types = "fibifiiiiii";
         static uint8 const arraySizes[11] = { 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 11, 0x50BB5EDC, types, arraySizes, -1);
         return &instance;
@@ -4292,7 +4292,7 @@ struct MythicPlusSeasonRewardLevelsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iii?";
+        static char const* types = "iiii";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xAD6A6D9F, types, arraySizes, -1);
         return &instance;
@@ -4358,7 +4358,7 @@ struct NpcModelItemSlotDisplayInfoMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ib?";
+        static char const* types = "ibi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xB8EC2628, types, arraySizes, -1);
         return &instance;
@@ -4589,7 +4589,7 @@ struct PhaseXPhaseGroupMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xF00195AE, types, arraySizes, -1);
         return &instance;
@@ -4600,7 +4600,7 @@ struct PlayerConditionMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?sihhiibbihbibbiiiiibihbbbibbiiihibbiihhbhibbbibbbibbbbbbhhhibhhhiiihiibhhbbiiiii";
+        static char const* types = "lsihhiibbihbibbiiiiibihbbbibbiiihibbiihhbhibbbibbbibbbbbbhhhibhhhiiihiibhhbbiiiii";
         static uint8 const arraySizes[81] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 3, 3, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 2 };
         static DB2Meta instance(3, 81, 0xF28CBD18, types, arraySizes, -1);
         return &instance;
@@ -4688,7 +4688,7 @@ struct PvpDifficultyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbb?";
+        static char const* types = "bbbi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x794DB95D, types, arraySizes, -1);
         return &instance;
@@ -4842,7 +4842,7 @@ struct QuestObjectiveMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sbiibbb?";
+        static char const* types = "sbiibbbi";
         static uint8 const arraySizes[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 8, 0x37353FB6, types, arraySizes, -1);
         return &instance;
@@ -4864,7 +4864,7 @@ struct QuestPOIPointMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ihh?";
+        static char const* types = "ihhi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(1, 4, 0x18D6E719, types, arraySizes, -1);
         return &instance;
@@ -4908,7 +4908,7 @@ struct QuestV2CliTaskMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?ssihiihiiiiiiiiiiiihiii";
+        static char const* types = "lssihiihiiiiiiiiiiiihiii";
         static uint8 const arraySizes[24] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3 };
         static DB2Meta instance(4, 24, 0xC0387D4E, types, arraySizes, -1);
         return &instance;
@@ -5040,7 +5040,7 @@ struct RewardPackXCurrencyTypeMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xEA88FC16, types, arraySizes, -1);
         return &instance;
@@ -5051,7 +5051,7 @@ struct RewardPackXItemMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x277E8179, types, arraySizes, -1);
         return &instance;
@@ -5227,7 +5227,7 @@ struct ScheduledWorldStateXUniqCatMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(1, 3, 0xF512C749, types, arraySizes, -1);
         return &instance;
@@ -5315,7 +5315,7 @@ struct SkillLineAbilityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?ihihiibhhbbhhh";
+        static char const* types = "lihihiibhhbbhhh";
         static uint8 const arraySizes[15] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(2, 15, 0xA38AD072, types, arraySizes, -1);
         return &instance;
@@ -5326,7 +5326,7 @@ struct SkillRaceClassInfoMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?hihbbh";
+        static char const* types = "lhihbbh";
         static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 7, 0x4CFD464E, types, arraySizes, -1);
         return &instance;
@@ -5348,7 +5348,7 @@ struct SoundAmbienceFlavorMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x41E33D5D, types, arraySizes, -1);
         return &instance;
@@ -5359,7 +5359,7 @@ struct SoundBusMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibbbfbb?";
+        static char const* types = "ibbbfbbi";
         static uint8 const arraySizes[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(1, 8, 0x7CC84C2D, types, arraySizes, -1);
         return &instance;
@@ -5392,7 +5392,7 @@ struct SoundEmittersMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sffiihbhibb?";
+        static char const* types = "sffiihbhibbi";
         static uint8 const arraySizes[12] = { 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(4, 12, 0x1FDCDD5A, types, arraySizes, -1);
         return &instance;
@@ -5425,7 +5425,7 @@ struct SoundFilterElemMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fb?";
+        static char const* types = "fbi";
         static uint8 const arraySizes[3] = { 9, 1, 1 };
         static DB2Meta instance(-1, 3, 0x84F8D205, types, arraySizes, -1);
         return &instance;
@@ -5524,7 +5524,7 @@ struct SourceInfoMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sbb?";
+        static char const* types = "sbbi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xA94C7962, types, arraySizes, -1);
         return &instance;
@@ -5546,7 +5546,7 @@ struct SpecSetMemberMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xC05B6C73, types, arraySizes, -1);
         return &instance;
@@ -5612,7 +5612,7 @@ struct SpellAuraOptionsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhibihi?";
+        static char const* types = "bhibihii";
         static uint8 const arraySizes[8] = { 1, 1, 1, 1, 1, 1, 2, 1 };
         static DB2Meta instance(-1, 8, 0xCBDA0981, types, arraySizes, -1);
         return &instance;
@@ -5623,7 +5623,7 @@ struct SpellAuraRestrictionsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbbbbiiii?";
+        static char const* types = "bbbbbiiiii";
         static uint8 const arraySizes[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 10, 0xD7479271, types, arraySizes, -1);
         return &instance;
@@ -5634,7 +5634,7 @@ struct SpellAuraVisXChrSpecMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "h?";
+        static char const* types = "hi";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x8F54FD52, types, arraySizes, -1);
         return &instance;
@@ -5645,7 +5645,7 @@ struct SpellAuraVisibilityMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibb?";
+        static char const* types = "ibbi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(1, 4, 0xB7F28C20, types, arraySizes, -1);
         return &instance;
@@ -5678,7 +5678,7 @@ struct SpellCategoriesMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhbbbbhh?";
+        static char const* types = "bhbbbbhhi";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 9, 0xEF1D2548, types, arraySizes, -1);
         return &instance;
@@ -5722,7 +5722,7 @@ struct SpellCooldownsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "biii?";
+        static char const* types = "biiii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x24886B08, types, arraySizes, -1);
         return &instance;
@@ -5766,7 +5766,7 @@ struct SpellEffectMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iiifihiffiiifffifffffffiiih?";
+        static char const* types = "iiifihiffiiifffifffffffiiihi";
         static uint8 const arraySizes[28] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4, 2, 1 };
         static DB2Meta instance(-1, 28, 0x803150B7, types, arraySizes, -1);
         return &instance;
@@ -5810,7 +5810,7 @@ struct SpellFlyoutMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "?ssbii";
+        static char const* types = "lssbii";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0x1F516F53, types, arraySizes, -1);
         return &instance;
@@ -5821,7 +5821,7 @@ struct SpellFlyoutItemMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ib?";
+        static char const* types = "ibi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x650A0B4D, types, arraySizes, -1);
         return &instance;
@@ -5843,7 +5843,7 @@ struct SpellInterruptsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhii?";
+        static char const* types = "bhiii";
         static uint8 const arraySizes[5] = { 1, 1, 2, 2, 1 };
         static DB2Meta instance(-1, 5, 0xF551B940, types, arraySizes, -1);
         return &instance;
@@ -5887,7 +5887,7 @@ struct SpellLabelMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0xCCA24F16, types, arraySizes, -1);
         return &instance;
@@ -5909,7 +5909,7 @@ struct SpellLevelsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhhhb?";
+        static char const* types = "bhhhbi";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0xE3096221, types, arraySizes, -1);
         return &instance;
@@ -5931,7 +5931,7 @@ struct SpellMiscMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhhhbfffiii?";
+        static char const* types = "bhhhbfffiiii";
         static uint8 const arraySizes[12] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 14, 1 };
         static DB2Meta instance(-1, 12, 0x76E982BB, types, arraySizes, -1);
         return &instance;
@@ -5975,7 +5975,7 @@ struct SpellPowerMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibiiiiifffbii?";
+        static char const* types = "ibiiiiifffbiii";
         static uint8 const arraySizes[14] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(1, 14, 0x12ED7A99, types, arraySizes, -1);
         return &instance;
@@ -6019,7 +6019,7 @@ struct SpellProcsPerMinuteModMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhf?";
+        static char const* types = "bhfi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xE5827335, types, arraySizes, -1);
         return &instance;
@@ -6118,7 +6118,7 @@ struct SpellTargetRestrictionsMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bfbihif?";
+        static char const* types = "bfbihifi";
         static uint8 const arraySizes[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 8, 0x47BE0E0C, types, arraySizes, -1);
         return &instance;
@@ -6184,7 +6184,7 @@ struct SpellVisualEventMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iiiiiiii?";
+        static char const* types = "iiiiiiiii";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 9, 0x8352EE58, types, arraySizes, -1);
         return &instance;
@@ -6217,7 +6217,7 @@ struct SpellVisualKitEffectMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xF104E59F, types, arraySizes, -1);
         return &instance;
@@ -6228,7 +6228,7 @@ struct SpellVisualKitModelAttachMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ffihbhffffffffhhhhbif?";
+        static char const* types = "ffihbhffffffffhhhhbifi";
         static uint8 const arraySizes[22] = { 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(3, 22, 0x75650E39, types, arraySizes, -1);
         return &instance;
@@ -6239,7 +6239,7 @@ struct SpellVisualMissileMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ffihibbhhiihihi?";
+        static char const* types = "ffihibbhhiihihii";
         static uint8 const arraySizes[16] = { 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(3, 16, 0x0A0345EB, types, arraySizes, -1);
         return &instance;
@@ -6261,7 +6261,7 @@ struct SpellXSpellVisualMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ibifbbiihihi?";
+        static char const* types = "ibifbbiihihii";
         static uint8 const arraySizes[13] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(1, 13, 0xCDAF2854, types, arraySizes, -1);
         return &instance;
@@ -6536,7 +6536,7 @@ struct TransportAnimationMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fbi?";
+        static char const* types = "fbii";
         static uint8 const arraySizes[4] = { 3, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x6329464B, types, arraySizes, -1);
         return &instance;
@@ -6558,7 +6558,7 @@ struct TransportRotationMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fi?";
+        static char const* types = "fii";
         static uint8 const arraySizes[3] = { 4, 1, 1 };
         static DB2Meta instance(-1, 3, 0x5FE3BC91, types, arraySizes, -1);
         return &instance;
@@ -6679,7 +6679,7 @@ struct UiMapArtStyleLayerMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bhhhhffi?";
+        static char const* types = "bhhhhffii";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 9, 0xAFF6429A, types, arraySizes, -1);
         return &instance;
@@ -6690,7 +6690,7 @@ struct UiMapArtTileMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbbi?";
+        static char const* types = "bbbii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xBA5290E9, types, arraySizes, -1);
         return &instance;
@@ -6756,7 +6756,7 @@ struct UiMapXMapArtMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ii?";
+        static char const* types = "iii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xD74B6E49, types, arraySizes, -1);
         return &instance;
@@ -6778,7 +6778,7 @@ struct UiModelSceneActorMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sfibiffff?";
+        static char const* types = "sfibiffffi";
         static uint8 const arraySizes[10] = { 1, 3, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(3, 10, 0x8B5BF449, types, arraySizes, -1);
         return &instance;
@@ -6800,7 +6800,7 @@ struct UiModelSceneCameraMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sffibbfffffffff?";
+        static char const* types = "sffibbfffffffffi";
         static uint8 const arraySizes[16] = { 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(4, 16, 0xEDFBD5A2, types, arraySizes, -1);
         return &instance;
@@ -6811,7 +6811,7 @@ struct UiPartyPoseMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "iiiii?";
+        static char const* types = "iiiiii";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0x880480BF, types, arraySizes, -1);
         return &instance;
@@ -6877,7 +6877,7 @@ struct UiWidgetConstantSourceMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hi?";
+        static char const* types = "hii";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xFE573B5D, types, arraySizes, -1);
         return &instance;
@@ -6888,7 +6888,7 @@ struct UiWidgetDataSourceMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hbh?";
+        static char const* types = "hbhi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x27BC34FD, types, arraySizes, -1);
         return &instance;
@@ -6899,7 +6899,7 @@ struct UiWidgetStringSourceMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sh?";
+        static char const* types = "shi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0x86CECC21, types, arraySizes, -1);
         return &instance;
@@ -6998,7 +6998,7 @@ struct VehicleUIIndSeatMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bff?";
+        static char const* types = "bffi";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x590E3162, types, arraySizes, -1);
         return &instance;
@@ -7130,7 +7130,7 @@ struct WeaponTrailModelDefMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ih?";
+        static char const* types = "ihi";
         static uint8 const arraySizes[3] = { 1, 1, 1 };
         static DB2Meta instance(-1, 3, 0xCE7AD194, types, arraySizes, -1);
         return &instance;
@@ -7141,7 +7141,7 @@ struct WeaponTrailParamMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bfffffbbb?";
+        static char const* types = "bfffffbbbi";
         static uint8 const arraySizes[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 10, 0xC3B87CA4, types, arraySizes, -1);
         return &instance;
@@ -7163,7 +7163,7 @@ struct WeatherXParticulateMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "i?";
+        static char const* types = "ii";
         static uint8 const arraySizes[2] = { 1, 1 };
         static DB2Meta instance(-1, 2, 0x791A7865, types, arraySizes, -1);
         return &instance;
@@ -7185,7 +7185,7 @@ struct WmoMinimapTextureMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hbbi?";
+        static char const* types = "hbbii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0x48CE176C, types, arraySizes, -1);
         return &instance;
@@ -7251,7 +7251,7 @@ struct WorldMapOverlayTileMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bbbi?";
+        static char const* types = "bbbii";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xC4DCC916, types, arraySizes, -1);
         return &instance;
@@ -7350,7 +7350,7 @@ struct ZoneLightPointMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "fb?";
+        static char const* types = "fbi";
         static uint8 const arraySizes[3] = { 2, 1, 1 };
         static DB2Meta instance(-1, 3, 0xB21DA554, types, arraySizes, -1);
         return &instance;
@@ -7372,12 +7372,14 @@ struct ZoneStoryMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "bii?";
+        static char const* types = "biii";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0x5BFB82E8, types, arraySizes, -1);
         return &instance;
     }
 };
+
+
 
 
 
