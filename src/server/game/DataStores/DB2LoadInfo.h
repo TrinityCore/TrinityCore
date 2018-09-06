@@ -30,7 +30,7 @@ struct AchievementLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { false, FT_STRING, "Title" },
         { false, FT_STRING, "Reward" },
         { true,  FT_INT,    "ID" },
@@ -57,7 +57,7 @@ struct AnimKitLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "OneShotDuration" },
+        { true,  FT_INT,   "OneShotDuration" },
         { false, FT_SHORT, "OneShotStopAnimKitID" },
         { false, FT_SHORT, "LowDefAnimKitID" },
         };
@@ -72,7 +72,7 @@ struct AreaGroupMemberLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "AreaID" },
+        { false, FT_SHORT, "AreaID" },
         { false, FT_INT,   "AreaGroupID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AreaGroupMemberMeta::Instance(), HOTFIX_SEL_AREA_GROUP_MEMBER);
@@ -86,7 +86,7 @@ struct AreaTableLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "ZoneName" },
+        { false, FT_STRING, "ZoneName" },
         { false, FT_STRING, "AreaName" },
         { false, FT_SHORT,  "ContinentID" },
         { false, FT_SHORT,  "ParentAreaID" },
@@ -125,7 +125,7 @@ struct AreaTriggerLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "PosX" },
+        { false, FT_FLOAT, "PosX" },
         { false, FT_FLOAT, "PosY" },
         { false, FT_FLOAT, "PosZ" },
         { true,  FT_INT,   "ID" },
@@ -154,7 +154,7 @@ struct ArmorLocationLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Clothmodifier" },
+        { false, FT_FLOAT, "Clothmodifier" },
         { false, FT_FLOAT, "Leathermodifier" },
         { false, FT_FLOAT, "Chainmodifier" },
         { false, FT_FLOAT, "Platemodifier" },
@@ -171,7 +171,7 @@ struct ArtifactLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { true,  FT_INT,    "ID" },
         { false, FT_SHORT,  "UiTextureKitID" },
         { false, FT_INT,    "UiNameColor" },
@@ -194,7 +194,7 @@ struct ArtifactAppearanceLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { true,  FT_INT,    "ID" },
         { false, FT_SHORT,  "ArtifactAppearanceSetID" },
         { false, FT_BYTE,   "DisplayIndex" },
@@ -221,7 +221,7 @@ struct ArtifactAppearanceSetLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { false, FT_INT,    "ID" },
         { false, FT_BYTE,   "DisplayIndex" },
@@ -242,7 +242,7 @@ struct ArtifactCategoryLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_SHORT, "XpMultCurrencyID" },
+        { true, FT_SHORT, "XpMultCurrencyID" },
         { true, FT_SHORT, "XpMultCurveID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactCategoryMeta::Instance(), HOTFIX_SEL_ARTIFACT_CATEGORY);
@@ -256,7 +256,7 @@ struct ArtifactPowerLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "DisplayPosX" },
+        { false, FT_FLOAT, "DisplayPosX" },
         { false, FT_FLOAT, "DisplayPosY" },
         { true,  FT_INT,   "ID" },
         { false, FT_BYTE,  "ArtifactID" },
@@ -276,7 +276,7 @@ struct ArtifactPowerLinkLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "PowerA" },
+        { false, FT_SHORT, "PowerA" },
         { false, FT_SHORT, "PowerB" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerLinkMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_LINK);
@@ -290,7 +290,7 @@ struct ArtifactPowerPickerLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "PlayerConditionID" },
+        { false, FT_INT, "PlayerConditionID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerPickerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_PICKER);
         return &loadInfo;
@@ -303,7 +303,7 @@ struct ArtifactPowerRankLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "RankIndex" },
+        { false, FT_BYTE,  "RankIndex" },
         { true,  FT_INT,   "SpellID" },
         { false, FT_SHORT, "ItemBonusListID" },
         { false, FT_FLOAT, "AuraPointsOverride" },
@@ -320,7 +320,7 @@ struct ArtifactQuestXPLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT, "Difficulty1" },
+        { true, FT_INT, "Difficulty1" },
         { true, FT_INT, "Difficulty2" },
         { true, FT_INT, "Difficulty3" },
         { true, FT_INT, "Difficulty4" },
@@ -342,7 +342,7 @@ struct ArtifactTierLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ArtifactTier" },
+        { false, FT_INT, "ArtifactTier" },
         { false, FT_INT, "MaxNumTraits" },
         { false, FT_INT, "MaxArtifactKnowledge" },
         { false, FT_INT, "KnowledgePlayerCondition" },
@@ -359,7 +359,7 @@ struct ArtifactUnlockLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "PowerID" },
+        { true,  FT_INT,   "PowerID" },
         { false, FT_BYTE,  "PowerRank" },
         { false, FT_SHORT, "ItemBonusListID" },
         { false, FT_INT,   "PlayerConditionID" },
@@ -376,7 +376,7 @@ struct AuctionHouseLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_SHORT,  "FactionID" },
         { false, FT_BYTE,   "DepositRate" },
         { false, FT_BYTE,   "ConsignmentRate" },
@@ -392,7 +392,7 @@ struct BankBagSlotPricesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "Cost" },
+        { false, FT_INT, "Cost" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BankBagSlotPricesMeta::Instance(), HOTFIX_SEL_BANK_BAG_SLOT_PRICES);
         return &loadInfo;
@@ -405,7 +405,7 @@ struct BannedAddOnsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Version" },
         { false, FT_BYTE,   "Flags" },
         };
@@ -420,7 +420,7 @@ struct BarberShopStyleLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "DisplayName" },
+        { false, FT_STRING, "DisplayName" },
         { false, FT_STRING, "Description" },
         { true,  FT_INT,    "ID" },
         { false, FT_BYTE,   "Type" },
@@ -440,7 +440,7 @@ struct BattlePetBreedQualityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "StateMultiplier" },
+        { false, FT_FLOAT, "StateMultiplier" },
         { false, FT_BYTE,  "QualityEnum" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetBreedQualityMeta::Instance(), HOTFIX_SEL_BATTLE_PET_BREED_QUALITY);
@@ -454,7 +454,7 @@ struct BattlePetBreedStateLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "BattlePetStateID" },
+        { false, FT_BYTE,  "BattlePetStateID" },
         { false, FT_SHORT, "Value" },
         { false, FT_INT,   "BattlePetBreedID" },
         };
@@ -469,7 +469,7 @@ struct BattlePetSpeciesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { false, FT_STRING, "SourceText" },
         { true,  FT_INT,    "ID" },
         { true,  FT_INT,    "CreatureID" },
@@ -492,7 +492,7 @@ struct BattlePetSpeciesStateLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "BattlePetStateID" },
+        { false, FT_BYTE, "BattlePetStateID" },
         { false, FT_INT,  "Value" },
         { false, FT_INT,  "BattlePetSpeciesID" },
         };
@@ -507,7 +507,7 @@ struct BattlemasterListLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "GameType" },
         { false, FT_STRING, "ShortDescription" },
         { false, FT_STRING, "LongDescription" },
@@ -551,7 +551,7 @@ struct BroadcastTextLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Text" },
+        { false, FT_STRING, "Text" },
         { false, FT_STRING, "Text1" },
         { true,  FT_INT,    "ID" },
         { false, FT_BYTE,   "LanguageID" },
@@ -579,7 +579,7 @@ struct CfgRegionsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "Tag" },
         { false, FT_INT, "Raidorigin" },
         { false, FT_INT, "ChallengeOrigin" },
@@ -597,7 +597,7 @@ struct CharacterFacialHairStylesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,  "Geoset1" },
+        { false, FT_INT,  "Geoset1" },
         { false, FT_INT,  "Geoset2" },
         { false, FT_INT,  "Geoset3" },
         { false, FT_INT,  "Geoset4" },
@@ -617,7 +617,7 @@ struct CharBaseSectionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "LayoutResType" },
+        { false, FT_BYTE, "LayoutResType" },
         { false, FT_BYTE, "VariationEnum" },
         { false, FT_BYTE, "ResolutionVariationEnum" },
         };
@@ -632,7 +632,7 @@ struct CharSectionsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "RaceID" },
+        { false, FT_BYTE,  "RaceID" },
         { false, FT_BYTE,  "SexID" },
         { false, FT_BYTE,  "BaseSection" },
         { false, FT_BYTE,  "VariationIndex" },
@@ -653,7 +653,7 @@ struct CharStartOutfitLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "ClassID" },
+        { false, FT_BYTE, "ClassID" },
         { false, FT_BYTE, "SexID" },
         { false, FT_BYTE, "OutfitID" },
         { false, FT_INT,  "PetDisplayID" },
@@ -695,7 +695,7 @@ struct CharTitlesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Name1" },
         { true,  FT_SHORT,  "MaskID" },
         { true,  FT_BYTE,   "Flags" },
@@ -711,7 +711,7 @@ struct ChatChannelsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Shortcut" },
         { true,  FT_INT,    "Flags" },
         { true,  FT_BYTE,   "FactionGroup" },
@@ -727,7 +727,7 @@ struct ChrClassesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Filename" },
         { false, FT_STRING, "NameMale" },
         { false, FT_STRING, "NameFemale" },
@@ -759,7 +759,7 @@ struct ChrClassesXPowerTypesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_BYTE, "PowerType" },
+        { true,  FT_BYTE, "PowerType" },
         { false, FT_INT,  "ClassID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChrClassesXPowerTypesMeta::Instance(), HOTFIX_SEL_CHR_CLASSES_X_POWER_TYPES);
@@ -773,7 +773,7 @@ struct ChrRacesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "ClientPrefix" },
+        { false, FT_STRING, "ClientPrefix" },
         { false, FT_STRING, "ClientFileString" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "NameFemale" },
@@ -839,7 +839,7 @@ struct ChrSpecializationLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "FemaleName" },
         { false, FT_STRING, "Description" },
         { true,  FT_INT,    "ID" },
@@ -865,7 +865,7 @@ struct CinematicCameraLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "OriginX" },
+        { false, FT_FLOAT, "OriginX" },
         { false, FT_FLOAT, "OriginY" },
         { false, FT_FLOAT, "OriginZ" },
         { false, FT_INT,   "SoundID" },
@@ -883,7 +883,7 @@ struct CinematicSequencesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,   "SoundID" },
+        { false, FT_INT,   "SoundID" },
         { false, FT_SHORT, "Camera1" },
         { false, FT_SHORT, "Camera2" },
         { false, FT_SHORT, "Camera3" },
@@ -904,7 +904,7 @@ struct ConversationLineLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "BroadcastTextID" },
+        { true,  FT_INT,   "BroadcastTextID" },
         { true,  FT_INT,   "SpellVisualKitID" },
         { false, FT_INT,   "AdditionalDuration" },
         { false, FT_SHORT, "NextConversationLineID" },
@@ -924,7 +924,7 @@ struct CreatureDisplayInfoLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_SHORT, "ModelID" },
         { false, FT_SHORT, "SoundID" },
         { false, FT_BYTE,  "SizeClass" },
@@ -963,7 +963,7 @@ struct CreatureDisplayInfoExtraLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "DisplayRaceID" },
+        { false, FT_BYTE, "DisplayRaceID" },
         { false, FT_BYTE, "DisplaySexID" },
         { false, FT_BYTE, "DisplayClassID" },
         { false, FT_BYTE, "SkinID" },
@@ -989,7 +989,7 @@ struct CreatureFamilyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_FLOAT,  "MinScale" },
         { false, FT_BYTE,   "MinScaleLevel" },
         { false, FT_FLOAT,  "MaxScale" },
@@ -1011,7 +1011,7 @@ struct CreatureModelDataLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "GeoBox1" },
+        { false, FT_FLOAT, "GeoBox1" },
         { false, FT_FLOAT, "GeoBox2" },
         { false, FT_FLOAT, "GeoBox3" },
         { false, FT_FLOAT, "GeoBox4" },
@@ -1056,7 +1056,7 @@ struct CreatureTypeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CreatureTypeMeta::Instance(), HOTFIX_SEL_CREATURE_TYPE);
@@ -1070,7 +1070,7 @@ struct CriteriaLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "Type" },
+        { false, FT_SHORT, "Type" },
         { true,  FT_INT,   "Asset" },
         { false, FT_INT,   "ModifierTreeID" },
         { false, FT_BYTE,  "StartEvent" },
@@ -1093,7 +1093,7 @@ struct CriteriaTreeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { false, FT_INT,    "Parent" },
         { true,  FT_INT,    "Amount" },
         { false, FT_BYTE,   "Operator" },
@@ -1112,7 +1112,7 @@ struct CurrencyTypesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { false, FT_BYTE,   "CategoryID" },
         { true,  FT_INT,    "InventoryIconFileID" },
@@ -1135,7 +1135,7 @@ struct CurveLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Type" },
+        { false, FT_BYTE, "Type" },
         { false, FT_BYTE, "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurveMeta::Instance(), HOTFIX_SEL_CURVE);
@@ -1149,7 +1149,7 @@ struct CurvePointLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "PosX" },
+        { false, FT_FLOAT, "PosX" },
         { false, FT_FLOAT, "PosY" },
         { false, FT_SHORT, "CurveID" },
         { false, FT_BYTE,  "OrderIndex" },
@@ -1165,7 +1165,7 @@ struct DestructibleModelDataLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "State0ImpactEffectDoodadSet" },
+        { false, FT_BYTE,  "State0ImpactEffectDoodadSet" },
         { false, FT_BYTE,  "State0AmbientDoodadSet" },
         { false, FT_SHORT, "State1Wmo" },
         { true,  FT_BYTE,  "State1DestructionDoodadSet" },
@@ -1199,7 +1199,7 @@ struct DifficultyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "InstanceType" },
         { false, FT_BYTE,   "OrderIndex" },
         { true,  FT_BYTE,   "OldEnumValue" },
@@ -1224,7 +1224,7 @@ struct DungeonEncounterLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { true,  FT_INT,    "ID" },
         { true,  FT_SHORT,  "MapID" },
         { true,  FT_BYTE,   "DifficultyID" },
@@ -1245,7 +1245,7 @@ struct DurabilityCostsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "WeaponSubClassCost1" },
+        { false, FT_SHORT, "WeaponSubClassCost1" },
         { false, FT_SHORT, "WeaponSubClassCost2" },
         { false, FT_SHORT, "WeaponSubClassCost3" },
         { false, FT_SHORT, "WeaponSubClassCost4" },
@@ -1286,7 +1286,7 @@ struct DurabilityQualityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Data" },
+        { false, FT_FLOAT, "Data" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, DurabilityQualityMeta::Instance(), HOTFIX_SEL_DURABILITY_QUALITY);
         return &loadInfo;
@@ -1299,7 +1299,7 @@ struct EmotesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,    "RaceMask" },
+        { false, FT_INT,    "RaceMask" },
         { false, FT_STRING, "EmoteSlashCommand" },
         { true,  FT_INT,    "AnimID" },
         { true,  FT_INT,    "EmoteFlags" },
@@ -1320,7 +1320,7 @@ struct EmotesTextLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_SHORT,  "EmoteID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, EmotesTextMeta::Instance(), HOTFIX_SEL_EMOTES_TEXT);
@@ -1334,7 +1334,7 @@ struct EmotesTextSoundLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "RaceID" },
+        { false, FT_BYTE, "RaceID" },
         { false, FT_BYTE, "ClassID" },
         { false, FT_BYTE, "SexID" },
         { false, FT_INT,  "SoundID" },
@@ -1351,7 +1351,7 @@ struct FactionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,    "ReputationRaceMask1" },
+        { false, FT_INT,    "ReputationRaceMask1" },
         { false, FT_INT,    "ReputationRaceMask2" },
         { false, FT_INT,    "ReputationRaceMask3" },
         { false, FT_INT,    "ReputationRaceMask4" },
@@ -1396,7 +1396,7 @@ struct FactionTemplateLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "Faction" },
+        { false, FT_SHORT, "Faction" },
         { false, FT_SHORT, "Flags" },
         { false, FT_BYTE,  "FactionGroup" },
         { false, FT_BYTE,  "FriendGroup" },
@@ -1421,7 +1421,7 @@ struct GameObjectDisplayInfoLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "GeoBox1" },
+        { false, FT_FLOAT, "GeoBox1" },
         { false, FT_FLOAT, "GeoBox2" },
         { false, FT_FLOAT, "GeoBox3" },
         { false, FT_FLOAT, "GeoBox4" },
@@ -1443,7 +1443,7 @@ struct GameObjectsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_FLOAT,  "PosX" },
         { false, FT_FLOAT,  "PosY" },
         { false, FT_FLOAT,  "PosZ" },
@@ -1479,7 +1479,7 @@ struct GarrAbilityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { true,  FT_INT,    "ID" },
         { false, FT_BYTE,   "GarrAbilityCategoryID" },
@@ -1499,7 +1499,7 @@ struct GarrBuildingLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "HordeName" },
+        { false, FT_STRING, "HordeName" },
         { false, FT_STRING, "AllianceName" },
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "Tooltip" },
@@ -1535,7 +1535,7 @@ struct GarrBuildingPlotInstLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "MapOffsetX" },
+        { false, FT_FLOAT, "MapOffsetX" },
         { false, FT_FLOAT, "MapOffsetY" },
         { true,  FT_INT,   "ID" },
         { false, FT_BYTE,  "GarrBuildingID" },
@@ -1553,7 +1553,7 @@ struct GarrClassSpecLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "ClassSpec" },
+        { false, FT_STRING, "ClassSpec" },
         { false, FT_STRING, "ClassSpecMale" },
         { false, FT_STRING, "ClassSpecFemale" },
         { false, FT_INT,    "ID" },
@@ -1573,7 +1573,7 @@ struct GarrFollowerLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "HordeSourceText" },
+        { false, FT_STRING, "HordeSourceText" },
         { false, FT_STRING, "AllianceSourceText" },
         { false, FT_STRING, "TitleName" },
         { true,  FT_INT,    "ID" },
@@ -1617,7 +1617,7 @@ struct GarrFollowerXAbilityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "OrderIndex" },
+        { false, FT_BYTE,  "OrderIndex" },
         { false, FT_BYTE,  "FactionIndex" },
         { false, FT_SHORT, "GarrAbilityID" },
         { false, FT_INT,   "GarrFollowerID" },
@@ -1633,7 +1633,7 @@ struct GarrPlotLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "PlotType" },
         { true,  FT_INT,    "HordeConstructObjID" },
         { true,  FT_INT,    "AllianceConstructObjID" },
@@ -1653,7 +1653,7 @@ struct GarrPlotBuildingLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "GarrPlotID" },
+        { false, FT_BYTE, "GarrPlotID" },
         { false, FT_BYTE, "GarrBuildingID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrPlotBuildingMeta::Instance(), HOTFIX_SEL_GARR_PLOT_BUILDING);
@@ -1667,7 +1667,7 @@ struct GarrPlotInstanceLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "GarrPlotID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrPlotInstanceMeta::Instance(), HOTFIX_SEL_GARR_PLOT_INSTANCE);
@@ -1681,7 +1681,7 @@ struct GarrSiteLevelLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "TownHallUiPosX" },
+        { false, FT_FLOAT, "TownHallUiPosX" },
         { false, FT_FLOAT, "TownHallUiPosY" },
         { false, FT_INT,   "GarrSiteID" },
         { false, FT_BYTE,  "GarrLevel" },
@@ -1703,7 +1703,7 @@ struct GarrSiteLevelPlotInstLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "UiMarkerPosX" },
+        { false, FT_FLOAT, "UiMarkerPosX" },
         { false, FT_FLOAT, "UiMarkerPosY" },
         { false, FT_SHORT, "GarrSiteLevelID" },
         { false, FT_BYTE,  "GarrPlotInstanceID" },
@@ -1720,7 +1720,7 @@ struct GemPropertiesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "EnchantID" },
+        { false, FT_SHORT, "EnchantID" },
         { true,  FT_INT,   "Type" },
         { false, FT_SHORT, "MinItemLevel" },
         };
@@ -1735,7 +1735,7 @@ struct GlyphBindableSpellLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT, "SpellID" },
+        { true,  FT_INT, "SpellID" },
         { false, FT_INT, "GlyphPropertiesID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlyphBindableSpellMeta::Instance(), HOTFIX_SEL_GLYPH_BINDABLE_SPELL);
@@ -1749,7 +1749,7 @@ struct GlyphPropertiesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,   "SpellID" },
+        { false, FT_INT,   "SpellID" },
         { false, FT_SHORT, "SpellIconID" },
         { false, FT_BYTE,  "GlyphType" },
         { false, FT_BYTE,  "GlyphExclusiveCategoryID" },
@@ -1765,7 +1765,7 @@ struct GlyphRequiredSpecLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ChrSpecializationID" },
+        { false, FT_SHORT, "ChrSpecializationID" },
         { false, FT_INT,   "GlyphPropertiesID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlyphRequiredSpecMeta::Instance(), HOTFIX_SEL_GLYPH_REQUIRED_SPEC);
@@ -1779,7 +1779,7 @@ struct GuildColorBackgroundLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Red" },
+        { false, FT_BYTE, "Red" },
         { false, FT_BYTE, "Blue" },
         { false, FT_BYTE, "Green" },
         };
@@ -1794,7 +1794,7 @@ struct GuildColorBorderLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Red" },
+        { false, FT_BYTE, "Red" },
         { false, FT_BYTE, "Blue" },
         { false, FT_BYTE, "Green" },
         };
@@ -1809,7 +1809,7 @@ struct GuildColorEmblemLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Red" },
+        { false, FT_BYTE, "Red" },
         { false, FT_BYTE, "Blue" },
         { false, FT_BYTE, "Green" },
         };
@@ -1824,7 +1824,7 @@ struct GuildPerkSpellsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT, "SpellID" },
+        { true, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GuildPerkSpellsMeta::Instance(), HOTFIX_SEL_GUILD_PERK_SPELLS);
         return &loadInfo;
@@ -1837,7 +1837,7 @@ struct HeirloomLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "SourceText" },
+        { false, FT_STRING, "SourceText" },
         { true,  FT_INT,    "ID" },
         { true,  FT_INT,    "ItemID" },
         { true,  FT_INT,    "LegacyUpgradedItemID" },
@@ -1863,7 +1863,7 @@ struct HolidaysLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_SHORT, "Region" },
         { false, FT_BYTE,  "Looping" },
         { false, FT_INT,   "HolidayNameID" },
@@ -1922,7 +1922,7 @@ struct ImportPriceArmorLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "ClothModifier" },
+        { false, FT_FLOAT, "ClothModifier" },
         { false, FT_FLOAT, "LeatherModifier" },
         { false, FT_FLOAT, "ChainModifier" },
         { false, FT_FLOAT, "PlateModifier" },
@@ -1938,7 +1938,7 @@ struct ImportPriceQualityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Data" },
+        { false, FT_FLOAT, "Data" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceQualityMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_QUALITY);
         return &loadInfo;
@@ -1951,7 +1951,7 @@ struct ImportPriceShieldLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Data" },
+        { false, FT_FLOAT, "Data" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceShieldMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_SHIELD);
         return &loadInfo;
@@ -1964,7 +1964,7 @@ struct ImportPriceWeaponLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Data" },
+        { false, FT_FLOAT, "Data" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceWeaponMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_WEAPON);
         return &loadInfo;
@@ -1977,7 +1977,7 @@ struct ItemLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "ClassID" },
+        { false, FT_BYTE, "ClassID" },
         { false, FT_BYTE, "SubclassID" },
         { false, FT_BYTE, "Material" },
         { false, FT_BYTE, "InventoryType" },
@@ -1997,7 +1997,7 @@ struct ItemAppearanceLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "DisplayType" },
+        { false, FT_BYTE, "DisplayType" },
         { true,  FT_INT,  "ItemDisplayInfoID" },
         { true,  FT_INT,  "DefaultIconFileDataID" },
         { true,  FT_INT,  "UiOrder" },
@@ -2013,7 +2013,7 @@ struct ItemArmorQualityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Qualitymod1" },
+        { false, FT_FLOAT, "Qualitymod1" },
         { false, FT_FLOAT, "Qualitymod2" },
         { false, FT_FLOAT, "Qualitymod3" },
         { false, FT_FLOAT, "Qualitymod4" },
@@ -2032,7 +2032,7 @@ struct ItemArmorShieldLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Quality1" },
+        { false, FT_FLOAT, "Quality1" },
         { false, FT_FLOAT, "Quality2" },
         { false, FT_FLOAT, "Quality3" },
         { false, FT_FLOAT, "Quality4" },
@@ -2052,7 +2052,7 @@ struct ItemArmorTotalLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_SHORT, "ItemLevel" },
+        { true,  FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Cloth" },
         { false, FT_FLOAT, "Leather" },
         { false, FT_FLOAT, "Mail" },
@@ -2069,7 +2069,7 @@ struct ItemBagFamilyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemBagFamilyMeta::Instance(), HOTFIX_SEL_ITEM_BAG_FAMILY);
         return &loadInfo;
@@ -2082,7 +2082,7 @@ struct ItemBonusLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,   "Value1" },
+        { false, FT_INT,   "Value1" },
         { false, FT_INT,   "Value2" },
         { false, FT_INT,   "Value3" },
         { false, FT_SHORT, "ParentItemBonusListID" },
@@ -2100,7 +2100,7 @@ struct ItemBonusListLevelDeltaLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_SHORT, "ItemLevelDelta" },
+        { true, FT_SHORT, "ItemLevelDelta" },
         { true, FT_INT,   "ID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemBonusListLevelDeltaMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA);
@@ -2114,7 +2114,7 @@ struct ItemBonusTreeNodeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "ItemContext" },
+        { false, FT_BYTE,  "ItemContext" },
         { false, FT_SHORT, "ChildItemBonusTreeID" },
         { false, FT_SHORT, "ChildItemBonusListID" },
         { false, FT_SHORT, "ChildItemLevelSelectorID" },
@@ -2131,7 +2131,7 @@ struct ItemChildEquipmentLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "ChildItemID" },
+        { true,  FT_INT,  "ChildItemID" },
         { false, FT_BYTE, "ChildItemEquipSlot" },
         { false, FT_INT,  "ParentItemID" },
         };
@@ -2146,7 +2146,7 @@ struct ItemClassLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "ClassName" },
+        { false, FT_STRING, "ClassName" },
         { true,  FT_BYTE,   "ClassID" },
         { false, FT_FLOAT,  "PriceModifier" },
         { false, FT_BYTE,   "Flags" },
@@ -2162,7 +2162,7 @@ struct ItemCurrencyCostLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT, "ItemID" },
+        { true, FT_INT, "ItemID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemCurrencyCostMeta::Instance(), HOTFIX_SEL_ITEM_CURRENCY_COST);
         return &loadInfo;
@@ -2175,7 +2175,7 @@ struct ItemDamageAmmoLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemLevel" },
+        { false, FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Quality1" },
         { false, FT_FLOAT, "Quality2" },
         { false, FT_FLOAT, "Quality3" },
@@ -2195,7 +2195,7 @@ struct ItemDamageOneHandLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemLevel" },
+        { false, FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Quality1" },
         { false, FT_FLOAT, "Quality2" },
         { false, FT_FLOAT, "Quality3" },
@@ -2215,7 +2215,7 @@ struct ItemDamageOneHandCasterLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemLevel" },
+        { false, FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Quality1" },
         { false, FT_FLOAT, "Quality2" },
         { false, FT_FLOAT, "Quality3" },
@@ -2235,7 +2235,7 @@ struct ItemDamageTwoHandLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemLevel" },
+        { false, FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Quality1" },
         { false, FT_FLOAT, "Quality2" },
         { false, FT_FLOAT, "Quality3" },
@@ -2255,7 +2255,7 @@ struct ItemDamageTwoHandCasterLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemLevel" },
+        { false, FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Quality1" },
         { false, FT_FLOAT, "Quality2" },
         { false, FT_FLOAT, "Quality3" },
@@ -2275,7 +2275,7 @@ struct ItemDisenchantLootLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "Subclass" },
+        { false, FT_BYTE,  "Subclass" },
         { false, FT_BYTE,  "Quality" },
         { false, FT_SHORT, "MinLevel" },
         { false, FT_SHORT, "MaxLevel" },
@@ -2294,7 +2294,7 @@ struct ItemEffectLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "LegacySlotIndex" },
+        { false, FT_BYTE,  "LegacySlotIndex" },
         { true,  FT_BYTE,  "TriggerType" },
         { false, FT_SHORT, "Charges" },
         { false, FT_INT,   "CoolDownMSec" },
@@ -2315,7 +2315,7 @@ struct ItemExtendedCostLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "RequiredArenaRating" },
+        { false, FT_SHORT, "RequiredArenaRating" },
         { false, FT_BYTE,  "ArenaBracket" },
         { false, FT_BYTE,  "Flags" },
         { false, FT_BYTE,  "MinFactionID" },
@@ -2353,7 +2353,7 @@ struct ItemLevelSelectorLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "MinItemLevel" },
+        { false, FT_SHORT, "MinItemLevel" },
         { false, FT_SHORT, "ItemLevelSelectorQualitySetID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemLevelSelectorMeta::Instance(), HOTFIX_SEL_ITEM_LEVEL_SELECTOR);
@@ -2367,7 +2367,7 @@ struct ItemLevelSelectorQualityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "QualityItemBonusListID" },
+        { true,  FT_INT,  "QualityItemBonusListID" },
         { true,  FT_BYTE, "Quality" },
         { false, FT_INT,  "ParentILSQualitySetID" },
         };
@@ -2382,7 +2382,7 @@ struct ItemLevelSelectorQualitySetLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_SHORT, "IlvlRare" },
+        { true, FT_SHORT, "IlvlRare" },
         { true, FT_SHORT, "IlvlEpic" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemLevelSelectorQualitySetMeta::Instance(), HOTFIX_SEL_ITEM_LEVEL_SELECTOR_QUALITY_SET);
@@ -2396,7 +2396,7 @@ struct ItemLimitCategoryLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "Quantity" },
         { false, FT_BYTE,   "Flags" },
         };
@@ -2411,7 +2411,7 @@ struct ItemLimitCategoryConditionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_BYTE, "AddQuantity" },
+        { true,  FT_BYTE, "AddQuantity" },
         { false, FT_INT,  "PlayerConditionID" },
         { false, FT_INT,  "ParentItemLimitCategoryID" },
         };
@@ -2426,7 +2426,7 @@ struct ItemModifiedAppearanceLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { true,  FT_INT,   "ItemID" },
         { false, FT_BYTE,  "ItemAppearanceModifierID" },
         { false, FT_SHORT, "ItemAppearanceID" },
@@ -2444,7 +2444,7 @@ struct ItemPriceBaseLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemLevel" },
+        { false, FT_SHORT, "ItemLevel" },
         { false, FT_FLOAT, "Armor" },
         { false, FT_FLOAT, "Weapon" },
         };
@@ -2459,7 +2459,7 @@ struct ItemRandomPropertiesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_SHORT,  "Enchantment1" },
         { false, FT_SHORT,  "Enchantment2" },
         { false, FT_SHORT,  "Enchantment3" },
@@ -2477,7 +2477,7 @@ struct ItemRandomSuffixLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_SHORT,  "Enchantment1" },
         { false, FT_SHORT,  "Enchantment2" },
         { false, FT_SHORT,  "Enchantment3" },
@@ -2500,7 +2500,7 @@ struct ItemSearchNameLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,    "AllowableRace" },
+        { false, FT_INT,    "AllowableRace" },
         { false, FT_STRING, "Display" },
         { true,  FT_INT,    "ID" },
         { false, FT_BYTE,   "OverallQualityID" },
@@ -2529,7 +2529,7 @@ struct ItemSetLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_INT,    "SetFlags" },
         { false, FT_INT,    "RequiredSkill" },
         { false, FT_SHORT,  "RequiredSkillRank" },
@@ -2562,7 +2562,7 @@ struct ItemSetSpellLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ChrSpecID" },
+        { false, FT_SHORT, "ChrSpecID" },
         { false, FT_INT,   "SpellID" },
         { false, FT_BYTE,  "Threshold" },
         { false, FT_INT,   "ItemSetID" },
@@ -2578,7 +2578,7 @@ struct ItemSparseLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,    "AllowableRace" },
+        { false, FT_INT,    "AllowableRace" },
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "Display3" },
         { false, FT_STRING, "Display2" },
@@ -2686,7 +2686,7 @@ struct ItemSpecLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "MinLevel" },
+        { false, FT_BYTE,  "MinLevel" },
         { false, FT_BYTE,  "MaxLevel" },
         { false, FT_BYTE,  "ItemType" },
         { false, FT_BYTE,  "PrimaryStat" },
@@ -2704,7 +2704,7 @@ struct ItemSpecOverrideLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "SpecID" },
+        { false, FT_SHORT, "SpecID" },
         { false, FT_INT,   "ItemID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSpecOverrideMeta::Instance(), HOTFIX_SEL_ITEM_SPEC_OVERRIDE);
@@ -2718,7 +2718,7 @@ struct ItemUpgradeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "ItemUpgradePathID" },
+        { false, FT_BYTE,  "ItemUpgradePathID" },
         { false, FT_BYTE,  "ItemLevelIncrement" },
         { false, FT_SHORT, "PrerequisiteID" },
         { false, FT_SHORT, "CurrencyType" },
@@ -2735,7 +2735,7 @@ struct ItemXBonusTreeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "ItemBonusTreeID" },
+        { false, FT_SHORT, "ItemBonusTreeID" },
         { false, FT_INT,   "ItemID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemXBonusTreeMeta::Instance(), HOTFIX_SEL_ITEM_X_BONUS_TREE);
@@ -2749,7 +2749,7 @@ struct KeyChainLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Key1" },
+        { false, FT_BYTE, "Key1" },
         { false, FT_BYTE, "Key2" },
         { false, FT_BYTE, "Key3" },
         { false, FT_BYTE, "Key4" },
@@ -2793,7 +2793,7 @@ struct LfgDungeonsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
         { false, FT_BYTE,   "MinLevel" },
         { false, FT_SHORT,  "MaxLevel" },
@@ -2839,7 +2839,7 @@ struct LightLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "GameCoordsX" },
+        { false, FT_FLOAT, "GameCoordsX" },
         { false, FT_FLOAT, "GameCoordsY" },
         { false, FT_FLOAT, "GameCoordsZ" },
         { false, FT_FLOAT, "GameFalloffStart" },
@@ -2865,7 +2865,7 @@ struct LiquidTypeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Texture1" },
         { false, FT_STRING, "Texture2" },
         { false, FT_STRING, "Texture3" },
@@ -2932,7 +2932,7 @@ struct LockLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "Index1" },
+        { true,  FT_INT,   "Index1" },
         { true,  FT_INT,   "Index2" },
         { true,  FT_INT,   "Index3" },
         { true,  FT_INT,   "Index4" },
@@ -2976,7 +2976,7 @@ struct MailTemplateLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Body" },
+        { false, FT_STRING, "Body" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MailTemplateMeta::Instance(), HOTFIX_SEL_MAIL_TEMPLATE);
         return &loadInfo;
@@ -2989,7 +2989,7 @@ struct MapLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Directory" },
+        { false, FT_STRING, "Directory" },
         { false, FT_STRING, "MapName" },
         { false, FT_STRING, "MapDescription0" },
         { false, FT_STRING, "MapDescription1" },
@@ -3025,7 +3025,7 @@ struct MapDifficultyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Message" },
+        { false, FT_STRING, "Message" },
         { true,  FT_INT,    "ItemContextPickerID" },
         { true,  FT_INT,    "Unknown" },
         { false, FT_BYTE,   "DifficultyID" },
@@ -3047,7 +3047,7 @@ struct ModifierTreeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,  "Parent" },
+        { false, FT_INT,  "Parent" },
         { true,  FT_BYTE, "Operator" },
         { false, FT_BYTE, "Amount" },
         { false, FT_BYTE, "Type" },
@@ -3066,7 +3066,7 @@ struct MountLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "SourceText" },
         { false, FT_STRING, "Description" },
         { true,  FT_INT,    "ID" },
@@ -3089,7 +3089,7 @@ struct MountCapabilityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_BYTE,  "Flags" },
         { false, FT_SHORT, "ReqRidingSkill" },
         { false, FT_SHORT, "ReqAreaID" },
@@ -3109,7 +3109,7 @@ struct MountTypeXCapabilityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "MountTypeID" },
+        { false, FT_SHORT, "MountTypeID" },
         { false, FT_SHORT, "MountCapabilityID" },
         { false, FT_BYTE,  "OrderIndex" },
         };
@@ -3124,7 +3124,7 @@ struct MountXDisplayLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT, "CreatureDisplayInfoID" },
+        { true,  FT_INT, "CreatureDisplayInfoID" },
         { true,  FT_INT, "PlayerConditionID" },
         { false, FT_INT, "MountID" },
         };
@@ -3139,7 +3139,7 @@ struct MovieLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Volume" },
+        { false, FT_BYTE, "Volume" },
         { false, FT_BYTE, "KeyID" },
         { false, FT_INT,  "AudioFileDataID" },
         { false, FT_INT,  "SubtitleFileDataID" },
@@ -3155,7 +3155,7 @@ struct NameGenLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "RaceID" },
         { false, FT_BYTE,   "Sex" },
         };
@@ -3170,7 +3170,7 @@ struct NamesProfanityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "Language" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesProfanityMeta::Instance(), HOTFIX_SEL_NAMES_PROFANITY);
@@ -3184,7 +3184,7 @@ struct NamesReservedLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesReservedMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED);
         return &loadInfo;
@@ -3197,7 +3197,7 @@ struct NamesReservedLocaleLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "LocaleMask" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesReservedLocaleMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED);
@@ -3211,7 +3211,7 @@ struct OverrideSpellDataLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "Spells1" },
+        { true,  FT_INT,  "Spells1" },
         { true,  FT_INT,  "Spells2" },
         { true,  FT_INT,  "Spells3" },
         { true,  FT_INT,  "Spells4" },
@@ -3235,7 +3235,7 @@ struct PhaseLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "Flags" },
+        { false, FT_SHORT, "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PhaseMeta::Instance(), HOTFIX_SEL_PHASE);
         return &loadInfo;
@@ -3248,7 +3248,7 @@ struct PhaseXPhaseGroupLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "PhaseID" },
+        { false, FT_SHORT, "PhaseID" },
         { false, FT_INT,   "PhaseGroupID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PhaseXPhaseGroupMeta::Instance(), HOTFIX_SEL_PHASE_X_PHASE_GROUP);
@@ -3262,7 +3262,7 @@ struct PlayerConditionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,    "RaceMask" },
+        { false, FT_INT,    "RaceMask" },
         { false, FT_STRING, "FailureDescription" },
         { true,  FT_INT,    "ID" },
         { false, FT_SHORT,  "MinLevel" },
@@ -3421,7 +3421,7 @@ struct PowerDisplayLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "GlobalStringBaseTag" },
+        { false, FT_STRING, "GlobalStringBaseTag" },
         { false, FT_BYTE,   "ActualType" },
         { false, FT_BYTE,   "Red" },
         { false, FT_BYTE,   "Green" },
@@ -3438,7 +3438,7 @@ struct PowerTypeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "NameGlobalStringTag" },
+        { false, FT_STRING, "NameGlobalStringTag" },
         { false, FT_STRING, "CostGlobalStringTag" },
         { true,  FT_BYTE,   "PowerTypeEnum" },
         { true,  FT_BYTE,   "MinPower" },
@@ -3462,7 +3462,7 @@ struct PrestigeLevelInfoLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { true,  FT_INT,    "HonorLevel" },
         { true,  FT_INT,    "BadgeTextureFileDataID" },
         { false, FT_BYTE,   "Flags" },
@@ -3479,7 +3479,7 @@ struct PvpDifficultyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "RangeIndex" },
+        { false, FT_BYTE, "RangeIndex" },
         { false, FT_BYTE, "MinLevel" },
         { false, FT_BYTE, "MaxLevel" },
         { false, FT_INT,  "MapID" },
@@ -3495,7 +3495,7 @@ struct PvpItemLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "ItemID" },
+        { true,  FT_INT,  "ItemID" },
         { false, FT_BYTE, "ItemLevelDelta" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PVPItemMeta::Instance(), HOTFIX_SEL_PVP_ITEM);
@@ -3509,7 +3509,7 @@ struct PvpRewardLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "HonorLevel" },
         { true, FT_INT, "PrestigeLevel" },
         { true, FT_INT, "RewardPackID" },
@@ -3525,7 +3525,7 @@ struct PvpTalentLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { true,  FT_INT,    "ID" },
         { true,  FT_INT,    "SpecID" },
         { true,  FT_INT,    "SpellID" },
@@ -3546,7 +3546,7 @@ struct PvpTalentUnlockLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "TierID" },
         { true, FT_INT, "ColumnIndex" },
         { true, FT_INT, "HonorLevel" },
@@ -3562,7 +3562,7 @@ struct QuestFactionRewardLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_SHORT, "Difficulty1" },
+        { true, FT_SHORT, "Difficulty1" },
         { true, FT_SHORT, "Difficulty2" },
         { true, FT_SHORT, "Difficulty3" },
         { true, FT_SHORT, "Difficulty4" },
@@ -3584,7 +3584,7 @@ struct QuestMoneyRewardLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "Difficulty1" },
+        { false, FT_INT, "Difficulty1" },
         { false, FT_INT, "Difficulty2" },
         { false, FT_INT, "Difficulty3" },
         { false, FT_INT, "Difficulty4" },
@@ -3606,7 +3606,7 @@ struct QuestPackageItemLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "PackageID" },
+        { false, FT_SHORT, "PackageID" },
         { true,  FT_INT,   "ItemID" },
         { false, FT_INT,   "ItemQuantity" },
         { false, FT_BYTE,  "DisplayType" },
@@ -3622,7 +3622,7 @@ struct QuestSortLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "SortName" },
+        { false, FT_STRING, "SortName" },
         { false, FT_BYTE,   "UiOrderIndex" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestSortMeta::Instance(), HOTFIX_SEL_QUEST_SORT);
@@ -3636,7 +3636,7 @@ struct QuestV2LoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "UniqueBitFlag" },
+        { false, FT_SHORT, "UniqueBitFlag" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestV2Meta::Instance(), HOTFIX_SEL_QUEST_V2);
         return &loadInfo;
@@ -3649,7 +3649,7 @@ struct QuestXpLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "Difficulty1" },
+        { false, FT_SHORT, "Difficulty1" },
         { false, FT_SHORT, "Difficulty2" },
         { false, FT_SHORT, "Difficulty3" },
         { false, FT_SHORT, "Difficulty4" },
@@ -3671,7 +3671,7 @@ struct RandPropPointsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT, "DamageReplaceStat" },
+        { true,  FT_INT, "DamageReplaceStat" },
         { false, FT_INT, "Epic1" },
         { false, FT_INT, "Epic2" },
         { false, FT_INT, "Epic3" },
@@ -3699,7 +3699,7 @@ struct RewardPackLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "CharTitleID" },
+        { true,  FT_INT,   "CharTitleID" },
         { true,  FT_INT,   "Money" },
         { false, FT_BYTE,  "ArtifactXPDifficulty" },
         { false, FT_FLOAT, "ArtifactXPMultiplier" },
@@ -3717,7 +3717,7 @@ struct RewardPackXCurrencyTypeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "CurrencyTypeID" },
+        { false, FT_INT, "CurrencyTypeID" },
         { true,  FT_INT, "Quantity" },
         { false, FT_INT, "RewardPackID" },
         };
@@ -3732,7 +3732,7 @@ struct RewardPackXItemLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT, "ItemID" },
+        { true,  FT_INT, "ItemID" },
         { true,  FT_INT, "ItemQuantity" },
         { false, FT_INT, "RewardPackID" },
         };
@@ -3747,7 +3747,7 @@ struct RulesetItemUpgradeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ItemID" },
+        { true,  FT_INT,   "ItemID" },
         { false, FT_SHORT, "ItemUpgradeID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RulesetItemUpgradeMeta::Instance(), HOTFIX_SEL_RULESET_ITEM_UPGRADE);
@@ -3761,7 +3761,7 @@ struct SandboxScalingLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "MinLevel" },
         { true, FT_INT, "MaxLevel" },
         { true, FT_INT, "Flags" },
@@ -3777,7 +3777,7 @@ struct ScalingStatDistributionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "PlayerLevelToItemLevelCurveID" },
+        { false, FT_SHORT, "PlayerLevelToItemLevelCurveID" },
         { true,  FT_INT,   "MinLevel" },
         { true,  FT_INT,   "MaxLevel" },
         };
@@ -3792,7 +3792,7 @@ struct ScenarioLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_SHORT,  "AreaTableID" },
         { false, FT_BYTE,   "Type" },
         { false, FT_BYTE,   "Flags" },
@@ -3809,7 +3809,7 @@ struct ScenarioStepLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { false, FT_STRING, "Title" },
         { false, FT_SHORT,  "ScenarioID" },
         { false, FT_INT,    "CriteriatreeID" },
@@ -3832,7 +3832,7 @@ struct SceneScriptLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_SHORT, "FirstSceneScriptID" },
+        { false, FT_SHORT, "FirstSceneScriptID" },
         { false, FT_SHORT, "NextSceneScriptID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SceneScriptMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT);
@@ -3846,7 +3846,7 @@ struct SceneScriptGlobalTextLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Script" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SceneScriptGlobalTextMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_GLOBAL_TEXT);
@@ -3860,7 +3860,7 @@ struct SceneScriptPackageLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SceneScriptPackageMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_PACKAGE);
         return &loadInfo;
@@ -3873,7 +3873,7 @@ struct SceneScriptTextLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Script" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SceneScriptTextMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_TEXT);
@@ -3887,7 +3887,7 @@ struct SkillLineLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "DisplayName" },
+        { false, FT_STRING, "DisplayName" },
         { false, FT_STRING, "AlternateVerb" },
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "HordeDisplayName" },
@@ -3912,7 +3912,7 @@ struct SkillLineAbilityLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,   "RaceMask" },
+        { false, FT_INT,   "RaceMask" },
         { true,  FT_INT,   "ID" },
         { true,  FT_SHORT, "SkillLine" },
         { true,  FT_INT,   "Spell" },
@@ -3939,7 +3939,7 @@ struct SkillRaceClassInfoLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,   "RaceMask" },
+        { false, FT_INT,   "RaceMask" },
         { true,  FT_SHORT, "SkillID" },
         { true,  FT_INT,   "ClassMask" },
         { false, FT_SHORT, "Flags" },
@@ -3958,7 +3958,7 @@ struct SoundKitLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_BYTE,  "SoundType" },
         { false, FT_FLOAT, "VolumeFloat" },
         { false, FT_SHORT, "Flags" },
@@ -3986,7 +3986,7 @@ struct SpecializationSpellsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { true,  FT_INT,    "ID" },
         { false, FT_SHORT,  "SpecID" },
         { true,  FT_INT,    "SpellID" },
@@ -4004,7 +4004,7 @@ struct SpellLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "NameSubtext" },
+        { false, FT_STRING, "NameSubtext" },
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "AuraDescription" },
         };
@@ -4019,7 +4019,7 @@ struct SpellAuraOptionsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "DifficultyID" },
+        { false, FT_BYTE,  "DifficultyID" },
         { false, FT_SHORT, "CumulativeAura" },
         { true,  FT_INT,   "ProcCategoryRecovery" },
         { false, FT_BYTE,  "ProcChance" },
@@ -4040,7 +4040,7 @@ struct SpellAuraRestrictionsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "DifficultyID" },
+        { false, FT_BYTE, "DifficultyID" },
         { false, FT_BYTE, "CasterAuraState" },
         { false, FT_BYTE, "TargetAuraState" },
         { false, FT_BYTE, "ExcludeCasterAuraState" },
@@ -4062,7 +4062,7 @@ struct SpellCastTimesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "Base" },
+        { true,  FT_INT,   "Base" },
         { false, FT_SHORT, "PerLevel" },
         { true,  FT_INT,   "Minimum" },
         };
@@ -4077,7 +4077,7 @@ struct SpellCastingRequirementsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "SpellID" },
+        { true,  FT_INT,   "SpellID" },
         { false, FT_BYTE,  "FacingCasterFlags" },
         { false, FT_SHORT, "MinFactionID" },
         { true,  FT_BYTE,  "MinReputation" },
@@ -4096,7 +4096,7 @@ struct SpellCategoriesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "DifficultyID" },
+        { false, FT_BYTE,  "DifficultyID" },
         { false, FT_SHORT, "Category" },
         { false, FT_BYTE,  "DefenseType" },
         { false, FT_BYTE,  "DispelType" },
@@ -4117,7 +4117,7 @@ struct SpellCategoryLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "Flags" },
         { false, FT_BYTE,   "UsesPerWeek" },
         { true,  FT_BYTE,   "MaxCharges" },
@@ -4135,7 +4135,7 @@ struct SpellClassOptionsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "SpellID" },
+        { true,  FT_INT,  "SpellID" },
         { false, FT_INT,  "ModalNextSpell" },
         { false, FT_BYTE, "SpellClassSet" },
         { false, FT_INT,  "SpellClassMask1" },
@@ -4154,7 +4154,7 @@ struct SpellCooldownsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "DifficultyID" },
+        { false, FT_BYTE, "DifficultyID" },
         { true,  FT_INT,  "CategoryRecoveryTime" },
         { true,  FT_INT,  "RecoveryTime" },
         { true,  FT_INT,  "StartRecoveryTime" },
@@ -4171,7 +4171,7 @@ struct SpellDurationLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT, "Duration" },
+        { true, FT_INT, "Duration" },
         { true, FT_INT, "DurationPerLevel" },
         { true, FT_INT, "MaxDuration" },
         };
@@ -4186,7 +4186,7 @@ struct SpellEffectLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "DifficultyID" },
+        { true,  FT_INT,   "DifficultyID" },
         { true,  FT_INT,   "EffectIndex" },
         { false, FT_INT,   "Effect" },
         { false, FT_FLOAT, "EffectAmplitude" },
@@ -4232,7 +4232,7 @@ struct SpellEquippedItemsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "SpellID" },
+        { true,  FT_INT,  "SpellID" },
         { false, FT_BYTE, "EquippedItemClass" },
         { true,  FT_INT,  "EquippedItemInvTypes" },
         { true,  FT_INT,  "EquippedItemSubclass" },
@@ -4248,7 +4248,7 @@ struct SpellFocusObjectLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellFocusObjectMeta::Instance(), HOTFIX_SEL_SPELL_FOCUS_OBJECT);
         return &loadInfo;
@@ -4261,7 +4261,7 @@ struct SpellInterruptsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "DifficultyID" },
+        { false, FT_BYTE,  "DifficultyID" },
         { true,  FT_SHORT, "InterruptFlags" },
         { true,  FT_INT,   "AuraInterruptFlags1" },
         { true,  FT_INT,   "AuraInterruptFlags2" },
@@ -4280,7 +4280,7 @@ struct SpellItemEnchantmentLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "HordeName" },
         { true,  FT_INT,    "EffectArg1" },
         { true,  FT_INT,    "EffectArg2" },
@@ -4320,7 +4320,7 @@ struct SpellItemEnchantmentConditionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "LtOperandType1" },
+        { false, FT_BYTE, "LtOperandType1" },
         { false, FT_BYTE, "LtOperandType2" },
         { false, FT_BYTE, "LtOperandType3" },
         { false, FT_BYTE, "LtOperandType4" },
@@ -4362,7 +4362,7 @@ struct SpellLearnSpellLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT, "SpellID" },
+        { true, FT_INT, "SpellID" },
         { true, FT_INT, "LearnSpellID" },
         { true, FT_INT, "OverridesSpellID" },
         };
@@ -4377,7 +4377,7 @@ struct SpellLevelsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "DifficultyID" },
+        { false, FT_BYTE,  "DifficultyID" },
         { false, FT_SHORT, "BaseLevel" },
         { false, FT_SHORT, "MaxLevel" },
         { false, FT_SHORT, "SpellLevel" },
@@ -4395,7 +4395,7 @@ struct SpellMiscLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "DifficultyID" },
+        { false, FT_BYTE,  "DifficultyID" },
         { false, FT_SHORT, "CastingTimeIndex" },
         { false, FT_SHORT, "DurationIndex" },
         { false, FT_SHORT, "RangeIndex" },
@@ -4432,7 +4432,7 @@ struct SpellPowerLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_BYTE,  "OrderIndex" },
         { true,  FT_INT,   "ManaCost" },
         { true,  FT_INT,   "ManaCostPerLevel" },
@@ -4458,7 +4458,7 @@ struct SpellPowerDifficultyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "ID" },
+        { true,  FT_INT,  "ID" },
         { false, FT_BYTE, "DifficultyID" },
         { false, FT_BYTE, "OrderIndex" },
         };
@@ -4473,7 +4473,7 @@ struct SpellProcsPerMinuteLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "BaseProcRate" },
+        { false, FT_FLOAT, "BaseProcRate" },
         { false, FT_BYTE,  "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellProcsPerMinuteMeta::Instance(), HOTFIX_SEL_SPELL_PROCS_PER_MINUTE);
@@ -4487,7 +4487,7 @@ struct SpellProcsPerMinuteModLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "Type" },
+        { false, FT_BYTE,  "Type" },
         { true,  FT_SHORT, "Param" },
         { false, FT_FLOAT, "Coeff" },
         { false, FT_INT,   "SpellProcsPerMinuteID" },
@@ -4503,7 +4503,7 @@ struct SpellRadiusLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Radius" },
+        { false, FT_FLOAT, "Radius" },
         { false, FT_FLOAT, "RadiusPerLevel" },
         { false, FT_FLOAT, "RadiusMin" },
         { false, FT_FLOAT, "RadiusMax" },
@@ -4519,7 +4519,7 @@ struct SpellRangeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "DisplayName" },
+        { false, FT_STRING, "DisplayName" },
         { false, FT_STRING, "DisplayNameShort" },
         { false, FT_BYTE,   "Flags" },
         { false, FT_FLOAT,  "RangeMin1" },
@@ -4537,7 +4537,7 @@ struct SpellReagentsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT,   "SpellID" },
+        { true, FT_INT,   "SpellID" },
         { true, FT_INT,   "Reagent1" },
         { true, FT_INT,   "Reagent2" },
         { true, FT_INT,   "Reagent3" },
@@ -4566,7 +4566,7 @@ struct SpellScalingLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "SpellID" },
+        { true,  FT_INT,   "SpellID" },
         { true,  FT_INT,   "Class" },
         { false, FT_INT,   "MinScalingLevel" },
         { true,  FT_INT,   "MaxScalingLevel" },
@@ -4583,7 +4583,7 @@ struct SpellShapeshiftLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,  "SpellID" },
+        { true,  FT_INT,  "SpellID" },
         { false, FT_BYTE, "StanceBarOrder" },
         { false, FT_INT,  "ShapeshiftExclude1" },
         { false, FT_INT,  "ShapeshiftExclude2" },
@@ -4601,7 +4601,7 @@ struct SpellShapeshiftFormLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "CreatureType" },
         { true,  FT_INT,    "Flags" },
         { true,  FT_INT,    "AttackIconFileID" },
@@ -4633,7 +4633,7 @@ struct SpellTargetRestrictionsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE,  "DifficultyID" },
+        { false, FT_BYTE,  "DifficultyID" },
         { false, FT_FLOAT, "ConeDegrees" },
         { false, FT_BYTE,  "MaxTargets" },
         { true,  FT_INT,   "MaxTargetLevel" },
@@ -4653,7 +4653,7 @@ struct SpellTotemsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "SpellID" },
+        { true,  FT_INT,   "SpellID" },
         { false, FT_SHORT, "RequiredTotemCategoryID1" },
         { false, FT_SHORT, "RequiredTotemCategoryID2" },
         { true,  FT_INT,   "Totem1" },
@@ -4670,7 +4670,7 @@ struct SpellXSpellVisualLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_BYTE,  "DifficultyID" },
         { false, FT_INT,   "SpellVisualID" },
         { false, FT_FLOAT, "Probability" },
@@ -4695,7 +4695,7 @@ struct SummonPropertiesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT, "Control" },
+        { true,  FT_INT, "Control" },
         { true,  FT_INT, "Faction" },
         { true,  FT_INT, "Title" },
         { true,  FT_INT, "Slot" },
@@ -4712,7 +4712,7 @@ struct TactKeyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_BYTE, "Key1" },
+        { false, FT_BYTE, "Key1" },
         { false, FT_BYTE, "Key2" },
         { false, FT_BYTE, "Key3" },
         { false, FT_BYTE, "Key4" },
@@ -4740,7 +4740,7 @@ struct TalentLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Description" },
+        { false, FT_STRING, "Description" },
         { false, FT_BYTE,   "TierID" },
         { false, FT_BYTE,   "Flags" },
         { false, FT_BYTE,   "ColumnIndex" },
@@ -4762,7 +4762,7 @@ struct TaxiNodesLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_FLOAT,  "PosX" },
         { false, FT_FLOAT,  "PosY" },
         { false, FT_FLOAT,  "PosZ" },
@@ -4793,7 +4793,7 @@ struct TaxiPathLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_SHORT, "FromTaxiNode" },
         { false, FT_SHORT, "ToTaxiNode" },
         { true,  FT_INT,   "Cost" },
@@ -4809,7 +4809,7 @@ struct TaxiPathNodeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "LocX" },
+        { false, FT_FLOAT, "LocX" },
         { false, FT_FLOAT, "LocY" },
         { false, FT_FLOAT, "LocZ" },
         { true,  FT_INT,   "ID" },
@@ -4832,7 +4832,7 @@ struct TotemCategoryLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_BYTE,   "TotemCategoryType" },
         { false, FT_INT,    "TotemCategoryMask" },
         };
@@ -4847,7 +4847,7 @@ struct ToyLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "SourceText" },
+        { false, FT_STRING, "SourceText" },
         { true,  FT_INT,    "ID" },
         { true,  FT_INT,    "ItemID" },
         { false, FT_BYTE,   "Flags" },
@@ -4864,7 +4864,7 @@ struct TransmogHolidayLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true, FT_INT, "ID" },
+        { true, FT_INT, "ID" },
         { true, FT_INT, "RequiredTransmogHoliday" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogHolidayMeta::Instance(), HOTFIX_SEL_TRANSMOG_HOLIDAY);
@@ -4878,7 +4878,7 @@ struct TransmogSetLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_INT,    "ID" },
         { true,  FT_INT,    "ClassMask" },
         { true,  FT_INT,    "TrackingQuestID" },
@@ -4900,7 +4900,7 @@ struct TransmogSetGroupLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { true,  FT_INT,    "ID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetGroupMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET_GROUP);
@@ -4914,7 +4914,7 @@ struct TransmogSetItemLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT, "ID" },
+        { true,  FT_INT, "ID" },
         { false, FT_INT, "TransmogSetID" },
         { false, FT_INT, "ItemModifiedAppearanceID" },
         { true,  FT_INT, "Flags" },
@@ -4930,7 +4930,7 @@ struct TransportAnimationLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "PosX" },
+        { false, FT_FLOAT, "PosX" },
         { false, FT_FLOAT, "PosY" },
         { false, FT_FLOAT, "PosZ" },
         { false, FT_BYTE,  "SequenceID" },
@@ -4948,7 +4948,7 @@ struct TransportRotationLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "Rot1" },
+        { false, FT_FLOAT, "Rot1" },
         { false, FT_FLOAT, "Rot2" },
         { false, FT_FLOAT, "Rot3" },
         { false, FT_FLOAT, "Rot4" },
@@ -4966,7 +4966,7 @@ struct UnitPowerBarLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_STRING, "Cost" },
         { false, FT_STRING, "OutOfError" },
         { false, FT_STRING, "ToolTip" },
@@ -5004,7 +5004,7 @@ struct VehicleLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "Flags" },
+        { true,  FT_INT,   "Flags" },
         { false, FT_BYTE,  "FlagsB" },
         { false, FT_FLOAT, "TurnSpeed" },
         { false, FT_FLOAT, "PitchSpeed" },
@@ -5043,7 +5043,7 @@ struct VehicleSeatLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_FLOAT, "AttachmentOffsetX" },
+        { false, FT_FLOAT, "AttachmentOffsetX" },
         { false, FT_FLOAT, "AttachmentOffsetY" },
         { false, FT_FLOAT, "AttachmentOffsetZ" },
         { false, FT_FLOAT, "CameraOffsetX" },
@@ -5120,7 +5120,7 @@ struct WMOAreaTableLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "AreaName" },
+        { false, FT_STRING, "AreaName" },
         { true,  FT_INT,    "ID" },
         { false, FT_SHORT,  "WmoID" },
         { false, FT_BYTE,   "NameSetID" },
@@ -5147,7 +5147,7 @@ struct WorldEffectLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "QuestFeedbackEffectID" },
+        { true,  FT_INT,   "QuestFeedbackEffectID" },
         { false, FT_BYTE,  "WhenToDisplay" },
         { false, FT_BYTE,  "TargetType" },
         { true,  FT_INT,   "TargetAsset" },
@@ -5165,7 +5165,7 @@ struct WorldMapAreaLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING_NOT_LOCALIZED, "AreaName" },
+        { false, FT_STRING_NOT_LOCALIZED, "AreaName" },
         { false, FT_FLOAT, "LocLeft" },
         { false, FT_FLOAT, "LocRight" },
         { false, FT_FLOAT, "LocTop" },
@@ -5194,7 +5194,7 @@ struct WorldMapOverlayLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,   "ID" },
+        { true,  FT_INT,   "ID" },
         { false, FT_INT,   "UiMapArtID" },
         { false, FT_SHORT, "TextureWidth" },
         { false, FT_SHORT, "TextureHeight" },
@@ -5222,7 +5222,7 @@ struct WorldMapTransformsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
+        { false, FT_INT, "ID" },
         { false, FT_FLOAT, "RegionMinX" },
         { false, FT_FLOAT, "RegionMinY" },
         { false, FT_FLOAT, "RegionMinZ" },
@@ -5251,7 +5251,7 @@ struct WorldSafeLocsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Name" },
         { false, FT_FLOAT,  "Loc1" },
         { false, FT_FLOAT,  "Loc2" },
         { false, FT_FLOAT,  "Loc3" },
