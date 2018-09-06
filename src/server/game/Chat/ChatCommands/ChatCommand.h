@@ -239,7 +239,7 @@ class TC_GAME_API ChatCommand
                 CommandArgs args(argsStr);
                 if (args.tryConsumeToTuple<1>(arguments))
                 {
-                    auto& last = std::get<std::tuple_size_v<tuple_type>-1>(arguments);
+                    auto& last = std::get<advstd::tuple_size_v<tuple_type>-1>(arguments);
                     ChatCommandStoreLastArg<advstd::remove_cvref_t<decltype(last)>>::store(last, args);
                     return advstd::apply(reinterpret_cast<TypedHandler>(handler), std::move(arguments));
                 }
