@@ -404,8 +404,8 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, S
     {
         std::string clientMetaString, ourMetaString;
         for (std::size_t i = 0; i < loadInfo->Meta->FieldCount; ++i)
-            for (std::size_t j = 0; j < loadInfo->Meta->ArraySizes[i]; ++j)
-                clientMetaString += loadInfo->Meta->Types[i];
+            for (std::size_t j = 0; j < loadInfo->Meta->Fields[i].ArraySize; ++j)
+                clientMetaString += loadInfo->Meta->Fields[i].Type;
 
         for (std::size_t i = loadInfo->Meta->HasIndexFieldInData() ? 0 : 1; i < loadInfo->FieldCount; ++i)
             ourMetaString += char(std::tolower(loadInfo->Fields[i].Type));
