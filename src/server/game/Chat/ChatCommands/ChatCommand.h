@@ -231,7 +231,7 @@ class TC_GAME_API ChatCommand
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, char const* argsStr)
             {
-                using tuple_type = ChatCommandHandlerToTuple<TypedHandler>::type;
+                using tuple_type = typename ChatCommandHandlerToTuple<TypedHandler>::type;
 
                 tuple_type arguments;
                 std::get<0>(arguments) = chatHandler;
