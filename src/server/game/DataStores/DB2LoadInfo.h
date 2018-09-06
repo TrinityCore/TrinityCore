@@ -3365,10 +3365,10 @@ struct PlayerConditionLoadInfo
         { false, FT_SHORT,  "Explored2" },
         { true,  FT_INT,    "Time1" },
         { true,  FT_INT,    "Time2" },
-        { true,  FT_INT,    "AuraSpellID1" }
+        { true,  FT_INT,    "AuraSpellID1" },
         { true,  FT_INT,    "AuraSpellID2" },
         { true,  FT_INT,    "AuraSpellID3" },
-        { true,  FT_INT,    "AuraSpellID4" },,
+        { true,  FT_INT,    "AuraSpellID4" },
         { false, FT_BYTE,   "AuraStacks1" },
         { false, FT_BYTE,   "AuraStacks2" },
         { false, FT_BYTE,   "AuraStacks3" },
