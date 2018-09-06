@@ -103,7 +103,7 @@ struct base_tag
     template <typename T>
     static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>, bool> store(T& val, char const* pos, size_t len)
     {
-        try { val = std::stoull(std::string(val, len)); }
+        try { val = std::stoull(std::string(pos, len)); }
         catch (...) { return false; }
         return true;
     }
@@ -111,7 +111,7 @@ struct base_tag
     template <typename T>
     static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>, bool> store(T& val, char const* pos, size_t len)
     {
-        try { val = std::stoll(std::string(val, len)); }
+        try { val = std::stoll(std::string(pos, len)); }
         catch (...) { return false; }
         return true;
     }
