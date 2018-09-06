@@ -132,7 +132,7 @@ struct CommandArgsConsumerMulti<Tuple, Optional<NestedNextType>, offset>
         auto& myArg = std::get<offset>(tuple);
         myArg.emplace();
         if (char const* next = CommandArgsConsumerSingle<NestedNextType>::tryConsumeTo(*(myArg.get_ptr()), args))
-            if (next = CommandArgsConsumerNext<Tuple, offset>::goNext(tuple, next))
+            if ((next = CommandArgsConsumerNext<Tuple, offset>::goNext(tuple, next)))
                 return next;
         // try again omitting the argument
         myArg = boost::none;
