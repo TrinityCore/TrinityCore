@@ -25,6 +25,7 @@
 #include "Errors.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include <cstddef>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -248,7 +249,7 @@ class TC_GAME_API ChatCommand
             _handler = reinterpret_cast<void*>(handler);
         }
 
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, nullptr_t, std::string help, std::vector<ChatCommand> childCommands = {})
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, std::nullptr_t, std::string help, std::vector<ChatCommand> childCommands = {})
             : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Help(std::move(help)), ChildCommands(std::move(childCommands))
         {
             _wrapper = nullptr;
