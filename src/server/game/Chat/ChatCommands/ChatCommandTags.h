@@ -90,15 +90,21 @@ struct Variant : public boost::variant<T1, Ts...>
     static constexpr bool have_operators = are_all_assignable<first_type, tag_base_t<Ts>...>::value;
 
     template <bool C = have_operators>
-    operator std::enable_if_t<C, first_type>() const
+    operator std::enable_if_t<C, first_type>()
+    {
+        return operator*();
+    }
+
+    template <bool C = have_operators>
+    std::enable_if_t<C, first_type> operator*()
     {
         return boost::apply_visitor(CastToVisitor<first_type>(), *this);
     }
 
     template <bool C = have_operators>
-    std::enable_if_t<C, first_type> operator*() const
+    std::enable_if_t<C, first_type const&> operator*() const
     {
-        return boost::apply_visitor(CastToVisitor<first_type>(), *this);
+        return boost::apply_visitor(CastToVisitor<first_type const&>(), *this);
     }
 
     template <typename T>
