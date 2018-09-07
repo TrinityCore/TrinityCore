@@ -22,6 +22,8 @@
 #include <utf8.h>
 #include <algorithm>
 #include <sstream>
+#include <string>
+#include <cctype>
 #include <cstdarg>
 #include <ctime>
 
@@ -572,4 +574,10 @@ bool StringToBool(std::string const& str)
     std::string lowerStr = str;
     std::transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
+}
+
+bool StringContainsStringI(std::string const& haystack, std::string const& needle)
+{
+    return haystack.end() !=
+        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::toupper(c1) == std::toupper(c2); });
 }
