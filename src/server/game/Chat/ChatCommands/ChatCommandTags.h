@@ -34,7 +34,7 @@ namespace ChatCommands {
 |* Simple holder classes to differentiate between extraction methods                    *|
 |* Should inherit from ContainerTag for template identification                         *|
 |* Must implement the following:                                                        *|
-|* - tryConsume: char const* -> char const*                                             *|
+|* - TryConsume: char const* -> char const*                                             *|
 |*   returns nullptr if no match, otherwise pointer to first character of next token    *|
 |* - typedef value_type of type that is contained within the tag                        *|
 |* - cast operator to value_type                                                        *|
@@ -53,16 +53,16 @@ struct ExactSequence : public ContainerTag
     using value_type = void;
 
     template <size_t U = sizeof...(chars)>
-    static typename std::enable_if_t<U, char const*> tryConsume(char const* pos)
+    static typename std::enable_if_t<U, char const*> TryConsume(char const* pos)
     {
         if (*(pos++) == c1)
-            return ExactSequence<chars...>::tryConsume(pos);
+            return ExactSequence<chars...>::TryConsume(pos);
         else
             return nullptr;
     }
 
     template <size_t U = sizeof...(chars)>
-    static typename std::enable_if_t<!U, char const*> tryConsume(char const* pos)
+    static typename std::enable_if_t<!U, char const*> TryConsume(char const* pos)
     {
         if (*(pos++) != c1)
             return nullptr;

@@ -28,10 +28,10 @@ struct GameTeleVisitor
     value_type operator()(Hyperlink<tele> tele) const { return sObjectMgr->GetGameTele(tele); }
     value_type operator()(std::string const& tele) const { return sObjectMgr->GetGameTele(tele); }
 };
-char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::tryConsume(GameTele const*& data, char const* args)
+char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, char const* args)
 {
     Variant<Hyperlink<tele>, std::string> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::tryConsumeTo(val, args)))
+    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
         data = boost::apply_visitor(GameTeleVisitor(), val);
     return args;
 }

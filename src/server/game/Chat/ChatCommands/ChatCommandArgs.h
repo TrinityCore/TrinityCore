@@ -30,7 +30,7 @@ namespace ChatCommands {
 /************************** ARGUMENT HANDLERS *******************************************\
 |* Define how to extract contents of a certain requested type from a string             *|
 |* Must implement the following:                                                        *|
-|* - tryConsume: T&, char const* -> char const*                                         *|
+|* - TryConsume: T&, char const* -> char const*                                         *|
 |*   returns nullptr if no match, otherwise pointer to first character of next token    *|
 |*     - if nullptr is returned, state of T& is indeterminate                           *|
 |*     - otherwise, T& should be initialized to the intended return value               *|
@@ -43,7 +43,7 @@ struct ArgInfo { static_assert(!advstd::is_same_v<T,T>, "Invalid command paramet
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>>>
 {
-    static char const* tryConsume(T& val, char const* args)
+    static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
         std::string token(args, tokenize(next));
@@ -57,7 +57,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>>>
 {
-    static char const* tryConsume(T& val, char const* args)
+    static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
         std::string token(args, tokenize(next));
@@ -71,7 +71,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsign
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<advstd::is_floating_point_v<T>>>
 {
-    static char const* tryConsume(T& val, char const* args)
+    static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
         std::string token(args, tokenize(next));
@@ -85,7 +85,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_floating_point_v<T>>>
 template <>
 struct ArgInfo<std::string, void>
 {
-    static char const* tryConsume(std::string& val, char const* args)
+    static char const* TryConsume(std::string& val, char const* args)
     {
         char const* next = args;
         if (size_t len = tokenize(next))
@@ -102,9 +102,9 @@ struct ArgInfo<std::string, void>
 template <typename T>
 struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
 {
-    static char const* tryConsume(T& tag, char const* args)
+    static char const* TryConsume(T& tag, char const* args)
     {
-        return tag.tryConsume(args);
+        return tag.TryConsume(args);
     }
 };
 
@@ -112,7 +112,7 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
 template <>
 struct TC_GAME_API ArgInfo<GameTele const*>
 {
-    static char const* tryConsume(GameTele const*&, char const*);
+    static char const* TryConsume(GameTele const*&, char const*);
 };
 
 }}

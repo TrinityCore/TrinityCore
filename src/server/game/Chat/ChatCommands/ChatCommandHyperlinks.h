@@ -35,7 +35,7 @@ struct Hyperlink : public ContainerTag
     public:
         operator value_type() const { return val; }
 
-        char const* tryConsume(char const* pos)
+        char const* TryConsume(char const* pos)
         {
             //color tag
             if (*(pos++) != '|' || *(pos++) != 'c')
