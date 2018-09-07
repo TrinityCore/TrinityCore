@@ -352,6 +352,8 @@ std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse =
 TC_COMMON_API bool StringToBool(std::string const& str);
 TC_COMMON_API float DegToRad(float degrees);
 
+TC_COMMON_API bool StringContainsStringI(std::string const& haystack, std::string const& needle);
+
 // simple class for not-modifyable list
 template <typename T>
 class HookList final
