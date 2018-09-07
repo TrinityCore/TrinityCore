@@ -69,7 +69,7 @@ struct Hyperlink : public ContainerTag
             // finally, skip to end of token
             tokenize(pos);
             // store value
-            if (!linktag::store(val, datastart, datalength))
+            if (!linktag::StoreTo(val, datastart, datalength))
                 return nullptr;
 
             // return final pos
@@ -87,21 +87,21 @@ struct Hyperlink : public ContainerTag
 |* - MUST expose static ::tag method, void -> const char*                               *|
 |*   - this method SHOULD be constexpr                                                  *|
 |*   - returns identifier string for the link ("creature", "creature_entry", "item")    *|
-|* - MUST expose static ::store method, (storage_&, char const*, size_t)                *|
+|* - MUST expose static ::StoreTo method, (storage&, char const*, size_t)               *|
 |*   - assign value_type& based on content of std::string(char const*, size_t)          *|
 |*   - return value indicates success/failure                                           *|
 |*   - for integral/string types this can be achieved by extending base_tag             *|
 \****************************************************************************************/
 struct base_tag
 {
-    static bool store(std::string& val, char const* pos, size_t len)
+    static bool StoreTo(std::string& val, char const* pos, size_t len)
     {
         val.assign(pos, len);
         return true;
     }
 
     template <typename T>
-    static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>, bool> store(T& val, char const* pos, size_t len)
+    static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
     {
         try { val = std::stoull(std::string(pos, len)); }
         catch (...) { return false; }
@@ -109,7 +109,7 @@ struct base_tag
     }
 
     template <typename T>
-    static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>, bool> store(T& val, char const* pos, size_t len)
+    static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
     {
         try { val = std::stoll(std::string(pos, len)); }
         catch (...) { return false; }

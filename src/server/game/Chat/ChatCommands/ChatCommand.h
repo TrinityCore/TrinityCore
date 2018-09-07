@@ -201,12 +201,13 @@ class TC_GAME_API CommandArgs
                 return false;
         }
 
-        void reset() { _args = _original; }
+        void Reset() { _args = _original; }
 
-        char const* all() const { return _original; }
-        char const* remainder() const { return _args; }
+        char const* GetFullArgs() const { return _original; }
+        char const* GetRemainingArgs() const { return _args; }
 
-        explicit operator bool() const { return !!*_args; }
+        bool IsEmpty() const { return !!*_args; }
+        explicit operator bool() const { return IsEmpty(); }
 
     private:
         char const* const _original;
@@ -217,7 +218,7 @@ template <typename T> struct ChatCommandHandlerToTuple { static_assert(!advstd::
 template <typename... Ts> struct ChatCommandHandlerToTuple<bool(*)(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
 
 template <typename T> struct ChatCommandStoreLastArg { static void store(T&, CommandArgs&) {} };
-template <> struct ChatCommandStoreLastArg<char const*> { static void store(char const*& arg, CommandArgs& args) { arg = args.remainder(); } };
+template <> struct ChatCommandStoreLastArg<char const*> { static void store(char const*& arg, CommandArgs& args) { arg = args.GetRemainingArgs(); } };
 template <> struct ChatCommandStoreLastArg<CommandArgs*> { static void store(CommandArgs*& arg, CommandArgs& args) { arg = &args; } };
 
 class TC_GAME_API ChatCommand
