@@ -128,7 +128,7 @@ enum Gender
     GENDER_NONE                        =  2
 };
 
-// ChrRaces.dbc (8.0.1.27075)
+// ChrRaces.db2 (8.0.1.27075)
 enum Races
 {
     RACE_NONE               = 0,
