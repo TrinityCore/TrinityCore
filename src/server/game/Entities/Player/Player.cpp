@@ -1522,9 +1522,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         SetFallInformation(0, z);
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
-        // at client packet CMSG_MOVE_TELEPORT_ACK
-        SetSemaphoreTeleportNear(true);
-        // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
+        // at client packet MSG_MOVE_TELEPORT_ACK
+        // Near teleports on transports do not send MSG_MOVE_TELEPORT_ACK
+        if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT))
+            SetSemaphoreTeleportNear(true);
+        // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
             SendTeleportPacket(m_teleport_dest);
     }
