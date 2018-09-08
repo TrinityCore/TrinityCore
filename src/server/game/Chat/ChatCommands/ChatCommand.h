@@ -46,7 +46,7 @@ struct CommandArgsConsumerSingle
 struct CommandArgsVariantConsumer
 {
     template <typename V, typename T1, typename... Ts>
-    static std::enable_if_t<sizeof...(Ts), char const*> TryConsumeTo(V& val, char const* args)
+    static std::enable_if_t<sizeof...(Ts) > 0, char const*> TryConsumeTo(V& val, char const* args)
     {
         T1 v;
         if (char const* next = CommandArgsConsumerSingle<T1>::TryConsumeTo(v, args))
