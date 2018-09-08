@@ -141,3 +141,24 @@ uint32 DB2Meta::GetDbFieldCount() const
 
     return fields;
 }
+
+bool DB2Meta::IsSignedField(uint32 field) const
+{
+    switch (Fields[field].Type)
+    {
+        case FT_STRING:
+        case FT_STRING_NOT_LOCALIZED:
+        case FT_FLOAT:
+            return false;
+        case FT_INT:
+        case FT_BYTE:
+        case FT_SHORT:
+        case FT_LONG:
+        default:
+            break;
+    }
+    if (field == uint32(IndexField))
+        return false;
+
+    return Fields[field].IsSigned;
+}

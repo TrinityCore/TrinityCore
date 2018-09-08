@@ -394,10 +394,8 @@ namespace
     WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
 }
 
-typedef std::vector<std::string> DB2StoreProblemList;
-
 template<class T, template<class> class DB2>
-inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path, uint32 defaultLocale, DB2<T> const& /*hint*/)
+inline void LoadDB2(uint32& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path, uint32 defaultLocale, DB2<T> const& /*hint*/)
 {
     // validate structure
     DB2LoadInfo const* loadInfo = storage->GetLoadInfo();
@@ -408,7 +406,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, S
                 clientMetaString += loadInfo->Meta->Fields[i].Type;
 
         for (std::size_t i = loadInfo->Meta->HasIndexFieldInData() ? 0 : 1; i < loadInfo->FieldCount; ++i)
-            ourMetaString += char(std::tolower(loadInfo->Fields[i].Type));
+            ourMetaString += loadInfo->Fields[i].Type;
 
         ASSERT(clientMetaString == ourMetaString,
             "%s C++ structure fields %s do not match generated types from the client %s",
@@ -471,7 +469,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     std::string db2Path = dataPath + "dbc/";
 
-    DB2StoreProblemList bad_db2_files;
+    std::vector<std::string> bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
 #define LOAD_DB2(store) LoadDB2(availableDb2Locales, bad_db2_files, _stores, &store, db2Path, defaultLocale, store)

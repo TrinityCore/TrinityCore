@@ -46,6 +46,8 @@ struct TC_COMMON_API DB2Meta
     uint32 GetDbIndexField() const;
     uint32 GetDbFieldCount() const;
 
+    bool IsSignedField(uint32 field) const;
+
     int32 IndexField;
     int32 ParentIndexField;
     uint32 FieldCount;
