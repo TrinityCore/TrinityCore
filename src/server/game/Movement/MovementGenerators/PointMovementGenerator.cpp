@@ -37,7 +37,7 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
 
     owner->AddUnitState(UNIT_STATE_ROAMING);
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || (owner->IsMovementPreventedByCasting() && _movementId != EVENT_CHARGE))
     {
         _interrupt = true;
         owner->StopMoving();
@@ -66,7 +66,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
     if (_movementId == EVENT_CHARGE_PREPATH)
         return !owner->movespline->Finalized();
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || (owner->IsMovementPreventedByCasting() && _movementId != EVENT_CHARGE))
     {
         _interrupt = true;
         owner->StopMoving();
