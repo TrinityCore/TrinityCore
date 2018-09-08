@@ -145,7 +145,8 @@ public:
                             breathComboSpells[1] = SPELL_FREEZE;
                             breathComboSpells[2] = SPELL_FLAMEBREATH;
                             breathComboSpellsNum = 3;
-                            breathCombo = urand(1, 3);
+                            breathCombo          = 3;
+                            //breathCombo = urand(1, 3);
                         }
 
                         if (0 <= breathComboSpellsNum && breathComboSpellsNum <= 3)
