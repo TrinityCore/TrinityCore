@@ -91,6 +91,8 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_GYTH, DONE);
+            if (!me->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 100.0f))
+                DoCast(me, SPELL_SUMMON_REND, true);
         }
 
         void SetData(uint32 /*type*/, uint32 data) override

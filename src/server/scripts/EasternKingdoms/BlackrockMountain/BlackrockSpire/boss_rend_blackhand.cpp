@@ -180,6 +180,8 @@ public:
             gythEvent = false;
             victorGUID.Clear();
             portcullisGUID.Clear();
+            if (instance->GetBossState(DATA_GYTH) == DONE)
+                me->SetImmuneToPC(false);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -201,6 +203,21 @@ public:
             _JustDied();
             if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
                 victor->AI()->SetData(1, 2);
+        }
+
+        void JustSummoned(Creature* summoned) override
+        {
+            switch (summoned->GetEntry())
+            {
+                case NPC_CHROMATIC_WHELP:
+                case NPC_CHROMATIC_DRAGONSPAWN:
+                case NPC_BLACKHAND_DRAGON_HANDLER:
+                    if (Unit* target = summoned->SelectNearestPlayer(100.0f))
+                        summoned->AI()->AttackStart(target);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -377,31 +394,43 @@ public:
                         case EVENT_WAVE_1:
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 209.8637f, -428.2729f, 110.9877f, 0.6632251f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 209.3122f, -430.8724f, 110.9814f, 2.9147f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 211.3309f, -425.9111f, 111.0006f, 1.727876f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_2:
-                            // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 208.6493f, -424.5787f, 110.9872f, 5.8294f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 203.9482f, -428.9446f, 110.982f, 4.677482f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 203.3441f, -426.8668f, 110.9772f, 4.712389f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 206.3079f, -424.7509f, 110.9943f, 4.08407f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_3:
-                            // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 212.3541f, -412.6826f, 111.0352f, 5.88176f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 212.5754f, -410.2841f, 111.0296f, 2.740167f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 212.3449f, -414.8659f, 111.0348f, 2.356194f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 210.6568f, -412.1552f, 111.0124f, 0.9773844f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_4:
-                            // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 210.2188f, -410.6686f, 111.0211f, 5.8294f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 209.4078f, -414.13f, 111.0264f, 4.677482f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 208.0858f, -409.3145f, 111.0118f, 4.642576f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 207.9811f, -413.0728f, 111.0098f, 5.288348f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 208.0854f, -412.1505f, 111.0057f, 4.08407f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_5:
-                            // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 213.9138f, -426.512f, 111.0013f, 3.316126f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 213.7121f, -429.8102f, 110.9888f, 1.413717f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 213.7157f, -424.4268f, 111.009f, 3.001966f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 210.8935f, -423.913f, 111.0125f, 5.969026f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CHROMATIC_WHELP, 212.2642f, -430.7648f, 110.9807f, 5.934119f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_6:
                             // spawn wave
