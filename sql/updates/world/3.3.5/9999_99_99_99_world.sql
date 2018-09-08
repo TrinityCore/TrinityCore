@@ -33,10 +33,11 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 (32930,32933,0,1,'Kologarn',6,3000),
 (32930,32934,1,1,'Kologarn',6,3000);
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN('spell_kologarn_summon_focused_eyebeam','spell_kologarn_focused_eyebeam_damage');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN('spell_kologarn_summon_focused_eyebeam','spell_kologarn_focused_eyebeam_damage','spell_kologarn_focused_eyebeam_summon_trigger');
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (63346,'spell_kologarn_focused_eyebeam_damage'),
-(63976,'spell_kologarn_focused_eyebeam_damage');
+(63976,'spell_kologarn_focused_eyebeam_damage'),
+(63342,'spell_kologarn_focused_eyebeam_summon_trigger');
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN(5399,5390);
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES

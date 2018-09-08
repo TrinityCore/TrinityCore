@@ -42,6 +42,8 @@ enum KologarnSpells
     //Arms
     SPELL_STONE_GRIP                   = 62166,
     SPELL_STONE_GRIP_CANCEL            = 65594,
+    SPELL_STONE_GRIP_CONTROL_1         = 62056,
+    SPELL_STONE_GRIP_CONTROL_2         = 63985,
     SPELL_ARM_RESPAWN_VISUAL           = 64753,
     SPELL_SUMMON_RUBBLE                = 63633,
     SPELL_FALLING_RUBBLE               = 63821,
@@ -49,7 +51,8 @@ enum KologarnSpells
     SPELL_FOCUSED_EYEBEAM_PERIODIC     = 63347,
     SPELL_FOCUSED_EYEBEAM_VISUAL       = 63369,
     SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT  = 63676,
-    SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT = 63702
+    SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT = 63702,
+    SPELL_FOCUSED_EYEBEAM_VISUAL_DUMMY = 67351
 };
 
 enum KologarnNPCs
@@ -261,11 +264,7 @@ struct boss_kologarn : public BossAI
                 break;
             case EVENT_STONE_GRIP:
                 if (_rightArm)
-                {
                     DoCastAOE(SPELL_STONE_GRIP);
-                    Talk(SAY_GRAB_PLAYER);
-                    Talk(EMOTE_STONE_GRIP);
-                }
                 events.Repeat(25s);
                 break;
             case EVENT_FOCUSED_EYEBEAM:
@@ -357,6 +356,9 @@ class StoneGripTargetSelector
             if (target->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
+            if (target->ToUnit() && target->ToUnit()->HasAura(SPELL_FOCUSED_EYEBEAM_VISUAL_DUMMY))
+                return true;
+
             return false;
         }
 
@@ -376,21 +378,20 @@ class spell_ulduar_stone_grip_cast_target : public SpellScript
 
     void FilterTargetsInitial(std::list<WorldObject*>& unitList)
     {
+        Creature* caster = GetCaster()->ToCreature();
         // Remove "main tank" and non-player targets
-        unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetThreatManager().GetCurrentVictim()));
+        unitList.remove_if(StoneGripTargetSelector(caster, caster->GetThreatManager().GetCurrentVictim()));
         // Maximum affected targets per difficulty mode
         uint32 maxTargets = 1;
         if (GetSpellInfo()->Id == 63981)
             maxTargets = 3;
 
-        // Return a random amount of targets based on maxTargets
-        while (maxTargets < unitList.size())
+        Trinity::Containers::RandomResize(unitList, maxTargets);
+        if (!unitList.empty())
         {
-            std::list<WorldObject*>::iterator itr = unitList.begin();
-            advance(itr, urand(0, unitList.size() - 1));
-            unitList.erase(itr);
+            caster->AI()->Talk(SAY_GRAB_PLAYER);
+            caster->AI()->Talk(EMOTE_STONE_GRIP);
         }
-
         // For subsequent effects
         _unitList = unitList;
     }
@@ -556,6 +557,46 @@ class spell_kologarn_stone_shout : public SpellScript
     }
 };
 
+// 63342 Focused Eyebeam Summon Trigger
+class spell_kologarn_focused_eyebeam_summon_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_kologarn_focused_eyebeam_summon_trigger);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void FilterTargetsInitial(std::list<WorldObject*>& targets)
+    {
+        targets.clear();
+        Unit* target = GetCaster()->ToCreature()->AI()->SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, [](Unit* target) -> bool
+        {
+            return !target->HasAura(SPELL_STONE_GRIP_CONTROL_1) && !target->HasAura(SPELL_STONE_GRIP_CONTROL_2);
+        });
+        if (!target)
+            return;
+
+        targets.push_back(target);
+        _targets = targets;
+    }
+
+    void FillTargetsSubsequential(std::list<WorldObject*>& targets)
+    {
+        targets = _targets;
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kologarn_focused_eyebeam_summon_trigger::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kologarn_focused_eyebeam_summon_trigger::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kologarn_focused_eyebeam_summon_trigger::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+
+private:
+    std::list<WorldObject*> _targets;
+};
+
 // 63346 63976 - Focused Eyebeam
 class spell_kologarn_focused_eyebeam_damage : public SpellScript
 {
@@ -656,6 +697,7 @@ void AddSC_boss_kologarn()
     RegisterAuraScript(spell_ulduar_stone_grip_absorb);
     RegisterAuraScript(spell_ulduar_stone_grip);
     RegisterSpellScript(spell_kologarn_stone_shout);
+    RegisterSpellScript(spell_kologarn_focused_eyebeam_summon_trigger);
     RegisterSpellScript(spell_kologarn_focused_eyebeam_damage);
     new achievement_if_looks_could_kill();
     new achievement_rubble_and_roll();
