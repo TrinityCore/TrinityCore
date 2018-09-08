@@ -4438,6 +4438,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 74634, 90249 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
 
     // Drahga Shadowburner

@@ -88,4 +88,6 @@ AI* GetGrimBatolAI(Creature* creature)
     return GetInstanceAI<AI>(creature, GBScriptName);
 }
 
+#define RegisterGrtimBatolCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetGrimBatolAI)
+
 #endif // GRIM_BATOL_H_
