@@ -68,7 +68,6 @@ enum Misc
     REND_PATH_2                     = 1379681,
 };
 
-/*
 struct Wave
 {
     uint32 entry;
@@ -80,45 +79,44 @@ struct Wave
 
 static Wave Wave2[]= // 22 sec
 {
-    { 10447, 209.8637f, -428.2729f, 110.9877f, 0.6632251f },
-    { 10442, 209.3122f, -430.8724f, 110.9814f, 2.9147f    },
-    { 10442, 211.3309f, -425.9111f, 111.0006f, 1.727876f  }
+    { NPC_CHROMATIC_DRAGONSPAWN, 209.8637f, -428.2729f, 110.9877f, 0.6632251f },
+    { NPC_CHROMATIC_WHELP, 209.3122f, -430.8724f, 110.9814f, 2.9147f    },
+    { NPC_CHROMATIC_WHELP, 211.3309f, -425.9111f, 111.0006f, 1.727876f  }
 };
 
 static Wave Wave3[]= // 60 sec
 {
-    { 10742, 208.6493f, -424.5787f, 110.9872f, 5.8294f    },
-    { 10447, 203.9482f, -428.9446f, 110.982f,  4.677482f  },
-    { 10442, 203.3441f, -426.8668f, 110.9772f, 4.712389f  },
-    { 10442, 206.3079f, -424.7509f, 110.9943f, 4.08407f   }
+    { NPC_BLACKHAND_DRAGON_HANDLER, 208.6493f, -424.5787f, 110.9872f, 5.8294f    },
+    { NPC_CHROMATIC_DRAGONSPAWN, 203.9482f, -428.9446f, 110.982f,  4.677482f  },
+    { NPC_CHROMATIC_WHELP, 203.3441f, -426.8668f, 110.9772f, 4.712389f  },
+    { NPC_CHROMATIC_WHELP, 206.3079f, -424.7509f, 110.9943f, 4.08407f   }
 };
 
 static Wave Wave4[]= // 49 sec
 {
-    { 10742, 212.3541f, -412.6826f, 111.0352f, 5.88176f   },
-    { 10447, 212.5754f, -410.2841f, 111.0296f, 2.740167f  },
-    { 10442, 212.3449f, -414.8659f, 111.0348f, 2.356194f  },
-    { 10442, 210.6568f, -412.1552f, 111.0124f, 0.9773844f }
+    { NPC_BLACKHAND_DRAGON_HANDLER, 212.3541f, -412.6826f, 111.0352f, 5.88176f   },
+    { NPC_CHROMATIC_DRAGONSPAWN, 212.5754f, -410.2841f, 111.0296f, 2.740167f  },
+    { NPC_CHROMATIC_WHELP, 212.3449f, -414.8659f, 111.0348f, 2.356194f  },
+    { NPC_CHROMATIC_WHELP, 210.6568f, -412.1552f, 111.0124f, 0.9773844f }
 };
 
 static Wave Wave5[]= // 60 sec
 {
-    { 10742, 210.2188f, -410.6686f, 111.0211f, 5.8294f    },
-    { 10447, 209.4078f, -414.13f,   111.0264f, 4.677482f  },
-    { 10442, 208.0858f, -409.3145f, 111.0118f, 4.642576f  },
-    { 10442, 207.9811f, -413.0728f, 111.0098f, 5.288348f  },
-    { 10442, 208.0854f, -412.1505f, 111.0057f, 4.08407f   }
+    { NPC_BLACKHAND_DRAGON_HANDLER, 210.2188f, -410.6686f, 111.0211f, 5.8294f    },
+    { NPC_CHROMATIC_DRAGONSPAWN, 209.4078f, -414.13f,   111.0264f, 4.677482f  },
+    { NPC_CHROMATIC_WHELP, 208.0858f, -409.3145f, 111.0118f, 4.642576f  },
+    { NPC_CHROMATIC_WHELP, 207.9811f, -413.0728f, 111.0098f, 5.288348f  },
+    { NPC_CHROMATIC_WHELP, 208.0854f, -412.1505f, 111.0057f, 4.08407f   }
 };
 
 static Wave Wave6[]= // 27 sec
 {
-    { 10742, 213.9138f, -426.512f,  111.0013f, 3.316126f  },
-    { 10447, 213.7121f, -429.8102f, 110.9888f, 1.413717f  },
-    { 10447, 213.7157f, -424.4268f, 111.009f,  3.001966f  },
-    { 10442, 210.8935f, -423.913f,  111.0125f, 5.969026f  },
-    { 10442, 212.2642f, -430.7648f, 110.9807f, 5.934119f  }
+    { NPC_BLACKHAND_DRAGON_HANDLER, 213.9138f, -426.512f,  111.0013f, 3.316126f  },
+    { NPC_CHROMATIC_DRAGONSPAWN, 213.7121f, -429.8102f, 110.9888f, 1.413717f  },
+    { NPC_CHROMATIC_DRAGONSPAWN, 213.7157f, -424.4268f, 111.009f,  3.001966f  },
+    { NPC_CHROMATIC_WHELP, 210.8935f, -423.913f,  111.0125f, 5.969026f  },
+    { NPC_CHROMATIC_WHELP, 212.2642f, -430.7648f, 110.9807f, 5.934119f  }
 };
-*/
 
 Position const GythLoc =      { 211.762f,  -397.5885f, 111.1817f,  4.747295f   };
 Position const Teleport1Loc = { 194.2993f, -474.0814f, 121.4505f, -0.01225555f };
@@ -180,8 +178,7 @@ public:
             gythEvent = false;
             victorGUID.Clear();
             portcullisGUID.Clear();
-            if (instance->GetBossState(DATA_GYTH) == DONE)
-                me->SetImmuneToPC(false);
+            me->SetImmuneToPC(true);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -201,7 +198,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                 victor->AI()->SetData(1, 2);
         }
 
@@ -222,21 +219,18 @@ public:
 
         void SetData(uint32 type, uint32 data) override
         {
-            if (type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
+            if (type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM && !gythEvent)
             {
-                if (!gythEvent)
-                {
-                    gythEvent = true;
+                gythEvent = true;
 
-                    if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 5.0f, true))
-                        victorGUID = victor->GetGUID();
+                if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 5.0f, true))
+                    victorGUID = victor->GetGUID();
 
-                    if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 50.0f))
-                        portcullisGUID = portcullis->GetGUID();
+                if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 50.0f))
+                    portcullisGUID = portcullis->GetGUID();
 
-                    events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
-                    events.ScheduleEvent(EVENT_START_1, 1000);
-                }
+                events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                events.ScheduleEvent(EVENT_START_1, 1000);
             }
         }
 
@@ -260,10 +254,9 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (gythEvent)
+            events.Update(diff);
+            if (!UpdateVictim())
             {
-                events.Update(diff);
-
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -385,7 +378,7 @@ public:
                             break;
                         case EVENT_TELEPORT_1:
                             me->NearTeleportTo(194.2993f, -474.0814f, 121.4505f, -0.01225555f);
-                            events.ScheduleEvent(EVENT_TELEPORT_2, 50000);
+                            events.ScheduleEvent(EVENT_TELEPORT_2, 1000);
                             break;
                         case EVENT_TELEPORT_2:
                             me->NearTeleportTo(216.485f, -434.93f, 110.888f, -0.01225555f);
@@ -394,60 +387,43 @@ public:
                         case EVENT_WAVE_1:
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 209.8637f, -428.2729f, 110.9877f, 0.6632251f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 209.3122f, -430.8724f, 110.9814f, 2.9147f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 211.3309f, -425.9111f, 111.0006f, 1.727876f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_2:
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 208.6493f, -424.5787f, 110.9872f, 5.8294f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 203.9482f, -428.9446f, 110.982f, 4.677482f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 203.3441f, -426.8668f, 110.9772f, 4.712389f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 206.3079f, -424.7509f, 110.9943f, 4.08407f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            for (Wave &w : Wave2)
+                                me->SummonCreature(w.entry, w.x_pos, w.y_pos, w.z_pos, w.o_pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_3:
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 212.3541f, -412.6826f, 111.0352f, 5.88176f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 212.5754f, -410.2841f, 111.0296f, 2.740167f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 212.3449f, -414.8659f, 111.0348f, 2.356194f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 210.6568f, -412.1552f, 111.0124f, 0.9773844f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            for (Wave &w : Wave3)
+                                me->SummonCreature(w.entry, w.x_pos, w.y_pos, w.z_pos, w.o_pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_4:
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 210.2188f, -410.6686f, 111.0211f, 5.8294f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 209.4078f, -414.13f, 111.0264f, 4.677482f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 208.0858f, -409.3145f, 111.0118f, 4.642576f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 207.9811f, -413.0728f, 111.0098f, 5.288348f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 208.0854f, -412.1505f, 111.0057f, 4.08407f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                            for (Wave &w : Wave4)
+                                me->SummonCreature(w.entry, w.x_pos, w.y_pos, w.z_pos, w.o_pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         case EVENT_WAVE_5:
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            me->SummonCreature(NPC_BLACKHAND_DRAGON_HANDLER, 213.9138f, -426.512f, 111.0013f, 3.316126f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 213.7121f, -429.8102f, 110.9888f, 1.413717f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_DRAGONSPAWN, 213.7157f, -424.4268f, 111.009f, 3.001966f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 210.8935f, -423.913f, 111.0125f, 5.969026f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            me->SummonCreature(NPC_CHROMATIC_WHELP, 212.2642f, -430.7648f, 110.9807f, 5.934119f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
-                            break;
+                            for (Wave &w : Wave5)
+                                me->SummonCreature(w.entry, w.x_pos, w.y_pos, w.z_pos, w.o_pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
+                           break;
                         case EVENT_WAVE_6:
-                            // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
-                            // move wave
+                            for (Wave &w : Wave6)
+                                me->SummonCreature(w.entry, w.x_pos, w.y_pos, w.z_pos, w.o_pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 250 * IN_MILLISECONDS);
                             break;
                         default:
                             break;
                     }
                 }
-            }
-
-            if (!UpdateVictim())
                 return;
-
-            events.Update(diff);
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;

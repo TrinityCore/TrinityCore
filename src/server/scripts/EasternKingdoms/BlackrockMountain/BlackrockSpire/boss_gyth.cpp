@@ -29,6 +29,7 @@ enum Spells
     SPELL_FLAMEBREATH               = 16390, // Combat (Self cast)
     SPELL_FREEZE                    = 16350, // Combat (Self cast)
     SPELL_KNOCK_AWAY                = 10101, // Combat
+    SPELL_CHROMATIC_CHAOS           = 16337,
     SPELL_SUMMON_REND               = 16328  // Summons Rend near death
 };
 
@@ -37,16 +38,16 @@ enum Misc
     NEFARIUS_PATH_2                 = 1379671,
     NEFARIUS_PATH_3                 = 1379672,
     GYTH_PATH_1                     = 1379681,
+    NEFARIUS_CHROMATIC_CHAOS_LINE   = 9
 };
 
 enum Events
 {
-    EVENT_CORROSIVE_ACID            = 1,
-    EVENT_FREEZE                    = 2,
-    EVENT_FLAME_BREATH              = 3,
-    EVENT_KNOCK_AWAY                = 4,
-    EVENT_SUMMONED_1                = 5,
-    EVENT_SUMMONED_2                = 6
+    EVENT_BREATH                    = 1,
+    EVENT_KNOCK_AWAY                = 2,
+    EVENT_CHROMATIC_CHAOS           = 3,
+    EVENT_SUMMONED_1                = 4,
+    EVENT_SUMMONED_2                = 5
 };
 
 class boss_gyth : public CreatureScript
@@ -64,6 +65,8 @@ public:
         void Initialize()
         {
             SummonedRend = false;
+            breathCombo = 0;
+            breathComboSpellsNum = 0;
         }
 
         bool SummonedRend;
@@ -82,17 +85,23 @@ public:
         {
             _JustEngagedWith();
 
-            events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8s, 16s);
-            events.ScheduleEvent(EVENT_FREEZE, 8s, 16s);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, 8s, 16s);
+            events.ScheduleEvent(EVENT_BREATH, 8s, 16s);
             events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s, 18s);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_GYTH, DONE);
-            if (!me->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 100.0f))
-                DoCast(me, SPELL_SUMMON_REND, true);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (!SummonedRend && me->HealthBelowPctDamaged(25, damage))
+            {
+                DoCast(me, SPELL_SUMMON_REND);
+                me->RemoveAura(SPELL_REND_MOUNTS);
+                SummonedRend = true;
+            }
         }
 
         void SetData(uint32 /*type*/, uint32 data) override
@@ -109,18 +118,13 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            if (!SummonedRend && HealthBelowPct(5))
-            {
-                DoCast(me, SPELL_SUMMON_REND);
-                me->RemoveAura(SPELL_REND_MOUNTS);
-                SummonedRend = true;
-            }
+            events.Update(diff);
 
             if (!UpdateVictim())
             {
-                events.Update(diff);
-
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -143,26 +147,33 @@ public:
                 return;
             }
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_CORROSIVE_ACID:
-                        DoCast(me, SPELL_CORROSIVE_ACID);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 10s, 16s);
-                        break;
-                    case EVENT_FREEZE:
-                        DoCast(me, SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 10s, 16s);
-                        break;
-                    case EVENT_FLAME_BREATH:
-                        DoCast(me, SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 16s);
+                    case EVENT_BREATH:
+                        if (breathCombo == 0)
+                        {
+                            breathComboSpells[0] = SPELL_CORROSIVE_ACID;
+                            breathComboSpells[1] = SPELL_FREEZE;
+                            breathComboSpells[2] = SPELL_FLAMEBREATH;
+                            breathComboSpellsNum = 3;
+                            breathCombo = urand(1, 3);
+                        }
+
+                        if (0 <= breathComboSpellsNum && breathComboSpellsNum <= 3)
+                        {
+                            uint32 spellIndex = urand(0, breathComboSpellsNum - 1);
+                            DoCast(me, breathComboSpells[spellIndex]);
+                            breathComboSpells[spellIndex] = breathComboSpells[breathComboSpellsNum-1];
+                            breathComboSpellsNum--;
+                        }
+                        breathCombo--;
+
+                        if(breathCombo == 0)
+                            events.ScheduleEvent(EVENT_BREATH, 10s, 16s);
+                        else
+                            events.ScheduleEvent(EVENT_BREATH, 1500ms);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCastVictim(SPELL_KNOCK_AWAY);
@@ -177,6 +188,11 @@ public:
             }
             DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 breathCombo;
+            uint32 breathComboSpells[3];
+            uint32 breathComboSpellsNum;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
