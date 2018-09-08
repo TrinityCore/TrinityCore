@@ -85,15 +85,14 @@ enum Expansions
     EXPANSION_MISTS_OF_PANDARIA        = 4,
     EXPANSION_WARLORDS_OF_DRAENOR      = 5,
     EXPANSION_LEGION                   = 6,
+    EXPANSION_BATTLE_FOR_AZEROTH       = 7,
     MAX_EXPANSIONS,
 
-    // future expansion
-    EXPANSION_BATTLE_FOR_AZEROTH       = 7,
 
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_LEGION
+#define CURRENT_EXPANSION EXPANSION_BATTLE_FOR_AZEROTH
 
 inline uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
@@ -113,6 +112,8 @@ inline uint32 GetMaxLevelForExpansion(uint32 expansion)
             return 100;
         case EXPANSION_LEGION:
             return 110;
+        case EXPANSION_BATTLE_FOR_AZEROTH:
+            return 120;
         default:
             break;
     }
