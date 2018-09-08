@@ -59,26 +59,18 @@ public:
     {
         boss_gythAI(Creature* creature) : BossAI(creature, DATA_GYTH)
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
             SummonedRend = false;
             breathCombo = 0;
             breathComboSpellsNum = 0;
         }
 
-        bool SummonedRend;
-
-        void Reset() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            Initialize();
-            if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
-            {
-                instance->SetBossState(DATA_GYTH, DONE);
-                me->DespawnOrUnsummon();
-            }
+//RESPAWN REND HERE
+//            if (!SummonedRend)
+//                if (Creature* og_rend = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_WARCHIEF_REND_BLACKHAND)))
+//                    og_rend->Respawn(true);
+            me->DespawnOrUnsummon();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -87,11 +79,6 @@ public:
 
             events.ScheduleEvent(EVENT_BREATH, 8s, 16s);
             events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s, 18s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetBossState(DATA_GYTH, DONE);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -131,9 +118,9 @@ public:
                     {
                         case EVENT_SUMMONED_1:
                             me->AddAura(SPELL_REND_MOUNTS, me);
-                            if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 40.0f))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_DR_PORTCULLIS)))
                                 portcullis->UseDoorOrButton();
-                            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LORD_VICTOR_NEFARIUS)))
                                 victor->AI()->SetData(1, 1);
                             events.ScheduleEvent(EVENT_SUMMONED_2, 2s);
                             break;
@@ -190,6 +177,7 @@ public:
         }
 
         private:
+            bool SummonedRend;
             uint32 breathCombo;
             uint32 breathComboSpells[3];
             uint32 breathComboSpellsNum;

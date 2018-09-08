@@ -97,10 +97,13 @@ public:
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
+                case NPC_LORD_VICTOR_NEFARIUS:
+                    LordVictorNefarius = creature->GetGUID();
+                    if (GetBossState(DATA_WARCHIEF_REND_BLACKHAND) == DONE)
+                        creature->DespawnOrUnsummon(0, 24h * 7);
+                    break;
                 case NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
-                    if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_GYTH:
                     Gyth = creature->GetGUID();
@@ -110,11 +113,6 @@ public:
                     break;
                 case NPC_GENERAL_DRAKKISATH:
                     GeneralDrakkisath = creature->GetGUID();
-                    break;
-                case NPC_LORD_VICTOR_NEFARIUS:
-                    LordVictorNefarius = creature->GetGUID();
-                    if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
@@ -219,14 +217,17 @@ public:
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
+                case GO_DR_PORTCULLIS:
+                    go_portcullis_arena = go->GetGUID();
+                    break;
                 case GO_PORTCULLIS_ACTIVE:
                     go_portcullis_active = go->GetGUID();
-                    if (GetBossState(DATA_GYTH) == DONE)
+                    if (GetBossState(DATA_WARCHIEF_REND_BLACKHAND) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_PORTCULLIS_TOBOSSROOMS:
                     go_portcullis_tobossrooms = go->GetGUID();
-                    if (GetBossState(DATA_GYTH) == DONE)
+                    if (GetBossState(DATA_WARCHIEF_REND_BLACKHAND) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 default:
@@ -326,6 +327,8 @@ public:
                     return OverlordWyrmthalak;
                 case DATA_PYROGAURD_EMBERSEER:
                     return PyroguardEmberseer;
+                case DATA_LORD_VICTOR_NEFARIUS:
+                    return LordVictorNefarius;
                 case DATA_WARCHIEF_REND_BLACKHAND:
                     return WarchiefRendBlackhand;
                 case DATA_GYTH:
@@ -370,6 +373,8 @@ public:
                     return go_emberseerrunes[5];
                 case GO_EMBERSEER_RUNE_7:
                     return go_emberseerrunes[6];
+                case GO_DR_PORTCULLIS:
+                    return go_portcullis_arena;
                 case GO_PORTCULLIS_ACTIVE:
                     return go_portcullis_active;
                 case GO_PORTCULLIS_TOBOSSROOMS:
@@ -522,6 +527,7 @@ public:
             ObjectGuid go_roomrunes[7];
             ObjectGuid go_emberseerrunes[7];
             ObjectGuid runecreaturelist[7][5];
+            ObjectGuid go_portcullis_arena;
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
     };
