@@ -35,3 +35,18 @@ char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele
         data = boost::apply_visitor(GameTeleVisitor(), val);
     return args;
 }
+
+struct BoolVisitor
+{
+    using value_type = bool;
+    value_type operator()(uint32 i) const { return !!i; }
+    value_type operator()(ExactSequence<'o', 'n'>) const { return true; }
+    value_type operator()(ExactSequence<'o', 'f', 'f'>) const { return false; }
+};
+char const* Trinity::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, char const* args)
+{
+    Variant<uint32, ExactSequence<'o', 'n'>, ExactSequence<'o', 'f', 'f'>> val;
+    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+        data = boost::apply_visitor(BoolVisitor(), val);
+    return args;
+}
