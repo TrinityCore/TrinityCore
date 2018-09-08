@@ -146,7 +146,7 @@ public:
                             //breathCombo = urand(1, 3);
                         }
 
-                        if (0 <= breathComboSpellsNum && breathComboSpellsNum <= 3)
+                        if (0 < breathComboSpellsNum && breathComboSpellsNum <= 3)
                         {
                             uint32 spellIndex = urand(0, breathComboSpellsNum - 1);
                             DoCast(me, breathComboSpells[spellIndex]);
