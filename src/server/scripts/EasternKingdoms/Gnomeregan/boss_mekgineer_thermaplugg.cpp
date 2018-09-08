@@ -22,6 +22,11 @@
 #include "gnomeregan.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Creature.h"
+#include "TemporarySummon.h"
+#include "MotionMaster.h"
 
 enum Yells
 {
@@ -104,20 +109,9 @@ public:
         void DespawnBombs()
         {
             std::list<Creature*> pCreatureList;
-
-            Trinity::AllCreaturesOfEntryInRange checker(me, NPC_WALKING_BOMB, 125.0f);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, pCreatureList, checker);
-
-            me->VisitNearbyObject(125.0f, searcher);
-
-            if (pCreatureList.empty())
-                return;
-
-            if (!pCreatureList.empty())
-            {
-                for (std::list<Creature*>::iterator i = pCreatureList.begin(); i != pCreatureList.end(); ++i)
-                    (*i)->DespawnOrUnsummon();
-            }
+            me->GetCreatureListWithEntryInGrid(pCreatureList, NPC_WALKING_BOMB);
+            for (Creature* bomb: pCreatureList)
+                bomb->DespawnOrUnsummon();
         }
 
         void Initialize()
@@ -151,7 +145,7 @@ public:
                     face->AI()->Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEnteredCombat(Unit* /*who*/) override
         {
             for (uint8 i = 0; i < MAX_GNOME_FACES; i++)
                 if (GameObject* face = me->FindNearestGameObject(GnomeFaces[i], 130.0f))
@@ -193,8 +187,8 @@ public:
                     if (rand == 1)
                         Talk(SAY_MACHINES);
                     DoCastVictim(SPELL_STEAM_BLAST);
-                    if (DoGetThreat(me->GetVictim()))
-                        DoModifyThreatPercent(me->GetVictim(), -50);
+                    if (GetThreat(me->GetVictim()))
+                        ModifyThreatByPercent(me->GetVictim(), -50);
                 }
                 break;
                 case EVENT_ACTIVATE_BOMBS:
@@ -230,7 +224,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_mekgineer_thermapluggAI>(creature);
+        return GetGnomereganAI<boss_mekgineer_thermapluggAI>(creature);
     }
 
 };
@@ -280,11 +274,11 @@ public:
                 switch (eventId)
                 {
                 case EVENT_ATTACK_START:
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     if (Player* player = me->SelectNearestPlayer(125.0f))
                     {
                         AttackStart(player);
-                        me->AddThreat(player, 10000);
+                        AddThreat(player, 10000);
                     }
                     break;
                 default:
@@ -302,7 +296,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_walking_bombAI>(creature);
+        return GetGnomereganAI<npc_walking_bombAI>(creature);
     }
 };
 
@@ -311,17 +305,27 @@ class go_button : public GameObjectScript
 public:
     go_button() : GameObjectScript("go_button") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    struct go_buttonAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_buttonAI(GameObject* go) : GameObjectAI(go) {};
+
+        bool GossipHello(Player* /*player*/) override
         {
-            if (GameObject* gnomeFace = go->FindNearestGameObject(instance->GetData(go->GetEntry()), 20.0f))
+            if (InstanceScript* instance = me->GetInstanceScript())
             {
-                gnomeFace->SetLootState(GO_READY);
-                gnomeFace->SetGoState(GO_STATE_READY);
+                if (GameObject* gnomeFace = me->FindNearestGameObject(instance->GetData(me->GetEntry()), 20.0f))
+                {
+                    gnomeFace->SetLootState(GO_READY);
+                    gnomeFace->SetGoState(GO_STATE_READY);
+                }
             }
+            return false;
         }
-        return false;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetGnomereganAI<go_buttonAI>(go);
     }
 };
 
@@ -334,21 +338,21 @@ public:
     {
         go_gnome_faceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()), _isActive(false) { }
 
-        void OnStateChanged(uint32 state, Unit* who)
+        void OnStateChanged(uint32 state) override
         {
             switch (state)
             {
             case GO_STATE_ACTIVE_ALTERNATIVE:
-                if (Creature* boss = ObjectAccessor::GetCreature(*go, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
-                    CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(go->GetEntry());
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
+                    CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(me->GetEntry());
 
                 _isActive = true;
                 _events.RescheduleEvent(EVENT_SUMMON_BOMB, 2 * IN_MILLISECONDS);
                 break;
             case GO_STATE_READY:
                 if (_isActive)
-                    if (Creature* boss = ObjectAccessor::GetCreature(*go, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
-                        CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(go->GetEntry());
+                    if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
+                        CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(me->GetEntry());
 
                 _isActive = false;
                 _events.CancelEvent(EVENT_SUMMON_BOMB);
@@ -360,20 +364,20 @@ public:
 
         void Reset() override
         {
-            go->SetLootState(GO_READY);
-            go->SetGoState(GO_STATE_READY);
+            me->SetLootState(GO_READY);
+            me->SetGoState(GO_STATE_READY);
         }
 
-        void DoAction(int32 param)
+        void DoAction(int32 /*param*/) override
         {
-            if (param == ACTION_ACTIVATE)
-                if (Creature* trigger = go->FindNearestCreature(NPC_WORLD_TRIGGER, 30.0f, true))
-                    trigger->CastSpell(trigger, SPELL_ACTIVATE_BOMB, true);
+        //    if (param == ACTION_ACTIVATE)
+        //       if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 30.0f, true))
+        //            trigger->CastSpell(trigger, SPELL_ACTIVATE_BOMB, true);
         }
 
         Position GetBombPosition()
         {
-            switch (go->GetEntry())
+            switch (me->GetEntry())
             {
             case GO_GNOME_FACE_01:
                 return BombPositions[0];
@@ -405,7 +409,7 @@ public:
                 switch (eventId)
                 {
                 case EVENT_SUMMON_BOMB:
-                    if (Creature* bomb = go->SummonCreature(NPC_WALKING_BOMB, GetBombPosition()))
+                    if (Creature* bomb = me->SummonCreature(NPC_WALKING_BOMB, GetBombPosition()))
                     {
                         bomb->SetCorpseDelay(5);
                         bomb->GetMotionMaster()->MoveFall();
@@ -426,7 +430,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return GetInstanceAI<go_gnome_faceAI>(go);
+        return GetGnomereganAI<go_gnome_faceAI>(go);
     }
 
 };

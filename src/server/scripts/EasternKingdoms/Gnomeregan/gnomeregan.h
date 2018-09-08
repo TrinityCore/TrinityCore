@@ -55,7 +55,7 @@ enum GNOCreatureIds
     NPC_CHOMPER                     = 6215,
     NPC_ELECTROCUTIONER             = 6235,
     NPC_CROWD_PUMMELER              = 6229,
-    NPC_MEKGINEER_THERMAPLUG        = 7800,
+    NPC_MEKGINEER_THERMAPLUGG       = 7800,
     NPC_WALKING_BOMB                = 7915
 };
 

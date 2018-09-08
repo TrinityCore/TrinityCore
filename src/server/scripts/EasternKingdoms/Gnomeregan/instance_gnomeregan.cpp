@@ -52,9 +52,9 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_BLASTMASTER_EMI_SHORTFUSE: 
-                    uiBastmasterEmiShortfuseGUID = creature->GetGUID(); 
+                    uiBlastmasterEmiShortfuseGUID = creature->GetGUID(); 
                     break;
-                case NPC_MEKGINEER_THERMAPLUG:
+                case NPC_MEKGINEER_THERMAPLUGG:
                     uiMekgineerThermapluggGUID = creature->GetGUID();
                     break;
             }
@@ -88,7 +88,7 @@ public:
                     case NPC_CROWD_PUMMELER:
                         SetBossState(DATA_CROWD_PUMMELER, DONE);
                         break;
-                    case NPC_MEKGINEER:
+                    case NPC_MEKGINEER_THERMAPLUGG:
                         SetBossState(DATA_THERMAPLUGG, DONE);
                         break;
                 }
