@@ -806,7 +806,11 @@ bool SimpleCharmedPlayerAI::CanAIAttack(Unit const* who) const
 Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 {
     if (Unit* charmer = me->GetCharmer())
-        return charmer->IsAIEnabled ? charmer->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, ValidTargetSelectPredicate(this)) : charmer->GetVictim();
+    {
+        if (UnitAI* charmerAI = charmer->GetAI())
+            return charmerAI->SelectTarget(SELECT_TARGET_RANDOM, 0, ValidTargetSelectPredicate(this));
+        return charmer->GetVictim();
+    }
     return nullptr;
 }
 
@@ -1422,9 +1426,9 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
     }
 }
 
-void SimpleCharmedPlayerAI::OnCharmed(bool apply)
+void SimpleCharmedPlayerAI::OnCharmed(bool isNew)
 {
-    if (apply)
+    if (me->IsCharmed())
     {
         me->CastStop();
         me->AttackStop();
@@ -1440,4 +1444,5 @@ void SimpleCharmedPlayerAI::OnCharmed(bool apply)
         me->GetMotionMaster()->Clear();
         me->StopMoving();
     }
+    PlayerAI::OnCharmed(isNew);
 }

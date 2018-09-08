@@ -592,7 +592,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
                                     temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     temp->SetImmuneToAll(false);
-                                    temp->AI()->DoZoneInCombat(temp, 100.00f);
+                                    temp->AI()->DoZoneInCombat(temp);
                                 }
                             }
                         }

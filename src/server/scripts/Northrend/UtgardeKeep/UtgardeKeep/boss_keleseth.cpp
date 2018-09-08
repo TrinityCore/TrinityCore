@@ -373,7 +373,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
+            return target && target->GetAI() && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
         }
 };
 

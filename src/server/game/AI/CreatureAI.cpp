@@ -26,6 +26,7 @@
 #include "Map.h"
 #include "MapReference.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
@@ -33,13 +34,16 @@
 #include "World.h"
 
 //Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool apply)
+void CreatureAI::OnCharmed(bool isNew)
 {
-    if (apply)
+    if (isNew && !me->IsCharmed() && me->LastCharmerGUID)
     {
-        me->NeedChangeAI = true;
-        me->IsAIEnabled = false;
+        if (!me->HasReactState(REACT_PASSIVE))
+            if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                me->EngageWithTarget(lastCharmer);
+        me->LastCharmerGUID.Clear();
     }
+    UnitAI::OnCharmed(isNew);
 }
 
 AISpellInfoType* UnitAI::AISpellInfo;
@@ -58,7 +62,7 @@ void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRangeToNearestTarget /* = 250.0f*/)
+void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 {
     if (!creature)
         creature = me;

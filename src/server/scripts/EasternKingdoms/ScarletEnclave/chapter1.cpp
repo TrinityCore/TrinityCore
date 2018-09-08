@@ -390,7 +390,7 @@ class npc_eye_of_acherus : public CreatureScript
                 _events.ScheduleEvent(EVENT_MOVE_START, 7s);
             }
 
-            void OnCharmed(bool /*apply*/) override { }
+            void OnCharmed(bool /*isNew*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
