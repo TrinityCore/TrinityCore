@@ -29,7 +29,6 @@ enum Spells
     SPELL_FLAMEBREATH               = 16390, // Combat (Self cast)
     SPELL_FREEZE                    = 16350, // Combat (Self cast)
     SPELL_KNOCK_AWAY                = 10101, // Combat
-    SPELL_CHROMATIC_CHAOS           = 16337,
     SPELL_SUMMON_REND               = 16328  // Summons Rend near death
 };
 
@@ -38,16 +37,14 @@ enum Misc
     NEFARIUS_PATH_2                 = 1379671,
     NEFARIUS_PATH_3                 = 1379672,
     GYTH_PATH_1                     = 1379681,
-    NEFARIUS_CHROMATIC_CHAOS_LINE   = 9
 };
 
 enum Events
 {
     EVENT_BREATH                    = 1,
     EVENT_KNOCK_AWAY                = 2,
-    EVENT_CHROMATIC_CHAOS           = 3,
-    EVENT_SUMMONED_1                = 4,
-    EVENT_SUMMONED_2                = 5
+    EVENT_SUMMONED_1                = 3,
+    EVENT_SUMMONED_2                = 4
 };
 
 class boss_gyth : public CreatureScript
