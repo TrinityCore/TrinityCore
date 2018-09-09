@@ -24,7 +24,7 @@
 namespace Trinity {
 namespace ChatCommands {
 
-static const char COMMAND_DELIMITER = ' ';
+static constexpr char COMMAND_DELIMITER = ' ';
 
 /***************** HELPERS *************************\
 |* These really aren't for outside use...          *|

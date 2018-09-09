@@ -108,6 +108,13 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
     }
 };
 
+// AchievementEntry* from numeric id or link
+template <>
+struct TC_GAME_API ArgInfo<AchievementEntry const*>
+{
+    static char const* TryConsume(AchievementEntry const*&, char const*);
+};
+
 // GameTele* from string name or link
 template <>
 struct TC_GAME_API ArgInfo<GameTele const*>
