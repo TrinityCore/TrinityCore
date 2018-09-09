@@ -98,12 +98,12 @@ public:
 
         void AddFaceAvailable(uint32 entry)
         {
-            _availableFacesList.push_back(entry);
+            _availableFacesList.insert(entry);
         }
 
         void RemoveFaceAvailable(uint32 entry)
         {
-            _availableFacesList.remove(entry);
+            _availableFacesList.erase(entry);
         }
 
         void DespawnBombs()
@@ -198,6 +198,7 @@ public:
                     {
                         Talk(SAY_EXPLOSIONS);
                         face->AI()->DoAction(ACTION_ACTIVATE);
+                        face->SetGoState(GO_STATE_ACTIVE);
                         DoCast(SPELL_ACTIVATE_BOMB_VISUAL);
                     }
 
@@ -219,7 +220,7 @@ public:
         }
 
         EventMap _events;
-        std::list<uint32> _availableFacesList;
+        std::set<uint32> _availableFacesList;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -311,15 +312,35 @@ public:
 
         bool GossipHello(Player* /*player*/) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
+            if (GameObject* gnomeFace = me->FindNearestGameObject(GetFace(me->GetEntry()), 20.0f))
             {
-                if (GameObject* gnomeFace = me->FindNearestGameObject(instance->GetData(me->GetEntry()), 20.0f))
-                {
-                    gnomeFace->SetLootState(GO_READY);
-                    gnomeFace->SetGoState(GO_STATE_READY);
-                }
+                gnomeFace->SetLootState(GO_READY);
+                gnomeFace->SetGoState(GO_STATE_READY);
             }
             return false;
+        }
+
+    private:
+        uint32 GetFace(uint32 uiType)
+        {
+            switch (uiType)
+            {
+            case GO_BUTTON_01:
+                return GO_GNOME_FACE_01;
+            case GO_BUTTON_02:
+                return GO_GNOME_FACE_02;
+            case GO_BUTTON_03:
+                return GO_GNOME_FACE_03;
+            case GO_BUTTON_04:
+                return GO_GNOME_FACE_04;
+            case GO_BUTTON_05:
+                return GO_GNOME_FACE_05;
+            case GO_BUTTON_06:
+                return GO_GNOME_FACE_06;
+            default:
+                break;
+            }
+            return 0;
         }
     };
 
@@ -342,7 +363,7 @@ public:
         {
             switch (state)
             {
-            case GO_STATE_ACTIVE_ALTERNATIVE:
+            case GO_STATE_ACTIVE:
                 if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
                     CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(me->GetEntry());
 
@@ -368,11 +389,10 @@ public:
             me->SetGoState(GO_STATE_READY);
         }
 
-        void DoAction(int32 /*param*/) override
+        void DoAction(int32 param) override
         {
-        //    if (param == ACTION_ACTIVATE)
-        //       if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 30.0f, true))
-        //            trigger->CastSpell(trigger, SPELL_ACTIVATE_BOMB, true);
+            if (param == ACTION_ACTIVATE)
+                me->CastSpell(me, SPELL_ACTIVATE_BOMB, true);
         }
 
         Position GetBombPosition()

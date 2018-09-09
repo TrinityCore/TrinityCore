@@ -60,6 +60,7 @@ void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_boss_mr_smite();
 void AddSC_boss_vancleef();
+void AddSC_boss_mekgineer_thermaplugg();
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
@@ -237,6 +238,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_mr_smite();
     AddSC_boss_vancleef();
     AddSC_instance_deadmines();
+    AddSC_boss_mekgineer_thermaplugg();
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_boss_attumen();                   //Karazhan
