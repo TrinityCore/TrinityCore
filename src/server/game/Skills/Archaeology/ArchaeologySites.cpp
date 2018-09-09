@@ -120,7 +120,7 @@ void Archaeology::UseSite()
         float o      = _player->GetOrientation();
         float x      = _player->GetPositionX() + cos(o) * 2.0f;
         float y      = _player->GetPositionY() + sin(o) * 2.0f;
-        float z      = _player->GetPositionZ();        
+        float z      = _player->GetPositionZ();
         float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhaseShift(), x, y, z, &ground, _player->IsInWater());
 
         QuaternionData rot = QuaternionData::fromEulerAnglesZYX(angle, 0.f, 0.f);
@@ -176,10 +176,10 @@ Continent Archaeology::GetContinent()
 uint32 Archaeology::GetNearestSite(float &distance)
 {
     uint32 cont = GetContinent();
-    
+
     if (COUNT_CONT == cont)
         return 0;
-    
+
     uint32 position = cont * CONTINENT_SITES;
 
     float pX = _player->GetPositionX();
@@ -238,7 +238,7 @@ void Archaeology::RegenerateContinent(Continent continent)
     }
 
     uint32 position = continent * CONTINENT_SITES;
-    
+
     for (uint32 i = 0; i < CONTINENT_SITES; i++)
         RegeneratePosition(position + i, continent);
 }

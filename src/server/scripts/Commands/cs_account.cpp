@@ -492,7 +492,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
         }
         else
         {

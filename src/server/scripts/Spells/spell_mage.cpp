@@ -1573,7 +1573,7 @@ public:
                 SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
                 SPELL_MAGE_ARCANE_BLAST
             });
-            
+
         }
 
         bool CheckProc(ProcEventInfo& eventInfo)
