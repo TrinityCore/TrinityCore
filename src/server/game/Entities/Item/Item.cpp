@@ -1709,7 +1709,7 @@ bool Item::HasStats() const
     ItemTemplate const* proto = GetTemplate();
     Player const* owner = GetOwner();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatValue(i)) != 0)
+        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatAllocation(i)) != 0)
             return true;
 
     return false;
@@ -1721,7 +1721,7 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
         return true;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->ItemStatValue[i] != 0)
+        if (bonus->ItemStatAllocation[i] != 0)
             return true;
 
     return false;
@@ -2276,7 +2276,7 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
         return int32(std::floor(statValue + 0.5f));
     }
 
-    return _bonusData.ItemStatValue[index];
+    return 0;
 }
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
@@ -2623,9 +2623,6 @@ void BonusData::Initialize(ItemTemplate const* proto)
     RequiredLevel = proto->GetBaseRequiredLevel();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatType[i] = proto->GetItemStatType(i);
-
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        ItemStatValue[i] = proto->GetItemStatValue(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatAllocation[i] = proto->GetItemStatAllocation(i);
