@@ -32,6 +32,8 @@
 #include "WorldPacket.h"
 #include <zlib.h>
 
+static const char InvalidCharacters[] = ":-\\";
+
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
     // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
@@ -71,6 +73,10 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         recvData >> needMoreHelp;
 
         recvData >> count;
+
+        if (!message.empty())
+            for (uint8 X = 0; X < strlen(InvalidCharacters); ++X)
+                message.erase(std::remove(message.begin(), message.end(), InvalidCharacters[X]), message.end());
 
         for (uint32 i = 0; i < count; i++)
         {
@@ -127,6 +133,10 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 {
     std::string message;
     recvData >> message;
+
+    if (!message.empty())
+        for (uint8 X = 0; X < strlen(InvalidCharacters); ++X)
+            message.erase(std::remove(message.begin(), message.end(), InvalidCharacters[X]), message.end());
 
     GMTicketResponse response = GMTICKET_RESPONSE_UPDATE_ERROR;
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
@@ -206,6 +216,10 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
         std::string comment; // comment ("Usage: GMSurveyAnswerSubmit(question, rank, comment)")
         recvData >> comment;
 
+        if (!comment.empty())
+            for (uint8 X = 0; X < strlen(InvalidCharacters); ++X)
+                comment.erase(std::remove(comment.begin(), comment.end(), InvalidCharacters[X]), comment.end());
+
         // make sure the same sub survey is not added to DB twice
         if (!surveyIds.insert(subSurveyId).second)
             continue;
@@ -220,6 +234,10 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
 
     std::string comment; // just a guess
     recvData >> comment;
+
+    if (!comment.empty())
+        for (uint8 X = 0; X < strlen(InvalidCharacters); ++X)
+            comment.erase(std::remove(comment.begin(), comment.end(), InvalidCharacters[X]), comment.end());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
