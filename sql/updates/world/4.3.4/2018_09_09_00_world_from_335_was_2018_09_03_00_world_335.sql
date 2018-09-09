@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=738 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (73800,73803,73804) AND `source_type`=9;
@@ -27,3 +28,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=19 AND `SourceEntry`=215;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (19,0,215,0,0,23,0,99,0,0,1,0,0,"","Quest 'Jungle Secrets' can only be taken if Private Thorsen is not in area 99");
+*/

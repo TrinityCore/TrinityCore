@@ -1,3 +1,4 @@
+/*
 -- Yeh'kinya
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=8579;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
@@ -28,3 +29,4 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (8579,2,-6964.45,-4949.57,6.45678,"");
 
 
+*/
