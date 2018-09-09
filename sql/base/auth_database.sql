@@ -1036,7 +1036,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,317),
 (198,318),
 (198,855),
-(198,874),
 (198,367),
 (198,368),
 (198,369),
@@ -1046,15 +1045,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,374),
 (198,376),
 (198,377),
-(198,378),
-(198,379),
-(198,380),
-(198,381),
-(198,382),
-(198,383),
-(198,384),
-(198,385),
-(198,386),
 (198,408),
 (198,409),
 (198,410),
@@ -1395,15 +1385,6 @@ INSERT INTO `rbac_permissions` VALUES
 (375,'Command: gm list'),
 (376,'Command: gm visible'),
 (377,'Command: go'),
-(378,'Command: go creature'),
-(379,'Command: go graveyard'),
-(380,'Command: go grid'),
-(381,'Command: go object'),
-(382,'Command: go taxinode'),
-(383,'Command: go ticket'),
-(384,'Command: go trigger'),
-(385,'Command: go xyz'),
-(386,'Command: go zonexy'),
 (387,'Command: gobject'),
 (388,'Command: gobject activate'),
 (389,'Command: gobject add'),
@@ -1832,8 +1813,7 @@ INSERT INTO `rbac_permissions` VALUES
 (865,'Command: npc showloot'),
 (866,'Command: list spawnpoints'),
 (867,'Command: reload quest_greeting_locale'),
-(872,'Command: server debug'),
-(874,'Command: go instance');
+(872,'Command: server debug');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1979,7 +1959,8 @@ INSERT INTO `updates` VALUES
 ('2018_08_15_00_auth.sql','22DC7AA7A1D2B04C62B2EEBFF4562DDDC412B456','ARCHIVED','2018-08-15 01:40:04',0),
 ('2018_08_16_00_auth.sql','FF00C2A63E8F1E43442C083F2682E100FB39AA5C','ARCHIVED','2018-08-16 01:40:04',0),
 ('2018_08_17_00_auth.sql','0C9921DCEF92D0C66524299A2F0B86EBB1B7020E','ARCHIVED','2018-08-17 01:40:04',0),
-('2018_09_02_00_auth_from_335_was_2018_08_30_00_auth.sql','7E6ABD3FF59FC6CC82B227CE074E8E91DE4D1DB2','ARCHIVED','2018-08-17 01:40:04',0);
+('2018_09_02_00_auth_from_335_was_2018_08_30_00_auth.sql','7E6ABD3FF59FC6CC82B227CE074E8E91DE4D1DB2','ARCHIVED','2018-08-17 01:40:04',0),
+('2018_09_09_00_auth_from_335_was_2018_09_06_00_auth.sql','309D21E0DF82ED8921F77EAFDE741F38AC32BB13','ARCHIVED','2018-09-06 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

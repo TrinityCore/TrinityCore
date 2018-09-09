@@ -283,15 +283,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GM_LIST                                = 375,
     RBAC_PERM_COMMAND_GM_VISIBLE                             = 376,
     RBAC_PERM_COMMAND_GO                                     = 377,
-    RBAC_PERM_COMMAND_GO_CREATURE                            = 378,
-    RBAC_PERM_COMMAND_GO_GRAVEYARD                           = 379,
-    RBAC_PERM_COMMAND_GO_GRID                                = 380,
-    RBAC_PERM_COMMAND_GO_OBJECT                              = 381,
-    RBAC_PERM_COMMAND_GO_TAXINODE                            = 382,
-    RBAC_PERM_COMMAND_GO_TICKET                              = 383,
-    RBAC_PERM_COMMAND_GO_TRIGGER                             = 384,
-    RBAC_PERM_COMMAND_GO_XYZ                                 = 385,
-    RBAC_PERM_COMMAND_GO_ZONEXY                              = 386,
+    // unused 378-386
     RBAC_PERM_COMMAND_GOBJECT                                = 387,
     RBAC_PERM_COMMAND_GOBJECT_ACTIVATE                       = 388,
     RBAC_PERM_COMMAND_GOBJECT_ADD                            = 389,
@@ -750,7 +742,14 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a or 4.3.4
     RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
     RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 844, // not on 3.3.5a or 4.3.4
-    RBAC_PERM_COMMAND_GO_OFFSET                              = 845,
+    RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845, // not on 3.3.5a or 4.3.4
+    RBAC_PERM_COMMAND_SCENE_PLAY                             = 846, // not on 3.3.5a or 4.3.4
+    RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE                     = 847, // not on 3.3.5a or 4.3.4
+    RBAC_PERM_COMMAND_SCENE_CANCEL                           = 848, // not on 3.3.5a or 4.3.4
+    RBAC_PERM_COMMAND_LIST_SCENES                            = 849, // not on 3.3.5a or 4.3.4
+    RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850, // not on 3.3.5a or 4.3.4
+    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851, // not on 3.3.5a or 4.3.4
+    // unused 852
     RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853, // not on 3.3.5a or 4.3.4
     RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854, // not on 3.3.5a or 4.3.4
     RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC                       = 855,
@@ -772,7 +771,6 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871,
     RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE      = 873,
-    RBAC_PERM_COMMAND_GO_INSTANCE                            = 874,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
