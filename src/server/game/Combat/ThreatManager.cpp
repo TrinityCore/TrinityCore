@@ -389,9 +389,15 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     }
 
     // ok, we're now in combat - create the threat list reference and push it to the respective managers
-    ThreatReference* ref = new ThreatReference(this, target, amount);
+    ThreatReference* ref = new ThreatReference(this, target);
     PutThreatListRef(target->GetGUID(), ref);
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
+
+    // afterwards, we evaluate whether this is an online reference (it might not be an acceptable target, but we need to add it to our threat list before we check!)
+    ref->UpdateOffline();
+    if (ref->IsOnline()) // ...and if the ref is online it also gets the threat it should have
+        ref->AddThreat(amount);
+
     if (!_ownerEngaged)
     {
         Creature* cOwner = ASSERT_NOTNULL(_owner->ToCreature()); // if we got here the owner can have a threat list, and must be a creature!
