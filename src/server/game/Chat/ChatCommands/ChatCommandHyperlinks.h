@@ -22,6 +22,8 @@
 #include "ChatCommandTags.h"
 #include "ObjectGuid.h"
 
+struct AchievementEntry;
+
 namespace Trinity {
 namespace ChatCommands {
 
@@ -34,6 +36,8 @@ struct Hyperlink : public ContainerTag
 
     public:
         operator value_type() const { return val; }
+        value_type const& operator*() const { return val; }
+        value_type const* operator->() const { return &val; }
 
         char const* TryConsume(char const* pos)
         {
@@ -117,7 +121,7 @@ struct base_tag
     }
 };
 
-#define make_base_tag(ltag, type) struct ltag : public base_tag { typedef type value_type; static constexpr char const* tag() { return #ltag; } }
+#define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr char const* tag() { return #ltag; } }
 make_base_tag(areatrigger, uint32);
 make_base_tag(creature, ObjectGuid::LowType);
 make_base_tag(creature_entry, uint32);
@@ -125,6 +129,24 @@ make_base_tag(gameobject, ObjectGuid::LowType);
 make_base_tag(taxinode, uint32);
 make_base_tag(tele, uint32);
 #undef make_base_tag
+
+struct AchievementLinkData
+{
+    AchievementEntry const* achievement;
+    ObjectGuid::LowType characterId;
+    bool isFinished;
+    uint16 year;
+    uint8 month;
+    uint8 day;
+    uint32 criteria[4];
+};
+
+struct TC_GAME_API achievement
+{
+    using value_type = AchievementLinkData;
+    static constexpr char const* tag() { return "achievement"; }
+    static bool StoreTo(AchievementLinkData& val, char const* pos, size_t len);
+};
 
 }}
 
