@@ -337,7 +337,6 @@ public:
             return false;
         }
 
-
         AccountOpResult result = AccountMgr::ChangeEmail(handler->GetSession()->GetAccountId(), email);
         switch (result)
         {
