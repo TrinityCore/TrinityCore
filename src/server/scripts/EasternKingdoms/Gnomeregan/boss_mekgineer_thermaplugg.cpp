@@ -152,10 +152,10 @@ public:
                     AddFaceAvailable(GnomeFaces[i]);
 
             Talk(SAY_AGGRO);
-            _events.ScheduleEvent(EVENT_POUND, 6 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_STEAM_BLAST, 10 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_WELDING_BEAM, 14 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_POUND, 6s);
+            _events.ScheduleEvent(EVENT_STEAM_BLAST, 10s);
+            _events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8s);
+            _events.ScheduleEvent(EVENT_WELDING_BEAM, 14s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -172,47 +172,43 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_POUND:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f))
-                        DoCast(target, SPELL_POUND);
-                    else
-                        DoCastVictim(SPELL_POUND);
+                    case EVENT_POUND:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f))
+                            DoCast(target, SPELL_POUND);
+                        else
+                            DoCastVictim(SPELL_POUND);
 
-                    _events.RescheduleEvent(EVENT_POUND, 10 * IN_MILLISECONDS);
-                    _events.RescheduleEvent(EVENT_STEAM_BLAST, 4 * IN_MILLISECONDS);
-                    break;
-                case EVENT_STEAM_BLAST:
-                {
-                    uint8 rand = urand(1, 4);
-                    if (rand == 1)
+                        _events.RescheduleEvent(EVENT_POUND, 10s);
+                        _events.RescheduleEvent(EVENT_STEAM_BLAST, 4s);
+                        break;
+                    case EVENT_STEAM_BLAST:
                         Talk(SAY_MACHINES);
-                    DoCastVictim(SPELL_STEAM_BLAST);
-                    if (GetThreat(me->GetVictim()))
-                        ModifyThreatByPercent(me->GetVictim(), -50);
-                }
-                break;
-                case EVENT_ACTIVATE_BOMBS:
-                {
-                    uint32 faceEntry = Trinity::Containers::SelectRandomContainerElement(_availableFacesList);
-                    if (GameObject* face = me->FindNearestGameObject(faceEntry, 125.0f))
-                    {
-                        Talk(SAY_EXPLOSIONS);
-                        face->AI()->DoAction(ACTION_ACTIVATE);
-                        face->SetGoState(GO_STATE_ACTIVE);
-                        DoCast(SPELL_ACTIVATE_BOMB_VISUAL);
-                    }
-
-                    _events.RescheduleEvent(EVENT_ACTIVATE_BOMBS, urand(10 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
-                }
-                break;
-                case EVENT_WELDING_BEAM:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
-                        DoCast(target, SPELL_WELDING_BEAM, true);
-
-                    _events.RescheduleEvent(EVENT_WELDING_BEAM, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        DoCastVictim(SPELL_STEAM_BLAST);
+                        if (GetThreat(me->GetVictim()))
+                            ModifyThreatByPercent(me->GetVictim(), -50);
                     break;
-                default:
+                    case EVENT_ACTIVATE_BOMBS:
+                        if (!_availableFacesList.empty())
+                        {
+                            uint32 faceEntry = Trinity::Containers::SelectRandomContainerElement(_availableFacesList);
+                            if (GameObject* face = me->FindNearestGameObject(faceEntry, 125.0f))
+                            {
+                                Talk(SAY_EXPLOSIONS);
+                                face->AI()->DoAction(ACTION_ACTIVATE);
+                                face->SetGoState(GO_STATE_ACTIVE);
+                                DoCast(SPELL_ACTIVATE_BOMB_VISUAL);
+                            }
+                        }
+                        _events.Repeat(10s, 18s);
                     break;
+                    case EVENT_WELDING_BEAM:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
+                            DoCast(target, SPELL_WELDING_BEAM, true);
+
+                        _events.Repeat(10s, 15s);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -240,14 +236,19 @@ public:
         npc_walking_bombAI(Creature* creature) : ScriptedAI(creature)
         {
             _instance = me->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        }
+
+        void InitializeAI() override
+        {
+            ScriptedAI::InitializeAI();
+
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
             me->SetReactState(REACT_PASSIVE);
         }
 
         void Reset() override
         {
-            _events.ScheduleEvent(EVENT_ATTACK_START, 2 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_ATTACK_START, 2s);
             despawn = false;
         }
 
@@ -368,7 +369,7 @@ public:
                     CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(me->GetEntry());
 
                 _isActive = true;
-                _events.RescheduleEvent(EVENT_SUMMON_BOMB, 2 * IN_MILLISECONDS);
+                _events.RescheduleEvent(EVENT_SUMMON_BOMB, 2s);
                 break;
             case GO_STATE_READY:
                 if (_isActive)
@@ -435,7 +436,7 @@ public:
                         bomb->GetMotionMaster()->MoveFall();
                     }
 
-                    _events.RescheduleEvent(EVENT_SUMMON_BOMB, 10 * IN_MILLISECONDS);
+                    _events.Repeat(10s);
                     break;
                 default:
                     break;
