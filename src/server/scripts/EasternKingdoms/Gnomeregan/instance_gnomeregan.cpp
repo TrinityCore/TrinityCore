@@ -98,16 +98,15 @@ public:
         {
             switch (uiType)
             {
-                case DATA_GO_CAVE_IN_LEFT:              return uiCaveInLeftGUID;
-                case DATA_GO_CAVE_IN_RIGHT:             return uiCaveInRightGUID;
-                case DATA_NPC_BASTMASTER_EMI_SHORTFUSE: return uiBlastmasterEmiShortfuseGUID;
-                case DATA_MEKGINEER_THERMAPLUGG:        return uiMekgineerThermapluggGUID;
+                case DATA_GO_CAVE_IN_LEFT:               return uiCaveInLeftGUID;
+                case DATA_GO_CAVE_IN_RIGHT:              return uiCaveInRightGUID;
+                case DATA_NPC_BLASTMASTER_EMI_SHORTFUSE: return uiBlastmasterEmiShortfuseGUID;
+                case DATA_MEKGINEER_THERMAPLUGG:         return uiMekgineerThermapluggGUID;
             }
 
             return ObjectGuid::Empty;
         }
     };
-
 };
 
 void AddSC_instance_gnomeregan()

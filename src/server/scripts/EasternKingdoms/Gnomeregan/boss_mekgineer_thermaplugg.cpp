@@ -67,12 +67,12 @@ enum Actions
 
 uint32 const GnomeFaces[MAX_GNOME_FACES] =
 {
-    142211,
-    142210,
-    142209,
-    142208,
-    142213,
-    142212
+    GO_GNOME_FACE_01,
+    GO_GNOME_FACE_02,
+    GO_GNOME_FACE_03,
+    GO_GNOME_FACE_04,
+    GO_GNOME_FACE_05,
+    GO_GNOME_FACE_06
 };
 
 Position BombPositions[MAX_GNOME_FACES] =
@@ -118,14 +118,14 @@ public:
         {
             _availableFacesList.clear();
 
-            for (uint8 i = 0; i < MAX_GNOME_FACES; i++)
-                if (GameObject* face = me->FindNearestGameObject(GnomeFaces[i], 130.0f))
+            for (uint32 face_id : GnomeFaces)
+                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
                     face->AI()->Reset();
         }
 
         void Reset() override
         {
-            _events.Reset();
+            events.Reset();
             Initialize();
             DespawnBombs();
         }
@@ -140,22 +140,21 @@ public:
         {
             _JustDied();
             DespawnBombs();
-            for (uint8 i = 0; i < MAX_GNOME_FACES; i++)
-                if (GameObject* face = me->FindNearestGameObject(GnomeFaces[i], 130.0f))
+            for (uint32 face_id : GnomeFaces)
+                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
                     face->AI()->Reset();
         }
 
         void JustEnteredCombat(Unit* /*who*/) override
         {
-            for (uint8 i = 0; i < MAX_GNOME_FACES; i++)
-                if (GameObject* face = me->FindNearestGameObject(GnomeFaces[i], 130.0f))
-                    AddFaceAvailable(GnomeFaces[i]);
+            for (uint32 face_id : GnomeFaces)
+                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
+                    AddFaceAvailable(face_id);
 
             Talk(SAY_AGGRO);
-            _events.ScheduleEvent(EVENT_POUND, 6s);
-            _events.ScheduleEvent(EVENT_STEAM_BLAST, 10s);
-            _events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8s);
-            _events.ScheduleEvent(EVENT_WELDING_BEAM, 14s);
+            events.ScheduleEvent(EVENT_POUND, 6s);
+            events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8s);
+            events.ScheduleEvent(EVENT_WELDING_BEAM, 14s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -166,9 +165,9 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            _events.Update(diff);
+            events.Update(diff);
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -178,8 +177,8 @@ public:
                         else
                             DoCastVictim(SPELL_POUND);
 
-                        _events.RescheduleEvent(EVENT_POUND, 10s);
-                        _events.RescheduleEvent(EVENT_STEAM_BLAST, 4s);
+                        events.Repeat(10s);
+                        events.ScheduleEvent(EVENT_STEAM_BLAST, 4s);
                         break;
                     case EVENT_STEAM_BLAST:
                         Talk(SAY_MACHINES);
@@ -199,13 +198,13 @@ public:
                                 DoCast(SPELL_ACTIVATE_BOMB_VISUAL);
                             }
                         }
-                        _events.Repeat(10s, 18s);
+                        events.Repeat(10s, 18s);
                     break;
                     case EVENT_WELDING_BEAM:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
                             DoCast(target, SPELL_WELDING_BEAM, true);
 
-                        _events.Repeat(10s, 15s);
+                        events.Repeat(10s, 15s);
                         break;
                     default:
                         break;
@@ -215,7 +214,6 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        EventMap _events;
         std::set<uint32> _availableFacesList;
     };
 
@@ -233,9 +231,8 @@ public:
 
     struct npc_walking_bombAI : public ScriptedAI
     {
-        npc_walking_bombAI(Creature* creature) : ScriptedAI(creature)
+        npc_walking_bombAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
         {
-            _instance = me->GetInstanceScript();
         }
 
         void InitializeAI() override
@@ -248,8 +245,7 @@ public:
 
         void Reset() override
         {
-            _events.ScheduleEvent(EVENT_ATTACK_START, 2s);
-            despawn = false;
+            events.ScheduleEvent(EVENT_ATTACK_START, 2s);
         }
 
         void KilledUnit(Unit* who) override
@@ -261,17 +257,15 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!despawn)
-                if (Player* player = me->SelectNearestPlayer(3.0f))
-                {
-                    despawn = true;
-                    me->CastSpell(me, SPELL_BOMB_EFFECT, true);
-                    me->StopMoving();
-                }
+            if (Player* player = me->SelectNearestPlayer(3.0f))
+            {
+                me->CastSpell(me, SPELL_BOMB_EFFECT, true);
+                me->StopMoving();
+            }
 
-            _events.Update(diff);
+            events.Update(diff);
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -291,8 +285,7 @@ public:
         }
 
     private:
-        EventMap _events;
-        bool despawn;
+        EventMap events;
         InstanceScript* _instance;
     };
 
@@ -369,7 +362,7 @@ public:
                     CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(me->GetEntry());
 
                 _isActive = true;
-                _events.RescheduleEvent(EVENT_SUMMON_BOMB, 2s);
+                events.RescheduleEvent(EVENT_SUMMON_BOMB, 2s);
                 break;
             case GO_STATE_READY:
                 if (_isActive)
@@ -377,7 +370,7 @@ public:
                         CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(me->GetEntry());
 
                 _isActive = false;
-                _events.CancelEvent(EVENT_SUMMON_BOMB);
+                events.CancelEvent(EVENT_SUMMON_BOMB);
                 break;
             default:
                 break;
@@ -423,9 +416,9 @@ public:
             if (!_isActive)
                 return;
 
-            _events.Update(diff);
+            events.Update(diff);
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -436,7 +429,7 @@ public:
                         bomb->GetMotionMaster()->MoveFall();
                     }
 
-                    _events.Repeat(10s);
+                    events.Repeat(10s);
                     break;
                 default:
                     break;
@@ -445,7 +438,7 @@ public:
         }
 
         InstanceScript* _instance;
-        EventMap _events;
+        EventMap events;
         bool _isActive;
     };
 
