@@ -106,6 +106,8 @@ bool ThreatReference::ShouldBeOffline() const
 
 bool ThreatReference::ShouldBeSuppressed() const
 {
+    if (IsTaunting()) // a taunting victim can never be suppressed
+        return false;
     if (_victim->IsImmunedToDamage(_owner->GetMeleeDamageSchoolMask()))
         return true;
     if (_victim->HasAuraType(SPELL_AURA_MOD_CONFUSE))
@@ -272,11 +274,22 @@ bool ThreatManager::IsThreateningTo(ObjectGuid const& who, bool includeOffline) 
 }
 bool ThreatManager::IsThreateningTo(Unit const* who, bool includeOffline) const { return IsThreateningTo(who->GetGUID(), includeOffline); }
 
-void ThreatManager::EvaluateSuppressed()
+void ThreatManager::EvaluateSuppressed(bool canExpire)
 {
     for (auto const& pair : _threatenedByMe)
-        if (pair.second->IsOnline() && pair.second->ShouldBeSuppressed())
+    {
+        bool const shouldBeSuppressed = pair.second->ShouldBeSuppressed();
+        if (pair.second->IsOnline() && shouldBeSuppressed)
+        {
             pair.second->_online = ThreatReference::ONLINE_STATE_SUPPRESSED;
+            pair.second->HeapNotifyDecreased();
+        }
+        else if (canExpire && pair.second->IsSuppressed() && !shouldBeSuppressed)
+        {
+            pair.second->_online = ThreatReference::ONLINE_STATE_ONLINE;
+            pair.second->HeapNotifyIncreased();
+        }
+    }
 }
 
 static void SaveCreatureHomePositionIfNeed(Creature* c)
@@ -362,10 +375,13 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     if (it != _myThreatListEntries.end())
     {
         ThreatReference* const ref = it->second;
-        // causing threat causes SUPPRESSED threat states to stop being suppressed
+        // SUPPRESSED threat states don't go back to ONLINE until threat is caused by them (retail behavior)
         if (ref->GetOnlineState() == ThreatReference::ONLINE_STATE_SUPPRESSED)
             if (!ref->ShouldBeSuppressed())
+            {
                 ref->_online = ThreatReference::ONLINE_STATE_ONLINE;
+                ref->HeapNotifyIncreased();
+            }
 
         if (ref->IsOnline())
             ref->AddThreat(amount);
@@ -436,6 +452,9 @@ void ThreatManager::TauntUpdate()
         else
             pair.second->UpdateTauntState();
     }
+
+    // taunt aura update also re-evaluates all suppressed states (retail behavior)
+    EvaluateSuppressed(true);
 }
 
 void ThreatManager::ResetAllThreat()

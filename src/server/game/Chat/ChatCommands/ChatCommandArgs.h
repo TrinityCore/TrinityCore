@@ -115,6 +115,13 @@ struct TC_GAME_API ArgInfo<GameTele const*>
     static char const* TryConsume(GameTele const*&, char const*);
 };
 
+// bool from 1/0 or on/off
+template <>
+struct TC_GAME_API ArgInfo<bool>
+{
+    static char const* TryConsume(bool&, char const*);
+};
+
 }}
 
 #endif
