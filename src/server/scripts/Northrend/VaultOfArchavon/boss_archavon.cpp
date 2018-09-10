@@ -81,7 +81,7 @@ class boss_archavon : public CreatureScript
                 events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
                 events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
                 events.ScheduleEvent(EVENT_STOMP, 45s);
-                events.ScheduleEvent(EVENT_BERSERK, 5m);
+                events.ScheduleEvent(EVENT_BERSERK, 5min);
 
                 _JustEngagedWith();
             }

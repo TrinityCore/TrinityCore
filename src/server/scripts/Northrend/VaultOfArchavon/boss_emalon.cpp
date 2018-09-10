@@ -113,7 +113,7 @@ class boss_emalon : public CreatureScript
 
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5s);
                 events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40s);
-                events.ScheduleEvent(EVENT_BERSERK, 6m);
+                events.ScheduleEvent(EVENT_BERSERK, 6min);
                 events.ScheduleEvent(EVENT_OVERCHARGE, 45s);
 
                 _JustEngagedWith();
@@ -246,7 +246,7 @@ class npc_tempest_minion : public CreatureScript
                         if (OverchargedTimer <= diff)
                         {
                             DoCast(me, SPELL_OVERCHARGED);
-                            OverchargedTimer = 2s;
+                            OverchargedTimer = 2000; // ms
                         }
                         else
                             OverchargedTimer -= diff;
