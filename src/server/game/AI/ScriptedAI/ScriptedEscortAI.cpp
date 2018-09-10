@@ -395,6 +395,9 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
         return;
     }
 
+    // Initialize running variable before filling waypoints
+    _running = run;
+
     if (!_manualPath && resetWaypoints)
         FillPointMovementListForCreature();
 
@@ -406,7 +409,6 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
 
     // set variables
     _activeAttacker = isActiveAttacker;
-    _running = run;
     _playerGUID = playerGUID;
     _escortQuest = quest;
     _instantRespawn = instantRespawn;
