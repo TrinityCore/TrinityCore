@@ -2231,10 +2231,6 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
         else
             level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
-
         if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->PlayerLevelToItemLevelCurveID, level)))
             itemLevel = heirloomIlvl;
     }
@@ -2597,10 +2593,6 @@ void Item::SetFixedLevel(uint8 level)
     if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(_bonusData.ScalingStatDistribution))
     {
         level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
-
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(_bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, level);
     }

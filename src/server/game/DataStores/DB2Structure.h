@@ -2155,14 +2155,6 @@ struct PVPItemEntry
     uint8 ItemLevelDelta;
 };
 
-struct PvpRewardEntry
-{
-    uint32 ID;
-    int32 HonorLevel;
-    int32 PrestigeLevel;
-    int32 RewardPackID;
-};
-
 struct PvpTalentEntry
 {
     uint32 ID;
@@ -2176,14 +2168,6 @@ struct PvpTalentEntry
     int32 ClassID;
     int32 SpecID;
     int32 Role;
-};
-
-struct PvpTalentUnlockEntry
-{
-    uint32 ID;
-    int32 TierID;
-    int32 ColumnIndex;
-    int32 HonorLevel;
 };
 
 struct QuestFactionRewardEntry
@@ -2266,14 +2250,6 @@ struct RulesetItemUpgradeEntry
     uint32 ID;
     int32 ItemID;
     uint16 ItemUpgradeID;
-};
-
-struct SandboxScalingEntry
-{
-    uint32 ID;
-    int32 MinLevel;
-    int32 MaxLevel;
-    int32 Flags;
 };
 
 struct ScalingStatDistributionEntry
@@ -3095,27 +3071,6 @@ struct WorldEffectEntry
     uint32 PlayerConditionID;
 };
 
-struct WorldMapAreaEntry
-{
-    char const* AreaName;
-    float LocLeft;
-    float LocRight;
-    float LocTop;
-    float LocBottom;
-    uint32 Flags;
-    int16 MapID;
-    uint16 AreaID;
-    int16 DisplayMapID;
-    uint16 DefaultDungeonFloor;
-    uint16 ParentWorldMapID;
-    uint8 LevelRangeMin;
-    uint8 LevelRangeMax;
-    uint8 BountySetID;
-    uint8 BountyDisplayLocation;
-    uint32 ID;
-    uint32 VisibilityPlayerConditionID;
-};
-
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
 
 struct WorldMapOverlayEntry
@@ -3134,22 +3089,6 @@ struct WorldMapOverlayEntry
     uint32 PlayerConditionID;
     uint32 Flags;
     uint32 AreaID[MAX_WORLD_MAP_OVERLAY_AREA_IDX];
-};
-
-struct WorldMapTransformsEntry
-{
-    uint32 ID;
-    DBCPosition3D RegionMin;
-    DBCPosition3D RegionMax;
-    DBCPosition2D RegionOffset;
-    float RegionScale;
-    uint16 MapID;
-    uint16 AreaID;
-    uint16 NewMapID;
-    uint16 NewDungeonMapID;
-    uint16 NewAreaID;
-    uint8 Flags;
-    int32 Priority;
 };
 
 struct WorldSafeLocsEntry
