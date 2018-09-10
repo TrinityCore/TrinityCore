@@ -3613,22 +3613,6 @@ struct PvpItemLoadInfo
     }
 };
 
-struct PvpRewardLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { true, FT_INT, "HonorLevel" },
-            { true, FT_INT, "PrestigeLevel" },
-            { true, FT_INT, "RewardPackID" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpRewardMeta::Instance(), HOTFIX_SEL_PVP_REWARD);
-        return &loadInfo;
-    }
-};
-
 struct PvpTalentLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -3652,21 +3636,6 @@ struct PvpTalentLoadInfo
     }
 };
 
-struct PvpTalentUnlockLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { true, FT_INT, "TierID" },
-            { true, FT_INT, "ColumnIndex" },
-            { true, FT_INT, "HonorLevel" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTalentUnlockMeta::Instance(), HOTFIX_SEL_PVP_TALENT_UNLOCK);
-        return &loadInfo;
-    }
-};
 
 struct QuestFactionRewardLoadInfo
 {
@@ -3873,22 +3842,6 @@ struct RulesetItemUpgradeLoadInfo
             { false, FT_SHORT, "ItemUpgradeID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RulesetItemUpgradeMeta::Instance(), HOTFIX_SEL_RULESET_ITEM_UPGRADE);
-        return &loadInfo;
-    }
-};
-
-struct SandboxScalingLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { true, FT_INT, "MinLevel" },
-            { true, FT_INT, "MaxLevel" },
-            { true, FT_INT, "Flags" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SandboxScalingMeta::Instance(), HOTFIX_SEL_SANDBOX_SCALING);
         return &loadInfo;
     }
 };
@@ -5319,34 +5272,6 @@ struct WorldEffectLoadInfo
     }
 };
 
-struct WorldMapAreaLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_STRING_NOT_LOCALIZED, "AreaName" },
-            { false, FT_FLOAT, "LocLeft" },
-            { false, FT_FLOAT, "LocRight" },
-            { false, FT_FLOAT, "LocTop" },
-            { false, FT_FLOAT, "LocBottom" },
-            { false, FT_INT, "Flags" },
-            { true, FT_SHORT, "MapID" },
-            { false, FT_SHORT, "AreaID" },
-            { true, FT_SHORT, "DisplayMapID" },
-            { false, FT_SHORT, "DefaultDungeonFloor" },
-            { false, FT_SHORT, "ParentWorldMapID" },
-            { false, FT_BYTE, "LevelRangeMin" },
-            { false, FT_BYTE, "LevelRangeMax" },
-            { false, FT_BYTE, "BountySetID" },
-            { false, FT_BYTE, "BountyDisplayLocation" },
-            { false, FT_INT, "ID" },
-            { false, FT_INT, "VisibilityPlayerConditionID" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapAreaMeta::Instance(), HOTFIX_SEL_WORLD_MAP_AREA);
-        return &loadInfo;
-    }
-};
 
 struct WorldMapOverlayLoadInfo
 {
@@ -5373,35 +5298,6 @@ struct WorldMapOverlayLoadInfo
             { false, FT_INT, "AreaID4" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapOverlayMeta::Instance(), HOTFIX_SEL_WORLD_MAP_OVERLAY);
-        return &loadInfo;
-    }
-};
-
-struct WorldMapTransformsLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_FLOAT, "RegionMinX" },
-            { false, FT_FLOAT, "RegionMinY" },
-            { false, FT_FLOAT, "RegionMinZ" },
-            { false, FT_FLOAT, "RegionMaxX" },
-            { false, FT_FLOAT, "RegionMaxY" },
-            { false, FT_FLOAT, "RegionMaxZ" },
-            { false, FT_FLOAT, "RegionOffsetX" },
-            { false, FT_FLOAT, "RegionOffsetY" },
-            { false, FT_FLOAT, "RegionScale" },
-            { false, FT_SHORT, "MapID" },
-            { false, FT_SHORT, "AreaID" },
-            { false, FT_SHORT, "NewMapID" },
-            { false, FT_SHORT, "NewDungeonMapID" },
-            { false, FT_SHORT, "NewAreaID" },
-            { false, FT_BYTE, "Flags" },
-            { true, FT_INT, "Priority" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapTransformsMeta::Instance(), HOTFIX_SEL_WORLD_MAP_TRANSFORMS);
         return &loadInfo;
     }
 };

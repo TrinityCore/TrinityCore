@@ -187,9 +187,7 @@ DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2",
 DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", PrestigeLevelInfoLoadInfo::Instance());
 DB2Storage<PVPDifficultyEntry>                  sPVPDifficultyStore("PVPDifficulty.db2", PvpDifficultyLoadInfo::Instance());
 DB2Storage<PVPItemEntry>                        sPVPItemStore("PVPItem.db2", PvpItemLoadInfo::Instance());
-DB2Storage<PvpRewardEntry>                      sPvpRewardStore("PvpReward.db2", PvpRewardLoadInfo::Instance());
 DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2", PvpTalentLoadInfo::Instance());
-DB2Storage<PvpTalentUnlockEntry>                sPvpTalentUnlockStore("PvpTalentUnlock.db2", PvpTalentUnlockLoadInfo::Instance());
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemLoadInfo::Instance());
@@ -201,7 +199,6 @@ DB2Storage<RewardPackEntry>                     sRewardPackStore("RewardPack.db2
 DB2Storage<RewardPackXCurrencyTypeEntry>        sRewardPackXCurrencyTypeStore("RewardPackXCurrencyType.db2", RewardPackXCurrencyTypeLoadInfo::Instance());
 DB2Storage<RewardPackXItemEntry>                sRewardPackXItemStore("RewardPackXItem.db2", RewardPackXItemLoadInfo::Instance());
 DB2Storage<RulesetItemUpgradeEntry>             sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeLoadInfo::Instance());
-DB2Storage<SandboxScalingEntry>                 sSandboxScalingStore("SandboxScaling.db2", SandboxScalingLoadInfo::Instance());
 DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", ScalingStatDistributionLoadInfo::Instance());
 DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", ScenarioLoadInfo::Instance());
 DB2Storage<ScenarioStepEntry>                   sScenarioStepStore("ScenarioStep.db2", ScenarioStepLoadInfo::Instance());
@@ -265,9 +262,7 @@ DB2Storage<VehicleEntry>                        sVehicleStore("Vehicle.db2", Veh
 DB2Storage<VehicleSeatEntry>                    sVehicleSeatStore("VehicleSeat.db2", VehicleSeatLoadInfo::Instance());
 DB2Storage<WMOAreaTableEntry>                   sWMOAreaTableStore("WMOAreaTable.db2", WmoAreaTableLoadInfo::Instance());
 DB2Storage<WorldEffectEntry>                    sWorldEffectStore("WorldEffect.db2", WorldEffectLoadInfo::Instance());
-DB2Storage<WorldMapAreaEntry>                   sWorldMapAreaStore("WorldMapArea.db2", WorldMapAreaLoadInfo::Instance());
 DB2Storage<WorldMapOverlayEntry>                sWorldMapOverlayStore("WorldMapOverlay.db2", WorldMapOverlayLoadInfo::Instance());
-DB2Storage<WorldMapTransformsEntry>             sWorldMapTransformsStore("WorldMapTransforms.db2", WorldMapTransformsLoadInfo::Instance());
 DB2Storage<WorldSafeLocsEntry>                  sWorldSafeLocsStore("WorldSafeLocs.db2", WorldSafeLocsLoadInfo::Instance());
 
 TaxiMask                                        sTaxiNodesMask;
@@ -329,7 +324,6 @@ typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALEN
 typedef std::unordered_set<uint32> ToyItemIdsContainer;
 typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
-typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
 
 namespace
 {
@@ -373,7 +367,6 @@ namespace
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
     std::unordered_map<uint32, uint8> _pvpItemBonus;
-    std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> _pvpRewardPack;
     PvpTalentsByPosition _pvpTalentsByPosition;
     uint32 _pvpTalentUnlock[MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
     QuestPackageItemContainer _questPackages;
@@ -391,7 +384,6 @@ namespace
     std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
     std::unordered_map<uint32, std::vector<TransmogSetItemEntry const*>> _transmogSetItemsByTransmogSet;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
-    WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
 }
 
 template<class T, template<class> class DB2>
@@ -625,9 +617,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPVPDifficultyStore);
     LOAD_DB2(sPVPItemStore);
-    LOAD_DB2(sPvpRewardStore);
     LOAD_DB2(sPvpTalentStore);
-    LOAD_DB2(sPvpTalentUnlockStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
     LOAD_DB2(sQuestPackageItemStore);
@@ -639,7 +629,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sRewardPackXCurrencyTypeStore);
     LOAD_DB2(sRewardPackXItemStore);
     LOAD_DB2(sRulesetItemUpgradeStore);
-    LOAD_DB2(sSandboxScalingStore);
     LOAD_DB2(sScalingStatDistributionStore);
     LOAD_DB2(sScenarioStore);
     LOAD_DB2(sScenarioStepStore);
@@ -703,9 +692,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sVehicleSeatStore);
     LOAD_DB2(sWMOAreaTableStore);
     LOAD_DB2(sWorldEffectStore);
-    LOAD_DB2(sWorldMapAreaStore);
     LOAD_DB2(sWorldMapOverlayStore);
-    LOAD_DB2(sWorldMapTransformsStore);
     LOAD_DB2(sWorldSafeLocsStore);
 
 #undef LOAD_DB2
@@ -967,9 +954,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (PVPItemEntry const* pvpItem : sPVPItemStore)
         _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelDelta;
 
-    for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
-        _pvpRewardPack[std::make_pair(pvpReward->PrestigeLevel, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
-
     for (PvpTalentEntry const* talentInfo : sPvpTalentStore)
     {
         ASSERT(talentInfo->ClassID < MAX_CLASSES);
@@ -982,13 +966,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         }
         else
             _pvpTalentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
-    }
-
-    for (PvpTalentUnlockEntry const* talentUnlock : sPvpTalentUnlockStore)
-    {
-        ASSERT(talentUnlock->TierID < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least %u", talentUnlock->TierID + 1);
-        ASSERT(talentUnlock->ColumnIndex < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least %u", talentUnlock->ColumnIndex + 1);
-        _pvpTalentUnlock[talentUnlock->TierID][talentUnlock->ColumnIndex] = talentUnlock->HonorLevel;
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
@@ -1100,9 +1077,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             if (node->Flags & TAXI_NODE_FLAG_ALLIANCE)
                 sAllianceTaxiNodesMask[field] |= submask;
 
-            uint32 nodeMap;
-            DeterminaAlternateMapPosition(node->ContinentID, node->Pos.X, node->Pos.Y, node->Pos.Z, &nodeMap);
-            if (nodeMap < 2)
+            if (node->ContinentID < 2)
                 sOldContinentsNodesMask[field] |= submask;
         }
     }
@@ -1122,9 +1097,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (WMOAreaTableEntry const* entry : sWMOAreaTableStore)
         _wmoAreaTableLookup[WMOAreaTableKey(entry->WmoID, entry->NameSetID, entry->WmoGroupID)] = entry;
-
-    for (WorldMapAreaEntry const* worldMapArea : sWorldMapAreaStore)
-        _worldMapAreaByAreaID[worldMapArea->AreaID] = worldMapArea;
 
     // error checks
     if (bad_db2_files.size() == _stores.size())
@@ -1939,24 +1911,6 @@ PVPDifficultyEntry const* DB2Manager::GetBattlegroundBracketById(uint32 mapid, B
     return nullptr;
 }
 
-uint32 DB2Manager::GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const
-{
-    auto itr = _pvpRewardPack.find({ prestige, honorLevel });
-    if (itr == _pvpRewardPack.end())
-        itr = _pvpRewardPack.find({ 0, honorLevel });
-
-    if (itr == _pvpRewardPack.end())
-        return 0;
-
-    return itr->second;
-}
-
-uint32 DB2Manager::GetRequiredHonorLevelForPvpTalent(PvpTalentEntry const* talentInfo) const
-{
-    ASSERT(talentInfo);
-    return _pvpTalentUnlock[talentInfo->TierID][talentInfo->ColumnIndex];
-}
-
 std::vector<PvpTalentEntry const*> const& DB2Manager::GetPvpTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const
 {
     return _pvpTalentsByPosition[class_][tier][column];
@@ -2185,92 +2139,6 @@ WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, 
         return i->second;
 
     return nullptr;
-}
-
-uint32 DB2Manager::GetVirtualMapForMapAndZone(uint32 mapId, uint32 zoneId) const
-{
-    if (mapId != 530 && mapId != 571 && mapId != 732)   // speed for most cases
-        return mapId;
-
-    auto itr = _worldMapAreaByAreaID.find(zoneId);
-    if (itr != _worldMapAreaByAreaID.end())
-        return itr->second->DisplayMapID >= 0 ? itr->second->DisplayMapID : itr->second->MapID;
-
-    return mapId;
-}
-
-void DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
-{
-    auto itr = _worldMapAreaByAreaID.find(areaId);
-    if (itr == _worldMapAreaByAreaID.end())
-        return;
-
-    std::swap(x, y);                                         // at client map coords swapped
-    x = x*((itr->second->LocBottom - itr->second->LocTop) / 100) + itr->second->LocTop;
-    y = y*((itr->second->LocRight - itr->second->LocLeft) / 100) + itr->second->LocLeft;        // client y coord from top to down
-}
-
-void DB2Manager::Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const
-{
-    auto itr = _worldMapAreaByAreaID.find(areaId);
-    if (itr == _worldMapAreaByAreaID.end())
-        return;
-
-    x = (x - itr->second->LocTop) / ((itr->second->LocBottom - itr->second->LocTop) / 100);
-    y = (y - itr->second->LocLeft) / ((itr->second->LocRight - itr->second->LocLeft) / 100);    // client y coord from top to down
-    std::swap(x, y);                                         // client have map coords swapped
-}
-
-void DB2Manager::DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
-{
-    ASSERT(newMapId || newPos);
-    WorldMapTransformsEntry const* transformation = nullptr;
-    for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
-    {
-        if (transform->MapID != mapId)
-            continue;
-        if (transform->AreaID)
-            continue;
-        if (transform->Flags & WORLD_MAP_TRANSFORMS_FLAG_DUNGEON)
-            continue;
-        if (transform->RegionMin.X > x || transform->RegionMax.X < x)
-            continue;
-        if (transform->RegionMin.Y > y || transform->RegionMax.Y < y)
-            continue;
-        if (transform->RegionMin.Z > z || transform->RegionMax.Z < z)
-            continue;
-
-        if (!transformation || transformation->Priority < transform->Priority)
-            transformation = transform;
-    }
-
-    if (!transformation)
-    {
-        if (newMapId)
-            *newMapId = mapId;
-
-        if (newPos)
-        {
-            newPos->X = x;
-            newPos->Y = y;
-        }
-        return;
-    }
-
-    if (newMapId)
-        *newMapId = transformation->NewMapID;
-
-    if (!newPos)
-        return;
-
-    if (std::abs(transformation->RegionScale - 1.0f) > 0.001f)
-    {
-        x = (x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
-        y = (y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
-    }
-
-    newPos->X = x + transformation->RegionOffset.X;
-    newPos->Y = y + transformation->RegionOffset.Y;
 }
 
 bool ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry const* left, ChrClassesXPowerTypesEntry const* right)

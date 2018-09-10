@@ -104,18 +104,12 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
             if (nodes[i - 1]->Flags & TAXI_PATH_NODE_FLAG_TELEPORT)
                 continue;
 
-            uint32 map1, map2;
-            DBCPosition2D pos1, pos2;
-
-            DB2Manager::DeterminaAlternateMapPosition(nodes[i - 1]->ContinentID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
-            DB2Manager::DeterminaAlternateMapPosition(nodes[i]->ContinentID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
-
-            if (map1 != map2)
+            if (nodes[i - 1]->ContinentID != nodes[i]->ContinentID)
                 continue;
 
             totalDist += std::sqrt(
-                std::pow(pos2.X - pos1.X, 2) +
-                std::pow(pos2.Y - pos1.Y, 2) +
+                std::pow(nodes[i]->Loc.X - nodes[i - 1]->Loc.X, 2) +
+                std::pow(nodes[i]->Loc.Y - nodes[i - 1]->Loc.Y, 2) +
                 std::pow(nodes[i]->Loc.Z - nodes[i - 1]->Loc.Z, 2));
         }
 

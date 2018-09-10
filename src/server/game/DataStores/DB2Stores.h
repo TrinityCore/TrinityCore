@@ -148,14 +148,12 @@ TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
 TC_GAME_API extern DB2Storage<PowerDisplayEntry>                    sPowerDisplayStore;
 TC_GAME_API extern DB2Storage<PvpTalentEntry>                       sPvpTalentStore;
-TC_GAME_API extern DB2Storage<PvpTalentUnlockEntry>                 sPvpTalentUnlockStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
 TC_GAME_API extern DB2Storage<RewardPackEntry>                      sRewardPackStore;
-TC_GAME_API extern DB2Storage<SandboxScalingEntry>                  sSandboxScalingStore;
 TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
 TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
 TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
@@ -208,7 +206,6 @@ TC_GAME_API extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBa
 TC_GAME_API extern DB2Storage<VehicleEntry>                         sVehicleStore;
 TC_GAME_API extern DB2Storage<VehicleSeatEntry>                     sVehicleSeatStore;
 TC_GAME_API extern DB2Storage<WorldEffectEntry>                     sWorldEffectStore;
-TC_GAME_API extern DB2Storage<WorldMapAreaEntry>                    sWorldMapAreaStore;
 TC_GAME_API extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
 TC_GAME_API extern DB2Storage<WorldSafeLocsEntry>                   sWorldSafeLocsStore;
 
@@ -313,8 +310,6 @@ public:
     uint8 GetMaxPrestige() const;
     static PVPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PVPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
-    uint32 GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const;
-    uint32 GetRequiredHonorLevelForPvpTalent(PvpTalentEntry const* talentInfo) const;
     std::vector<PvpTalentEntry const*> const& GetPvpTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItemsFallback(uint32 questPackageID) const;
@@ -333,10 +328,6 @@ public:
     std::vector<TransmogSetEntry const*> const* GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const;
     std::vector<TransmogSetItemEntry const*> const* GetTransmogSetItems(uint32 transmogSetId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
-    uint32 GetVirtualMapForMapAndZone(uint32 mapId, uint32 zoneId) const;
-    void Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
-    void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
-    static void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
 
 private:
     friend class DB2HotfixGeneratorBase;

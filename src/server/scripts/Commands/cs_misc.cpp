@@ -256,7 +256,7 @@ public:
         float zoneX = object->GetPositionX();
         float zoneY = object->GetPositionY();
 
-        sDB2Manager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
+        //sDB2Manager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
 
         Map const* map = object->GetMap();
         float groundZ = map->GetHeight(object->GetPhaseShift(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);

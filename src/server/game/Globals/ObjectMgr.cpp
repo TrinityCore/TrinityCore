@@ -9576,12 +9576,6 @@ void ObjectMgr::LoadTerrainWorldMaps()
             continue;
         }
 
-        if (!sWorldMapAreaStore.LookupEntry(worldMapArea))
-        {
-            TC_LOG_ERROR("sql.sql", "WorldMapArea %u defined in `terrain_worldmap` does not exist, skipped.", worldMapArea);
-            continue;
-        }
-
         TerrainSwapInfo* terrainSwapInfo = &_terrainSwapInfoById[mapId];
         terrainSwapInfo->Id = mapId;
         terrainSwapInfo->UiWorldMapAreaIDSwaps.push_back(worldMapArea);

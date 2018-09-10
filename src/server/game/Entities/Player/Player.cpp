@@ -6496,9 +6496,6 @@ void Player::SetHonorLevel(uint8 level)
     if (level == oldHonorLevel)
         return;
 
-    uint32 rewardPackID = sDB2Manager.GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(level, prestige);
-    RewardPlayerWithRewardPack(rewardPackID);
-
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, level);
     UpdateHonorNextLevel();
 
@@ -26248,10 +26245,6 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, int32* spellOnCooldown
     // prevent learn talent for different class (cheating)
     if (talentInfo->ClassID && talentInfo->ClassID != getClass())
         return TALENT_FAILED_UNKNOWN;
-
-    if (!GetPrestigeLevel())
-        if (sDB2Manager.GetRequiredHonorLevelForPvpTalent(talentInfo) > GetHonorLevel())
-            return TALENT_FAILED_UNKNOWN;
 
     // Check if player doesn't have any talent in current tier
     for (uint32 c = 0; c < MAX_PVP_TALENT_COLUMNS; ++c)

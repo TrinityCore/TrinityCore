@@ -1832,8 +1832,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(map_id, zone_id);
-        MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
+        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
         if (!mapEntry || mapEntry->ExpansionID < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
     }
