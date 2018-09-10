@@ -23,7 +23,7 @@
 enum Emotes
 {
     EMOTE_BERSERK           = 0,
-    EMOTE_LEAP              = 1 // Not in use
+    EMOTE_LEAP              = 1
 };
 
 enum Spells
@@ -107,15 +107,17 @@ class boss_archavon : public CreatureScript
                             events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                             break;
                         case EVENT_CHOKING_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !(u->GetDistance(me->GetPosition()) < 25.0f); }))
+                            {
                                 DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                                Talk(EMOTE_LEAP, me->GetVictim());
+                            }
                             events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                             break;
                         case EVENT_STOMP:
                             DoCastVictim(SPELL_STOMP);
                             events.ScheduleEvent(EVENT_IMPALE, 3000);
                             events.ScheduleEvent(EVENT_STOMP, 45000);
-                            Talk(EMOTE_LEAP, me->GetVictim());
                             break;
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
