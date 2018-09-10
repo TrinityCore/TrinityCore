@@ -19,6 +19,7 @@
 #define TRINITY_CHATCOMMANDTAGS_H
 
 #include "ChatCommandHelpers.h"
+#include "Hyperlinks.h"
 #include "Optional.h"
 #include <boost/variant.hpp>
 #include <cmath>
@@ -74,6 +75,49 @@ struct ExactSequence : public ContainerTag
 
     char const* TryConsume(char const* pos) const { return ExactSequence::_TryConsume(pos); }
 };
+
+template <typename linktag>
+struct Hyperlink : public ContainerTag
+{
+    typedef typename linktag::value_type value_type;
+    typedef advstd::remove_cvref_t<value_type> storage_type;
+
+    public:
+        operator value_type() const { return val; }
+        value_type operator*() const { return val; }
+        storage_type const* operator->() const { return &val; }
+
+        char const* TryConsume(char const* pos)
+        {
+            Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseHyperlink(pos);
+            // invalid hyperlinks cannot be consumed
+            if (!info)
+                return nullptr;
+
+            // check if we got the right tag
+            if (info.tag.second != strlen(linktag::tag()))
+                return nullptr;
+            if (strncmp(info.tag.first, linktag::tag(), strlen(linktag::tag())) != 0)
+                return nullptr;
+
+            // store value
+            if (!linktag::StoreTo(val, info.data.first, info.data.second))
+                return nullptr;
+
+            // finally, skip to end of token
+            pos = info.next;
+            tokenize(pos);
+
+            // return final pos
+            return pos;
+        }
+
+    private:
+        storage_type val;
+};
+
+// pull in link tags for user convenience
+using namespace ::Trinity::Hyperlinks::LinkTags;
 
 /************************** VARIANT TAG LOGIC *********************************\
 |* This has some special handling over in ChatCommand.h                       *|

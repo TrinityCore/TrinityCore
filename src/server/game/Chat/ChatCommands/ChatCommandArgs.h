@@ -20,7 +20,6 @@
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
-#include "ChatCommandHyperlinks.h"
 
 struct GameTele;
 

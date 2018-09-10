@@ -18,7 +18,6 @@
 #include "ChatCommandArgs.h"
 #include "AchievementMgr.h"
 #include "ChatCommand.h"
-#include "ChatCommandHyperlinks.h"
 #include "ObjectMgr.h"
 
 using namespace Trinity::ChatCommands;

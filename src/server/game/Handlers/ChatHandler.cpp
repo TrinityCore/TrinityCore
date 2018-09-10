@@ -30,6 +30,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Hyperlinks.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -41,6 +42,37 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
+
+static void StripInvisibleChars(std::string& str)
+{
+    static std::string const invChars = " \t\7\n";
+
+    size_t wpos = 0;
+
+    bool space = false;
+    for (size_t pos = 0; pos < str.size(); ++pos)
+    {
+        if (invChars.find(str[pos]) != std::string::npos)
+        {
+            if (!space)
+            {
+                str[wpos++] = ' ';
+                space = true;
+            }
+        }
+        else
+        {
+            if (wpos != pos)
+                str[wpos++] = str[pos];
+            else
+                ++wpos;
+            space = false;
+        }
+    }
+
+    if (wpos < str.size())
+        str.erase(wpos, str.size());
+}
 
 void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {
@@ -214,7 +246,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (!ignoreChecks)
     {
-        if (msg.empty())
+        if (msg.empty() || msg.length() > 255)
             return;
 
         if (lang == LANG_ADDON)
@@ -228,17 +260,19 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             // Strip invisible characters for non-addon messages
             if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-                stripLineInvisibleChars(msg);
+                StripInvisibleChars(msg);
 
-            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) && !ChatHandler(this).isValidChatMessage(msg.c_str()))
+            bool validMessage = Trinity::Hyperlinks::ValidateLinks(msg);
+            if (!validMessage)
             {
-                TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName().c_str(),
-                    GetPlayer()->GetGUID().GetCounter(), msg.c_str());
+                TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
+                    GetPlayer()->GetGUID().GetCounter());
 
                 if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+                {
                     KickPlayer();
-
-                return;
+                    return;
+                }
             }
         }
     }
