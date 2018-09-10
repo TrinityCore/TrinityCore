@@ -317,7 +317,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     Group* group = (player && player->GetGroup()) ? player->GetGroup() : nullptr;
-    
+
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {

@@ -291,7 +291,7 @@ void Creature::AddToWorld()
         AIM_Initialize();
         if (IsVehicle())
             GetVehicleKit()->Install();
-          
+
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
 
@@ -1832,11 +1832,6 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         if (!_IsTargetAcceptable(who))
             return false;
 
-        if (who->IsEngaged() && IsWithinDist(who, ATTACK_DISTANCE))
-            if (Unit* victim = who->getAttackerForHelper())
-                if (IsWithinDistInMap(victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
-                    force = true;
-
         if (!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
             return false;
     }
@@ -2374,14 +2369,8 @@ bool Creature::_IsTargetAcceptable(Unit const* target) const
             return false;
     }
 
-    Unit const* targetVictim = target->getAttackerForHelper();
-
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
     if (IsEngagedBy(target) || IsHostileTo(target))
-        return true;
-
-    // if the target's victim is friendly, and the target is neutral, the target is acceptable
-    if (targetVictim && IsFriendlyTo(targetVictim))
         return true;
 
     // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
