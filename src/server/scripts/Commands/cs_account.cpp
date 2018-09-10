@@ -338,7 +338,6 @@ public:
             return false;
         }
 
-
         AccountOpResult result = AccountMgr::ChangeEmail(handler->GetSession()->GetAccountId(), email);
         switch (result)
         {
@@ -489,7 +488,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
         }
         else
         {

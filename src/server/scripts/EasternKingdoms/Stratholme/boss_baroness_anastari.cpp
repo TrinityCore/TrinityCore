@@ -118,7 +118,7 @@ struct boss_baroness_anastari : public BossAI
                         {
                             possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                             possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                            me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);                 
+                            me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
                             _possessedTargetGuid.Clear();
                             events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                             events.CancelEvent(EVENT_CHECK_POSSESSED);

@@ -278,10 +278,10 @@ class TC_GAME_API ThreatReference
     private:
         static bool FlagsAllowFighting(Unit const* a, Unit const* b);
 
-        ThreatReference(ThreatManager* mgr, Unit* victim, float amount) :
+        ThreatReference(ThreatManager* mgr, Unit* victim) :
             _owner(reinterpret_cast<Creature*>(mgr->_owner)), _mgr(*mgr), _victim(victim),
-            _online(ShouldBeOffline() ? ONLINE_STATE_OFFLINE : ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE),
-            _baseAmount(IsOnline() ? amount : 0.0f), _tempModifier(0), _taunted(TAUNT_STATE_NONE) { }
+            _online(ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE),
+            _baseAmount(0.0f), _tempModifier(0), _taunted(TAUNT_STATE_NONE) { }
 
         void UnregisterAndFree();
 
