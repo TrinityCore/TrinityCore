@@ -107,7 +107,7 @@ class boss_archavon : public CreatureScript
                             events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                             break;
                         case EVENT_CHOKING_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !(u->GetDistance(me->GetPosition()) < 10.0f); }))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -10.0f, true))
                             {
                                 DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                                 Talk(EMOTE_LEAP, target);
