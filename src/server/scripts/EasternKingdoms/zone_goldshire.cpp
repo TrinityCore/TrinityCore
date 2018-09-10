@@ -167,7 +167,7 @@ struct npc_cameron : public ScriptedAI
             {
                 if (waypointId == HOUSE_WAYPOINT)
                 {
-                    // Move childeren at last point 
+                    // Move childeren at last point
                     MoveTheChildren();
 
                     // After 30 seconds a random sound should play

@@ -52,23 +52,27 @@ struct ExactSequence : public ContainerTag
 {
     using value_type = void;
 
-    template <size_t U = sizeof...(chars)>
-    static typename std::enable_if_t<U, char const*> TryConsume(char const* pos)
+    static constexpr bool isSingleChar = !sizeof...(chars);
+
+    template <bool C = isSingleChar>
+    static typename std::enable_if_t<!C, char const*> _TryConsume(char const* pos)
     {
         if (*(pos++) == c1)
-            return ExactSequence<chars...>::TryConsume(pos);
+            return ExactSequence<chars...>::_TryConsume(pos);
         else
             return nullptr;
     }
 
-    template <size_t U = sizeof...(chars)>
-    static typename std::enable_if_t<!U, char const*> TryConsume(char const* pos)
+    template <bool C = isSingleChar>
+    static typename std::enable_if_t<C, char const*> _TryConsume(char const* pos)
     {
         if (*(pos++) != c1)
             return nullptr;
         // if more of string is left, tokenize should return 0 (otherwise we didn't reach end of token yet)
         return *pos && tokenize(pos) ? nullptr : pos;
     }
+
+    char const* TryConsume(char const* pos) const { return ExactSequence::_TryConsume(pos); }
 };
 
 /************************** VARIANT TAG LOGIC *********************************\

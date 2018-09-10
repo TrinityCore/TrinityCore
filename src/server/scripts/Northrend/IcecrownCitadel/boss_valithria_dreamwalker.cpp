@@ -249,7 +249,7 @@ class ValithriaDespawner : public BasicEvent
                 default:
                     return;
             }
-                
+
             creature->DespawnOrUnsummon(0, 10s);
         }
 
