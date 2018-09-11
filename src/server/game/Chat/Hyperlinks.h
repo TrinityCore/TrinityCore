@@ -196,7 +196,7 @@ namespace LinkTags {
 
 struct HyperlinkColor
 {
-    HyperlinkColor(uint32 c) : a(c >> 24), r(c >> 16), g(c >> 8), b(c) {}
+    HyperlinkColor(uint32 c) : r(c >> 16), g(c >> 8), b(c), a(c >> 24) {}
     uint8 r, g, b, a;
     bool operator==(uint32 c) const
     {
