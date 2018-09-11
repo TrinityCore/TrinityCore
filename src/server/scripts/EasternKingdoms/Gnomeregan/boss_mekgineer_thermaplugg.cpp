@@ -30,34 +30,32 @@
 
 enum Yells
 {
-    SAY_AGGRO = 0,
-    SAY_MACHINES = 1,
-    SAY_EXPLOSIONS = 2,
-    SAY_DEAD = 3,
+    SAY_AGGRO         = 0,
+    SAY_MACHINES      = 1,
+    SAY_EXPLOSIONS    = 2,
+    SAY_DEAD          = 3,
 };
 
 enum Events
 {
-    EVENT_POUND = 1,
-    EVENT_STEAM_BLAST = 2,
-    EVENT_KNOCK_AWAY = 3,
+    EVENT_POUND          = 1,
+    EVENT_STEAM_BLAST    = 2,
+    EVENT_KNOCK_AWAY     = 3,
     EVENT_ACTIVATE_BOMBS = 4,
-    EVENT_WELDING_BEAM = 5,
+    EVENT_WELDING_BEAM   = 5,
 
-    EVENT_SUMMON_BOMB = 6,
-    EVENT_ATTACK_START = 7,
+    EVENT_SUMMON_BOMB    = 6,
+    EVENT_ATTACK_START   = 7,
 };
 
 enum Spells
 {
-    SPELL_POUND = 35049,
-    SPELL_STEAM_BLAST = 50375,
-    SPELL_KNOCK_AWAY = 10101,
-    SPELL_ACTIVATE_BOMB_VISUAL = 11511,
-    SPELL_ACTIVATE_BOMB = 11518,
-    SPELL_WELDING_BEAM = 35919,
-
-    SPELL_BOMB_EFFECT = 11504,
+    SPELL_POUND                 = 35049,
+    SPELL_STEAM_BLAST           = 50375,
+    SPELL_WELDING_BEAM          = 35919,
+    SPELL_ACTIVATE_BOMB_VISUAL  = 11511,
+    SPELL_ACTIVATE_BOMB         = 11518,
+    SPELL_BOMB_EFFECT           = 11504
 };
 
 enum Actions
@@ -92,9 +90,7 @@ public:
 
     struct boss_mekgineer_thermapluggAI : public BossAI
     {
-        boss_mekgineer_thermapluggAI(Creature* creature) : BossAI(creature, DATA_MEKGINEER_THERMAPLUGG)
-        {
-        }
+        boss_mekgineer_thermapluggAI(Creature* creature) : BossAI(creature, DATA_MEKGINEER_THERMAPLUGG) { }
 
         void AddFaceAvailable(uint32 entry)
         {
@@ -172,20 +168,14 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POUND:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f))
-                            DoCast(target, SPELL_POUND);
-                        else
-                            DoCastVictim(SPELL_POUND);
-
+                        DoCastVictim(SPELL_POUND);
                         events.Repeat(10s);
                         events.ScheduleEvent(EVENT_STEAM_BLAST, 4s);
                         break;
                     case EVENT_STEAM_BLAST:
                         Talk(SAY_MACHINES);
                         DoCastVictim(SPELL_STEAM_BLAST);
-                        if (GetThreat(me->GetVictim()))
-                            ModifyThreatByPercent(me->GetVictim(), -50);
-                    break;
+                        break;
                     case EVENT_ACTIVATE_BOMBS:
                         if (!_availableFacesList.empty())
                         {
@@ -193,22 +183,22 @@ public:
                             if (GameObject* face = me->FindNearestGameObject(faceEntry, 125.0f))
                             {
                                 Talk(SAY_EXPLOSIONS);
-                                face->AI()->DoAction(ACTION_ACTIVATE);
                                 face->SetGoState(GO_STATE_ACTIVE);
                                 DoCast(SPELL_ACTIVATE_BOMB_VISUAL);
                             }
                         }
                         events.Repeat(10s, 18s);
-                    break;
+                        break;
                     case EVENT_WELDING_BEAM:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
-                            DoCast(target, SPELL_WELDING_BEAM, true);
-
+                        DoCastVictim(SPELL_WELDING_BEAM);
                         events.Repeat(10s, 15s);
                         break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -258,10 +248,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (Player* player = me->SelectNearestPlayer(3.0f))
-            {
                 me->CastSpell(me, SPELL_BOMB_EFFECT, true);
-                me->StopMoving();
-            }
 
             events.Update(diff);
 
@@ -308,7 +295,6 @@ public:
         {
             if (GameObject* gnomeFace = me->FindNearestGameObject(GetFace(me->GetEntry()), 20.0f))
             {
-                gnomeFace->SetLootState(GO_READY);
                 gnomeFace->SetGoState(GO_STATE_READY);
             }
             return false;
@@ -379,14 +365,7 @@ public:
 
         void Reset() override
         {
-            me->SetLootState(GO_READY);
             me->SetGoState(GO_STATE_READY);
-        }
-
-        void DoAction(int32 param) override
-        {
-            if (param == ACTION_ACTIVATE)
-                me->CastSpell(me, SPELL_ACTIVATE_BOMB, true);
         }
 
         Position GetBombPosition()
