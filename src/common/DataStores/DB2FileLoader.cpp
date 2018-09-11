@@ -1657,7 +1657,8 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     {
         DB2SectionHeader const& section = _impl->GetSection(i);
 
-        source->SetPosition(section.FileOffset);
+        if (!source->SetPosition(section.FileOffset))
+            return false;
 
         if (!_impl->LoadTableData(source, i))
             return false;
@@ -1710,7 +1711,7 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
         ASSERT(!loadInfo->Fields[0].IsSigned, "ID must be unsigned");
         ++fieldIndex;
     }
-    for (uint32 f = 0; f < loadInfo->FieldCount; ++f)
+    for (uint32 f = 0; f < loadInfo->Meta->FieldCount; ++f)
     {
         ASSERT(loadInfo->Fields[fieldIndex].IsSigned == _impl->IsSignedField(f), "Mismatched field signedness for field %u (%s)", f, loadInfo->Fields[fieldIndex].Name);
         fieldIndex += loadInfo->Meta->Fields[f].ArraySize;

@@ -88,7 +88,7 @@ struct TC_COMMON_API DB2FileSource
     // Returns current read position in file
     virtual std::size_t GetPosition() const = 0;
 
-    virtual void SetPosition(std::size_t position) = 0;
+    virtual bool SetPosition(std::size_t position) = 0;
 
     virtual std::size_t GetFileSize() const = 0;
 

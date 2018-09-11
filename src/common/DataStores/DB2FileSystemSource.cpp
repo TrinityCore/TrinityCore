@@ -45,9 +45,9 @@ std::size_t DB2FileSystemSource::GetPosition() const
     return ftell(_file);
 }
 
-void DB2FileSystemSource::SetPosition(std::size_t position)
+bool DB2FileSystemSource::SetPosition(std::size_t position)
 {
-    fseek(_file, position, SEEK_SET);
+    return fseek(_file, position, SEEK_SET) == 0;
 }
 
 std::size_t DB2FileSystemSource::GetFileSize() const

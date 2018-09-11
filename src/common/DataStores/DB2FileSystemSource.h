@@ -28,7 +28,7 @@ struct TC_COMMON_API DB2FileSystemSource : public DB2FileSource
     bool IsOpen() const override;
     bool Read(void* buffer, std::size_t numBytes) override;
     std::size_t GetPosition() const override;
-    void SetPosition(std::size_t position) override;
+    bool SetPosition(std::size_t position) override;
     std::size_t GetFileSize() const override;
     char const* GetFileName() const override;
 
