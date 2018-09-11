@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "DBCStores.h"
 #include "Errors.h"
+#include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "QuestDef.h"
@@ -27,16 +28,17 @@
 
 using namespace Trinity::Hyperlinks;
 
-inline bool isHex(char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'); }
+inline uint8 toHex(char c) { return (c >= '0' && c <= '9') ? c - '0' + 0x10 : (c >= 'a' && c <= 'f') ? c - 'a' + 0x1a : 0x00; }
 // Validates a single hyperlink
 HyperlinkInfo Trinity::Hyperlinks::ParseHyperlink(char const* pos)
 {
     //color tag
     if (*(pos++) != '|' || *(pos++) != 'c')
         return nullptr;
+    uint32 color = 0;
     for (uint8 i = 0; i < 8; ++i)
-        if (!isHex(*(pos++))) // make sure we don't overrun a terminator
-            return nullptr;
+        if (uint8 hex = toHex(*(pos++)))
+            color = (color << 4) | (hex & 0xf);
     // link data start tag
     if (*(pos++) != '|' || *(pos++) != 'H')
         return nullptr;
@@ -71,13 +73,14 @@ HyperlinkInfo Trinity::Hyperlinks::ParseHyperlink(char const* pos)
     if (*(pos++) != '|' || *(pos++) != 'h' || *(pos++) != '|' || *(pos++) != 'r')
         return nullptr;
     // ok, valid hyperlink, return info
-    return { pos, tagStart, tagLength, dataStart, dataLength, textStart, textLength };
+    return { pos, color, tagStart, tagLength, dataStart, dataLength, textStart, textLength };
 }
 
 template <typename T>
-struct LinkTextValidator
+struct LinkValidator
 {
-    static bool IsValid(typename T::value_type, char const*, size_t) { return true; }
+    static bool IsTextValid(typename T::value_type, char const*, size_t) { return true; }
+    static bool IsColorValid(typename T::value_type, HyperlinkColor) { return true; }
 };
 
 // str1 is null-terminated, str2 is length-terminated, check if they are exactly equal
@@ -91,9 +94,9 @@ static bool equal_with_len(char const* str1, char const* str2, size_t len)
 }
 
 template <>
-struct LinkTextValidator<LinkTags::achievement>
+struct LinkValidator<LinkTags::achievement>
 {
-    static bool IsValid(AchievementLinkData const& data, char const* pos, size_t len)
+    static bool IsTextValid(AchievementLinkData const& data, char const* pos, size_t len)
     {
         if (!len)
             return false;
@@ -102,16 +105,49 @@ struct LinkTextValidator<LinkTags::achievement>
                 return true;
         return false;
     }
+
+    static bool IsColorValid(AchievementLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_ACHIEVEMENT;
+    }
 };
 
 template <>
-struct LinkTextValidator<LinkTags::item>
+struct LinkValidator<LinkTags::enchant>
 {
-    static bool IsValid(ItemLinkData const& data, char const* pos, size_t len)
+    static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
+    {
+        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(info->Id);
+        if (bounds.first == bounds.second)
+            return false;
+        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(bounds.first->second->skillId);
+        if (!skill)
+            return false;
+
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            char const* skillName = skill->name[i];
+            size_t skillLen = strlen(skillName);
+            if (len > skillLen + 2 &&
+                !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
+                equal_with_len(info->SpellName[i], pos + (skillLen + 2), len - (skillLen + 2)))
+                return true;
+        }
+        return false;
+    }
+
+    static bool IsColorValid(SpellInfo const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_ENCHANT;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::item>
+{
+    static bool IsTextValid(ItemLinkData const& data, char const* pos, size_t len)
     {
         ItemLocale const* locale = sObjectMgr->GetItemLocale(data.item->ItemId);
-        if (!locale)
-            return false;
 
         char const* const* randomSuffix = nullptr;
         if (data.randomPropertyId < 0)
@@ -131,6 +167,8 @@ struct LinkTextValidator<LinkTags::item>
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
+            if (!locale && i != DEFAULT_LOCALE)
+                continue;
             std::string const& name = (i == DEFAULT_LOCALE) ? data.item->Name1 : locale->Name[i];
             if (name.empty())
                 continue;
@@ -147,16 +185,21 @@ struct LinkTextValidator<LinkTags::item>
         }
         return false;
     }
+
+    static bool IsColorValid(ItemLinkData const& data, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[data.item->Quality];
+    }
 };
 
 template <>
-struct LinkTextValidator<LinkTags::quest>
+struct LinkValidator<LinkTags::quest>
 {
-    static bool IsValid(QuestLinkData const& data, char const* pos, size_t len)
+    static bool IsTextValid(QuestLinkData const& data, char const* pos, size_t len)
     {
         QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.quest->GetQuestId());
         if (!locale)
-            return false;
+            return equal_with_len(data.quest->GetTitle().c_str(), pos, len);
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
@@ -169,49 +212,73 @@ struct LinkTextValidator<LinkTags::quest>
 
         return false;
     }
+
+    static bool IsColorValid(QuestLinkData const&, HyperlinkColor)
+    {
+        return true; // this color will be overridden clientside anyway
+    }
 };
 
 template <>
-struct LinkTextValidator<LinkTags::spell>
+struct LinkValidator<LinkTags::spell>
 {
-    static bool IsValid(SpellInfo const* info, char const* pos, size_t len)
+    static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
     {
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
             if (equal_with_len(info->SpellName[i], pos, len))
                 return true;
         return false;
     }
+
+    static bool IsColorValid(SpellInfo const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_SPELL;
+    }
 };
-template <> struct LinkTextValidator<LinkTags::enchant> : public LinkTextValidator<LinkTags::spell> {};
 
 template <>
-struct LinkTextValidator<LinkTags::glyph>
+struct LinkValidator<LinkTags::glyph>
 {
-    static bool IsValid(GlyphLinkData const& data, char const* pos, size_t len)
+    static bool IsTextValid(GlyphLinkData const& data, char const* pos, size_t len)
     {
         if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.glyph->SpellId))
-            return LinkTextValidator<LinkTags::spell>::IsValid(info, pos, len);
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
+    }
+
+    static bool IsColorValid(GlyphLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_GLYPH;
     }
 };
 
 template <>
-struct LinkTextValidator<LinkTags::talent>
+struct LinkValidator<LinkTags::talent>
 {
-    static bool IsValid(TalentLinkData const& data, char const* pos, size_t len)
+    static bool IsTextValid(TalentLinkData const& data, char const* pos, size_t len)
     {
         if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.talent->RankID[data.rank-1]))
-            return LinkTextValidator<LinkTags::spell>::IsValid(info, pos, len);
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
+    }
+
+    static bool IsColorValid(TalentLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TALENT;
     }
 };
 
 template <>
-struct LinkTextValidator<LinkTags::trade>
+struct LinkValidator<LinkTags::trade>
 {
-    static bool IsValid(TradeskillLinkData const& data, char const* pos, size_t len)
+    static bool IsTextValid(TradeskillLinkData const& data, char const* pos, size_t len)
     {
-        return LinkTextValidator<LinkTags::spell>::IsValid(data.spell, pos, len);
+        return LinkValidator<LinkTags::spell>::IsTextValid(data.spell, pos, len);
+    }
+
+    static bool IsColorValid(TradeskillLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TRADE;
     }
 };
 
@@ -225,9 +292,12 @@ struct LinkTextValidator<LinkTags::trade>
         advstd::remove_cvref_t<typename taginfo::value_type> t;                                 \
         if (!taginfo::StoreTo(t, info.data.first, info.data.second))                            \
             return false;                                                                       \
-        if (!sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                   \
-            return true;                                                                        \
-        return LinkTextValidator<taginfo>::IsValid(t, info.text.first, info.text.second);       \
+        if (!LinkValidator<taginfo>::IsColorValid(t, info.color))                               \
+            return false;                                                                       \
+        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                    \
+            if (!LinkValidator<taginfo>::IsTextValid(t, info.text.first, info.text.second))     \
+                return false;                                                                   \
+        return true;                                                                            \
     }                                                                                           \
 }
         

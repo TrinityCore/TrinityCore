@@ -65,6 +65,15 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
         t.TryConsumeTo(val.criteria[1]) && t.TryConsumeTo(val.criteria[2]) && t.TryConsumeTo(val.criteria[3]) && t.IsEmpty();
 }
 
+bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, char const* pos, size_t len)
+{
+    HyperlinkDataTokenizer t(pos, len);
+    uint32 spellId;
+    if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
+        return false;
+    return (val = sSpellMgr->GetSpellInfo(spellId));
+}
+
 bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, char const* pos, size_t len)
 {
     HyperlinkDataTokenizer t(pos, len);

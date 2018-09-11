@@ -144,6 +144,13 @@ namespace LinkTags {
         static bool StoreTo(AchievementLinkData& val, char const* pos, size_t len);
     };
 
+    struct TC_GAME_API enchant
+    {
+        using value_type = SpellInfo const*;
+        static constexpr char const* tag() { return "enchant"; }
+        static bool StoreTo(SpellInfo const*& val, char const* pos, size_t len);
+    };
+
     struct TC_GAME_API glyph
     {
         using value_type = GlyphLinkData const&;
@@ -171,7 +178,6 @@ namespace LinkTags {
         static constexpr char const* tag() { return "spell"; }
         static bool StoreTo(SpellInfo const*& val, char const* pos, size_t len);
     };
-    struct enchant : public spell { static constexpr char const* tag() { return "enchant"; } };
 
     struct TC_GAME_API talent
     {
@@ -188,13 +194,32 @@ namespace LinkTags {
     };
 }
 
+struct HyperlinkColor
+{
+    HyperlinkColor(uint32 c) : a(c >> 24), r(c >> 16), g(c >> 8), b(c) {}
+    uint8 r, g, b, a;
+    bool operator==(uint32 c) const
+    {
+        if ((c & 0xff) ^ b)
+            return false;
+        if (((c >>= 8) & 0xff) ^ g)
+            return false;
+        if (((c >>= 8) & 0xff) ^ r)
+            return false;
+        if ((c >>= 8) ^ a)
+            return false;
+        return true;
+    }
+};
+
 struct HyperlinkInfo
 {
-    HyperlinkInfo(char const* n = nullptr, char const* tS = nullptr, size_t tL = 0, char const* dS = nullptr, size_t dL = 0, char const* cS = nullptr, size_t cL = 0) :
-        next(n), tag(tS, tL), data(dS, dL), text(cS, cL) {}
+    HyperlinkInfo(char const* n = nullptr, uint32 c = 0, char const* tS = nullptr, size_t tL = 0, char const* dS = nullptr, size_t dL = 0, char const* cS = nullptr, size_t cL = 0) :
+        next(n), color(c), tag(tS, tL), data(dS, dL), text(cS, cL) {}
 
     explicit operator bool() { return next; }
     char const* const next;
+    HyperlinkColor const color;
     std::pair<char const*, size_t> const tag;
     std::pair<char const*, size_t> const data;
     std::pair<char const*, size_t> const text;

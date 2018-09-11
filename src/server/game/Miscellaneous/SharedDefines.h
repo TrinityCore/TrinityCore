@@ -3127,7 +3127,7 @@ enum ChatMsg
 
 #define MAX_CHAT_MSG_TYPE 0x34
 
-enum ChatLinkColors
+enum ChatLinkColors : uint32
 {
     CHAT_LINK_COLOR_TRADE       = 0xffffd000,   // orange
     CHAT_LINK_COLOR_TALENT      = 0xff4e96f7,   // blue
