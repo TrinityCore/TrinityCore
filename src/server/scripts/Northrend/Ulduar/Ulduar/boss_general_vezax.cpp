@@ -143,7 +143,7 @@ class boss_general_vezax : public CreatureScript
                 events.ScheduleEvent(EVENT_SEARING_FLAMES, 12s);
                 events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 40000));
                 events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30s);
-                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 60s);
+                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 1min;
                 events.ScheduleEvent(EVENT_BERSERK, 10min);
             }
 

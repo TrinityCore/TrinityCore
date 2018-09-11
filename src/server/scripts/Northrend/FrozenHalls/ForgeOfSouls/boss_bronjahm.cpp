@@ -181,7 +181,7 @@ class boss_bronjahm : public CreatureScript
                             {
                                 if (!me->IsWithinMeleeRange(me->GetVictim()))
                                     DoCastVictim(SPELL_SHADOW_BOLT);
-                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2 * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                             }
                             break;
                         case EVENT_CORRUPT_SOUL:

@@ -258,7 +258,7 @@ public:
         {
             _events.ScheduleEvent(EVENT_UPPERCUT,      15 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_IMMOLATE,      10 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5s);
         }
 
         void JustDied(Unit* killer) override
@@ -414,10 +414,10 @@ public:
             me->SetCanDualWield(true);
 
             _events.Reset();
-            _events.ScheduleEvent(EVENT_FROST_SHOCK, 1 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_HEALING_SURGE, 5 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 15 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 20 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_FROST_SHOCK, 1s);
+            _events.ScheduleEvent(EVENT_HEALING_SURGE, 5s);
+            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 15s);
+            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 20s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -456,10 +456,10 @@ public:
                             if (target)
                             {
                                 DoCast(target, SPELL_HEALING_SURGE);
-                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 10 * IN_MILLISECONDS);
+                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 10s);
                             }
                             else
-                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 2 * IN_MILLISECONDS);
+                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 2s);
                             break;
                         }
                         default:

@@ -78,7 +78,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
                 _events.ScheduleEvent(EVENT_VOID_BOLT, 30s);
                 _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 60s);
+                _events.ScheduleEvent(EVENT_ENRAGE, 1min;
                 _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33s);
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }

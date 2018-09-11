@@ -68,9 +68,9 @@ class boss_eck : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BITE, 5 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SPIT, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SPRING, 8 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BITE, 5s);
+                events.ScheduleEvent(EVENT_SPIT, 10s);
+                events.ScheduleEvent(EVENT_SPRING, 8s);
                 events.ScheduleEvent(EVENT_BERSERK, urand(60 * IN_MILLISECONDS, 90 * IN_MILLISECONDS)); // 60-90 secs according to wowwiki
             }
 

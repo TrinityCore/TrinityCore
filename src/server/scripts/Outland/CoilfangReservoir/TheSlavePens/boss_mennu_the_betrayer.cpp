@@ -76,7 +76,7 @@ class boss_mennu_the_betrayer : public CreatureScript
                 _JustEngagedWith();
                 events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30s);
                 events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20s);
-                events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 60s);
+                events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 1min;
                 events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, urand(14000, 25000));
                 events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(14000, 19000));
                 Talk(SAY_AGGRO);

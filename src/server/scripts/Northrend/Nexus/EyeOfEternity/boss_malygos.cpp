@@ -1320,8 +1320,8 @@ class npc_nexus_lord : public CreatureScript
             void DoAction(int32 /*action*/) override
             {
                 _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1);
-                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2*IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_HASTE_BUFF, 12*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2s);
+                _events.ScheduleEvent(EVENT_HASTE_BUFF, 12s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1342,12 +1342,12 @@ class npc_nexus_lord : public CreatureScript
                             break;
                         case EVENT_HASTE_BUFF:
                             DoCast(me, SPELL_HASTE);
-                            _events.ScheduleEvent(EVENT_HASTE_BUFF, 15*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_HASTE_BUFF, 15s);
                             break;
                         case EVENT_NUKE_DUMMY:
                             DoCastVictim(SPELL_DUMMY_NUKE, true);
                             DoCast(me, SPELL_ALIGN_DISK_AGGRO, true);
-                            _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1s);
                             break;
                     }
                 }
@@ -1511,7 +1511,7 @@ public:
             if (Player* player = summoner->ToPlayer())
             {
                 _summoner = player->GetGUID();
-                _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2s);
             }
         }
 

@@ -307,7 +307,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (state == DONE)
                         {
                             ++_waveCount;
-                            events.ScheduleEvent(EVENT_NEXT_WAVE, 60s);
+                            events.ScheduleEvent(EVENT_NEXT_WAVE, 1min;
                         }
                         break;
                     case DATA_MARWYN:

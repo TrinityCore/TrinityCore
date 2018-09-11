@@ -93,7 +93,7 @@ class boss_buru : public CreatureScript
 
                 events.ScheduleEvent(EVENT_DISMEMBER, 5s);
                 events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 60s);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 1min;
 
                 _phase = PHASE_EGG;
             }
@@ -119,7 +119,7 @@ class boss_buru : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
                 events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 60s);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 1min;
 
                 if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {

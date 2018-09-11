@@ -1037,7 +1037,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                                 skybreaker->SummonPassenger(NPC_TELEPORT_EXIT, SkybreakerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
                             _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6s);
-                            _events.ScheduleEvent(EVENT_ADDS, 60s);
+                            _events.ScheduleEvent(EVENT_ADDS, 1min;
                             break;
                         case EVENT_ADDS_BOARD_YELL:
                             if (Creature* muradin = me->FindNearestCreature(NPC_IGB_MURADIN_BRONZEBEARD, 200.0f))
@@ -1305,7 +1305,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                                 orgrimsHammer->SummonPassenger(NPC_TELEPORT_EXIT, OrgrimsHammerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
                             _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6s);
-                            _events.ScheduleEvent(EVENT_ADDS, 60s);
+                            _events.ScheduleEvent(EVENT_ADDS, 1min;
                             break;
                         case EVENT_ADDS_BOARD_YELL:
                             if (Creature* saurfang = me->FindNearestCreature(NPC_IGB_HIGH_OVERLORD_SAURFANG, 200.0f))

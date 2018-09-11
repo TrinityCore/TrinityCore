@@ -66,8 +66,8 @@ public:
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_WHIRLWIND, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_WHIRLWIND2, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_KNOCKDOWN, 12 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_FRENZY, 6 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_KNOCKDOWN, 12s);
+            events.ScheduleEvent(EVENT_FRENZY, 6s);
             events.ScheduleEvent(EVENT_RANDOM_YELL, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS)); //20 to 30 seconds
         }
 

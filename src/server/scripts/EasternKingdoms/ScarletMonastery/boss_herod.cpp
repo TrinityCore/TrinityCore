@@ -84,7 +84,7 @@ class boss_herod : public CreatureScript
                 _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CLEAVE, 12s);
-                events.ScheduleEvent(EVENT_WHIRLWIND, 60s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 1min;
             }
 
             void KilledUnit(Unit* /*victim*/) override

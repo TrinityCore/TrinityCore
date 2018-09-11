@@ -258,23 +258,23 @@ class boss_kologarn : public CreatureScript
                         case EVENT_MELEE_CHECK:
                             if (!me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCast(SPELL_PETRIFY_BREATH);
-                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1s);
                             break;
                         case EVENT_SWEEP:
                             if (left)
                                 DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
-                            events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SWEEP, 25s);
                             break;
                         case EVENT_SMASH:
                             if (left && right)
                                 DoCastVictim(SPELL_TWO_ARM_SMASH);
                             else if (left || right)
                                 DoCastVictim(SPELL_ONE_ARM_SMASH);
-                            events.ScheduleEvent(EVENT_SMASH, 15 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SMASH, 15s);
                             break;
                         case EVENT_STONE_SHOUT:
                             DoCast(SPELL_STONE_SHOUT);
-                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2s);
                             break;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
@@ -299,7 +299,7 @@ class boss_kologarn : public CreatureScript
                                 Talk(SAY_GRAB_PLAYER);
                                 Talk(EMOTE_STONE_GRIP);
                             }
-                            events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_STONE_GRIP, 25s);
                             break;
                         }
                         case EVENT_FOCUSED_EYEBEAM:

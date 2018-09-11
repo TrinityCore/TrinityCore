@@ -81,11 +81,11 @@ public:
         {
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_CONE_OF_COLD, 8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_FIREBOLT, 1 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_FROSTBOLT, 4 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 3 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CHECK_RESET, 5 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CONE_OF_COLD, 8s);
+            events.ScheduleEvent(EVENT_FIREBOLT, 1s);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 4s);
+            events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 3s);
+            events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
         }
 
         void JustSummoned(Creature* summoned) override
@@ -154,7 +154,7 @@ public:
                     case EVENT_SUMMON_WATER_ELEMENTAL:
                         if (summons.empty())
                             DoCast(SPELL_SUMMON_WATER_ELEMENTAL);
-                        events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 50 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 50s);
                         break;
                     case EVENT_CHECK_RESET:
                         if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
@@ -165,7 +165,7 @@ public:
                         if (Creature* elemental = ObjectAccessor::GetCreature(*me, WaterElementalGUID))
                             if (elemental->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                                 elemental->AI()->EnterEvadeMode();
-                        events.ScheduleEvent(EVENT_CHECK_RESET, 5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
                         break;
                     default:
                         break;

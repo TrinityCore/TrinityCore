@@ -106,7 +106,7 @@ struct boss_najentus : public BossAI
         _JustEngagedWith();
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_NEEDLE, 2s);
-        events.ScheduleEvent(EVENT_SHIELD, 60s);
+        events.ScheduleEvent(EVENT_SHIELD, 1min;
         events.ScheduleEvent(EVENT_SPINE, 30s);
         events.ScheduleEvent(EVENT_BERSERK, 480s);
         events.ScheduleEvent(EVENT_YELL, 45s, 100s);

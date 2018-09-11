@@ -414,7 +414,7 @@ class boss_runemaster_molgeim : public CreatureScript
                                     break;
                             }
                             DoCast(target, SPELL_SUMMON_RUNE_OF_POWER);
-                            events.ScheduleEvent(EVENT_RUNE_OF_POWER, 60s);
+                            events.ScheduleEvent(EVENT_RUNE_OF_POWER, 1min;
                             break;
                         }
                         case EVENT_SHIELD_OF_RUNES:

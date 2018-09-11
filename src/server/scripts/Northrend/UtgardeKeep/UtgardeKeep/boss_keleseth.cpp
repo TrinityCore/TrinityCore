@@ -133,7 +133,7 @@ class boss_keleseth : public CreatureScript
                 _Reset();
                 events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3)*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19)*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6s);
 
                 Initialize();
             }
@@ -299,8 +299,8 @@ class npc_vrykul_skeleton : public CreatureScript
                             events.ScheduleEvent(EVENT_DECREPIFY, urand(1, 5)*IN_MILLISECONDS);
                             break;
                         case EVENT_RESURRECT:
-                            events.ScheduleEvent(EVENT_FULL_HEAL, 1 * IN_MILLISECONDS);
-                            events.ScheduleEvent(EVENT_SHADOW_FISSURE, 1 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FULL_HEAL, 1s);
+                            events.ScheduleEvent(EVENT_SHADOW_FISSURE, 1s);
                             break;
                         case EVENT_FULL_HEAL:
                             DoCast(me, SPELL_FULL_HEAL, true);

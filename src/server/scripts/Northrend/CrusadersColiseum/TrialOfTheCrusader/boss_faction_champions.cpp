@@ -587,9 +587,9 @@ struct boss_faction_championsAI : public BossAI
     void Reset() override
     {
         _teamInstance = instance->GetData(DATA_TEAM);
-        _events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
+        _events.ScheduleEvent(EVENT_THREAT, 5s);
         if (IsHeroic() && (_aiType != AI_PET))
-            _events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_REMOVE_CC, 5s);
     }
 
     void JustReachedHome() override
@@ -720,7 +720,7 @@ struct boss_faction_championsAI : public BossAI
                 case EVENT_THREAT:
                     UpdatePower();
                     UpdateThreat();
-                    _events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_THREAT, 4s);
                     return;
                 case EVENT_REMOVE_CC:
                     if (me->HasBreakableByDamageCrowdControlAura())
@@ -768,7 +768,7 @@ class npc_toc_druid : public CreatureScript
                 events.ScheduleEvent(EVENT_REJUVENATION, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_TRANQUILITY, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HEAL_BARKSKIN, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_THORNS, 2*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_THORNS, 2s);
                 events.ScheduleEvent(EVENT_NATURE_GRASP, urand(3*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 51799, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
@@ -828,7 +828,7 @@ class npc_toc_druid : public CreatureScript
                             return;
                         case EVENT_NATURE_GRASP:
                             DoCast(me, SPELL_NATURE_GRASP);
-                            events.ScheduleEvent(EVENT_NATURE_GRASP, 60*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_NATURE_GRASP, 1min;
                             return;
                         default:
                             return;
@@ -858,9 +858,9 @@ class npc_toc_shaman : public CreatureScript
                 events.ScheduleEvent(EVENT_HEALING_WAVE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_RIPTIDE, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 20s);
                 events.ScheduleEvent(EVENT_HEX, urand(5*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_EARTH_SHIELD, 1*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_EARTH_SHIELD, 1s);
                 events.ScheduleEvent(EVENT_HEAL_EARTH_SHOCK, urand(5*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
@@ -949,7 +949,7 @@ class npc_toc_paladin : public CreatureScript
             {
                 boss_faction_championsAI::Reset();
                 events.ScheduleEvent(EVENT_HAND_OF_FREEDOM, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 20s);
                 events.ScheduleEvent(EVENT_CLEANSE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FLASH_OF_LIGHT, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HOLY_LIGHT, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
@@ -1025,7 +1025,7 @@ class npc_toc_paladin : public CreatureScript
                         case EVENT_HAMMER_OF_JUSTICE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f, true))
                                 DoCast(target, SPELL_HAMMER_OF_JUSTICE);
-                            events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 40*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 40s);
                             return;
                         default:
                             return;
@@ -1373,12 +1373,12 @@ class npc_toc_mage : public CreatureScript
                         case EVENT_COUNTERSPELL:
                             if (Unit* target = SelectEnemyCaster(true))
                                 DoCast(target, SPELL_COUNTERSPELL);
-                            events.ScheduleEvent(EVENT_COUNTERSPELL, 24*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_COUNTERSPELL, 24s);
                             return;
                         case EVENT_FROST_NOVA:
                             if (EnemiesInRange(10.0f) >= 2)
                                 DoCastAOE(SPELL_FROST_NOVA);
-                            events.ScheduleEvent(EVENT_FROST_NOVA, 25*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FROST_NOVA, 25s);
                             return;
                         case EVENT_ICE_BLOCK:
                             if (HealthBelowPct(30))
@@ -1468,7 +1468,7 @@ class npc_toc_hunter : public CreatureScript
                         case EVENT_DISENGAGE:
                             if (EnemiesInRange(10.0f) >= 2)
                                 DoCast(SPELL_DISENGAGE);
-                            events.ScheduleEvent(EVENT_DISENGAGE, 30*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DISENGAGE, 30s);
                             return;
                         case EVENT_EXPLOSIVE_SHOT:
                             DoCastVictim(SPELL_EXPLOSIVE_SHOT);
@@ -1477,7 +1477,7 @@ class npc_toc_hunter : public CreatureScript
                         case EVENT_FROST_TRAP:
                             if (EnemiesInRange(10.0f) >= 2)
                                 DoCastAOE(SPELL_FROST_TRAP);
-                            events.ScheduleEvent(EVENT_FROST_TRAP, 30*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FROST_TRAP, 30s);
                             return;
                         case EVENT_STEADY_SHOT:
                             DoCastVictim(SPELL_STEADY_SHOT);
@@ -1565,7 +1565,7 @@ class npc_toc_boomkin : public CreatureScript
                             return;
                         case EVENT_FORCE_OF_NATURE:
                             DoCastVictim(SPELL_FORCE_OF_NATURE);
-                            events.ScheduleEvent(EVENT_FORCE_OF_NATURE, 180*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FORCE_OF_NATURE, 2min;
                             return;
                         case EVENT_INSECT_SWARM:
                             DoCastVictim(SPELL_INSECT_SWARM);
@@ -1620,7 +1620,7 @@ class npc_toc_warrior : public CreatureScript
                 events.ScheduleEvent(EVENT_BLADESTORM, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_INTIMIDATING_SHOUT, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_WARR_CHARGE, 1*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_WARR_CHARGE, 1s);
                 events.ScheduleEvent(EVENT_DISARM, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_OVERPOWER, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SUNDER_ARMOR, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
@@ -1646,11 +1646,11 @@ class npc_toc_warrior : public CreatureScript
                     {
                         case EVENT_BLADESTORM:
                             DoCastVictim(SPELL_BLADESTORM);
-                            events.ScheduleEvent(EVENT_BLADESTORM, 150*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_BLADESTORM, 150s);
                             return;
                         case EVENT_INTIMIDATING_SHOUT:
                             DoCastAOE(SPELL_INTIMIDATING_SHOUT);
-                            events.ScheduleEvent(EVENT_INTIMIDATING_SHOUT, 120*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_INTIMIDATING_SHOUT, 120s);
                             return;
                         case EVENT_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);
@@ -1932,8 +1932,8 @@ class npc_toc_enh_shaman : public CreatureScript
                 events.ScheduleEvent(EVENT_DPS_EARTH_SHOCK, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_LAVA_LASH, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_STORMSTRIKE, urand(2*IN_MILLISECONDS, 5*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DPS_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_DPS_BLOODLUST_HEROISM, 20s);
+                events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1s);
                 events.ScheduleEvent(EVENT_WINDFURY, urand(20*IN_MILLISECONDS, 50*IN_MILLISECONDS));
 
                 Initialize();
@@ -2019,7 +2019,7 @@ class npc_toc_enh_shaman : public CreatureScript
                         case EVENT_DEPLOY_TOTEM:
                             if (_totemCount < 4 || me->GetDistance2d(_totemOldCenterX, _totemOldCenterY) > 20.0f)
                                 DeployTotem();
-                            events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1s);
                             return;
                         case EVENT_WINDFURY:
                             DoCastVictim(SPELL_WINDFURY);
@@ -2087,7 +2087,7 @@ class npc_toc_retro_paladin : public CreatureScript
                     {
                         case EVENT_AVENGING_WRATH:
                             DoCast(SPELL_AVENGING_WRATH);
-                            events.ScheduleEvent(EVENT_AVENGING_WRATH, 180*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_AVENGING_WRATH, 2min;
                             return;
                         case EVENT_CRUSADER_STRIKE:
                             DoCastVictim(SPELL_CRUSADER_STRIKE);
@@ -2100,7 +2100,7 @@ class npc_toc_retro_paladin : public CreatureScript
                             return;
                         case EVENT_HAMMER_OF_JUSTICE_RET:
                             DoCastVictim(SPELL_HAMMER_OF_JUSTICE_RET);
-                            events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE_RET, 40*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE_RET, 40s);
                             return;
                         case EVENT_JUDGEMENT_OF_COMMAND:
                             DoCastVictim(SPELL_JUDGEMENT_OF_COMMAND);
@@ -2109,7 +2109,7 @@ class npc_toc_retro_paladin : public CreatureScript
                         case EVENT_REPENTANCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_REPENTANCE);
-                            events.ScheduleEvent(EVENT_REPENTANCE, 60*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_REPENTANCE, 1min;
                             return;
                         case EVENT_DPS_HAND_OF_PROTECTION:
                             if (Unit* target = DoSelectLowestHpFriendly(30.0f))

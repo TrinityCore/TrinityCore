@@ -177,7 +177,7 @@ class boss_magtheridon : public CreatureScript
                     Talk(EMOTE_WEAKEN, me);
                     summons.DoZoneInCombat(NPC_HELLFIRE_CHANNELLER);
                     events.ScheduleEvent(EVENT_START_FIGHT, 2min);
-                    events.ScheduleEvent(EVENT_NEARLY_EMOTE, 60s);
+                    events.ScheduleEvent(EVENT_NEARLY_EMOTE, 1min;
                     events.CancelEvent(EVENT_TAUNT);
                     instance->SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
                     instance->SetData(DATA_CALL_WARDERS, ACTION_ENABLE);
@@ -256,7 +256,7 @@ class boss_magtheridon : public CreatureScript
                             events.SetPhase(PHASE_2);
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, 10s);
-                            events.ScheduleEvent(EVENT_BLAST_NOVA, 60s);
+                            events.ScheduleEvent(EVENT_BLAST_NOVA, 1min;
                             events.ScheduleEvent(EVENT_BLAZE, 20s);
                             events.ScheduleEvent(EVENT_QUAKE, 35s);
                             events.ScheduleEvent(EVENT_BERSERK, 20min);

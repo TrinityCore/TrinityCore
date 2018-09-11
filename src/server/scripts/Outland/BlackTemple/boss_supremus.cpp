@@ -112,7 +112,7 @@ struct boss_supremus : public BossAI
         }
         ResetThreatList();
         DoZoneInCombat();
-        events.ScheduleEvent(EVENT_SWITCH_PHASE, 60s);
+        events.ScheduleEvent(EVENT_SWITCH_PHASE, 1min;
     }
 
     Unit* CalculateHatefulStrikeTarget()

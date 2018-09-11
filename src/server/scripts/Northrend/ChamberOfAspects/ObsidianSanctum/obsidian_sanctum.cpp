@@ -498,7 +498,7 @@ public:
         {
             dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s);
+            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 1min;
         }
 
         void UpdateAI(uint32 diff) override
@@ -569,7 +569,7 @@ public:
         {
             dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s);
+            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 1min;
         }
 
         void UpdateAI(uint32 diff) override

@@ -180,17 +180,17 @@ public:
                             case 0:
                                 Talk(SAY_EVENT_THREE_MIN_LEFT);
                                 ++eventProgress;
-                                 events.ScheduleEvent(EVENT_PROGRESS, 60s);
+                                 events.ScheduleEvent(EVENT_PROGRESS, 1min;
                                  break;
                             case 1:
                                 Talk(SAY_EVENT_TWO_MIN_LEFT);
                                 ++eventProgress;
-                                events.ScheduleEvent(EVENT_PROGRESS, 60s);
+                                events.ScheduleEvent(EVENT_PROGRESS, 1min;
                                 break;
                             case 2:
                                 Talk(SAY_EVENT_ONE_MIN_LEFT);
                                 ++eventProgress;
-                                events.ScheduleEvent(EVENT_PROGRESS, 60s);
+                                events.ScheduleEvent(EVENT_PROGRESS, 1min;
                                 break;
                             case 3:
                                 events.CancelEvent(EVENT_IDOL_ROOM_SPAWNER);
