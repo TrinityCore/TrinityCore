@@ -234,11 +234,14 @@ struct LinkTextValidator<LinkTags::trade>
 static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
     TryValidateAs(achievement);
+    TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(creature);
     TryValidateAs(creature_entry);
     TryValidateAs(enchant);
+    TryValidateAs(gameevent);
     TryValidateAs(gameobject);
+    TryValidateAs(gameobject_entry);
     TryValidateAs(glyph);
     TryValidateAs(item);
     TryValidateAs(itemset);
