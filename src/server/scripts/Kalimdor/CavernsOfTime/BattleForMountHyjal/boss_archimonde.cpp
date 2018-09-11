@@ -393,7 +393,7 @@ public:
                     ++WispCount;
                     if (WispCount >= 30)
                         me->KillSelf();
-                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1.5s);
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                     break;
                 default:
                     break;
@@ -415,7 +415,7 @@ public:
                     // All members of raid must get this buff
                     DoCastAOE(SPELL_PROTECTION_OF_ELUNE, true);
                     HasProtected = true;
-                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1.5s);
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                 }
             }
         }

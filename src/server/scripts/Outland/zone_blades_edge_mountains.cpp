@@ -472,7 +472,7 @@ class npc_simon_bunny : public CreatureScript
                         if (!playableSequence.empty())
                         {
                             PlayNextColor();
-                            _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1.5s);
+                            _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1500ms);
                         }
                         else
                         {
@@ -488,7 +488,7 @@ class npc_simon_bunny : public CreatureScript
                         DoCast(SPELL_AUDIBLE_GAME_TICK);
 
                         if (gameTicks > gameLevel)
-                            _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 0.5s);
+                            _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 500ms);
                         else
                             _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3s);
                         gameTicks++;
@@ -549,7 +549,7 @@ class npc_simon_bunny : public CreatureScript
 
                 PlayColor(pressedColor);
                 playerSequence.push_back(pressedColor);
-                _events.ScheduleEvent(EVENT_SIMON_RESET_CLUSTERS, 0.5s);
+                _events.ScheduleEvent(EVENT_SIMON_RESET_CLUSTERS, 500ms);
                 CheckPlayerSequence();
             }
 

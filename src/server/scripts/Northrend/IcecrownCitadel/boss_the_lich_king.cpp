@@ -1046,7 +1046,7 @@ class boss_the_lich_king : public CreatureScript
                             events.RescheduleEvent(EVENT_DEFILE, 50000, 0, PHASE_THREE);
                             events.RescheduleEvent(EVENT_SOUL_REAPER, urand(57000, 62000), 0, PHASE_THREE);
                             events.ScheduleEvent(EVENT_START_ATTACK, 49s);
-                            events.ScheduleEvent(EVENT_FROSTMOURNE_HEROIC, 6.5s);
+                            events.ScheduleEvent(EVENT_FROSTMOURNE_HEROIC, 6500ms);
                             for (ObjectGuid guid : summons)
                             {
                                 if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
@@ -1500,7 +1500,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2.5s);
+                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500ms);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -1558,7 +1558,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                                 triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                                 DoCast(target, SPELL_VALKYR_CARRY);
                                 _dropPoint.Relocate(triggers.front());
-                                _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1.5s);
+                                _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500ms);
                             }
                         }
                         else
@@ -1605,7 +1605,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                         case EVENT_LIFE_SIPHON:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_LIFE_SIPHON);
-                            _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2.5s);
+                            _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2500ms);
                             break;
                         case EVENT_MOVE_TO_CENTER:
                         {

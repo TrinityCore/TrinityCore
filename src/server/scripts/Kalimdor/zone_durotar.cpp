@@ -162,7 +162,7 @@ class npc_tiger_matriarch : public CreatureScript
             void JustEngagedWith(Unit* /*target*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_POUNCE, 0.1s);
+                _events.ScheduleEvent(EVENT_POUNCE, 100ms);
                 _events.ScheduleEvent(EVENT_NOSUMMON, 50s);
             }
 

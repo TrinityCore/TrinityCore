@@ -241,7 +241,7 @@ struct dummy_dragonAI : public ScriptedAI
             waypointId = 0;
         }
 
-        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 0.5s);
+        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500ms);
     }
 
     // "opens" the portal and does the "opening" whisper
@@ -874,7 +874,7 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 0.1s);
+            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100ms);
             events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -889,7 +889,7 @@ public:
                 {
                     case EVENT_TSUNAMI_TIMER:
                         DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
-                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 0.5s);
+                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500ms);
                         break;
                     case EVENT_TSUNAMI_BUFF:
                         if (Unit* lavaBlaze = GetClosestCreatureWithEntry(me, NPC_LAVA_BLAZE, 10.0f, true))

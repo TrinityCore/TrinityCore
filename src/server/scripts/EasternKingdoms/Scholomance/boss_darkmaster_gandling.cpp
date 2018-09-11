@@ -79,7 +79,7 @@ class boss_darkmaster_gandling : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4.5s);
+                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500ms);
                 events.ScheduleEvent(EVENT_SHADOWSHIELD, 12s);
                 events.ScheduleEvent(EVENT_CURSE, 2s);
                 events.ScheduleEvent(EVENT_SHADOW_PORTAL, 15s);

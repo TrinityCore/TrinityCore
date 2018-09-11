@@ -113,7 +113,7 @@ class boss_murmur : public CreatureScript
                             Talk(EMOTE_SONIC_BOOM);
                             DoCast(me, SPELL_SONIC_BOOM_CAST);
                             events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
-                            events.ScheduleEvent(EVENT_RESONANCE, 1.5s);
+                            events.ScheduleEvent(EVENT_RESONANCE, 1500ms);
                             break;
                         case EVENT_MURMURS_TOUCH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
@@ -134,7 +134,7 @@ class boss_murmur : public CreatureScript
                                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
                                 break;
                             }
-                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 0.5s);
+                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500ms);
                             break;
                         case EVENT_THUNDERING_STORM:
                             DoCastAOE(SPELL_THUNDERING_STORM, true);

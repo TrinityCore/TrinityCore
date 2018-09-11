@@ -240,7 +240,7 @@ class boss_ragnaros : public CreatureScript
                                         _hasYelledMagmaBurst = true;
                                     }
                                 }
-                                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2.5s);
+                                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2500ms);
                                 break;
                             case EVENT_SUBMERGE:
                             {

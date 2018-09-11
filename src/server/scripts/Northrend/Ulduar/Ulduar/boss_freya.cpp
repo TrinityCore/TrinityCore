@@ -767,7 +767,7 @@ class boss_elder_brightleaf : public CreatureScript
                             me->AddAura(SPELL_FLUX_AURA, me);
                             if (Aura* Flux = me->GetAura(SPELL_FLUX_AURA))
                                 Flux->SetStackAmount(urand(1, 8));
-                            events.ScheduleEvent(EVENT_FLUX, 7.5s);
+                            events.ScheduleEvent(EVENT_FLUX, 7500ms);
                             break;
                     }
 

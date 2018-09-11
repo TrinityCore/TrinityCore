@@ -146,13 +146,13 @@ class boss_venoxis : public CreatureScript
                 {
                     _transformed = true;
                     // schedule the event that changes our phase
-                    events.ScheduleEvent(EVENT_TRANSFORM, 0.1s);
+                    events.ScheduleEvent(EVENT_TRANSFORM, 100ms);
                 }
                 // we're losing health, bad, go frenzy
                 else if (!_frenzied && !HealthAbovePct(20))
                 {
                     _frenzied = true;
-                    events.ScheduleEvent(EVENT_FRENZY, 0.1s);
+                    events.ScheduleEvent(EVENT_FRENZY, 100ms);
                 }
             }
 

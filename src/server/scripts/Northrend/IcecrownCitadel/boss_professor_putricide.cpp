@@ -492,7 +492,7 @@ class boss_professor_putricide : public CreatureScript
                         if (!IsHeroic())
                         {
                             DoCast(me, SPELL_TEAR_GAS);
-                            events.ScheduleEvent(EVENT_TEAR_GAS, 2.5s);
+                            events.ScheduleEvent(EVENT_TEAR_GAS, 2500ms);
                         }
                         else
                         {

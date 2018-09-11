@@ -173,7 +173,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROSTNOVA);
                         events.ScheduleEvent(EVENT_FROST_NOVA, urand(17500, 25000));
-                        events.ScheduleEvent(EVENT_BLINK, 1.5s);
+                        events.ScheduleEvent(EVENT_BLINK, 1500ms);
                         break;
                     default:
                         break;

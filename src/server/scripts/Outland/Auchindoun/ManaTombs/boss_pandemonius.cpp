@@ -93,7 +93,7 @@ public:
                     }
                     else
                     {
-                        events.ScheduleEvent(EVENT_VOID_BLAST, 0.5s);
+                        events.ScheduleEvent(EVENT_VOID_BLAST, 500ms);
                         events.DelayEvents(EVENT_DARK_SHELL, 500);
                     }
                     break;

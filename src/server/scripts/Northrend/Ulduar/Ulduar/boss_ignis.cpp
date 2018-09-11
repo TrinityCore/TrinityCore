@@ -230,7 +230,7 @@ class boss_ignis : public CreatureScript
                                 _slagPotGUID = target->GetGUID();
                                 DoCast(target, SPELL_GRAB);
                                 events.DelayEvents(3000);
-                                events.ScheduleEvent(EVENT_GRAB_POT, 0.5s);
+                                events.ScheduleEvent(EVENT_GRAB_POT, 500ms);
                             }
                             events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
                             break;

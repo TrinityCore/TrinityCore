@@ -2245,7 +2245,7 @@ class npc_raging_ghoul : public CreatureScript
                                 return;
                             }
                         }
-                        _events.ScheduleEvent(EVENT_RAGING_GHOUL_JUMP, 0.5s);
+                        _events.ScheduleEvent(EVENT_RAGING_GHOUL_JUMP, 500ms);
                         break;
                     default:
                         break;
@@ -2664,7 +2664,7 @@ class npc_quel_delar_sword : public CreatureScript
                                 if (Creature* bunny = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FROSTMOURNE_ALTAR_BUNNY)))
                                     bunny->AI()->Talk(SAY_FROSTMOURNE_BUNNY);
                                 _intro = false;
-                                _events.ScheduleEvent(EVENT_QUEL_DELAR_FLIGHT_INIT, 2.5s);
+                                _events.ScheduleEvent(EVENT_QUEL_DELAR_FLIGHT_INIT, 2500ms);
                                 break;
                             case EVENT_QUEL_DELAR_FLIGHT_INIT:
                                 me->GetMotionMaster()->MoveTakeoff(POINT_TAKE_OFF, QuelDelarMovement[0]);

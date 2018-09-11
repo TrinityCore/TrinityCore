@@ -528,12 +528,12 @@ class boss_kaelthas : public CreatureScript
                                 break;
                             case ADVISOR_TELONICUS:
                                 Talk(SAY_INTRO_TELONICUS);
-                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 8.4s);
+                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 8400ms);
                                 break;
                             case MAX_DEFEATED_ADVISORS:
                                 // Every advisor defeated - Phase 2 starts.
                                 Talk(SAY_PHASE2_WEAPON);
-                                events.ScheduleEvent(EVENT_SUMMON_WEAPONS, 3.5s);
+                                events.ScheduleEvent(EVENT_SUMMON_WEAPONS, 3500ms);
                                 break;
                             case MAX_KILLED_ADVISORS:
                                 // Every advisor killed - Phase 3 starts.

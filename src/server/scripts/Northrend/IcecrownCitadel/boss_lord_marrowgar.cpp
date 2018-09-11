@@ -408,7 +408,7 @@ class npc_coldflame : public CreatureScript
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 DoCast(SPELL_COLDFLAME_SUMMON);
-                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 0.5s);
+                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -420,7 +420,7 @@ class npc_coldflame : public CreatureScript
                     Position newPos = me->GetNearPosition(5.0f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
-                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 0.5s);
+                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500ms);
                 }
             }
 

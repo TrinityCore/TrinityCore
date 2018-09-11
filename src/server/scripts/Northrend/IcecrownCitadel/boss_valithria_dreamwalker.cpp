@@ -337,7 +337,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
-                    _events.ScheduleEvent(EVENT_DREAM_SLIP, 3.5s);
+                    _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500ms);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
                 }

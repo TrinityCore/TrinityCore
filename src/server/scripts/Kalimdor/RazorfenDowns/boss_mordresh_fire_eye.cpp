@@ -63,7 +63,7 @@ public:
             _JustEngagedWith();
             events.Reset();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_FIREBALL, 0.1s);
+            events.ScheduleEvent(EVENT_FIREBALL, 100ms);
             events.ScheduleEvent(EVENT_FIRE_NOVA, urand(8000, 12000));
         }
 

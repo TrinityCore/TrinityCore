@@ -593,7 +593,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->AttackStop();
                             me->SetHover(true);
                             events.DelayEvents(35000);
-                            events.ScheduleEvent(EVENT_FLIGHT, 2.5s);
+                            events.ScheduleEvent(EVENT_FLIGHT, 2500ms);
                             events.ScheduleEvent(EVENT_ENDFLIGHT, 32500);
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90s);
                             break;
@@ -612,7 +612,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         case EVENT_LAND:
                             me->SetHover(false);
                             events.CancelEvent(EVENT_LAND);
-                            events.ScheduleEvent(EVENT_GROUND, 2.5s);
+                            events.ScheduleEvent(EVENT_GROUND, 2500ms);
                             break;
                         case EVENT_GROUND:
                             me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));

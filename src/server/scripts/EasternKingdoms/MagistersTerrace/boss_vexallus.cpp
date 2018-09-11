@@ -113,7 +113,7 @@ class boss_vexallus : public CreatureScript
                     {
                         _enraged = true;
                         events.Reset();
-                        events.ScheduleEvent(EVENT_OVERLOAD, 1.2s);
+                        events.ScheduleEvent(EVENT_OVERLOAD, 1200ms);
                         return;
                     }
                     else

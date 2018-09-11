@@ -75,7 +75,7 @@ public:
                 {
                     case EVENT_SHOOT:
                         DoCastVictim(SPELL_SHOOT);
-                        events.ScheduleEvent(EVENT_SHOOT, 0.5s);
+                        events.ScheduleEvent(EVENT_SHOOT, 500ms);
                         break;
                     case EVENT_STUN_BOMB:
                         DoCastVictim(SPELL_STUNBOMB);

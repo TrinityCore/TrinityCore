@@ -1614,7 +1614,7 @@ class npc_mimiron_proximity_mine : public CreatureScript
 
             void Reset() override
             {
-                events.ScheduleEvent(EVENT_PROXIMITY_MINE_ARM, 1.5s);
+                events.ScheduleEvent(EVENT_PROXIMITY_MINE_ARM, 1500ms);
             }
 
             void UpdateAI(uint32 diff) override

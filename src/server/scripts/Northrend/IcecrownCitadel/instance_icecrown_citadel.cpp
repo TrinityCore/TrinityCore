@@ -1433,7 +1433,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
                         {
                             platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-                            Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1.5s);
+                            Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1500ms);
                         }
                         break;
                     case EVENT_TELEPORT_TO_FROSTMOURNE: // Harvest Soul (normal mode)

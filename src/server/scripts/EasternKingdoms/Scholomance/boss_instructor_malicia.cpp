@@ -125,7 +125,7 @@ class boss_instructor_malicia : public CreatureScript
                             DoCast(me, SPELL_HEALINGTOUCH);
                             if (TouchCounter < 2)
                             {
-                                events.ScheduleEvent(EVENT_HEALINGTOUCH, 5.5s);
+                                events.ScheduleEvent(EVENT_HEALINGTOUCH, 5500ms);
                                 ++TouchCounter;
                             }
                             else

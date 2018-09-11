@@ -137,7 +137,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE2);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1.5s);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
                     return;
                 }
 
@@ -147,7 +147,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE3);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1.5s);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
                     return;
                 }
             }

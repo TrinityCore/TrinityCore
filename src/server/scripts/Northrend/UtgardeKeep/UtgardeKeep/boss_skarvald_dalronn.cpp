@@ -268,7 +268,7 @@ class boss_dalronn_the_controller : public CreatureScript
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2.1s); //give a 100ms pause to try cast other spells
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100ms); //give a 100ms pause to try cast other spells
                         break;
                     case EVENT_DEBILITATE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))

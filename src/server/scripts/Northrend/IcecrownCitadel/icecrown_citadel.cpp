@@ -1480,7 +1480,7 @@ class npc_captain_brandon : public CreatureScript
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, urand(6000, 10000));
-                Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 0.5s);
+                Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500ms);
                 Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, urand(8000, 13000));
                 if (IsUndead)
                     Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(25000, 30000));
@@ -1507,7 +1507,7 @@ class npc_captain_brandon : public CreatureScript
                         case EVENT_BRANDON_DIVINE_SHIELD:
                             if (HealthBelowPct(20))
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                            Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 0.5s);
+                            Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500ms);
                             break;
                         case EVENT_BRANDON_JUDGEMENT_OF_COMMAND:
                             DoCastVictim(SPELL_JUDGEMENT_OF_COMMAND);
@@ -1550,7 +1550,7 @@ class npc_captain_grondel : public CreatureScript
             void Reset() override
             {
                 Events.Reset();
-                Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 0.5s);
+                Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500ms);
                 Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, urand(8000, 14000));
                 Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, urand(3000, 12000));
                 if (IsUndead)
@@ -1573,7 +1573,7 @@ class npc_captain_grondel : public CreatureScript
                     {
                         case EVENT_GRONDEL_CHARGE_CHECK:
                             DoCastVictim(SPELL_CHARGE);
-                            Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 0.5s);
+                            Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500ms);
                             break;
                         case EVENT_GRONDEL_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);

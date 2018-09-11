@@ -446,7 +446,7 @@ public:
                                 events.ScheduleEvent(EVENT_MOVEMENT, 25000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_MOVEMENT, 0.5s);
+                                events.ScheduleEvent(EVENT_MOVEMENT, 500ms);
                             break;
                         case EVENT_FIREBALL:         // Phase PHASE_BREATH
                             if (!IsMoving)
@@ -471,7 +471,7 @@ public:
                                 events.ScheduleEvent(EVENT_WHELP_SPAWN, 90s);
                             }
                             else
-                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 0.5s);
+                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 500ms);
                             break;
                         default:
                             break;

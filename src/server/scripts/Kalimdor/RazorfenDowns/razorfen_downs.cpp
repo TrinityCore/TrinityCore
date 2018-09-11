@@ -164,7 +164,7 @@ public:
                     case EVENT_CHANNEL:
                         Talk(SAY_EVENT_START);
                         DoCast(me, SPELL_IDOL_SHUTDOWN_VISUAL);
-                        events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 0.1s);
+                        events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 100ms);
                         events.ScheduleEvent(EVENT_PROGRESS, 120000);
                         break;
                     case EVENT_IDOL_ROOM_SPAWNER:

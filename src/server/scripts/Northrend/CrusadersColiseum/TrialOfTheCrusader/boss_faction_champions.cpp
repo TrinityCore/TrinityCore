@@ -1565,7 +1565,7 @@ class npc_toc_boomkin : public CreatureScript
                             return;
                         case EVENT_FORCE_OF_NATURE:
                             DoCastVictim(SPELL_FORCE_OF_NATURE);
-                            events.ScheduleEvent(EVENT_FORCE_OF_NATURE, 2min;
+                            events.ScheduleEvent(EVENT_FORCE_OF_NATURE, 2min);
                             return;
                         case EVENT_INSECT_SWARM:
                             DoCastVictim(SPELL_INSECT_SWARM);
@@ -2087,7 +2087,7 @@ class npc_toc_retro_paladin : public CreatureScript
                     {
                         case EVENT_AVENGING_WRATH:
                             DoCast(SPELL_AVENGING_WRATH);
-                            events.ScheduleEvent(EVENT_AVENGING_WRATH, 2min;
+                            events.ScheduleEvent(EVENT_AVENGING_WRATH, 2min);
                             return;
                         case EVENT_CRUSADER_STRIKE:
                             DoCastVictim(SPELL_CRUSADER_STRIKE);

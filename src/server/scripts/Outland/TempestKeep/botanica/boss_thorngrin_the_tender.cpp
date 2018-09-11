@@ -72,7 +72,7 @@ class boss_thorngrin_the_tender : public CreatureScript
             {
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SACRIFICE, 5.7s);
+                events.ScheduleEvent(EVENT_SACRIFICE, 5700ms);
                 events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
                 events.ScheduleEvent(EVENT_ENRAGE, 12s);
             }

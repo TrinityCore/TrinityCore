@@ -766,7 +766,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                         break;
                     case SPELL_RIDE:
                         DoCastAOE(SPELL_PING_BUNNY);
-                        events.ScheduleEvent(EVENT_FLY_AWAY, 0.1s);
+                        events.ScheduleEvent(EVENT_FLY_AWAY, 100ms);
                         break;
                 }
             }
