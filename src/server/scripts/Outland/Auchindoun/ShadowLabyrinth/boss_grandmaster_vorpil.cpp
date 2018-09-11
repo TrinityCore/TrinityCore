@@ -273,10 +273,10 @@ class npc_voidtraveler : public CreatureScript
                     {
                         DoCast(me, SPELL_SACRIFICE, false);
                         _sacrificed = true;
-                        _moveTimer = 500;
+                        _moveTimer = 500ms;
                         return;
                     }
-                    _moveTimer = 1000;
+                    _moveTimer = 1s;
                 }
                 else
                     _moveTimer -= diff;

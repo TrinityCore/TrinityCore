@@ -84,10 +84,10 @@ class boss_varos : public CreatureScript
             {
                 _Reset();
 
-                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, 20s, 25s);
                 events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
                 // not sure if this is handled by a timer or hp percentage
-                events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_CALL_AZURE, 15s, 30s);
 
                 Initialize();
             }
@@ -140,11 +140,11 @@ class boss_varos : public CreatureScript
                             DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
                             Talk(SAY_AZURE);
                             Talk(SAY_AZURE_EMOTE);
-                            events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_CALL_AZURE, 20s, 25s);
                             break;
                         case EVENT_AMPLIFY_MAGIC:
                             DoCastVictim(SPELL_CALL_AMPLIFY_MAGIC);
-                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, 17s, 20s);
                             break;
                         default:
                             break;

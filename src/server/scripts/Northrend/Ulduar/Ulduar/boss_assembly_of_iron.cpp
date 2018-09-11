@@ -189,7 +189,7 @@ class boss_steelbreaker : public CreatureScript
                         if (phase >= 2)
                             events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
                         if (phase >= 3)
-                            events.ReScheduleEvent(EVENT_OVERWHELMING_POWER, 2s, 5s);
+                            events.RescheduleEvent(EVENT_OVERWHELMING_POWER, 2s, 5s);
                         break;
                     case ACTION_ADD_CHARGE:
                         DoCast(me, SPELL_ELECTRICAL_CHARGE, true);
@@ -506,7 +506,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
-                        events.ReScheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 12s);
+                        events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 12s);
                         events.RescheduleEvent(EVENT_OVERLOAD, urand(40000, 50000));
                         if (phase >= 2)
                             events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 250000));

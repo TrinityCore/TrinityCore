@@ -98,7 +98,7 @@ class boss_shazzrah : public CreatureScript
                             ResetThreatList();
                             DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2s);
-                            events.ReScheduleEvent(EVENT_ARCANE_EXPLOSION, 3s, 6s);
+                            events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, 3s, 6s);
                             events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
                             break;
                         default:

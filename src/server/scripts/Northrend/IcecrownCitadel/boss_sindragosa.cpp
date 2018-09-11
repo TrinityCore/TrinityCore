@@ -551,7 +551,7 @@ class boss_sindragosa : public CreatureScript
                             {
                                 Talk(SAY_PHASE_2);
                                 events.ScheduleEvent(EVENT_ICE_TOMB, 7s, 10s);
-                                events.ReScheduleEvent(EVENT_ICY_GRIP, 35s, 40s);
+                                events.RescheduleEvent(EVENT_ICY_GRIP, 35s, 40s);
                                 DoCast(me, SPELL_MYSTIC_BUFFET, true);
                             }
                             else
