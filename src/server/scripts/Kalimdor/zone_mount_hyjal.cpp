@@ -505,6 +505,24 @@ class spell_mh_ragnaros : public SpellScript
     }
 };
 
+class spell_mh_flamebreaker : public AuraScript
+{
+    PrepareAuraScript(spell_mh_flamebreaker);
+
+    void HandleTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetTarget();
+        if (Unit* target = ObjectAccessor::GetCreature(*caster, caster->GetChannelObjectGuid()))
+            caster->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mh_flamebreaker::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_mount_hyjal()
 {
     RegisterCreatureAI(npc_mh_aronus);
@@ -513,4 +531,5 @@ void AddSC_mount_hyjal()
     RegisterCreatureAI(npc_mh_emerald_flameweaver);
     RegisterSpellScript(spell_mh_summon_emerald_flameweaver);
     RegisterSpellScript(spell_mh_ragnaros);
+    RegisterAuraScript(spell_mh_flamebreaker);
 }
