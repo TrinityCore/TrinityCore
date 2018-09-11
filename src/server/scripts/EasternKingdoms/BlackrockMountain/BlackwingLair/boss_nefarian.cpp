@@ -153,7 +153,7 @@ public:
         {
             Initialize();
 
-            if (!me->FindNearestCreature(NPC_NEFARIAN, 1000.0f, true))
+            if (!me->FindNearestCreature(NPC_NEFARIAN, 160.0f, true))
                 _Reset();
 
             me->SetVisible(true);
