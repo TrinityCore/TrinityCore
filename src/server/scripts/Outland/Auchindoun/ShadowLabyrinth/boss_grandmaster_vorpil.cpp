@@ -141,7 +141,7 @@ class boss_grandmaster_vorpil : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
+                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BANISH, 15s);
                 events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
@@ -273,10 +273,10 @@ class npc_voidtraveler : public CreatureScript
                     {
                         DoCast(me, SPELL_SACRIFICE, false);
                         _sacrificed = true;
-                        _moveTimer = 500ms;
+                        _moveTimer = 500;
                         return;
                     }
-                    _moveTimer = 1s;
+                    _moveTimer = 1000;
                 }
                 else
                     _moveTimer -= diff;

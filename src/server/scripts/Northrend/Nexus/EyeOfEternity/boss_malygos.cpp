@@ -543,7 +543,7 @@ public:
                     break;
                 case PHASE_ONE:
                     events.ScheduleEvent(EVENT_ARCANE_BREATH, 8s, 10s, 0, _phase);
-                    events.ScheduleEvemt(EVENT_ARCANE_STORM, 3s, 6s, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_STORM, 3s, 6s, 0, _phase);
                     events.ScheduleEvent(EVENT_VORTEX, 30s, 35s, 0, _phase);
                     events.ScheduleEvent(EVENT_POWER_SPARKS, 20s, 30s, 0, _phase);
                     break;
@@ -554,7 +554,7 @@ public:
                 case PHASE_THREE:
                     events.ScheduleEvent(EVENT_ARCANE_PULSE, 7*IN_MILLISECONDS, 0, _phase);
                     events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvemt(EVENT_SURGE_OF_POWER_P_THREE, 4s, 6s, 0, _phase);
+                    events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, 4s, 6s, 0, _phase);
                     events.ScheduleEvent(EVENT_STATIC_FIELD, 20s, 30s, 0, _phase);
                     break;
             }
