@@ -164,7 +164,7 @@ struct boss_auriaya : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_SONIC_SCREECH, 48s);
         events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, 38s);
-        events.ScheduleEvent(EVENT_SUMMON_DEFENDER, 1min;
+        events.ScheduleEvent(EVENT_SUMMON_DEFENDER, 1min);
         events.ScheduleEvent(EVENT_SWARNING_GUARDIAN, 51s);
         events.ScheduleEvent(EVENT_BERSERK, 10min);
     }

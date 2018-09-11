@@ -257,7 +257,7 @@ public:
                     events.ScheduleEvent(EVENT_CORROSION, urand(10000, 20000));
                     events.ScheduleEvent(EVENT_GAS_NOVA, urand(15000, 20000));
                     events.ScheduleEvent(EVENT_ENCAPSULATE, urand(20000, 25000));
-                    events.ScheduleEvent(EVENT_FLIGHT, 1min;
+                    events.ScheduleEvent(EVENT_FLIGHT, 1min);
                     break;
                 case PHASE_FLIGHT:
                     me->SetDisableGravity(true);

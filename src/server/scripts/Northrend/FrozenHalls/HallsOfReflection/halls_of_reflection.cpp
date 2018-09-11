@@ -1938,7 +1938,7 @@ class npc_frostsworn_general : public CreatureScript
                             break;
                         case EVENT_CLONE:
                             SummonClones();
-                            _events.ScheduleEvent(EVENT_CLONE, 1min;
+                            _events.ScheduleEvent(EVENT_CLONE, 1min);
                             break;
                         default:
                             break;

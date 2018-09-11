@@ -1154,7 +1154,7 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
         {
             case DATA_ACTIVE:
                 _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, 1s, 2s);
-                _events.ScheduleEvent(EVENT_INFERNAL_RAIN_STOP, 1min;
+                _events.ScheduleEvent(EVENT_INFERNAL_RAIN_STOP, 1min);
                 break;
             default:
                 break;
@@ -1220,7 +1220,7 @@ struct npc_fear_controller : public ScriptedAI
         if (data == DATA_ACTIVE)
         {
             _events.ScheduleEvent(EVENT_FEAR_CAST, 1s);
-            _events.ScheduleEvent(EVENT_FEAR_STOP, 1min;
+            _events.ScheduleEvent(EVENT_FEAR_STOP, 1min);
         }
     }
 

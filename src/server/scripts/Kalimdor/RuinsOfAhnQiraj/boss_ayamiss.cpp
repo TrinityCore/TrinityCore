@@ -145,7 +145,7 @@ class boss_ayamiss : public CreatureScript
                 events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
                 events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
                 events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
-                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min;
+                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
                 events.ScheduleEvent(EVENT_PARALYZE, 15s);
 
                 me->SetCanFly(true);
@@ -216,7 +216,7 @@ class boss_ayamiss : public CreatureScript
                                         swarmer->AI()->AttackStart(target);
 
                             _swarmers.clear();
-                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min;
+                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
                             break;
                         case EVENT_SUMMON_SWARMER:
                         {

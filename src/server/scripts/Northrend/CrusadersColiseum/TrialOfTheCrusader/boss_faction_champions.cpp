@@ -828,7 +828,7 @@ class npc_toc_druid : public CreatureScript
                             return;
                         case EVENT_NATURE_GRASP:
                             DoCast(me, SPELL_NATURE_GRASP);
-                            events.ScheduleEvent(EVENT_NATURE_GRASP, 1min;
+                            events.ScheduleEvent(EVENT_NATURE_GRASP, 1min);
                             return;
                         default:
                             return;
@@ -2109,7 +2109,7 @@ class npc_toc_retro_paladin : public CreatureScript
                         case EVENT_REPENTANCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_REPENTANCE);
-                            events.ScheduleEvent(EVENT_REPENTANCE, 1min;
+                            events.ScheduleEvent(EVENT_REPENTANCE, 1min);
                             return;
                         case EVENT_DPS_HAND_OF_PROTECTION:
                             if (Unit* target = DoSelectLowestHpFriendly(30.0f))

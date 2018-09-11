@@ -97,7 +97,7 @@ struct boss_amanitar : public BossAI
         events.ScheduleEvent(EVENT_BOLT, 15s, 20s);
         events.ScheduleEvent(EVENT_MINI, 12s, 18s);
         events.ScheduleEvent(EVENT_SPAWN, 1s);
-        events.ScheduleEvent(EVENT_RESPAWN, 40s, 1min;
+        events.ScheduleEvent(EVENT_RESPAWN, 40s, 1min);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override

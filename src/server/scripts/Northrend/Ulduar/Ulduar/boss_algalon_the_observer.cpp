@@ -596,7 +596,7 @@ struct boss_algalon_the_observer : public BossAI
                     Talk(EMOTE_ALGALON_COLLAPSING_STAR);
                     for (uint8 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
                         me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TEMPSUMMON_CORPSE_DESPAWN);
-                    events.Repeat(1min;
+                    events.Repeat(1min);
                     break;
                 case EVENT_BIG_BANG:
                 {

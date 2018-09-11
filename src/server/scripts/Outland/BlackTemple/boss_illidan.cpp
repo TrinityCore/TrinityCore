@@ -1630,7 +1630,7 @@ struct npc_maiev : public ScriptedAI
         _events.ScheduleEvent(EVENT_MAIEV_APPEAR, 1s);
         _events.ScheduleEvent(EVENT_MAIEV_EXCLAMATION, 2s);
         _events.ScheduleEvent(EVENT_MAIEV_JUSTICE_TEXT, 14s);
-        _events.ScheduleEvent(EVENT_TAUNT, 20s, 1min;
+        _events.ScheduleEvent(EVENT_TAUNT, 20s, 1min);
         _canDown = true;
     }
 
