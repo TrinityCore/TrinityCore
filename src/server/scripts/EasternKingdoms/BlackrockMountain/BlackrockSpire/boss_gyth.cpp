@@ -82,9 +82,9 @@ public:
         {
             _JustEngagedWith();
 
-            events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(8000, 16000));
-            events.ScheduleEvent(EVENT_FREEZE, urand(8000, 16000));
-            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8s, 16s);
+            events.ScheduleEvent(EVENT_FREEZE, 8s, 16s);
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 8s, 16s);
             events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(12000, 18000));
         }
 

@@ -106,7 +106,7 @@ class boss_sjonnir : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(3000, 8000));
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 3s, 8s);
                 events.ScheduleEvent(EVENT_LIGHTNING_SHIELD, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_STATIC_CHARGE, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_LIGHTNING_RING, urand(30000, 35000));

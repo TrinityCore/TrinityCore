@@ -106,7 +106,7 @@ public:
                     break;
                 case EVENT_ARCANE_VOLLEY:
                     DoCast(me, SPELL_ARCANE_VOLLEY);
-                    events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(7000, 12000));
+                    events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 7s, 12s);
                     break;
                 case EVENT_SLOW:
                     DoCast(me, SPELL_SLOW);

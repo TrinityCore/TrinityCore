@@ -116,7 +116,7 @@ class boss_prince_taldaram : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BLOODTHIRST, 10s);
-                events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
+                events.ScheduleEvent(EVENT_VANISH, 25s, 35s);
                 events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 5s);
             }
 
@@ -199,7 +199,7 @@ class boss_prince_taldaram : public CreatureScript
                                 events.DelayEvents(500);
                                 events.ScheduleEvent(EVENT_START_FEEDING, 2s);
                             }
-                            events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_VANISH, 25s, 35s);
                             break;
                         }
                         case EVENT_START_FEEDING:

@@ -64,7 +64,7 @@ public:
             events.Reset();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_FIREBALL, 100ms);
-            events.ScheduleEvent(EVENT_FIRE_NOVA, urand(8000, 12000));
+            events.ScheduleEvent(EVENT_FIRE_NOVA, 8s, 12s);
         }
 
         void JustDied(Unit* /*killer*/) override

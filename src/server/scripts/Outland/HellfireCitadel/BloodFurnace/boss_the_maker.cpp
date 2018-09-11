@@ -85,7 +85,7 @@ class boss_the_maker : public CreatureScript
                     case EVENT_EXPLODING_BREAKER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                             DoCast(target, SPELL_EXPLODING_BREAKER);
-                        events.ScheduleEvent(EVENT_EXPLODING_BREAKER, urand(4000, 12000));
+                        events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 4s, 12s);
                         break;
                     case EVENT_DOMINATION:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -94,7 +94,7 @@ class boss_the_maker : public CreatureScript
                         break;
                     case EVENT_KNOCKDOWN:
                         DoCastVictim(SPELL_KNOCKDOWN);
-                        events.ScheduleEvent(EVENT_KNOCKDOWN, urand(4000, 12000));
+                        events.ScheduleEvent(EVENT_KNOCKDOWN, 4s, 12s);
                         break;
                     default:
                         break;

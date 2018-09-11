@@ -1002,7 +1002,7 @@ public:
             if (events.ExecuteEvent() == EVENT_FADE_ARMOR)
             {
                 DoCastVictim(SPELL_FADE_ARMOR);
-                events.ScheduleEvent(EVENT_FADE_ARMOR, urand(5000, 10000));
+                events.ScheduleEvent(EVENT_FADE_ARMOR, 5s, 10s);
             }
 
             DoMeleeAttackIfReady();

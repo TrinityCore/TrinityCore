@@ -87,8 +87,8 @@ class boss_dalliah_the_doomsayer : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, urand(1000, 4000));
-                events.ScheduleEvent(EVENT_WHIRLWIND, urand(7000, 9000));
+                events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, 1s, 4s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 7s, 9s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
                 events.ScheduleEvent(EVENT_ME_FIRST, 6s);

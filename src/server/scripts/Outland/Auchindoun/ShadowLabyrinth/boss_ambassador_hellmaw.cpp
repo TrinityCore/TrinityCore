@@ -73,7 +73,7 @@ class boss_ambassador_hellmaw : public CreatureScript
                 _events.Reset();
                 _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, NOT_STARTED);
 
-                _events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(5000, 10000));
+                _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5s, 10s);
                 _events.ScheduleEvent(EVENT_FEAR, urand(25000, 30000));
                 if (IsHeroic())
                     _events.ScheduleEvent(EVENT_BERSERK, 180000);

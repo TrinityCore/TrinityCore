@@ -81,11 +81,11 @@ public:
                         break;
                     case EVENT_BLASTWAVE:
                         DoCastVictim(SPELL_BLASTWAVE);
-                        events.ScheduleEvent(EVENT_BLASTWAVE, urand(8000, 16000));
+                        events.ScheduleEvent(EVENT_BLASTWAVE, 8s, 16s);
                         break;
                     case EVENT_MORTALSTRIKE:
                         DoCastVictim(SPELL_MORTALSTRIKE);
-                        events.ScheduleEvent(EVENT_MORTALSTRIKE, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_MORTALSTRIKE, 25s, 35s);
                         break;
                     case EVENT_KNOCKBACK:
                         DoCastVictim(SPELL_KNOCKBACK);

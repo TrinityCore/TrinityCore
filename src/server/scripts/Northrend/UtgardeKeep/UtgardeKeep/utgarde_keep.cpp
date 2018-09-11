@@ -274,7 +274,7 @@ class npc_enslaved_proto_drake : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
+                _events.ScheduleEvent(EVENT_REND, 2s, 3s);
                 _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
                 _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
             }
@@ -313,11 +313,11 @@ class npc_enslaved_proto_drake : public CreatureScript
                     {
                         case EVENT_REND:
                             DoCast(SPELL_REND);
-                            _events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
+                            _events.ScheduleEvent(EVENT_REND, 15s, 20s);
                             break;
                         case EVENT_FLAME_BREATH:
                             DoCast(SPELL_FLAME_BREATH);
-                            _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
+                            _events.ScheduleEvent(EVENT_FLAME_BREATH, 11s, 12s);
                             break;
                         case EVENT_KNOCKAWAY:
                             DoCast(SPELL_KNOCK_AWAY);

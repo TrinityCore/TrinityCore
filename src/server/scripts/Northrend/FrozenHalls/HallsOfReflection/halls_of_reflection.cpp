@@ -1511,7 +1511,7 @@ class npc_ghostly_priest : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(6000, 15000));
+                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 6s, 15s);
                 _events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12s);
                 _events.ScheduleEvent(EVENT_COWER_IN_FEAR, 10s);
                 _events.ScheduleEvent(EVENT_DARK_MENDING, 20s);
@@ -1532,7 +1532,7 @@ class npc_ghostly_priest : public CreatureScript
                     case EVENT_SHADOW_WORD_PAIN:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_SHADOW_WORD_PAIN);
-                        _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(6000, 15000));
+                        _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 6s, 15s);
                         break;
                     case EVENT_CIRCLE_OF_DESTRUCTION:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f, true))
@@ -1929,12 +1929,12 @@ class npc_frostsworn_general : public CreatureScript
                         case EVENT_SHIELD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                 DoCast(target, SPELL_SHIELD_THROWN);
-                            _events.ScheduleEvent(EVENT_SHIELD, urand(8000, 12000));
+                            _events.ScheduleEvent(EVENT_SHIELD, 8s, 12s);
                             break;
                         case EVENT_SPIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                 DoCast(target, SPELL_SPIKE);
-                            _events.ScheduleEvent(EVENT_SPIKE, urand(15000, 20000));
+                            _events.ScheduleEvent(EVENT_SPIKE, 15s, 20s);
                             break;
                         case EVENT_CLONE:
                             SummonClones();
@@ -2013,7 +2013,7 @@ class npc_spiritual_reflection : public CreatureScript
                     case EVENT_BALEFUL_STRIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 8.0f, true))
                             DoCast(target, SPELL_BALEFUL_STRIKE);
-                        _events.ScheduleEvent(EVENT_BALEFUL_STRIKE, urand(3000, 8000));
+                        _events.ScheduleEvent(EVENT_BALEFUL_STRIKE, 3s, 8s);
                         break;
                     default:
                         break;
@@ -2305,17 +2305,17 @@ class npc_risen_witch_doctor : public CreatureScript
                     case EVENT_RISEN_WITCH_DOCTOR_CURSE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                             DoCast(target, SPELL_CURSE_OF_DOOM);
-                        _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_CURSE, urand(10000, 15000));
+                        _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_CURSE, 10s, 15s);
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 20.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
-                        _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT, urand(2000, 3000));
+                        _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT, 2s, 3s);
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT_VOLLEY:
                         if (SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                             DoCastAOE(SPELL_SHADOW_BOLT_VOLLEY);
-                        _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT_VOLLEY, urand(15000, 22000));
+                        _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT_VOLLEY, 15s, 22s);
                         break;
                     default:
                         break;
@@ -2363,11 +2363,11 @@ class npc_lumbering_abomination : public CreatureScript
                 {
                     case EVENT_LUMBERING_ABOMINATION_VOMIT_SPRAY:
                         DoCastVictim(SPELL_VOMIT_SPRAY);
-                        _events.ScheduleEvent(EVENT_LUMBERING_ABOMINATION_VOMIT_SPRAY, urand(15000, 20000));
+                        _events.ScheduleEvent(EVENT_LUMBERING_ABOMINATION_VOMIT_SPRAY, 15s, 20s);
                         break;
                     case EVENT_LUMBERING_ABOMINATION_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        _events.ScheduleEvent(EVENT_LUMBERING_ABOMINATION_CLEAVE, urand(7000, 9000));
+                        _events.ScheduleEvent(EVENT_LUMBERING_ABOMINATION_CLEAVE, 7s, 9s);
                         break;
                     default:
                         break;

@@ -80,11 +80,11 @@ class boss_garr : public CreatureScript
                     {
                         case EVENT_ANTIMAGIC_PULSE:
                             DoCast(me, SPELL_ANTIMAGIC_PULSE);
-                            events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 10s, 15s);
                             break;
                         case EVENT_MAGMA_SHACKLES:
                             DoCast(me, SPELL_MAGMA_SHACKLES);
-                            events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(8000, 12000));
+                            events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 8s, 12s);
                             break;
                         default:
                             break;

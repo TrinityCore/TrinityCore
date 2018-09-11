@@ -875,7 +875,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _events.SetPhase(PHASE_COMBAT);
                 DoCast(me, _instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_FRIENDLY_BOSS_DAMAGE_MOD : SPELL_MELEE_TARGETING_ON_ORGRIMS_HAMMER, true);
                 DoCast(me, SPELL_BATTLE_FURY, true);
-                _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
+                _events.ScheduleEvent(EVENT_CLEAVE, 2s, 10s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -1018,7 +1018,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == IN_PROGRESS)
                             {
                                 _instance->DoCastSpellOnPlayers(SPELL_LOCK_PLAYERS_AND_TAP_CHEST);
-                                _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, urand(5000, 8000));
+                                _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, 5s, 8s);
                             }
                             break;
                         case EVENT_SUMMON_MAGE:
@@ -1067,7 +1067,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
+                            _events.ScheduleEvent(EVENT_CLEAVE, 2s, 10s);
                             break;
                         default:
                             break;
@@ -1139,7 +1139,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _events.SetPhase(PHASE_COMBAT);
                 DoCast(me, _instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPELL_FRIENDLY_BOSS_DAMAGE_MOD : SPELL_MELEE_TARGETING_ON_SKYBREAKER, true);
                 DoCast(me, SPELL_BATTLE_FURY, true);
-                _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
+                _events.ScheduleEvent(EVENT_CLEAVE, 2s, 10s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -1286,7 +1286,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == IN_PROGRESS)
                             {
                                 _instance->DoCastSpellOnPlayers(SPELL_LOCK_PLAYERS_AND_TAP_CHEST);
-                                _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, urand(5000, 8000));
+                                _events.ScheduleEvent(EVENT_KEEP_PLAYER_IN_COMBAT, 5s, 8s);
                             }
                             break;
                         case EVENT_SUMMON_MAGE:
@@ -1335,7 +1335,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
+                            _events.ScheduleEvent(EVENT_CLEAVE, 2s, 10s);
                             break;
                         default:
                             break;
@@ -1560,7 +1560,7 @@ class npc_gunship_boarding_leader : public CreatureScript
             {
                 npc_gunship_boarding_addAI::JustEngagedWith(target);
                 _events.ScheduleEvent(EVENT_BLADESTORM, urand(13000, 18000));
-                _events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(8000, 10000));
+                _events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 8s, 10s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1589,7 +1589,7 @@ class npc_gunship_boarding_leader : public CreatureScript
                             break;
                         case EVENT_WOUNDING_STRIKE:
                             DoCastVictim(SPELL_WOUNDING_STRIKE);
-                            _events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(9000, 13000));
+                            _events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 9s, 13s);
                             break;
                         default:
                             break;

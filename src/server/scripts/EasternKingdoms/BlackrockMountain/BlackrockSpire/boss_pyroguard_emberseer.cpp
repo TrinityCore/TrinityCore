@@ -383,7 +383,7 @@ public:
                     DoZoneInCombat(creature);    // AI()->AttackStart(me->GetVictim());
             }
 
-            _events.ScheduleEvent(EVENT_STRIKE, urand(8000, 16000));
+            _events.ScheduleEvent(EVENT_STRIKE, 8s, 16s);
             _events.ScheduleEvent(EVENT_ENCAGE, urand(10000, 20000));
         }
 
@@ -425,7 +425,7 @@ public:
                         break;
                     case EVENT_ENCAGE:
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), EVENT_ENCAGE, true);
-                        _events.ScheduleEvent(EVENT_ENCAGE, urand(6000, 12000));
+                        _events.ScheduleEvent(EVENT_ENCAGE, 6s, 12s);
                         break;
                     default:
                         break;

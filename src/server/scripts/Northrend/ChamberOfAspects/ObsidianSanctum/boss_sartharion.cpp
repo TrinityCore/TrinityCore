@@ -460,7 +460,7 @@ public:
                         break;
                     case EVENT_CLEAVE_ATTACK:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE_ATTACK, urand(7000, 10000));
+                        events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7s, 10s);
                         break;
                     case EVENT_LAVA_STRIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))

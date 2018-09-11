@@ -81,7 +81,7 @@ class boss_falric : public CreatureScript
 
                 events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23s);
                 events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9s);
-                events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(21000, 39000));
+                events.ScheduleEvent(EVENT_DEFILING_HORROR, 21s, 39s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -136,7 +136,7 @@ class boss_falric : public CreatureScript
                         break;
                     case EVENT_DEFILING_HORROR:
                         DoCastAOE(SPELL_DEFILING_HORROR);
-                        events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(21000, 39000));
+                        events.ScheduleEvent(EVENT_DEFILING_HORROR, 21s, 39s);
                         break;
                     default:
                         break;

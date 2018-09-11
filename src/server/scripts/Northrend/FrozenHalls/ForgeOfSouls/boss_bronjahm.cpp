@@ -85,7 +85,7 @@ class boss_bronjahm : public CreatureScript
                 _Reset();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
-                events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
             }
 
@@ -169,7 +169,7 @@ class boss_bronjahm : public CreatureScript
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastAOE(SPELL_MAGIC_S_BANE);
-                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                            events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (events.IsInPhase(PHASE_2))

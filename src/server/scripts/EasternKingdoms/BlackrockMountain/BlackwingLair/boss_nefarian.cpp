@@ -215,7 +215,7 @@ public:
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetImmuneToPC(false);
             AttackStart(target);
-            events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 10000));
+            events.ScheduleEvent(EVENT_SHADOW_BOLT, 3s, 10s);
             events.ScheduleEvent(EVENT_FEAR, urand(10000, 20000));
             //events.ScheduleEvent(EVENT_MIND_CONTROL, urand(30000, 35000));
             events.ScheduleEvent(EVENT_SPAWN_ADD, 10s);
@@ -322,7 +322,7 @@ public:
                                     break;
                             }
                             ResetThreatList();
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 10000));
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 3s, 10s);
                             break;
                         case EVENT_FEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))

@@ -72,7 +72,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
+                events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
                 events.ScheduleEvent(EVENT_KNOCKBACK, urand(22000, 28000));
@@ -109,7 +109,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                     {
                         case EVENT_FROST_ATTACK:
                             DoCastVictim(SPELL_FROST_ATTACK, true);
-                            events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
                             break;
                         case EVENT_ARCANE_BLAST:
                             DoCastVictim(SPELL_ARCANE_BLAST, true);

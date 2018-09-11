@@ -386,7 +386,7 @@ class npc_precious_icc : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, 3s, 7s);
                 _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
                 _summons.DespawnAll();
             }

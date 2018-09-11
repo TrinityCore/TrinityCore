@@ -247,14 +247,14 @@ class boss_tyrannus : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             DoCast(me, SPELL_FULL_HEAL);
                             DoZoneInCombat();
-                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(5000, 7000));
-                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(14000, 16000));
-                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(25000, 27000));
+                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, 5s, 7s);
+                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 14s, 16s);
+                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25s, 27s);
                             break;
                         case EVENT_OVERLORD_BRAND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_OVERLORD_BRAND);
-                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(11000, 12000));
+                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, 11s, 12s);
                             break;
                         case EVENT_FORCEFUL_SMASH:
                             DoCastVictim(SPELL_FORCEFUL_SMASH);
@@ -264,7 +264,7 @@ class boss_tyrannus : public CreatureScript
                             Talk(SAY_DARK_MIGHT_1);
                             Talk(SAY_DARK_MIGHT_2);
                             DoCast(me, SPELL_UNHOLY_POWER);
-                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(40000, 48000));
+                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 40s, 48s);
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
                             Talk(SAY_MARK_RIMEFANG_1);
@@ -273,7 +273,7 @@ class boss_tyrannus : public CreatureScript
                                 Talk(SAY_MARK_RIMEFANG_2, target);
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
                             }
-                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(24000, 26000));
+                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 24s, 26s);
                             break;
                     }
 

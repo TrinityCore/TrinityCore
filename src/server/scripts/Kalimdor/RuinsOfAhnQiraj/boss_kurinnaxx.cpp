@@ -67,7 +67,7 @@ class boss_kurinnaxx : public CreatureScript
                 _Reset();
                 Initialize();
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
-                events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
+                events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
                 events.ScheduleEvent(EVENT_TRASH, 1s);
                 events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
             }
@@ -111,7 +111,7 @@ class boss_kurinnaxx : public CreatureScript
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
                             else if (Unit* victim = me->GetVictim())
                                 victim->CastSpell(victim, SPELL_SANDTRAP, true);
-                            events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
                             break;
                         case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);

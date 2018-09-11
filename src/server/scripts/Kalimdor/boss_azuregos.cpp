@@ -74,9 +74,9 @@ class boss_azuregos : public CreatureScript
                 _enraged = false;
 
                 events.ScheduleEvent(EVENT_MARK_OF_FROST, 35s);
-                events.ScheduleEvent(EVENT_MANA_STORM, urand(5000, 17000));
+                events.ScheduleEvent(EVENT_MANA_STORM, 5s, 17s);
                 events.ScheduleEvent(EVENT_CHILL, urand(10000, 30000));
-                events.ScheduleEvent(EVENT_BREATH, urand(2000, 8000));
+                events.ScheduleEvent(EVENT_BREATH, 2s, 8s);
                 events.ScheduleEvent(EVENT_TELEPORT, 30s);
                 events.ScheduleEvent(EVENT_REFLECT, urand(15000, 30000));
                 events.ScheduleEvent(EVENT_CLEAVE, 7s);

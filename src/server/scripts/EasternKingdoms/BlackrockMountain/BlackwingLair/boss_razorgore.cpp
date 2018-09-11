@@ -139,7 +139,7 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(7000, 10000));
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s, 10s);
                         break;
                     case EVENT_STOMP:
                         DoCastVictim(SPELL_WARSTOMP);

@@ -104,7 +104,7 @@ class boss_interrogator_vishas : public CreatureScript
                 {
                     case EVENT_SHADOW_WORD_PAIN:
                         DoCastVictim(SPELL_SHADOW_WORD_PAIN);
-                        events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(5000, 15000));
+                        events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5s, 15s);
                         break;
                     default:
                         break;

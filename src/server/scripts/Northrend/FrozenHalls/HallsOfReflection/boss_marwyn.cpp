@@ -68,10 +68,10 @@ class boss_marwyn : public CreatureScript
                 DoZoneInCombat();
                 instance->SetBossState(DATA_MARWYN, IN_PROGRESS);
 
-                events.ScheduleEvent(EVENT_OBLITERATE, urand(8000, 13000));
+                events.ScheduleEvent(EVENT_OBLITERATE, 8s, 13s);
                 events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 12s);
                 events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20s);
-                events.ScheduleEvent(EVENT_SHARED_SUFFERING, urand(14000, 15000));
+                events.ScheduleEvent(EVENT_SHARED_SUFFERING, 14s, 15s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -101,7 +101,7 @@ class boss_marwyn : public CreatureScript
                 {
                     case EVENT_OBLITERATE:
                         DoCastVictim(SPELL_OBLITERATE);
-                        events.ScheduleEvent(EVENT_OBLITERATE, urand(8000, 13000));
+                        events.ScheduleEvent(EVENT_OBLITERATE, 8s, 13s);
                         break;
                     case EVENT_WELL_OF_CORRUPTION:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -116,7 +116,7 @@ class boss_marwyn : public CreatureScript
                     case EVENT_SHARED_SUFFERING:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_SHARED_SUFFERING);
-                        events.ScheduleEvent(EVENT_SHARED_SUFFERING, urand(14000, 15000));
+                        events.ScheduleEvent(EVENT_SHARED_SUFFERING, 14s, 15s);
                         break;
                     default:
                         break;

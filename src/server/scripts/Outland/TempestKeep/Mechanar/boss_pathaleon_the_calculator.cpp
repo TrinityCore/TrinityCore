@@ -83,7 +83,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 events.ScheduleEvent(EVENT_MANA_TAP, urand(12000, 20000));
                 events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(16000, 25000));
                 events.ScheduleEvent(EVENT_DOMINATION, urand(25000, 40000));
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 13000));
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 13s);
                 Talk(SAY_AGGRO);
             }
 

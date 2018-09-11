@@ -84,7 +84,7 @@ class boss_gahzranka : public CreatureScript // gahzranka
                     {
                         case EVENT_FROSTBREATH:
                             DoCastVictim(SPELL_FROSTBREATH, true);
-                            events.ScheduleEvent(EVENT_FROSTBREATH, urand(7000, 11000));
+                            events.ScheduleEvent(EVENT_FROSTBREATH, 7s, 11s);
                             break;
                         case EVENT_MASSIVEGEYSER:
                             DoCastVictim(SPELL_MASSIVEGEYSER, true);

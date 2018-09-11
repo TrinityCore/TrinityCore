@@ -661,7 +661,7 @@ class npc_hodir_priest : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_HEAL, urand(4000, 8000));
+                events.ScheduleEvent(EVENT_HEAL, 4s, 8s);
                 events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000));
             }
 

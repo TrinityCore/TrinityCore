@@ -73,7 +73,7 @@ class boss_doomlord_kazzak : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(6000, 10000));
+                _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 6s, 10s);
                 _events.ScheduleEvent(EVENT_CLEAVE, 7s);
                 _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
                 _events.ScheduleEvent(EVENT_VOID_BOLT, 30s);
@@ -126,11 +126,11 @@ class boss_doomlord_kazzak : public CreatureScript
                     {
                         case EVENT_SHADOW_VOLLEY:
                             DoCastVictim(SPELL_SHADOW_VOLLEY);
-                            _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(4000, 6000));
+                            _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 4s, 6s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 12000));
+                            _events.ScheduleEvent(EVENT_CLEAVE, 8s, 12s);
                             break;
                         case EVENT_THUNDERCLAP:
                             DoCastVictim(SPELL_THUNDERCLAP);

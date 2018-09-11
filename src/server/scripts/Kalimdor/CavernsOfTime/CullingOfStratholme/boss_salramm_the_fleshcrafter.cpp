@@ -67,7 +67,7 @@ class boss_salramm : public CreatureScript
 
                 events.ScheduleEvent(EVENT_CURSE_FLESH, 30s);
                 events.ScheduleEvent(EVENT_SUMMON_GHOULS, urand(19000, 24000));
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 8s, 12s);
                 events.ScheduleEvent(EVENT_STEAL_FLESH, 12345); /// @todo: adjust timer
             }
 
@@ -88,7 +88,7 @@ class boss_salramm : public CreatureScript
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 8s, 12s);
                         break;
                     case EVENT_STEAL_FLESH:
                         Talk(SAY_STEAL_FLESH);

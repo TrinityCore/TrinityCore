@@ -207,7 +207,7 @@ class boss_ragnaros : public CreatureScript
                         {
                             case EVENT_ERUPTION:
                                 DoCastVictim(SPELL_ERRUPTION);
-                                events.ScheduleEvent(EVENT_ERUPTION, urand(20000, 45000));
+                                events.ScheduleEvent(EVENT_ERUPTION, 20s, 45s);
                                 break;
                             case EVENT_WRATH_OF_RAGNAROS:
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
@@ -227,7 +227,7 @@ class boss_ragnaros : public CreatureScript
                                 break;
                             case EVENT_ELEMENTAL_FIRE:
                                 DoCastVictim(SPELL_ELEMENTAL_FIRE);
-                                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, urand(10000, 14000));
+                                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 10s, 14s);
                                 break;
                             case EVENT_MAGMA_BLAST:
                                 if (!me->IsWithinMeleeRange(me->GetVictim()))

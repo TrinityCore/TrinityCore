@@ -114,17 +114,17 @@ class boss_darkmaster_gandling : public CreatureScript
                             break;
                         case EVENT_SHADOWSHIELD:
                             DoCast(me, SPELL_SHADOWSHIELD);
-                            events.ScheduleEvent(EVENT_SHADOWSHIELD, urand(14000, 28000));
+                            events.ScheduleEvent(EVENT_SHADOWSHIELD, 14s, 28s);
                             break;
                         case EVENT_CURSE:
                             DoCastVictim(SPELL_CURSE, true);
-                            events.ScheduleEvent(EVENT_CURSE, urand(15000, 27000));
+                            events.ScheduleEvent(EVENT_CURSE, 15s, 27s);
                             break;
                         case EVENT_SHADOW_PORTAL:
                             if (HealthAbovePct(3))
                             {
                                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOW_PORTAL, true);
-                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, urand(17000, 27000));
+                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 17s, 27s);
                             }
                     }
 

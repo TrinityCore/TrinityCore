@@ -205,11 +205,11 @@ class boss_skarvald_the_constructor : public CreatureScript
                     case EVENT_SKARVALD_CHARGE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SkarvaldChargePredicate(me)))
                             DoCast(target, SPELL_CHARGE);
-                        events.ScheduleEvent(EVENT_CHARGE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_CHARGE, 5s, 10s);
                         break;
                     case EVENT_STONE_STRIKE:
                         DoCastVictim(SPELL_STONE_STRIKE);
-                        events.ScheduleEvent(EVENT_STONE_STRIKE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_STONE_STRIKE, 5s, 10s);
                         break;
                     default:
                         generic_boss_controllerAI::ExecuteEvent(eventId);
@@ -273,11 +273,11 @@ class boss_dalronn_the_controller : public CreatureScript
                     case EVENT_DEBILITATE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             DoCast(target, SPELL_DEBILITATE);
-                        events.ScheduleEvent(EVENT_DEBILITATE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_DEBILITATE, 5s, 10s);
                         break;
                     case EVENT_SUMMON_SKELETONS:
                         DoCast(me, SPELL_SUMMON_SKELETONS);
-                        events.ScheduleEvent(EVENT_SUMMON_SKELETONS, urand(10000, 30000));
+                        events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s, 30s);
                         break;
                     case EVENT_DELAYED_AGGRO_SAY:
                         Talk(SAY_AGGRO);

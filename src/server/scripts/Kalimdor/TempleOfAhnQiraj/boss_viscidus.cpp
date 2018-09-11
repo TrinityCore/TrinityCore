@@ -191,7 +191,7 @@ class boss_viscidus : public CreatureScript
             {
                 DoCast(me, SPELL_TOXIN);
                 events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
-                events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
+                events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -237,7 +237,7 @@ class boss_viscidus : public CreatureScript
                             break;
                         case EVENT_POISON_SHOCK:
                             DoCast(me, SPELL_POISON_SHOCK);
-                            events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
+                            events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
                             break;
                         case EVENT_RESET_PHASE:
                             _hitcounter = 0;

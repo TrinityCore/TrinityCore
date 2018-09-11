@@ -171,8 +171,8 @@ class boss_ayamiss : public CreatureScript
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
                     ResetThreatList();
-                    events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
-                    events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));
+                    events.ScheduleEvent(EVENT_LASH, 5s, 8s);
+                    events.ScheduleEvent(EVENT_TRASH, 3s, 6s);
                     events.CancelEvent(EVENT_POISON_STINGER);
                 }
                 else
@@ -197,7 +197,7 @@ class boss_ayamiss : public CreatureScript
                             break;
                         case EVENT_POISON_STINGER:
                             DoCastVictim(SPELL_POISON_STINGER);
-                            events.ScheduleEvent(EVENT_POISON_STINGER, urand(2000, 3000));
+                            events.ScheduleEvent(EVENT_POISON_STINGER, 2s, 3s);
                             break;
                         case EVENT_PARALYZE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
@@ -227,11 +227,11 @@ class boss_ayamiss : public CreatureScript
                         }
                         case EVENT_TRASH:
                             DoCastVictim(SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_TRASH, urand(5000, 7000));
+                            events.ScheduleEvent(EVENT_TRASH, 5s, 7s);
                             break;
                         case EVENT_LASH:
                             DoCastVictim(SPELL_LASH);
-                            events.ScheduleEvent(EVENT_LASH, urand(8000, 15000));
+                            events.ScheduleEvent(EVENT_LASH, 8s, 15s);
                             break;
                     }
                 }

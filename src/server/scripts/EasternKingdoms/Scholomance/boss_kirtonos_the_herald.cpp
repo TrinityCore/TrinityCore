@@ -89,14 +89,14 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                events.ScheduleEvent(EVENT_SWOOP, urand(8000, 8000));
-                events.ScheduleEvent(EVENT_WING_FLAP, urand(15000, 15000));
-                events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(18000, 18000));
-                events.ScheduleEvent(EVENT_DISARM, urand(22000, 22000));
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
-                events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(53000, 53000));
-                events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(34000, 48000));
-                events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
+                events.ScheduleEvent(EVENT_SWOOP, 8s, 8s);
+                events.ScheduleEvent(EVENT_WING_FLAP, 15s, 15s);
+                events.ScheduleEvent(EVENT_PIERCE_ARMOR, 18s, 18s);
+                events.ScheduleEvent(EVENT_DISARM, 22s, 22s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 42s, 42s);
+                events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 53s, 53s);
+                events.ScheduleEvent(EVENT_DOMINATE_MIND, 34s, 48s);
+                events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, 20s, 20s);
                 _JustEngagedWith();
             }
 
@@ -227,7 +227,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                             break;
                         case EVENT_DOMINATE_MIND:
                             DoCastVictim(SPELL_DOMINATE_MIND, true);
-                            events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(44000, 48000));
+                            events.ScheduleEvent(EVENT_DOMINATE_MIND, 44s, 48s);
                             break;
                         case EVENT_KIRTONOS_TRANSFORM:
                             if (me->HasAura(SPELL_KIRTONOS_TRANSFORM))
@@ -242,7 +242,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
                                 me->SetCanFly(true);
                             }
-                            events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(16000, 18000));
+                            events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, 16s, 18s);
                             break;
                         default:
                             break;

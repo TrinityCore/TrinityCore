@@ -517,7 +517,7 @@ class boss_sindragosa : public CreatureScript
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                             args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
                             me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, args);
-                            events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
+                            events.ScheduleEvent(EVENT_ICE_TOMB, 16s, 23s);
                             break;
                         }
                         case EVENT_FROST_BOMB:
@@ -528,7 +528,7 @@ class boss_sindragosa : public CreatureScript
                             destZ = 205.0f; // random number close to ground, get exact in next call
                             me->UpdateGroundPositionZ(destX, destY, destZ);
                             me->CastSpell({ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER, false);
-                            events.ScheduleEvent(EVENT_FROST_BOMB, urand(6000, 8000));
+                            events.ScheduleEvent(EVENT_FROST_BOMB, 6s, 8s);
                             break;
                         }
                         case EVENT_LAND:
@@ -550,8 +550,8 @@ class boss_sindragosa : public CreatureScript
                             if (!_isInAirPhase)
                             {
                                 Talk(SAY_PHASE_2);
-                                events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
-                                events.RescheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000));
+                                events.ScheduleEvent(EVENT_ICE_TOMB, 7s, 10s);
+                                events.ReScheduleEvent(EVENT_ICY_GRIP, 35s, 40s);
                                 DoCast(me, SPELL_MYSTIC_BUFFET, true);
                             }
                             else
@@ -684,9 +684,9 @@ class npc_spinestalker : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
-                _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
+                _events.ScheduleEvent(EVENT_BELLOWING_ROAR, 20s, 25s);
+                _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, 10s, 15s);
+                _events.ScheduleEvent(EVENT_TAIL_SWEEP, 8s, 12s);
 
                 if (!_summoned)
                 {
@@ -763,15 +763,15 @@ class npc_spinestalker : public CreatureScript
                     {
                         case EVENT_BELLOWING_ROAR:
                             DoCast(me, SPELL_BELLOWING_ROAR);
-                            _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(25000, 30000));
+                            _events.ScheduleEvent(EVENT_BELLOWING_ROAR, 25s, 30s);
                             break;
                         case EVENT_CLEAVE_SPINESTALKER:
                             DoCastVictim(SPELL_CLEAVE_SPINESTALKER);
-                            _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
+                            _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, 10s, 15s);
                             break;
                         case EVENT_TAIL_SWEEP:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(22000, 25000));
+                            _events.ScheduleEvent(EVENT_TAIL_SWEEP, 22s, 25s);
                             break;
                         default:
                             break;
@@ -823,8 +823,8 @@ class npc_rimefang : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
-                _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
+                _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, 12s, 15s);
+                _events.ScheduleEvent(EVENT_ICY_BLAST, 30s, 35s);
                 Initialize();
 
                 if (!_summoned)
@@ -907,7 +907,7 @@ class npc_rimefang : public CreatureScript
                     {
                         case EVENT_FROST_BREATH_RIMEFANG:
                             DoCast(me, SPELL_FROST_BREATH);
-                            _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(35000, 40000));
+                            _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, 35s, 40s);
                             break;
                         case EVENT_ICY_BLAST:
                         {
@@ -996,7 +996,7 @@ class npc_sindragosa_trash : public CreatureScript
                 if (me->GetEntry() == NPC_FROSTWARDEN_HANDLER)
                 {
                     _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3s);
-                    _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(8000, 10000));
+                    _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, 8s, 10s);
                 }
 
                 Initialize();
@@ -1046,7 +1046,7 @@ class npc_sindragosa_trash : public CreatureScript
                             break;
                         case EVENT_CONCUSSIVE_SHOCK:
                             DoCast(me, SPELL_CONCUSSIVE_SHOCK);
-                            _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(10000, 13000));
+                            _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, 10s, 13s);
                             break;
                         default:
                             break;

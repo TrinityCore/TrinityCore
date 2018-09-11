@@ -57,7 +57,7 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
+            events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 9s);
         }
 
         void DamageTaken(Unit* /*atacker*/, uint32 &damage) override

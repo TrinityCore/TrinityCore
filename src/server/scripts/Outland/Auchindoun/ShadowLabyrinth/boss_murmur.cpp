@@ -69,7 +69,7 @@ class boss_murmur : public CreatureScript
             {
                 _Reset();
                 events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
-                events.ScheduleEvent(EVENT_MURMURS_TOUCH, urand(8000, 20000));
+                events.ScheduleEvent(EVENT_MURMURS_TOUCH, 8s, 20s);
                 events.ScheduleEvent(EVENT_RESONANCE, 5s);
                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
                 if (IsHeroic())

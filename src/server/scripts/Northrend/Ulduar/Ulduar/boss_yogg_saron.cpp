@@ -1353,7 +1353,7 @@ class npc_crusher_tentacle : public CreatureScript
                 DoCast(me, SPELL_FOCUSED_ANGER);
                 DoCastAOE(SPELL_ERUPT);
 
-                _events.ScheduleEvent(EVENT_DIMINISH_POWER, urand(6000, 8000));
+                _events.ScheduleEvent(EVENT_DIMINISH_POWER, 6s, 8s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1474,7 +1474,7 @@ class npc_immortal_guardian : public CreatureScript
             {
                 DoCast(me, SPELL_EMPOWERED);
                 DoCast(me, SPELL_RECENTLY_SPAWNED);
-                _events.ScheduleEvent(EVENT_DRAIN_LIFE, urand(3000, 13000));
+                _events.ScheduleEvent(EVENT_DRAIN_LIFE, 3s, 13s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override

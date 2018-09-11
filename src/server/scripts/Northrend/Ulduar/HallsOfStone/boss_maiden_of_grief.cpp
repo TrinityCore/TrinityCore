@@ -66,7 +66,7 @@ class boss_maiden_of_grief : public CreatureScript
                     events.ScheduleEvent(EVENT_PARTING_SORROW, urand(25000, 30000));
                 events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10s);
                 events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 15000));
+                events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
@@ -125,7 +125,7 @@ class boss_maiden_of_grief : public CreatureScript
                                 DoCast(target, SPELL_PILLAR_OF_WOE);
                             else
                                 DoCastVictim(SPELL_PILLAR_OF_WOE);
-                            events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 25000));
+                            events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 25s);
                             break;
                         default:
                             break;

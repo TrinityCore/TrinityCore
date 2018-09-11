@@ -253,10 +253,10 @@ public:
                     me->StopMoving();
                     me->SetSpeedRate(MOVE_RUN, 2.0f);
 
-                    events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
-                    events.ScheduleEvent(EVENT_CORROSION, urand(10000, 20000));
-                    events.ScheduleEvent(EVENT_GAS_NOVA, urand(15000, 20000));
-                    events.ScheduleEvent(EVENT_ENCAPSULATE, urand(20000, 25000));
+                    events.ScheduleEvent(EVENT_CLEAVE, 5s, 10s);
+                    events.ScheduleEvent(EVENT_CORROSION, 10s, 20s);
+                    events.ScheduleEvent(EVENT_GAS_NOVA, 15s, 20s);
+                    events.ScheduleEvent(EVENT_ENCAPSULATE, 20s, 25s);
                     events.ScheduleEvent(EVENT_FLIGHT, 1min);
                     break;
                 case PHASE_FLIGHT:
@@ -428,20 +428,20 @@ public:
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE, false);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_CLEAVE, 5s, 10s);
                         break;
                     case EVENT_CORROSION:
                         DoCastVictim(SPELL_CORROSION, false);
-                        events.ScheduleEvent(EVENT_CORROSION, urand(20000, 30000));
+                        events.ScheduleEvent(EVENT_CORROSION, 20s, 30s);
                         break;
                     case EVENT_GAS_NOVA:
                         DoCast(me, SPELL_GAS_NOVA, false);
-                        events.ScheduleEvent(EVENT_GAS_NOVA, urand(20000, 25000));
+                        events.ScheduleEvent(EVENT_GAS_NOVA, 20s, 25s);
                         break;
                     case EVENT_ENCAPSULATE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
                             DoCast(target, SPELL_ENCAPSULATE_CHANNEL, false);
-                        events.ScheduleEvent(EVENT_ENCAPSULATE, urand(25000, 30000));
+                        events.ScheduleEvent(EVENT_ENCAPSULATE, 25s, 30s);
                         break;
                     case EVENT_FLIGHT:
                         EnterPhase(PHASE_FLIGHT);

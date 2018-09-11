@@ -136,7 +136,7 @@ class boss_jindo : public CreatureScript
                                 DoCast(target, SPELL_SHADE_OF_JINDO, true);
                                 DoCast(target, SPELL_DELUSIONS_OF_JINDO);
                             }
-                            events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, urand(4000, 12000));
+                            events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, 4s, 12s);
                             break;
                         case EVENT_TELEPORT:
                             // Teleports a random player and spawns 9 Sacrificed Trolls to attack player

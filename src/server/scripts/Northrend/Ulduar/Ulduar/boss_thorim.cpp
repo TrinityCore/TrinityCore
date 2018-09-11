@@ -1147,11 +1147,11 @@ class npc_thorim_pre_phase : public CreatureScript
             {
                 _events.Reset();
                 if (_info->PrimaryAbility)
-                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, urand(3000, 6000));
+                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, 3s, 6s);
                 if (_info->SecondaryAbility)
                     _events.ScheduleEvent(EVENT_SECONDARY_ABILITY, _info->SecondaryAbility == SPELL_SHOOT ? 2000 : urand(12000, 15000));
                 if (_info->ThirdAbility)
-                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, urand(6000, 8000));
+                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, 6s, 8s);
                 if (_info->Type == MERCENARY_SOLDIER)
                     SetCombatMovement(false);
             }
@@ -1192,7 +1192,7 @@ class npc_thorim_pre_phase : public CreatureScript
                         break;
                     case EVENT_THIRD_ABILITY:
                         if (UseAbility(_info->ThirdAbility))
-                            _events.ScheduleEvent(eventId, urand(6000, 8000));
+                            _events.ScheduleEvent(eventId, 6s, 8s);
                         else
                             _events.ScheduleEvent(eventId, 1s);
                         break;
@@ -1250,11 +1250,11 @@ class npc_thorim_arena_phase : public CreatureScript
             {
                 _events.Reset();
                 if (_info->PrimaryAbility)
-                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, urand(3000, 6000));
+                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, 3s, 6s);
                 if (_info->SecondaryAbility)
-                    _events.ScheduleEvent(EVENT_SECONDARY_ABILITY, urand(7000, 9000));
+                    _events.ScheduleEvent(EVENT_SECONDARY_ABILITY, 7s, 9s);
                 if (_info->ThirdAbility)
-                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, urand(6000, 8000));
+                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, 6s, 8s);
                 if (_info->Type == DARK_RUNE_CHAMPION)
                     _events.ScheduleEvent(EVENT_ABILITY_CHARGE, 8s);
             }

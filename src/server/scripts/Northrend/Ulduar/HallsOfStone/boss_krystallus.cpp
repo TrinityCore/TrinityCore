@@ -68,11 +68,11 @@ class boss_krystallus : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_BOULDER_TOSS, urand(3000, 9000));
+                events.ScheduleEvent(EVENT_BOULDER_TOSS, 3s, 9s);
                 events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));
                 events.ScheduleEvent(EVENT_STOMP, urand(20000, 29000));
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_GROUND_SPIKE, urand(9000, 14000));
+                    events.ScheduleEvent(EVENT_GROUND_SPIKE, 9s, 14s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -93,7 +93,7 @@ class boss_krystallus : public CreatureScript
                         case EVENT_BOULDER_TOSS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                                 DoCast(target, SPELL_BOULDER_TOSS);
-                            events.ScheduleEvent(EVENT_BOULDER_TOSS, urand(9000, 15000));
+                            events.ScheduleEvent(EVENT_BOULDER_TOSS, 9s, 15s);
                             break;
                         case EVENT_GROUND_SPIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))

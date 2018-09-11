@@ -386,7 +386,7 @@ class boss_freya : public CreatureScript
                 events.ScheduleEvent(EVENT_WAVE, 10s);
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
                 events.ScheduleEvent(EVENT_ENRAGE, 10min);
-                events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
+                events.ScheduleEvent(EVENT_SUNBEAM, 5s, 15s);
             }
 
             uint32 GetData(uint32 type) const override
@@ -709,8 +709,8 @@ class boss_elder_brightleaf : public CreatureScript
                 _Reset();
                 if (me->HasAura(SPELL_DRAINED_OF_POWER))
                     me->RemoveAurasDueToSpell(SPELL_DRAINED_OF_POWER);
-                events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 7000));
-                events.ScheduleEvent(EVENT_UNSTABLE_SUN_BEAM, urand(7000, 12000));
+                events.ScheduleEvent(EVENT_SOLAR_FLARE, 5s, 7s);
+                events.ScheduleEvent(EVENT_UNSTABLE_SUN_BEAM, 7s, 12s);
                 events.ScheduleEvent(EVENT_FLUX, 5s);
             }
 
@@ -759,7 +759,7 @@ class boss_elder_brightleaf : public CreatureScript
                             CastSpellExtraArgs args;
                             args.AddSpellMod(SPELLVALUE_MAX_TARGETS, stackAmount);
                             me->CastSpell(me, SPELL_SOLAR_FLARE, args);
-                            events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 10000));
+                            events.ScheduleEvent(EVENT_SOLAR_FLARE, 5s, 10s);
                             break;
                         }
                         case EVENT_FLUX:
@@ -970,7 +970,7 @@ class boss_elder_ironbranch : public CreatureScript
                             break;
                         case EVENT_THORN_SWARM:
                             DoCastVictim(SPELL_THORN_SWARM);
-                            events.ScheduleEvent(EVENT_THORN_SWARM, urand(8000, 13000));
+                            events.ScheduleEvent(EVENT_THORN_SWARM, 8s, 13s);
                             break;
                     }
 

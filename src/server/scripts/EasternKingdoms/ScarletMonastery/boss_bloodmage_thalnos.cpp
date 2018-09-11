@@ -95,7 +95,7 @@ class boss_bloodmage_thalnos : public CreatureScript
                 {
                     case EVENT_FLAME_SHOCK:
                         DoCastVictim(SPELL_FLAMESHOCK);
-                        events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_FLAME_SHOCK, 10s, 15s);
                         break;
                     case EVENT_SHADOW_BOLT:
                         DoCastVictim(SPELL_SHADOWBOLT);

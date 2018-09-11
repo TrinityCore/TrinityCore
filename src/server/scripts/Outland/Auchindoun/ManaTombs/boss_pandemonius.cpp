@@ -72,7 +72,7 @@ public:
             _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
-            events.ScheduleEvent(EVENT_VOID_BLAST, urand(8000, 23000));
+            events.ScheduleEvent(EVENT_VOID_BLAST, 8s, 23s);
         }
 
         void ExecuteEvent(uint32 eventId) override

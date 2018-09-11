@@ -166,7 +166,7 @@ public:
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
             events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
-            events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
+            events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
             events.ScheduleEvent(EVENT_WING_BUFFET, urand(10000, 20000));
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
@@ -242,7 +242,7 @@ public:
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
                         events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
+                        events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
                         events.ScheduleEvent(EVENT_WING_BUFFET, urand(15000, 30000));
                         break;
                     case 10:
@@ -375,7 +375,7 @@ public:
                             break;
                         case EVENT_CLEAVE:         // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
+                            events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
                             break;
                         case EVENT_WING_BUFFET:    // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_WING_BUFFET);

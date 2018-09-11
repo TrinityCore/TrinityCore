@@ -139,7 +139,7 @@ class boss_general_vezax : public CreatureScript
                 DoCast(me, SPELL_AURA_OF_DESPAIR);
                 CheckShamanisticRage();
 
-                events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
+                events.ScheduleEvent(EVENT_SHADOW_CRASH, 8s, 10s);
                 events.ScheduleEvent(EVENT_SEARING_FLAMES, 12s);
                 events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 40000));
                 events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30s);
@@ -168,7 +168,7 @@ class boss_general_vezax : public CreatureScript
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
                             if (target)
                                 DoCast(target, SPELL_SHADOW_CRASH);
-                            events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 12000));
+                            events.ScheduleEvent(EVENT_SHADOW_CRASH, 8s, 12s);
                             break;
                         }
                         case EVENT_SEARING_FLAMES:
@@ -270,7 +270,7 @@ class boss_general_vezax : public CreatureScript
                         break;
                     case ACTION_ANIMUS_DIE:
                         me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
-                        events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(7000, 12000));
+                        events.ScheduleEvent(EVENT_SEARING_FLAMES, 7s, 12s);
                         animusDead = true;
                         break;
                 }

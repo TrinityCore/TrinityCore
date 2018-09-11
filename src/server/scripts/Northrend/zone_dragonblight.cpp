@@ -635,7 +635,7 @@ class npc_torturer_lecraft : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
+                _events.ScheduleEvent(EVENT_HEMORRHAGE, 5s, 8s);
                 _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
 
                 if (Player* player = who->ToPlayer())

@@ -94,7 +94,7 @@ class boss_hydromancer_thespia : public CreatureScript
                     case EVENT_LUNG_BURST:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_LUNG_BURST);
-                        events.ScheduleEvent(EVENT_LUNG_BURST, urand(7000, 12000));
+                        events.ScheduleEvent(EVENT_LUNG_BURST, 7s, 12s);
                         break;
                     case EVENT_ENVELOPING_WINDS:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
@@ -140,7 +140,7 @@ class npc_coilfang_waterelemental : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(3000, 6000));
+                _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, 3s, 6s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -159,7 +159,7 @@ class npc_coilfang_waterelemental : public CreatureScript
                     {
                         case EVENT_WATER_BOLT_VOLLEY:
                             DoCast(me, SPELL_WATER_BOLT_VOLLEY);
-                            _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(7000, 12000));
+                            _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, 7s, 12s);
                             break;
                         default:
                             break;

@@ -174,7 +174,7 @@ class boss_venoxis : public CreatureScript
                         // thrash is available in all phases
                         case EVENT_THRASH:
                             DoCast(me, SPELL_THRASH, true);
-                            events.ScheduleEvent(EVENT_THRASH, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_THRASH, 10s, 20s);
                             break;
                         // troll form spells and Actions (first part)
                         case EVENT_DISPEL_MAGIC:

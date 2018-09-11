@@ -166,7 +166,7 @@ class boss_devourer_of_souls : public CreatureScript
                 events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8s);
                 events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30s);
                 events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20s);
-                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
             }
 
             void KilledUnit(Unit* victim) override
@@ -257,7 +257,7 @@ class boss_devourer_of_souls : public CreatureScript
                         case EVENT_MIRRORED_SOUL:
                             DoCastAOE(SPELL_MIRRORED_SOUL_TARGET_SELECTOR);
                             Talk(EMOTE_MIRRORED_SOUL);
-                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
                             break;
                         case EVENT_WELL_OF_SOULS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -323,7 +323,7 @@ class boss_devourer_of_souls : public CreatureScript
                                 me->SetDisplayId(DISPLAY_ANGER);
                                 me->SetControlled(false, UNIT_STATE_ROOT);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
-                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
                             }
                             break;
                     }

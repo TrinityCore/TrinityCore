@@ -98,7 +98,7 @@ class boss_trollgore : public CreatureScript
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_CONSUME, 15s);
-                events.ScheduleEvent(EVENT_CRUSH, urand(1000, 5000));
+                events.ScheduleEvent(EVENT_CRUSH, 1s, 5s);
                 events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(10000, 60000));
                 events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3s);
                 events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));

@@ -58,8 +58,8 @@ class boss_nexus_commanders : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
                 DoCast(me, SPELL_BATTLE_SHOUT);
 
-                events.ScheduleEvent(EVENT_CHARGE_COMMANDER, urand(3000, 4000));
-                events.ScheduleEvent(EVENT_WHIRLWIND, urand(6000, 8000));
+                events.ScheduleEvent(EVENT_CHARGE_COMMANDER, 3s, 4s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 6s, 8s);
                 events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(13000, 15000));
             }
 

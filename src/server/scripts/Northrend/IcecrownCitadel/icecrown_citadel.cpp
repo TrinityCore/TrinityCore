@@ -616,7 +616,7 @@ class npc_rotting_frost_giant : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
-                _events.ScheduleEvent(EVENT_STOMP, urand(5000, 8000));
+                _events.ScheduleEvent(EVENT_STOMP, 5s, 8s);
                 _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10000, 15000));
             }
 
@@ -1208,7 +1208,7 @@ class npc_crok_scourgebane : public CreatureScript
                         case EVENT_DEATH_STRIKE:
                             if (HealthBelowPct(20))
                                 DoCastVictim(SPELL_DEATH_STRIKE);
-                            _events.ScheduleEvent(EVENT_DEATH_STRIKE, urand(5000, 10000));
+                            _events.ScheduleEvent(EVENT_DEATH_STRIKE, 5s, 10s);
                             break;
                         case EVENT_HEALTH_CHECK:
                             if (HealthAbovePct(15))
@@ -1395,9 +1395,9 @@ class npc_captain_arnath : public CreatureScript
             void Reset() override
             {
                 Events.Reset();
-                Events.ScheduleEvent(EVENT_ARNATH_FLASH_HEAL, urand(4000, 7000));
-                Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, urand(8000, 14000));
-                Events.ScheduleEvent(EVENT_ARNATH_SMITE, urand(3000, 6000));
+                Events.ScheduleEvent(EVENT_ARNATH_FLASH_HEAL, 4s, 7s);
+                Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, 8s, 14s);
+                Events.ScheduleEvent(EVENT_ARNATH_SMITE, 3s, 6s);
                 if (Is25ManRaid() && IsUndead)
                     Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, urand(22000, 27000));
             }
@@ -1419,7 +1419,7 @@ class npc_captain_arnath : public CreatureScript
                         case EVENT_ARNATH_FLASH_HEAL:
                             if (Creature* target = FindFriendlyCreature())
                                 DoCast(target, SPELL_FLASH_HEAL);
-                            Events.ScheduleEvent(EVENT_ARNATH_FLASH_HEAL, urand(6000, 9000));
+                            Events.ScheduleEvent(EVENT_ARNATH_FLASH_HEAL, 6s, 9s);
                             break;
                         case EVENT_ARNATH_PW_SHIELD:
                         {
@@ -1430,7 +1430,7 @@ class npc_captain_arnath : public CreatureScript
                         }
                         case EVENT_ARNATH_SMITE:
                             DoCastVictim(SPELL_SMITE);
-                            Events.ScheduleEvent(EVENT_ARNATH_SMITE, urand(4000, 7000));
+                            Events.ScheduleEvent(EVENT_ARNATH_SMITE, 4s, 7s);
                             break;
                         case EVENT_ARNATH_DOMINATE_MIND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
@@ -1479,9 +1479,9 @@ class npc_captain_brandon : public CreatureScript
             void Reset() override
             {
                 Events.Reset();
-                Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, urand(6000, 10000));
+                Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, 6s, 10s);
                 Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500ms);
-                Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, urand(8000, 13000));
+                Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, 8s, 13s);
                 if (IsUndead)
                     Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(25000, 30000));
             }
@@ -1502,7 +1502,7 @@ class npc_captain_brandon : public CreatureScript
                     {
                         case EVENT_BRANDON_CRUSADER_STRIKE:
                             DoCastVictim(SPELL_CRUSADER_STRIKE);
-                            Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, urand(6000, 12000));
+                            Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, 6s, 12s);
                             break;
                         case EVENT_BRANDON_DIVINE_SHIELD:
                             if (HealthBelowPct(20))
@@ -1511,7 +1511,7 @@ class npc_captain_brandon : public CreatureScript
                             break;
                         case EVENT_BRANDON_JUDGEMENT_OF_COMMAND:
                             DoCastVictim(SPELL_JUDGEMENT_OF_COMMAND);
-                            Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, urand(8000, 13000));
+                            Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, 8s, 13s);
                             break;
                         case EVENT_BRANDON_HAMMER_OF_BETRAYAL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
@@ -1551,8 +1551,8 @@ class npc_captain_grondel : public CreatureScript
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500ms);
-                Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, urand(8000, 14000));
-                Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, urand(3000, 12000));
+                Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, 8s, 14s);
+                Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, 3s, 12s);
                 if (IsUndead)
                     Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, urand(12000, 17000));
             }
@@ -1581,7 +1581,7 @@ class npc_captain_grondel : public CreatureScript
                             break;
                         case EVENT_GRONDEL_SUNDER_ARMOR:
                             DoCastVictim(SPELL_SUNDER_ARMOR);
-                            Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, urand(5000, 17000));
+                            Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, 5s, 17s);
                             break;
                         case EVENT_GRONDEL_CONFLAGRATION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -1757,7 +1757,7 @@ class npc_arthas_teleport_visual : public CreatureScript
                 if (_instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
                     _instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
                     _instance->GetBossState(DATA_SINDRAGOSA) == DONE)
-                    _events.ScheduleEvent(EVENT_SOUL_MISSILE, urand(1000, 6000));
+                    _events.ScheduleEvent(EVENT_SOUL_MISSILE, 1s, 6s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1770,7 +1770,7 @@ class npc_arthas_teleport_visual : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_SOUL_MISSILE)
                 {
                     DoCastAOE(SPELL_SOUL_MISSILE);
-                    _events.ScheduleEvent(EVENT_SOUL_MISSILE, urand(5000, 7000));
+                    _events.ScheduleEvent(EVENT_SOUL_MISSILE, 5s, 7s);
                 }
             }
 

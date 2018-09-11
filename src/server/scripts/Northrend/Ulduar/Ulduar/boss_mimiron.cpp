@@ -1380,7 +1380,7 @@ class npc_mimiron_emergency_fire_bot : public CreatureScript
                     {
                         case EVENT_WATER_SPRAY:
                             isWaterSprayReady = true;
-                            events.RescheduleEvent(EVENT_WATER_SPRAY, urand(7000, 9000));
+                            events.ReScheduleEvent(EVENT_WATER_SPRAY, 7s, 9s);
                             break;
                         default:
                             break;

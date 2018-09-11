@@ -306,9 +306,9 @@ public:
             _JustEngagedWith();
             events.ScheduleEvent(EVENT_FEAR, 42s);
             events.ScheduleEvent(EVENT_AIR_BURST, 30s);
-            events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));
+            events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, 5s, 25s);
             events.ScheduleEvent(EVENT_DOOMFIRE, 20s);
-            events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
+            events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, 2s, 30s);
             events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 15s);
             events.ScheduleEvent(EVENT_HAND_OF_DEATH, 10min);
             events.ScheduleEvent(EVENT_DISTANCE_CHECK, 30s);
@@ -347,7 +347,7 @@ public:
                         me->RemoveAuraFromStack(_chargeSpell);
                         DoCastVictim(_unleashSpell);
                         SoulChargeCount--;
-                        events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
+                        events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, 2s, 30s);
                     }
                     break;
                 case EVENT_FINGER_OF_DEATH:
@@ -362,7 +362,7 @@ public:
                 case EVENT_GRIP_OF_THE_LEGION:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_GRIP_OF_THE_LEGION);
-                    events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));
+                    events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, 5s, 25s);
                     break;
                 case EVENT_AIR_BURST:
                     Talk(SAY_AIR_BURST);
@@ -445,7 +445,7 @@ public:
                         break;
                 }
 
-                events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
+                events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, 2s, 30s);
                 ++SoulChargeCount;
             }
         }

@@ -117,7 +117,7 @@ public:
             else
             {
                 events.ScheduleEvent(EVENT_FIREBALL, 1s);
-                events.ScheduleEvent(EVENT_FROST_NOVA, urand(8000, 12000));
+                events.ScheduleEvent(EVENT_FROST_NOVA, 8s, 12s);
                 if (urand(0, 100) > 40)
                     Talk(SAY_AGGRO, who);
             }
@@ -333,7 +333,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_WEB, urand(5000, 8000));
+            events.ScheduleEvent(EVENT_WEB, 5s, 8s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -349,7 +349,7 @@ public:
                 {
                     case EVENT_WEB:
                         DoCastVictim(SPELL_WEB);
-                        events.ScheduleEvent(EVENT_WEB, urand(7000, 16000));
+                        events.ScheduleEvent(EVENT_WEB, 7s, 16s);
                         break;
                 }
             }

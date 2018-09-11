@@ -58,7 +58,7 @@ class boss_meathook : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
                 events.ScheduleEvent(EVENT_CHAIN, urand(12000, 17000));
-                events.ScheduleEvent(EVENT_DISEASE, urand(2000, 4000));
+                events.ScheduleEvent(EVENT_DISEASE, 2s, 4s);
                 events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
             }
 
@@ -69,7 +69,7 @@ class boss_meathook : public CreatureScript
                     case EVENT_CHAIN:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_CONSTRICTING_CHAINS);
-                        events.ScheduleEvent(EVENT_CHAIN, urand(2000, 4000));
+                        events.ScheduleEvent(EVENT_CHAIN, 2s, 4s);
                         break;
                     case EVENT_DISEASE:
                         DoCastAOE(SPELL_DISEASE_EXPULSION);
