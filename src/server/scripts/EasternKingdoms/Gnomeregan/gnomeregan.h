@@ -44,6 +44,8 @@ enum GNOGameObjectIds
     GO_BUTTON_04        = 142217,
     GO_BUTTON_05        = 142218,
     GO_BUTTON_06        = 142219,
+
+    GO_THE_FINAL_CHAMBER = 142207
 };
 
 enum GNOCreatureIds
@@ -75,7 +77,7 @@ enum GNOData64
     DATA_GO_CAVE_IN_LEFT,
     DATA_GO_CAVE_IN_RIGHT,
     DATA_NPC_BLASTMASTER_EMI_SHORTFUSE,
-    DATA_MEKGINEER_THERMAPLUGG,
+    DATA_THE_FINAL_CHAMBER
 };
 
 template <class AI, class T>

@@ -90,7 +90,7 @@ public:
 
     struct boss_mekgineer_thermapluggAI : public BossAI
     {
-        boss_mekgineer_thermapluggAI(Creature* creature) : BossAI(creature, DATA_MEKGINEER_THERMAPLUGG) { }
+        boss_mekgineer_thermapluggAI(Creature* creature) : BossAI(creature, DATA_THERMAPLUGG) { }
 
         void AddFaceAvailable(uint32 entry)
         {
@@ -110,20 +110,22 @@ public:
                 bomb->DespawnOrUnsummon();
         }
 
-        void Initialize()
+        void Reset() override
         {
-            _availableFacesList.clear();
+            events.Reset();
 
             for (uint32 face_id : GnomeFaces)
                 if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
                     face->AI()->Reset();
-        }
+            _availableFacesList.clear();
+            for (uint32 face_id : GnomeFaces)
+                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
+                    AddFaceAvailable(face_id);
 
-        void Reset() override
-        {
-            events.Reset();
-            Initialize();
             DespawnBombs();
+
+            if (GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_THE_FINAL_CHAMBER)))
+                door->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
         }
 
         void KilledUnit(Unit* who) override
@@ -135,22 +137,21 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            DespawnBombs();
-            for (uint32 face_id : GnomeFaces)
-                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
-                    face->AI()->Reset();
+            Reset();
         }
 
         void JustEnteredCombat(Unit* /*who*/) override
         {
-            for (uint32 face_id : GnomeFaces)
-                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
-                    AddFaceAvailable(face_id);
-
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_POUND, 6s);
             events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8s);
             events.ScheduleEvent(EVENT_WELDING_BEAM, 14s);
+
+            if (GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_THE_FINAL_CHAMBER)))
+            {
+                door->ResetDoorOrButton();
+                door->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -158,11 +159,10 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING) )
                 return;
 
             events.Update(diff);
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -190,7 +190,7 @@ public:
                         events.Repeat(10s, 18s);
                         break;
                     case EVENT_WELDING_BEAM:
-                        DoCastVictim(SPELL_WELDING_BEAM);
+                        DoCastVictim(SPELL_WELDING_BEAM, true);
                         events.Repeat(10s, 15s);
                         break;
                     default:
@@ -241,7 +241,7 @@ public:
         void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THERMAPLUGG)))
                     boss->AI()->Talk(SAY_DEAD);
         }
 
@@ -344,7 +344,7 @@ public:
             switch (state)
             {
             case GO_STATE_ACTIVE:
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THERMAPLUGG)))
                     CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(me->GetEntry());
 
                 _isActive = true;
@@ -352,7 +352,7 @@ public:
                 break;
             case GO_STATE_READY:
                 if (_isActive)
-                    if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MEKGINEER_THERMAPLUGG)))
+                    if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THERMAPLUGG)))
                         CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(me->GetEntry());
 
                 _isActive = false;

@@ -44,6 +44,7 @@ public:
 
         ObjectGuid uiCaveInLeftGUID;
         ObjectGuid uiCaveInRightGUID;
+        ObjectGuid uiTheFinalChamberGUID;
         ObjectGuid uiBlastmasterEmiShortfuseGUID;
         ObjectGuid uiMekgineerThermapluggGUID;
 
@@ -70,6 +71,8 @@ public:
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     break;
+                case GO_THE_FINAL_CHAMBER:
+                    uiTheFinalChamberGUID = go->GetGUID();
             }
         }
 
@@ -88,9 +91,6 @@ public:
                     case NPC_CROWD_PUMMELER:
                         SetBossState(DATA_CROWD_PUMMELER, DONE);
                         break;
-                    case NPC_MEKGINEER_THERMAPLUGG:
-                        SetBossState(DATA_THERMAPLUGG, DONE);
-                        break;
                 }
         }
 
@@ -100,8 +100,9 @@ public:
             {
                 case DATA_GO_CAVE_IN_LEFT:               return uiCaveInLeftGUID;
                 case DATA_GO_CAVE_IN_RIGHT:              return uiCaveInRightGUID;
+                case DATA_THE_FINAL_CHAMBER:             return uiTheFinalChamberGUID;
                 case DATA_NPC_BLASTMASTER_EMI_SHORTFUSE: return uiBlastmasterEmiShortfuseGUID;
-                case DATA_MEKGINEER_THERMAPLUGG:         return uiMekgineerThermapluggGUID;
+                case DATA_THERMAPLUGG:                   return uiMekgineerThermapluggGUID;
             }
 
             return ObjectGuid::Empty;
