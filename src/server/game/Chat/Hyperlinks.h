@@ -24,9 +24,12 @@
 #include <utility>
 
 struct AchievementEntry;
-struct ItemRandomPropertiesEntry;
-struct ItemRandomSuffixEntry;
+struct GlyphPropertiesEntry;
+struct GlyphSlotEntry;
 struct ItemTemplate;
+class SpellInfo;
+class Quest;
+struct TalentEntry;
 
 namespace Trinity {
 namespace Hyperlinks {
@@ -42,6 +45,12 @@ struct AchievementLinkData
     uint32 criteria[4];
 };
 
+struct GlyphLinkData
+{
+    GlyphPropertiesEntry const* glyph;
+    GlyphSlotEntry const* slot;
+};
+
 struct ItemLinkData
 {
     ItemTemplate const* item;
@@ -50,6 +59,27 @@ struct ItemLinkData
     int32 randomPropertyId;
     int32 randomPropertySeed;
     uint8 renderLevel;
+};
+
+struct QuestLinkData
+{
+    Quest const* quest;
+    uint8 questLevel;
+};
+
+struct TalentLinkData
+{
+    TalentEntry const* talent;
+    uint8 rank;
+};
+
+struct TradeskillLinkData
+{
+    SpellInfo const* spell;
+    uint16 curValue;
+    uint16 maxValue;
+    uint32 unk1;
+    std::string unk2;
 };
 
 namespace LinkTags {
@@ -92,12 +122,19 @@ namespace LinkTags {
     };
 
 #define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr char const* tag() { return #ltag; } }
+    make_base_tag(area, uint32);
     make_base_tag(areatrigger, uint32);
     make_base_tag(creature, ObjectGuid::LowType);
     make_base_tag(creature_entry, uint32);
+    make_base_tag(gameevent, uint32);
     make_base_tag(gameobject, ObjectGuid::LowType);
+    make_base_tag(gameobject_entry, uint32);
+    make_base_tag(itemset, uint32);
+    make_base_tag(player, std::string const&);
+    make_base_tag(skill, uint32);
     make_base_tag(taxinode, uint32);
     make_base_tag(tele, uint32);
+    make_base_tag(title, uint32);
 #undef make_base_tag
 
     struct TC_GAME_API achievement
@@ -107,11 +144,47 @@ namespace LinkTags {
         static bool StoreTo(AchievementLinkData& val, char const* pos, size_t len);
     };
 
+    struct TC_GAME_API glyph
+    {
+        using value_type = GlyphLinkData const&;
+        static constexpr char const* tag() { return "glyph"; };
+        static bool StoreTo(GlyphLinkData& val, char const* pos, size_t len);
+    };
+
     struct TC_GAME_API item
     {
         using value_type = ItemLinkData const&;
         static constexpr char const* tag() { return "item"; }
         static bool StoreTo(ItemLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API quest
+    {
+        using value_type = QuestLinkData const&;
+        static constexpr char const* tag() { return "quest"; }
+        static bool StoreTo(QuestLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API spell
+    {
+        using value_type = SpellInfo const*;
+        static constexpr char const* tag() { return "spell"; }
+        static bool StoreTo(SpellInfo const*& val, char const* pos, size_t len);
+    };
+    struct enchant : public spell { static constexpr char const* tag() { return "enchant"; } };
+
+    struct TC_GAME_API talent
+    {
+        using value_type = TalentLinkData const&;
+        static constexpr char const* tag() { return "talent"; }
+        static bool StoreTo(TalentLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API trade
+    {
+        using value_type = TradeskillLinkData const&;
+        static constexpr char const* tag() { return "trade"; }
+        static bool StoreTo(TradeskillLinkData& val, char const* pos, size_t len);
     };
 }
 

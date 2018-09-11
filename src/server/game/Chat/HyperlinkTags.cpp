@@ -17,6 +17,8 @@
  
 #include "Hyperlinks.h"
 #include "AchievementMgr.h"
+#include "ObjectMgr.h"
+#include "SpellMgr.h"
 
 static constexpr char HYPERLINK_DATA_DELIMITER = ':';
 
@@ -63,6 +65,19 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
         t.TryConsumeTo(val.criteria[1]) && t.TryConsumeTo(val.criteria[2]) && t.TryConsumeTo(val.criteria[3]) && t.IsEmpty();
 }
 
+bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, char const* pos, size_t len)
+{
+    HyperlinkDataTokenizer t(pos, len);
+    uint32 slot, prop;
+    if (!(t.TryConsumeTo(slot) && t.TryConsumeTo(prop) && t.IsEmpty()))
+        return false;
+    if (!(val.slot = sGlyphSlotStore.LookupEntry(slot)))
+        return false;
+    if (!(val.glyph = sGlyphPropertiesStore.LookupEntry(prop)))
+        return false;
+    return true;
+}
+
 bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, char const* pos, size_t len)
 {
     HyperlinkDataTokenizer t(pos, len);
@@ -73,4 +88,45 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, char const*
     return val.item && t.TryConsumeTo(val.enchantId) && t.TryConsumeTo(val.gemEnchantId[0]) && t.TryConsumeTo(val.gemEnchantId[1]) &&
         t.TryConsumeTo(val.gemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(val.randomPropertyId) && t.TryConsumeTo(val.randomPropertySeed) &&
         t.TryConsumeTo(val.renderLevel) && t.IsEmpty() && !dummy;
+}
+
+bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, char const* pos, size_t len)
+{
+    HyperlinkDataTokenizer t(pos, len);
+    uint32 questId;
+    if (!t.TryConsumeTo(questId))
+        return false;
+    return (val.quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.questLevel) && t.IsEmpty();
+}
+
+bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, char const* pos, size_t len)
+{
+    HyperlinkDataTokenizer t(pos, len);
+    uint32 spellId;
+    if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
+        return false;
+    return !!(val = sSpellMgr->GetSpellInfo(spellId));
+}
+
+bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, char const* pos, size_t len)
+{
+    HyperlinkDataTokenizer t(pos, len);
+    uint32 talentId;
+    if (!(t.TryConsumeTo(talentId) && t.TryConsumeTo(val.rank) && t.IsEmpty()))
+        return false;
+    if (!(val.talent = sTalentStore.LookupEntry(talentId)))
+        return false;
+    if (!val.talent->RankID[val.rank-1])
+        return false;
+    return true;
+}
+
+bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, char const* pos, size_t len)
+{
+    HyperlinkDataTokenizer t(pos, len);
+    uint32 spellId;
+    if (!t.TryConsumeTo(spellId))
+        return false;
+    return (val.spell = sSpellMgr->GetSpellInfo(spellId)) && t.TryConsumeTo(val.curValue) && t.TryConsumeTo(val.maxValue) &&
+        t.TryConsumeTo(val.unk1) && t.TryConsumeTo(val.unk2) && t.IsEmpty();
 }

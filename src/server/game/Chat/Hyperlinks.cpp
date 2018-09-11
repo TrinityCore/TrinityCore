@@ -18,8 +18,11 @@
 #include "Hyperlinks.h"
 #include "advstd.h"
 #include "Common.h"
-#include "DbcStores.h"
+#include "DBCStores.h"
 #include "Errors.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "QuestDef.h"
 #include "World.h"
 
 using namespace Trinity::Hyperlinks;
@@ -106,9 +109,6 @@ struct LinkTextValidator<LinkTags::item>
 {
     static bool IsValid(ItemLinkData const& data, char const* pos, size_t len)
     {
-        if (!len)
-            return false;
-
         ItemLocale const* locale = sObjectMgr->GetItemLocale(data.item->ItemId);
         if (!locale)
             return false;
@@ -129,9 +129,6 @@ struct LinkTextValidator<LinkTags::item>
                 return false;
         }
 
-        if (randomSuffix)
-            printf("Suffix '%s'\n", randomSuffix[0]);
-
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
             std::string const& name = (i == DEFAULT_LOCALE) ? data.item->Name1 : locale->Name[i];
@@ -139,15 +136,82 @@ struct LinkTextValidator<LinkTags::item>
                 continue;
             if (randomSuffix)
             {
-                if ((strncmp(name.c_str(), pos, name.length()) == 0)
-                  && *(pos + name.length()) == ' '
-                  && equal_with_len(randomSuffix[i], pos + name.length() + 1, len - name.length() - 1))
+                if (len > name.length() + 1 &&
+                  (strncmp(name.c_str(), pos, name.length()) == 0) && 
+                  (*(pos + name.length()) == ' ') &&
+                  equal_with_len(randomSuffix[i], pos + name.length() + 1, len - name.length() - 1))
                     return true;
             }
             else if (equal_with_len(name.c_str(), pos, len))
                 return true;
         }
         return false;
+    }
+};
+
+template <>
+struct LinkTextValidator<LinkTags::quest>
+{
+    static bool IsValid(QuestLinkData const& data, char const* pos, size_t len)
+    {
+        QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.quest->GetQuestId());
+        if (!locale)
+            return false;
+
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            std::string const& name = (i == DEFAULT_LOCALE) ? data.quest->GetTitle() : locale->Title[i];
+            if (name.empty())
+                continue;
+            if (equal_with_len(name.c_str(), pos, len))
+                return true;
+        }
+
+        return false;
+    }
+};
+
+template <>
+struct LinkTextValidator<LinkTags::spell>
+{
+    static bool IsValid(SpellInfo const* info, char const* pos, size_t len)
+    {
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+            if (equal_with_len(info->SpellName[i], pos, len))
+                return true;
+        return false;
+    }
+};
+template <> struct LinkTextValidator<LinkTags::enchant> : public LinkTextValidator<LinkTags::spell> {};
+
+template <>
+struct LinkTextValidator<LinkTags::glyph>
+{
+    static bool IsValid(GlyphLinkData const& data, char const* pos, size_t len)
+    {
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.glyph->SpellId))
+            return LinkTextValidator<LinkTags::spell>::IsValid(info, pos, len);
+        return false;
+    }
+};
+
+template <>
+struct LinkTextValidator<LinkTags::talent>
+{
+    static bool IsValid(TalentLinkData const& data, char const* pos, size_t len)
+    {
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.talent->RankID[data.rank-1]))
+            return LinkTextValidator<LinkTags::spell>::IsValid(info, pos, len);
+        return false;
+    }
+};
+
+template <>
+struct LinkTextValidator<LinkTags::trade>
+{
+    static bool IsValid(TradeskillLinkData const& data, char const* pos, size_t len)
+    {
+        return LinkTextValidator<LinkTags::spell>::IsValid(data.spell, pos, len);
     }
 };
 
@@ -173,10 +237,20 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(areatrigger);
     TryValidateAs(creature);
     TryValidateAs(creature_entry);
+    TryValidateAs(enchant);
     TryValidateAs(gameobject);
+    TryValidateAs(glyph);
     TryValidateAs(item);
+    TryValidateAs(itemset);
+    TryValidateAs(player);
+    TryValidateAs(quest);
+    TryValidateAs(skill);
+    TryValidateAs(spell);
+    TryValidateAs(talent);
     TryValidateAs(taxinode);
     TryValidateAs(tele);
+    TryValidateAs(title);
+    TryValidateAs(trade);
     return false;
 }
 
