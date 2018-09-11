@@ -346,6 +346,13 @@ GridCleanUpDelay = 300000
 MapUpdateInterval = 100
 
 #
+#    AIUpdateInterval
+#        Description: Time (milliseconds) between creature AI update ticks.
+#        Default:     1000 - (1 second, blizzlike)
+
+AIUpdateInterval = 1000
+
+#
 #    ChangeWeatherInterval
 #        Description: Time (in milliseconds) for weather update interval.
 #        Default:     600000 - (10 min)
