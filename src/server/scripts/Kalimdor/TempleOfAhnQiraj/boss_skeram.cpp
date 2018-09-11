@@ -137,9 +137,9 @@ class boss_skeram : public CreatureScript
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(6000, 12000));
-                events.ScheduleEvent(EVENT_FULLFILMENT, 15000);
+                events.ScheduleEvent(EVENT_FULLFILMENT, 15s);
                 events.ScheduleEvent(EVENT_BLINK, urand(30000, 45000));
-                events.ScheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                events.ScheduleEvent(EVENT_EARTH_SHOCK, 2s);
 
                 Talk(SAY_AGGRO);
             }
@@ -172,7 +172,7 @@ class boss_skeram : public CreatureScript
                             break;
                         case EVENT_EARTH_SHOCK:
                             DoCastVictim(SPELL_EARTH_SHOCK);
-                            events.ScheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                            events.ScheduleEvent(EVENT_EARTH_SHOCK, 2s);
                             break;
                     }
                 }

@@ -108,8 +108,8 @@ public:
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15000);
-            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20000);
-            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1000);
+            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s);
+            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1s);
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 

@@ -110,8 +110,8 @@ class boss_sjonnir : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNING_SHIELD, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_STATIC_CHARGE, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_LIGHTNING_RING, urand(30000, 35000));
-                events.ScheduleEvent(EVENT_SUMMON, 5000);
-                events.ScheduleEvent(EVENT_FRENZY, 300000);
+                events.ScheduleEvent(EVENT_SUMMON, 5s);
+                events.ScheduleEvent(EVENT_FRENZY, 5min);
             }
 
             void JustSummoned(Creature* summon) override
@@ -190,7 +190,7 @@ class boss_sjonnir : public CreatureScript
                             else
                                 me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
 
-                            events.ScheduleEvent(EVENT_SUMMON, 20000);
+                            events.ScheduleEvent(EVENT_SUMMON, 20s);
                             break;
                         }
                         case EVENT_FRENZY:

@@ -122,12 +122,12 @@ class boss_kologarn : public CreatureScript
             {
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
-                events.ScheduleEvent(EVENT_SMASH, 5000);
-                events.ScheduleEvent(EVENT_SWEEP, 19000);
+                events.ScheduleEvent(EVENT_MELEE_CHECK, 6s);
+                events.ScheduleEvent(EVENT_SMASH, 5s);
+                events.ScheduleEvent(EVENT_SWEEP, 19s);
                 events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
-                events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21000);
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21s);
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);
 
                 if (Vehicle* vehicle = me->GetVehicleKit())
                     for (uint8 i = 0; i < 2; ++i)
@@ -169,7 +169,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         Talk(SAY_LEFT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
+                        events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40s);
                     }
                 }
 
@@ -179,7 +179,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         Talk(SAY_RIGHT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
+                        events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40s);
                     }
                 }
 
@@ -198,7 +198,7 @@ class boss_kologarn : public CreatureScript
                     }
 
                     if (!right && !left)
-                        events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
+                        events.ScheduleEvent(EVENT_STONE_SHOUT, 5s);
 
                     instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_DISARMED);
                 }

@@ -101,10 +101,10 @@ class npc_av_marshal_or_warmaster : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHARGE_TARGET, urand(2 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CLEAVE, urand(1 * IN_MILLISECONDS, 11 * IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 2000);
+                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 2s);
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ENRAGE, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_CHECK_RESET, 5000);
+                events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
             }
 
             void JustAppeared() override
@@ -164,7 +164,7 @@ class npc_av_marshal_or_warmaster : public CreatureScript
                                 EnterEvadeMode();
                                 return;
                             }
-                            events.ScheduleEvent(EVENT_CHECK_RESET, 5000);
+                            events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
                             break;
                         }
                     }

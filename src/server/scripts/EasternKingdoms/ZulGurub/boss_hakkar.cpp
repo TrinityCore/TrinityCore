@@ -87,21 +87,21 @@ class boss_hakkar : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90000);
-                events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25000);
-                events.ScheduleEvent(EVENT_CAUSE_INSANITY, 17000);
-                events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 17000);
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
+                events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25s);
+                events.ScheduleEvent(EVENT_CAUSE_INSANITY, 15s);
+                events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 15s);
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);
                 if (instance->GetBossState(DATA_JEKLIK) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4s);
                 if (instance->GetBossState(DATA_VENOXIS) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7s);
                 if (instance->GetBossState(DATA_MARLI) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s);
                 if (instance->GetBossState(DATA_THEKAL) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8s);
                 if (instance->GetBossState(DATA_ARLOKK) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18s);
                 Talk(SAY_AGGRO);
             }
 
@@ -121,7 +121,7 @@ class boss_hakkar : public CreatureScript
                     {
                         case EVENT_BLOOD_SIPHON:
                             DoCastVictim(SPELL_BLOOD_SIPHON, true);
-                            events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90000);
+                            events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
                             break;
                         case EVENT_CORRUPTED_BLOOD:
                             DoCastVictim(SPELL_CORRUPTED_BLOOD, true);
@@ -138,7 +138,7 @@ class boss_hakkar : public CreatureScript
                         case EVENT_ENRAGE:
                             if (!me->HasAura(SPELL_ENRAGE))
                                 DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 90000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 90s);
                             break;
                         case EVENT_ASPECT_OF_JEKLIK:
                             DoCastVictim(SPELL_ASPECT_OF_JEKLIK, true);
@@ -146,15 +146,15 @@ class boss_hakkar : public CreatureScript
                             break;
                         case EVENT_ASPECT_OF_VENOXIS:
                             DoCastVictim(SPELL_ASPECT_OF_VENOXIS, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 8000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 8s);
                             break;
                         case EVENT_ASPECT_OF_MARLI:
                             DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 10000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 10s);
                             break;
                         case EVENT_ASPECT_OF_THEKAL:
                             DoCastVictim(SPELL_ASPECT_OF_THEKAL, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 15000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 15s);
                             break;
                         case EVENT_ASPECT_OF_ARLOKK:
                             DoCastVictim(SPELL_ASPECT_OF_ARLOKK, true);

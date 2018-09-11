@@ -64,10 +64,10 @@ class boss_bloodmage_thalnos : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_FLAME_SHOCK, 10000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                events.ScheduleEvent(EVENT_FLAME_SPIKE, 8000);
-                events.ScheduleEvent(EVENT_FIRE_NOVA, 40000);
+                events.ScheduleEvent(EVENT_FLAME_SHOCK, 10s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
+                events.ScheduleEvent(EVENT_FLAME_SPIKE, 8s);
+                events.ScheduleEvent(EVENT_FIRE_NOVA, 40s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -99,15 +99,15 @@ class boss_bloodmage_thalnos : public CreatureScript
                         break;
                     case EVENT_SHADOW_BOLT:
                         DoCastVictim(SPELL_SHADOWBOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                         break;
                     case EVENT_FLAME_SPIKE:
                         DoCastVictim(SPELL_FLAMESPIKE);
-                        events.ScheduleEvent(EVENT_FLAME_SPIKE, 30000);
+                        events.ScheduleEvent(EVENT_FLAME_SPIKE, 30s);
                         break;
                     case EVENT_FIRE_NOVA:
                         DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRE_NOVA, 40000);
+                        events.ScheduleEvent(EVENT_FIRE_NOVA, 40s);
                         break;
                     default:
                         break;

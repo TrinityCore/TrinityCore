@@ -258,7 +258,7 @@ class boss_tyrannus : public CreatureScript
                             break;
                         case EVENT_FORCEFUL_SMASH:
                             DoCastVictim(SPELL_FORCEFUL_SMASH);
-                            events.ScheduleEvent(EVENT_UNHOLY_POWER, 1000);
+                            events.ScheduleEvent(EVENT_UNHOLY_POWER, 1s);
                             break;
                         case EVENT_UNHOLY_POWER:
                             Talk(SAY_DARK_MIGHT_1);
@@ -343,7 +343,7 @@ class boss_rimefang : public CreatureScript
                 if (id == GUID_HOARFROST)
                 {
                     _hoarfrostTargetGUID = guid;
-                    _events.ScheduleEvent(EVENT_HOARFROST, 1000);
+                    _events.ScheduleEvent(EVENT_HOARFROST, 1s);
                 }
             }
 

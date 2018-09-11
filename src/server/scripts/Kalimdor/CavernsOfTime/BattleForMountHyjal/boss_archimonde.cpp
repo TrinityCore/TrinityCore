@@ -304,14 +304,14 @@ public:
         {
             Talk(SAY_AGGRO);
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_FEAR, 42000);
-            events.ScheduleEvent(EVENT_AIR_BURST, 30000);
+            events.ScheduleEvent(EVENT_FEAR, 42s);
+            events.ScheduleEvent(EVENT_AIR_BURST, 30s);
             events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));
-            events.ScheduleEvent(EVENT_DOOMFIRE, 20000);
+            events.ScheduleEvent(EVENT_DOOMFIRE, 20s);
             events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
-            events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 15000);
-            events.ScheduleEvent(EVENT_HAND_OF_DEATH, 600000);
-            events.ScheduleEvent(EVENT_DISTANCE_CHECK, 30000);
+            events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 15s);
+            events.ScheduleEvent(EVENT_HAND_OF_DEATH, 10min);
+            events.ScheduleEvent(EVENT_DISTANCE_CHECK, 30s);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -320,7 +320,7 @@ public:
             {
                 case EVENT_HAND_OF_DEATH:
                     DoCastAOE(SPELL_HAND_OF_DEATH);
-                    events.ScheduleEvent(EVENT_HAND_OF_DEATH, 2000);
+                    events.ScheduleEvent(EVENT_HAND_OF_DEATH, 2s);
                     break;
                 case EVENT_UNLEASH_SOUL_CHARGE:
                     _chargeSpell = 0;
@@ -354,10 +354,10 @@ public:
                     if (!SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f)) // Checks if there are no targets in melee range
                     {
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
-                        events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 1000);
+                        events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 1s);
                     }
                     else
-                        events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 5000);
+                        events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 5s);
                     break;
                 case EVENT_GRIP_OF_THE_LEGION:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -372,7 +372,7 @@ public:
                     break;
                 case EVENT_FEAR:
                     DoCastAOE(SPELL_FEAR);
-                    events.ScheduleEvent(EVENT_FEAR, 42000);
+                    events.ScheduleEvent(EVENT_FEAR, 42s);
                     break;
                 case EVENT_DOOMFIRE:
                     Talk(SAY_DOOMFIRE);
@@ -380,20 +380,20 @@ public:
                         SummonDoomfire(temp);
                     else
                         SummonDoomfire(me->GetVictim());
-                    events.ScheduleEvent(EVENT_DOOMFIRE, 20000);
+                    events.ScheduleEvent(EVENT_DOOMFIRE, 20s);
                     break;
                 case EVENT_DISTANCE_CHECK:
                     if (Creature* channelTrigger = instance->GetCreature(DATA_CHANNEL_TARGET))
                         if (me->IsWithinDistInMap(channelTrigger, 75.0f))
                             DoAction(ACTION_ENRAGE);
-                    events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5000);
+                    events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5s);
                     break;
                 case EVENT_SUMMON_WHISP:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     ++WispCount;
                     if (WispCount >= 30)
                         me->KillSelf();
-                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1.5s);
                     break;
                 default:
                     break;
@@ -415,7 +415,7 @@ public:
                     // All members of raid must get this buff
                     DoCastAOE(SPELL_PROTECTION_OF_ELUNE, true);
                     HasProtected = true;
-                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1.5s);
                 }
             }
         }

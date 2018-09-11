@@ -237,7 +237,7 @@ class boss_thekal : public CreatureScript
                                 DoCast(me, SPELL_ENRAGE);
                                 Enraged = true;
                             }
-                            events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 30s);
                             break;
                         case EVENT_SUMMONTIGERS:
                             DoCastVictim(SPELL_SUMMONTIGERS, true);

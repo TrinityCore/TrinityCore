@@ -143,10 +143,10 @@ class boss_ayamiss : public CreatureScript
                 BossAI::JustEngagedWith(attacker);
 
                 events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
-                events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
-                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
-                events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
+                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60s);
+                events.ScheduleEvent(EVENT_PARALYZE, 15s);
 
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
@@ -207,7 +207,7 @@ class boss_ayamiss : public CreatureScript
                                 uint8 Index = urand(0, 1);
                                 me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                             }
-                            events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                            events.ScheduleEvent(EVENT_PARALYZE, 15s);
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
@@ -216,13 +216,13 @@ class boss_ayamiss : public CreatureScript
                                         swarmer->AI()->AttackStart(target);
 
                             _swarmers.clear();
-                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
+                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60s);
                             break;
                         case EVENT_SUMMON_SWARMER:
                         {
                             Position Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
                             me->SummonCreature(NPC_SWARMER, Pos);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
                             break;
                         }
                         case EVENT_TRASH:

@@ -79,10 +79,10 @@ class boss_darkmaster_gandling : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
-                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12000);
-                events.ScheduleEvent(EVENT_CURSE, 2000);
-                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 16000);
+                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4.5s);
+                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12s);
+                events.ScheduleEvent(EVENT_CURSE, 2s);
+                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 15s);
 
                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_READY);
@@ -110,7 +110,7 @@ class boss_darkmaster_gandling : public CreatureScript
                     {
                         case EVENT_ARCANEMISSILES:
                             DoCastVictim(SPELL_ARCANEMISSILES, true);
-                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8000);
+                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8s);
                             break;
                         case EVENT_SHADOWSHIELD:
                             DoCast(me, SPELL_SHADOWSHIELD);

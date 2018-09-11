@@ -48,7 +48,7 @@ public:
             _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
-            events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+            events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
             events.ScheduleEvent(EVENT_SHADOWOFEBONROC, urand(8000, 10000));
         }
 
@@ -72,7 +72,7 @@ public:
                         break;
                     case EVENT_WINGBUFFET:
                         DoCastVictim(SPELL_WINGBUFFET);
-                        events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+                        events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
                         break;
                     case EVENT_SHADOWOFEBONROC:
                         DoCastVictim(SPELL_SHADOWOFEBONROC);

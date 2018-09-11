@@ -67,7 +67,7 @@ class boss_interrogator_vishas : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5000);
+                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5s);
             }
 
             void KilledUnit(Unit* victim) override

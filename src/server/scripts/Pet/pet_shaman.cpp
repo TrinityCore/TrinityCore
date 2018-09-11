@@ -122,7 +122,7 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
                             break;
                         case EVENT_SHAMAN_FIRESHIELD:
                             DoCastVictim(SPELL_SHAMAN_FIRESHIELD);
-                            _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 2000);
+                            _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 2s);
                             break;
                         case EVENT_SHAMAN_FIREBLAST:
                             DoCastVictim(SPELL_SHAMAN_FIREBLAST);

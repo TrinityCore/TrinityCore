@@ -63,9 +63,9 @@ class boss_gahzranka : public CreatureScript // gahzranka
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_FROSTBREATH, 8000);
-                events.ScheduleEvent(EVENT_MASSIVEGEYSER, 25000);
-                events.ScheduleEvent(EVENT_SLAM, 17000);
+                events.ScheduleEvent(EVENT_FROSTBREATH, 8s);
+                events.ScheduleEvent(EVENT_MASSIVEGEYSER, 25s);
+                events.ScheduleEvent(EVENT_SLAM, 15s);
             }
 
             void UpdateAI(uint32 diff) override

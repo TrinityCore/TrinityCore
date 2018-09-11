@@ -110,12 +110,12 @@ class boss_ragnaros : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_ERUPTION, 15000);
-                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30000);
-                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25000);
-                events.ScheduleEvent(EVENT_LAVA_BURST, 10000);
-                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3000);
-                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2000);
+                events.ScheduleEvent(EVENT_ERUPTION, 15s);
+                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30s);
+                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25s);
+                events.ScheduleEvent(EVENT_LAVA_BURST, 10s);
+                events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3s);
+                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2s);
                 events.ScheduleEvent(EVENT_SUBMERGE, 180000);
             }
 
@@ -213,17 +213,17 @@ class boss_ragnaros : public CreatureScript
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
                                 if (urand(0, 1))
                                     Talk(SAY_WRATH);
-                                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25000);
+                                events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25s);
                                 break;
                             case EVENT_HAND_OF_RAGNAROS:
                                 DoCast(me, SPELL_HAND_OF_RAGNAROS);
                                 if (urand(0, 1))
                                     Talk(SAY_HAND);
-                                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20000);
+                                events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20s);
                                 break;
                             case EVENT_LAVA_BURST:
                                 DoCastVictim(SPELL_LAVA_BURST);
-                                events.ScheduleEvent(EVENT_LAVA_BURST, 10000);
+                                events.ScheduleEvent(EVENT_LAVA_BURST, 10s);
                                 break;
                             case EVENT_ELEMENTAL_FIRE:
                                 DoCastVictim(SPELL_ELEMENTAL_FIRE);
@@ -240,7 +240,7 @@ class boss_ragnaros : public CreatureScript
                                         _hasYelledMagmaBurst = true;
                                     }
                                 }
-                                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2500);
+                                events.ScheduleEvent(EVENT_MAGMA_BLAST, 2.5s);
                                 break;
                             case EVENT_SUBMERGE:
                             {

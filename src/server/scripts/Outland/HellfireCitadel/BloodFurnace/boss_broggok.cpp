@@ -91,7 +91,7 @@ class boss_broggok : public CreatureScript
                         break;
                     case EVENT_POISON_CLOUD:
                         DoCast(me, SPELL_POISON_CLOUD);
-                        events.ScheduleEvent(EVENT_POISON_CLOUD, 20000);
+                        events.ScheduleEvent(EVENT_POISON_CLOUD, 20s);
                         break;
                     default:
                         break;
@@ -109,9 +109,9 @@ class boss_broggok : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetImmuneToAll(false);
-                        events.ScheduleEvent(EVENT_SLIME_SPRAY, 10000);
-                        events.ScheduleEvent(EVENT_POISON_BOLT, 7000);
-                        events.ScheduleEvent(EVENT_POISON_CLOUD, 5000);
+                        events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
+                        events.ScheduleEvent(EVENT_POISON_BOLT, 7s);
+                        events.ScheduleEvent(EVENT_POISON_CLOUD, 5s);
                         break;
                     case ACTION_RESET_BROGGOK:
                         me->SetReactState(REACT_PASSIVE);

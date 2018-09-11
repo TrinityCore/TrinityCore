@@ -116,9 +116,9 @@ class boss_rotface : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
-                events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90000);
-                events.ScheduleEvent(EVENT_MUTATED_INFECTION, 14000);
+                events.ScheduleEvent(EVENT_SLIME_SPRAY, 20s);
+                events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90s);
+                events.ScheduleEvent(EVENT_MUTATED_INFECTION, 14s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_VILE_GAS, urand(22000, 27000));
 
@@ -209,13 +209,13 @@ class boss_rotface : public CreatureScript
                                 Talk(EMOTE_SLIME_SPRAY);
                                 DoCast(me, SPELL_SLIME_SPRAY);
                             }
-                            events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
+                            events.ScheduleEvent(EVENT_SLIME_SPRAY, 20s);
                             break;
                         case EVENT_HASTEN_INFECTIONS:
                             if (infectionStage++ < 4)
                             {
                                 infectionCooldown -= 2000;
-                                events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90000);
+                                events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90s);
                             }
                             break;
                         case EVENT_MUTATED_INFECTION:
@@ -264,7 +264,7 @@ class npc_little_ooze : public CreatureScript
                 DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
                 DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
                 DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
-                events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
+                events.ScheduleEvent(EVENT_STICKY_OOZE, 5s);
                 AddThreat(summoner, 500000.0f);
             }
 
@@ -283,7 +283,7 @@ class npc_little_ooze : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_STICKY_OOZE)
                 {
                     DoCastVictim(SPELL_STICKY_OOZE);
-                    events.ScheduleEvent(EVENT_STICKY_OOZE, 15000);
+                    events.ScheduleEvent(EVENT_STICKY_OOZE, 15s);
                 }
 
                 DoMeleeAttackIfReady();
@@ -317,7 +317,7 @@ class npc_big_ooze : public CreatureScript
                 DoCast(me, SPELL_RADIATING_OOZE, true);
                 DoCast(me, SPELL_UNSTABLE_OOZE, true);
                 DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
-                events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
+                events.ScheduleEvent(EVENT_STICKY_OOZE, 5s);
                 // register in Rotface's summons - not summoned with Rotface as owner
                 if (Creature* rotface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ROTFACE)))
                     rotface->AI()->JustSummoned(me);
@@ -349,7 +349,7 @@ class npc_big_ooze : public CreatureScript
                     {
                         case EVENT_STICKY_OOZE:
                             DoCastVictim(SPELL_STICKY_OOZE);
-                            events.ScheduleEvent(EVENT_STICKY_OOZE, 15000);
+                            events.ScheduleEvent(EVENT_STICKY_OOZE, 15s);
                         default:
                             break;
                     }

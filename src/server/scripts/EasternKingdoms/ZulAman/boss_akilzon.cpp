@@ -120,7 +120,7 @@ class boss_akilzon : public CreatureScript
                 events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
                 events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(10000, 20000));    // totaly random timer. can't find any info on this
-                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60000);                // 60 seconds(bosskillers)
+                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60s);                // 60 seconds(bosskillers)
                 events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
 
@@ -212,7 +212,7 @@ class boss_akilzon : public CreatureScript
                 if (StormCount > 10)
                 {
                     StormCount = 0; // finish
-                    events.ScheduleEvent(EVENT_SUMMON_EAGLES, 5000);
+                    events.ScheduleEvent(EVENT_SUMMON_EAGLES, 5s);
                     me->InterruptNonMeleeSpells(false);
                     CloudGUID.Clear();
                     if (Cloud)
@@ -220,7 +220,7 @@ class boss_akilzon : public CreatureScript
                     SetWeather(WEATHER_STATE_FINE, 0.0f);
                     isRaining = false;
                 }
-                events.ScheduleEvent(EVENT_STORM_SEQUENCE, 1000);
+                events.ScheduleEvent(EVENT_STORM_SEQUENCE, 1s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -297,7 +297,7 @@ class boss_akilzon : public CreatureScript
                                         Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     }
                                 StormCount = 1;
-                                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60000); // 60 seconds(bosskillers)
+                                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60s); // 60 seconds(bosskillers)
                                 events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
                                 break;
                             }
@@ -308,7 +308,7 @@ class boss_akilzon : public CreatureScript
                                 isRaining = true;
                             }
                             else
-                                events.ScheduleEvent(EVENT_RAIN, 1000);
+                                events.ScheduleEvent(EVENT_RAIN, 1s);
                             break;
                         case EVENT_STORM_SEQUENCE:
                             {
@@ -355,7 +355,7 @@ class boss_akilzon : public CreatureScript
                         case EVENT_ENRAGE:
                              Talk(SAY_ENRAGE);
                              DoCast(me, SPELL_BERSERK, true);
-                            events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 10min);
                             break;
                         default:
                             break;

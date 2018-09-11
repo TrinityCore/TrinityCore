@@ -97,10 +97,10 @@ class boss_trollgore : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_CONSUME, 15000);
+                events.ScheduleEvent(EVENT_CONSUME, 15s);
                 events.ScheduleEvent(EVENT_CRUSH, urand(1000, 5000));
                 events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(10000, 60000));
-                events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3000);
+                events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3s);
                 events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
             }
 
@@ -121,7 +121,7 @@ class boss_trollgore : public CreatureScript
                         case EVENT_CONSUME:
                             Talk(SAY_CONSUME);
                             DoCastAOE(SPELL_CONSUME);
-                            events.ScheduleEvent(EVENT_CONSUME, 15000);
+                            events.ScheduleEvent(EVENT_CONSUME, 15s);
                             break;
                         case EVENT_CRUSH:
                             DoCastVictim(SPELL_CRUSH);

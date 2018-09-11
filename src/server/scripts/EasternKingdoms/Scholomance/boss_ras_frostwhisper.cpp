@@ -56,10 +56,10 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_ICE_ARMOR, 2000);
-            events.ScheduleEvent(EVENT_FROSTBOLT, 8000);
-            events.ScheduleEvent(EVENT_CHILL_NOVA, 12000);
-            events.ScheduleEvent(EVENT_FREEZE, 18000);
+            events.ScheduleEvent(EVENT_ICE_ARMOR, 2s);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
+            events.ScheduleEvent(EVENT_CHILL_NOVA, 12s);
+            events.ScheduleEvent(EVENT_FREEZE, 18s);
             events.ScheduleEvent(EVENT_FEAR, 45000);
         }
 
@@ -84,19 +84,19 @@ public:
                     case EVENT_FROSTBOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, 8000);
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
                         break;
                     case EVENT_FREEZE:
                         DoCastVictim(SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 24000);
+                        events.ScheduleEvent(EVENT_FREEZE, 24s);
                         break;
                     case EVENT_FEAR:
                         DoCastVictim(SPELL_FEAR);
-                        events.ScheduleEvent(EVENT_FEAR, 30000);
+                        events.ScheduleEvent(EVENT_FEAR, 30s);
                         break;
                     case EVENT_CHILL_NOVA:
                         DoCastVictim(SPELL_CHILL_NOVA);
-                        events.ScheduleEvent(EVENT_CHILL_NOVA, 14000);
+                        events.ScheduleEvent(EVENT_CHILL_NOVA, 14s);
                         break;
                     case EVENT_FROSTVOLLEY:
                         DoCastVictim(SPELL_FROSTVOLLEY);

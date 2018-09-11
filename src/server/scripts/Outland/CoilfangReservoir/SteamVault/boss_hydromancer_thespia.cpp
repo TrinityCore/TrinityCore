@@ -73,8 +73,8 @@ class boss_hydromancer_thespia : public CreatureScript
                 _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15000);
-                events.ScheduleEvent(EVENT_LUNG_BURST, 7000);
-                events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 9000);
+                events.ScheduleEvent(EVENT_LUNG_BURST, 7s);
+                events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 9s);
             }
 
             void ExecuteEvent(uint32 eventId) override

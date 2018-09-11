@@ -140,11 +140,11 @@ class boss_general_vezax : public CreatureScript
                 CheckShamanisticRage();
 
                 events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
-                events.ScheduleEvent(EVENT_SEARING_FLAMES, 12000);
+                events.ScheduleEvent(EVENT_SEARING_FLAMES, 12s);
                 events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 40000));
-                events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30000);
-                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 60000);
-                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30s);
+                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 60s);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
             }
 
             void UpdateAI(uint32 diff) override
@@ -329,7 +329,7 @@ class boss_saronite_animus : public CreatureScript
             {
                 DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
                 events.Reset();
-                events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
+                events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -354,7 +354,7 @@ class boss_saronite_animus : public CreatureScript
                     {
                         case EVENT_PROFOUND_OF_DARKNESS:
                             DoCastAOE(SPELL_PROFOUND_OF_DARKNESS, true);
-                            events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
+                            events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3s);
                             break;
                         default:
                             break;

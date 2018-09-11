@@ -925,9 +925,9 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_ALL_ADDS)
                 {
-                    _events.ScheduleEvent(EVENT_ADDS, 12000);
-                    _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 13000);
-                    _events.ScheduleEvent(EVENT_CHECK_MORTAR, 13000);
+                    _events.ScheduleEvent(EVENT_ADDS, 12s);
+                    _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 13s);
+                    _events.ScheduleEvent(EVENT_CHECK_MORTAR, 13s);
                     if (Is25ManRaid())
                         _controller.SummonCreatures(SLOT_MAGE_1, SLOT_MORTAR_4);
                     else
@@ -1036,8 +1036,8 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             if (Transport* skybreaker = HashMapHolder<Transport>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                                 skybreaker->SummonPassenger(NPC_TELEPORT_EXIT, SkybreakerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
-                            _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6000);
-                            _events.ScheduleEvent(EVENT_ADDS, 60000);
+                            _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6s);
+                            _events.ScheduleEvent(EVENT_ADDS, 60s);
                             break;
                         case EVENT_ADDS_BOARD_YELL:
                             if (Creature* muradin = me->FindNearestCreature(NPC_IGB_MURADIN_BRONZEBEARD, 200.0f))
@@ -1052,7 +1052,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                                     _axethrowersYellCooldown = GameTime::GetGameTime() + 5;
                                 }
                             }
-                            _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 1000);
+                            _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 1s);
                             break;
                         case EVENT_CHECK_MORTAR:
                             if (_controller.SummonCreatures(SLOT_MORTAR_1, Is25ManRaid() ? SLOT_MORTAR_4 : SLOT_MORTAR_2))
@@ -1063,7 +1063,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                                     _rocketeersYellCooldown = GameTime::GetGameTime() + 5;
                                 }
                             }
-                            _events.ScheduleEvent(EVENT_CHECK_MORTAR, 1000);
+                            _events.ScheduleEvent(EVENT_CHECK_MORTAR, 1s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
@@ -1189,9 +1189,9 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_ALL_ADDS)
                 {
-                    _events.ScheduleEvent(EVENT_ADDS, 12000);
-                    _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 13000);
-                    _events.ScheduleEvent(EVENT_CHECK_MORTAR, 13000);
+                    _events.ScheduleEvent(EVENT_ADDS, 12s);
+                    _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 13s);
+                    _events.ScheduleEvent(EVENT_CHECK_MORTAR, 13s);
                     if (Is25ManRaid())
                         _controller.SummonCreatures(SLOT_MAGE_1, SLOT_MORTAR_4);
                     else
@@ -1304,8 +1304,8 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             if (Transport* orgrimsHammer = HashMapHolder<Transport>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                                 orgrimsHammer->SummonPassenger(NPC_TELEPORT_EXIT, OrgrimsHammerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
-                            _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6000);
-                            _events.ScheduleEvent(EVENT_ADDS, 60000);
+                            _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6s);
+                            _events.ScheduleEvent(EVENT_ADDS, 60s);
                             break;
                         case EVENT_ADDS_BOARD_YELL:
                             if (Creature* saurfang = me->FindNearestCreature(NPC_IGB_HIGH_OVERLORD_SAURFANG, 200.0f))
@@ -1320,7 +1320,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                                     _riflemanYellCooldown = GameTime::GetGameTime() + 5;
                                 }
                             }
-                            _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 1000);
+                            _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 1s);
                             break;
                         case EVENT_CHECK_MORTAR:
                             if (_controller.SummonCreatures(SLOT_MORTAR_1, Is25ManRaid() ? SLOT_MORTAR_4 : SLOT_MORTAR_2))
@@ -1331,7 +1331,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                                     _mortarYellCooldown = GameTime::GetGameTime() + 5;
                                 }
                             }
-                            _events.ScheduleEvent(EVENT_CHECK_MORTAR, 1000);
+                            _events.ScheduleEvent(EVENT_CHECK_MORTAR, 1s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);

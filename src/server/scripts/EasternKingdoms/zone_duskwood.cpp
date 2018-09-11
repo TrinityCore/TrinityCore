@@ -76,7 +76,7 @@ public:
         {
             Talk(YELL_TWILIGHT_CORRUPTOR_AGGRO);
             _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15000);
-            _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30000);
+            _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30s);
         }
 
         void KilledUnit(Unit* victim) override

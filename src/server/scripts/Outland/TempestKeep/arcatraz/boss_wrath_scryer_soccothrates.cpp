@@ -116,7 +116,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FELFIRE_SHOCK, urand(12000, 14000));
                 events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(11000, 12000));
-                events.ScheduleEvent(EVENT_ME_FIRST, 6000);
+                events.ScheduleEvent(EVENT_ME_FIRST, 6s);
                 Talk(SAY_AGGRO);
                 preFight = false;
             }
@@ -143,7 +143,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 switch (data)
                 {
                     case 1:
-                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6000);
+                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6s);
                         dalliahDeath = true;
                         break;
                     default:

@@ -100,10 +100,10 @@ public:
 
         void DoChangePhase()
         {
-            events.ScheduleEvent(EVENT_CLEAVE, 15000);
-            events.ScheduleEvent(EVENT_STOMP, 35000);
-            events.ScheduleEvent(EVENT_FIREBALL, 7000);
-            events.ScheduleEvent(EVENT_CONFLAGRATION, 12000);
+            events.ScheduleEvent(EVENT_CLEAVE, 15s);
+            events.ScheduleEvent(EVENT_STOMP, 35s);
+            events.ScheduleEvent(EVENT_FIREBALL, 7s);
+            events.ScheduleEvent(EVENT_CONFLAGRATION, 12s);
 
             secondPhase = true;
             me->RemoveAllAuras();
@@ -151,7 +151,7 @@ public:
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);
-                        events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
+                        events.ScheduleEvent(EVENT_CONFLAGRATION, 30s);
                         break;
                 }
 

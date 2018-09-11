@@ -84,7 +84,7 @@ class boss_bronjahm : public CreatureScript
             {
                 _Reset();
                 events.SetPhase(PHASE_1);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                 events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
             }

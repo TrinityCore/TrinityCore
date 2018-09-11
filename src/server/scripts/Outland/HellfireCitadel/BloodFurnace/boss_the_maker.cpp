@@ -57,9 +57,9 @@ class boss_the_maker : public CreatureScript
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_ACID_SPRAY, 15000);
-                events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 6000);
+                events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 6s);
                 events.ScheduleEvent(EVENT_DOMINATION, 120000);
-                events.ScheduleEvent(EVENT_KNOCKDOWN, 10000);
+                events.ScheduleEvent(EVENT_KNOCKDOWN, 10s);
             }
 
             void KilledUnit(Unit* who) override

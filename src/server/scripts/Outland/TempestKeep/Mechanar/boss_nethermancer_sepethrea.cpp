@@ -76,7 +76,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
                 events.ScheduleEvent(EVENT_KNOCKBACK, urand(22000, 28000));
-                events.ScheduleEvent(EVENT_SOLARBURN, 30000);
+                events.ScheduleEvent(EVENT_SOLARBURN, 30s);
                 Talk(SAY_AGGRO);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
                 Talk(SAY_SUMMON);
@@ -127,7 +127,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                             break;
                         case EVENT_SOLARBURN:
                             DoCastVictim(SPELL_SOLARBURN, true);
-                            events.ScheduleEvent(EVENT_SOLARBURN, 30000);
+                            events.ScheduleEvent(EVENT_SOLARBURN, 30s);
                             break;
                         default:
                             break;

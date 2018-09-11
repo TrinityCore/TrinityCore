@@ -110,7 +110,7 @@ class boss_garfrost : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);
-                events.ScheduleEvent(EVENT_THROW_SARONITE, 7000);
+                events.ScheduleEvent(EVENT_THROW_SARONITE, 7s);
             }
 
             void KilledUnit(Unit* victim) override
@@ -137,7 +137,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE2);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1.5s);
                     return;
                 }
 
@@ -147,7 +147,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE3);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1.5s);
                     return;
                 }
             }
@@ -168,7 +168,7 @@ class boss_garfrost : public CreatureScript
                     DoCast(me, SPELL_FORGE_MACE);
                     SetEquipmentSlots(false, EQUIP_ID_MACE);
                 }
-                events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
+                events.ScheduleEvent(EVENT_RESUME_ATTACK, 5s);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override

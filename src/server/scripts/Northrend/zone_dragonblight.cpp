@@ -166,8 +166,8 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 for (ObjectGuid& guid : imageList)
                     guid.Clear();
 
-                _events.ScheduleEvent(EVENT_GET_TARGETS, 5000);
-                _events.ScheduleEvent(EVENT_START_RANDOM, 20000);
+                _events.ScheduleEvent(EVENT_GET_TARGETS, 5s);
+                _events.ScheduleEvent(EVENT_START_RANDOM, 20s);
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -235,7 +235,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                             }
                             break;
                         case 5: // Home
-                            _events.ScheduleEvent(EVENT_START_RANDOM, 30000);
+                            _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
                             break;
                         }
                     }
@@ -279,7 +279,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                     creature->SetEntry(entry);
                     creature->SetDisplayId(model);
                     creature->CastSpell(creature, SPELL_HEROIC_IMAGE_CHANNEL);
-                    _events.ScheduleEvent(EVENT_TALK_COMPLETE, 40000);
+                    _events.ScheduleEvent(EVENT_TALK_COMPLETE, 40s);
                 }
             }
 
@@ -303,7 +303,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                         case EVENT_START_RANDOM:
                             talkWing = urand (0, 4);
                             Talk(talkWing);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 8000);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 8s);
                             break;
                         case EVENT_MOVE_TO_POINT:
                             me->SetWalk(true);
@@ -313,7 +313,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                         case EVENT_TALK_COMPLETE:
                             talkWing = 5;
                             Talk(talkWing);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 5000);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 5s);
                             break;
                         case EVENT_GET_TARGETS:
                             StoreTargets();

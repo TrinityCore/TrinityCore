@@ -163,10 +163,10 @@ class boss_doomrel : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10000);
-                _events.ScheduleEvent(EVENT_IMMOLATE, 18000);
-                _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5000);
-                _events.ScheduleEvent(EVENT_DEMONARMOR, 16000);
+                _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10s);
+                _events.ScheduleEvent(EVENT_IMMOLATE, 18s);
+                _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5s);
+                _events.ScheduleEvent(EVENT_DEMONARMOR, 16s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -203,20 +203,20 @@ class boss_doomrel : public CreatureScript
                     {
                         case EVENT_SHADOW_BOLT_VOLLEY:
                             DoCastVictim(SPELL_SHADOWBOLTVOLLEY);
-                            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 12000);
+                            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 12s);
                             break;
                         case EVENT_IMMOLATE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_IMMOLATE);
-                            _events.ScheduleEvent(EVENT_IMMOLATE, 25000);
+                            _events.ScheduleEvent(EVENT_IMMOLATE, 25s);
                             break;
                         case EVENT_CURSE_OF_WEAKNESS:
                             DoCastVictim(SPELL_CURSEOFWEAKNESS);
-                            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 45000);
+                            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 45s);
                             break;
                         case EVENT_DEMONARMOR:
                             DoCast(me, SPELL_DEMONARMOR);
-                            _events.ScheduleEvent(EVENT_DEMONARMOR, 300000);
+                            _events.ScheduleEvent(EVENT_DEMONARMOR, 5min);
                             break;
                         default:
                             break;

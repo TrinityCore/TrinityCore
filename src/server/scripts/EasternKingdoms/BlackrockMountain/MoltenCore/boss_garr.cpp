@@ -60,8 +60,8 @@ class boss_garr : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25000);
-                events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15000);
+                events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25s);
+                events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15s);
             }
 
             void UpdateAI(uint32 diff) override

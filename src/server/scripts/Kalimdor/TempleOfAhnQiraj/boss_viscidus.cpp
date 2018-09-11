@@ -164,7 +164,7 @@ class boss_viscidus : public CreatureScript
                         _phase = PHASE_MELEE;
                         DoCast(me, SPELL_VISCIDUS_FREEZE);
                         me->RemoveAura(SPELL_VISCIDUS_SLOWED_MORE);
-                        events.ScheduleEvent(EVENT_RESET_PHASE, 15000);
+                        events.ScheduleEvent(EVENT_RESET_PHASE, 15s);
                     }
                     else if (_hitcounter >= HITCOUNTER_SLOW_MORE)
                     {

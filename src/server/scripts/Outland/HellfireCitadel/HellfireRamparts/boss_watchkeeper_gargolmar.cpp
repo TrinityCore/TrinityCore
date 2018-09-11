@@ -79,8 +79,8 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
-                events.ScheduleEvent(EVENT_SURGE, 4000);
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s);
+                events.ScheduleEvent(EVENT_SURGE, 4s);
                 _JustEngagedWith();
             }
 
@@ -139,7 +139,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                             break;
                         case EVENT_RETALIATION:
                             DoCast(me, SPELL_RETALIATION);
-                            events.ScheduleEvent(EVENT_RETALIATION, 30000);
+                            events.ScheduleEvent(EVENT_RETALIATION, 30s);
                             break;
                         default:
                             break;
@@ -150,7 +150,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 {
                     if (HealthBelowPct(20))
                     {
-                        events.ScheduleEvent(EVENT_RETALIATION, 1000);
+                        events.ScheduleEvent(EVENT_RETALIATION, 1s);
                         retaliation = true;
                     }
                 }

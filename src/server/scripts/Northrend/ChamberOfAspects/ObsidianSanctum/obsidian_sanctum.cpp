@@ -189,8 +189,8 @@ struct dummy_dragonAI : public ScriptedAI
         Talk(SAY_AGGRO);
         DoZoneInCombat();
 
-        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5000);
-        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20000);
+        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5s);
+        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20s);
     }
 
     void SetData(uint32 type, uint32 value) override
@@ -241,7 +241,7 @@ struct dummy_dragonAI : public ScriptedAI
             waypointId = 0;
         }
 
-        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500);
+        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 0.5s);
     }
 
     // "opens" the portal and does the "opening" whisper
@@ -430,7 +430,7 @@ public:
         {
             dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
+            events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -450,7 +450,7 @@ public:
                 {
                     case EVENT_HATCH_EGGS:
                         OpenPortal();
-                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
+                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
                         break;
                     default:
                         dummy_dragonAI::ExecuteEvent(eventId);
@@ -498,7 +498,7 @@ public:
         {
             dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
+            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -518,7 +518,7 @@ public:
                 {
                     case EVENT_ACOLYTE_SHADRON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == NOT_STARTED)
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10000);
+                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10s);
                         else
                         {
                             if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
@@ -569,7 +569,7 @@ public:
         {
             dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
+            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -589,7 +589,7 @@ public:
                 {
                     case EVENT_ACOLYTE_VESPERON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == IN_PROGRESS)
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10000);
+                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10s);
                         else
                         {
                             OpenPortal();
@@ -805,7 +805,7 @@ public:
         {
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
-            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20000);
+            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20s);
         }
 
         void SpawnWhelps()
@@ -874,8 +874,8 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100);
-            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
+            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 0.1s);
+            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -889,12 +889,12 @@ public:
                 {
                     case EVENT_TSUNAMI_TIMER:
                         DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
-                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500);
+                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 0.5s);
                         break;
                     case EVENT_TSUNAMI_BUFF:
                         if (Unit* lavaBlaze = GetClosestCreatureWithEntry(me, NPC_LAVA_BLAZE, 10.0f, true))
                             lavaBlaze->CastSpell(lavaBlaze, SPELL_FLAME_TSUNAMI_BUFF, true);
-                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
+                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
                         break;
                 }
             }
@@ -936,7 +936,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->AddAura(46265, me); // Wrong, can't find proper visual
             me->AddAura(69422, me);
-            events.ScheduleEvent(EVENT_VOID_BLAST, 5000);
+            events.ScheduleEvent(EVENT_VOID_BLAST, 5s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -988,7 +988,7 @@ public:
         {
             me->RemoveAllAuras();
             DoZoneInCombat();
-            events.ScheduleEvent(EVENT_FADE_ARMOR, 1000);
+            events.ScheduleEvent(EVENT_FADE_ARMOR, 1s);
         }
 
         void UpdateAI(uint32 diff) override

@@ -218,7 +218,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 10000));
             events.ScheduleEvent(EVENT_FEAR, urand(10000, 20000));
             //events.ScheduleEvent(EVENT_MIND_CONTROL, urand(30000, 35000));
-            events.ScheduleEvent(EVENT_SPAWN_ADD, 10000);
+            events.ScheduleEvent(EVENT_SPAWN_ADD, 10s);
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -366,7 +366,7 @@ public:
                                     return;
                                 }
                             }
-                            events.ScheduleEvent(EVENT_SPAWN_ADD, 4000);
+                            events.ScheduleEvent(EVENT_SPAWN_ADD, 4s);
                             break;
                     }
 
@@ -428,11 +428,11 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_SHADOWFLAME, 12000);
+            events.ScheduleEvent(EVENT_SHADOWFLAME, 12s);
             events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
             events.ScheduleEvent(EVENT_VEILOFSHADOW, urand(25000, 35000));
-            events.ScheduleEvent(EVENT_CLEAVE, 7000);
-            //events.ScheduleEvent(EVENT_TAILLASH, 10000);
+            events.ScheduleEvent(EVENT_CLEAVE, 7s);
+            //events.ScheduleEvent(EVENT_TAILLASH, 10s);
             events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
             Talk(SAY_RANDOM);
         }
@@ -494,7 +494,7 @@ public:
                 {
                     case EVENT_SHADOWFLAME:
                         DoCastVictim(SPELL_SHADOWFLAME);
-                        events.ScheduleEvent(EVENT_SHADOWFLAME, 12000);
+                        events.ScheduleEvent(EVENT_SHADOWFLAME, 12s);
                         break;
                     case EVENT_FEAR:
                         DoCastVictim(SPELL_BELLOWINGROAR);
@@ -506,12 +506,12 @@ public:
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s);
                         break;
                     case EVENT_TAILLASH:
                         // Cast NYI since we need a better check for behind target
                         DoCastVictim(SPELL_TAILLASH);
-                        events.ScheduleEvent(EVENT_TAILLASH, 10000);
+                        events.ScheduleEvent(EVENT_TAILLASH, 10s);
                         break;
                     case EVENT_CLASSCALL:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))

@@ -57,11 +57,11 @@ public:
             _JustEngagedWith();
             Talk(SAY_AGGRO);
 
-            events.ScheduleEvent(EVENT_CLEAVE, 8000);
-            events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
-            events.ScheduleEvent(EVENT_MORTALSTRIKE, 20000);
-            events.ScheduleEvent(EVENT_KNOCKBACK, 30000);
-            events.ScheduleEvent(EVENT_CHECK, 1000);
+            events.ScheduleEvent(EVENT_CLEAVE, 8s);
+            events.ScheduleEvent(EVENT_BLASTWAVE, 12s);
+            events.ScheduleEvent(EVENT_MORTALSTRIKE, 20s);
+            events.ScheduleEvent(EVENT_KNOCKBACK, 30s);
+            events.ScheduleEvent(EVENT_CHECK, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -77,7 +77,7 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s);
                         break;
                     case EVENT_BLASTWAVE:
                         DoCastVictim(SPELL_BLASTWAVE);
@@ -99,7 +99,7 @@ public:
                             Talk(SAY_LEASH);
                             EnterEvadeMode(EVADE_REASON_BOUNDARY);
                         }
-                        events.ScheduleEvent(EVENT_CHECK, 1000);
+                        events.ScheduleEvent(EVENT_CHECK, 1s);
                         break;
                 }
             }

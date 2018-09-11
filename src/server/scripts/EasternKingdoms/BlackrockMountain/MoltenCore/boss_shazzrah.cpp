@@ -52,11 +52,11 @@ class boss_shazzrah : public CreatureScript
             void JustEngagedWith(Unit* target) override
             {
                 BossAI::JustEngagedWith(target);
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6000);
-                events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10000);
-                events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24000);
-                events.ScheduleEvent(EVENT_COUNTERSPELL, 15000);
-                events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45000);
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s);
+                events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10s);
+                events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24s);
+                events.ScheduleEvent(EVENT_COUNTERSPELL, 15s);
+                events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -88,7 +88,7 @@ class boss_shazzrah : public CreatureScript
                             break;
                         case EVENT_MAGIC_GROUNDING:
                             DoCast(me, SPELL_MAGIC_GROUNDING);
-                            events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 35000);
+                            events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 35s);
                             break;
                         case EVENT_COUNTERSPELL:
                             DoCastVictim(SPELL_COUNTERSPELL);
@@ -97,9 +97,9 @@ class boss_shazzrah : public CreatureScript
                         case EVENT_SHAZZRAH_GATE:
                             ResetThreatList();
                             DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
-                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2000);
+                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2s);
                             events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, urand(3000, 6000));
-                            events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45000);
+                            events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
                             break;
                         default:
                             break;

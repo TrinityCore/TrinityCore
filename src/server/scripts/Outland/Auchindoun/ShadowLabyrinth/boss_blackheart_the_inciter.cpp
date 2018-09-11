@@ -83,8 +83,8 @@ struct boss_blackheart_the_inciter : public BossAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
-        events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
-        events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5000);
+        events.ScheduleEvent(EVENT_INCITE_CHAOS, 20s);
+        events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5s);
         events.ScheduleEvent(EVENT_WAR_STOMP, 15000);
 
         Talk(SAY_AGGRO);
@@ -139,7 +139,7 @@ struct boss_blackheart_the_inciter : public BossAI
                         ResetThreatList();
                         DoCast(me, SPELL_INCITE_CHAOS);
                     }
-                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
+                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40s);
                     break;
                 }
                 case EVENT_CHARGE_ATTACK:

@@ -53,8 +53,8 @@ public:
             _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
-            events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
-            events.ScheduleEvent(EVENT_FRENZY, 10000);
+            events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
+            events.ScheduleEvent(EVENT_FRENZY, 10s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -79,7 +79,7 @@ public:
                         DoCastVictim(SPELL_WINGBUFFET);
                         if (GetThreat(me->GetVictim()))
                             ModifyThreatByPercent(me->GetVictim(), -75);
-                        events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+                        events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
                         break;
                     case EVENT_FRENZY:
                         Talk(EMOTE_FRENZY);

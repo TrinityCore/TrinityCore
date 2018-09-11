@@ -171,13 +171,13 @@ public:
 
             FetchDragons();
 
-            events.ScheduleEvent(EVENT_LAVA_STRIKE, 5000);
-            events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7000);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, 20000);
-            events.ScheduleEvent(EVENT_TAIL_SWEEP, 20000);
-            events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30000);
-            events.ScheduleEvent(EVENT_CALL_TENEBRON, 30000);
-            events.ScheduleEvent(EVENT_CALL_SHADRON, 75000);
+            events.ScheduleEvent(EVENT_LAVA_STRIKE, 5s);
+            events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7s);
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 20s);
+            events.ScheduleEvent(EVENT_TAIL_SWEEP, 20s);
+            events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30s);
+            events.ScheduleEvent(EVENT_CALL_TENEBRON, 30s);
+            events.ScheduleEvent(EVENT_CALL_SHADRON, 75s);
             events.ScheduleEvent(EVENT_CALL_VESPERON, 120000);
         }
 
@@ -447,7 +447,7 @@ public:
                                 break;
                             }
                         }
-                        events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30000);
+                        events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30s);
                         break;
                     case EVENT_FLAME_BREATH:
                         Talk(SAY_SARTHARION_BREATH);

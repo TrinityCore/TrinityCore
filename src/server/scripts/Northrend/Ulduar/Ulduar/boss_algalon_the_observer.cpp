@@ -994,7 +994,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
 
         // Start Algalon event
         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-        _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5000);
+        _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5s);
         if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
             brann->AI()->DoAction(ACTION_START_INTRO);
 

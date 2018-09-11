@@ -129,8 +129,8 @@ class boss_marli : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_POISON_VOLLEY, 15000);
-                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30000);
+                            events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
+                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30s);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             break;
@@ -197,8 +197,8 @@ class boss_marli : public CreatureScript
                             me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_POISON_VOLLEY, 15000);
-                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30000);
+                            events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
+                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30s);
                             events.ScheduleEvent(EVENT_TRANSFORM, urand(35000, 60000), 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             break;

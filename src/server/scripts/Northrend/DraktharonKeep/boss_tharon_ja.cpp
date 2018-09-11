@@ -95,8 +95,8 @@ class boss_tharon_ja : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
-                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
+                events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
+                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
                 events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
                 events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
             }
@@ -160,7 +160,7 @@ class boss_tharon_ja : public CreatureScript
                             return;
                         case EVENT_DECAY_FLESH:
                             DoCastAOE(SPELL_DECAY_FLESH);
-                            events.ScheduleEvent(EVENT_GOING_FLESH, 6000);
+                            events.ScheduleEvent(EVENT_GOING_FLESH, 6s);
                             return;
                         case EVENT_GOING_FLESH:
                             Talk(SAY_FLESH);
@@ -170,14 +170,14 @@ class boss_tharon_ja : public CreatureScript
                             DoCast(me, SPELL_DUMMY, true);
 
                             events.Reset();
-                            events.ScheduleEvent(EVENT_RETURN_FLESH, 20000);
+                            events.ScheduleEvent(EVENT_RETURN_FLESH, 20s);
                             events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(3000, 4000));
                             events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 8000));
                             events.ScheduleEvent(EVENT_POISON_CLOUD, urand(6000, 7000));
                             break;
                         case EVENT_RETURN_FLESH:
                             DoCastAOE(SPELL_RETURN_FLESH);
-                            events.ScheduleEvent(EVENT_GOING_SKELETAL, 6000);
+                            events.ScheduleEvent(EVENT_GOING_SKELETAL, 6s);
                             return;
                         case EVENT_GOING_SKELETAL:
                             Talk(SAY_SKELETON);
@@ -185,8 +185,8 @@ class boss_tharon_ja : public CreatureScript
                             DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
 
                             events.Reset();
-                            events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
-                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
+                            events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
                             events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
                             events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
                             break;

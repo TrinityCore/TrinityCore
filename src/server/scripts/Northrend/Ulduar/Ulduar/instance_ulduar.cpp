@@ -761,7 +761,7 @@ class instance_ulduar : public InstanceMapScript
                         DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, 60);
                         _algalonTimer = 60;
                         _events.ScheduleEvent(EVENT_DESPAWN_ALGALON, 3600000);
-                        _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60000);
+                        _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60s);
                         break;
                     case DATA_ALGALON_SUMMON_STATE:
                         _algalonSummoned = true;
@@ -949,7 +949,7 @@ class instance_ulduar : public InstanceMapScript
                     _summonAlgalon = true;
                     if (_algalonTimer && _algalonTimer <= 60)
                     {
-                        _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60000);
+                        _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60s);
                         DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, _algalonTimer);
                     }
@@ -988,7 +988,7 @@ class instance_ulduar : public InstanceMapScript
                             SaveToDB();
                             DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, --_algalonTimer);
                             if (_algalonTimer)
-                                _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60000);
+                                _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60s);
                             else
                             {
                                 DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 0);

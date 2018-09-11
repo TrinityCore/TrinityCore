@@ -85,7 +85,7 @@ class boss_varos : public CreatureScript
                 _Reset();
 
                 events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
+                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
                 // not sure if this is handled by a timer or hp percentage
                 events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
 
@@ -132,8 +132,8 @@ class boss_varos : public CreatureScript
                                 coreEnergizeOrientation = Position::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
 
                             DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
-                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
-                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4s);
                             break;
                         case EVENT_CALL_AZURE:
                             // not sure how blizz handles this, i cant see any pattern between the differnt spells

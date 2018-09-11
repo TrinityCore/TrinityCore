@@ -64,7 +64,7 @@ class boss_maiden_of_grief : public CreatureScript
 
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_PARTING_SORROW, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10000);
+                events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10s);
                 events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 15000));
 

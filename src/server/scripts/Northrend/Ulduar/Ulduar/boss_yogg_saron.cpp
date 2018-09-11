@@ -524,7 +524,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
                 events.ScheduleEvent(EVENT_LOCK_DOOR, 15000);
                 events.ScheduleEvent(EVENT_SUMMON_GUARDIAN_OF_YOGG_SARON, _guardianTimer, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 900000);    // 15 minutes
+                events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 15min);    // 15 minutes
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -560,7 +560,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_EXTINGUISH_ALL_LIFE, me);
                                 yogg->CastSpell(nullptr, SPELL_EXTINGUISH_ALL_LIFE, true);
                             }
-                            events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10000);    // cast it again after a short while, players can survive
+                            events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10s);    // cast it again after a short while, players can survive
                             break;
                         case EVENT_SUMMON_GUARDIAN_OF_YOGG_SARON:
                             DoCastAOE(SPELL_SUMMON_GUARDIAN_2, { SPELLVALUE_MAX_TARGETS, 1 });
@@ -1270,7 +1270,7 @@ class npc_corruptor_tentacle : public CreatureScript
                         case EVENT_CAST_RANDOM_SPELL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, RAND(SPELL_BLACK_PLAGUE, SPELL_CURSE_OF_DOOM, SPELL_APATHY, SPELL_DRAINING_POISON));
-                            _events.ScheduleEvent(EVENT_CAST_RANDOM_SPELL, 3000);
+                            _events.ScheduleEvent(EVENT_CAST_RANDOM_SPELL, 3s);
                             break;
                         default:
                             break;

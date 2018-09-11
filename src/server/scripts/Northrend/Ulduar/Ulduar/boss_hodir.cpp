@@ -368,7 +368,7 @@ class boss_hodir : public CreatureScript
                 iHaveTheCoolestFriends = true;
                 iCouldSayThatThisCacheWasRare = true;
 
-                events.ScheduleEvent(EVENT_ICICLE, 2000);
+                events.ScheduleEvent(EVENT_ICICLE, 2s);
                 events.ScheduleEvent(EVENT_FREEZE, 25000);
                 events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
                 events.ScheduleEvent(EVENT_FLASH_FREEZE, 45000);
@@ -449,7 +449,7 @@ class boss_hodir : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
                             DoCast(SPELL_FLASH_FREEZE);
-                            events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500);
+                            events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 0.5s);
                             break;
                         case EVENT_FLASH_FREEZE_EFFECT:
                         {
@@ -875,7 +875,7 @@ class npc_hodir_mage : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
                 events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(10000, 12500));
-                events.ScheduleEvent(EVENT_MELT_ICE, 5000);
+                events.ScheduleEvent(EVENT_MELT_ICE, 5s);
             }
 
             void JustSummoned(Creature* summoned) override

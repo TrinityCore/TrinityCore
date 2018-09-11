@@ -242,13 +242,13 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::Reset();
                 DoCast(me, SPELL_TANK_MARKER, true);
-                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_TAIL_SMASH, 20000, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_FROST_BREATH, urand(8000, 12000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
+                events.ScheduleEvent(EVENT_AIR_PHASE, 50s);
                 Initialize();
 
                 if (instance->GetData(DATA_SINDRAGOSA_INTRO))
@@ -377,12 +377,12 @@ class boss_sindragosa : public CreatureScript
                         me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, args);
                         me->SetFacingTo(float(M_PI), true);
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
-                        events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 9s);
                         break;
                     }
                     case POINT_AIR_PHASE_FAR:
                         me->SetFacingTo(float(M_PI), true);
-                        events.ScheduleEvent(EVENT_LAND, 30000);
+                        events.ScheduleEvent(EVENT_LAND, 30s);
                         break;
                     case POINT_LAND:
                         events.ScheduleEvent(EVENT_LAND_GROUND, 1);
@@ -410,7 +410,7 @@ class boss_sindragosa : public CreatureScript
                 if (!_isThirdPhase && !HealthAbovePct(35))
                 {
                     events.CancelEvent(EVENT_AIR_PHASE);
-                    events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 1000);
+                    events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 1s);
                     _isThirdPhase = true;
                 }
             }
@@ -555,7 +555,7 @@ class boss_sindragosa : public CreatureScript
                                 DoCast(me, SPELL_MYSTIC_BUFFET, true);
                             }
                             else
-                                events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5000);
+                                events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5s);
                             break;
                         }
                         default:
@@ -929,7 +929,7 @@ class npc_rimefang : public CreatureScript
                                     me->SetFacingToObject(target);
                                     DoCast(target, SPELL_ICY_BLAST);
                                 }
-                                _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
+                                _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3s);
                             }
                             else if (Unit* victim = me->SelectVictim())
                             {
@@ -995,7 +995,7 @@ class npc_sindragosa_trash : public CreatureScript
                 // This is shared AI for handler and whelps
                 if (me->GetEntry() == NPC_FROSTWARDEN_HANDLER)
                 {
-                    _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
+                    _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3s);
                     _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(8000, 10000));
                 }
 
@@ -1042,7 +1042,7 @@ class npc_sindragosa_trash : public CreatureScript
                     {
                         case EVENT_FROSTWARDEN_ORDER_WHELP:
                             DoCast(me, SPELL_ORDER_WHELP);
-                            _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
+                            _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3s);
                             break;
                         case EVENT_CONCUSSIVE_SHOCK:
                             DoCast(me, SPELL_CONCUSSIVE_SHOCK);

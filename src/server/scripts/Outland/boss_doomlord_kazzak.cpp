@@ -74,12 +74,12 @@ class boss_doomlord_kazzak : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(6000, 10000));
-                _events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                _events.ScheduleEvent(EVENT_CLEAVE, 7s);
                 _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
-                _events.ScheduleEvent(EVENT_VOID_BOLT, 30000);
+                _events.ScheduleEvent(EVENT_VOID_BOLT, 30s);
                 _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 60000);
-                _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33000);
+                _events.ScheduleEvent(EVENT_ENRAGE, 60s);
+                _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33s);
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }
 
@@ -143,12 +143,12 @@ class boss_doomlord_kazzak : public CreatureScript
                         case EVENT_MARK_OF_KAZZAK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_MARK_OF_KAZZAK);
-                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
+                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20s);
                             break;
                         case EVENT_ENRAGE:
                             Talk(EMOTE_FRENZY);
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            _events.ScheduleEvent(EVENT_ENRAGE, 30s);
                             break;
                         case EVENT_TWISTED_REFLECTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))

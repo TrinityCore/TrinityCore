@@ -79,7 +79,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_SUMMON, 30000);
+                events.ScheduleEvent(EVENT_SUMMON, 30s);
                 events.ScheduleEvent(EVENT_MANA_TAP, urand(12000, 20000));
                 events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(16000, 25000));
                 events.ScheduleEvent(EVENT_DOMINATION, urand(25000, 40000));

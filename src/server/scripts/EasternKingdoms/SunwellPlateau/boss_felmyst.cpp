@@ -158,7 +158,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_BERSERK, 600000);
+            events.ScheduleEvent(EVENT_BERSERK, 10min);
 
             me->setActive(true);
             DoZoneInCombat();
@@ -257,11 +257,11 @@ public:
                     events.ScheduleEvent(EVENT_CORROSION, urand(10000, 20000));
                     events.ScheduleEvent(EVENT_GAS_NOVA, urand(15000, 20000));
                     events.ScheduleEvent(EVENT_ENCAPSULATE, urand(20000, 25000));
-                    events.ScheduleEvent(EVENT_FLIGHT, 60000);
+                    events.ScheduleEvent(EVENT_FLIGHT, 60s);
                     break;
                 case PHASE_FLIGHT:
                     me->SetDisableGravity(true);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1s);
                     uiFlightCount = 0;
                     uiBreathCount = 0;
                     break;
@@ -281,7 +281,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->StopMoving();
                     Talk(YELL_TAKEOFF);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 2000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 2s);
                     break;
                 case 1:
                     me->GetMotionMaster()->MovePoint(0, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ()+10);
@@ -306,7 +306,7 @@ public:
                         Vapor->CastSpell(Vapor, SPELL_VAPOR_TRIGGER, true);
                     }
 
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 }
                 case 3:
@@ -334,7 +334,7 @@ public:
                         pVapor->CastSpell(pVapor, SPELL_VAPOR_TRIGGER, true);
                     }
 
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 }
                 case 4:
@@ -363,7 +363,7 @@ public:
                 case 6:
                     me->SetFacingTo(me->GetAbsoluteAngle(breathX, breathY));
                     //DoTextEmote("takes a deep breath.", nullptr);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 case 7:
                 {
@@ -424,7 +424,7 @@ public:
                     case EVENT_BERSERK:
                         Talk(YELL_BERSERK);
                         DoCast(me, SPELL_BERSERK, true);
-                        events.ScheduleEvent(EVENT_BERSERK, 10000);
+                        events.ScheduleEvent(EVENT_BERSERK, 10s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE, false);
@@ -475,7 +475,7 @@ public:
                                 me->CastSpell(Fog, SPELL_FOG_FORCE, true);
                             }
                         }
-                        events.ScheduleEvent(EVENT_SUMMON_FOG, 1000);
+                        events.ScheduleEvent(EVENT_SUMMON_FOG, 1s);
                         break;
                 }
             }

@@ -122,7 +122,7 @@ class boss_doomwalker : public CreatureScript
                             if (!HealthAbovePct(20))
                             {
                                 DoCast(me, SPELL_ENRAGE);
-                                _events.ScheduleEvent(EVENT_ENRAGE, 6000);
+                                _events.ScheduleEvent(EVENT_ENRAGE, 6s);
                                 _inEnrage = true;
                             }
                             break;

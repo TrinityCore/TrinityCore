@@ -383,9 +383,9 @@ class boss_freya : public CreatureScript
                 args.AddSpellMod(SPELLVALUE_AURA_STACK, 150);
                 me->CastSpell(me, SPELL_ATTUNED_TO_NATURE, args);
 
-                events.ScheduleEvent(EVENT_WAVE, 10000);
+                events.ScheduleEvent(EVENT_WAVE, 10s);
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
             }
 
@@ -711,7 +711,7 @@ class boss_elder_brightleaf : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_DRAINED_OF_POWER);
                 events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 7000));
                 events.ScheduleEvent(EVENT_UNSTABLE_SUN_BEAM, urand(7000, 12000));
-                events.ScheduleEvent(EVENT_FLUX, 5000);
+                events.ScheduleEvent(EVENT_FLUX, 5s);
             }
 
             void KilledUnit(Unit* who) override
@@ -767,7 +767,7 @@ class boss_elder_brightleaf : public CreatureScript
                             me->AddAura(SPELL_FLUX_AURA, me);
                             if (Aura* Flux = me->GetAura(SPELL_FLUX_AURA))
                                 Flux->SetStackAmount(urand(1, 8));
-                            events.ScheduleEvent(EVENT_FLUX, 7500);
+                            events.ScheduleEvent(EVENT_FLUX, 7.5s);
                             break;
                     }
 

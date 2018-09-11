@@ -239,7 +239,7 @@ public:
                             me->GetMotionMaster()->MoveChase(tank);
                         else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
-                        events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5000);
+                        events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
                         events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
                         events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
@@ -256,11 +256,11 @@ public:
                         me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                         Talk(SAY_PHASE_2_TRANS);
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
-                        events.ScheduleEvent(EVENT_WHELP_SPAWN, 5000);
+                        events.ScheduleEvent(EVENT_WHELP_SPAWN, 5s);
                         events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
                         events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
-                        events.ScheduleEvent(EVENT_MOVEMENT, 10000);
-                        events.ScheduleEvent(EVENT_FIREBALL, 18000);
+                        events.ScheduleEvent(EVENT_MOVEMENT, 10s);
+                        events.ScheduleEvent(EVENT_FIREBALL, 18s);
                         break;
                     case 11:
                         if (PointData)
@@ -362,7 +362,7 @@ public:
                             Cell::VisitGridObjects(me, searcher, 30.0f);
                             if (Floor)
                                 instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
-                            events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
+                            events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30s);
                             break;
                         }
                         case EVENT_FLAME_BREATH:   // Phase PHASE_START and PHASE_END
@@ -401,7 +401,7 @@ public:
                     IsMoving = false;
                     Position const pos = me->GetHomePosition();
                     me->GetMotionMaster()->MovePoint(9, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 12.0f);
-                    events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
+                    events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30s);
                     return;
                 }
 
@@ -430,7 +430,7 @@ public:
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DEEP_BREATH, 1000);
+                                events.ScheduleEvent(EVENT_DEEP_BREATH, 1s);
                             break;
                         case EVENT_MOVEMENT:         // Phase PHASE_BREATH
                             if (!IsMoving && !(me->HasUnitState(UNIT_STATE_CASTING)))
@@ -446,21 +446,21 @@ public:
                                 events.ScheduleEvent(EVENT_MOVEMENT, 25000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_MOVEMENT, 500);
+                                events.ScheduleEvent(EVENT_MOVEMENT, 0.5s);
                             break;
                         case EVENT_FIREBALL:         // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(target, SPELL_FIREBALL);
-                                events.ScheduleEvent(EVENT_FIREBALL, 8000);
+                                events.ScheduleEvent(EVENT_FIREBALL, 8s);
                             }
                             else
-                                events.ScheduleEvent(EVENT_FIREBALL, 1000);
+                                events.ScheduleEvent(EVENT_FIREBALL, 1s);
                             break;
                         case EVENT_LAIR_GUARD:       // Phase PHASE_BREATH
                             me->SummonCreature(NPC_LAIRGUARD, SpawnLocations[2], TEMPSUMMON_CORPSE_DESPAWN);
-                            events.ScheduleEvent(EVENT_LAIR_GUARD, 30000);
+                            events.ScheduleEvent(EVENT_LAIR_GUARD, 30s);
                             break;
                         case EVENT_WHELP_SPAWN:      // Phase PHASE_BREATH
                             me->SummonCreature(NPC_WHELP, SpawnLocations[0], TEMPSUMMON_CORPSE_DESPAWN);
@@ -468,10 +468,10 @@ public:
                             if (SummonWhelpCount >= RAID_MODE(20, 40))
                             {
                                 SummonWhelpCount = 0;
-                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 90000);
+                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 90s);
                             }
                             else
-                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 500);
+                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 0.5s);
                             break;
                         default:
                             break;

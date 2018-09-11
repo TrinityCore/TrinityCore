@@ -141,7 +141,7 @@ struct generic_boss_controllerAI : public BossAI
         switch (actionId)
         {
             case ACTION_OTHER_JUST_DIED:
-                events.ScheduleEvent(EVENT_DEATH_RESPONSE, 2000);
+                events.ScheduleEvent(EVENT_DEATH_RESPONSE, 2s);
                 break;
             case ACTION_DESPAWN_SUMMONS:
                 summons.DespawnAll();
@@ -194,8 +194,8 @@ class boss_skarvald_the_constructor : public CreatureScript
                 if (!IsInGhostForm)
                     Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5000);
-                events.ScheduleEvent(EVENT_STONE_STRIKE, 10000);
+                events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5s);
+                events.ScheduleEvent(EVENT_STONE_STRIKE, 10s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -251,14 +251,14 @@ class boss_dalronn_the_controller : public CreatureScript
             {
                 generic_boss_controllerAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
-                events.ScheduleEvent(EVENT_DEBILITATE, 5000);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s);
+                events.ScheduleEvent(EVENT_DEBILITATE, 5s);
 
                 if (!IsInGhostForm)
-                    events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5000);
+                    events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5s);
 
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10000);
+                    events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -268,7 +268,7 @@ class boss_dalronn_the_controller : public CreatureScript
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100); //give a 100ms pause to try cast other spells
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2.1s); //give a 100ms pause to try cast other spells
                         break;
                     case EVENT_DEBILITATE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))

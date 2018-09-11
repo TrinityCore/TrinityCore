@@ -90,11 +90,11 @@ class boss_jindo : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 20000);
-                events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 16000);
-                events.ScheduleEvent(EVENT_HEX, 8000);
-                events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, 10000);
-                events.ScheduleEvent(EVENT_TELEPORT, 5000);
+                events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 20s);
+                events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 15s);
+                events.ScheduleEvent(EVENT_HEX, 8s);
+                events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, 10s);
+                events.ScheduleEvent(EVENT_TELEPORT, 5s);
                 Talk(SAY_AGGRO);
             }
 

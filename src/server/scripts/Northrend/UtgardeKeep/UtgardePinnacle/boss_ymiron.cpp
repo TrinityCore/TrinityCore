@@ -178,7 +178,7 @@ public:
                     ancestor->SetDisableGravity(true);
                     ActiveAncestorGUID = ancestor->GetGUID();
                 }
-                events.ScheduleEvent(EVENT_RESUME_COMBAT, 5000);
+                events.ScheduleEvent(EVENT_RESUME_COMBAT, 5s);
             }
         }
 
@@ -258,16 +258,16 @@ public:
                     break;
                 case EVENT_HALDOR_SPIRIT_STRIKE:
                     DoCastVictim(SPELL_SPIRIT_STRIKE);
-                    events.ScheduleEvent(EVENT_HALDOR_SPIRIT_STRIKE, 5000);
+                    events.ScheduleEvent(EVENT_HALDOR_SPIRIT_STRIKE, 5s);
                     break;
                 case EVENT_RANULF_SPIRIT_BURST:
                     DoCast(me, SPELL_SPIRIT_BURST);
-                    events.ScheduleEvent(EVENT_RANULF_SPIRIT_BURST, 10000);
+                    events.ScheduleEvent(EVENT_RANULF_SPIRIT_BURST, 10s);
                     break;
                 case EVENT_TORGYN_SUMMON_AVENGING_SPIRITS:
                     for (uint8 i = 0; i < 4; ++i)
                         DoCast(SPELL_SUMMON_AVENGING_SPIRIT);
-                    events.ScheduleEvent(EVENT_TORGYN_SUMMON_AVENGING_SPIRITS, 15000);
+                    events.ScheduleEvent(EVENT_TORGYN_SUMMON_AVENGING_SPIRITS, 15s);
                     break;
                 default:
                     break;

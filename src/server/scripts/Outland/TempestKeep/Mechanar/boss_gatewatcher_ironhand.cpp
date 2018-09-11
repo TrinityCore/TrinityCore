@@ -107,7 +107,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                             DoCastVictim(SPELL_JACKHAMMER, true);
                             if (roll_chance_i(50))
                                 Talk(SAY_HAMMER);
-                            events.ScheduleEvent(EVENT_JACKHAMMER, 30000);
+                            events.ScheduleEvent(EVENT_JACKHAMMER, 30s);
                             break;
                         case EVENT_SHADOW_POWER:
                             DoCast(me, SPELL_SHADOW_POWER);

@@ -620,7 +620,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_MOVE_1, 4000);
                         break;
                     case ACTION_START_ATTACK:
-                        events.ScheduleEvent(EVENT_START_ATTACK, 5000);
+                        events.ScheduleEvent(EVENT_START_ATTACK, 5s);
                         break;
                     case ACTION_PLAY_MUSIC:
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_FINAL);
@@ -1045,8 +1045,8 @@ class boss_the_lich_king : public CreatureScript
                             events.DelayEvents(50000, EVENT_GROUP_VILE_SPIRITS);
                             events.RescheduleEvent(EVENT_DEFILE, 50000, 0, PHASE_THREE);
                             events.RescheduleEvent(EVENT_SOUL_REAPER, urand(57000, 62000), 0, PHASE_THREE);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 49000);
-                            events.ScheduleEvent(EVENT_FROSTMOURNE_HEROIC, 6500);
+                            events.ScheduleEvent(EVENT_START_ATTACK, 49s);
+                            events.ScheduleEvent(EVENT_FROSTMOURNE_HEROIC, 6.5s);
                             for (ObjectGuid guid : summons)
                             {
                                 if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
@@ -1395,7 +1395,7 @@ class npc_raging_spirit : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SET_AGRESSIVE, 2000);
+                _events.ScheduleEvent(EVENT_SET_AGRESSIVE, 2s);
                 _events.ScheduleEvent(EVENT_SOUL_SHRIEK, urand(12000, 15000));
                 DoCast(me, SPELL_PLAGUE_AVOIDANCE, true);
                 DoCast(me, SPELL_RAGING_SPIRIT_VISUAL, true);
@@ -1411,7 +1411,7 @@ class npc_raging_spirit : public CreatureScript
                 {
                     _events.Reset();
                     _events.SetPhase(PHASE_FROSTMOURNE);
-                    _events.ScheduleEvent(EVENT_SET_AGRESSIVE, 52000);
+                    _events.ScheduleEvent(EVENT_SET_AGRESSIVE, 52s);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->InterruptNonMeleeSpells(true);
@@ -1500,7 +1500,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500);
+                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2.5s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -1558,7 +1558,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                                 triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                                 DoCast(target, SPELL_VALKYR_CARRY);
                                 _dropPoint.Relocate(triggers.front());
-                                _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500);
+                                _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1.5s);
                             }
                         }
                         else
@@ -1566,7 +1566,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                         break;
                     case POINT_SIPHON:
                         DoZoneInCombat();
-                        _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2000);
+                        _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2s);
                         break;
                     default:
                         break;
@@ -1596,7 +1596,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                             if (!_grabbedPlayer)
                             {
                                 DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
-                                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
+                                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2s);
                             }
                             break;
                         case EVENT_MOVE_TO_DROP_POS:
@@ -1605,7 +1605,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                         case EVENT_LIFE_SIPHON:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_LIFE_SIPHON);
-                            _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2500);
+                            _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2.5s);
                             break;
                         case EVENT_MOVE_TO_CENTER:
                         {
@@ -1652,8 +1652,8 @@ class npc_strangulate_vehicle : public CreatureScript
                 me->SetFacingToObject(summoner);
                 DoCast(summoner, SPELL_HARVEST_SOUL_VEHICLE);
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_MOVE_TO_LICH_KING, 2000);
-                _events.ScheduleEvent(EVENT_TELEPORT, 6000);
+                _events.ScheduleEvent(EVENT_MOVE_TO_LICH_KING, 2s);
+                _events.ScheduleEvent(EVENT_TELEPORT, 6s);
 
                 // this will let us easily access all creatures of this entry on heroic mode when its time to teleport back
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
@@ -1708,7 +1708,7 @@ class npc_strangulate_vehicle : public CreatureScript
                                 }
                             }
 
-                            _events.ScheduleEvent(EVENT_DESPAWN_SELF, 65000);
+                            _events.ScheduleEvent(EVENT_DESPAWN_SELF, 65s);
                             break;
                         case EVENT_MOVE_TO_LICH_KING:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
@@ -1806,7 +1806,7 @@ class npc_terenas_menethil : public CreatureScript
                     {
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoCast(SPELL_TERENAS_LOSES_INSIDE);
-                        _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1000);
+                        _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1s);
                         if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                         {
                             warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
@@ -1869,7 +1869,7 @@ class npc_terenas_menethil : public CreatureScript
                             if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                                 warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                             DoCast(SPELL_TERENAS_LOSES_INSIDE);
-                            _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1000);
+                            _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1s);
                             break;
                         case EVENT_TELEPORT_BACK:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
@@ -1980,7 +1980,7 @@ class npc_spirit_bomb : public CreatureScript
                 if (type != POINT_MOTION_TYPE || point != POINT_GROUND)
                     return;
 
-                _events.ScheduleEvent(EVENT_BOMB_EXPLOSION, 3000);
+                _events.ScheduleEvent(EVENT_BOMB_EXPLOSION, 3s);
             }
 
             void AttackStart(Unit* /*victim*/) override

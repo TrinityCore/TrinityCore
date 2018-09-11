@@ -56,9 +56,9 @@ class boss_gehennas : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 12000);
-                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 6000);
+                events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 12s);
+                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 6s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -87,7 +87,7 @@ class boss_gehennas : public CreatureScript
                         case EVENT_SHADOW_BOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 7000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 7s);
                             break;
                         default:
                             break;

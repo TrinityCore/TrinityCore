@@ -68,14 +68,14 @@ class boss_murmur : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_SONIC_BOOM, 30000);
+                events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
                 events.ScheduleEvent(EVENT_MURMURS_TOUCH, urand(8000, 20000));
-                events.ScheduleEvent(EVENT_RESONANCE, 5000);
+                events.ScheduleEvent(EVENT_RESONANCE, 5s);
                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
                 if (IsHeroic())
                 {
                     events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
-                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10000);
+                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s);
                 }
 
                 // database should have `RegenHealth`=0 to prevent regen
@@ -112,8 +112,8 @@ class boss_murmur : public CreatureScript
                         case EVENT_SONIC_BOOM:
                             Talk(EMOTE_SONIC_BOOM);
                             DoCast(me, SPELL_SONIC_BOOM_CAST);
-                            events.ScheduleEvent(EVENT_SONIC_BOOM, 30000);
-                            events.ScheduleEvent(EVENT_RESONANCE, 1500);
+                            events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
+                            events.ScheduleEvent(EVENT_RESONANCE, 1.5s);
                             break;
                         case EVENT_MURMURS_TOUCH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
@@ -124,7 +124,7 @@ class boss_murmur : public CreatureScript
                             if (!(me->IsWithinMeleeRange(me->GetVictim())))
                             {
                                 DoCast(me, SPELL_RESONANCE);
-                                events.ScheduleEvent(EVENT_RESONANCE, 5000);
+                                events.ScheduleEvent(EVENT_RESONANCE, 5s);
                             }
                             break;
                         case EVENT_MAGNETIC_PULL:
@@ -134,7 +134,7 @@ class boss_murmur : public CreatureScript
                                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
                                 break;
                             }
-                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500);
+                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 0.5s);
                             break;
                         case EVENT_THUNDERING_STORM:
                             DoCastAOE(SPELL_THUNDERING_STORM, true);

@@ -150,11 +150,11 @@ class boss_lord_marrowgar : public CreatureScript
                 me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                 me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
-                events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
+                events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);
                 events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);
                 _boneSlice = false;
                 _boneSpikeImmune.clear();
             }
@@ -256,7 +256,7 @@ class boss_lord_marrowgar : public CreatureScript
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
-                            events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
+                            events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);
                             if (!IsHeroic())
                                 events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
                             break;
@@ -408,7 +408,7 @@ class npc_coldflame : public CreatureScript
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 DoCast(SPELL_COLDFLAME_SUMMON);
-                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500);
+                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 0.5s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -420,7 +420,7 @@ class npc_coldflame : public CreatureScript
                     Position newPos = me->GetNearPosition(5.0f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
-                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500);
+                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 0.5s);
                 }
             }
 
@@ -467,7 +467,7 @@ class npc_bone_spike : public CreatureScript
             {
                 DoCast(summoner, SPELL_IMPALED);
                 summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
-                _events.ScheduleEvent(EVENT_FAIL_BONED, 8000);
+                _events.ScheduleEvent(EVENT_FAIL_BONED, 8s);
                 _hasTrappedUnit = true;
             }
 

@@ -131,7 +131,7 @@ class boss_mandokir : public CreatureScript
                     _Reset();
                     Initialize();
                     me->SetImmuneToAll(true);
-                    events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                    events.ScheduleEvent(EVENT_CHECK_START, 1s);
                     if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VILEBRANCH_SPEAKER)))
                         if (!speaker->IsAlive())
                             speaker->Respawn(true);
@@ -232,10 +232,10 @@ class boss_mandokir : public CreatureScript
                                     if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
                                     {
                                         me->GetMotionMaster()->MovePoint(0, PosMandokir[1].m_positionX, PosMandokir[1].m_positionY, PosMandokir[1].m_positionZ);
-                                        events.ScheduleEvent(EVENT_STARTED, 6000);
+                                        events.ScheduleEvent(EVENT_STARTED, 6s);
                                     }
                                     else
-                                        events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                                        events.ScheduleEvent(EVENT_CHECK_START, 1s);
                                     break;
                                 case EVENT_STARTED:
                                     me->SetImmuneToAll(false);

@@ -92,10 +92,10 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
-            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
-            events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
-            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8000);
+            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2s);
+            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
+            events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);
+            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8s);
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
 
             Talk(SAY_AGGRO);

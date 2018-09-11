@@ -125,7 +125,7 @@ class boss_venoxis : public CreatureScript
                 _JustEngagedWith();
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Always running events
-                events.ScheduleEvent(EVENT_THRASH, 5000);
+                events.ScheduleEvent(EVENT_THRASH, 5s);
                 // Phase one events (regular form)
                 events.ScheduleEvent(EVENT_HOLY_NOVA, 5000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DISPEL_MAGIC, 35000, 0, PHASE_ONE);
@@ -146,13 +146,13 @@ class boss_venoxis : public CreatureScript
                 {
                     _transformed = true;
                     // schedule the event that changes our phase
-                    events.ScheduleEvent(EVENT_TRANSFORM, 100);
+                    events.ScheduleEvent(EVENT_TRANSFORM, 0.1s);
                 }
                 // we're losing health, bad, go frenzy
                 else if (!_frenzied && !HealthAbovePct(20))
                 {
                     _frenzied = true;
-                    events.ScheduleEvent(EVENT_FRENZY, 100);
+                    events.ScheduleEvent(EVENT_FRENZY, 0.1s);
                 }
             }
 

@@ -71,7 +71,7 @@ public:
         {
             _JustEngagedWith();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
+            events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
             events.ScheduleEvent(EVENT_VOID_BLAST, urand(8000, 23000));
         }
 
@@ -93,7 +93,7 @@ public:
                     }
                     else
                     {
-                        events.ScheduleEvent(EVENT_VOID_BLAST, 500);
+                        events.ScheduleEvent(EVENT_VOID_BLAST, 0.5s);
                         events.DelayEvents(EVENT_DARK_SHELL, 500);
                     }
                     break;
@@ -102,7 +102,7 @@ public:
                         me->InterruptNonMeleeSpells(true);
                     Talk(EMOTE_DARK_SHELL);
                     DoCast(me, SPELL_DARK_SHELL);
-                    events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
+                    events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
                     break;
                 default:
                     break;

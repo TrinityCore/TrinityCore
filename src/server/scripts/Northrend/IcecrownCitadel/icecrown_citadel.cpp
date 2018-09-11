@@ -615,7 +615,7 @@ class npc_rotting_frost_giant : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
+                _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
                 _events.ScheduleEvent(EVENT_STOMP, urand(5000, 8000));
                 _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10000, 15000));
             }
@@ -645,7 +645,7 @@ class npc_rotting_frost_giant : public CreatureScript
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_DEATH_PLAGUE);
                             }
-                            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
+                            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
                             break;
                         case EVENT_STOMP:
                             DoCastVictim(SPELL_STOMP);
@@ -705,7 +705,7 @@ class npc_frost_freeze_trap : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_ACTIVATE_TRAP)
                 {
                     DoCast(me, SPELL_COLDFLAME_JETS);
-                    _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, 22000);
+                    _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, 22s);
                 }
             }
 
@@ -795,7 +795,7 @@ class boss_sister_svalna : public CreatureScript
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
                     crok->AI()->Talk(SAY_CROK_COMBAT_SVALNA);
                 DoCastSelf(SPELL_DIVINE_SURGE, true);
-                events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9000);
+                events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9s);
                 events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
             }
@@ -845,10 +845,10 @@ class boss_sister_svalna : public CreatureScript
                         me->SetFarVisible(true);
                         _isEventInProgress = true;
                         me->SetImmuneToAll(true);
-                        events.ScheduleEvent(EVENT_SVALNA_START, 25000);
+                        events.ScheduleEvent(EVENT_SVALNA_START, 25s);
                         break;
                     case ACTION_RESURRECT_CAPTAINS:
-                        events.ScheduleEvent(EVENT_SVALNA_RESURRECT, 7000);
+                        events.ScheduleEvent(EVENT_SVALNA_RESURRECT, 7s);
                         break;
                     case ACTION_CAPTAIN_DIES:
                         Talk(SAY_SVALNA_CAPTAIN_DEATH);
@@ -1011,7 +1011,7 @@ class npc_crok_scourgebane : public CreatureScript
                     Talk(SAY_CROK_INTRO_1);
                     _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
                     _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14000);
-                    _events.ScheduleEvent(EVENT_START_PATHING, 37000);
+                    _events.ScheduleEvent(EVENT_START_PATHING, 35s);
                     me->setActive(true);
                     me->SetFarVisible(true);
                     for (uint32 i = 0; i < 4; ++i)
@@ -1168,7 +1168,7 @@ class npc_crok_scourgebane : public CreatureScript
 
                     damage = 0;
                     DoCast(me, SPELL_ICEBOUND_ARMOR);
-                    _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
+                    _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1s);
                 }
             }
 
@@ -1220,7 +1220,7 @@ class npc_crok_scourgebane : public CreatureScript
                             {
                                 // looks totally hacky to me
                                 me->ModifyHealth(me->CountPctFromMaxHealth(5));
-                                _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
+                                _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1s);
                             }
                             break;
                         default:
@@ -1480,7 +1480,7 @@ class npc_captain_brandon : public CreatureScript
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, urand(6000, 10000));
-                Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500);
+                Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 0.5s);
                 Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, urand(8000, 13000));
                 if (IsUndead)
                     Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(25000, 30000));
@@ -1507,7 +1507,7 @@ class npc_captain_brandon : public CreatureScript
                         case EVENT_BRANDON_DIVINE_SHIELD:
                             if (HealthBelowPct(20))
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                            Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500);
+                            Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 0.5s);
                             break;
                         case EVENT_BRANDON_JUDGEMENT_OF_COMMAND:
                             DoCastVictim(SPELL_JUDGEMENT_OF_COMMAND);
@@ -1550,7 +1550,7 @@ class npc_captain_grondel : public CreatureScript
             void Reset() override
             {
                 Events.Reset();
-                Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500);
+                Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 0.5s);
                 Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, urand(8000, 14000));
                 Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, urand(3000, 12000));
                 if (IsUndead)
@@ -1573,7 +1573,7 @@ class npc_captain_grondel : public CreatureScript
                     {
                         case EVENT_GRONDEL_CHARGE_CHECK:
                             DoCastVictim(SPELL_CHARGE);
-                            Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500);
+                            Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 0.5s);
                             break;
                         case EVENT_GRONDEL_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);

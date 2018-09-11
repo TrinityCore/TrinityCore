@@ -203,27 +203,27 @@ class boss_kirtonos_the_herald : public CreatureScript
                     {
                         case EVENT_SWOOP:
                             DoCast(me, SPELL_SWOOP);
-                            events.ScheduleEvent(EVENT_SWOOP, 15000);
+                            events.ScheduleEvent(EVENT_SWOOP, 15s);
                             break;
                         case EVENT_WING_FLAP:
                             DoCast(me, SPELL_WING_FLAP);
-                            events.ScheduleEvent(EVENT_WING_FLAP, 13000);
+                            events.ScheduleEvent(EVENT_WING_FLAP, 13s);
                             break;
                         case EVENT_PIERCE_ARMOR:
                             DoCastVictim(SPELL_PIERCE_ARMOR, true);
-                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, 12000);
+                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, 12s);
                             break;
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM, true);
-                            events.ScheduleEvent(EVENT_DISARM, 11000);
+                            events.ScheduleEvent(EVENT_DISARM, 11s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             DoCastVictim(SPELL_SHADOW_BOLT, true);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 42000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 42s);
                             break;
                         case EVENT_CURSE_OF_TONGUES:
                             DoCastVictim(SPELL_CURSE_OF_TONGUES, true);
-                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 35000);
+                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 35s);
                             break;
                         case EVENT_DOMINATE_MIND:
                             DoCastVictim(SPELL_DOMINATE_MIND, true);

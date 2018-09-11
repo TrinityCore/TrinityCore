@@ -91,7 +91,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(7000, 9000));
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
-                events.ScheduleEvent(EVENT_ME_FIRST, 6000);
+                events.ScheduleEvent(EVENT_ME_FIRST, 6s);
                 Talk(SAY_AGGRO);
             }
 
@@ -105,7 +105,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                 switch (data)
                 {
                     case 1:
-                        events.ScheduleEvent(EVENT_SOCCOTHRATES_DEATH, 6000);
+                        events.ScheduleEvent(EVENT_SOCCOTHRATES_DEATH, 6s);
                         soccothratesDeath = true;
                         break;
                     default:
@@ -154,7 +154,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                             DoCast(me, SPELL_WHIRLWIND);
                             Talk(SAY_WHIRLWIND);
                             events.ScheduleEvent(EVENT_WHIRLWIND, urand(19000, 21000));
-                            events.ScheduleEvent(EVENT_HEAL, 6000);
+                            events.ScheduleEvent(EVENT_HEAL, 6s);
                             break;
                         case EVENT_HEAL:
                             DoCast(me, SPELL_HEAL);

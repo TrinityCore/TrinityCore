@@ -110,9 +110,9 @@ class boss_nexusprince_shaffar : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_BEACON, 10000);
-                events.ScheduleEvent(EVENT_FIREBALL, 8000);
-                events.ScheduleEvent(EVENT_FROSTBOLT, 4000);
+                events.ScheduleEvent(EVENT_BEACON, 10s);
+                events.ScheduleEvent(EVENT_FIREBALL, 8s);
+                events.ScheduleEvent(EVENT_FROSTBOLT, 4s);
                 events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
             }
 
@@ -160,7 +160,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                             Talk(SAY_SUMMON);
 
                         DoCast(me, SPELL_ETHEREAL_BEACON, true);
-                        events.ScheduleEvent(EVENT_BEACON, 10000);
+                        events.ScheduleEvent(EVENT_BEACON, 10s);
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FROSTBOLT);
@@ -173,7 +173,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROSTNOVA);
                         events.ScheduleEvent(EVENT_FROST_NOVA, urand(17500, 25000));
-                        events.ScheduleEvent(EVENT_BLINK, 1500);
+                        events.ScheduleEvent(EVENT_BLINK, 1.5s);
                         break;
                     default:
                         break;
@@ -217,7 +217,7 @@ class npc_ethereal_beacon : public CreatureScript
                         shaffar->AI()->AttackStart(who);
 
                 _events.ScheduleEvent(EVENT_APPRENTICE, DUNGEON_MODE(20000, 10000));
-                _events.ScheduleEvent(EVENT_ARCANE_BOLT, 1000);
+                _events.ScheduleEvent(EVENT_ARCANE_BOLT, 1s);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -287,7 +287,7 @@ class npc_ethereal_apprentice : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3000);
+                _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -306,11 +306,11 @@ class npc_ethereal_apprentice : public CreatureScript
                     {
                         case EVENT_ETHEREAL_APPRENTICE_FIREBOLT:
                             DoCastVictim(SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
-                            _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FROSTBOLT, 3000);
+                            _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FROSTBOLT, 3s);
                             break;
                         case EVENT_ETHEREAL_APPRENTICE_FROSTBOLT:
                             DoCastVictim(SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
-                            _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3000);
+                            _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3s);
                             break;
                         default:
                             break;

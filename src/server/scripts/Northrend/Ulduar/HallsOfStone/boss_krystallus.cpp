@@ -102,7 +102,7 @@ class boss_krystallus : public CreatureScript
                             break;
                         case EVENT_GROUND_SLAM:
                             DoCast(me, SPELL_GROUND_SLAM);
-                            events.ScheduleEvent(EVENT_SHATTER, 10000);
+                            events.ScheduleEvent(EVENT_SHATTER, 10s);
                             events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));
                             break;
                         case EVENT_STOMP:

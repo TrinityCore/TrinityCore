@@ -65,10 +65,10 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_HASTE, urand(15000, 23000));
-            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
+            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
             events.ScheduleEvent(EVENT_WING_BUFFET, urand(25000, 35000));
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+                events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
 
             Talk(SAY_AGGRO);
         }
