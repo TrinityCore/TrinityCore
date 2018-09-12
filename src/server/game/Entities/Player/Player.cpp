@@ -4297,6 +4297,7 @@ void Player::BuildPlayerRepop()
     GetMap()->AddToMap(corpse);
 
     // convert player body to ghost
+    setDeathState(DEAD);
     SetHealth(1);
 
     SetWaterWalking(true);
@@ -18415,6 +18416,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     GetSpellHistory()->LoadFromDB<Player>(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_CHARGES));
 
+    uint32 savedHealth = fields.health;
+    if (!savedHealth)
+        m_deathState = CORPSE;
+
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
     if (!IsAlive())
@@ -18427,7 +18432,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     UpdateAllStats();
 
     // restore remembered power/health values (but not more max values)
-    uint32 savedHealth = fields.health;
     SetHealth(savedHealth > GetMaxHealth() ? GetMaxHealth() : savedHealth);
     uint32 loadedPowers = 0;
     for (uint32 i = 0; i < MAX_POWERS; ++i)
@@ -18797,7 +18801,9 @@ void Player::LoadCorpse(PreparedQueryResult result)
 
     if (!IsAlive())
     {
-        if (result && !HasAtLoginFlag(AT_LOGIN_RESURRECT))
+        if (HasAtLoginFlag(AT_LOGIN_RESURRECT))
+            ResurrectPlayer(0.5f);
+        else if (result)
         {
             Field* fields = result->Fetch();
             _corpseLocation.WorldRelocate(fields[0].GetUInt16(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
@@ -18806,8 +18812,6 @@ void Player::LoadCorpse(PreparedQueryResult result)
             else
                 RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
         }
-        else
-            ResurrectPlayer(0.5f);
     }
 
     RemoveAtLoginFlag(AT_LOGIN_RESURRECT);

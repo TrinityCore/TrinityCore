@@ -1236,7 +1236,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     });
 
     // setting Ghost+speed if dead
-    if (pCurrChar->m_deathState != ALIVE)
+    if (pCurrChar->m_deathState == DEAD)
     {
         // not blizz like, we must correctly save and load player instead...
         if (pCurrChar->getRace() == RACE_NIGHTELF && !pCurrChar->HasAura(20584))
