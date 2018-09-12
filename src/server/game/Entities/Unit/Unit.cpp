@@ -8852,7 +8852,7 @@ void Unit::SetLevel(uint8 lvl)
 
 void Unit::SetHealth(uint64 val)
 {
-    if (getDeathState() == JUST_DIED)
+    if (getDeathState() == JUST_DIED || getDeathState() == CORPSE)
         val = 0;
     else if (GetTypeId() == TYPEID_PLAYER && getDeathState() == DEAD)
         val = 1;
