@@ -126,9 +126,11 @@ struct LinkValidator<LinkTags::enchant>
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
+            if (equal_with_len(info->SpellName[i], pos, len)) // can either be of form [Spell Name]
+                return true;
             char const* skillName = skill->name[i];
             size_t skillLen = strlen(skillName);
-            if (len > skillLen + 2 &&
+            if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
                 !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
                 equal_with_len(info->SpellName[i], pos + (skillLen + 2), len - (skillLen + 2)))
                 return true;
@@ -213,9 +215,12 @@ struct LinkValidator<LinkTags::quest>
         return false;
     }
 
-    static bool IsColorValid(QuestLinkData const&, HyperlinkColor)
+    static bool IsColorValid(QuestLinkData const&, HyperlinkColor c)
     {
-        return true; // this color will be overridden clientside anyway
+        for (uint8 i = 0; i < MAX_QUEST_DIFFICULTY; ++i)
+            if (c == QuestDifficultyColors[i])
+                return true;
+        return false;
     }
 };
 

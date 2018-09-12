@@ -292,10 +292,9 @@ enum ItemQualities
     ITEM_QUALITY_EPIC                  = 4,                 //PURPLE
     ITEM_QUALITY_LEGENDARY             = 5,                 //ORANGE
     ITEM_QUALITY_ARTIFACT              = 6,                 //LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7
+    ITEM_QUALITY_HEIRLOOM              = 7,
+    MAX_ITEM_QUALITY
 };
-
-#define MAX_ITEM_QUALITY                 8
 
 enum SpellCategory
 {
@@ -309,7 +308,7 @@ enum SpellVisualKit
     SPELL_VISUAL_KIT_DRINK          = 438
 };
 
-const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
+uint32 constexpr ItemQualityColors[MAX_ITEM_QUALITY] =
 {
     0xff9d9d9d,        //GREY
     0xffffffff,        //WHITE
@@ -319,6 +318,15 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
     0xffff8000,        //ORANGE
     0xffe6cc80,        //LIGHT YELLOW
     0xffe6cc80         //LIGHT YELLOW
+};
+
+size_t constexpr MAX_QUEST_DIFFICULTY = 5;
+uint32 constexpr QuestDifficultyColors[MAX_QUEST_DIFFICULTY] = {
+    0xff40c040,
+    0xff808080,
+    0xffffff00,
+    0xffff8040,
+    0xffff2020
 };
 
 // ***********************************

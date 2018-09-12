@@ -78,8 +78,8 @@ struct TradeskillLinkData
     SpellInfo const* spell;
     uint16 curValue;
     uint16 maxValue;
-    uint32 unk1;
-    std::string unk2;
+    ObjectGuid owner;
+    std::string knownRecipes;
 };
 
 namespace LinkTags {

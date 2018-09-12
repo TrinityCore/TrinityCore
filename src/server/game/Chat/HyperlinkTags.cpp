@@ -18,6 +18,7 @@
 #include "Hyperlinks.h"
 #include "AchievementMgr.h"
 #include "ObjectMgr.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 
 static constexpr char HYPERLINK_DATA_DELIMITER = ':';
@@ -71,7 +72,7 @@ bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, char
     uint32 spellId;
     if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
         return false;
-    return (val = sSpellMgr->GetSpellInfo(spellId));
+    return (val = sSpellMgr->GetSpellInfo(spellId)) && val->HasAttribute(SPELL_ATTR0_TRADESPELL);
 }
 
 bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, char const* pos, size_t len)
@@ -134,8 +135,13 @@ bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, char
 {
     HyperlinkDataTokenizer t(pos, len);
     uint32 spellId;
+    uint64 guid;
     if (!t.TryConsumeTo(spellId))
         return false;
-    return (val.spell = sSpellMgr->GetSpellInfo(spellId)) && t.TryConsumeTo(val.curValue) && t.TryConsumeTo(val.maxValue) &&
-        t.TryConsumeTo(val.unk1) && t.TryConsumeTo(val.unk2) && t.IsEmpty();
+    val.spell = sSpellMgr->GetSpellInfo(spellId);
+    if (!(val.spell && val.spell->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.curValue) &&
+      t.TryConsumeTo(val.maxValue) && t.TryConsumeTo(guid) && t.TryConsumeTo(val.knownRecipes) && t.IsEmpty()))
+        return false;
+    val.owner.Set(guid);
+    return true;
 }
