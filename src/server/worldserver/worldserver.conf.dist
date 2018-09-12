@@ -962,10 +962,10 @@ Quests.LowLevelHideDiff = 4
 #        Description: Level difference between player and quest level at which quests are
 #                     considered high-level and are not shown via exclamation mark (!) at quest
 #                     givers.
-#        Default:     10  - (Enabled, Hide quests that have 10 levels more than the character)
+#        Default:     7  - (Enabled, Hide quests that have 7 levels more than the character)
 #                     -1 - (Disabled, Show all available quest marks)
 
-Quests.HighLevelHideDiff = 10
+Quests.HighLevelHideDiff = 7
 
 #
 #    Quests.IgnoreRaid
