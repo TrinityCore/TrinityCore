@@ -18,11 +18,13 @@
 #ifndef TRINITY_PLAYERAI_H
 #define TRINITY_PLAYERAI_H
 
+#include "Common.h"
 #include "UnitAI.h"
 
 class Creature;
-class Unit;
+class Player;
 class Spell;
+class Unit;
 
 class TC_GAME_API PlayerAI : public UnitAI
 {
@@ -33,13 +35,9 @@ class TC_GAME_API PlayerAI : public UnitAI
 
         // helper functions to determine player info
         // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
-        static uint8 GetPlayerSpec(Player const* who);
-        // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
-        uint8 GetSpec(Player const* who = nullptr) const { return (!who || who == me) ? _selfSpec : GetPlayerSpec(who); }
-        static bool IsPlayerHealer(Player const* who);
-        bool IsHealer(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfHealer : IsPlayerHealer(who); }
-        static bool IsPlayerRangedAttacker(Player const* who);
-        bool IsRangedAttacker(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who); }
+        uint8 GetSpec(Player const* who = nullptr) const;
+        bool IsHealer(Player const* who = nullptr) const;
+        bool IsRangedAttacker(Player const* who = nullptr) const;
 
     protected:
         struct TargetedSpell : public std::pair<Spell*, Unit*>
