@@ -29,8 +29,10 @@
 #include <type_traits>
 #include <utility>
 
-namespace Trinity {
-namespace ChatCommands {
+namespace Trinity
+{
+namespace ChatCommands
+{
 /************************** CONTAINER TAGS **********************************************\
 |* Simple holder classes to differentiate between extraction methods                    *|
 |* Should inherit from ContainerTag for template identification                         *|
@@ -162,6 +164,7 @@ struct Variant : public boost::variant<T1, Ts...>
     decltype(auto) get() const { return boost::get<get_nth_t<index, T1, Ts...>>(*this); }
 };
 
-}}
+}
+}
 
 #endif

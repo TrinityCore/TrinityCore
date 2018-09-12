@@ -31,8 +31,10 @@ class SpellInfo;
 class Quest;
 struct TalentEntry;
 
-namespace Trinity {
-namespace Hyperlinks {
+namespace Trinity
+{
+namespace Hyperlinks
+{
 
 struct AchievementLinkData
 {
@@ -227,6 +229,7 @@ struct HyperlinkInfo
 HyperlinkInfo TC_GAME_API ParseHyperlink(char const* pos);
 bool TC_GAME_API ValidateLinks(std::string&);
 
-}}
+}
+}
 
 #endif
