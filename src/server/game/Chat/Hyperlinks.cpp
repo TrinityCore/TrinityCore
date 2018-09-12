@@ -101,7 +101,7 @@ struct LinkValidator<LinkTags::achievement>
         if (!len)
             return false;
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            if (equal_with_len(data.achievement->Title[i], pos, len))
+            if (equal_with_len(data.Achievement->Title[i], pos, len))
                 return true;
         return false;
     }
@@ -117,19 +117,19 @@ struct LinkValidator<LinkTags::item>
 {
     static bool IsTextValid(ItemLinkData const& data, char const* pos, size_t len)
     {
-        ItemLocale const* locale = sObjectMgr->GetItemLocale(data.item->ItemId);
+        ItemLocale const* locale = sObjectMgr->GetItemLocale(data.Item->ItemId);
 
         char const* const* randomSuffix = nullptr;
-        if (data.randomPropertyId < 0)
+        if (data.RandomPropertyId < 0)
         {
-            if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.randomPropertyId))
+            if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.RandomPropertyId))
                 randomSuffix = suffixEntry->nameSuffix;
             else
                 return false;
         }
-        else if (data.randomPropertyId > 0)
+        else if (data.RandomPropertyId > 0)
         {
-            if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(data.randomPropertyId))
+            if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(data.RandomPropertyId))
                 randomSuffix = propEntry->nameSuffix;
             else
                 return false;
@@ -139,7 +139,7 @@ struct LinkValidator<LinkTags::item>
         {
             if (!locale && i != DEFAULT_LOCALE)
                 continue;
-            std::string const& name = (i == DEFAULT_LOCALE) ? data.item->Name1 : locale->Name[i];
+            std::string const& name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : locale->Name[i];
             if (name.empty())
                 continue;
             if (randomSuffix)
@@ -158,7 +158,7 @@ struct LinkValidator<LinkTags::item>
 
     static bool IsColorValid(ItemLinkData const& data, HyperlinkColor c)
     {
-        return c == ItemQualityColors[data.item->Quality];
+        return c == ItemQualityColors[data.Item->Quality];
     }
 };
 
@@ -167,13 +167,13 @@ struct LinkValidator<LinkTags::quest>
 {
     static bool IsTextValid(QuestLinkData const& data, char const* pos, size_t len)
     {
-        QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.quest->GetQuestId());
+        QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
         if (!locale)
-            return equal_with_len(data.quest->GetTitle().c_str(), pos, len);
+            return equal_with_len(data.Quest->GetTitle().c_str(), pos, len);
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            std::string const& name = (i == DEFAULT_LOCALE) ? data.quest->GetTitle() : locale->Title[i];
+            std::string const& name = (i == DEFAULT_LOCALE) ? data.Quest->GetTitle() : locale->Title[i];
             if (name.empty())
                 continue;
             if (equal_with_len(name.c_str(), pos, len))
@@ -245,7 +245,7 @@ struct LinkValidator<LinkTags::glyph>
 {
     static bool IsTextValid(GlyphLinkData const& data, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.glyph->SpellId))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Glyph->SpellId))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
@@ -261,7 +261,7 @@ struct LinkValidator<LinkTags::talent>
 {
     static bool IsTextValid(TalentLinkData const& data, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.talent->RankID[data.rank-1]))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Talent->RankID[data.Rank-1]))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
@@ -277,7 +277,7 @@ struct LinkValidator<LinkTags::trade>
 {
     static bool IsTextValid(TradeskillLinkData const& data, char const* pos, size_t len)
     {
-        return LinkValidator<LinkTags::spell>::IsTextValid(data.spell, pos, len);
+        return LinkValidator<LinkTags::spell>::IsTextValid(data.Spell, pos, len);
     }
 
     static bool IsColorValid(TradeskillLinkData const&, HyperlinkColor c)

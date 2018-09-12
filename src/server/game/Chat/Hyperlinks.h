@@ -36,50 +36,50 @@ namespace Hyperlinks {
 
 struct AchievementLinkData
 {
-    AchievementEntry const* achievement;
-    ObjectGuid::LowType characterId;
-    bool isFinished;
-    uint16 year;
-    uint8 month;
-    uint8 day;
-    uint32 criteria[4];
+    AchievementEntry const* Achievement;
+    ObjectGuid::LowType CharacterId;
+    bool IsFinished;
+    uint16 Year;
+    uint8 Month;
+    uint8 Day;
+    uint32 Criteria[4];
 };
 
 struct GlyphLinkData
 {
-    GlyphPropertiesEntry const* glyph;
-    GlyphSlotEntry const* slot;
+    GlyphPropertiesEntry const* Glyph;
+    GlyphSlotEntry const* Slot;
 };
 
 struct ItemLinkData
 {
-    ItemTemplate const* item;
-    uint32 enchantId;
-    uint32 gemEnchantId[3];
-    int32 randomPropertyId;
-    int32 randomPropertySeed;
-    uint8 renderLevel;
+    ItemTemplate const* Item;
+    uint32 EnchantId;
+    uint32 GemEnchantId[3];
+    int32 RandomPropertyId;
+    int32 RandomPropertySeed;
+    uint8 RenderLevel;
 };
 
 struct QuestLinkData
 {
-    Quest const* quest;
-    uint8 questLevel;
+    Quest const* Quest;
+    uint8 QuestLevel;
 };
 
 struct TalentLinkData
 {
-    TalentEntry const* talent;
-    uint8 rank;
+    TalentEntry const* Talent;
+    uint8 Rank;
 };
 
 struct TradeskillLinkData
 {
-    SpellInfo const* spell;
-    uint16 curValue;
-    uint16 maxValue;
-    ObjectGuid owner;
-    std::string knownRecipes;
+    SpellInfo const* Spell;
+    uint16 CurValue;
+    uint16 MaxValue;
+    ObjectGuid Owner;
+    std::string KnownRecipes;
 };
 
 namespace LinkTags {

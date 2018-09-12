@@ -60,10 +60,10 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     uint32 achievementId;
     if (!t.TryConsumeTo(achievementId))
         return false;
-    val.achievement = sAchievementMgr->GetAchievement(achievementId);
-    return val.achievement && t.TryConsumeTo(val.characterId) && t.TryConsumeTo(val.isFinished) &&
-        t.TryConsumeTo(val.month) && t.TryConsumeTo(val.day) && t.TryConsumeTo(val.year) && t.TryConsumeTo(val.criteria[0]) &&
-        t.TryConsumeTo(val.criteria[1]) && t.TryConsumeTo(val.criteria[2]) && t.TryConsumeTo(val.criteria[3]) && t.IsEmpty();
+    val.Achievement = sAchievementMgr->GetAchievement(achievementId);
+    return val.Achievement && t.TryConsumeTo(val.CharacterId) && t.TryConsumeTo(val.IsFinished) &&
+        t.TryConsumeTo(val.Month) && t.TryConsumeTo(val.Day) && t.TryConsumeTo(val.Year) && t.TryConsumeTo(val.Criteria[0]) &&
+        t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, char const* pos, size_t len)
@@ -81,9 +81,9 @@ bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, char cons
     uint32 slot, prop;
     if (!(t.TryConsumeTo(slot) && t.TryConsumeTo(prop) && t.IsEmpty()))
         return false;
-    if (!(val.slot = sGlyphSlotStore.LookupEntry(slot)))
+    if (!(val.Slot = sGlyphSlotStore.LookupEntry(slot)))
         return false;
-    if (!(val.glyph = sGlyphPropertiesStore.LookupEntry(prop)))
+    if (!(val.Glyph = sGlyphPropertiesStore.LookupEntry(prop)))
         return false;
     return true;
 }
@@ -94,10 +94,10 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, char const*
     uint32 itemId, dummy;
     if (!t.TryConsumeTo(itemId))
         return false;
-    val.item = sObjectMgr->GetItemTemplate(itemId);
-    return val.item && t.TryConsumeTo(val.enchantId) && t.TryConsumeTo(val.gemEnchantId[0]) && t.TryConsumeTo(val.gemEnchantId[1]) &&
-        t.TryConsumeTo(val.gemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(val.randomPropertyId) && t.TryConsumeTo(val.randomPropertySeed) &&
-        t.TryConsumeTo(val.renderLevel) && t.IsEmpty() && !dummy;
+    val.Item = sObjectMgr->GetItemTemplate(itemId);
+    return val.Item && t.TryConsumeTo(val.EnchantId) && t.TryConsumeTo(val.GemEnchantId[0]) && t.TryConsumeTo(val.GemEnchantId[1]) &&
+        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(val.RandomPropertyId) && t.TryConsumeTo(val.RandomPropertySeed) &&
+        t.TryConsumeTo(val.RenderLevel) && t.IsEmpty() && !dummy;
 }
 
 bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, char const* pos, size_t len)
@@ -106,7 +106,7 @@ bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, char cons
     uint32 questId;
     if (!t.TryConsumeTo(questId))
         return false;
-    return (val.quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.questLevel) && t.IsEmpty();
+    return (val.Quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.QuestLevel) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, char const* pos, size_t len)
@@ -122,11 +122,11 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, char co
 {
     HyperlinkDataTokenizer t(pos, len);
     uint32 talentId;
-    if (!(t.TryConsumeTo(talentId) && t.TryConsumeTo(val.rank) && t.IsEmpty()))
+    if (!(t.TryConsumeTo(talentId) && t.TryConsumeTo(val.Rank) && t.IsEmpty()))
         return false;
-    if (!(val.talent = sTalentStore.LookupEntry(talentId)))
+    if (!(val.Talent = sTalentStore.LookupEntry(talentId)))
         return false;
-    if (!val.talent->RankID[val.rank-1])
+    if (!val.Talent->RankID[val.Rank-1])
         return false;
     return true;
 }
@@ -138,10 +138,10 @@ bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, char
     uint64 guid;
     if (!t.TryConsumeTo(spellId))
         return false;
-    val.spell = sSpellMgr->GetSpellInfo(spellId);
-    if (!(val.spell && val.spell->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.curValue) &&
-      t.TryConsumeTo(val.maxValue) && t.TryConsumeTo(guid) && t.TryConsumeTo(val.knownRecipes) && t.IsEmpty()))
+    val.Spell = sSpellMgr->GetSpellInfo(spellId);
+    if (!(val.Spell && val.Spell->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.CurValue) &&
+      t.TryConsumeTo(val.MaxValue) && t.TryConsumeTo(guid) && t.TryConsumeTo(val.KnownRecipes) && t.IsEmpty()))
         return false;
-    val.owner.Set(guid);
+    val.Owner.Set(guid);
     return true;
 }
