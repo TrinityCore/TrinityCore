@@ -76,7 +76,6 @@ class TC_GAME_API ChatHandler
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
 
-        bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(const char* name, const char* part);

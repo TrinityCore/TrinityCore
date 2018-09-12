@@ -343,10 +343,9 @@ enum ItemQualities
     ITEM_QUALITY_LEGENDARY             = 5, // ORANGE
     ITEM_QUALITY_ARTIFACT              = 6, // LIGHT YELLOW
     ITEM_QUALITY_HEIRLOOM              = 7, // LIGHT BLUE
-    ITEM_QUALITY_WOW_TOKEN             = 8  // LIGHT BLUE
+    ITEM_QUALITY_WOW_TOKEN             = 8, // LIGHT BLUE
+    MAX_ITEM_QUALITY
 };
-
-#define MAX_ITEM_QUALITY                 9
 
 enum SpellCategory
 {
@@ -360,7 +359,7 @@ enum SpellVisualKit
     SPELL_VISUAL_KIT_DRINK          = 438
 };
 
-const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
+uint32 constexpr ItemQualityColors[MAX_ITEM_QUALITY] =
 {
     0xff9d9d9d, // GREY
     0xffffffff, // WHITE
@@ -371,6 +370,16 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
     0xffe6cc80, // LIGHT YELLOW
     0xff00ccff, // LIGHT BLUE
     0xff00ccff  // LIGHT BLUE
+};
+
+size_t constexpr MAX_QUEST_DIFFICULTY = 5;
+uint32 constexpr QuestDifficultyColors[MAX_QUEST_DIFFICULTY] =
+{
+    0xff40c040,
+    0xff808080,
+    0xffffff00,
+    0xffff8040,
+    0xffff2020
 };
 
 // ***********************************
@@ -5633,14 +5642,13 @@ enum ChatFlags
     CHAT_FLAG_MOBILE     = 0x40
 };
 
-enum ChatLinkColors
+enum ChatLinkColors : uint32
 {
-    CHAT_LINK_COLOR_TRADE       = 0xffffd000,   // orange
-    CHAT_LINK_COLOR_TALENT      = 0xff4e96f7,   // blue
-    CHAT_LINK_COLOR_SPELL       = 0xff71d5ff,   // bright blue
-    CHAT_LINK_COLOR_ENCHANT     = 0xffffd000,   // orange
-    CHAT_LINK_COLOR_ACHIEVEMENT = 0xffffff00,
-    CHAT_LINK_COLOR_GLYPH       = 0xff66bbff
+    CHAT_LINK_COLOR_TRADE           = 0xffffd000,   // orange
+    CHAT_LINK_COLOR_TALENT          = 0xff71d5ff,   // bright blue
+    CHAT_LINK_COLOR_SPELL           = 0xff71d5ff,   // bright blue
+    CHAT_LINK_COLOR_ENCHANT         = 0xffffd000,   // orange
+    CHAT_LINK_COLOR_ACHIEVEMENT     = 0xffffff00,
 };
 
 // Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask

@@ -51,7 +51,6 @@ char const* ItemTemplate::GetName(LocaleConstant locale) const
     return ExtendedData->Display[locale];
 }
 
-
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (GetInventoryType())

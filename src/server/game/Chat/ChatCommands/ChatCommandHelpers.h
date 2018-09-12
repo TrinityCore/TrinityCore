@@ -21,8 +21,10 @@
 #include "advstd.h"
 #include <type_traits>
 
-namespace Trinity {
-namespace ChatCommands {
+namespace Trinity
+{
+namespace ChatCommands
+{
 
 static constexpr char COMMAND_DELIMITER = ' ';
 
@@ -70,6 +72,7 @@ struct get_nth<0, T1, Ts...>
 template <size_t index, typename... Ts>
 using get_nth_t = typename get_nth<index, Ts...>::type;
 
-}}
+}
+}
 
 #endif
