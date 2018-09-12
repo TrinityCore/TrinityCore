@@ -113,38 +113,6 @@ struct LinkValidator<LinkTags::achievement>
 };
 
 template <>
-struct LinkValidator<LinkTags::enchant>
-{
-    static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
-    {
-        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(info->Id);
-        if (bounds.first == bounds.second)
-            return false;
-        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(bounds.first->second->skillId);
-        if (!skill)
-            return false;
-
-        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-        {
-            if (equal_with_len(info->SpellName[i], pos, len)) // can either be of form [Spell Name]
-                return true;
-            char const* skillName = skill->name[i];
-            size_t skillLen = strlen(skillName);
-            if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
-                !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
-                equal_with_len(info->SpellName[i], pos + (skillLen + 2), len - (skillLen + 2)))
-                return true;
-        }
-        return false;
-    }
-
-    static bool IsColorValid(SpellInfo const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_ENCHANT;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::item>
 {
     static bool IsTextValid(ItemLinkData const& data, char const* pos, size_t len)
@@ -238,6 +206,37 @@ struct LinkValidator<LinkTags::spell>
     static bool IsColorValid(SpellInfo const*, HyperlinkColor c)
     {
         return c == CHAT_LINK_COLOR_SPELL;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::enchant>
+{
+    static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
+    {
+        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(info->Id);
+        if (bounds.first == bounds.second)
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
+
+        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(bounds.first->second->skillId);
+        if (!skill)
+            return false;
+
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            char const* skillName = skill->name[i];
+            size_t skillLen = strlen(skillName);
+            if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
+                !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
+                equal_with_len(info->SpellName[i], pos + (skillLen + 2), len - (skillLen + 2)))
+                return true;
+        }
+        return false;
+    }
+
+    static bool IsColorValid(SpellInfo const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_ENCHANT;
     }
 };
 
