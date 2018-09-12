@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `smart_scripts` SET `action_param4`=1 WHERE `entryorguid` IN (8391) AND `source_type`=0 AND `id`=0;
 UPDATE `smart_scripts` SET `target_x`=-6477.161133, `target_y`=-1255.462769,  `target_z`=180.371185,  `target_o`=1.720018 WHERE `entryorguid` IN (8400) AND `source_type`=0 AND `id`=7;
@@ -11,3 +12,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (8391, 0,8,0,1,0,100,1,7000,7000,0,0,19,256,0,0,0,0,0,1,0,0,0,0,0,0,0,'Lathoric the Black - ooc - remove unit flag');
 
 UPDATE `creature` SET `position_x`=-6455.95459, `position_y`=-1247.351807, `position_z`=180.441589, `orientation`=4.558472 WHERE `guid`=5809;
+*/
