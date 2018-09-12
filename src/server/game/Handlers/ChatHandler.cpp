@@ -212,7 +212,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     }
 
     std::string to, channel, msg;
-    bool ignoreChecks = false;
     switch (type)
     {
         case CHAT_MSG_SAY:
@@ -227,6 +226,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_RAID_WARNING:
         case CHAT_MSG_BATTLEGROUND:
         case CHAT_MSG_BATTLEGROUND_LEADER:
+        case CHAT_MSG_AFK:
+        case CHAT_MSG_DND:
             recvData >> msg;
             break;
         case CHAT_MSG_WHISPER:
@@ -237,45 +238,44 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             recvData >> channel;
             recvData >> msg;
             break;
-        case CHAT_MSG_AFK:
-        case CHAT_MSG_DND:
-            recvData >> msg;
-            ignoreChecks = true;
-            break;
     }
 
-    if (!ignoreChecks)
-    {
-        if (msg.empty() || msg.length() > 255)
-            return;
+    // Strip invisible characters for non-addon messages
+    if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING) && lang != LANG_ADDON)
+        StripInvisibleChars(msg);
 
+    // no chat commands in AFK/DND autoreply, and it can be empty
+    if (!(type == CHAT_MSG_AFK || type == CHAT_MSG_DND))
+    {
+        if (msg.empty())
+            return;
         if (lang == LANG_ADDON)
         {
             if (AddonChannelCommandHandler(this).ParseCommands(msg.c_str()))
                 return;
         }
-        if (lang != LANG_ADDON)
+        else
         {
             if (ChatHandler(this).ParseCommands(msg.c_str()))
                 return;
-            // Strip invisible characters for non-addon messages
-            if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-                StripInvisibleChars(msg);
-
-            bool validMessage = Trinity::Hyperlinks::ValidateLinks(msg);
-            if (!validMessage)
-            {
-                TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
-                    GetPlayer()->GetGUID().GetCounter());
-
-                if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-                {
-                    KickPlayer();
-                    return;
-                }
-            }
         }
     }
+
+    bool validMessage = Trinity::Hyperlinks::ValidateLinks(msg);
+    if (!validMessage)
+    {
+        TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
+            GetPlayer()->GetGUID().GetCounter());
+
+        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+        {
+            KickPlayer();
+            return;
+        }
+    }
+
+    if (msg.length() > 255)
+        return;
 
     switch (type)
     {
