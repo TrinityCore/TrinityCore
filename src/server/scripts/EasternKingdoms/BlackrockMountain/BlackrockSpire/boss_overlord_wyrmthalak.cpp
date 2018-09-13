@@ -80,8 +80,8 @@ public:
         {
             _JustEngagedWith();
             events.ScheduleEvent(EVENT_BLAST_WAVE, 20s);
-            events.ScheduleEvent(EVENT_SHOUT,       2 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE,      6 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SHOUT, 2s);
+            events.ScheduleEvent(EVENT_CLEAVE, 6s);
             events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s);
         }
 
