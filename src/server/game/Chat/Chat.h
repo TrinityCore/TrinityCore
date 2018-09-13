@@ -24,6 +24,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
+#include <string>
 #include <vector>
 
 class ChatHandler;
@@ -85,7 +86,6 @@ class TC_GAME_API ChatHandler
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
 
-        bool isValidChatMessage(char const* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(char const* name, char const* part);
