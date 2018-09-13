@@ -24,7 +24,8 @@
 #include <utility>
 
 // this namespace holds implementations of upcoming stdlib features that our c++ version doesn't have yet
-namespace advstd {
+namespace advstd
+{
     // C++17 std::apply (constrained to only function pointers, not all callable)
     template <typename... Ts>
     using apply_tuple_type = std::tuple<std::remove_cv_t<std::remove_reference_t<Ts>>...>;

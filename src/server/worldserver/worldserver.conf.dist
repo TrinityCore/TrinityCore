@@ -995,20 +995,20 @@ Quests.EnableQuestTracker = 0
 #        Description: Level difference between player and quest level at which quests are
 #                     considered low-level and are not shown via exclamation mark (!) at quest
 #                     givers.
-#        Default:     4  - (Enabled, Hide quests that have 4 levels less than the character)
+#        Default:     10  - (Enabled, Hide quests that have 10 levels less than the character)
 #                     -1 - (Disabled, Show all available quest marks)
 
-Quests.LowLevelHideDiff = 4
+Quests.LowLevelHideDiff = 10
 
 #
 #    Quests.HighLevelHideDiff
 #        Description: Level difference between player and quest level at which quests are
 #                     considered high-level and are not shown via exclamation mark (!) at quest
 #                     givers.
-#        Default:     10  - (Enabled, Hide quests that have 10 levels more than the character)
+#        Default:     7  - (Enabled, Hide quests that have 7 levels more than the character)
 #                     -1 - (Disabled, Show all available quest marks)
 
-Quests.HighLevelHideDiff = 10
+Quests.HighLevelHideDiff = 7
 
 #
 #    Quests.IgnoreRaid
@@ -1887,11 +1887,8 @@ ChatFakeMessagePreventing = 1
 #
 #    ChatStrictLinkChecking.Severity
 #        Description: Check chat messages for ingame links to spells, items, quests, etc.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled, Check if only valid pipe commands are used, Prevents posting
-#                         pictures.)
-#                     2 - (Enabled, Verify that pipe commands are used in a correct order)
-#                     3 - (Check if color, entry and name don't contradict each other. For this to
+#        Default:     0 - (Only verify that link format looks valid without checking the text)
+#                     1 - (Check if color, entry and name don't contradict each other. For this to
 #                         work correctly, please assure that you have extracted locale DBCs of
 #                         every language specific client playing on this server)
 
@@ -1899,10 +1896,10 @@ ChatStrictLinkChecking.Severity = 0
 
 #
 #    ChatStrictLinkChecking.Kick
-#        Description: Defines what should be done if a message is considered to contain invalid
-#                     pipe commands.
-#        Default:     0 - (Silently ignore message)
-#                     1 - (Disconnect players who sent malformed messages)
+#        Description: Defines what should be done if a message containing invalid control characters
+                      is received.
+#        Default:     0 - (Process sanitized message normally)
+#                     1 - (Ignore message and kick player)
 
 ChatStrictLinkChecking.Kick = 0
 
