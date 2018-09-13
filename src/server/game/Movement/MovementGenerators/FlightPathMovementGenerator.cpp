@@ -140,6 +140,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     if (!active)
         return;
 
+    owner->m_taxi.ClearTaxiDestinations();
     owner->Dismount();
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
@@ -262,7 +263,7 @@ void FlightPathMovementGenerator::PreloadEndGrid()
     // Load the grid
     if (endMap)
     {
-        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: preloading rid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, uint32(_path.size() - 1));
+        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: preloading grid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, uint32(_path.size() - 1));
         endMap->LoadGrid(_endGridX, _endGridY);
     }
     else
