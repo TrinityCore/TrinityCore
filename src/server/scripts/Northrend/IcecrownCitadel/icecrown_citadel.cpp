@@ -617,7 +617,7 @@ class npc_rotting_frost_giant : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
                 _events.ScheduleEvent(EVENT_STOMP, 5s, 8s);
-                _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10000, 15000));
+                _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 10s, 15s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -649,11 +649,11 @@ class npc_rotting_frost_giant : public CreatureScript
                             break;
                         case EVENT_STOMP:
                             DoCastVictim(SPELL_STOMP);
-                            _events.ScheduleEvent(EVENT_STOMP, urand(15000, 18000));
+                            _events.ScheduleEvent(EVENT_STOMP, 15s, 18s);
                             break;
                         case EVENT_ARCTIC_BREATH:
                             DoCastVictim(SPELL_ARCTIC_BREATH);
-                            _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(26000, 33000));
+                            _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 26s, 33s);
                             break;
                         default:
                             break;
@@ -796,7 +796,7 @@ class boss_sister_svalna : public CreatureScript
                     crok->AI()->Talk(SAY_CROK_COMBAT_SVALNA);
                 DoCastSelf(SPELL_DIVINE_SURGE, true);
                 events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9s);
-                events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
+                events.ScheduleEvent(EVENT_IMPALING_SPEAR, 40s, 50s);
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
             }
 
@@ -938,7 +938,7 @@ class boss_sister_svalna : public CreatureScript
                                 DoCast(me, SPELL_AETHER_SHIELD);
                                 DoCast(target, SPELL_IMPALING_SPEAR);
                             }
-                            events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(20000, 25000));
+                            events.ScheduleEvent(EVENT_IMPALING_SPEAR, 20s, 25s);
                             break;
                         default:
                             break;
@@ -990,7 +990,7 @@ class npc_crok_scourgebane : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
-                _events.ScheduleEvent(EVENT_DEATH_STRIKE, urand(25000, 30000));
+                _events.ScheduleEvent(EVENT_DEATH_STRIKE, 25s, 30s);
                 me->SetReactState(REACT_DEFENSIVE);
                 Initialize();
             }
@@ -1203,7 +1203,7 @@ class npc_crok_scourgebane : public CreatureScript
                             break;
                         case EVENT_SCOURGE_STRIKE:
                             DoCastVictim(SPELL_SCOURGE_STRIKE);
-                            _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(10000, 14000));
+                            _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, 10s, 14s);
                             break;
                         case EVENT_DEATH_STRIKE:
                             if (HealthBelowPct(20))
@@ -1399,7 +1399,7 @@ class npc_captain_arnath : public CreatureScript
                 Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, 8s, 14s);
                 Events.ScheduleEvent(EVENT_ARNATH_SMITE, 3s, 6s);
                 if (Is25ManRaid() && IsUndead)
-                    Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, urand(22000, 27000));
+                    Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, 22s, 27s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1425,7 +1425,7 @@ class npc_captain_arnath : public CreatureScript
                         {
                             std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
                             DoCast(Trinity::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
-                            Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, urand(15000, 20000));
+                            Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, 15s, 20s);
                             break;
                         }
                         case EVENT_ARNATH_SMITE:
@@ -1435,7 +1435,7 @@ class npc_captain_arnath : public CreatureScript
                         case EVENT_ARNATH_DOMINATE_MIND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_DOMINATE_MIND);
-                            Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, urand(28000, 37000));
+                            Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, 28s, 37s);
                             break;
                         default:
                             break;
@@ -1483,7 +1483,7 @@ class npc_captain_brandon : public CreatureScript
                 Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500ms);
                 Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, 8s, 13s);
                 if (IsUndead)
-                    Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(25000, 30000));
+                    Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, 25s, 30s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1516,7 +1516,7 @@ class npc_captain_brandon : public CreatureScript
                         case EVENT_BRANDON_HAMMER_OF_BETRAYAL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_HAMMER_OF_BETRAYAL);
-                            Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(45000, 60000));
+                            Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, 45s, 60s);
                             break;
                         default:
                             break;
@@ -1554,7 +1554,7 @@ class npc_captain_grondel : public CreatureScript
                 Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, 8s, 14s);
                 Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, 3s, 12s);
                 if (IsUndead)
-                    Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, urand(12000, 17000));
+                    Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, 12s, 17s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1577,7 +1577,7 @@ class npc_captain_grondel : public CreatureScript
                             break;
                         case EVENT_GRONDEL_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);
-                            Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, urand(10000, 15000));
+                            Events.ScheduleEvent(EVENT_GRONDEL_MORTAL_STRIKE, 10s, 15s);
                             break;
                         case EVENT_GRONDEL_SUNDER_ARMOR:
                             DoCastVictim(SPELL_SUNDER_ARMOR);
@@ -1586,7 +1586,7 @@ class npc_captain_grondel : public CreatureScript
                         case EVENT_GRONDEL_CONFLAGRATION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_CONFLAGRATION);
-                            Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, urand(10000, 15000));
+                            Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, 10s, 15s);
                             break;
                         default:
                             break;
@@ -1620,9 +1620,9 @@ class npc_captain_rupert : public CreatureScript
             void Reset() override
             {
                 Events.Reset();
-                Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, urand(15000, 20000));
-                Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, urand(25000, 30000));
-                Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, urand(10000, 15000));
+                Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, 15s, 20s);
+                Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, 25s, 30s);
+                Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, 10s, 15s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1642,17 +1642,17 @@ class npc_captain_rupert : public CreatureScript
                         case EVENT_RUPERT_FEL_IRON_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_FEL_IRON_BOMB);
-                            Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, urand(15000, 20000));
+                            Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, 15s, 20s);
                             break;
                         case EVENT_RUPERT_MACHINE_GUN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_MACHINE_GUN);
-                            Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, urand(25000, 30000));
+                            Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, 25s, 30s);
                             break;
                         case EVENT_RUPERT_ROCKET_LAUNCH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_ROCKET_LAUNCH);
-                            Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, urand(10000, 15000));
+                            Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, 10s, 15s);
                             break;
                         default:
                             break;

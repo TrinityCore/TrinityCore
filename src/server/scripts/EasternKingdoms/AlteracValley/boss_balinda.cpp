@@ -80,7 +80,7 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 5s, 15s);
             events.ScheduleEvent(EVENT_CONE_OF_COLD, 8s);
             events.ScheduleEvent(EVENT_FIREBOLT, 1s);
             events.ScheduleEvent(EVENT_FROSTBOLT, 4s);
@@ -137,19 +137,19 @@ public:
                 {
                     case EVENT_ARCANE_EXPLOSION:
                         DoCastVictim(SPELL_ARCANE_EXPLOSION);
-                        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 5s, 15s);
                         break;
                     case EVENT_CONE_OF_COLD:
                         DoCastVictim(SPELL_CONE_OF_COLD);
-                        events.ScheduleEvent(EVENT_CONE_OF_COLD, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_CONE_OF_COLD, 10s, 20s);
                         break;
                     case EVENT_FIREBOLT:
                         DoCastVictim(SPELL_FIREBALL);
-                        events.ScheduleEvent(EVENT_FIREBOLT, urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_FIREBOLT, 5s, 9s);
                         break;
                     case EVENT_FROSTBOLT:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, urand(4 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 4s, 12s);
                         break;
                     case EVENT_SUMMON_WATER_ELEMENTAL:
                         if (summons.empty())

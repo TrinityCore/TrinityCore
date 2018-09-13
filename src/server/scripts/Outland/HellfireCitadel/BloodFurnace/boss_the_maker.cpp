@@ -80,7 +80,7 @@ class boss_the_maker : public CreatureScript
                 {
                     case EVENT_ACID_SPRAY:
                         DoCastVictim(SPELL_ACID_SPRAY);
-                        events.ScheduleEvent(EVENT_ACID_SPRAY, urand(15000, 23000));
+                        events.ScheduleEvent(EVENT_ACID_SPRAY, 15s, 23s);
                         break;
                     case EVENT_EXPLODING_BREAKER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))

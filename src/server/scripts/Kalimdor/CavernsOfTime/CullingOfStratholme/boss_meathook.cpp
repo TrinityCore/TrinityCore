@@ -57,9 +57,9 @@ class boss_meathook : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_CHAIN, urand(12000, 17000));
+                events.ScheduleEvent(EVENT_CHAIN, 12s, 17s);
                 events.ScheduleEvent(EVENT_DISEASE, 2s, 4s);
-                events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
+                events.ScheduleEvent(EVENT_FRENZY, 21s, 26s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -73,11 +73,11 @@ class boss_meathook : public CreatureScript
                         break;
                     case EVENT_DISEASE:
                         DoCastAOE(SPELL_DISEASE_EXPULSION);
-                        events.ScheduleEvent(EVENT_DISEASE, urand(1500, 4000));
+                        events.ScheduleEvent(EVENT_DISEASE, 1500ms, 4s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
+                        events.ScheduleEvent(EVENT_FRENZY, 21s, 26s);
                         break;
                     default:
                         break;

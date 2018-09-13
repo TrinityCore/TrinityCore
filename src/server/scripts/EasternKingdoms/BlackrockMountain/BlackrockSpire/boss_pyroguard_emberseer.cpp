@@ -384,7 +384,7 @@ public:
             }
 
             _events.ScheduleEvent(EVENT_STRIKE, 8s, 16s);
-            _events.ScheduleEvent(EVENT_ENCAGE, urand(10000, 20000));
+            _events.ScheduleEvent(EVENT_ENCAGE, 10s, 20s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -421,7 +421,7 @@ public:
                 {
                     case EVENT_STRIKE:
                         DoCastVictim(SPELL_STRIKE, true);
-                        _events.ScheduleEvent(EVENT_STRIKE, urand(14000, 23000));
+                        _events.ScheduleEvent(EVENT_STRIKE, 14s, 23s);
                         break;
                     case EVENT_ENCAGE:
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), EVENT_ENCAGE, true);

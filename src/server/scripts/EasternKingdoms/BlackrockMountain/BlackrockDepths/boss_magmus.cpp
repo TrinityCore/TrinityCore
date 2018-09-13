@@ -84,7 +84,7 @@ class boss_magmus : public CreatureScript
                             break;
                         case EVENT_WARSTOMP:
                             DoCastVictim(SPELL_WARSTOMP);
-                            _events.ScheduleEvent(EVENT_WARSTOMP, 8000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_WARSTOMP, 8s, 0, PHASE_TWO);
                             break;
                         default:
                             break;

@@ -209,7 +209,7 @@ class boss_garfrost : public CreatureScript
                             break;
                         case EVENT_CHILLING_WAVE:
                             DoCast(me, SPELL_CHILLING_WAVE);
-                            events.ScheduleEvent(EVENT_CHILLING_WAVE, 40000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_CHILLING_WAVE, 4s, 0, PHASE_TWO);
                             break;
                         case EVENT_DEEP_FREEZE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -217,7 +217,7 @@ class boss_garfrost : public CreatureScript
                                 Talk(SAY_CAST_DEEP_FREEZE, target);
                                 DoCast(target, SPELL_DEEP_FREEZE);
                             }
-                            events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_DEEP_FREEZE, 35s, 0, PHASE_THREE);
                             break;
                         case EVENT_FORGE_JUMP:
                             me->AttackStop();
@@ -228,9 +228,9 @@ class boss_garfrost : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             if (events.IsInPhase(PHASE_TWO))
-                                events.ScheduleEvent(EVENT_CHILLING_WAVE, 5000, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_CHILLING_WAVE, 5s, 0, PHASE_TWO);
                             else if (events.IsInPhase(PHASE_THREE))
-                                events.ScheduleEvent(EVENT_DEEP_FREEZE, 10000, 0, PHASE_THREE);
+                                events.ScheduleEvent(EVENT_DEEP_FREEZE, 10s, 0, PHASE_THREE);
                             AttackStart(me->GetVictim());
                             break;
                         default:

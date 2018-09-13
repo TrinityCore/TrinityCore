@@ -143,11 +143,11 @@ public:
                         break;
                     case EVENT_STOMP:
                         DoCastVictim(SPELL_WARSTOMP);
-                        events.ScheduleEvent(EVENT_STOMP, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_STOMP, 15s, 25s);
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FIREBALLVOLLEY);
-                        events.ScheduleEvent(EVENT_FIREBALL, urand(12000, 15000));
+                        events.ScheduleEvent(EVENT_FIREBALL, 12s, 15s);
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);

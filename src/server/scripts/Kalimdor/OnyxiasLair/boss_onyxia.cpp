@@ -164,10 +164,10 @@ public:
         {
             _JustEngagedWith();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
-            events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
+            events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
             events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
-            events.ScheduleEvent(EVENT_WING_BUFFET, urand(10000, 20000));
+            events.ScheduleEvent(EVENT_WING_BUFFET, 10s, 20s);
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
@@ -240,10 +240,10 @@ public:
                         else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
-                        events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
+                        events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
                         events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
-                        events.ScheduleEvent(EVENT_WING_BUFFET, urand(15000, 30000));
+                        events.ScheduleEvent(EVENT_WING_BUFFET, 15s, 30s);
                         break;
                     case 10:
                         me->SetCanFly(true);
@@ -367,11 +367,11 @@ public:
                         }
                         case EVENT_FLAME_BREATH:   // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_FLAME_BREATH);
-                            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
                             break;
                         case EVENT_TAIL_SWEEP:     // Phase PHASE_START and PHASE_END
                             DoCastAOE(SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
                             break;
                         case EVENT_CLEAVE:         // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_CLEAVE);
@@ -379,7 +379,7 @@ public:
                             break;
                         case EVENT_WING_BUFFET:    // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_WING_BUFFET);
-                            events.ScheduleEvent(EVENT_WING_BUFFET, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_WING_BUFFET, 15s, 30s);
                             break;
                         default:
                             break;

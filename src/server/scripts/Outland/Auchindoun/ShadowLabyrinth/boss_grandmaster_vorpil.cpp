@@ -141,7 +141,7 @@ class boss_grandmaster_vorpil : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
+                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BANISH, 15s);
                 events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
@@ -178,7 +178,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                     {
                         case EVENT_SHADOWBOLT_VOLLEY:
                             DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15s, 30s);
                             break;
                         case EVENT_BANISH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, false))

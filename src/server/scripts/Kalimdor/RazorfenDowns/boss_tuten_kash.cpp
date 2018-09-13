@@ -87,7 +87,7 @@ public:
                         break;
                     case EVENT_CURSE_OF_TUTENKASH:
                         DoCast(me, SPELL_CURSE_OF_TUTENKASH);
-                        events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 15s, 25s);
                         break;
                 }
 

@@ -116,7 +116,7 @@ class boss_ragnaros : public CreatureScript
                 events.ScheduleEvent(EVENT_LAVA_BURST, 10s);
                 events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 3s);
                 events.ScheduleEvent(EVENT_MAGMA_BLAST, 2s);
-                events.ScheduleEvent(EVENT_SUBMERGE, 180000);
+                events.ScheduleEvent(EVENT_SUBMERGE, 3min);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -291,7 +291,7 @@ class boss_ragnaros : public CreatureScript
                                         _emergeTimer = 90000;
                                     }
                                 }
-                                events.ScheduleEvent(EVENT_SUBMERGE, 180000);
+                                events.ScheduleEvent(EVENT_SUBMERGE, 3min);
                                 break;
                             }
                             default:

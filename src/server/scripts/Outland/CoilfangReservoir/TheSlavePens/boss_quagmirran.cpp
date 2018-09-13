@@ -88,11 +88,11 @@ class boss_quagmirran : public CreatureScript
                     {
                         case EVENT_ACID_SPRAY:
                             DoCastAOE(SPELL_ACID_SPRAY);
-                            events.ScheduleEvent(EVENT_ACID_SPRAY, urand(20000, 25000));
+                            events.ScheduleEvent(EVENT_ACID_SPRAY, 20s, 25s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE, true);
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(18000, 34000));
+                            events.ScheduleEvent(EVENT_CLEAVE, 18s, 34s);
                             break;
                         case EVENT_UPPERCUT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))

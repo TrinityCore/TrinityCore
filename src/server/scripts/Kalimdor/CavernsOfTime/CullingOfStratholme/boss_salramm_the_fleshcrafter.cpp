@@ -66,7 +66,7 @@ class boss_salramm : public CreatureScript
                 _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CURSE_FLESH, 30s);
-                events.ScheduleEvent(EVENT_SUMMON_GHOULS, urand(19000, 24000));
+                events.ScheduleEvent(EVENT_SUMMON_GHOULS, 19s, 24s);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 8s, 12s);
                 events.ScheduleEvent(EVENT_STEAL_FLESH, 12345); /// @todo: adjust timer
             }

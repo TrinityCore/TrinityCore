@@ -1434,9 +1434,9 @@ class npc_runic_colossus : public CreatureScript
             {
                 DoZoneInCombat();
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_RUNIC_BARRIER, urand(12000, 15000));
-                _events.ScheduleEvent(EVENT_SMASH, urand(15000, 18000));
-                _events.ScheduleEvent(EVENT_RUNIC_CHARGE, urand(20000, 24000));
+                _events.ScheduleEvent(EVENT_RUNIC_BARRIER, 12s, 15s);
+                _events.ScheduleEvent(EVENT_SMASH, 15s, 18s);
+                _events.ScheduleEvent(EVENT_RUNIC_CHARGE, 20s, 24s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1522,7 +1522,7 @@ class npc_ancient_rune_giant : public CreatureScript
                 DoZoneInCombat();
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_RUNIC_FORTIFICATION, 1);
-                _events.ScheduleEvent(EVENT_STOMP, urand(10000, 12000));
+                _events.ScheduleEvent(EVENT_STOMP, 10s, 12s);
                 _events.ScheduleEvent(EVENT_RUNE_DETONATION, 25000);
             }
 
@@ -1615,7 +1615,7 @@ class npc_sif : public CreatureScript
                     _events.Reset();
                     _events.ScheduleEvent(EVENT_FROSTBOLT, 2s);
                     _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 15000);
-                    _events.ScheduleEvent(EVENT_BLINK, urand(20000, 25000));
+                    _events.ScheduleEvent(EVENT_BLINK, 20s, 25s);
                     _events.ScheduleEvent(EVENT_BLIZZARD, 30s);
                 }
             }

@@ -71,7 +71,7 @@ class boss_murmur : public CreatureScript
                 events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
                 events.ScheduleEvent(EVENT_MURMURS_TOUCH, 8s, 20s);
                 events.ScheduleEvent(EVENT_RESONANCE, 5s);
-                events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
+                events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
                 if (IsHeroic())
                 {
                     events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
@@ -118,7 +118,7 @@ class boss_murmur : public CreatureScript
                         case EVENT_MURMURS_TOUCH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                                 DoCast(target, SPELL_MURMURS_TOUCH);
-                            events.ScheduleEvent(EVENT_MURMURS_TOUCH, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
                             break;
                         case EVENT_RESONANCE:
                             if (!(me->IsWithinMeleeRange(me->GetVictim())))
@@ -131,7 +131,7 @@ class boss_murmur : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 DoCast(target, SPELL_MAGNETIC_PULL);
-                                events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
+                                events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
                                 break;
                             }
                             events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500ms);
@@ -143,7 +143,7 @@ class boss_murmur : public CreatureScript
                         case EVENT_SONIC_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, false))
                                 DoCast(target, SPELL_SONIC_SHOCK);
-                            events.ScheduleEvent(EVENT_SONIC_SHOCK, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s, 20s);
                             break;
                     }
 

@@ -1230,7 +1230,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _events.SetPhase(PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_A_1, 5000);
                 _events.ScheduleEvent(EVENT_INTRO_A_2, 10000, 0, PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_INTRO_SUMMON_ORGRIMS_HAMMER, 28000, 0, PHASE_INTRO);
+                _events.ScheduleEvent(EVENT_INTRO_SUMMON_ORGRIMS_HAMMER, 28s, 0, PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_A_3, 33000, 0, PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_A_4, 39000, 0, PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_A_5, 45000, 0, PHASE_INTRO);
@@ -1559,7 +1559,7 @@ class npc_gunship_boarding_leader : public CreatureScript
             void JustEngagedWith(Unit* target) override
             {
                 npc_gunship_boarding_addAI::JustEngagedWith(target);
-                _events.ScheduleEvent(EVENT_BLADESTORM, urand(13000, 18000));
+                _events.ScheduleEvent(EVENT_BLADESTORM, 13s, 18s);
                 _events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 8s, 10s);
             }
 
@@ -1585,7 +1585,7 @@ class npc_gunship_boarding_leader : public CreatureScript
                     {
                         case EVENT_BLADESTORM:
                             DoCastAOE(SPELL_BLADESTORM);
-                            _events.ScheduleEvent(EVENT_BLADESTORM, urand(25000, 30000));
+                            _events.ScheduleEvent(EVENT_BLADESTORM, 25s, 30s);
                             break;
                         case EVENT_WOUNDING_STRIKE:
                             DoCastVictim(SPELL_WOUNDING_STRIKE);

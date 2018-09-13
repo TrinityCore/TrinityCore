@@ -89,7 +89,7 @@ public:
                     if (VoidBlastCounter == 5)
                     {
                         VoidBlastCounter = 0;
-                        events.ScheduleEvent(EVENT_VOID_BLAST, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_VOID_BLAST, 15s, 25s);
                     }
                     else
                     {

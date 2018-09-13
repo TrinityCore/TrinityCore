@@ -90,7 +90,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                 events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, 1s, 4s);
                 events.ScheduleEvent(EVENT_WHIRLWIND, 7s, 9s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
+                    events.ScheduleEvent(EVENT_SHADOW_WAVE, 11s, 16s);
                 events.ScheduleEvent(EVENT_ME_FIRST, 6s);
                 Talk(SAY_AGGRO);
             }
@@ -148,12 +148,12 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                     {
                         case EVENT_GIFT_OF_THE_DOOMSAYER:
                             DoCastVictim(SPELL_GIFT_OF_THE_DOOMSAYER, true);
-                            events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, urand(16000, 21000));
+                            events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, 16s, 21s);
                             break;
                         case EVENT_WHIRLWIND:
                             DoCast(me, SPELL_WHIRLWIND);
                             Talk(SAY_WHIRLWIND);
-                            events.ScheduleEvent(EVENT_WHIRLWIND, urand(19000, 21000));
+                            events.ScheduleEvent(EVENT_WHIRLWIND, 19s, 21s);
                             events.ScheduleEvent(EVENT_HEAL, 6s);
                             break;
                         case EVENT_HEAL:
@@ -162,7 +162,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                             break;
                         case EVENT_SHADOW_WAVE:
                             DoCastVictim(SPELL_SHADOW_WAVE, true);
-                            events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
+                            events.ScheduleEvent(EVENT_SHADOW_WAVE, 11s, 16s);
                             break;
                         case EVENT_ME_FIRST:
                             if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))

@@ -97,7 +97,7 @@ class boss_tharon_ja : public CreatureScript
 
                 events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
                 events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
-                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
                 events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
             }
 
@@ -133,7 +133,7 @@ class boss_tharon_ja : public CreatureScript
                         case EVENT_CURSE_OF_LIFE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_CURSE_OF_LIFE);
-                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 10s, 15s);
                             return;
                         case EVENT_SHADOW_VOLLEY:
                             DoCastVictim(SPELL_SHADOW_VOLLEY);
@@ -142,7 +142,7 @@ class boss_tharon_ja : public CreatureScript
                         case EVENT_RAIN_OF_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
                             return;
                         case EVENT_LIGHTNING_BREATH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -156,7 +156,7 @@ class boss_tharon_ja : public CreatureScript
                             return;
                         case EVENT_POISON_CLOUD:
                             DoCastAOE(SPELL_POISON_CLOUD);
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, 10s, 12s);
                             return;
                         case EVENT_DECAY_FLESH:
                             DoCastAOE(SPELL_DECAY_FLESH);
@@ -187,7 +187,7 @@ class boss_tharon_ja : public CreatureScript
                             events.Reset();
                             events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
                             events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
                             events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
                             break;
                         default:

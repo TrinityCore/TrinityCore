@@ -153,7 +153,7 @@ class boss_lord_marrowgar : public CreatureScript
                 events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);
                 events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
-                events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
+                events.ScheduleEvent(EVENT_WARN_BONE_STORM, 45s, 50s);
                 events.ScheduleEvent(EVENT_ENRAGE, 10min);
                 _boneSlice = false;
                 _boneSpikeImmune.clear();
@@ -223,7 +223,7 @@ class boss_lord_marrowgar : public CreatureScript
                             DoCast(me, SPELL_BONE_STORM);
                             events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
                             events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
-                            events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
+                            events.ScheduleEvent(EVENT_WARN_BONE_STORM, 90s, 95s);
                             break;
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))

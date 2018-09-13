@@ -299,7 +299,7 @@ class boss_ysondre : public CreatureScript
                 {
                     case EVENT_LIGHTNING_WAVE:
                         DoCastVictim(SPELL_LIGHTNING_WAVE);
-                        events.ScheduleEvent(EVENT_LIGHTNING_WAVE, urand(10000, 20000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_WAVE, 10s, 20s);
                         break;
                     default:
                         emerald_dragonAI::ExecuteEvent(eventId);
@@ -399,7 +399,7 @@ class boss_lethon : public CreatureScript
                 {
                     case EVENT_SHADOW_BOLT_WHIRL:
                         me->CastSpell(nullptr, SPELL_SHADOW_BOLT_WHIRL, false);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, urand(15000, 30000));
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 15s, 30s);
                         break;
                     default:
                         emerald_dragonAI::ExecuteEvent(eventId);
@@ -649,7 +649,7 @@ class boss_taerar : public CreatureScript
                         break;
                     case EVENT_BELLOWING_ROAR:
                         DoCast(SPELL_BELLOWING_ROAR);
-                        events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 30000));
+                        events.ScheduleEvent(EVENT_BELLOWING_ROAR, 20s, 30s);
                         break;
                     default:
                         emerald_dragonAI::ExecuteEvent(eventId);

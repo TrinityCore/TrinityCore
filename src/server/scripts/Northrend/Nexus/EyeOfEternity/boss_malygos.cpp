@@ -1338,7 +1338,7 @@ class npc_nexus_lord : public CreatureScript
                         case EVENT_ARCANE_SHOCK:
                             if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
                                 DoCast(victim, SPELL_ARCANE_SHOCK);
-                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(7, 15)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 7s, 15s);
                             break;
                         case EVENT_HASTE_BUFF:
                             DoCast(me, SPELL_HASTE);
@@ -1391,7 +1391,7 @@ class npc_scion_of_eternity : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
-                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 29)*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 14s, 29s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -1416,7 +1416,7 @@ class npc_scion_of_eternity : public CreatureScript
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCast(me, SPELL_ARCANE_BARRAGE);
-                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 15)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 3s, 15s);
                             break;
                     }
                 }

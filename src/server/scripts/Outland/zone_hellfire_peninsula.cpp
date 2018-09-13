@@ -626,7 +626,7 @@ public:
                     for (uint8 i = 0; i < summonCount; i++)
                         me->SummonCreature(NPC_DARKNESS_RELEASED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 1.5f, 0, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    events.ScheduleEvent(EVENT_SUMMON_SKULL, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_SUMMON_SKULL, 10s, 15s);
                     break;
                 }
             }

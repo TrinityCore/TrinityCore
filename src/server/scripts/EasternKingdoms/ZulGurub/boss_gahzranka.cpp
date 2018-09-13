@@ -88,11 +88,11 @@ class boss_gahzranka : public CreatureScript // gahzranka
                             break;
                         case EVENT_MASSIVEGEYSER:
                             DoCastVictim(SPELL_MASSIVEGEYSER, true);
-                            events.ScheduleEvent(EVENT_MASSIVEGEYSER, urand(22000, 32000));
+                            events.ScheduleEvent(EVENT_MASSIVEGEYSER, 22s, 32s);
                             break;
                         case EVENT_SLAM:
                             DoCastVictim(SPELL_SLAM, true);
-                            events.ScheduleEvent(EVENT_SLAM, urand(12000, 20000));
+                            events.ScheduleEvent(EVENT_SLAM, 12s, 20s);
                             break;
                         default:
                             break;

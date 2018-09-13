@@ -120,7 +120,7 @@ class boss_rotface : public CreatureScript
                 events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90s);
                 events.ScheduleEvent(EVENT_MUTATED_INFECTION, 14s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_VILE_GAS, urand(22000, 27000));
+                    events.ScheduleEvent(EVENT_VILE_GAS, 22s, 27s);
 
                 infectionStage = 0;
                 infectionCooldown = 14000;
@@ -224,7 +224,7 @@ class boss_rotface : public CreatureScript
                             break;
                         case EVENT_VILE_GAS:
                             DoCastAOE(SPELL_VILE_GAS_TRIGGER);
-                            events.ScheduleEvent(EVENT_VILE_GAS, urand(30000, 35000));
+                            events.ScheduleEvent(EVENT_VILE_GAS, 30s, 35s);
                             break;
                         default:
                             break;
@@ -385,9 +385,9 @@ class npc_precious_icc : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                _events.ScheduleEvent(EVENT_DECIMATE, 20s, 25s);
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, 3s, 7s);
-                _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
+                _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, 20s, 22s);
                 _summons.DespawnAll();
             }
 
@@ -427,7 +427,7 @@ class npc_precious_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, 20s, 25s);
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
@@ -437,7 +437,7 @@ class npc_precious_icc : public CreatureScript
                             Talk(EMOTE_PRECIOUS_ZOMBIES);
                             for (uint32 i = 0; i < 11; ++i)
                                 DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
-                            _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
+                            _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, 20s, 22s);
                             break;
                         default:
                             break;

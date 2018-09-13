@@ -89,7 +89,7 @@ public:
             events.ScheduleEvent(EVENT_POLYMORPH, 8s);
             events.ScheduleEvent(EVENT_BLINK, 35000);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_SLOW, urand(15000, 30000));
+                events.ScheduleEvent(EVENT_SLOW, 15s, 30s);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -110,14 +110,14 @@ public:
                     break;
                 case EVENT_SLOW:
                     DoCast(me, SPELL_SLOW);
-                    events.ScheduleEvent(EVENT_SLOW, urand(15000, 40000));
+                    events.ScheduleEvent(EVENT_SLOW, 15s, 40s);
                     break;
                 case EVENT_BLINK:
                     if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(false);
                     Talk(EMOTE_ARCANE_EXPLOSION);
                     DoCastAOE(SPELL_BLINK);
-                    events.ScheduleEvent(EVENT_BLINK, urand(35000, 40000));
+                    events.ScheduleEvent(EVENT_BLINK, 35s, 40s);
                     events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 1s);
                     break;
                 case EVENT_ARCANE_EXPLOSION:

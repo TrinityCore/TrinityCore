@@ -75,12 +75,12 @@ class boss_doomlord_kazzak : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 6s, 10s);
                 _events.ScheduleEvent(EVENT_CLEAVE, 7s);
-                _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
+                _events.ScheduleEvent(EVENT_THUNDERCLAP, 14s, 18s);
                 _events.ScheduleEvent(EVENT_VOID_BOLT, 30s);
                 _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
                 _events.ScheduleEvent(EVENT_ENRAGE, 1min);
                 _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33s);
-                _events.ScheduleEvent(EVENT_BERSERK, 180000);
+                _events.ScheduleEvent(EVENT_BERSERK, 3min);
             }
 
             void JustAppeared() override
@@ -134,11 +134,11 @@ class boss_doomlord_kazzak : public CreatureScript
                             break;
                         case EVENT_THUNDERCLAP:
                             DoCastVictim(SPELL_THUNDERCLAP);
-                            _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(10000, 14000));
+                            _events.ScheduleEvent(EVENT_THUNDERCLAP, 10s, 14s);
                             break;
                         case EVENT_VOID_BOLT:
                             DoCastVictim(SPELL_VOID_BOLT);
-                            _events.ScheduleEvent(EVENT_VOID_BOLT, urand(15000, 18000));
+                            _events.ScheduleEvent(EVENT_VOID_BOLT, 15s, 18s);
                             break;
                         case EVENT_MARK_OF_KAZZAK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))

@@ -69,8 +69,8 @@ class boss_krystallus : public CreatureScript
                 _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_BOULDER_TOSS, 3s, 9s);
-                events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));
-                events.ScheduleEvent(EVENT_STOMP, urand(20000, 29000));
+                events.ScheduleEvent(EVENT_GROUND_SLAM, 15s, 18s);
+                events.ScheduleEvent(EVENT_STOMP, 20s, 29s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_GROUND_SPIKE, 9s, 14s);
             }
@@ -98,16 +98,16 @@ class boss_krystallus : public CreatureScript
                         case EVENT_GROUND_SPIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_GROUND_SPIKE);
-                            events.ScheduleEvent(EVENT_GROUND_SPIKE, urand(12000, 17000));
+                            events.ScheduleEvent(EVENT_GROUND_SPIKE, 12s, 17s);
                             break;
                         case EVENT_GROUND_SLAM:
                             DoCast(me, SPELL_GROUND_SLAM);
                             events.ScheduleEvent(EVENT_SHATTER, 10s);
-                            events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));
+                            events.ScheduleEvent(EVENT_GROUND_SLAM, 15s, 18s);
                             break;
                         case EVENT_STOMP:
                             DoCast(me, SPELL_STOMP);
-                            events.ScheduleEvent(EVENT_STOMP, urand(20000, 29000));
+                            events.ScheduleEvent(EVENT_STOMP, 20s, 29s);
                             break;
                         case EVENT_SHATTER:
                             DoCast(me, SPELL_SHATTER);

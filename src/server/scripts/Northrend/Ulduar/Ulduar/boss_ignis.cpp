@@ -221,7 +221,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_JET:
                             Talk(EMOTE_JETS);
                             DoCast(me, SPELL_FLAME_JETS);
-                            events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
+                            events.ScheduleEvent(EVENT_JET, 35s, 40s);
                             break;
                         case EVENT_SLAG_POT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))

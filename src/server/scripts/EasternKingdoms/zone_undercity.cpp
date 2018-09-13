@@ -189,16 +189,16 @@ public:
                         if (Unit* victim = me->GetVictim())
                             if (me->GetDistance(victim) > 10.0f)
                                 DoCast(victim, SPELL_MULTI_SHOT);
-                        _events.ScheduleEvent(EVENT_FADE, urand(30000, 35000));
+                        _events.ScheduleEvent(EVENT_FADE, 30s, 35s);
                         break;
                     case EVENT_SUMMON_SKELETON:
                         DoCast(me, SPELL_SUMMON_SKELETON);
-                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, urand(20000, 30000));
+                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s, 30s);
                         break;
                     case EVENT_BLACK_ARROW:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_BLACK_ARROW);
-                        _events.ScheduleEvent(EVENT_BLACK_ARROW, urand(15000, 20000));
+                        _events.ScheduleEvent(EVENT_BLACK_ARROW, 15s, 20s);
                         break;
                     case EVENT_SHOOT:
                         if (Unit* victim = me->GetVictim())
@@ -208,7 +208,7 @@ public:
                     case EVENT_MULTI_SHOT:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_MULTI_SHOT);
-                        _events.ScheduleEvent(EVENT_MULTI_SHOT, urand(10000, 13000));
+                        _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s, 13s);
                         break;
                     case EVENT_LAMENT_OF_THE_HIGHBORN:
                         if (!me->HasAura(SPELL_SYLVANAS_CAST))

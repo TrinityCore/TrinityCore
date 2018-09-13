@@ -91,7 +91,7 @@ class boss_arcanist_doan : public CreatureScript
                     {
                         case EVENT_SILENCE:
                             DoCastVictim(SPELL_SILENCE);
-                            events.ScheduleEvent(EVENT_SILENCE, urand(15, 20) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SILENCE, 15s, 20s);
                             break;
                         case EVENT_ARCANE_EXPLOSION:
                             DoCastVictim(SPELL_ARCANE_EXPLOSION);

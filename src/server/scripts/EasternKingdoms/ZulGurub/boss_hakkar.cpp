@@ -125,15 +125,15 @@ class boss_hakkar : public CreatureScript
                             break;
                         case EVENT_CORRUPTED_BLOOD:
                             DoCastVictim(SPELL_CORRUPTED_BLOOD, true);
-                            events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 30s, 45s);
                             break;
                         case EVENT_CAUSE_INSANITY:
                             // DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_CAUSE_INSANITY);
-                            // events.ScheduleEvent(EVENT_CAUSE_INSANITY, urand(35000, 45000));
+                            // events.ScheduleEvent(EVENT_CAUSE_INSANITY, 35s, 45s);
                             break;
                         case EVENT_WILL_OF_HAKKAR:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_WILL_OF_HAKKAR);
-                            events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 25s, 35s);
                             break;
                         case EVENT_ENRAGE:
                             if (!me->HasAura(SPELL_ENRAGE))
@@ -142,7 +142,7 @@ class boss_hakkar : public CreatureScript
                             break;
                         case EVENT_ASPECT_OF_JEKLIK:
                             DoCastVictim(SPELL_ASPECT_OF_JEKLIK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, urand(10000, 14000));
+                            events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 10s, 14s);
                             break;
                         case EVENT_ASPECT_OF_VENOXIS:
                             DoCastVictim(SPELL_ASPECT_OF_VENOXIS, true);
@@ -158,7 +158,7 @@ class boss_hakkar : public CreatureScript
                             break;
                         case EVENT_ASPECT_OF_ARLOKK:
                             DoCastVictim(SPELL_ASPECT_OF_ARLOKK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 10s, 15s);
                             break;
                         default:
                             break;

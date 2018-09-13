@@ -175,7 +175,7 @@ class boss_bronjahm : public CreatureScript
                             if (events.IsInPhase(PHASE_2))
                             {
                                 DoCastVictim(SPELL_SHADOW_BOLT);
-                                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1, 2) * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s, 2s);
                             }
                             else
                             {

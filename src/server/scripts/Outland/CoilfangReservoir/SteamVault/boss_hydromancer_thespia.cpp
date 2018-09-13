@@ -89,7 +89,7 @@ class boss_hydromancer_thespia : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                                 DoCast(target, SPELL_LIGHTNING_CLOUD);
 
-                        events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15s, 25s);
                         break;
                     case EVENT_LUNG_BURST:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
@@ -104,7 +104,7 @@ class boss_hydromancer_thespia : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
                                 DoCast(target, SPELL_ENVELOPING_WINDS);
 
-                        events.ScheduleEvent(EVENT_ENVELOPING_WINDS, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 10s, 15s);
                         break;
                     default:
                         break;

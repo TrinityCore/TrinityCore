@@ -253,12 +253,12 @@ class boss_steelbreaker : public CreatureScript
                         case EVENT_FUSION_PUNCH:
                             if (me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCastVictim(SPELL_FUSION_PUNCH);
-                            events.ScheduleEvent(EVENT_FUSION_PUNCH, urand(13000, 22000));
+                            events.ScheduleEvent(EVENT_FUSION_PUNCH, 13s, 22s);
                             break;
                         case EVENT_STATIC_DISRUPTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_STATIC_DISRUPTION);
-                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(20000, 40000));
+                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20s, 40s);
                             break;
                         case EVENT_OVERWHELMING_POWER:
                             Talk(SAY_STEELBREAKER_POWER);
@@ -419,19 +419,19 @@ class boss_runemaster_molgeim : public CreatureScript
                         }
                         case EVENT_SHIELD_OF_RUNES:
                             DoCast(me, SPELL_SHIELD_OF_RUNES);
-                            events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, urand(27000, 34000));
+                            events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 27s, 34s);
                             break;
                         case EVENT_RUNE_OF_DEATH:
                             Talk(SAY_MOLGEIM_RUNE_DEATH);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_RUNE_OF_DEATH);
-                            events.ScheduleEvent(EVENT_RUNE_OF_DEATH, urand(30000, 40000));
+                            events.ScheduleEvent(EVENT_RUNE_OF_DEATH, 30s, 40s);
                             break;
                         case EVENT_RUNE_OF_SUMMONING:
                             Talk(SAY_MOLGEIM_SUMMON);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_RUNE_OF_SUMMONING);
-                            events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, 30s, 45s);
                             break;
                     }
 
@@ -584,7 +584,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_LIGHTNING_WHIRL:
                             DoCast(SPELL_LIGHTNING_WHIRL);
-                            events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, 15s, 20s);
                             break;
                         case EVENT_LIGHTNING_TENDRILS:
                             Talk(SAY_BRUNDIR_FLIGHT);

@@ -79,7 +79,7 @@ public:
                 {
                     case EVENT_ICE_ARMOR:
                         DoCast(me, SPELL_ICE_ARMOR);
-                        events.ScheduleEvent(EVENT_ICE_ARMOR, 180000);
+                        events.ScheduleEvent(EVENT_ICE_ARMOR, 3min);
                         break;
                     case EVENT_FROSTBOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))

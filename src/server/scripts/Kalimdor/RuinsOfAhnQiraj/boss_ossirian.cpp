@@ -256,7 +256,7 @@ class boss_ossirian : public CreatureScript
                     {
                         case EVENT_SILENCE:
                             DoCast(me, SPELL_SILENCE);
-                            events.ScheduleEvent(EVENT_SILENCE, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SILENCE, 20s, 30s);
                             break;
                         case EVENT_CYCLONE:
                             DoCastVictim(SPELL_CYCLONE);

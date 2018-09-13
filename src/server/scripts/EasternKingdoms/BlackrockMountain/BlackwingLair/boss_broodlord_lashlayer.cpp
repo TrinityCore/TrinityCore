@@ -91,7 +91,7 @@ public:
                         DoCastVictim(SPELL_KNOCKBACK);
                         if (GetThreat(me->GetVictim()))
                             ModifyThreatByPercent(me->GetVictim(), -50);
-                        events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 30000));
+                        events.ScheduleEvent(EVENT_KNOCKBACK, 15s, 30s);
                         break;
                     case EVENT_CHECK:
                         if (me->GetDistance(me->GetHomePosition()) > 150.0f)

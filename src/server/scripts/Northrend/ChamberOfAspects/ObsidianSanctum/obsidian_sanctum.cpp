@@ -528,7 +528,7 @@ public:
 
                             instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
 
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, urand(60000, 65000));
+                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s, 65s);
                         }
                         break;
                     default:
@@ -594,7 +594,7 @@ public:
                         {
                             OpenPortal();
                             DoCastVictim(SPELL_TWILIGHT_TORMENT_VESP);
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, urand(60000, 70000));
+                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s, 70s);
                         }
                         break;
                     default:

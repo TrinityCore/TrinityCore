@@ -470,7 +470,7 @@ public:
                 case EVENT_CAST_STARFALL:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_OMEN_STARFALL);
-                    events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                    events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
                     break;
             }
 

@@ -636,7 +636,7 @@ class npc_torturer_lecraft : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 _events.ScheduleEvent(EVENT_HEMORRHAGE, 5s, 8s);
-                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
+                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12s, 15s);
 
                 if (Player* player = who->ToPlayer())
                     Talk (SAY_AGGRO, player);
@@ -684,7 +684,7 @@ class npc_torturer_lecraft : public CreatureScript
                             break;
                         case EVENT_KIDNEY_SHOT:
                             DoCastVictim(SPELL_KIDNEY_SHOT);
-                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(20000, 26000));
+                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 20s, 26s);
                             break;
                         default:
                             break;

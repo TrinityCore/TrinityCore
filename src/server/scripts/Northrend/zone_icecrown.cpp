@@ -634,9 +634,9 @@ public:
                         PhaseCount++;
 
                         if (PhaseCount < 8)
-                            events.ScheduleEvent(EVENT_WAVE_SPAWN, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_WAVE_SPAWN, 10s, 20s);
                         else
-                            events.ScheduleEvent(EVENT_HALOF, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_HALOF, 10s, 20s);
                     }
                     break;
                 case EVENT_HALOF:

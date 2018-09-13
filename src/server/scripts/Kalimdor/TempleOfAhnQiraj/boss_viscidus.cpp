@@ -190,7 +190,7 @@ class boss_viscidus : public CreatureScript
             void InitSpells()
             {
                 DoCast(me, SPELL_TOXIN);
-                events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, 10s, 15s);
                 events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
             }
 
@@ -233,7 +233,7 @@ class boss_viscidus : public CreatureScript
                     {
                         case EVENT_POISONBOLT_VOLLEY:
                             DoCast(me, SPELL_POISONBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, 10s, 15s);
                             break;
                         case EVENT_POISON_SHOCK:
                             DoCast(me, SPELL_POISON_SHOCK);

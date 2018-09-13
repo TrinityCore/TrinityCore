@@ -213,7 +213,7 @@ class boss_tyrannus : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_1, 14000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_2, 22000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_3, 34000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_COMBAT_START, 36000, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_COMBAT_START, 36s, 0, PHASE_INTRO);
                     instance->SetBossState(DATA_TYRANNUS, IN_PROGRESS);
                 }
             }
@@ -332,7 +332,7 @@ class boss_rimefang : public CreatureScript
                     _events.SetPhase(PHASE_COMBAT);
                     DoZoneInCombat();
                     _events.ScheduleEvent(EVENT_MOVE_NEXT, 500, 0, PHASE_COMBAT);
-                    _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
+                    _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                 }
                 else if (actionId == ACTION_END_COMBAT)
                     _EnterEvadeMode();
@@ -363,12 +363,12 @@ class boss_rimefang : public CreatureScript
                                 _currentWaypoint = 1;
                             me->GetMotionMaster()->MovePoint(0, rimefangPos[_currentWaypoint]);
                             ++_currentWaypoint;
-                            _events.ScheduleEvent(EVENT_MOVE_NEXT, 2000, 0, PHASE_COMBAT);
+                            _events.ScheduleEvent(EVENT_MOVE_NEXT, 2s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ICY_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_ICY_BLAST);
-                            _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
+                            _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_HOARFROST:
                             if (Unit* target = ObjectAccessor::GetUnit(*me, _hoarfrostTargetGUID))

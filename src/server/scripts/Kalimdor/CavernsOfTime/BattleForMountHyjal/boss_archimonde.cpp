@@ -368,7 +368,7 @@ public:
                     Talk(SAY_AIR_BURST);
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_AIR_BURST); //not on tank
-                    events.ScheduleEvent(EVENT_AIR_BURST, urand(25000, 40000));
+                    events.ScheduleEvent(EVENT_AIR_BURST, 25s, 40s);
                     break;
                 case EVENT_FEAR:
                     DoCastAOE(SPELL_FEAR);

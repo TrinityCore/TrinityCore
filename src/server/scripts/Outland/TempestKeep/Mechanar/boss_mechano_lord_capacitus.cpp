@@ -83,7 +83,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                 events.ScheduleEvent(EVENT_HEADCRACK, 10s);
                 events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15s);
                 events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10s);
-                events.ScheduleEvent(EVENT_BERSERK, 3 * MINUTE * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BERSERK, 3min);
 
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 15s);
@@ -130,7 +130,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                             break;
                         case EVENT_POSITIVE_SHIFT:
                             DoCastAOE(SPELL_POLARITY_SHIFT);
-                            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, urand(45, 60) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 45s, 60s);
                             break;
                         case EVENT_SUMMON_NETHER_CHARGE:
                         {

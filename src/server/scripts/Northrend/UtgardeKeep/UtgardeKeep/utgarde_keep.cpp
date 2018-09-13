@@ -275,8 +275,8 @@ class npc_enslaved_proto_drake : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_REND, 2s, 3s);
-                _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
-                _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
+                _events.ScheduleEvent(EVENT_FLAME_BREATH, 5500ms, 7s);
+                _events.ScheduleEvent(EVENT_KNOCKAWAY, 3500ms, 6s);
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -321,7 +321,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                             break;
                         case EVENT_KNOCKAWAY:
                             DoCast(SPELL_KNOCK_AWAY);
-                            _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
+                            _events.ScheduleEvent(EVENT_KNOCKAWAY, 7s, 8500ms);
                             break;
                         default:
                             break;

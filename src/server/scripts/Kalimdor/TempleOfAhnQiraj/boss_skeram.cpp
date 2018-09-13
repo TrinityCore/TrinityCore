@@ -138,7 +138,7 @@ class boss_skeram : public CreatureScript
 
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s, 12s);
                 events.ScheduleEvent(EVENT_FULLFILMENT, 15s);
-                events.ScheduleEvent(EVENT_BLINK, urand(30000, 45000));
+                events.ScheduleEvent(EVENT_BLINK, 30s, 45s);
                 events.ScheduleEvent(EVENT_EARTH_SHOCK, 2s);
 
                 Talk(SAY_AGGRO);
@@ -162,13 +162,13 @@ class boss_skeram : public CreatureScript
                         case EVENT_FULLFILMENT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45.0f, true))
                                 DoCast(target, SPELL_TRUE_FULFILLMENT);
-                            events.ScheduleEvent(EVENT_FULLFILMENT, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_FULLFILMENT, 20s, 30s);
                             break;
                         case EVENT_BLINK:
                             DoCast(me, BlinkSpells[urand(0, 2)]);
                             ResetThreatList();
                             me->SetVisible(true);
-                            events.ScheduleEvent(EVENT_BLINK, urand(10000, 30000));
+                            events.ScheduleEvent(EVENT_BLINK, 10s, 30s);
                             break;
                         case EVENT_EARTH_SHOCK:
                             DoCastVictim(SPELL_EARTH_SHOCK);

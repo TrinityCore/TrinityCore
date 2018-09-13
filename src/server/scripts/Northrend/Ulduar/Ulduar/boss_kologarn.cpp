@@ -308,7 +308,7 @@ class boss_kologarn : public CreatureScript
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
                                 DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);
                             }
-                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 15s, 35s);
                             break;
                     }
 

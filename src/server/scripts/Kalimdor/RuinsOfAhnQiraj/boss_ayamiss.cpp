@@ -142,7 +142,7 @@ class boss_ayamiss : public CreatureScript
             {
                 BossAI::JustEngagedWith(attacker);
 
-                events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
+                events.ScheduleEvent(EVENT_STINGER_SPRAY, 20s, 30s);
                 events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
                 events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
                 events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
@@ -193,7 +193,7 @@ class boss_ayamiss : public CreatureScript
                     {
                         case EVENT_STINGER_SPRAY:
                             DoCast(me, SPELL_STINGER_SPRAY);
-                            events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_STINGER_SPRAY, 15s, 20s);
                             break;
                         case EVENT_POISON_STINGER:
                             DoCastVictim(SPELL_POISON_STINGER);

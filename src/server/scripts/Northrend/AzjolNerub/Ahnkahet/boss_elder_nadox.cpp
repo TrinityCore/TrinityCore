@@ -136,7 +136,7 @@ class boss_elder_nadox : public CreatureScript
                             break;
                         case EVENT_RAGE:
                             DoCast(H_SPELL_BROOD_RAGE);
-                            events.ScheduleEvent(EVENT_RAGE, urand(10 * IN_MILLISECONDS, 50 * IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_RAGE, 10s, 50s);
                             break;
                         case EVENT_SUMMON_SWARMER:
                             /// @todo: summoned by egg

@@ -164,11 +164,11 @@ class boss_nexusprince_shaffar : public CreatureScript
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FIREBALL, urand(4500, 6000));
+                        events.ScheduleEvent(EVENT_FIREBALL, 4500ms, 6s);
                         break;
                     case EVENT_FROSTBOLT:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, urand(4500, 6000));
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 4500ms, 6s);
                         break;
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROSTNOVA);
@@ -245,7 +245,7 @@ class npc_ethereal_beacon : public CreatureScript
                             break;
                         case EVENT_ARCANE_BOLT:
                             DoCastVictim(SPELL_ARCANE_BOLT);
-                            _events.ScheduleEvent(EVENT_ARCANE_BOLT, urand(2000, 4500));
+                            _events.ScheduleEvent(EVENT_ARCANE_BOLT, 2s, 4500ms);
                             break;
                         default:
                             break;

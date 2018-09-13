@@ -85,7 +85,7 @@ public:
                             Talk(SAY_SLEEP);
                             DoCast(target, SPELL_SLEEP);
                         }
-                        events.ScheduleEvent(EVENT_SLEEP, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_SLEEP, 15s, 20s);
                         break;
                     default:
                         break;

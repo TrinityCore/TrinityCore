@@ -735,14 +735,14 @@ class boss_leviathan_mk_ii : public CreatureScript
                         _fireFighter = true;
                         DoCast(me, SPELL_EMERGENCY_MODE);
                         DoCastAOE(SPELL_EMERGENCY_MODE_TURRET);
-                        events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_MK, 60000, 0, PHASE_LEVIATHAN_MK_II);
+                        events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_MK, 1min, 0, PHASE_LEVIATHAN_MK_II);
                         // Missing break intended.
                     case DO_START_MKII:
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.SetPhase(PHASE_LEVIATHAN_MK_II);
 
-                        events.ScheduleEvent(EVENT_NAPALM_SHELL, 3000, 0, PHASE_LEVIATHAN_MK_II);
-                        events.ScheduleEvent(EVENT_PLASMA_BLAST, 15000, 0, PHASE_LEVIATHAN_MK_II);
+                        events.ScheduleEvent(EVENT_NAPALM_SHELL, 3s, 0, PHASE_LEVIATHAN_MK_II);
+                        events.ScheduleEvent(EVENT_PLASMA_BLAST, 15s, 0, PHASE_LEVIATHAN_MK_II);
                         events.ScheduleEvent(EVENT_PROXIMITY_MINE, 5s);
                         events.ScheduleEvent(EVENT_SHOCK_BLAST, 18s);
                         break;
@@ -992,7 +992,7 @@ class boss_vx_001 : public CreatureScript
 
                         events.SetPhase(PHASE_VX_001);
                         events.ScheduleEvent(EVENT_ROCKET_STRIKE, 20s);
-                        events.ScheduleEvent(EVENT_SPINNING_UP, urand(30000, 35000));
+                        events.ScheduleEvent(EVENT_SPINNING_UP, 30s, 35s);
                         events.ScheduleEvent(EVENT_RAPID_BURST, 500, 0, PHASE_VX_001);
                         break;
                     case DO_ASSEMBLED_COMBAT:
@@ -1001,7 +1001,7 @@ class boss_vx_001 : public CreatureScript
 
                         events.SetPhase(PHASE_VOL7RON);
                         events.ScheduleEvent(EVENT_ROCKET_STRIKE, 20s);
-                        events.ScheduleEvent(EVENT_SPINNING_UP, urand(30000, 35000));
+                        events.ScheduleEvent(EVENT_SPINNING_UP, 30s, 35s);
                         events.ScheduleEvent(EVENT_HAND_PULSE, 500, 0, PHASE_VOL7RON);
                         if (_fireFighter)
                             events.ScheduleEvent(EVENT_FROST_BOMB, 1s);
@@ -1158,7 +1158,7 @@ class boss_aerial_command_unit : public CreatureScript
                     case DO_HARDMODE_AERIAL:
                         fireFigther = true;
                         DoCast(me, SPELL_EMERGENCY_MODE);
-                        events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1000, 0, PHASE_AERIAL_COMMAND_UNIT);
+                        events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1s, 0, PHASE_AERIAL_COMMAND_UNIT);
                         // Missing break intended.
                     case DO_START_AERIAL:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -1168,9 +1168,9 @@ class boss_aerial_command_unit : public CreatureScript
                         me->SetDisableGravity(false);
 
                         events.SetPhase(PHASE_AERIAL_COMMAND_UNIT);
-                        events.ScheduleEvent(EVENT_SUMMON_JUNK_BOT, 5000, 0, PHASE_AERIAL_COMMAND_UNIT);
-                        events.ScheduleEvent(EVENT_SUMMON_ASSAULT_BOT, 9000, 0, PHASE_AERIAL_COMMAND_UNIT);
-                        events.ScheduleEvent(EVENT_SUMMON_BOMB_BOT, 9000, 0, PHASE_AERIAL_COMMAND_UNIT);
+                        events.ScheduleEvent(EVENT_SUMMON_JUNK_BOT, 5s, 0, PHASE_AERIAL_COMMAND_UNIT);
+                        events.ScheduleEvent(EVENT_SUMMON_ASSAULT_BOT, 9s, 0, PHASE_AERIAL_COMMAND_UNIT);
+                        events.ScheduleEvent(EVENT_SUMMON_BOMB_BOT, 9s, 0, PHASE_AERIAL_COMMAND_UNIT);
                         break;
                     case DO_DISABLE_AERIAL:
                         me->CastStop();

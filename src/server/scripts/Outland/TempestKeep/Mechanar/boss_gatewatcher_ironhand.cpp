@@ -99,7 +99,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     {
                         case EVENT_STREAM_OF_MACHINE_FLUID:
                             DoCastVictim(SPELL_STREAM_OF_MACHINE_FLUID, true);
-                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, urand(35000, 50000));
+                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 35s, 50s);
                             break;
                         case EVENT_JACKHAMMER:
                             Talk(EMOTE_HAMMER);
@@ -111,7 +111,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                             break;
                         case EVENT_SHADOW_POWER:
                             DoCast(me, SPELL_SHADOW_POWER);
-                            events.ScheduleEvent(EVENT_SHADOW_POWER, urand(20000, 28000));
+                            events.ScheduleEvent(EVENT_SHADOW_POWER, 20s, 28s);
                             break;
                         default:
                             break;

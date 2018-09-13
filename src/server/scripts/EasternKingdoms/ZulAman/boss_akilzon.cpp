@@ -117,11 +117,11 @@ class boss_akilzon : public CreatureScript
             {
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
-                events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
-                events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(10000, 20000));    // totaly random timer. can't find any info on this
+                events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 10s, 20s); // 10 to 20 seconds (bosskillers)
+                events.ScheduleEvent(EVENT_GUST_OF_WIND, 20s, 30s);      // 20 to 30 seconds(bosskillers)
+                events.ScheduleEvent(EVENT_CALL_LIGHTNING, 10s, 20s);    // totaly random timer. can't find any info on this
                 events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 1min);                // 60 seconds(bosskillers)
-                events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
+                events.ScheduleEvent(EVENT_RAIN, 47s, 52s);
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
 
                 Talk(SAY_AGGRO);
@@ -246,7 +246,7 @@ class boss_akilzon : public CreatureScript
                             }
                             /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
-                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 18000));
+                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 10s, 18s);
                             break;
                             }
                         case EVENT_GUST_OF_WIND:
@@ -256,12 +256,12 @@ class boss_akilzon : public CreatureScript
                                     target = me->GetVictim();
                                 if (target)
                                     DoCast(target, SPELL_GUST_OF_WIND);
-                                events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));
+                                events.ScheduleEvent(EVENT_GUST_OF_WIND, 20s, 30s);
                                 break;
                             }
                         case EVENT_CALL_LIGHTNING:
                             DoCastVictim(SPELL_CALL_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(12000, 17000)); // totaly random timer. can't find any info on this
+                            events.ScheduleEvent(EVENT_CALL_LIGHTNING, 12s, 17s); // totaly random timer. can't find any info on this
                             break;
                         case EVENT_ELECTRICAL_STORM:
                             {
@@ -298,7 +298,7 @@ class boss_akilzon : public CreatureScript
                                     }
                                 StormCount = 1;
                                 events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 1min); // 60 seconds(bosskillers)
-                                events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
+                                events.ScheduleEvent(EVENT_RAIN, 47s, 52s);
                                 break;
                             }
                         case EVENT_RAIN:

@@ -216,8 +216,8 @@ public:
             me->SetImmuneToPC(false);
             AttackStart(target);
             events.ScheduleEvent(EVENT_SHADOW_BOLT, 3s, 10s);
-            events.ScheduleEvent(EVENT_FEAR, urand(10000, 20000));
-            //events.ScheduleEvent(EVENT_MIND_CONTROL, urand(30000, 35000));
+            events.ScheduleEvent(EVENT_FEAR, 10s, 20s);
+            //events.ScheduleEvent(EVENT_MIND_CONTROL, 30s, 35s);
             events.ScheduleEvent(EVENT_SPAWN_ADD, 10s);
         }
 
@@ -327,12 +327,12 @@ public:
                         case EVENT_FEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                                 DoCast(target, SPELL_FEAR);
-                            events.ScheduleEvent(EVENT_FEAR, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_FEAR, 10s, 20s);
                             break;
                         case EVENT_MIND_CONTROL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                                 DoCast(target, SPELL_SHADOW_COMMAND);
-                            events.ScheduleEvent(EVENT_MIND_CONTROL, urand(30000, 35000));
+                            events.ScheduleEvent(EVENT_MIND_CONTROL, 30s, 35s);
                             break;
                         case EVENT_SPAWN_ADD:
                             for (uint8 i=0; i<2; ++i)
@@ -429,11 +429,11 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_SHADOWFLAME, 12s);
-            events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
-            events.ScheduleEvent(EVENT_VEILOFSHADOW, urand(25000, 35000));
+            events.ScheduleEvent(EVENT_FEAR, 25s, 35s);
+            events.ScheduleEvent(EVENT_VEILOFSHADOW, 25s, 35s);
             events.ScheduleEvent(EVENT_CLEAVE, 7s);
             //events.ScheduleEvent(EVENT_TAILLASH, 10s);
-            events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
+            events.ScheduleEvent(EVENT_CLASSCALL, 30s, 35s);
             Talk(SAY_RANDOM);
         }
 
@@ -498,11 +498,11 @@ public:
                         break;
                     case EVENT_FEAR:
                         DoCastVictim(SPELL_BELLOWINGROAR);
-                        events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_FEAR, 25s, 35s);
                         break;
                     case EVENT_VEILOFSHADOW:
                         DoCastVictim(SPELL_VEILOFSHADOW);
-                        events.ScheduleEvent(EVENT_VEILOFSHADOW, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_VEILOFSHADOW, 25s, 35s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
@@ -560,7 +560,7 @@ public:
                             default:
                                 break;
                         }
-                        events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
+                        events.ScheduleEvent(EVENT_CLASSCALL, 30s, 35s);
                         break;
                 }
 

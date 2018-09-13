@@ -452,11 +452,11 @@ public:
                     case EVENT_FLAME_BREATH:
                         Talk(SAY_SARTHARION_BREATH);
                         DoCastVictim(SPELL_FLAME_BREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, 25s, 35s);
                         break;
                     case EVENT_TAIL_SWEEP:
                         DoCastVictim(SPELL_TAIL_LASH);
-                        events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
                         break;
                     case EVENT_CLEAVE_ATTACK:
                         DoCastVictim(SPELL_CLEAVE);

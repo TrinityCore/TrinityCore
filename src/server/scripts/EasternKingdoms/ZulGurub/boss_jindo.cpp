@@ -114,11 +114,11 @@ class boss_jindo : public CreatureScript
                     {
                         case EVENT_BRAIN_WASH_TOTEM:
                             DoCast(me, SPELL_BRAIN_WASH_TOTEM);
-                            events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, urand(18000, 26000));
+                            events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 18s, 26s);
                             break;
                         case EVENT_POWERFULL_HEALING_WARD:
                             DoCast(me, SPELL_POWERFULL_HEALING_WARD);
-                            events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, urand(14000, 20000));
+                            events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 14s, 20s);
                             break;
                         case EVENT_HEX:
                             if (Unit* target = me->GetVictim())
@@ -127,7 +127,7 @@ class boss_jindo : public CreatureScript
                                 if (GetThreat(target))
                                     ModifyThreatByPercent(target, -80);
                             }
-                            events.ScheduleEvent(EVENT_HEX, urand(12000, 20000));
+                            events.ScheduleEvent(EVENT_HEX, 12s, 20s);
                             break;
                         case EVENT_DELUSIONS_OF_JINDO:
                             // Casting the delusion curse with a shade so shade will attack the same target with the curse.
@@ -151,7 +151,7 @@ class boss_jindo : public CreatureScript
                                     if (Creature* SacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, Formation[i].GetPositionX(), Formation[i].GetPositionY(), Formation[i].GetPositionZ(), Formation[i].GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                                         SacrificedTroll->AI()->AttackStart(target);
                             }
-                            events.ScheduleEvent(EVENT_TELEPORT, urand(15000, 23000));
+                            events.ScheduleEvent(EVENT_TELEPORT, 15s, 23s);
                             break;
                         default:
                             break;

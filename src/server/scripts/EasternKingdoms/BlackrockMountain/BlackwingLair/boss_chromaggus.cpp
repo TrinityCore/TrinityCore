@@ -264,7 +264,7 @@ public:
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_FRENZY, 10s, 15s);
                         break;
                 }
 

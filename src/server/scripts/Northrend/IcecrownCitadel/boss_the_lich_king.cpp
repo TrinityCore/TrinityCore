@@ -575,9 +575,9 @@ class boss_the_lich_king : public CreatureScript
                 DoZoneInCombat();
 
                 events.SetPhase(PHASE_ONE);
-                events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 10000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_INFEST, 5000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 10s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_INFEST, 5s, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_BERSERK, 900000, EVENT_GROUP_BERSERK);
                 if (IsHeroic())
@@ -715,7 +715,7 @@ class boss_the_lich_king : public CreatureScript
                     me->CastSpell(nullptr, SPELL_FURY_OF_FROSTMOURNE, TRIGGERED_NONE);
                     me->SetWalk(true);
                     events.ScheduleEvent(EVENT_OUTRO_TALK_1, 2600, 0, PHASE_OUTRO);
-                    events.ScheduleEvent(EVENT_OUTRO_EMOTE_TALK, 6600, 0, PHASE_OUTRO);
+                    events.ScheduleEvent(EVENT_OUTRO_EMOTE_TALK, 6600ms, 0, PHASE_OUTRO);
                     events.ScheduleEvent(EVENT_OUTRO_EMOTE_TALK, 17600, 0, PHASE_OUTRO);
                     events.ScheduleEvent(EVENT_OUTRO_EMOTE_TALK, 27600, 0, PHASE_OUTRO);
                     events.ScheduleEvent(EVENT_OUTRO_TALK_2, 34600, 0, PHASE_OUTRO);
@@ -764,7 +764,7 @@ class boss_the_lich_king : public CreatureScript
                         me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_SOULSTORM, 10000);
                         me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_BLACKSNOW, 0.5f);
 
-                        events.ScheduleEvent(EVENT_OUTRO_SOUL_BARRAGE, 5000, 0, PHASE_OUTRO);
+                        events.ScheduleEvent(EVENT_OUTRO_SOUL_BARRAGE, 5s, 0, PHASE_OUTRO);
                         return;
                     }
                     case NPC_VILE_SPIRIT:
@@ -847,13 +847,13 @@ class boss_the_lich_king : public CreatureScript
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
-                        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 4000, 0, PHASE_TRANSITION);
-                        events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8000, 0, PHASE_TRANSITION);
-                        events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, 6000, 0, PHASE_TRANSITION);
-                        events.ScheduleEvent(EVENT_SUMMON_VALKYR, 78000, 0, PHASE_TWO);
-                        events.ScheduleEvent(EVENT_INFEST, 70000, 0, PHASE_TWO);
-                        events.ScheduleEvent(EVENT_DEFILE, 97000, 0, PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SOUL_REAPER, 94000, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 4s, 0, PHASE_TRANSITION);
+                        events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8s, 0, PHASE_TRANSITION);
+                        events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, 6s, 0, PHASE_TRANSITION);
+                        events.ScheduleEvent(EVENT_SUMMON_VALKYR, 78s, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_INFEST, 70s, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_DEFILE, 97s, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SOUL_REAPER, 94s, 0, PHASE_TWO);
                         break;
                     case POINT_CENTER_2:
                         me->SetFacingTo(0.0f);
@@ -862,8 +862,8 @@ class boss_the_lich_king : public CreatureScript
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
                         events.ScheduleEvent(EVENT_QUAKE_2, 62500, 0, PHASE_TRANSITION);
-                        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6000, 0, PHASE_TRANSITION);
-                        events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8000, 0, PHASE_TRANSITION);
+                        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6s, 0, PHASE_TRANSITION);
+                        events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8s, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT_2, 5000, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_DEFILE, 95500, 0, PHASE_THREE);
                         events.ScheduleEvent(EVENT_SOUL_REAPER, 99500, 0, PHASE_THREE);
@@ -872,7 +872,7 @@ class boss_the_lich_king : public CreatureScript
                         break;
                     case POINT_LK_OUTRO_1:
                         events.ScheduleEvent(EVENT_OUTRO_TALK_4, 1, 0, PHASE_OUTRO);
-                        events.ScheduleEvent(EVENT_OUTRO_RAISE_DEAD, 1000, 0, PHASE_OUTRO);
+                        events.ScheduleEvent(EVENT_OUTRO_RAISE_DEAD, 1s, 0, PHASE_OUTRO);
                         events.ScheduleEvent(EVENT_OUTRO_TALK_5, 29000, 0, PHASE_OUTRO);
                         break;
                     case POINT_LK_OUTRO_2:
@@ -919,10 +919,10 @@ class boss_the_lich_king : public CreatureScript
                             Talk(SAY_LK_INTRO_2);
                             // for some reason blizz sends 2 emotes in row here so (we handle one in Talk)
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
-                            events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 7000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 7s, 0, PHASE_INTRO);
                             events.ScheduleEvent(EVENT_INTRO_EMOTE_1, 13000, 0, PHASE_INTRO);
-                            events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 18000, 0, PHASE_INTRO);
-                            events.ScheduleEvent(EVENT_INTRO_CAST_FREEZE, 31000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 18s, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_CAST_FREEZE, 31s, 0, PHASE_INTRO);
                             break;
                         case EVENT_EMOTE_CAST_SHOUT:
                             DoCast(me, SPELL_EMOTE_SHOUT_NO_SHEATH, false);
@@ -933,7 +933,7 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_INTRO_CAST_FREEZE:
                             Talk(SAY_LK_INTRO_3);
                             DoCastAOE(SPELL_ICE_LOCK, false);
-                            events.ScheduleEvent(EVENT_FINISH_INTRO, 1000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_FINISH_INTRO, 1s, 0, PHASE_INTRO);
                             break;
                         case EVENT_FINISH_INTRO:
                             me->SetWalk(false);
@@ -945,11 +945,11 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_SUMMON_SHAMBLING_HORROR:
                             DoCast(me, SPELL_SUMMON_SHAMBLING_HORROR);
                             me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
-                            events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 60000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 1min, 0, PHASE_ONE);
                             break;
                         case EVENT_SUMMON_DRUDGE_GHOUL:
                             DoCast(me, SPELL_SUMMON_DRUDGE_GHOULS);
-                            events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 30000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 30s, 0, PHASE_ONE);
                             break;
                         case EVENT_INFEST:
                             DoCast(me, SPELL_INFEST);
@@ -984,7 +984,7 @@ class boss_the_lich_king : public CreatureScript
                             Talk(SAY_LK_HARVEST_SOUL);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SpellTargetSelector(me, SPELL_HARVEST_SOUL)))
                                 DoCast(target, SPELL_HARVEST_SOUL);
-                            events.ScheduleEvent(EVENT_HARVEST_SOUL, 75000, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_HARVEST_SOUL, 75s, 0, PHASE_THREE);
                             break;
                         case EVENT_PAIN_AND_SUFFERING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -1003,7 +1003,7 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_SUMMON_RAGING_SPIRIT_2:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 me->CastSpell(target, SPELL_RAGING_SPIRIT, TRIGGERED_NONE);
-                            events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, 18000, 0, PHASE_TRANSITION);
+                            events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, 18s, 0, PHASE_TRANSITION);
                             break;
                         case EVENT_QUAKE:
                             events.SetPhase(PHASE_TWO);
@@ -1212,8 +1212,8 @@ class npc_tirion_fordring_tft : public CreatureScript
                     case ACTION_OUTRO:
                         _events.SetPhase(PHASE_OUTRO);
                         _events.ScheduleEvent(EVENT_OUTRO_TALK_1, 7000, 0, PHASE_OUTRO);
-                        _events.ScheduleEvent(EVENT_OUTRO_BLESS, 18000, 0, PHASE_OUTRO);
-                        _events.ScheduleEvent(EVENT_OUTRO_REMOVE_ICE, 23000, 0, PHASE_OUTRO);
+                        _events.ScheduleEvent(EVENT_OUTRO_BLESS, 18s, 0, PHASE_OUTRO);
+                        _events.ScheduleEvent(EVENT_OUTRO_REMOVE_ICE, 23s, 0, PHASE_OUTRO);
                         _events.ScheduleEvent(EVENT_OUTRO_MOVE_1, 25000, 0, PHASE_OUTRO);
                         break;
                 }
@@ -1261,7 +1261,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                         case EVENT_INTRO_TALK_1:
                             Talk(SAY_TIRION_INTRO_2);
                             _events.ScheduleEvent(EVENT_INTRO_EMOTE_1, 2000, 0, PHASE_INTRO);
-                            _events.ScheduleEvent(EVENT_INTRO_CHARGE, 5000, 0, PHASE_INTRO);
+                            _events.ScheduleEvent(EVENT_INTRO_CHARGE, 5s, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_EMOTE_1:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
@@ -1325,8 +1325,8 @@ class npc_shambling_horror_icc : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SHOCKWAVE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_ENRAGE, urand(11000, 14000));
+                _events.ScheduleEvent(EVENT_SHOCKWAVE, 20s, 25s);
+                _events.ScheduleEvent(EVENT_ENRAGE, 11s, 14s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -1354,11 +1354,11 @@ class npc_shambling_horror_icc : public CreatureScript
                     {
                         case EVENT_SHOCKWAVE:
                             DoCast(me, SPELL_SHOCKWAVE);
-                            _events.ScheduleEvent(EVENT_SHOCKWAVE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_SHOCKWAVE, 20s, 25s);
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_ENRAGE, 20s, 25s);
                             break;
                         default:
                             break;
@@ -1396,7 +1396,7 @@ class npc_raging_spirit : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SET_AGRESSIVE, 2s);
-                _events.ScheduleEvent(EVENT_SOUL_SHRIEK, urand(12000, 15000));
+                _events.ScheduleEvent(EVENT_SOUL_SHRIEK, 12s, 15s);
                 DoCast(me, SPELL_PLAGUE_AVOIDANCE, true);
                 DoCast(me, SPELL_RAGING_SPIRIT_VISUAL, true);
                 if (TempSummon* summon = me->ToTempSummon())
@@ -1449,14 +1449,14 @@ class npc_raging_spirit : public CreatureScript
                     {
                         case EVENT_SOUL_SHRIEK:
                             DoCastAOE(SPELL_SOUL_SHRIEK);
-                            _events.ScheduleEvent(EVENT_SOUL_SHRIEK, urand(12000, 15000));
+                            _events.ScheduleEvent(EVENT_SOUL_SHRIEK, 12s, 15s);
                             break;
                         case EVENT_SET_AGRESSIVE:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (_events.IsInPhase(PHASE_FROSTMOURNE))
                             {
                                 _events.SetPhase(PHASE_THREE);
-                                _events.ScheduleEvent(EVENT_SOUL_SHRIEK, urand(12000, 15000));
+                                _events.ScheduleEvent(EVENT_SOUL_SHRIEK, 12s, 15s);
                             }
                             break;
                         default:
@@ -1911,7 +1911,7 @@ class npc_spirit_warden : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SOUL_RIP, urand(12000, 15000));
+                _events.ScheduleEvent(EVENT_SOUL_RIP, 12s, 15s);
                 DoCast(SPELL_DARK_HUNGER);
             }
 
@@ -1934,7 +1934,7 @@ class npc_spirit_warden : public CreatureScript
                     {
                         case EVENT_SOUL_RIP:
                             DoCastVictim(SPELL_SOUL_RIP);
-                            _events.ScheduleEvent(EVENT_SOUL_RIP, urand(23000, 27000));
+                            _events.ScheduleEvent(EVENT_SOUL_RIP, 23s, 27s);
                             break;
                         default:
                             break;
@@ -2030,13 +2030,13 @@ class npc_broken_frostmourne : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 _events.SetPhase(PHASE_OUTRO);
-                _events.ScheduleEvent(EVENT_OUTRO_KNOCK_BACK, 3000, 0, PHASE_OUTRO);
+                _events.ScheduleEvent(EVENT_OUTRO_KNOCK_BACK, 3s, 0, PHASE_OUTRO);
             }
 
             void DoAction(int32 action) override
             {
                 if (action == ACTION_SUMMON_TERENAS)
-                    _events.ScheduleEvent(EVENT_OUTRO_SUMMON_TERENAS, 6000, 0, PHASE_OUTRO);
+                    _events.ScheduleEvent(EVENT_OUTRO_SUMMON_TERENAS, 6s, 0, PHASE_OUTRO);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override

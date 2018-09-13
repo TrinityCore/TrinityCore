@@ -75,7 +75,7 @@ public:
             {
                 case EVENT_POISON_CLOUD:
                     DoCastVictim(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, 25s, 50s);
                     break;
                 default:
                     break;

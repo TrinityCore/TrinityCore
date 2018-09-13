@@ -75,10 +75,10 @@ class boss_azuregos : public CreatureScript
 
                 events.ScheduleEvent(EVENT_MARK_OF_FROST, 35s);
                 events.ScheduleEvent(EVENT_MANA_STORM, 5s, 17s);
-                events.ScheduleEvent(EVENT_CHILL, urand(10000, 30000));
+                events.ScheduleEvent(EVENT_CHILL, 10s, 30s);
                 events.ScheduleEvent(EVENT_BREATH, 2s, 8s);
                 events.ScheduleEvent(EVENT_TELEPORT, 30s);
-                events.ScheduleEvent(EVENT_REFLECT, urand(15000, 30000));
+                events.ScheduleEvent(EVENT_REFLECT, 15s, 30s);
                 events.ScheduleEvent(EVENT_CLEAVE, 7s);
             }
 
@@ -109,11 +109,11 @@ class boss_azuregos : public CreatureScript
                             break;
                         case EVENT_CHILL:
                             DoCastVictim(SPELL_CHILL);
-                            events.ScheduleEvent(EVENT_CHILL, urand(13000, 25000));
+                            events.ScheduleEvent(EVENT_CHILL, 13s, 25s);
                             break;
                         case EVENT_BREATH:
                             DoCastVictim(SPELL_FROST_BREATH);
-                            events.ScheduleEvent(EVENT_BREATH, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_BREATH, 10s, 15s);
                             break;
                         case EVENT_TELEPORT:
                         {
@@ -128,7 +128,7 @@ class boss_azuregos : public CreatureScript
                         }
                         case EVENT_REFLECT:
                             DoCast(me, SPELL_REFLECT);
-                            events.ScheduleEvent(EVENT_REFLECT, urand(20000, 35000));
+                            events.ScheduleEvent(EVENT_REFLECT, 20s, 35s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);

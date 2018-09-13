@@ -83,9 +83,9 @@ class boss_king_dred : public CreatureScript
                 events.ScheduleEvent(EVENT_BELLOWING_ROAR, 33s);
                 events.ScheduleEvent(EVENT_GRIEVOUS_BITE, 20s);
                 events.ScheduleEvent(EVENT_MANGLING_SLASH, 18500);
-                events.ScheduleEvent(EVENT_FEARSOME_ROAR, urand(10000, 20000));
+                events.ScheduleEvent(EVENT_FEARSOME_ROAR, 10s, 20s);
                 events.ScheduleEvent(EVENT_PIERCING_SLASH, 15s);
-                events.ScheduleEvent(EVENT_RAPTOR_CALL, urand(20000, 25000));
+                events.ScheduleEvent(EVENT_RAPTOR_CALL, 20s, 25s);
             }
 
             void DoAction(int32 action) override
@@ -135,7 +135,7 @@ class boss_king_dred : public CreatureScript
                             break;
                         case EVENT_FEARSOME_ROAR:
                             DoCastAOE(SPELL_FEARSOME_ROAR);
-                            events.ScheduleEvent(EVENT_FEARSOME_ROAR, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_FEARSOME_ROAR, 10s, 20s);
                             break;
                         case EVENT_PIERCING_SLASH:
                             DoCastVictim(SPELL_PIERCING_SLASH);
@@ -148,7 +148,7 @@ class boss_king_dred : public CreatureScript
 
                             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 10.0f);
                             me->SummonCreature(RAND(NPC_DRAKKARI_GUTRIPPER, NPC_DRAKKARI_SCYTHECLAW), x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000);
-                            events.ScheduleEvent(EVENT_RAPTOR_CALL, urand(20000, 25000));
+                            events.ScheduleEvent(EVENT_RAPTOR_CALL, 20s, 25s);
                             break;
                         default:
                             break;

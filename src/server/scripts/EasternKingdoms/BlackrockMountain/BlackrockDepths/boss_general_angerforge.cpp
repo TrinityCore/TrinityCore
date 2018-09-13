@@ -115,7 +115,7 @@ class boss_general_angerforge : public CreatureScript
                         case EVENT_ADDS:
                             for (uint8 i = 0; i < 3; ++i)
                                 SummonAdd(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_ADDS, 25000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_ADDS, 25s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
