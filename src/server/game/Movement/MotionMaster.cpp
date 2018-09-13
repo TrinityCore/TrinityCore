@@ -585,6 +585,11 @@ void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, Moveme
     Add(new FollowMovementGenerator(target, dist, angle), slot);
 }
 
+void MotionMaster::MoveChase(Unit* target, float dist, float angle /*= 0.0f*/)
+{
+    MoveChase(target, Optional<ChaseRange>(dist), angle ? Optional<ChaseAngle>(angle) : Optional<ChaseAngle>());
+}
+
 void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
 {
     // Ignore movement request if target not exist
