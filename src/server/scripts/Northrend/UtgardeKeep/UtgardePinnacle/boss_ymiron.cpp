@@ -142,9 +142,9 @@ public:
         {
             _JustEngagedWith();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_BANE, urand(18000, 23000), EVENT_GROUP_BASE_SPELLS);
-            events.ScheduleEvent(EVENT_FETID_ROT, urand(8000, 13000), EVENT_GROUP_BASE_SPELLS);
-            events.ScheduleEvent(EVENT_DARK_SLASH, urand(28000, 33000), EVENT_GROUP_BASE_SPELLS);
+            events.ScheduleEvent(EVENT_BANE, 18s, 23s, EVENT_GROUP_BASE_SPELLS);
+            events.ScheduleEvent(EVENT_FETID_ROT, 8s, 13s, EVENT_GROUP_BASE_SPELLS);
+            events.ScheduleEvent(EVENT_DARK_SLASH, 28s, 33s, EVENT_GROUP_BASE_SPELLS);
             events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(60000, 45000), EVENT_GROUP_BASE_SPELLS);
         }
 

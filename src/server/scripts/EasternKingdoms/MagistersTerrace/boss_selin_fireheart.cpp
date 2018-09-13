@@ -155,7 +155,7 @@ class boss_selin_fireheart : public CreatureScript
                     {
                         CrystalChosen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         CrystalChosen->CastSpell(me, SPELL_MANA_RAGE, true);
-                        events.ScheduleEvent(EVENT_EMPOWER, 10000, PHASE_DRAIN);
+                        events.ScheduleEvent(EVENT_EMPOWER, 10s, PHASE_DRAIN);
                     }
                 }
             }

@@ -243,10 +243,10 @@ class boss_sindragosa : public CreatureScript
                 BossAI::Reset();
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 10min);
-                events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_TAIL_SMASH, 20000, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_FROST_BREATH, urand(8000, 12000), EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_CLEAVE, 10s, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_TAIL_SMASH, 20s, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_FROST_BREATH, 8s, 12s, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 9s, 14s, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50s);
                 Initialize();
@@ -462,29 +462,29 @@ class boss_sindragosa : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(15000, 20000), EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_CLEAVE, 15s, 20s, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_TAIL_SMASH:
                             DoCast(me, SPELL_TAIL_SMASH);
-                            events.ScheduleEvent(EVENT_TAIL_SMASH, urand(27000, 32000), EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_TAIL_SMASH, 27s, 32s, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_FROST_BREATH:
                             DoCastVictim(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1);
-                            events.ScheduleEvent(EVENT_FROST_BREATH, urand(20000, 25000), EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_FROST_BREATH, 20s, 25s, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_UNCHAINED_MAGIC:
                             Talk(SAY_UNCHAINED_MAGIC);
                             DoCast(me, SPELL_UNCHAINED_MAGIC);
-                            events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(30000, 35000), EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 30s, 35s, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_ICY_GRIP:
                             DoCast(me, SPELL_ICY_GRIP);
-                            events.ScheduleEvent(EVENT_BLISTERING_COLD, 1000, EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_BLISTERING_COLD, 1s, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_BLISTERING_COLD:
                             Talk(EMOTE_WARN_BLISTERING_COLD);
                             DoCast(me, SPELL_BLISTERING_COLD);
-                            events.ScheduleEvent(EVENT_BLISTERING_COLD_YELL, 5000, EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_BLISTERING_COLD_YELL, 5s, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_BLISTERING_COLD_YELL:
                             Talk(SAY_BLISTERING_COLD);
@@ -538,11 +538,11 @@ class boss_sindragosa : public CreatureScript
                             break;
                         }
                         case EVENT_LAND_GROUND:
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(13000, 15000), EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_TAIL_SMASH, urand(19000, 23000), EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_FROST_BREATH, urand(10000, 15000), EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(12000, 17000), EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000), EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_CLEAVE, 13s, 15s, EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_TAIL_SMASH, 19s, 23s, EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_FROST_BREATH, 10s, 15s, EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 12s, 17s, EVENT_GROUP_LAND_PHASE);
+                            events.ScheduleEvent(EVENT_ICY_GRIP, 35s, 40s, EVENT_GROUP_LAND_PHASE);
                             me->GetMotionMaster()->MoveLand(POINT_LAND_GROUND, SindragosaLandPos);
                             break;
                         case EVENT_THIRD_PHASE_CHECK:

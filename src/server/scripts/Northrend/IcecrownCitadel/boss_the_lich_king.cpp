@@ -578,8 +578,8 @@ class boss_the_lich_king : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20s, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 10s, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_INFEST, 5s, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_BERSERK, 900000, EVENT_GROUP_BERSERK);
+                events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 30s, 33s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_BERSERK, 15min, EVENT_GROUP_BERSERK);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
             }
@@ -1774,7 +1774,7 @@ class npc_terenas_menethil : public CreatureScript
                         _events.ScheduleEvent(EVENT_FROSTMOURNE_TALK_2, 11000, PHASE_FROSTMOURNE);
                         if (!IsHeroic())
                         {
-                            _events.ScheduleEvent(EVENT_DESTROY_SOUL, 60000, PHASE_FROSTMOURNE);
+                            _events.ScheduleEvent(EVENT_DESTROY_SOUL, 1min, PHASE_FROSTMOURNE);
                             _events.ScheduleEvent(EVENT_FROSTMOURNE_TALK_3, 25000);
                         }
                         break;
