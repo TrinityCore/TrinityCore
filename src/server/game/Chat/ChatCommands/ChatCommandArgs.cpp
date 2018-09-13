@@ -18,7 +18,6 @@
 #include "ChatCommandArgs.h"
 #include "AchievementMgr.h"
 #include "ChatCommand.h"
-#include "ChatCommandHyperlinks.h"
 #include "ObjectMgr.h"
 
 using namespace Trinity::ChatCommands;
@@ -26,7 +25,7 @@ using namespace Trinity::ChatCommands;
 struct AchievementVisitor
 {
     using value_type = AchievementEntry const*;
-    value_type operator()(Hyperlink<achievement> achData) const { return achData->achievement; }
+    value_type operator()(Hyperlink<achievement> achData) const { return achData->Achievement; }
     value_type operator()(uint32 achId) const { return sAchievementMgr->GetAchievement(achId); }
 };
 char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, char const* args)

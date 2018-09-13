@@ -54,8 +54,6 @@ private:
     StorageType m_storage;
 };
 
-TC_COMMON_API void stripLineInvisibleChars(std::string &src);
-
 TC_COMMON_API int32 MoneyStringToMoney(std::string const& moneyString);
 
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
