@@ -836,7 +836,7 @@ public:
                             {
                                 Creature* casterDiskSummon = me->SummonCreature(NPC_HOVER_DISK_CASTER, RangeHoverDisksSpawnPositions[rangeDisks]);
 
-                                if (casterDiskSummon->IsAIEnabled)
+                                if (casterDiskSummon->IsAIEnabled())
                                     casterDiskSummon->AI()->DoAction(rangeDisks);
                             }
 
@@ -857,7 +857,7 @@ public:
                         {
                             Creature* casterDiskSummon = me->SummonCreature(NPC_HOVER_DISK_CASTER, RangeHoverDisksSpawnPositions[rangeDisks]);
 
-                            if (casterDiskSummon->IsAIEnabled)
+                            if (casterDiskSummon->IsAIEnabled())
                                 casterDiskSummon->AI()->DoAction(rangeDisks);
                         }
 

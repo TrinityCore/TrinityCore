@@ -958,8 +958,14 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         grp->SetLfgRoles(pguid, proposal.players.find(pguid)->second.role);
 
         // Add the cooldown spell if queued for a random dungeon
-        if (dungeon->type == LFG_TYPE_RANDOM)
-            player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
+        const LfgDungeonSet& dungeons = GetSelectedDungeons(player->GetGUID());
+        if (!dungeons.empty())
+        {
+            uint32 rDungeonId = (*dungeons.begin());
+            LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
+            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+                player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
+        }
     }
 
     ASSERT(grp);
@@ -1324,7 +1330,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         error = LFG_TELEPORTERROR_FATIGUE;
     else if (player->GetVehicle())
         error = LFG_TELEPORTERROR_IN_VEHICLE;
-    else if (player->GetCharmGUID())
+    else if (player->GetCharmedGUID())
         error = LFG_TELEPORTERROR_CHARMING;
     else if (player->HasAura(9454)) // check Freeze debuff
         error = LFG_TELEPORTERROR_INVALID_LOCATION;

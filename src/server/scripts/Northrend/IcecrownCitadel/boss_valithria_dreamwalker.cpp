@@ -249,7 +249,7 @@ class ValithriaDespawner : public BasicEvent
                 default:
                     return;
             }
-                
+
             creature->DespawnOrUnsummon(0, 10s);
         }
 
@@ -1279,7 +1279,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
             void HandleSummon(Unit* caster)
             {
-                if (!caster || !caster->IsAIEnabled)
+                if (!caster || !caster->IsAIEnabled())
                     return;
 
                 std::list<Creature*> summoners;

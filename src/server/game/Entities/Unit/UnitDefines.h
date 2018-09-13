@@ -340,6 +340,16 @@ enum ReactStates
     REACT_DEFENSIVE  = 1,
     REACT_AGGRESSIVE = 2
 };
+inline char const* DescribeReactState(ReactStates state)
+{
+    switch (state)
+    {
+        case REACT_PASSIVE:     return "PASSIVE";
+        case REACT_DEFENSIVE:   return "DEFENSIVE";
+        case REACT_AGGRESSIVE:  return "AGGRESSIVE";
+        default:                return "<Invalid react state>";
+    }
+}
 
 enum CommandStates : uint8
 {

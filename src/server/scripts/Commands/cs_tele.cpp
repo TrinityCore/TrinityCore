@@ -34,6 +34,8 @@ EndScriptData */
 #include "RBAC.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
+
 class tele_commandscript : public CommandScript
 {
 public:
@@ -56,16 +58,11 @@ public:
         return commandTable;
     }
 
-    static bool HandleTeleAddCommand(ChatHandler* handler, char const* args)
+    static bool HandleTeleAddCommand(ChatHandler* handler, std::string const& name)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
         if (!player)
             return false;
-
-        std::string name = args;
 
         if (sObjectMgr->GetGameTeleExactName(name))
         {
@@ -96,13 +93,8 @@ public:
         return true;
     }
 
-    static bool HandleTeleDelCommand(ChatHandler* handler, char const* args)
+    static bool HandleTeleDelCommand(ChatHandler* handler, GameTele const* tele)
     {
-        if (!*args)
-            return false;
-
-         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
         if (!tele)
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -209,10 +201,14 @@ public:
     }
 
     //Teleport group to given game_tele.entry
-    static bool HandleTeleGroupCommand(ChatHandler* handler, char const* args)
+    static bool HandleTeleGroupCommand(ChatHandler* handler, GameTele const* tele)
     {
-        if (!*args)
+        if (!tele)
+        {
+            handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
+            handler->SetSentErrorMessage(true);
             return false;
+        }
 
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -225,15 +221,6 @@ public:
         // check online security
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
-
-        // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
-        if (!tele)
-        {
-            handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         MapEntry const* map = sMapStore.LookupEntry(tele->mapId);
         if (!map || map->IsBattlegroundOrArena())
@@ -288,15 +275,8 @@ public:
         return true;
     }
 
-    static bool HandleTeleCommand(ChatHandler* handler, char const* args)
+    static bool HandleTeleCommand(ChatHandler* handler, GameTele const* tele)
     {
-        if (!*args)
-            return false;
-
-        Player* player = handler->GetSession()->GetPlayer();
-
-        // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
         if (!tele)
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -304,6 +284,7 @@ public:
             return false;
         }
 
+        Player* player = handler->GetSession()->GetPlayer();
         if (player->IsInCombat() && !handler->GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_TELE_NAME))
         {
             handler->SendSysMessage(LANG_YOU_IN_COMBAT);

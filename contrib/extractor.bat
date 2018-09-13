@@ -9,7 +9,8 @@ ECHO ...............................................
 ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
 ECHO ...............................................
 ECHO.
-ECHO The vmaps extractor output text below is intended and not an error:
+ECHO WARNING! when extracting the vmaps extractor will
+ECHO output the text below, it's intended and not an error:
 ECHO ..........................................
 ECHO Extracting World\Wmo\Band\Final_Stage.wmo
 ECHO No such file.
@@ -17,6 +18,7 @@ ECHO Couldn't open RootWmo!!!
 ECHO Done!
 ECHO ..........................................
 ECHO.
+ECHO Press 1, 2, 3 or 4 to start extracting or 5 to exit.
 ECHO 1 - Extract dbc/db2 and maps
 ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
 ECHO 3 - Extract mmaps (needs vmaps to be extracted before you run this, may take hours)

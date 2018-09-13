@@ -129,6 +129,42 @@ enum Classes
     (1<<(CLASS_MAGE-1))   |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
     (1<<(CLASS_DEATH_KNIGHT-1)))
 
+#define MAX_TALENT_TREES 3
+
+enum PlayerSpecializations
+{
+    SPEC_WARRIOR_ARMS = 0,
+    SPEC_WARRIOR_FURY = 1,
+    SPEC_WARRIOR_PROTECTION = 2,
+    SPEC_PALADIN_HOLY = 0,
+    SPEC_PALADIN_PROTECTION = 1,
+    SPEC_PALADIN_RETRIBUTION = 2,
+    SPEC_HUNTER_BEAST_MASTERY = 0,
+    SPEC_HUNTER_MARKSMANSHIP = 1,
+    SPEC_HUNTER_SURVIVAL = 2,
+    SPEC_ROGUE_ASSASSINATION = 0,
+    SPEC_ROGUE_COMBAT = 1,
+    SPEC_ROGUE_SUBLETY = 2,
+    SPEC_PRIEST_DISCIPLINE = 0,
+    SPEC_PRIEST_HOLY = 1,
+    SPEC_PRIEST_SHADOW = 2,
+    SPEC_DEATH_KNIGHT_BLOOD = 0,
+    SPEC_DEATH_KNIGHT_FROST = 1,
+    SPEC_DEATH_KNIGHT_UNHOLY = 2,
+    SPEC_SHAMAN_ELEMENTAL = 0,
+    SPEC_SHAMAN_ENHANCEMENT = 1,
+    SPEC_SHAMAN_RESTORATION = 2,
+    SPEC_MAGE_ARCANE = 0,
+    SPEC_MAGE_FIRE = 1,
+    SPEC_MAGE_FROST = 2,
+    SPEC_WARLOCK_AFFLICTION = 0,
+    SPEC_WARLOCK_DEMONOLOGY = 1,
+    SPEC_WARLOCK_DESTRUCTION = 2,
+    SPEC_DRUID_BALANCE = 0,
+    SPEC_DRUID_FERAL = 1,
+    SPEC_DRUID_RESTORATION = 2
+};
+
 // valid classes for creature_template.unit_class
 enum UnitClass
 {
@@ -292,10 +328,9 @@ enum ItemQualities
     ITEM_QUALITY_EPIC                  = 4,                 //PURPLE
     ITEM_QUALITY_LEGENDARY             = 5,                 //ORANGE
     ITEM_QUALITY_ARTIFACT              = 6,                 //LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7
+    ITEM_QUALITY_HEIRLOOM              = 7,
+    MAX_ITEM_QUALITY
 };
-
-#define MAX_ITEM_QUALITY                 8
 
 enum SpellCategory
 {
@@ -309,7 +344,7 @@ enum SpellVisualKit
     SPELL_VISUAL_KIT_DRINK          = 438
 };
 
-const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
+uint32 constexpr ItemQualityColors[MAX_ITEM_QUALITY] =
 {
     0xff9d9d9d,        //GREY
     0xffffffff,        //WHITE
@@ -319,6 +354,15 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
     0xffff8000,        //ORANGE
     0xffe6cc80,        //LIGHT YELLOW
     0xffe6cc80         //LIGHT YELLOW
+};
+
+size_t constexpr MAX_QUEST_DIFFICULTY = 5;
+uint32 constexpr QuestDifficultyColors[MAX_QUEST_DIFFICULTY] = {
+    0xff40c040,
+    0xff808080,
+    0xffffff00,
+    0xffff8040,
+    0xffff2020
 };
 
 // ***********************************
@@ -1472,12 +1516,12 @@ enum SpellMissInfo
 
 enum SpellHitType
 {
-    SPELL_HIT_TYPE_UNK1 = 0x00001,
-    SPELL_HIT_TYPE_CRIT = 0x00002,
-    SPELL_HIT_TYPE_UNK3 = 0x00004,
-    SPELL_HIT_TYPE_UNK4 = 0x00008,
-    SPELL_HIT_TYPE_UNK5 = 0x00010,                          // replace caster?
-    SPELL_HIT_TYPE_UNK6 = 0x00020
+    SPELL_HIT_TYPE_CRIT_DEBUG           = 0x01,
+    SPELL_HIT_TYPE_CRIT                 = 0x02,
+    SPELL_HIT_TYPE_HIT_DEBUG            = 0x04,
+    SPELL_HIT_TYPE_SPLIT                = 0x08,
+    SPELL_HIT_TYPE_VICTIM_IS_ATTACKER   = 0x10,
+    SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG   = 0x20
 };
 
 enum SpellDmgClass
@@ -3127,7 +3171,7 @@ enum ChatMsg
 
 #define MAX_CHAT_MSG_TYPE 0x34
 
-enum ChatLinkColors
+enum ChatLinkColors : uint32
 {
     CHAT_LINK_COLOR_TRADE       = 0xffffd000,   // orange
     CHAT_LINK_COLOR_TALENT      = 0xff4e96f7,   // blue
