@@ -995,10 +995,10 @@ Quests.EnableQuestTracker = 0
 #        Description: Level difference between player and quest level at which quests are
 #                     considered low-level and are not shown via exclamation mark (!) at quest
 #                     givers.
-#        Default:     4  - (Enabled, Hide quests that have 4 levels less than the character)
+#        Default:     10  - (Enabled, Hide quests that have 10 levels less than the character)
 #                     -1 - (Disabled, Show all available quest marks)
 
-Quests.LowLevelHideDiff = 4
+Quests.LowLevelHideDiff = 10
 
 #
 #    Quests.HighLevelHideDiff
