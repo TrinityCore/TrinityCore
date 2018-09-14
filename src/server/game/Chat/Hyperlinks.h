@@ -65,7 +65,7 @@ struct ItemLinkData
 
 struct QuestLinkData
 {
-    Quest const* Quest;
+    ::Quest const* Quest;
     uint8 QuestLevel;
 };
 
