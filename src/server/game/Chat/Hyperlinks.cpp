@@ -145,7 +145,7 @@ struct LinkValidator<LinkTags::item>
             if (randomSuffix)
             {
                 if (len > name.length() + 1 &&
-                  (strncmp(name.c_str(), pos, name.length()) == 0) && 
+                  (strncmp(name.c_str(), pos, name.length()) == 0) &&
                   (*(pos + name.length()) == ' ') &&
                   equal_with_len(randomSuffix[i], pos + name.length() + 1, len - name.length() - 1))
                     return true;
@@ -286,25 +286,24 @@ struct LinkValidator<LinkTags::trade>
     }
 };
 
-#define TryValidateAs(tagname)                                                                  \
-{                                                                                               \
-    using taginfo = typename LinkTags::tagname;                                                 \
-    ASSERT(!strcmp(taginfo::tag(), #tagname));                                                  \
-    if (info.tag.second == strlen(taginfo::tag()) &&                                            \
-        !strncmp(info.tag.first, taginfo::tag(), strlen(taginfo::tag())))                       \
-    {                                                                                           \
-        advstd::remove_cvref_t<typename taginfo::value_type> t;                                 \
-        if (!taginfo::StoreTo(t, info.data.first, info.data.second))                            \
-            return false;                                                                       \
-        if (!LinkValidator<taginfo>::IsColorValid(t, info.color))                               \
-            return false;                                                                       \
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                    \
-            if (!LinkValidator<taginfo>::IsTextValid(t, info.text.first, info.text.second))     \
-                return false;                                                                   \
-        return true;                                                                            \
-    }                                                                                           \
+#define TryValidateAs(tagname)                                                                          \
+{                                                                                                       \
+    ASSERT(!strcmp(LinkTags::tagname::tag(), #tagname));                                                \
+    if (info.tag.second == strlen(LinkTags::tagname::tag()) &&                                          \
+        !strncmp(info.tag.first, LinkTags::tagname::tag(), strlen(LinkTags::tagname::tag())))           \
+    {                                                                                                   \
+        advstd::remove_cvref_t<typename LinkTags::tagname::value_type> t;                               \
+        if (!LinkTags::tagname::StoreTo(t, info.data.first, info.data.second))                          \
+            return false;                                                                               \
+        if (!LinkValidator<LinkTags::tagname>::IsColorValid(t, info.color))                             \
+            return false;                                                                               \
+        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                            \
+            if (!LinkValidator<LinkTags::tagname>::IsTextValid(t, info.text.first, info.text.second))   \
+                return false;                                                                           \
+        return true;                                                                                    \
+    }                                                                                                   \
 }
-        
+
 static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
     TryValidateAs(achievement);
@@ -370,7 +369,7 @@ bool Trinity::Hyperlinks::ValidateLinks(std::string& str)
         }
 
         HyperlinkInfo info = ParseHyperlink(str.c_str() + pos);
-        if (!info) 
+        if (!info)
         {   // cannot be parsed at all, so we'll need to cut it out entirely
             // find the next start of a link
             std::string::size_type next = str.find("|c", pos + 1);
