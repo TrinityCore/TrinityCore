@@ -282,7 +282,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             {
                                 EventStage = 6000;
                                 uint32 tributeChest = 0;
-                                if (instance->GetSpawnMode() == DIFFICULTY_10_HC)
+                                if (instance->GetDifficultyID() == DIFFICULTY_10_HC)
                                 {
                                     if (TrialCounter >= 50)
                                         tributeChest = GO_TRIBUTE_CHEST_10H_99;
@@ -299,7 +299,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                         }
                                     }
                                 }
-                                else if (instance->GetSpawnMode() == DIFFICULTY_25_HC)
+                                else if (instance->GetDifficultyID() == DIFFICULTY_25_HC)
                                 {
                                     if (TrialCounter >= 50)
                                         tributeChest = GO_TRIBUTE_CHEST_25H_99;
