@@ -564,21 +564,6 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                if (!target)
-                    return;
-
-                switch (spell->Id)
-                {
-                    case SPELL_DEVOURING_FLAMES_TARGETING: // tempoary workarround to fix a core internal focusing issue
-                        me->SetOrientation(me->GetAngle(target));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void DoAction(int32 action)
             {
                 switch (action)
@@ -612,9 +597,12 @@ class boss_valiona : public CreatureScript
                 switch (summon->GetEntry())
                 {
                     case NPC_CONVECTIVE_FLAMES:
+                        me->AttackStop();
+                        me->SetReactState(REACT_PASSIVE);
                         me->StopMoving();
                         me->SetFacingToObject(summon);
                         DoCast(summon, SPELL_DEVOURING_FLAMES);
+                        events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(8));
                         break;
                     case NPC_COLLAPSING_TWILIGHT_PORTAL:
                         if (Creature* valionaDummy = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA_AURA_DUMMY)))
@@ -651,6 +639,8 @@ class boss_valiona : public CreatureScript
                         me->SendSetPlayHoverAnim(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(2));
+                        events.ScheduleEvent(EVENT_BLACKOUT, Seconds(10) + Milliseconds(500));
+                        events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(25));
                         break;
                     case POINT_DEEP_BREATH_1:
                         events.ScheduleEvent(EVENT_FACE_TO_DIRECTION, Seconds(1));
@@ -788,9 +778,6 @@ class boss_valiona : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->GetVictim())
                                 AttackStart(target);
-
-                            events.ScheduleEvent(EVENT_BLACKOUT, Seconds(8) + Milliseconds(500));
-                            events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(23));
                             break;
                         default:
                             break;

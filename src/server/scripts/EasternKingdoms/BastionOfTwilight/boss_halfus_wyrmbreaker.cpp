@@ -153,10 +153,8 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 _theOnlyEscapeAchievementState = NOT_STARTED;
             }
 
-            void Reset() override
+            void JustAppeared() override
             {
-                _Reset();
-                Initialize();
                 instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_HALFUS_WYRMBREAKER);
 
                 if (GameObject* cageBase = me->SummonGameObject(GO_WHELP_CAGE_BASE, WhelpCageBasePos, WhelpCageBaseRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
@@ -378,9 +376,8 @@ class npc_halfus_proto_behemoth : public CreatureScript
                     _events.ScheduleEvent(EVENT_SCORCHING_BREATH, Seconds(24));
             }
 
-            void Reset() override
+            void JustAppeared() override
             {
-                _events.Reset();
                 _instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_PROTO_BEHEMOTH);
             }
 
