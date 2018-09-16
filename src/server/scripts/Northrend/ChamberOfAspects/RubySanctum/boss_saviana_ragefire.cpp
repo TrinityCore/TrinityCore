@@ -232,7 +232,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ConflagrationTargetSelector());
-                uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
+                uint8 maxSize = uint8(GetCaster()->GetMap()->Is25ManRaid() ? 6 : 3);
                 if (targets.size() > maxSize)
                     Trinity::Containers::RandomResize(targets, maxSize);
             }

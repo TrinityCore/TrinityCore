@@ -3871,9 +3871,29 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         {
             if (obj && obj->GetMap()->IsDungeon())
             {
-                if ((1 << (obj->GetMap()->GetSpawnMode()+1)) & (*i).event.event_flags)
+                // TODO: fix it for new maps and difficulties
+                switch (obj->GetMap()->GetDifficultyID())
                 {
-                    mEvents.push_back((*i));
+                    case DIFFICULTY_NORMAL:
+                    case DIFFICULTY_10_N:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_0)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_HEROIC:
+                    case DIFFICULTY_25_N:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_1)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_10_HC:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_2)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_25_HC:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_3)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    default:
+                        break;
                 }
             }
             continue;
@@ -3890,24 +3910,24 @@ void SmartScript::GetScript()
         e = sSmartScriptMgr->GetScript(-((int32)me->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)me->GetEntry(), mScriptType);
-        FillScript(e, me, nullptr, nullptr);
+        FillScript(std::move(e), me, nullptr, nullptr);
     }
     else if (go)
     {
         e = sSmartScriptMgr->GetScript(-((int32)go->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)go->GetEntry(), mScriptType);
-        FillScript(e, go, nullptr, nullptr);
+        FillScript(std::move(e), go, nullptr, nullptr);
     }
     else if (trigger)
     {
         e = sSmartScriptMgr->GetScript((int32)trigger->ID, mScriptType);
-        FillScript(e, nullptr, trigger, nullptr);
+        FillScript(std::move(e), nullptr, trigger, nullptr);
     }
     else if (sceneTemplate)
     {
         e = sSmartScriptMgr->GetScript(sceneTemplate->SceneId, mScriptType);
-        FillScript(e, nullptr, nullptr, sceneTemplate);
+        FillScript(std::move(e), nullptr, nullptr, sceneTemplate);
     }
 }
 
