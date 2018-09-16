@@ -187,7 +187,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
     public:
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, uint64 spawnMask);
+        virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;

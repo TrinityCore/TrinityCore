@@ -911,10 +911,10 @@ void GameObject::SaveToDB()
         return;
     }
 
-    SaveToDB(GetMapId(), data->spawnMask);
+    SaveToDB(GetMapId(), data->spawnDifficulties);
 }
 
-void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
+void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties)
 {
     const GameObjectTemplate* goI = GetGOInfo();
 
@@ -938,7 +938,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
-    data.spawnMask = spawnMask;
+    data.spawnDifficulties = spawnDifficulties;
     data.artKit = GetGoArtKit();
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
@@ -957,7 +957,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setUInt64(index++, m_spawnId);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
-    stmt->setUInt64(index++, spawnMask);
+    stmt->setString(index++, StringJoin(data.spawnDifficulties, ","));
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
     stmt->setFloat(index++, GetPositionX());
