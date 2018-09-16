@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "DBCStores.h"
 #include "Errors.h"
+#include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
