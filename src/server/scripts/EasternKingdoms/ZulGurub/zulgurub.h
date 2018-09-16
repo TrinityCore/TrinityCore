@@ -28,6 +28,7 @@ uint32 const EncounterCount = 5;
 
 enum ZGDataTypes
 {
+    // Bosses
     DATA_HIGH_PRIEST_VENOXIS        = 0,
     DATA_BLOODLORD_MANDOKIR         = 1,
     DATA_KILNARA                    = 2,
@@ -40,12 +41,16 @@ enum ZGDataTypes
     DATA_WUSHOOLAY                  = 7,
     DATA_GRILEK                     = 8,
 
+    // Bloodlord Mandokir
+    DATA_OHGAN                      = 9,
+
     // Jin'do the Godbreaker
-    DATA_JINDOR_TRIGGER,
+    DATA_JINDOR_TRIGGER
 };
 
 enum ZGCreatureIds
 {
+    // Bosses
     BOSS_HIGH_PRIEST_VENOXIS        = 52155,
     BOSS_BLOODLORD_MANDOKIR         = 52151,
     BOSS_KILNARA                    = 52059,
@@ -68,6 +73,7 @@ enum ZGCreatureIds
     // Bloodlord Mandokir
     NPC_CHAINED_SPIRIT              = 52156,
     NPC_OHGAN                       = 52157,
+    NPC_DEVASTATING_SLAM            = 52324,
 
     // Jin'do the Godbreaker
     NPC_JINDO_TRIGGER               = 52150,

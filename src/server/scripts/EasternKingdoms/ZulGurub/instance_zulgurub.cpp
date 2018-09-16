@@ -28,7 +28,8 @@ ObjectData const creatureData[] =
     { BOSS_BLOODLORD_MANDOKIR,          DATA_BLOODLORD_MANDOKIR     },
     { BOSS_KILNARA,                     DATA_KILNARA                },
     { BOSS_ZANZIL,                      DATA_ZANZIL                 },
-    { BOSS_JINDO_THE_GODBREAKER,        DATA_JINDO_THE_GODBREAKER   }
+    { BOSS_JINDO_THE_GODBREAKER,        DATA_JINDO_THE_GODBREAKER   },
+    { NPC_OHGAN,                        DATA_OHGAN                  }
 };
 
 DoorData const doorData[] =
@@ -66,6 +67,10 @@ class instance_zulgurub : public InstanceMapScript
                     case NPC_BLOODVENOM:
                         if (Creature* venoxis = GetCreature(DATA_HIGH_PRIEST_VENOXIS))
                             venoxis->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_DEVASTATING_SLAM:
+                        if (Creature* mandokir = GetCreature(DATA_BLOODLORD_MANDOKIR))
+                            mandokir->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
