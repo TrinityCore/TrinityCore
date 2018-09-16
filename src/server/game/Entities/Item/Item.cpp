@@ -2231,9 +2231,9 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
         else
             level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(bonusData.ContentTuningId))
+            if ((contentTuning->Flags & 2 || contentTuning->MinLevel || contentTuning->MaxLevel) && !(contentTuning->Flags & 4))
+                level = std::min(std::max(int32(level), contentTuning->MinLevel), contentTuning->MaxLevel);
 
         if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->PlayerLevelToItemLevelCurveID, level)))
             itemLevel = heirloomIlvl;
@@ -2598,9 +2598,9 @@ void Item::SetFixedLevel(uint8 level)
     {
         level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(_bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(_bonusData.ContentTuningId))
+            if ((contentTuning->Flags & 2 || contentTuning->MinLevel || contentTuning->MaxLevel) && !(contentTuning->Flags & 4))
+                level = std::min(std::max(int32(level), contentTuning->MinLevel), contentTuning->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, level);
     }
@@ -2643,7 +2643,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
-    SandboxScalingId = 0;
+    ContentTuningId = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
     HasFixedLevel = false;
@@ -2731,7 +2731,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             if (values[1] < _state.ScalingStatDistributionPriority)
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
-                SandboxScalingId = static_cast<uint32>(values[2]);
+                ContentTuningId = static_cast<uint32>(values[2]);
                 _state.ScalingStatDistributionPriority = values[1];
                 HasFixedLevel = type == ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED;
             }
