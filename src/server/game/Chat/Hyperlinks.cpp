@@ -38,8 +38,12 @@ HyperlinkInfo Trinity::Hyperlinks::ParseHyperlink(char const* pos)
         return nullptr;
     uint32 color = 0;
     for (uint8 i = 0; i < 8; ++i)
+    {
         if (uint8 hex = toHex(*(pos++)))
             color = (color << 4) | (hex & 0xf);
+        else
+            return nullptr;
+    }
     // link data start tag
     if (*(pos++) != '|' || *(pos++) != 'H')
         return nullptr;
