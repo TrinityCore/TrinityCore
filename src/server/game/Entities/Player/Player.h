@@ -30,6 +30,7 @@
 #include "PetDefines.h"
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
+#include <memory>
 #include <queue>
 
 struct AccessRequirement;
@@ -232,17 +233,23 @@ struct PvPInfo
     time_t EndTimer;                    ///> Time when player unflags himself for PvP (flag removed after 5 minutes)
 };
 
+enum DuelState
+{
+    DUEL_STATE_CHALLENGED,
+    DUEL_STATE_COUNTDOWN,
+    DUEL_STATE_IN_PROGRESS,
+    DUEL_STATE_COMPLETED
+};
 struct DuelInfo
 {
-    DuelInfo() : initiator(nullptr), opponent(nullptr), startTimer(0), startTime(0), outOfBound(0), isMounted(false), isCompleted(false) { }
+    DuelInfo(Player* opponent, Player* initiator, bool isMounted) : Opponent(opponent), Initiator(initiator), IsMounted(isMounted) {}
 
-    Player* initiator;
-    Player* opponent;
-    time_t startTimer;
-    time_t startTime;
-    time_t outOfBound;
-    bool isMounted;
-    bool isCompleted;
+    Player* const Opponent;
+    Player* const Initiator;
+    bool const IsMounted;
+    DuelState State = DUEL_STATE_CHALLENGED;
+    time_t StartTime = 0;
+    time_t OutOfBoundsTime = 0;
 };
 
 struct Areas
@@ -1512,7 +1519,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResetContestedPvP();
 
         /// @todo: maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler
-        DuelInfo* duel;
+        std::unique_ptr<DuelInfo> duel;
         void UpdateDuelFlag(time_t currTime);
         void CheckDuelDistance(time_t currTime);
         void DuelComplete(DuelCompleteType type);

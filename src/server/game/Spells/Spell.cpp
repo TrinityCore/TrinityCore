@@ -5342,7 +5342,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     {
                         // fix for duels
                         Player* player = unitCaster->ToPlayer();
-                        if (!player || !player->duel || target != player->duel->opponent)
+                        if (!player || !player->duel || target != player->duel->Opponent)
                             return SPELL_FAILED_NOTHING_TO_DISPEL;
                     }
                 }
