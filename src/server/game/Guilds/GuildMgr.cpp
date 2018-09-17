@@ -185,8 +185,8 @@ void GuildMgr::LoadGuilds()
 
                                                 //           0        1         2      3      4        5       6       7       8       9       10
         QueryResult result = CharacterDatabase.Query("SELECT guildid, gm.guid, `rank` , pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11       12      13       14       15      16         17
-                                                     "w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                //    11       12      13       14       15        16      17         18
+                                                     "w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
