@@ -70,8 +70,6 @@ namespace Movement
                 break;
         }
 
-        // add fake Enter_Cycle flag - needed for client-side cyclic movement (client will erase first spline vertex after first cycle done)
-        splineflags.enter_cycle = move_spline.isCyclic();
         data << uint32(splineflags & uint32(~MoveSplineFlag::Mask_No_Monster_Move));
 
         if (splineflags.animation)
@@ -126,10 +124,9 @@ namespace Movement
 
     void WriteUncompressedCyclicPath(Spline<int32> const& spline, ByteBuffer& data)
     {
-        uint32 count = spline.getPointCount() - 3;
-        data << uint32(count + 1);
-        data << spline.getPoint(1); // fake point, client will erase it from the spline after first cycle done
-        data.append<Vector3>(&spline.getPoint(1), count);
+        uint32 count = spline.getPointCount() - 4;
+        data << count;
+        data.append<Vector3>(&spline.getPoint(2), count);
     }
 
     void PacketBuilder::WriteMonsterMove(const MoveSpline& move_spline, WorldPacket& data)
@@ -244,5 +241,10 @@ namespace Movement
             data << Vector3::zero();
 
         data << moveSpline.GetId();
+    }
+
+    void PacketBuilder::WriteSplineSync(MoveSpline const& moveSpline, ByteBuffer& data)
+    {
+        data << float(moveSpline.timePassed() / moveSpline.Duration());
     }
 }
