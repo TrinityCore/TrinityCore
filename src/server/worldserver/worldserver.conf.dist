@@ -1898,7 +1898,7 @@ ChatStrictLinkChecking.Severity = 0
 #    ChatStrictLinkChecking.Kick
 #        Description: Defines what should be done if a message containing invalid control characters
 #                     is received.
-#        Default:     0 - (Process sanitized message normally)
+#        Default:     0 - (Silently ignore message)
 #                     1 - (Ignore message and kick player)
 
 ChatStrictLinkChecking.Kick = 0

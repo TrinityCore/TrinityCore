@@ -30,7 +30,6 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Hyperlinks.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -240,6 +239,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             break;
     }
 
+    if (msg.size() > 255)
+        return;
+
     // Strip invisible characters for non-addon messages
     if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING) && lang != LANG_ADDON)
         StripInvisibleChars(msg);
@@ -261,20 +263,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         }
     }
 
-    bool validMessage = Trinity::Hyperlinks::ValidateLinks(msg);
-    if (!validMessage)
-    {
-        TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
-            GetPlayer()->GetGUID().GetCounter());
-
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-        {
-            KickPlayer();
-            return;
-        }
-    }
-
-    if (msg.length() > 255)
+    if ((lang != LANG_ADDON) && !ValidateHyperlinksAndMaybeKick(msg))
         return;
 
     switch (type)
