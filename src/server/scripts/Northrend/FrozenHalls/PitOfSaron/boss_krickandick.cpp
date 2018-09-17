@@ -169,10 +169,10 @@ class boss_ick : public CreatureScript
                 if (Creature* krick = GetKrick())
                     krick->AI()->Talk(SAY_KRICK_AGGRO);
 
-                events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000);
-                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
-                events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
+                events.ScheduleEvent(EVENT_MIGHTY_KICK, 20s);
+                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 10s);
+                events.ScheduleEvent(EVENT_SPECIAL, 30s, 35s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -237,22 +237,22 @@ class boss_ick : public CreatureScript
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     krick->CastSpell(target, SPELL_TOXIC_WASTE);
-                            events.ScheduleEvent(EVENT_TOXIC_WASTE, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_TOXIC_WASTE, 7s, 10s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     krick->CastSpell(target, SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15s);
                             return;
                         case EVENT_MIGHTY_KICK:
                             DoCastVictim(SPELL_MIGHTY_KICK);
-                            events.ScheduleEvent(EVENT_MIGHTY_KICK, 25000);
+                            events.ScheduleEvent(EVENT_MIGHTY_KICK, 25s);
                             return;
                         case EVENT_SPECIAL:
                             //select one of these three special events
                             events.ScheduleEvent(RAND(EVENT_EXPLOSIVE_BARRAGE, EVENT_POISON_NOVA, EVENT_PURSUIT), 1000);
-                            events.ScheduleEvent(EVENT_SPECIAL, urand(23000, 28000));
+                            events.ScheduleEvent(EVENT_SPECIAL, 23s, 28s);
                             break;
                         case EVENT_EXPLOSIVE_BARRAGE:
                             if (Creature* krick = GetKrick())
@@ -492,7 +492,7 @@ class boss_krick : public CreatureScript
                                     jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_10);
                             }
                             // End of OUTRO. for now...
-                            _events.ScheduleEvent(EVENT_OUTRO_END, 3000);
+                            _events.ScheduleEvent(EVENT_OUTRO_END, 3s);
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 tyrannus->GetMotionMaster()->MovePoint(0, outroPos[7]);
                             break;

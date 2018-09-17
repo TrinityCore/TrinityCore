@@ -327,15 +327,15 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (apply)
                 {
                     if (_instance->GetBossState(DATA_VAROS) != DONE)
-                        _events.ScheduleEvent(EVENT_WELCOME, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_WELCOME, 10s);
 
                     else if (_instance->GetBossState(DATA_UROM) == DONE)
-                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10s);
                 }
                 else
                 {
                     _events.Reset();
-                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2s);
                 }
             }
 
@@ -356,7 +356,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                         case EVENT_WELCOME:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_WELCOME, creator);
-                            _events.ScheduleEvent(EVENT_ABILITIES, 5 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ABILITIES, 5s);
                             break;
                         case EVENT_ABILITIES:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
@@ -370,7 +370,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_LOWHEALTH, creator);
                             _healthWarning = false;
-                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25000);
+                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25s);
                             break;
                         case EVENT_RESET_LOW_HEALTH:
                             _healthWarning = true;

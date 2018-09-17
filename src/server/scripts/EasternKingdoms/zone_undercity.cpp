@@ -126,11 +126,11 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             DoPlaySoundToSet(me, SOUND_AGGRO);
-            _events.ScheduleEvent(EVENT_FADE, 30000);
-            _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20000);
+            _events.ScheduleEvent(EVENT_FADE, 30s);
+            _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s);
             _events.ScheduleEvent(EVENT_BLACK_ARROW, 15000);
-            _events.ScheduleEvent(EVENT_SHOOT, 8000);
-            _events.ScheduleEvent(EVENT_MULTI_SHOT, 10000);
+            _events.ScheduleEvent(EVENT_SHOOT, 8s);
+            _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s);
         }
 
         void SetGUID(ObjectGuid const& guid, int32 id) override
@@ -146,8 +146,8 @@ public:
                 for (uint8 i = 0; i < 4; ++i)
                     me->SummonCreature(NPC_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
 
-                _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2000);
-                _events.ScheduleEvent(EVENT_SUNSORROW_WHISPER, 10000);
+                _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
+                _events.ScheduleEvent(EVENT_SUNSORROW_WHISPER, 10s);
             }
         }
 
@@ -189,26 +189,26 @@ public:
                         if (Unit* victim = me->GetVictim())
                             if (me->GetDistance(victim) > 10.0f)
                                 DoCast(victim, SPELL_MULTI_SHOT);
-                        _events.ScheduleEvent(EVENT_FADE, urand(30000, 35000));
+                        _events.ScheduleEvent(EVENT_FADE, 30s, 35s);
                         break;
                     case EVENT_SUMMON_SKELETON:
                         DoCast(me, SPELL_SUMMON_SKELETON);
-                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, urand(20000, 30000));
+                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s, 30s);
                         break;
                     case EVENT_BLACK_ARROW:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_BLACK_ARROW);
-                        _events.ScheduleEvent(EVENT_BLACK_ARROW, urand(15000, 20000));
+                        _events.ScheduleEvent(EVENT_BLACK_ARROW, 15s, 20s);
                         break;
                     case EVENT_SHOOT:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_SHOT);
-                        _events.ScheduleEvent(EVENT_SHOOT, urand(8000, 10000));
+                        _events.ScheduleEvent(EVENT_SHOOT, 8s, 10s);
                         break;
                     case EVENT_MULTI_SHOT:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_MULTI_SHOT);
-                        _events.ScheduleEvent(EVENT_MULTI_SHOT, urand(10000, 13000));
+                        _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s, 13s);
                         break;
                     case EVENT_LAMENT_OF_THE_HIGHBORN:
                         if (!me->HasAura(SPELL_SYLVANAS_CAST))
@@ -222,7 +222,7 @@ public:
                         else
                         {
                             DoSummon(NPC_HIGHBORNE_BUNNY, me, 10.0f, 3000, TEMPSUMMON_TIMED_DESPAWN);
-                            _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2000);
+                            _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
                         }
                         break;
                     case EVENT_SUNSORROW_WHISPER:

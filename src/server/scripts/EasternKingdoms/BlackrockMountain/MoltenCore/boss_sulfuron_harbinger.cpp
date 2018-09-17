@@ -70,11 +70,11 @@ class boss_sulfuron : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_DARK_STRIKE, 10000);
-                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15000);
-                events.ScheduleEvent(EVENT_INSPIRE, 13000);
-                events.ScheduleEvent(EVENT_KNOCKDOWN, 6000);
-                events.ScheduleEvent(EVENT_FLAMESPEAR, 2000);
+                events.ScheduleEvent(EVENT_DARK_STRIKE, 10s);
+                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15s);
+                events.ScheduleEvent(EVENT_INSPIRE, 13s);
+                events.ScheduleEvent(EVENT_KNOCKDOWN, 6s);
+                events.ScheduleEvent(EVENT_FLAMESPEAR, 2s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -93,11 +93,11 @@ class boss_sulfuron : public CreatureScript
                     {
                         case EVENT_DARK_STRIKE:
                             DoCast(me, SPELL_DARK_STRIKE);
-                            events.ScheduleEvent(EVENT_DARK_STRIKE, urand(15000, 18000));
+                            events.ScheduleEvent(EVENT_DARK_STRIKE, 15s, 18s);
                             break;
                         case EVENT_DEMORALIZING_SHOUT:
                             DoCastVictim(SPELL_DEMORALIZING_SHOUT);
-                            events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15s, 20s);
                             break;
                         case EVENT_INSPIRE:
                         {
@@ -106,17 +106,17 @@ class boss_sulfuron : public CreatureScript
                                 DoCast(Trinity::Containers::SelectRandomContainerElement(healers), SPELL_INSPIRE);
 
                             DoCast(me, SPELL_INSPIRE);
-                            events.ScheduleEvent(EVENT_INSPIRE, urand(20000, 26000));
+                            events.ScheduleEvent(EVENT_INSPIRE, 20s, 26s);
                             break;
                         }
                         case EVENT_KNOCKDOWN:
                             DoCastVictim(SPELL_KNOCKDOWN);
-                            events.ScheduleEvent(EVENT_KNOCKDOWN, urand(12000, 15000));
+                            events.ScheduleEvent(EVENT_KNOCKDOWN, 12s, 15s);
                             break;
                         case EVENT_FLAMESPEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_FLAMESPEAR);
-                            events.ScheduleEvent(EVENT_FLAMESPEAR, urand(12000, 16000));
+                            events.ScheduleEvent(EVENT_FLAMESPEAR, 12s, 16s);
                             break;
                         default:
                             break;
@@ -160,9 +160,9 @@ class npc_flamewaker_priest : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 ScriptedAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_HEAL, urand(15000, 30000));
-                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2000);
-                events.ScheduleEvent(EVENT_IMMOLATE, 8000);
+                events.ScheduleEvent(EVENT_HEAL, 15s, 30s);
+                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2s);
+                events.ScheduleEvent(EVENT_IMMOLATE, 8s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -182,17 +182,17 @@ class npc_flamewaker_priest : public CreatureScript
                         case EVENT_HEAL:
                             if (Unit* target = DoSelectLowestHpFriendly(60.0f, 1))
                                 DoCast(target, SPELL_HEAL);
-                            events.ScheduleEvent(EVENT_HEAL, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_HEAL, 15s, 20s);
                             break;
                         case EVENT_SHADOW_WORD_PAIN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_SHADOWWORDPAIN))
                                 DoCast(target, SPELL_SHADOWWORDPAIN);
-                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(18000, 26000));
+                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 18s, 26s);
                             break;
                         case EVENT_IMMOLATE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_IMMOLATE))
                                 DoCast(target, SPELL_IMMOLATE);
-                            events.ScheduleEvent(EVENT_IMMOLATE, urand(15000, 25000));
+                            events.ScheduleEvent(EVENT_IMMOLATE, 15s, 25s);
                             break;
                         default:
                             break;

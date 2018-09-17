@@ -66,7 +66,7 @@ class boss_arcanist_doan : public CreatureScript
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_SILENCE,         15 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 3 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 3s);
                 events.ScheduleEvent(EVENT_POLYMORPH,       30 * IN_MILLISECONDS);
             }
 
@@ -91,16 +91,16 @@ class boss_arcanist_doan : public CreatureScript
                     {
                         case EVENT_SILENCE:
                             DoCastVictim(SPELL_SILENCE);
-                            events.ScheduleEvent(EVENT_SILENCE, urand(15, 20) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SILENCE, 15s, 20s);
                             break;
                         case EVENT_ARCANE_EXPLOSION:
                             DoCastVictim(SPELL_ARCANE_EXPLOSION);
-                            events.ScheduleEvent(EVENT_SILENCE, 8 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SILENCE, 8s);
                             break;
                         case EVENT_POLYMORPH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                                 DoCast(target, SPELL_POLYMORPH);
-                            events.ScheduleEvent(EVENT_POLYMORPH, 20 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_POLYMORPH, 20s);
                             break;
                         default:
                             break;

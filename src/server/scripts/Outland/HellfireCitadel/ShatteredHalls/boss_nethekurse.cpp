@@ -330,7 +330,7 @@ class npc_fel_orc_convert : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
+                events.ScheduleEvent(EVENT_HEMORRHAGE, 3s);
 
                 if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
                     if (me->IsWithinDist(Kurse, 45.0f))

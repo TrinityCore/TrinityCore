@@ -183,7 +183,7 @@ class boss_gal_darah : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                             DoCast(target, SPELL_IMPALING_CHARGE);
                         if (++_phaseCounter >= 2)
-                            events.ScheduleEvent(EVENT_TRANSFORM, 5 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 5s);
                         events.Repeat(Seconds(31));
                         break;
                     case EVENT_STOMP:
@@ -202,7 +202,7 @@ class boss_gal_darah : public CreatureScript
                     case EVENT_WHIRLING_SLASH:
                         DoCastVictim(SPELL_WHIRLING_SLASH);
                         if (++_phaseCounter >= 2)
-                            events.ScheduleEvent(EVENT_TRANSFORM, 5 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 5s);
                         events.Repeat(Seconds(21));
                         break;
                     case EVENT_ENRAGE:

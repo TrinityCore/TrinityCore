@@ -165,8 +165,8 @@ class boss_steelbreaker : public CreatureScript
                 Talk(SAY_STEELBREAKER_AGGRO);
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.SetPhase(++phase);
-                events.ScheduleEvent(EVENT_BERSERK, 900000);
-                events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
+                events.ScheduleEvent(EVENT_BERSERK, 15min);
+                events.ScheduleEvent(EVENT_FUSION_PUNCH, 15s);
             }
 
             uint32 GetData(uint32 type) const override
@@ -189,7 +189,7 @@ class boss_steelbreaker : public CreatureScript
                         if (phase >= 2)
                             events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
                         if (phase >= 3)
-                            events.RescheduleEvent(EVENT_OVERWHELMING_POWER, urand(2000, 5000));
+                            events.RescheduleEvent(EVENT_OVERWHELMING_POWER, 2s, 5s);
                         break;
                     case ACTION_ADD_CHARGE:
                         DoCast(me, SPELL_ELECTRICAL_CHARGE, true);
@@ -253,12 +253,12 @@ class boss_steelbreaker : public CreatureScript
                         case EVENT_FUSION_PUNCH:
                             if (me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCastVictim(SPELL_FUSION_PUNCH);
-                            events.ScheduleEvent(EVENT_FUSION_PUNCH, urand(13000, 22000));
+                            events.ScheduleEvent(EVENT_FUSION_PUNCH, 13s, 22s);
                             break;
                         case EVENT_STATIC_DISRUPTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_STATIC_DISRUPTION);
-                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(20000, 40000));
+                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20s, 40s);
                             break;
                         case EVENT_OVERWHELMING_POWER:
                             Talk(SAY_STEELBREAKER_POWER);
@@ -312,9 +312,9 @@ class boss_runemaster_molgeim : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_MOLGEIM_AGGRO);
                 events.SetPhase(++phase);
-                events.ScheduleEvent(EVENT_BERSERK, 900000);
-                events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
-                events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
+                events.ScheduleEvent(EVENT_BERSERK, 15min);
+                events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30s);
+                events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20s);
             }
 
             uint32 GetData(uint32 type) const override
@@ -414,24 +414,24 @@ class boss_runemaster_molgeim : public CreatureScript
                                     break;
                             }
                             DoCast(target, SPELL_SUMMON_RUNE_OF_POWER);
-                            events.ScheduleEvent(EVENT_RUNE_OF_POWER, 60000);
+                            events.ScheduleEvent(EVENT_RUNE_OF_POWER, 1min);
                             break;
                         }
                         case EVENT_SHIELD_OF_RUNES:
                             DoCast(me, SPELL_SHIELD_OF_RUNES);
-                            events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, urand(27000, 34000));
+                            events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 27s, 34s);
                             break;
                         case EVENT_RUNE_OF_DEATH:
                             Talk(SAY_MOLGEIM_RUNE_DEATH);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_RUNE_OF_DEATH);
-                            events.ScheduleEvent(EVENT_RUNE_OF_DEATH, urand(30000, 40000));
+                            events.ScheduleEvent(EVENT_RUNE_OF_DEATH, 30s, 40s);
                             break;
                         case EVENT_RUNE_OF_SUMMONING:
                             Talk(SAY_MOLGEIM_SUMMON);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_RUNE_OF_SUMMONING);
-                            events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, 30s, 45s);
                             break;
                     }
 
@@ -491,9 +491,9 @@ class boss_stormcaller_brundir : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_BRUNDIR_AGGRO);
                 events.SetPhase(++phase);
-                events.ScheduleEvent(EVENT_MOVE_POSITION, 1000);
-                events.ScheduleEvent(EVENT_BERSERK, 900000);
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);
+                events.ScheduleEvent(EVENT_MOVE_POSITION, 1s);
+                events.ScheduleEvent(EVENT_BERSERK, 15min);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4s);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
             }
 
@@ -506,7 +506,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
-                        events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7000, 12000));
+                        events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 12s);
                         events.RescheduleEvent(EVENT_OVERLOAD, urand(40000, 50000));
                         if (phase >= 2)
                             events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 250000));
@@ -574,7 +574,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 10s);
                             break;
                         case EVENT_OVERLOAD:
                             Talk(EMOTE_BRUNDIR_OVERLOAD);
@@ -584,7 +584,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_LIGHTNING_WHIRL:
                             DoCast(SPELL_LIGHTNING_WHIRL);
-                            events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, 15s, 20s);
                             break;
                         case EVENT_LIGHTNING_TENDRILS:
                             Talk(SAY_BRUNDIR_FLIGHT);
@@ -593,26 +593,26 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->AttackStop();
                             me->SetHover(true);
                             events.DelayEvents(35000);
-                            events.ScheduleEvent(EVENT_FLIGHT, 2500);
+                            events.ScheduleEvent(EVENT_FLIGHT, 2500ms);
                             events.ScheduleEvent(EVENT_ENDFLIGHT, 32500);
-                            events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90000);
+                            events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90s);
                             break;
                         case EVENT_FLIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 me->GetMotionMaster()->MovePoint(0, *target);
-                            events.ScheduleEvent(EVENT_FLIGHT, 6000);
+                            events.ScheduleEvent(EVENT_FLIGHT, 6s);
                             break;
                         case EVENT_ENDFLIGHT:
                             me->GetMotionMaster()->Initialize();
                             me->GetMotionMaster()->MovePoint(0, 1586.920166f, 119.848984f, me->GetPositionZ());
                             events.CancelEvent(EVENT_FLIGHT);
                             events.CancelEvent(EVENT_ENDFLIGHT);
-                            events.ScheduleEvent(EVENT_LAND, 4000);
+                            events.ScheduleEvent(EVENT_LAND, 4s);
                             break;
                         case EVENT_LAND:
                             me->SetHover(false);
                             events.CancelEvent(EVENT_LAND);
-                            events.ScheduleEvent(EVENT_GROUND, 2500);
+                            events.ScheduleEvent(EVENT_GROUND, 2500ms);
                             break;
                         case EVENT_GROUND:
                             me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));

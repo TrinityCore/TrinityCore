@@ -67,8 +67,8 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10000);
-            events.ScheduleEvent(EVENT_BONE_SHIELD, 2000);
+            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10s);
+            events.ScheduleEvent(EVENT_BONE_SHIELD, 2s);
             events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
         }
 
@@ -110,7 +110,7 @@ public:
                         break;
                     case EVENT_SUMMON_MINIONS:
                         DoCast(SPELL_SUMMON_BONE_MINIONS);
-                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 12000);
+                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 12s);
                         break;
                     default:
                         break;

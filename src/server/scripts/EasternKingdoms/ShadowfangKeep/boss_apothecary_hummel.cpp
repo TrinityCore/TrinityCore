@@ -210,16 +210,16 @@ class boss_apothecary_hummel : public CreatureScript
                             break;
                         case EVENT_HUMMEL_SAY_2:
                             Talk(SAY_INTRO_2);
-                            events.ScheduleEvent(EVENT_START_FIGHT, Seconds(4));
+                            events.ScheduleEvent(EVENT_START_FIGHT, 4s);
                             break;
                         case EVENT_START_FIGHT:
                         {
                             me->SetImmuneToAll(false);
                             DoZoneInCombat();
-                            events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
-                            events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
+                            events.ScheduleEvent(EVENT_CALL_BAXTER, 6s);
+                            events.ScheduleEvent(EVENT_CALL_FRYE, 14s);
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
-                            events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(15));
+                            events.ScheduleEvent(EVENT_CHAIN_REACTION, 15s);
 
                             Talk(SAY_SUMMON_ADDS);
                             std::vector<Creature*> trashs;
@@ -343,8 +343,8 @@ class npc_apothecary_baxter : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_COLOGNE_SPRAY, Seconds(7));
-                _events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(12));
+                _events.ScheduleEvent(EVENT_COLOGNE_SPRAY, 7s);
+                _events.ScheduleEvent(EVENT_CHAIN_REACTION, 12s);
             }
 
             void JustDied(Unit* /*killer*/) override

@@ -183,16 +183,16 @@ class boss_anubarak_trial : public CreatureScript
             {
                 _Reset();
                 events.SetPhase(PHASE_MELEE);
-                events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
-                events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
-                events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10*IN_MILLISECONDS, 0, PHASE_MELEE);
-                events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
-                events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_FREEZE_SLASH, 15s, 0, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_PENETRATING_COLD, 20s, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10s, 0, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_SUBMERGE, 80s, 0, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_NERUBIAN_SHADOW_STRIKE, 30*IN_MILLISECONDS, 0, PHASE_MELEE);
+                    events.ScheduleEvent(EVENT_NERUBIAN_SHADOW_STRIKE, 30s, 0, PHASE_MELEE);
 
                 if (!IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20s);
 
                 Initialize();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -405,7 +405,7 @@ class boss_anubarak_trial : public CreatureScript
                             }
                             while
                                 (i != startAt);
-                            events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20s, 30s);
                             break;
                         }
                         case EVENT_BERSERK:

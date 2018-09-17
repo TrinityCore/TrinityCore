@@ -575,7 +575,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
                     me->CastSpell(go, SPELL_RED_FIRE_RING, true);
 
-                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, Seconds(5));
+                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, 5s);
             }
             break;
             case EVENT_CAST_BLUE_FIRE_RING:
@@ -589,7 +589,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
                     me->CastSpell(go, SPELL_BLUE_FIRE_RING, true);
 
-                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, Seconds(5));
+                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 5s);
             }
             break;
             }
@@ -2447,7 +2447,7 @@ public:
             if (summoner->GetTypeId() == TYPEID_PLAYER)
             {
                 summonerGUID = summoner->GetGUID();
-                events.ScheduleEvent(EVENT_TALK, 3000);
+                events.ScheduleEvent(EVENT_TALK, 3s);
             }
         }
 

@@ -162,12 +162,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
             {
                 _Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 330000);
-                events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15000);
-                events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
-                events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15000, EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15s);
+                events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
+                events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15s, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 20s, 25s, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
                 _vampires.clear();
@@ -317,13 +317,13 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + uint32(Is25ManRaid() ? 0 : 20000));
                         events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                         events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500, EVENT_GROUP_NORMAL);
-                        events.ScheduleEvent(EVENT_AIR_START_FLYING, 5000);
+                        events.ScheduleEvent(EVENT_AIR_START_FLYING, 5s);
                         break;
                     case POINT_AIR:
                         _bloodboltedPlayers.clear();
                         DoCast(me, SPELL_BLOODBOLT_WHIRL);
                         Talk(SAY_AIR_PHASE);
-                        events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10000);
+                        events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10s);
                         break;
                     case POINT_GROUND:
                         me->SetDisableGravity(false);
@@ -331,7 +331,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
-                        events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
+                        events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
                         break;
                     case POINT_MINCHAR:
                         DoCast(me, SPELL_ANNIHILATE, true);
@@ -405,14 +405,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 else
                                     _offtankGUID.Clear();
                             }
-                            events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
+                            events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
                             if (_offtankGUID && !me->HasByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER))
                                 if (Player* _offtank = ObjectAccessor::GetPlayer(*me, _offtankGUID))
                                     DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
-                            events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_PACT_OF_THE_DARKFALLEN:
                         {
@@ -445,7 +445,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                 DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
                             DoCast(me, SPELL_TWILIGHT_BLOODBOLT_TARGET);
-                            events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(10000, 15000), EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 10s, 15s, EVENT_GROUP_NORMAL);
                             break;
                         }
                         case EVENT_AIR_PHASE:

@@ -142,11 +142,11 @@ class boss_ayamiss : public CreatureScript
             {
                 BossAI::JustEngagedWith(attacker);
 
-                events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
-                events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
-                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
-                events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                events.ScheduleEvent(EVENT_STINGER_SPRAY, 20s, 30s);
+                events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
+                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
+                events.ScheduleEvent(EVENT_PARALYZE, 15s);
 
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
@@ -171,8 +171,8 @@ class boss_ayamiss : public CreatureScript
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
                     ResetThreatList();
-                    events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
-                    events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));
+                    events.ScheduleEvent(EVENT_LASH, 5s, 8s);
+                    events.ScheduleEvent(EVENT_TRASH, 3s, 6s);
                     events.CancelEvent(EVENT_POISON_STINGER);
                 }
                 else
@@ -193,11 +193,11 @@ class boss_ayamiss : public CreatureScript
                     {
                         case EVENT_STINGER_SPRAY:
                             DoCast(me, SPELL_STINGER_SPRAY);
-                            events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_STINGER_SPRAY, 15s, 20s);
                             break;
                         case EVENT_POISON_STINGER:
                             DoCastVictim(SPELL_POISON_STINGER);
-                            events.ScheduleEvent(EVENT_POISON_STINGER, urand(2000, 3000));
+                            events.ScheduleEvent(EVENT_POISON_STINGER, 2s, 3s);
                             break;
                         case EVENT_PARALYZE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
@@ -207,7 +207,7 @@ class boss_ayamiss : public CreatureScript
                                 uint8 Index = urand(0, 1);
                                 me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                             }
-                            events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                            events.ScheduleEvent(EVENT_PARALYZE, 15s);
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
@@ -216,22 +216,22 @@ class boss_ayamiss : public CreatureScript
                                         swarmer->AI()->AttackStart(target);
 
                             _swarmers.clear();
-                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
+                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
                             break;
                         case EVENT_SUMMON_SWARMER:
                         {
                             Position Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
                             me->SummonCreature(NPC_SWARMER, Pos);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
                             break;
                         }
                         case EVENT_TRASH:
                             DoCastVictim(SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_TRASH, urand(5000, 7000));
+                            events.ScheduleEvent(EVENT_TRASH, 5s, 7s);
                             break;
                         case EVENT_LASH:
                             DoCastVictim(SPELL_LASH);
-                            events.ScheduleEvent(EVENT_LASH, urand(8000, 15000));
+                            events.ScheduleEvent(EVENT_LASH, 8s, 15s);
                             break;
                     }
                 }
