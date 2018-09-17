@@ -115,6 +115,7 @@ public:
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
             { "worldstate" ,   rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWorldStateCommand,       "" },
             { "wsexpression" , rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWSExpressionCommand,     "" },
+            { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1697,6 +1698,12 @@ public:
 
         return true;
     };
+
+    static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
+        return true;
+    }
 };
 
 void AddSC_debug_commandscript()
