@@ -301,7 +301,7 @@ enum AuraOfMadness
     SAY_MADNESS             = 21954
 };
 
-// Item - 31859: Darkmoon Card: Madness 
+// Item - 31859: Darkmoon Card: Madness
 // 39446 - Aura of Madness
 class spell_item_aura_of_madness : public SpellScriptLoader
 {
@@ -1113,7 +1113,7 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
         }
 };
 
-// Item 10721: Gnomish Harm Prevention Belt 
+// Item 10721: Gnomish Harm Prevention Belt
 // 13234 - Harm Prevention Belt
 enum HarmPreventionBelt
 {
@@ -1371,8 +1371,8 @@ enum MarkOfConquest
     SPELL_MARK_OF_CONQUEST_ENERGIZE     = 39599
 };
 
-// Item - 27920: Mark of Conquest 
-// Item - 27921: Mark of Conquest 
+// Item - 27920: Mark of Conquest
+// Item - 27921: Mark of Conquest
 // 33510 - Health Restore
 class spell_item_mark_of_conquest : public SpellScriptLoader
 {

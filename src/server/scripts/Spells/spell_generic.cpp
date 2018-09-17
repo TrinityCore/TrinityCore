@@ -1784,7 +1784,7 @@ class spell_ethereal_pet_aura : public AuraScript
         GetUnitOwner()->GetAllMinionsByEntry(minionList, NPC_ETHEREAL_SOUL_TRADER);
         for (Creature* minion : minionList)
         {
-            if (minion->IsAIEnabled) 
+            if (minion->IsAIEnabled)
             {
                 minion->AI()->Talk(SAY_STEAL_ESSENCE);
                 minion->CastSpell(eventInfo.GetProcTarget(), SPELL_STEAL_ESSENCE_VISUAL);

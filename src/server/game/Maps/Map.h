@@ -803,7 +803,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
                 DeleteRespawnInfo(info);
         }
-        
+
     public:
         void GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types, uint32 zoneId = 0) const;
         RespawnInfo* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;

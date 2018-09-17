@@ -1400,6 +1400,22 @@ CREATE TABLE `instance_encounters` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `instance_spawn_groups`
+--
+ DROP TABLE IF EXISTS `instance_spawn_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `instance_spawn_groups` (
+  `instanceMapId` smallint(5) unsigned NOT NULL,
+  `bossStateId` tinyint(3) unsigned NOT NULL,
+  `bossStates` tinyint(3) unsigned NOT NULL,
+  `spawnGroupId` int(10) unsigned NOT NULL,
+  `flags` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`instanceMapId`,`bossStateId`,`spawnGroupId`,`bossStates`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `instance_template`
 --
 
@@ -3209,6 +3225,33 @@ CREATE TABLE `smart_scripts` (
   `comment` text NOT NULL COMMENT 'Event Comment',
   PRIMARY KEY (`entryorguid`,`source_type`,`id`,`link`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `spawn_group`
+--
+ DROP TABLE IF EXISTS `spawn_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spawn_group` (
+  `groupId` int(10) unsigned NOT NULL,
+  `spawnType` tinyint(10) unsigned NOT NULL,
+  `spawnId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`groupId`,`spawnType`,`spawnId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+ --
+-- Table structure for table `spawn_group_template`
+--
+ DROP TABLE IF EXISTS `spawn_group_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spawn_group_template` (
+  `groupId` int(10) unsigned NOT NULL,
+  `groupName` varchar(100) NOT NULL,
+  `groupFlags` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`groupId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

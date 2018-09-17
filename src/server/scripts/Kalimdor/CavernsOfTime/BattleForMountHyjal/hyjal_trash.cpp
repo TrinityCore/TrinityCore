@@ -616,7 +616,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetHyjalAI<npc_abominationAI>(creature);
@@ -1437,7 +1437,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetHyjalAI<alliance_riflemanAI>(creature);

@@ -827,7 +827,7 @@ namespace MMAP
             // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
             // is removed via removeTile()
             dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
-            
+
             if (!tileRef || dtResult != DT_SUCCESS)
             {
                 printf("%s Failed adding tile to navmesh!           \n", tileString.c_str());

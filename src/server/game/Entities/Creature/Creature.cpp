@@ -233,7 +233,7 @@ void Creature::AddToWorld()
         AIM_Initialize();
         if (IsVehicle())
             GetVehicleKit()->Install();
-          
+
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
     }
@@ -674,7 +674,7 @@ void Creature::Update(uint32 diff)
             if (m_shouldReacquireTarget && !IsFocusing(nullptr, true))
             {
                 SetTarget(m_suppressedTarget);
-                
+
                 if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
                 {
                     if (m_suppressedTarget)
@@ -2981,7 +2981,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     }
 
     bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
-    
+
     if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
     {
         // Face the target - we need to do this before the unit state is modified for no-turn spells

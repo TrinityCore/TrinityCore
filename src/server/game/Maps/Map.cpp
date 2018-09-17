@@ -3121,7 +3121,7 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
         return;
 
     RespawnInfoMap& bySpawnIdMap = GetRespawnMapForType(info.type);
-    
+
     auto it = bySpawnIdMap.find(info.spawnId);
     if (it != bySpawnIdMap.end()) // spawnid already has a respawn scheduled
     {

@@ -3548,6 +3548,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds, wrong DBC data?
     });
 
+    // Summon Swarming Guardian (Auriaya)
+    ApplySpellFix({ 64397 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(137); // 8y, Based in BFA effect radius
+    });
+
     // Potent Pheromones (Freya)
     ApplySpellFix({ 64321 }, [](SpellInfo* spellInfo)
     {

@@ -692,7 +692,7 @@ struct AreaTriggerEntry
     float   x;                                              // 2        m_x
     float   y;                                              // 3        m_y
     float   z;                                              // 4        m_z
-    uint32  PhaseUseFlags;                                  // 5        PhaseUseFlags   
+    uint32  PhaseUseFlags;                                  // 5        PhaseUseFlags
     uint32  PhaseID;                                        // 6        PhaseID
     uint32  PhaseGroupID;                                   // 7        PhaseGroupID
     float   radius;                                         // 8        m_radius
